@@ -9601,4 +9601,5 @@ const G_PRE716_G7=makeG7Question;makeG7Question=function(...a){return gPolishQue
 
 const retroAchievementUnlocks=initializeExpandedAchievements();migratePersonalizationProfiles();stats();renderHome();installCoinEmojiFallback();if(retroAchievementUnlocks.length){const names=[...new Set(retroAchievementUnlocks.map(a=>a.title))];pendingAchievementToasts=[];setTimeout(()=>rewardPop(names.length===1?`🏆 Новое достижение: ${names[0]}`:`🏆 Открыто новых достижений: ${names.length}`),500)}
 </script>
+<div id="appVersionBadge" aria-label="Версия приложения" style="position:fixed;right:10px;bottom:8px;z-index:140;padding:4px 8px;border:1px solid rgba(113,131,123,.28);border-radius:999px;background:rgba(255,255,255,.88);box-shadow:0 2px 8px rgba(35,76,60,.08);color:#71837b;font:700 11px/1.2 Inter,system-ui,-apple-system,Segoe UI,Arial,sans-serif;letter-spacing:.01em;pointer-events:none;user-select:none;backdrop-filter:blur(5px)">Версия 7.16</div>
 </body></html>
