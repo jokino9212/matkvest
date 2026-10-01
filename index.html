@@ -10434,8 +10434,967 @@ const G8_STAGE84_BOUNDARY_AUDIT=(()=>{const all=g8AllTopics(),implemented=all.fi
 if(!G8_STAGE84_BOUNDARY_AUDIT.ok)console.error("G8 8.4 boundary audit failed",G8_STAGE84_BOUNDARY_AUDIT);
 
 
+
+/* =========================================================
+   ЭТАП 8.5 — Квадратные и рациональные уравнения
+   Ровно очередной pending-блок каталога 8 класса (order 20–27).
+   Следующий блок «Системы уравнений» не активируется.
+   ========================================================= */
+const G8_STAGE85_IDS=new Set([
+ "g8:quadratic_equation_types","g8:incomplete_quadratic_equations",
+ "g8:quadratic_discriminant_formula","g8:quadratic_roots_cases",
+ "g8:vieta_theorem","g8:equations_reducible_to_quadratic",
+ "g8:fractional_rational_equations","g8:quadratic_word_problems"
+]);
+const G8_IMPLEMENTED_85_IDS=new Set([...G8_IMPLEMENTED_84_IDS,...G8_STAGE85_IDS]);
+for(const t of g8AllTopics())if(G8_STAGE85_IDS.has(t.id)){t.implemented=true;t.rendererType=t.plannedRendererType||"quiz"}
+
+const G8_STAGE85_LESSONS={
+ quadratic_equation_types:"<b>Квадратное уравнение</b> имеет вид <span class=\"math\">ax² + bx + c = 0</span>, где <span class=\"math\">a ≠ 0</span>. Если b и c ненулевые, уравнение полное. Если b=0 или c=0 (или оба равны 0), квадратное уравнение называют неполным. Перед определением коэффициентов уравнение удобно привести к стандартному виду.",
+ incomplete_quadratic_equations:"<b>Неполные квадратные уравнения</b> часто решаются проще общей формулы. <span class=\"math\">ax²=0</span> даёт x=0; из <span class=\"math\">ax²+c=0</span> получают x²=−c/a; в <span class=\"math\">ax²+bx=0</span> выносят x: <span class=\"math\">x(ax+b)=0</span>.",
+ quadratic_discriminant_formula:"Для <span class=\"math\">ax²+bx+c=0</span> дискриминант <span class=\"math\">D=b²−4ac</span>. При D≥0 корни находят по формуле <span class=\"math\">x₁,₂=</span>"+frac("−b ± √D","2a")+". Особенно внимательно следи за отрицательным b: если b=−5, то b²=(−5)²=25, а −b=5.",
+ quadratic_roots_cases:"Число действительных корней квадратного уравнения определяется знаком дискриминанта: <b>D&gt;0</b> — два различных корня; <b>D=0</b> — один действительный корень; <b>D&lt;0</b> — действительных корней нет. В МатКвесте 8 класса работаем только с действительными числами.",
+ vieta_theorem:"Для <span class=\"math\">ax²+bx+c=0</span> с корнями x₁ и x₂ верно: <span class=\"math\">x₁+x₂=−b/a</span>, <span class=\"math\">x₁x₂=c/a</span>. Для приведённого уравнения <span class=\"math\">x²+px+q=0</span>: сумма корней равна −p, произведение — q. Обратная теорема помогает подобрать корни по их сумме и произведению.",
+ equations_reducible_to_quadratic:"Некоторые уравнения после раскрытия скобок, переноса слагаемых, умножения на ненулевое число или замены переменной превращаются в квадратные. Например, в биквадратном уравнении удобно положить <span class=\"math\">y=x²</span>, решить квадратное уравнение относительно y, а затем вернуться к x.",
+ fractional_rational_equations:"В дробно-рациональном уравнении переменная может находиться в знаменателе. Сначала выписывают <b>ОДЗ</b>: знаменатели не равны нулю. Затем умножают уравнение на общий знаменатель и решают полученное уравнение. Каждый найденный корень обязательно проверяют по ОДЗ; запрещённые значения отбрасывают.",
+ quadratic_word_problems:"В текстовой задаче сначала выбирают неизвестную величину, затем выражают через неё остальные величины и составляют квадратное или рациональное уравнение. После решения обязательно возвращаются к условию: отрицательная длина, скорость или время не могут быть ответом, а запрещённые знаменателями значения отбрасываются."
+};
+const G8_PRE85_LESSON=g8Lesson;
+g8Lesson=function(id){const raw=rawCourseId(id);return G8_STAGE85_LESSONS[raw]||G8_PRE85_LESSON(id)};
+
+function g8Attach85(q,raw,d,variant,model={}){q.templateId=variant;q.audit={...(q.audit||{}),type:"g8Stage85",topic:raw,stage:d,variant,model};return q}
+function g8Choice85(raw,d,variant,text,correct,wrong,ex,parts=[],model={}){return g8Attach85(g7Choice(text,correct,wrong,ex,g8Sig(raw,d,variant,parts),{}),raw,d,variant,model)}
+function g8StrictChoice85(raw,d,variant,text,correct,wrong,ex,parts=[],model={}){return g8Attach85(g7StrictChoice(text,correct,wrong,ex,g8Sig(raw,d,variant,parts),{}),raw,d,variant,model)}
+function g8Number85(raw,d,variant,text,answer,ex,parts=[],model={},opts={}){return g8Attach85(g7Number(text,answer,ex,g8Sig(raw,d,variant,parts),{...opts,audit:{}}),raw,d,variant,model)}
+function g8ChoiceDistinct85(raw,d,variant,text,correct,wrong,ex,parts=[],model={}){
+ const seen=new Set([String(correct)]),w=[];
+ for(const z of wrong){const k=String(z);if(!seen.has(k)){seen.add(k);w.push(z)}}
+ if(w.length<3)throw new Error(`Недостаточно различных distractors: ${raw}/${variant}`);
+ return g8StrictChoice85(raw,d,variant,text,correct,w.slice(0,3),ex,parts,model);
+}
+function g8Eq85(a,b,c){return `${g8Poly83(a,b,c)} <span class="math">= 0</span>`}
+function g8RootPairPlain85(r1,r2){
+ r1=Number(r1);r2=Number(r2);if(r1>r2)[r1,r2]=[r2,r1];
+ return r1===r2?`x = ${g8Num83(r1)}`:`x₁ = ${g8Num83(r1)}, x₂ = ${g8Num83(r2)}`;
+}
+function g8RootPair85(r1,r2){return `<span class="math">${g8RootPairPlain85(r1,r2)}</span>`}
+function g8QuadFromRoots85(a,r1,r2){
+ if(!Number.isInteger(a)||a===0)throw new Error("a=0");
+ r1=Number(r1);r2=Number(r2);if(r1>r2)[r1,r2]=[r2,r1];
+ const b=-a*(r1+r2),c=a*r1*r2,D=b*b-4*a*c;
+ if(D<0)throw new Error("D<0 in root model");
+ return {a,b,c,D,r1,r2};
+}
+function g8QuadEval85(m,x){return m.a*x*x+m.b*x+m.c}
+function g8NonZero85(lo=-7,hi=7){let v;do{v=ri(lo,hi)}while(v===0);return v}
+function g8Distinct85(lo=-6,hi=6){let a=ri(lo,hi),b;do{b=ri(lo,hi)}while(b===a);return [a,b].sort((x,y)=>x-y)}
+function g8Disc85(a,b,c){return b*b-4*a*c}
+function g8DiscLine85(a,b,c,D){return `<span class="math">D = (${g8Num83(b)})² − 4·${g8Num83(a)}·${g8Num83(c)} = ${D}</span>`}
+function g8RootSetDistractors85(r1,r2){
+ const correct=g8RootPairPlain85(r1,r2),cands=[
+  g8RootPairPlain85(-r1,r2),g8RootPairPlain85(r1,-r2),
+  g8RootPairPlain85(r1+1,r2),g8RootPairPlain85(r1,r2+1),
+  g8RootPairPlain85(r1-1,r2-1),"действительных корней нет"
+ ];
+ const seen=new Set([correct]),out=[];
+ for(const s of cands){if(!seen.has(s)){seen.add(s);out.push(`<span class="math">${s}</span>`)}}
+ return out;
+}
+function g8EqPlain85(a,b,c){return `${g8PolyPlain83(a,b,c)} = 0`}
+function g8EqOption85(a,b,c){return `<span class="math">${g8EqPlain85(a,b,c)}</span>`}
+function g8SafeIntRootModel85({double=false,allowA=true}={}){
+ const a=allowA?g8Pick([-3,-2,-1,1,2,3]):1;
+ if(double){const r=ri(-6,6);return g8QuadFromRoots85(a,r,r)}
+ const [r1,r2]=g8Distinct85(-6,6);return g8QuadFromRoots85(a,r1,r2);
+}
+function g8CountRoots85(D){return D>0?2:D===0?1:0}
+function g8CountLabel85(n){return n===2?"два различных действительных корня":n===1?"один действительный корень":"действительных корней нет"}
+
+function g8Make85Types(raw,d){
+ const variants=d===0?["recognize","coef_a","coef_b","coef_c","full_or_incomplete","standard_condition","missing_zero_coef"]:
+ d===1?["recognize","coef_a","coef_b","coef_c","full_or_incomplete","standard_condition","missing_zero_coef","normalize","error_a_zero"]:
+ ["normalize","error_a_zero","restore_coefficient","classify_after_normalize","coef_triple","recognize","full_or_incomplete","standard_condition","missing_zero_coef"];
+ const v=g8Pick(variants);
+ if(v==="recognize"){
+  const a=g8NonZero85(-5,5),b=ri(-7,7),c=ri(-9,9),correct=g8Eq85(a,b,c);
+  return g8ChoiceDistinct85(raw,d,v,"Какое уравнение является квадратным?",correct,[
+   `<span class="math">${ri(2,8)}x + ${ri(1,9)} = 0</span>`,
+   `<span class="math">x³ + ${ri(1,7)}x + ${ri(1,9)} = 0</span>`,
+   `<span class="math">${ri(2,8)} = 0</span>`,
+   `<span class="math">0x² + ${ri(2,8)}x + ${ri(1,9)} = 0</span>`
+  ],`Квадратное уравнение имеет вид ax²+bx+c=0 при a≠0. Здесь коэффициент при x² равен ${a}, поэтому уравнение квадратное.`,[a,b,c],{a,b,c,expected:true});
+ }
+ if(v==="coef_a"||v==="coef_b"||v==="coef_c"){
+  const a=g8NonZero85(-7,7),b=ri(-9,9),c=ri(-10,10),key=v.slice(-1),ans={a,b,c}[key];
+  return g8Number85(raw,d,v,`Для уравнения ${g8Eq85(a,b,c)} укажи коэффициент ${key}.`,ans,`Стандартный вид: ax²+bx+c=0. Поэтому a=${a}, b=${b}, c=${c}.`,[a,b,c,key],{a,b,c,expected:ans});
+ }
+ if(v==="full_or_incomplete"){
+  const type=g8Pick(["full","no_b","no_c","only_x2"]);let a=g8NonZero85(1,7),b=ri(1,8),c=ri(1,9);
+  if(type==="no_b")b=0;if(type==="no_c")c=0;if(type==="only_x2"){b=0;c=0}
+  const correct=type==="full"?"полное":"неполное";
+  return g8StrictChoice85(raw,d,v,`Уравнение ${g8Eq85(a,b,c)} — полное или неполное квадратное?`,correct,[correct==="полное"?"неполное":"полное"],correct==="полное"?`Оба коэффициента b=${b} и c=${c} ненулевые, поэтому уравнение полное.`:`Хотя a=${a}≠0, хотя бы один из коэффициентов b или c равен 0, поэтому уравнение неполное.`,[a,b,c],{a,b,c,type,expected:correct});
+ }
+ if(v==="standard_condition"){
+  return g8Choice85(raw,d,v,"Какое условие обязательно для квадратного уравнения ax²+bx+c=0?","a ≠ 0",["b ≠ 0","c ≠ 0","a = 1"],"Квадратным уравнение остаётся только при ненулевом коэффициенте при x², то есть a≠0. Коэффициенты b и c могут быть равны 0.",[],{expected:"a!=0"});
+ }
+ if(v==="missing_zero_coef"){
+  const a=g8NonZero85(-7,7),c=g8NonZero85(-9,9);
+  return g8Number85(raw,d,v,`В уравнении ${g8Eq85(a,0,c)} чему равен коэффициент b?`,0,`Линейного члена bx нет, значит b=0.`,[a,c],{a,b:0,c,expected:0});
+ }
+ if(v==="normalize"||v==="classify_after_normalize"){
+  const a=g8NonZero85(1,5),b=ri(-6,6),c=ri(-8,8),k=ri(-5,5);
+  const leftB=b+k,rightB=k; // ax²+(b+k)x+c = kx
+  if(v==="normalize"){
+   return g8Number85(raw,d,v,`Приведи к стандартному виду: <span class="math">${g8PolyPlain83(a,leftB,c)} = ${rightB===0?"0":g8MonoPlain84(rightB,1)}</span>. Чему равен коэффициент b после переноса?`,b,`Переносим ${g8MonoPlain84(rightB,1)} влево: коэффициент при x станет ${leftB}−(${rightB})=${b}. Получаем ${g8Eq85(a,b,c)}.`,[a,b,c,k],{a,b,c,expected:b});
+  }
+  const correct=(b!==0&&c!==0)?"полное":"неполное";
+  return g8StrictChoice85(raw,d,v,`После приведения <span class="math">${g8PolyPlain83(a,leftB,c)} = ${rightB===0?"0":g8MonoPlain84(rightB,1)}</span> к виду ax²+bx+c=0 уравнение будет полным?`,correct==="полное"?"ДА":"НЕТ",[correct==="полное"?"НЕТ":"ДА"],`После переноса получаем ${g8Eq85(a,b,c)}. Поэтому b=${b}, c=${c}; уравнение ${correct}.`,[a,b,c,k],{a,b,c,expected:correct});
+ }
+ if(v==="error_a_zero"){
+  const good=Math.random()<.5,eq=good?`<span class="math">${ri(1,5)}x² + ${ri(1,6)}x + ${ri(1,8)} = 0</span>`:`<span class="math">0x² + ${ri(1,6)}x + ${ri(1,8)} = 0</span>`,correct=good?"ДА":"НЕТ";
+  return g8StrictChoice85(raw,d,v,`Верно ли, что ${eq} — квадратное уравнение?`,correct,[correct==="ДА"?"НЕТ":"ДА"],good?"Да: коэффициент при x² ненулевой.":"Нет: при a=0 квадратный член исчезает, и уравнение становится линейным.",[good?1:0],{expected:good});
+ }
+ const a=g8NonZero85(1,6),b=ri(-8,8),c=ri(-9,9),target=b+ri(2,5);
+ return g8Number85(raw,d,v,`В записи <span class="math">${g8PolyPlain83(a,target,c)} = ${g8MonoPlain84(target-b,1)}</span> после переноса вправо/влево коэффициент при x должен стать b=${b}. Какой коэффициент при x стоит слева сейчас?`,target,`Слева при x стоит ${target}. После переноса ${target-b}x влево коэффициент становится ${target}−(${target-b})=${b}.`,[a,b,c,target],{a,b,c,target,expected:target});
+}
+
+function g8Make85Incomplete(raw,d){
+ const variants=d===0?["ax2_zero","difference_square","factor_x","identify_type","choose_method","one_root_error"]:
+ d===1?["ax2_zero","difference_square","factor_x","identify_type","choose_method","one_root_error","scaled_square","missing_second_root"]:
+ ["factor_x","scaled_square","missing_second_root","error_factor","reverse_coefficient","choose_method","difference_square","identify_type","one_root_error"];
+ const v=g8Pick(variants);
+ if(v==="ax2_zero"){const a=g8NonZero85(-9,9);return g8Number85(raw,d,v,`Реши ${g8Eq85(a,0,0)}.`,0,`${a}x²=0 ⇒ x²=0 ⇒ x=0.`,[a],{a,b:0,c:0,roots:[0],expected:0});}
+ if(v==="difference_square"||v==="scaled_square"){
+  const r=ri(1,9),a=v==="scaled_square"?ri(2,6):1,c=-a*r*r,correct=g8RootPair85(-r,r);
+  return g8ChoiceDistinct85(raw,d,v,`Реши ${g8Eq85(a,0,c)}.`,correct,[
+   `<span class="math">x = ${r}</span>`,`<span class="math">x = ${-r}</span>`,`<span class="math">x = ${r*r}</span>`,`действительных корней нет`
+  ],`${a}x²−${a*r*r}=0 ⇒ x²=${r*r} ⇒ x=±${r}. Поэтому корни −${r} и ${r}.`,[a,r],{a,b:0,c,roots:[-r,r],expected:[-r,r]});
+ }
+ if(v==="factor_x"||v==="error_factor"){
+  const a=ri(1,6),r=g8NonZero85(-8,8),b=-a*r,correct=g8RootPair85(Math.min(0,r),Math.max(0,r));
+  if(v==="error_factor"){
+   const good=Math.random()<.5,claim=good?`x(${a}x ${b>=0?"+":"−"} ${Math.abs(b)})=0`:`${a}x ${b>=0?"+":"−"} ${Math.abs(b)}=0`,ans=good?"ДА":"НЕТ";
+   return g8StrictChoice85(raw,d,v,`Для ${g8Eq85(a,b,0)} ученик пишет: «${claim}». Верно ли преобразование?`,ans,[ans==="ДА"?"НЕТ":"ДА"],good?`Да: из ax²+bx выносим общий множитель x.`:`Нет: потерян множитель x, поэтому мог потеряться корень x=0. Правильно: x(${a}x ${b>=0?"+":"−"} ${Math.abs(b)})=0.`,[a,b,good?1:0],{a,b,c:0,expected:good});
+  }
+  return g8ChoiceDistinct85(raw,d,v,`Реши ${g8Eq85(a,b,0)}.`,correct,g8RootSetDistractors85(0,r),`Выносим x: x(${a}x ${b>=0?"+":"−"} ${Math.abs(b)})=0. Отсюда x=0 или ${a}x${b>=0?"+":"−"}${Math.abs(b)}=0, то есть x=${r}.`,[a,b,r],{a,b,c:0,roots:[0,r],expected:[0,r]});
+ }
+ if(v==="identify_type"){
+  const mode=g8Pick(["no_b","no_c","both"]),a=ri(1,7);let b=mode==="no_b"?0:ri(1,7),c=mode==="no_c"||mode==="both"?0:ri(1,8);if(mode==="both")b=0;
+  const correct=b===0&&c===0?"ax² = 0":b===0?"ax² + c = 0":"ax² + bx = 0";
+  return g8Choice85(raw,d,v,`К какому виду относится ${g8Eq85(a,b,c)}?`,correct,["полное квадратное","линейное","не является уравнением"],`Смотрим, какие коэффициенты равны нулю: a=${a}, b=${b}, c=${c}. Поэтому вид: ${correct}.`,[a,b,c],{a,b,c,expected:correct});
+ }
+ if(v==="choose_method"){
+  const type=g8Pick(["sqrt","factor"]),r=ri(2,8),a=ri(1,5),b=-a*r,c=-a*r*r;
+  const eq=type==="sqrt"?g8Eq85(a,0,c):g8Eq85(a,b,0),correct=type==="sqrt"?"извлечь квадратный корень":"вынести x за скобки";
+  return g8Choice85(raw,d,v,`Какой способ удобнее всего для ${eq}?`,correct,["обязательно считать дискриминант","строить график","подбирать по таблице"],type==="sqrt"?`После деления на ${a} сразу получаем x²=${r*r}, поэтому удобно извлечь квадратный корень.`:`В левой части есть общий множитель x, поэтому сразу получаем произведение двух множителей, равное нулю.`,[type,r,a],{expected:correct});
+ }
+ if(v==="one_root_error"){
+  const r=ri(2,9),good=Math.random()<.5,claim=good?`x=±${r}`:`x=${r}`,correct=good?"ДА":"НЕТ";
+  return g8StrictChoice85(raw,d,v,`После шага <span class="math">x²=${r*r}</span> ученик записал «${claim}». Верно ли?`,correct,[correct==="ДА"?"НЕТ":"ДА"],good?`Да: квадрат и ${r}, и −${r} равен ${r*r}.`:`Нет: потерян отрицательный корень. Правильно x=±${r}.`,[r,good?1:0],{roots:[-r,r],expected:good});
+ }
+ if(v==="missing_second_root"){
+  const r=ri(2,9),given=Math.random()<.5?r:-r,ans=-given;
+  return g8Number85(raw,d,v,`У уравнения <span class="math">x² − ${r*r} = 0</span> один корень ${given}. Укажи второй корень.`,ans,`x²=${r*r}, поэтому x=±${r}. Если один корень ${given}, второй ${ans}.`,[r,given],{roots:[-r,r],expected:ans});
+ }
+ const a=ri(2,7),r=g8NonZero85(-8,8),b=-a*r;
+ return g8Number85(raw,d,v,`В неполном уравнении <span class="math">${a}x² + bx = 0</span> кроме x=0 должен быть корень x=${r}. Чему равен b?`,b,`x(${a}x+b)=0. Второй корень удовлетворяет ${a}·${r}+b=0, поэтому b=${b}.`,[a,r,b],{a,b,c:0,roots:[0,r],expected:b});
+}
+
+function g8Make85Discriminant(raw,d){
+ const variants=d===0?["formula","compute_D","negative_b_square","minus_b","D_zero_root","solve_two_roots"]:
+ d===1?["formula","compute_D","negative_b_square","minus_b","D_zero_root","solve_two_roots","denominator_2a","restore_D_step"]:
+ ["solve_two_roots","restore_D_step","error_plus_4ac","error_denominator","formula_roots","D_zero_root","negative_b_square","compute_D","minus_b","denominator_2a"];
+ const v=g8Pick(variants);
+ if(v==="formula")return g8Choice85(raw,d,v,"Выбери правильную формулу дискриминанта квадратного уравнения.","D = b² − 4ac",["D = b² + 4ac","D = b − 4ac","D = (b − 4ac)²"],"Для ax²+bx+c=0 дискриминант равен D=b²−4ac.",[],{expected:"b^2-4ac"});
+ if(v==="negative_b_square"){
+  const b=-ri(2,9);
+  return g8Number85(raw,d,v,`Если b=${b}, чему равно b²?`,b*b,`b²=(${b})²=${b*b}. Квадрат отрицательного числа положителен.`,[b],{b,expected:b*b});
+ }
+ if(v==="minus_b"){
+  const b=-ri(2,9);
+  return g8Number85(raw,d,v,`В формуле корней стоит −b. Если b=${b}, чему равно −b?`,-b,`−b=−(${b})=${-b}.`,[b],{b,expected:-b});
+ }
+ if(v==="compute_D"||v==="restore_D_step"){
+  const a=g8NonZero85(-5,5),b=ri(-9,9),c=ri(-10,10),D=g8Disc85(a,b,c);
+  return g8Number85(raw,d,v,`Для ${g8Eq85(a,b,c)} вычисли дискриминант D.`,D,`${g8DiscLine85(a,b,c,D)}.`,[a,b,c],{a,b,c,D,expected:D});
+ }
+ if(v==="D_zero_root"){
+  const m=g8SafeIntRootModel85({double:true,allowA:true});
+  return g8Number85(raw,d,v,`У ${g8Eq85(m.a,m.b,m.c)} дискриминант равен 0. Найди корень.`,m.r1,`D=0, поэтому x=${frac(`−(${m.b})`,`2·${m.a}`)}=${m.r1}. Подстановка даёт 0.`,[m.a,m.b,m.c,m.r1],{...m,roots:[m.r1],expected:m.r1});
+ }
+ if(v==="solve_two_roots"||v==="formula_roots"){
+  const m=g8SafeIntRootModel85({double:false,allowA:true}),correct=g8RootPair85(m.r1,m.r2);
+  return g8ChoiceDistinct85(raw,d,v,`Реши по формуле корней: ${g8Eq85(m.a,m.b,m.c)}.`,correct,g8RootSetDistractors85(m.r1,m.r2),`${g8DiscLine85(m.a,m.b,m.c,m.D)}. √D=${Math.sqrt(m.D)}. ${frac(`−b ± √D`,`2a`)} даёт ${correct}. Проверка: оба значения обращают левую часть в 0.`,[m.a,m.b,m.c,m.r1,m.r2],{...m,roots:[m.r1,m.r2],expected:[m.r1,m.r2]});
+ }
+ if(v==="denominator_2a"){
+  const a=g8NonZero85(-6,6);
+  return g8Number85(raw,d,v,`В формуле ${frac("−b ± √D","2a")} чему равен знаменатель при a=${a}?`,2*a,`Знаменатель равен 2a=2·(${a})=${2*a}.`,[a],{a,expected:2*a});
+ }
+ if(v==="error_plus_4ac"||v==="error_denominator"){
+  const good=Math.random()<.5,claim=v==="error_plus_4ac"?(good?"D=b²−4ac":"D=b²+4ac"):(good?"знаменатель равен 2a":"знаменатель равен a"),correct=good?"ДА":"НЕТ";
+  return g8StrictChoice85(raw,d,v,`Ученик утверждает: «${claim}». Верно ли это для общей формулы корней квадратного уравнения?`,correct,[correct==="ДА"?"НЕТ":"ДА"],good?"Да, запись соответствует формуле.":v==="error_plus_4ac"?"Нет: перед 4ac должен стоять минус.":"Нет: в знаменателе стоит 2a, а не a.",[v,good?1:0],{expected:good});
+ }
+ const m=g8SafeIntRootModel85({double:false,allowA:true});
+ return g8Choice85(raw,d,v,`Какой следующий шаг после вычисления D=${m.D} для ${g8Eq85(m.a,m.b,m.c)}?`,`подставить D в формулу x₁,₂ = (−b ± √D)/(2a)`,["сложить a+b+c","разделить D на a","заменить x² на x"],`После дискриминанта при D≥0 используют формулу корней с √D и знаменателем 2a.`,[m.a,m.b,m.c,m.D],{...m,expected:"root-formula"});
+}
+
+function g8Make85RootCases(raw,d){
+ const variants=d===0?["sign_to_count","compute_then_count","D_zero_meaning","D_negative_meaning","D_positive_meaning","error_negative"]:
+ d===1?["sign_to_count","compute_then_count","D_zero_meaning","D_negative_meaning","D_positive_meaning","error_negative","choose_equation_two","choose_equation_none"]:
+ ["compare_counts","restore_c_zero_D","choose_equation_two","choose_equation_none","error_negative","compute_then_count","sign_to_count","D_zero_meaning","D_positive_meaning"];
+ const v=g8Pick(variants);
+ if(v==="sign_to_count"){
+  const D=g8Pick([-25,-9,-4,-1,0,1,4,9,16,25]),n=g8CountRoots85(D),correct=g8CountLabel85(n);
+  return g8Choice85(raw,d,v,`Если дискриминант D=${D}, сколько действительных корней имеет квадратное уравнение?`,correct,[...new Set([g8CountLabel85(0),g8CountLabel85(1),g8CountLabel85(2),"нельзя определить"])].filter(x=>x!==correct),n===2?"D>0, поэтому есть два различных действительных корня.":n===1?"D=0, поэтому есть один действительный корень.":"D<0, поэтому действительных корней нет.",[D],{D,count:n,expected:n});
+ }
+ if(v==="compute_then_count"){
+  const kind=g8Pick(["two","one","none"]);let a,b,c;
+  if(kind==="two"){const m=g8SafeIntRootModel85({double:false,allowA:true});({a,b,c}=m)}
+  else if(kind==="one"){const m=g8SafeIntRootModel85({double:true,allowA:true});({a,b,c}=m)}
+  else{a=ri(1,5);b=ri(-4,4);c=Math.floor((b*b)/(4*a))+ri(2,6)}
+  const D=g8Disc85(a,b,c),n=g8CountRoots85(D),correct=g8CountLabel85(n);
+  return g8Choice85(raw,d,v,`Определи число действительных корней: ${g8Eq85(a,b,c)}.`,correct,[g8CountLabel85((n+1)%3),g8CountLabel85((n+2)%3)],`${g8DiscLine85(a,b,c,D)}. ${D>0?"D>0":D===0?"D=0":"D<0"}, поэтому ${correct}.`,[a,b,c,D],{a,b,c,D,count:n,expected:n});
+ }
+ if(v==="D_zero_meaning"||v==="D_negative_meaning"||v==="D_positive_meaning"){
+  const D=v==="D_zero_meaning"?0:v==="D_negative_meaning"?-ri(1,20):ri(1,20),n=g8CountRoots85(D);
+  return g8Choice85(raw,d,v,`Какой вывод верен при D=${D}?`,g8CountLabel85(n),[g8CountLabel85((n+1)%3),g8CountLabel85((n+2)%3),"нельзя определить"],n===0?"Отрицательный дискриминант означает отсутствие действительных корней.":n===1?"Нулевой дискриминант даёт один действительный корень.":"Положительный дискриминант даёт два различных действительных корня.",[D],{D,count:n});
+ }
+ if(v==="error_negative"){
+  const good=Math.random()<.5,claim=good?"при D<0 действительных корней нет":"при D<0 есть два действительных корня",correct=good?"ДА":"НЕТ";
+  return g8StrictChoice85(raw,d,v,`Верно ли утверждение: «${claim}»?`,correct,[correct==="ДА"?"НЕТ":"ДА"],good?"Да: в действительных числах √D при D<0 не определён.":"Нет: при отрицательном дискриминанте действительных корней нет.",[good?1:0],{expected:good});
+ }
+ if(v==="choose_equation_two"||v==="choose_equation_none"){
+  const wantTwo=v==="choose_equation_two",k=ri(2,9),good=wantTwo?g8EqOption85(1,0,-k):g8EqOption85(1,0,k);
+  const wrong=wantTwo
+   ?[g8EqOption85(1,0,k),g8EqOption85(1,-2,1),g8EqOption85(1,4,4)]
+   :[g8EqOption85(1,0,-k),g8EqOption85(1,-2,1),g8EqOption85(1,-4,3)];
+  return g8ChoiceDistinct85(raw,d,v,wantTwo?"Какое уравнение имеет два различных действительных корня?":"Какое уравнение не имеет действительных корней?",good,wrong,wantTwo?`Для x²−${k}=0 имеем D=${4*k}>0, значит два корня.`:`Для x²+${k}=0 имеем D=−${4*k}<0, значит действительных корней нет.`,[wantTwo?1:0,k],{expected:wantTwo?"two":"none"});
+ }
+ if(v==="restore_c_zero_D"){
+  const a=1,r=ri(-6,6),b=-2*r,c=r*r;
+  return g8Number85(raw,d,v,`В уравнении <span class="math">x² ${b>=0?"+":"−"} ${Math.abs(b)}x + c = 0</span> дискриминант должен быть равен 0. Найди c.`,c,`D=b²−4c=0 ⇒ c=b²/4=${b*b}/4=${c}. Тогда корень один: x=${r}.`,[b,c],{a,b,c,D:0,expected:c});
+ }
+ const m1=g8SafeIntRootModel85({double:false,allowA:false}),m2=g8SafeIntRootModel85({double:true,allowA:false});
+ return g8Choice85(raw,d,v,`Сравни уравнения: A) ${g8EqPlain85(m1.a,m1.b,m1.c)}; Б) ${g8EqPlain85(m2.a,m2.b,m2.c)}. У какого больше различных действительных корней?`,"у A",["у Б","одинаково","у обоих нет корней"],`У A D=${m1.D}>0 — два различных корня. У Б D=0 — один. Поэтому больше у A.`,[m1.b,m1.c,m2.b,m2.c],{A:m1,B:m2,expected:"A"});
+}
+
+function g8Make85Vieta(raw,d){
+ const variants=d===0?["sum_monic","product_monic","choose_roots","missing_root_sum","check_pair","build_equation"]:
+ d===1?["sum_monic","product_monic","choose_roots","missing_root_sum","missing_root_product","check_pair","build_equation","sign_error"]:
+ ["general_sum","general_product","reverse_pair","build_equation","missing_root_product","sign_error","check_pair","choose_roots","sum_monic","product_monic"];
+ const v=g8Pick(variants),[r1,r2]=g8Distinct85(-7,7),m=g8QuadFromRoots85(1,r1,r2),sum=r1+r2,prod=r1*r2;
+ if(v==="sum_monic")return g8Number85(raw,d,v,`Не решая уравнение ${g8Eq85(1,m.b,m.c)}, найди сумму его корней.`,sum,`По теореме Виета для x²+px+q=0: x₁+x₂=−p. Здесь p=${m.b}, значит сумма ${sum}.`,[m.b,m.c],{...m,expected:sum});
+ if(v==="product_monic")return g8Number85(raw,d,v,`Не решая уравнение ${g8Eq85(1,m.b,m.c)}, найди произведение его корней.`,prod,`По теореме Виета x₁x₂=q. Здесь q=${m.c}, значит произведение ${prod}.`,[m.b,m.c],{...m,expected:prod});
+ if(v==="choose_roots"||v==="reverse_pair"){
+  const correct=g8RootPair85(r1,r2);
+  return g8ChoiceDistinct85(raw,d,v,`Какая пара чисел имеет сумму ${sum} и произведение ${prod}?`,correct,g8RootSetDistractors85(r1,r2),`${r1}+${r2}=${sum}, а ${r1}·${r2}=${prod}. По обратной теореме Виета это нужная пара.`,[sum,prod,r1,r2],{sum,prod,roots:[r1,r2],expected:[r1,r2]});
+ }
+ if(v==="missing_root_sum"){
+  const given=Math.random()<.5?r1:r2,ans=sum-given;
+  return g8Number85(raw,d,v,`Сумма корней равна ${sum}. Один корень ${given}. Найди второй.`,ans,`x₂=${sum}−(${given})=${ans}. Проверка произведением: ${given}·${ans}=${prod}.`,[sum,prod,given],{sum,prod,given,expected:ans});
+ }
+ if(v==="missing_root_product"){
+  const given=(r1!==0?r1:r2),ans=given===r1?r2:r1;
+  return g8Number85(raw,d,v,`Произведение корней равно ${prod}. Один корень ${given}. Найди второй.`,ans,`x₂=${prod}:(${given})=${ans}.`,[prod,given],{sum,prod,given,expected:ans});
+ }
+ if(v==="check_pair"){
+  const good=Math.random()<.5,cand=good?[r1,r2]:[r1,r2+1],cs=cand[0]+cand[1],cp=cand[0]*cand[1],correct=good?"ДА":"НЕТ";
+  return g8StrictChoice85(raw,d,v,`Подходит ли пара ${cand[0]} и ${cand[1]} как корни ${g8Eq85(1,m.b,m.c)}?`,correct,[correct==="ДА"?"НЕТ":"ДА"],`Для уравнения сумма должна быть ${sum}, произведение ${prod}. У предложенной пары: сумма ${cs}, произведение ${cp}. Поэтому ответ ${correct}.`,[m.b,m.c,...cand],{sum,prod,candidate:cand,expected:good});
+ }
+ if(v==="build_equation"){
+  const correct=g8EqOption85(1,-sum,prod);
+  const B=-sum,C=prod;
+  return g8ChoiceDistinct85(raw,d,v,`Какое приведённое квадратное уравнение имеет корни ${r1} и ${r2}?`,correct,[
+   g8EqOption85(1,B+1,C),g8EqOption85(1,B-1,C),g8EqOption85(1,B,C+1),
+   g8EqOption85(1,B,C-1),g8EqOption85(1,-B,C),g8EqOption85(1,B,-C)
+  ],`По обратной теореме Виета уравнение имеет вид x²−(${sum})x+(${prod})=0, то есть ${g8EqPlain85(1,-sum,prod)}.`,[r1,r2,sum,prod],{roots:[r1,r2],expected:{b:B,c:C}});
+ }
+ if(v==="sign_error"){
+  const good=Math.random()<.5,claim=good?`сумма корней равна ${sum}`:`сумма корней равна ${-sum}`,correct=good?"ДА":"НЕТ";
+  return g8StrictChoice85(raw,d,v,`Для ${g8Eq85(1,m.b,m.c)} ученик говорит: «${claim}». Верно ли?`,correct,[correct==="ДА"?"НЕТ":"ДА"],`Сумма корней равна −b=${-m.b}=${sum}.`,[m.b,m.c,good?1:0],{sum,expected:good});
+ }
+ const a=g8Pick([2,3,4]),mm=g8QuadFromRoots85(a,r1,r2);
+ if(v==="general_sum")return g8Number85(raw,d,v,`Для ${g8Eq85(mm.a,mm.b,mm.c)} найди сумму корней по теореме Виета.`,sum,`x₁+x₂=−b/a=−(${mm.b})/${mm.a}=${sum}.`,[mm.a,mm.b,mm.c],{...mm,expected:sum});
+ return g8Number85(raw,d,v,`Для ${g8Eq85(mm.a,mm.b,mm.c)} найди произведение корней по теореме Виета.`,prod,`x₁x₂=c/a=${mm.c}/${mm.a}=${prod}.`,[mm.a,mm.b,mm.c],{...mm,expected:prod});
+}
+
+function g8Make85Reducible(raw,d){
+ const variants=d===0?["expand_to_quadratic","shift_square","product_form","choose_substitution","simple_biquadratic"]:
+ d===1?["expand_to_quadratic","shift_square","product_form","choose_substitution","simple_biquadratic","numeric_denominators","error_substitution"]:
+ ["biquadratic_four_roots","numeric_denominators","error_substitution","restore_quadratic","choose_method","expand_to_quadratic","product_form","simple_biquadratic"];
+ const v=g8Pick(variants);
+ if(v==="expand_to_quadratic"){
+  const [r1,r2]=g8Distinct85(-6,6),sum=r1+r2,prod=r1*r2,correct=g8EqOption85(1,-sum,prod);
+  const B=-sum,C=prod;
+  return g8ChoiceDistinct85(raw,d,v,`К какому квадратному уравнению сводится <span class="math">${g8Factor84(r1)}${g8Factor84(r2)} = 0</span>?`,correct,[
+   g8EqOption85(1,B+1,C),g8EqOption85(1,B-1,C),g8EqOption85(1,B,C+1),
+   g8EqOption85(1,B,C-1),g8EqOption85(1,-B,C),g8EqOption85(1,B,-C)
+  ],`Раскрываем скобки: ${g8EqPlain85(1,B,C)}.`,[r1,r2],{r1,r2,a:1,b:B,c:C,expected:correct});
+ }
+ if(v==="shift_square"){
+  const h=ri(-5,5),r=ri(1,7),roots=[h-r,h+r].sort((a,b)=>a-b),correct=g8RootPair85(roots[0],roots[1]);
+  return g8ChoiceDistinct85(raw,d,v,`Реши <span class="math">(x − (${h}))² = ${r*r}</span>.`,correct,g8RootSetDistractors85(roots[0],roots[1]),`x−(${h})=±${r}. Поэтому x=${h-r} или x=${h+r}.`,[h,r],{h,r,roots,expected:roots});
+ }
+ if(v==="product_form"){
+  const [r1,r2]=g8Distinct85(-7,7),correct=g8RootPair85(r1,r2);
+  return g8ChoiceDistinct85(raw,d,v,`Реши <span class="math">${g8Factor84(r1)}${g8Factor84(r2)} = 0</span>.`,correct,g8RootSetDistractors85(r1,r2),`Произведение равно нулю, когда хотя бы один множитель равен нулю: x=${r1} или x=${r2}.`,[r1,r2],{roots:[r1,r2],expected:[r1,r2]});
+ }
+ if(v==="choose_substitution"){
+  return g8Choice85(raw,d,v,"Какую замену удобно сделать в биквадратном уравнении x⁴ − 13x² + 36 = 0?","y = x²",["y = x³","y = x","y = 1/x"],"После замены y=x² получаем квадратное уравнение y²−13y+36=0.",[],{expected:"y=x^2"});
+ }
+ if(v==="simple_biquadratic"||v==="biquadratic_four_roots"){
+  let p=ri(1,4),q;do{q=ri(2,6)}while(q===p);if(p>q)[p,q]=[q,p];
+  const y1=p*p,y2=q*q,S=y1+y2,P=y1*y2,correct=`<span class="math">x = ±${p}, ±${q}</span>`;
+  return g8ChoiceDistinct85(raw,d,v,`Реши <span class="math">x⁴ − ${S}x² + ${P} = 0</span>.`,correct,[`<span class="math">x = ${p}, ${q}</span>`,`<span class="math">x = ±${S}</span>`,`<span class="math">x = ±${Math.abs(q-p)}</span>`],`Пусть y=x². Тогда y²−${S}y+${P}=0, откуда y=${y1} или y=${y2}. Возвращаемся к x: x=±${p}, ±${q}.`,[p,q,S,P],{yRoots:[y1,y2],roots:[-q,-p,p,q],expected:[-q,-p,p,q]});
+ }
+ if(v==="numeric_denominators"){
+  const [r1,r2]=g8Distinct85(-6,6),m=g8QuadFromRoots85(1,r1,r2),k=g8Pick([2,3,4,5]),correct=g8RootPair85(r1,r2);
+  return g8ChoiceDistinct85(raw,d,v,`Реши <span class="math">${frac(g8PolyPlain83(1,m.b,m.c),k)} = 0</span>.`,correct,g8RootSetDistractors85(r1,r2),`Умножаем обе части на ${k}≠0 и получаем ${g8EqPlain85(1,m.b,m.c)}. Его корни ${r1} и ${r2}.`,[r1,r2,k],{...m,scale:k,roots:[r1,r2]});
+ }
+ if(v==="error_substitution"){
+  const good=Math.random()<.5,claim=good?"при y=x² выражение x⁴ превращается в y²":"при y=x² выражение x⁴ превращается в y",correct=good?"ДА":"НЕТ";
+  return g8StrictChoice85(raw,d,v,`Верно ли: «${claim}»?`,correct,[correct==="ДА"?"НЕТ":"ДА"],good?"Да: x⁴=(x²)²=y².":"Нет: x⁴=(x²)²=y², а не y.",[good?1:0],{expected:good});
+ }
+ if(v==="restore_quadratic"){
+  const p=ri(1,4),q=ri(p+1,6),S=p*p+q*q,P=p*p*q*q;
+  return g8Number85(raw,d,v,`После замены y=x² уравнение <span class="math">x⁴ − ${S}x² + ${P}=0</span> стало y²−Sy+P=0. Чему равен S?`,S,`Коэффициент при x² равен −${S}, поэтому после замены получаем y²−${S}y+${P}=0.`,[S,P],{S,P,expected:S});
+ }
+ return g8Choice85(raw,d,v,"Какой способ естественнее всего для x⁴−10x²+9=0?","замена y=x²",["линейное уравнение","построить таблицу умножения","сразу извлечь корень из каждого слагаемого"],"Степени 4 и 2 позволяют сделать замену y=x² и получить квадратное уравнение y²−10y+9=0.",[],{expected:"substitution"});
+}
+
+function g8Make85Fractional(raw,d){
+ const variants=d===0?["domain","simple_fraction","linear_fraction","check_forbidden","common_denominator_step","ignore_domain_error"]:
+ d===1?["domain","simple_fraction","linear_fraction","check_forbidden","common_denominator_step","ignore_domain_error","extraneous_after_cancel","same_denominators"]:
+ ["extraneous_after_cancel","same_denominators","two_denominators","reverse_parameter","ignore_domain_error","check_solution","linear_fraction","common_denominator_step","domain"];
+ const v=g8Pick(variants);
+ if(v==="domain"){
+  const a=ri(-7,7);
+  return g8Choice85(raw,d,v,`Какое значение запрещено для уравнения ${g8AF84("3",g8Lin84(a))} = 1?`,`x = ${a}`,[`x = ${a+1}`,`x = ${a-1}`,"запрещённых значений нет"],`Знаменатель x${a>=0?"−":"+"}${Math.abs(a)} не должен быть равен 0. Поэтому x≠${a}.`,[a],{forbidden:[a],expected:a});
+ }
+ if(v==="simple_fraction"){
+  const a=ri(-6,6),m=g8NonZero85(-5,5),x=a+g8NonZero85(-6,6),k=m*(x-a);
+  return g8Number85(raw,d,v,`Реши ${g8AF84(k,g8Lin84(a))} = ${m}.`,x,`ОДЗ: x≠${a}. Умножаем на x−(${a}): ${k}=${m}(x−(${a})). Отсюда x=${x}; это значение допустимо.`,[a,m,k,x],{forbidden:[a],roots:[x],expected:x});
+ }
+ if(v==="linear_fraction"){
+  const a=ri(-5,5),c=g8Pick([-3,-2,2,3,4]),x=a+g8NonZero85(-5,5),b=c*(x-a)-x;
+  return g8Number85(raw,d,v,`Реши ${g8AF84(g8LinearPoly84(1,b),g8Lin84(a))} = ${c}.`,x,`ОДЗ: x≠${a}. Получаем x${b>=0?"+":"−"}${Math.abs(b)}=${c}(x−(${a})). Решение x=${x}, и оно не нарушает ОДЗ.`,[a,b,c,x],{forbidden:[a],roots:[x],expected:x});
+ }
+ if(v==="check_forbidden"||v==="check_solution"){
+  const a=ri(-6,6),cand=v==="check_forbidden"?a:a+g8NonZero85(-4,4),correct=cand===a?"НЕТ":"ДА";
+  return g8StrictChoice85(raw,d,v,`Можно ли значение x=${cand} считать допустимым кандидатом для уравнения со знаменателем ${g8Factor84(a)}?`,correct,[correct==="ДА"?"НЕТ":"ДА"],cand===a?`Нет: при x=${a} знаменатель равен 0.`:`Да: x=${cand} не обращает знаменатель x−(${a}) в 0.`,[a,cand],{forbidden:[a],candidate:cand,expected:cand!==a});
+ }
+ if(v==="common_denominator_step"){
+  const a=ri(-5,5); let bb; do{bb=ri(-5,5)}while(bb===a); const den=`${g8Factor84(a)}${g8Factor84(bb)}`;
+  return g8Choice85(raw,d,v,`Для уравнения со знаменателями ${g8Factor84(a)} и ${g8Factor84(bb)} какой общий знаменатель подходит?`,den,[g8Factor84(a),g8Factor84(bb),`x − ${a+bb}`],`Общий знаменатель должен содержать оба различных множителя: ${den}.`,[a,bb],{forbidden:[a,bb],expected:den});
+ }
+ if(v==="ignore_domain_error"){
+  const good=Math.random()<.5,claim=good?"перед решением нужно выписать ОДЗ":"ОДЗ можно не учитывать, потому что знаменатель потом сократится",correct=good?"ДА":"НЕТ";
+  return g8StrictChoice85(raw,d,v,`Верно ли утверждение: «${claim}»?`,correct,[correct==="ДА"?"НЕТ":"ДА"],good?"Да: ограничения исходных знаменателей фиксируют до преобразований.":"Нет: запрещённое значение остаётся запрещённым даже после сокращения.",[good?1:0],{expected:good});
+ }
+ if(v==="extraneous_after_cancel"){
+  let a=ri(-5,5),r;do{r=ri(-6,6)}while(r===a);
+  const expr=g8AF84(`${g8Factor84(a)}${g8Factor84(r)}`,g8Factor84(a));
+  return g8ChoiceDistinct85(raw,d,v,`Реши <span class="math">${expr} = 0</span>.`, `<span class="math">x = ${r}</span>`,[
+   `<span class="math">x = ${a}</span>`,g8RootPair85(Math.min(a,r),Math.max(a,r)),"корней нет"
+  ],`ОДЗ: x≠${a}. После сокращения при допустимых x получаем x−(${r})=0, поэтому x=${r}. Значение x=${a} запрещено исходным знаменателем.`,[a,r],{forbidden:[a],roots:[r],extraneous:[a],expected:r});
+ }
+ if(v==="same_denominators"){
+  const a=ri(-5,5),p=ri(1,7),q=ri(1,7),target=p+q,x=a+target;
+  return g8Number85(raw,d,v,`Реши ${g8AF84(p,g8Lin84(a))} + ${g8AF84(q,g8Lin84(a))} = 1.`,x,`ОДЗ: x≠${a}. Слева ${p+q}/(x−(${a}))=1, значит x−(${a})=${p+q}, откуда x=${x}.`,[a,p,q,x],{forbidden:[a],roots:[x],expected:x});
+ }
+ if(v==="two_denominators"){
+  let a=ri(-4,4),b;do{b=ri(-4,4)}while(b===a);const x=g8Pick([a-3,a-2,a+2,a+3].filter(z=>z!==b)),A=x-a,B=x-b;
+  return g8Number85(raw,d,v,`Реши ${g8AF84(A,g8Lin84(a))} = ${g8AF84(B,g8Lin84(b))}.`,x,`ОДЗ: x≠${a}, x≠${b}. После перемножения крест-накрест: ${A}(x−(${b}))=${B}(x−(${a})). Решение x=${x}; оно допустимо.`,[a,b,A,B,x],{forbidden:[a,b],roots:[x],expected:x});
+ }
+ const a=ri(-5,5),x=a+g8NonZero85(-5,5),m=g8NonZero85(-4,4),k=m*(x-a);
+ return g8Number85(raw,d,v,`В уравнении ${g8AF84("k",g8Lin84(a))} = ${m} корень должен быть x=${x}. Найди k.`,k,`Подставляем x=${x}: k/(${x}−(${a}))=${m}. Поэтому k=${m}·(${x-a})=${k}.`,[a,x,m],{forbidden:[a],expected:k});
+}
+
+function g8Make85Word(raw,d){
+ const variants=d===0?["rectangle_area","consecutive_product","number_square","model_rectangle","rectangle_sum_area"]:
+ d===1?["rectangle_area","consecutive_product","number_square","model_rectangle","rectangle_sum_area","motion","work"]:
+ ["motion","work","rectangle_sum_area","reverse_area","choose_valid_root","model_consecutive","consecutive_product","rectangle_area","number_square"];
+ const v=g8Pick(variants);
+ if(v==="rectangle_area"||v==="reverse_area"){
+  const x=ri(3,12),k=ri(1,7),area=x*(x+k);
+  return g8Number85(raw,d,v,`Прямоугольник имеет стороны x см и (x+${k}) см, площадь ${area} см². Найди меньшую сторону.`,x,`Составляем x(x+${k})=${area} ⇒ x²+${k}x−${area}=0. Корни: ${x} и ${-(x+k)}. Длина положительна, поэтому ответ ${x} см.`,[x,k,area],{roots:[-(x+k),x],valid:x,expected:x});
+ }
+ if(v==="consecutive_product"||v==="model_consecutive"){
+  const x=ri(2,14),prod=x*(x+1);
+  if(v==="model_consecutive"){
+   const correct=`<span class="math">x(x + 1) = ${prod}</span>`;
+   return g8ChoiceDistinct85(raw,d,v,`Произведение двух последовательных положительных целых чисел равно ${prod}. Если меньшее число x, какое уравнение нужно составить?`,correct,[`<span class="math">x + (x + 1) = ${prod}</span>`,`<span class="math">x² + 1 = ${prod}</span>`,`<span class="math">2x + 1 = ${prod}</span>`],`Следующее число x+1, а по условию их произведение равно ${prod}: x(x+1)=${prod}.`,[x,prod],{x,expected:`x(x+1)=${prod}`});
+  }
+  return g8Number85(raw,d,v,`Произведение двух последовательных положительных целых чисел равно ${prod}. Найди меньшее число.`,x,`Пусть меньшее число x. Тогда x(x+1)=${prod}, то есть x²+x−${prod}=0. Корни ${x} и ${-(x+1)}; условию подходит ${x}.`,[x,prod],{roots:[-(x+1),x],valid:x,expected:x});
+ }
+ if(v==="number_square"){
+  const x=ri(4,12),k=ri(1,Math.min(6,x-1)),diff=x*x-k*x;
+  return g8Number85(raw,d,v,`Положительное число таково, что его квадрат на ${diff} больше, чем ${k}-кратное это число. Найди число.`,x,`x²−${k}x=${diff} ⇒ x²−${k}x−${diff}=0. Один положительный корень равен ${x}; второй ${k-x}. По условию берём положительное подходящее значение ${x}.`,[x,k,diff],{x,k,diff,expected:x});
+ }
+ if(v==="model_rectangle"){
+  const x=ri(3,10),k=ri(2,6),area=x*(x+k),correct=`<span class="math">x(x + ${k}) = ${area}</span>`;
+  return g8ChoiceDistinct85(raw,d,v,`Стороны прямоугольника отличаются на ${k} см, площадь ${area} см². Если меньшая сторона x, какое уравнение соответствует условию?`,correct,[`<span class="math">x + (x + ${k}) = ${area}</span>`,`<span class="math">x² + ${k} = ${area}</span>`,`<span class="math">${k}x = ${area}</span>`],`Стороны x и x+${k}; площадь — их произведение: x(x+${k})=${area}.`,[x,k,area],{x,k,area,expected:`x(x+${k})=${area}`});
+ }
+ if(v==="rectangle_sum_area"){
+  const a=ri(3,9),b=ri(a+1,a+7),sum=a+b,area=a*b;
+  return g8Number85(raw,d,v,`Две стороны прямоугольника в сумме дают ${sum} см, площадь ${area} см². Найди меньшую сторону.`,a,`Пусть одна сторона x, другая ${sum}−x. Тогда x(${sum}−x)=${area}. Получаем x²−${sum}x+${area}=0 с корнями ${a} и ${b}. Меньшая сторона ${a} см.`,[a,b,sum,area],{roots:[a,b],valid:a,expected:a});
+ }
+ if(v==="motion"||v==="work"){
+  const inc=g8Pick([2,3,4,5]),base=g8Pick([6,8,10,12,15,18,20].filter(z=>z%inc===0||((z*(z+inc))%inc===0))),delta=1,N=base*(base+inc)/inc;
+  if(v==="motion"){
+   return g8Number85(raw,d,v,`На путь ${N} км при скорости (v+${inc}) км/ч требуется на ${delta} ч меньше, чем при скорости v км/ч. Найди v.`,base,`Составляем ${frac(N,"v")} − ${frac(N,`v + ${inc}`)} = ${delta}. После умножения на v(v+${inc}) получаем квадратное уравнение. Положительный допустимый корень v=${base} км/ч.`,[N,inc,base],{forbidden:[0,-inc],valid:base,expected:base});
+  }
+  return g8Number85(raw,d,v,`Бригаде нужно выполнить ${N} единиц работы. При производительности (v+${inc}) ед./ч работа заканчивается на ${delta} ч быстрее, чем при v ед./ч. Найди исходную производительность v.`,base,`Уравнение времени: ${frac(N,"v")} − ${frac(N,`v + ${inc}`)} = ${delta}. Допустимый положительный корень v=${base}.`,[N,inc,base],{forbidden:[0,-inc],valid:base,expected:base});
+ }
+ if(v==="choose_valid_root"){
+  const pos=ri(3,12),neg=-ri(1,10);
+  return g8Choice85(raw,d,v,`При решении задачи о длине получили корни ${neg} и ${pos}. Какой ответ допустим?`,`${pos}`, [`${neg}`,"оба","ни один"],`Длина должна быть положительной, поэтому отрицательный корень ${neg} не подходит. Ответ ${pos}.`,[neg,pos],{roots:[neg,pos],valid:pos,expected:pos});
+ }
+ const x=ri(3,10),k=ri(1,6),area=x*(x+k);
+ return g8Number85(raw,d,v,`Площадь прямоугольника ${area} см², одна сторона на ${k} см больше другой. Какой должна быть площадь, чтобы меньшая сторона стала ${x} см?`,area,`При меньшей стороне ${x} большая равна ${x+k}, поэтому площадь ${x}·${x+k}=${area} см².`,[x,k,area],{expected:area});
+}
+
+const G8_PRE85_MAKE=makeG8Question;
+makeG8Question=function(id,stageOverride=null){
+ const raw=rawCourseId(id),full=`g8:${raw}`,d=Math.max(0,Math.min(2,Number.isInteger(stageOverride)?stageOverride:activeDifficulty()));
+ if(!G8_STAGE85_IDS.has(full))return G8_PRE85_MAKE(id,stageOverride);
+ if(raw==="quadratic_equation_types")return g8Make85Types(raw,d);
+ if(raw==="incomplete_quadratic_equations")return g8Make85Incomplete(raw,d);
+ if(raw==="quadratic_discriminant_formula")return g8Make85Discriminant(raw,d);
+ if(raw==="quadratic_roots_cases")return g8Make85RootCases(raw,d);
+ if(raw==="vieta_theorem")return g8Make85Vieta(raw,d);
+ if(raw==="equations_reducible_to_quadratic")return g8Make85Reducible(raw,d);
+ if(raw==="fractional_rational_equations")return g8Make85Fractional(raw,d);
+ if(raw==="quadratic_word_problems")return g8Make85Word(raw,d);
+ throw new Error(`Неизвестная тема 8.5: ${raw}`);
+};
+
+const G8_PRE85_FRESH=freshQuiz;
+freshQuiz=function(id){
+ const s=String(id),full=s.startsWith("g8:")?s:`g8:${rawCourseId(s)}`;
+ if(!G8_STAGE85_IDS.has(full))return G8_PRE85_FRESH(id);
+ const raw=rawCourseId(full),maker=()=>makeG8Question(full),sigOf=q=>q.sig||`g8:${raw}:${normalizePromptForCompare(q.text)}`;
+ if(!blockSession||blockSession.kind!=="g8quiz")return freshCandidate(maker,sigOf,260);
+ const prevV=blockSession._g8LastVariant?.[raw]??null,prevP=blockSession._g8LastPosition?.[raw]??-1,prevSig=blockSession._g8LastSig?.[raw]??null,prevText=blockSession._g8LastText?.[raw]??null;let best=null;
+ for(let i=0;i<220;i++){
+  const cand=maker(),vv=cand.templateId||cand.audit?.variant||"",p=g8ChoiceIndex(cand),sig=sigOf(cand),txt=normalizePromptForCompare(cand.text);
+  if(prevV!==null&&vv===prevV)continue;if(prevSig!==null&&sig===prevSig)continue;if(prevText!==null&&txt===prevText)continue;if(p>=0&&prevP>=0&&p===prevP)continue;if(wasUsedInBlock(sig)||wasRecent(sig))continue;
+  registerSignature(sig);cand._signature=sig;best=cand;break;
+ }
+ if(!best)best=freshCandidate(maker,sigOf,360);
+ blockSession._g8LastVariant=blockSession._g8LastVariant||{};blockSession._g8LastPosition=blockSession._g8LastPosition||{};blockSession._g8LastSig=blockSession._g8LastSig||{};blockSession._g8LastText=blockSession._g8LastText||{};
+ blockSession._g8LastVariant[raw]=best.templateId||best.audit?.variant||"";blockSession._g8LastPosition[raw]=g8ChoiceIndex(best);blockSession._g8LastSig[raw]=best.sig||best._signature||sigOf(best);blockSession._g8LastText[raw]=normalizePromptForCompare(best.text);return best;
+};
+
+g8CatalogAudit=function(){
+ const topics=g8AllTopics(),ids=topics.map(t=>t.id),orders=topics.map(t=>t.order),courseIds=new Set(G8_COURSES.map(c=>c.id)),groupIds=new Set(G8_GROUPS.map(g=>g.id)),issues=[];
+ if(new Set(ids).size!==ids.length)issues.push("duplicate-id");if(ids.some(id=>!id.startsWith("g8:")))issues.push("id-prefix");if(topics.some(t=>t.grade!==8))issues.push("grade");if(new Set(orders).size!==orders.length||orders.some((v,i)=>v!==i+1))issues.push("order");
+ if(topics.some(t=>G8_IMPLEMENTED_85_IDS.has(t.id)?t.implemented!==true:t.implemented!==false))issues.push("implemented-boundary");
+ if(topics.some(t=>G8_IMPLEMENTED_85_IDS.has(t.id)?t.rendererType==="pending":t.rendererType!=="pending"))issues.push("rendererType-boundary");
+ if(topics.some(t=>!t.plannedRendererType))issues.push("plannedRendererType");if(topics.some(t=>!courseIds.has(t.course)))issues.push("course");if(G8_GROUPS.some(g=>!courseIds.has(g.course)||!groupIds.has(g.id)))issues.push("group");if(topics.some(t=>!t.title||!t.shortTitle||!t.source||!t.programRef))issues.push("metadata");
+ return {ok:issues.length===0,issues,total:topics.length,implemented:g8ImplementedTopics().length,pending:topics.filter(t=>t.rendererType==="pending").length};
+};
+showG8Pending=function(id){const t=g8InfoById(id);if(!t)return renderGrade8();if(t.implemented!==false)return openG8Topic(t.id);const course=g8CourseById(t.course);show(`<div class="mtop"><h2>${esc(t.title)}</h2><button class="x" onclick="closeModal()">×</button></div><div class="lesson"><b>8 класс • ${esc(course?.title||t.course)} • ${esc(t.section||t.group)}</b><br><br>На Этапе 8.5 рабочими являются первые пять алгебраических блоков, включая «Квадратные и рациональные уравнения». Эта тема относится к следующему этапу и пока остаётся pending; она не считается непройденной.<br><br><small>Планируемый renderer: ${esc(t.plannedRendererType||"quiz")}. Переиспользование: ${esc(t.reuseEngine||"общий block engine")}.</small></div><div class="actions"><button class="btn primary" onclick="closeModal()">Понятно</button></div>`)};
+renderGrade8=function(){const counts=G8_COURSES.map(c=>{const ts=g8GroupsByCourse(c.id).flatMap(g=>g.topics);return {title:c.title,n:ts.length,ready:ts.filter(t=>t.implemented!==false).length}}),ready=g8ImplementedTopics().length;mainView.innerHTML=`<div class="home-back-row"><button class="home-back-btn" onclick="renderHome()">← Главный экран</button></div><section class="grade-hero"><div><h1>Математика 8 класса</h1><p>Алгебра • Геометрия • Вероятность и статистика. Рабочие блоки: «Квадратные корни и действительные числа», «Степень с целым показателем и стандартная запись», «Квадратный трёхчлен», «Алгебраические дроби и рациональные выражения», «Квадратные и рациональные уравнения».</p></div><span class="grade-chip">${gradeBookIcon(8,true)} 8 класс</span></section><div class="g7-catalog-summary"><b>Каталог: ${g8AllTopics().length} тем • реализовано: ${ready}.</b> ${counts.map(x=>`${esc(x.title)} — ${x.ready}/${x.n}`).join(" • ")}. Остальные pending-темы не считаются слабыми или непройденными.</div>${G8_COURSES.map(renderG8Course).join("")}`};
+const G8_PRE85_REPORT_CARD=reportCourseCardHtml;
+reportCourseCardHtml=function(data,grade){if(Number(grade)!==8)return G8_PRE85_REPORT_CARD(data,grade);const c=data.courseProgress.g8,st=data.courseProgress.g8Stages,map=data.knowledge.g8,started=c.done>0||map.topics.some(x=>x.started),sections=data.courseProgress.g8Sections.map(x=>`<div class="report-section-line"><span>${esc(x.title)} (${x.availableCount}/${x.catalogCount} тем доступно)</span><b>${x.availableCount?x.percent+"%":"Скоро"}</b></div>`).join("")+`<div class="report-period-note">Этап 8.5: реализовано ${g8ImplementedTopics().length}/${g8AllTopics().length} тем. Pending-темы не входят в процент прогресса.</div>`;return `<div class="report-course-card"><div class="report-course-head"><b>${gradeBookIcon(8,true)} 8 класс</b><strong>${started?c.percent+"%":"Не начат"}</strong></div><div class="report-progress"><span style="width:${c.percent}%"></span></div><div class="report-stage-line"><span>🌱 ${st.warmup}</span><span>🚀 ${st.training}</span><span>🏆 ${st.master}</span><span>${c.done}/${c.total} ступеней</span></div><div style="margin-top:7px">${sections}</div></div>`};
+
+const G8_STAGE85_BOUNDARY_AUDIT=(()=>{const all=g8AllTopics(),implemented=all.filter(t=>t.implemented!==false).map(t=>t.id),outside=implemented.filter(id=>!G8_IMPLEMENTED_85_IDS.has(id)),missing=[...G8_IMPLEMENTED_85_IDS].filter(id=>!implemented.includes(id));return {ok:outside.length===0&&missing.length===0,implemented,pending:all.filter(t=>t.implemented===false).map(t=>t.id),outside,missing}})();
+if(!G8_STAGE85_BOUNDARY_AUDIT.ok)console.error("G8 8.5 boundary audit failed",G8_STAGE85_BOUNDARY_AUDIT);
+
+
+/* =========================================================
+   ЭТАП 8.6 — Системы уравнений
+   Ровно очередной pending-блок каталога 8 класса (order 28–33).
+   Следующий блок «Неравенства» не активируется.
+   ========================================================= */
+const G8_STAGE86_IDS=new Set([
+ "g8:two_variable_equation_graph","g8:linear_system_graphical",
+ "g8:linear_system_substitution","g8:linear_system_elimination",
+ "g8:nonlinear_systems_intro","g8:systems_word_problems"
+]);
+const G8_IMPLEMENTED_86_IDS=new Set([...G8_IMPLEMENTED_85_IDS,...G8_STAGE86_IDS]);
+for(const t of g8AllTopics())if(G8_STAGE86_IDS.has(t.id)){t.implemented=true;t.rendererType=t.plannedRendererType||"quiz"}
+
+const G8_STAGE86_LESSONS={
+ two_variable_equation_graph:"<b>Уравнение с двумя переменными</b> содержит, например, x и y. Его решение — упорядоченная пара <span class=\"math\">(x; y)</span>, которая превращает уравнение в верное равенство. Например, для <span class=\"math\">x+y=5</span> пара <span class=\"math\">(2;3)</span> является решением, потому что 2+3=5. График уравнения — множество всех точек плоскости, координаты которых удовлетворяют этому уравнению. Для линейного уравнения <span class=\"math\">ax+by=c</span> графиком является прямая.",
+ linear_system_graphical:"<b>Решение системы</b> должно одновременно удовлетворять обоим уравнениям. При графическом решении это координаты общей точки графиков. Две непараллельные прямые имеют одну общую точку — одно решение; разные параллельные прямые не имеют общих точек — решений нет; совпадающие прямые имеют бесконечно много общих точек.",
+ linear_system_substitution:"<b>Способ подстановки:</b> 1) вырази одну переменную через другую; 2) подставь выражение во второе уравнение; 3) найди одну переменную; 4) вернись к выражению и найди вторую; 5) запиши пару <span class=\"math\">(x; y)</span> и проверь оба уравнения.",
+ linear_system_elimination:"<b>Способ сложения:</b> подготовь коэффициенты так, чтобы при почленном сложении или вычитании одна переменная исчезла. Если уравнение умножается на число, умножить нужно <b>все</b> его члены и правую часть. При вычитании всего уравнения знаки меняются у всех его членов.",
+ nonlinear_systems_intro:"В простейшей системе одно уравнение может быть нелинейным, например <span class=\"math\">y=x²</span>, а второе — линейным. Решение системы по-прежнему является парой <span class=\"math\">(x; y)</span>, удовлетворяющей <b>обоим</b> уравнениям. На графике решения — общие точки графиков.",
+ systems_word_problems:"В текстовой задаче сначала обозначь две неизвестные величины x и y, затем переведи два условия задачи в два уравнения. После решения системы обязательно истолкуй пару в контексте задачи: количества, длины, время и стоимость должны удовлетворять смысловым ограничениям."
+};
+const G8_PRE86_LESSON=g8Lesson;
+g8Lesson=function(id){const raw=rawCourseId(id);return G8_STAGE86_LESSONS[raw]||G8_PRE86_LESSON(id)};
+
+function g8Attach86(q,raw,d,variant,model={}){q.templateId=variant;q.audit={...(q.audit||{}),type:"g8Stage86",topic:raw,stage:d,variant,model};return q}
+function g8Choice86(raw,d,variant,text,correct,wrong,ex,parts=[],model={}){return g8Attach86(g7Choice(text,correct,wrong,ex,g8Sig(raw,d,variant,parts),{}),raw,d,variant,model)}
+function g8StrictChoice86(raw,d,variant,text,correct,wrong,ex,parts=[],model={}){return g8Attach86(g7StrictChoice(text,correct,wrong,ex,g8Sig(raw,d,variant,parts),{}),raw,d,variant,model)}
+function g8Number86(raw,d,variant,text,answer,ex,parts=[],model={},opts={}){return g8Attach86(g7Number(text,answer,ex,g8Sig(raw,d,variant,parts),{...opts,audit:{}}),raw,d,variant,model)}
+function g8PairInput86(raw,d,variant,text,x,y,ex,parts=[],model={}){return g8Attach86(g6CoordinateInputQuestion(text,x,y,ex,g8Sig(raw,d,variant,parts),{audit:{}}),raw,d,variant,model)}
+function g8PairText86(x,y){return g7PairHtml(x,y)}
+function g8System86(d,{simple=false,positive=false}={}){if(positive){const x=ri(2,d===0?8:12),y=ri(1,d===0?7:10);let a1=1,b1=1,a2=2,b2=-1;return g7SystemModelFromSolution(x,y,a1,b1,a2,b2)}return g7UniqueSystemFromSolution(d,{simple})}
+function g8LineGraph86(k,b,label="",alt=false,dashed=false){return g7LineSeries(k,b,{range:6,label:label||g7LineFormula(k,b),alt,dashed})}
+function g8LineModel86(){const x=ri(-3,3),y=ri(-3,3),k=g7Pick([-3,-2,-1,1,2,3]),b=y-k*x,eq=g7LineEqFromKB(k,b);return {x,y,k,b,eq}}
+function g8GraphAttach86(q,data,journal=""){return g7AttachGraph(q,data,journal)}
+function g8CheckLinearSolution86(m,x,y){return g7Eq2Satisfied(m.e1,x,y)&&g7Eq2Satisfied(m.e2,x,y)}
+
+function g8Make86TwoVar(raw,d){
+ const variants=d===0?["check_pair","find_y","pair_choice","graph_membership","graph_read_y","meaning","ordered_pair"]:d===1?["check_pair","find_y","find_x","find_c","pair_choice","graph_membership","graph_formula","graph_read_y"]:["find_x","find_c","pair_choice","graph_formula","graph_membership","graph_read_y","not_solution","error_order"];
+ const v=g7Pick(variants),m=g8LineModel86(),{x,y,k,b,eq}=m;
+ if(v==="meaning")return g8StrictChoice86(raw,d,v,"Что является решением уравнения с двумя переменными?","упорядоченная пара (x; y), при которой равенство верно",["одно число x","любая точка плоскости","только значение y"],"Решение такого уравнения — именно пара значений x и y, которую проверяют подстановкой.",[],m);
+ if(v==="ordered_pair")return g8StrictChoice86(raw,d,v,`Для уравнения ${g7Eq2Html(eq)} известно, что ${g8PairText86(x,y)} — решение. Можно ли автоматически считать ${g8PairText86(y,x)} тем же решением?`,"НЕТ",["ДА"],"Пара упорядоченная: сначала записывают x, потом y. Перестановка координат требует новой проверки подстановкой.",[x,y],m);
+ if(v==="check_pair"||v==="not_solution"){const good=v==="check_pair"?Math.random()<.5:false,px=good?x:x+g7Pick([-2,-1,1,2]),py=y,ok=g7Eq2Satisfied(eq,px,py),correct=v==="not_solution"?(!ok?"ДА":"НЕТ"):(ok?"ДА":"НЕТ"),text=v==="not_solution"?`Верно ли, что ${g8PairText86(px,py)} НЕ является решением ${g7Eq2Html(eq)}?`:`Является ли ${g8PairText86(px,py)} решением ${g7Eq2Html(eq)}?`;return g8StrictChoice86(raw,d,v,text,correct,[correct==="ДА"?"НЕТ":"ДА"],`Подставляем: левая часть равна ${g7Eq2Eval(eq,px,py)}, правая — ${eq.c}. ${g7Eq2Eval(eq,px,py)===eq.c?"Равенство верно.":"Равенство неверно."}`,[eq.a,eq.b,eq.c,px,py],{eq,px,py,expected:correct});}
+ if(v==="find_y")return g8Number86(raw,d,v,`Для ${g7Eq2Html(eq)} найди y при x=${x}.`,y,`Подставляем x=${x}: ${g7Eq2Eval(g7Eq2(eq.a,0,0),x,0)} + ${eq.b}y = ${eq.c}. Получаем y=${y}.`,[eq.a,eq.b,eq.c,x,y],{eq,x,y,expected:y});
+ if(v==="find_x")return g8Number86(raw,d,v,`Для ${g7Eq2Html(eq)} найди x при y=${y}.`,x,`Подставляем y=${y} и решаем линейное уравнение относительно x. Получаем x=${x}.`,[eq.a,eq.b,eq.c,x,y],{eq,x,y,expected:x});
+ if(v==="find_c")return g8Number86(raw,d,v,`Пара ${g8PairText86(x,y)} лежит на графике <span class="math">${g7CoeffVarPlain(eq.a,"x",{first:true})}${g7CoeffVarPlain(eq.b,"y",{first:false})}=c</span>. Найди c.`,eq.c,`Подставляем x=${x}, y=${y}: c=${g7Eq2Eval(eq,x,y)}.`,[eq.a,eq.b,x,y,eq.c],{eq,x,y,expected:eq.c});
+ if(v==="pair_choice"){const correct=g8PairText86(x,y),wrong=[];for(const [px,py] of [[y,x],[x+1,y],[x,y+1],[x-1,y],[x,y-1],[x+2,y-1]]){const label=g8PairText86(px,py);if(label!==correct&&!g7Eq2Satisfied(eq,px,py)&&!wrong.includes(label))wrong.push(label);if(wrong.length>=3)break}return g8StrictChoice86(raw,d,v,`Выбери решение уравнения ${g7Eq2Html(eq)}.`,correct,wrong,`Для ${correct} левая часть равна ${eq.c}, поэтому равенство верно.`,[eq.a,eq.b,eq.c,x,y],{eq,x,y});}
+ const data=g7GraphData([g8LineGraph86(k,b,g7Eq2Plain(eq))],{range:6,points:[{label:"A",x:rational(x),y:rational(y)}],caption:"График уравнения с двумя переменными"});let q;
+ if(v==="graph_membership"){const good=Math.random()<.5,py=good?y:y+g7Pick([-2,-1,1,2]),ok=g7Eq2Satisfied(eq,x,py);q=g8StrictChoice86(raw,d,v,`Принадлежит ли A(${x}; ${py}) графику ${g7Eq2Html(eq)}?`,ok?"ДА":"НЕТ",[ok?"НЕТ":"ДА"],`Проверяем подстановкой: левая часть ${g7Eq2Eval(eq,x,py)} ${g7Eq2Eval(eq,x,py)===eq.c?"=":"≠"} ${eq.c}.`,[k,b,x,py],{eq,x,y:py,expected:ok});}
+ else if(v==="graph_formula"){const correct=g7Eq2Html(eq),wrong=[g7Eq2Html(g7LineEqFromKB(-k,b)),g7Eq2Html(g7LineEqFromKB(k,b+1)),g7Eq2Html(g7LineEqFromKB(k,0))];q=g8StrictChoice86(raw,d,v,"Какое уравнение задаёт показанную прямую?",correct,wrong,`Наклон прямой равен ${k}, а пересечение с Oy — ${b}; это соответствует ${correct}.`,[k,b],m);}
+ else if(v==="error_order")q=g8StrictChoice86(raw,d,v,`Ученик прочитал точку A(${x}; ${y}) как пару (${y}; ${x}). В чём ошибка?`,`он поменял местами x и y`,["ошибки нет","нужно поменять знак у y","нужно сложить координаты"],"Координаты точки записывают в фиксированном порядке: сначала x, затем y.",[x,y],m);
+ else q=g8Number86(raw,d,v,`По графику ${g7Eq2Html(eq)} найди y при x=${x}.`,y,`Точка A(${x}; ${y}) лежит на прямой; значит при x=${x} получаем y=${y}.`,[k,b,x,y],m);
+ return g8GraphAttach86(q,data,g7Eq2Plain(eq));
+}
+
+function g8Make86Graphical(raw,d){
+ const variants=d===0?["intersection","count_one","count_none","count_infinite","meaning","parallel_reason","same_reason"]:d===1?["intersection","count_one","count_none","count_infinite","parallel_reason","same_reason","algebra_count","read_solution"]:["intersection","count_one","count_none","count_infinite","parallel_reason","same_reason","algebra_count","error_visual"];
+ const v=g7Pick(variants),range=6;
+ if(v==="meaning")return g8StrictChoice86(raw,d,v,"Что означает графически решение системы двух линейных уравнений?","координаты общей точки двух графиков",["точку пересечения каждого графика с Ox","сумму двух наклонов","любую точку одного графика"],"Решение должно удовлетворять обоим уравнениям, поэтому на рисунке оно лежит одновременно на обоих графиках.",[],{});
+ let x0=ri(-3,3),y0=ri(-3,3),k1=g7Pick([-2,-1,1,2]),k2,b1=y0-k1*x0,b2,correctCase="одно решение";
+ if(v==="count_none"||v==="parallel_reason"){k2=k1;b2=b1+(b1<3?2:-2);correctCase="нет решений"}
+ else if(v==="count_infinite"||v==="same_reason"){k2=k1;b2=b1;correctCase="бесконечно много решений"}
+ else{k2=g7Pick([-3,-2,-1,1,2,3].filter(z=>z!==k1));b2=y0-k2*x0;for(let z=0;z<20&&(Math.abs(b1)>5||Math.abs(b2)>5);z++){x0=ri(-2,2);y0=ri(-2,2);b1=y0-k1*x0;b2=y0-k2*x0}}
+ const e1=g7LineEqFromKB(k1,b1),e2=g7LineEqFromKB(k2,b2),s1=g8LineGraph86(k1,b1,g7Eq2Plain(e1)),s2=g8LineGraph86(k2,b2,g7Eq2Plain(e2),true,true),data=g7GraphData([s1,s2],{range,points:correctCase==="одно решение"?[{label:"S",x:rational(x0),y:rational(y0)}]:[],caption:"Графики уравнений системы"});let q;
+ if(v==="intersection"||v==="read_solution")q=g8PairInput86(raw,d,v,"Назови решение системы — координаты точки пересечения прямых.",x0,y0,`Обе прямые проходят через (${x0}; ${y0}). Проверка подстановкой выполняется для обоих уравнений.`,[k1,b1,k2,b2,x0,y0],{e1,e2,x:x0,y:y0,case:"one"});
+ else if(v==="parallel_reason")q=g8StrictChoice86(raw,d,v,"Почему показанная система не имеет решений?","прямые параллельны и различны",["прямые совпадают","прямые пересекаются в начале координат","одно уравнение не линейное"],"У прямых одинаковый наклон, но разные свободные члены, поэтому общих точек нет.",[k1,b1,b2],{e1,e2,case:"none"});
+ else if(v==="same_reason")q=g8StrictChoice86(raw,d,v,"Почему у показанной системы бесконечно много решений?","оба уравнения задают одну и ту же прямую",["прямые параллельны и различны","любые две прямые имеют бесконечно много общих точек","коэффициенты при x различны"],"Графики полностью совпадают, поэтому каждая точка этой прямой удовлетворяет обоим уравнениям.",[k1,b1],{e1,e2,case:"infinite"});
+ else if(v==="algebra_count")q=g8StrictChoice86(raw,d,v,`Система ${g7SystemHtml(e1,e2)} имеет сколько решений?`,correctCase,["одно решение","нет решений","бесконечно много решений"].filter(z=>z!==correctCase),correctCase==="одно решение"?"Коэффициенты задают непараллельные прямые, поэтому пересечение единственное.":correctCase==="нет решений"?"Прямые параллельны и различны.":"Уравнения задают одну и ту же прямую.",[k1,b1,k2,b2],{e1,e2,case:correctCase});
+ else if(v==="error_visual")q=g8StrictChoice86(raw,d,v,"Ученик решил, что две почти параллельные линии на рисунке имеют решение, потому что «визуально где-то встретятся». Как правильно?","число решений определяют по математической модели, а не по близости линий",["достаточно измерить пиксели","любые две линии пересекаются","нужно выбрать ближайшую точку"],"График иллюстрирует модель, но правильный ответ определяется коэффициентами уравнений.",[k1,b1,k2,b2],{e1,e2});
+ else q=g8StrictChoice86(raw,d,v,"Сколько решений имеет система по показанным графикам?",correctCase,["одно решение","нет решений","бесконечно много решений"].filter(z=>z!==correctCase),correctCase==="одно решение"?`Прямые пересекаются один раз, в точке (${x0}; ${y0}).`:correctCase==="нет решений"?"Прямые параллельны и различны, поэтому общих точек нет.":"Графики совпадают, поэтому общих точек бесконечно много.",[k1,b1,k2,b2],{e1,e2,case:correctCase});
+ return g8GraphAttach86(q,data,`${g7Eq2Plain(e1)}; ${g7Eq2Plain(e2)}`);
+}
+
+function g8Make86Sub(raw,d){
+ const variants=d===0?["isolate","substitute","find_y","solve_pair","check_pair","restore_second","meaning"]:d===1?["isolate","substitute","find_y","find_x","solve_pair","check_pair","restore_second","brackets_error"]:["solve_pair","find_y","find_x","check_pair","restore_second","brackets_error","choose_method","missing_step"];
+ const v=g7Pick(variants),m=g7SubstitutionModel(d),expr=`x = ${g7AffinePlain(m.p,"y",m.q)}`;
+ if(v==="meaning")return g8StrictChoice86(raw,d,v,"Какой первый шаг характерен для способа подстановки?","выразить одну переменную через другую",["сложить правые части без подготовки","возвести оба уравнения в квадрат","построить окружность"],"При подстановке сначала получают, например, x=... или y=..., затем это выражение подставляют во второе уравнение.",[],{});
+ if(v==="isolate")return g8StrictChoice86(raw,d,v,`Как правильно выразить x из ${g7Eq2Html(m.e1)}?`,`<span class="math">${expr}</span>`,[`<span class="math">x = ${g7AffinePlain(m.p,"y",-m.q)}</span>`,`<span class="math">y = ${g7AffinePlain(m.p,"x",m.q)}</span>`,`<span class="math">x = ${g7AffinePlain(-m.p,"y",m.q)}</span>`],`Получаем ${expr}.`,[m.p,m.q],m);
+ if(v==="substitute")return g8StrictChoice86(raw,d,v,`Из первого уравнения получено <span class="math">${expr}</span>. Что нужно сделать дальше?`,`подставить это выражение вместо x во второе уравнение`,["подставить его только в первое уравнение","поменять x и y местами","сложить коэффициенты без подстановки"],"Это и есть основной шаг метода: заменить x во втором уравнении найденным выражением.",[m.p,m.q],m);
+ if(v==="find_y")return g8Number86(raw,d,v,`После подстановки в системе ${g7SystemHtml(m.e1,m.e2)} получено <span class="math">${g7CoeffVarPlain(m.subCoef,"y",{first:true})}=${m.subRhs}</span>. Найди y.`,m.y,`Делим обе части на ${m.subCoef}: y=${m.y}.`,[m.subCoef,m.subRhs,m.y],m);
+ if(v==="find_x"||v==="restore_second")return g8Number86(raw,d,v,`После подстановки найдено y=${m.y}, а <span class="math">${expr}</span>. Найди x.`,m.x,`Возвращаемся к выражению: x=${g7AffinePlain(m.p,"y",m.q)}. При y=${m.y} получаем x=${m.x}.`,[m.p,m.q,m.y,m.x],m);
+ if(v==="check_pair"){const good=Math.random()<.5,px=good?m.x:m.x+1,py=m.y,ok=g8CheckLinearSolution86(m,px,py);return g8StrictChoice86(raw,d,v,`Является ли ${g8PairText86(px,py)} решением ${g7SystemHtml(m.e1,m.e2)}?`,ok?"ДА":"НЕТ",[ok?"НЕТ":"ДА"],`Проверяем обе строки: ${g7Eq2Eval(m.e1,px,py)} ${g7Eq2Eval(m.e1,px,py)===m.e1.c?"=":"≠"} ${m.e1.c}; ${g7Eq2Eval(m.e2,px,py)} ${g7Eq2Eval(m.e2,px,py)===m.e2.c?"=":"≠"} ${m.e2.c}.`,[px,py,m.e1.c,m.e2.c],m);}
+ if(v==="brackets_error")return g8StrictChoice86(raw,d,v,"При подстановке x=2y−3 во второе уравнение 4x+y=7 как записать правильно?","4(2y−3)+y=7",["4·2y−3+y=7","4+2y−3+y=7","4(2y)−3y=7"],"Вместо x подставляется всё выражение 2y−3, поэтому нужны скобки и множитель 4 относится ко всему выражению.",[],{});
+ if(v==="choose_method")return g8StrictChoice86(raw,d,v,`Для системы ${g7SystemHtml(m.e1,m.e2)} один из коэффициентов уже равен 1. Какой способ обычно удобнее из предложенных?`,`подстановка`,["строить таблицу значений","умножать оба уравнения друг на друга","извлекать квадратный корень"],"Если переменная легко выражается из одного уравнения, подстановка обычно наиболее удобна.",[m.e1.a,m.e1.b],m);
+ if(v==="missing_step")return g8StrictChoice86(raw,d,v,"Ученик нашёл y и сразу записал ответ системы. Какого шага не хватает?","найти вторую переменную и записать пару (x; y)",["ничего не не хватает","только поменять знак y","построить круг"],"Решение системы — пара. После нахождения y нужно восстановить x и только затем записывать ответ.",[],m);
+ return g8PairInput86(raw,d,v,`Реши систему способом подстановки: ${g7SystemHtml(m.e1,m.e2)}.`,m.x,m.y,g7SystemExplanation(m,"substitution"),[m.e1.a,m.e1.b,m.e1.c,m.e2.a,m.e2.b,m.e2.c],m);
+}
+
+function g8Make86Elim(raw,d){
+ const variants=d===0?["solve_pair","first_result","choose_eliminate","meaning","check_pair","multiply_all","sign_rule"]:d===1?["solve_pair","first_result","multiplier","choose_eliminate","check_pair","multiply_all","sign_rule","error_partial"]:["solve_pair","first_result","multiplier","choose_eliminate","check_pair","multiply_all","sign_rule","error_partial","choose_method"];
+ const v=g7Pick(variants),m=g7AdditionModel(d);
+ if(v==="meaning")return g8StrictChoice86(raw,d,v,"Что нужно получить перед почленным сложением уравнений?","противоположные коэффициенты при одной переменной",["одинаковые правые части","только положительные числа","нулевые свободные члены"],"Тогда при сложении одна переменная уничтожится.",[],{});
+ if(v==="multiplier")return g8StrictChoice86(raw,d,v,`На какое число нужно умножить второе уравнение, чтобы при сложении с первым исчез ${m.eliminate}? ${g7SystemHtml(m.e1,m.e2)}`,String(m.multiplier),[String(-m.multiplier),String(Math.abs(m.multiplier)+1),"0"],`Умножаем второе уравнение на ${m.multiplier}; коэффициенты при ${m.eliminate} становятся противоположными.`,[m.e1.a,m.e1.b,m.e2.a,m.e2.b,m.multiplier],m);
+ if(v==="first_result")return g8Number86(raw,d,v,`В системе ${g7SystemHtml(m.e1,m.e2)} после правильного сложения найди ${m.eliminate==="y"?"x":"y"}.`,m.eliminate==="y"?m.x:m.y,g7SystemExplanation(m,"addition"),[m.e1.c,m.e2.c,m.x,m.y],m);
+ if(v==="choose_eliminate")return g8StrictChoice86(raw,d,v,`В системе ${g7SystemHtml(m.e1,m.e2)} какую переменную удобнее уничтожить на первом шаге?`,m.eliminate,[m.eliminate==="x"?"y":"x"],`Модель подобрана так, что коэффициенты при ${m.eliminate} уже противоположны или легко становятся противоположными.`,[m.e1.a,m.e1.b,m.e2.a,m.e2.b],m);
+ if(v==="check_pair"){const good=Math.random()<.5,px=good?m.x:m.x+1,py=m.y,ok=g8CheckLinearSolution86(m,px,py);return g8StrictChoice86(raw,d,v,`Проверка: является ли ${g8PairText86(px,py)} решением ${g7SystemHtml(m.e1,m.e2)}?`,ok?"ДА":"НЕТ",[ok?"НЕТ":"ДА"],`Нужно проверить обе строки. Результат: ${ok?"обе верны":"хотя бы одна неверна"}.`,[px,py],m);}
+ if(v==="multiply_all"||v==="error_partial")return g8StrictChoice86(raw,d,v,"Если перед сложением второе уравнение умножают на −3, что именно нужно умножить на −3?","все члены левой части и правую часть",["только коэффициент при x","только правую часть","только свободный член"],"Умножение уравнения сохраняет равносильность только тогда, когда на число умножены обе части целиком.",[],{});
+ if(v==="sign_rule")return g8StrictChoice86(raw,d,v,"При вычитании второго уравнения из первого что происходит со знаками второго уравнения?","знаки меняются у всех его членов, включая правую часть",["меняется только знак при x","знаки не меняются","меняется только правая часть"],"Вычесть уравнение — значит прибавить его, умноженное на −1.",[],{});
+ if(v==="choose_method")return g8StrictChoice86(raw,d,v,"Если коэффициенты при y уже противоположны, какой способ обычно удобнее?","сложение/вычитание",["подстановка обязательно","строить окружность","возводить систему в квадрат"],"Противоположные коэффициенты позволяют сразу исключить y почленным сложением.",[],m);
+ return g8PairInput86(raw,d,v,`Реши систему способом сложения: ${g7SystemHtml(m.e1,m.e2)}.`,m.x,m.y,g7SystemExplanation(m,"addition"),[m.e1.a,m.e1.b,m.e1.c,m.e2.a,m.e2.b,m.e2.c],m);
+}
+
+function g8ParabolaSeries86({range=6,label="y = x²",alt=false}={}){const pts=[];for(let i=-24;i<=24;i++){const x=i/6,y=x*x;if(y<=range)pts.push({x:rational(i,6),y:rational(i*i,36)})}return {points:pts,label,alt}}
+function g8Make86Nonlinear(raw,d){
+ const variants=d===0?["identify","check_pair","solve_horizontal","count_intersections","graph_pair","meaning","choose_pair"]:d===1?["identify","check_pair","solve_horizontal","count_intersections","graph_pair","choose_pair","find_y","compare_graphs"]:["check_pair","solve_horizontal","count_intersections","graph_pair","choose_pair","find_y","compare_graphs","error_one_equation"];
+ const v=g7Pick(variants),r=ri(1,2),m=r*r,sign=g7Pick([-1,1]),x=sign*r,y=m;
+ if(v==="identify")return g8StrictChoice86(raw,d,v,"Какая система содержит нелинейное уравнение?",`<span class="math">{ y=x²; y=${m} }</span>`,[`<span class="math">{ x+y=5; x−y=1 }</span>`,`<span class="math">{ 2x+y=4; x+3y=7 }</span>`,`<span class="math">{ y=2x+1; y=−x+3 }</span>`],"Уравнение y=x² нелинейное, потому что переменная входит во второй степени.",[m],{m});
+ if(v==="meaning")return g8StrictChoice86(raw,d,v,"Что является решением системы y=x² и y=4?","пары точек, удовлетворяющие обоим уравнениям",["только число 4","любая точка параболы","только x=0"],"Нужно одновременно выполнить y=x² и y=4, то есть найти общие точки двух графиков.",[],{});
+ if(v==="check_pair"||v==="error_one_equation"){const px=x,py=v==="error_one_equation"?m+1:(Math.random()<.5?y:y+g7Pick([-2,-1,1,2])),ok=py===px*px&&py===m;return g8StrictChoice86(raw,d,v,`Является ли ${g8PairText86(px,py)} решением системы <span class="math">y=x²; y=${m}</span>?`,ok?"ДА":"НЕТ",[ok?"НЕТ":"ДА"],`Проверяем оба уравнения: ${py} ${py===px*px?"=":"≠"} ${px}² и ${py} ${py===m?"=":"≠"} ${m}.`,[px,py,m],{px,py,m,expected:ok});}
+ if(v==="solve_horizontal")return g8Number86(raw,d,v,`В системе <span class="math">y=x²; y=${m}</span> найди положительное значение x.`,r,`Из x²=${m} получаем x=±${r}. Положительное значение x=${r}.`,[r,m],{r,m,expected:r});
+ if(v==="find_y")return g8Number86(raw,d,v,`Для системы <span class="math">y=x²; y=${m}</span> известно, что x=${x}. Найди y.`,m,`По первому уравнению y=${x}²=${m}; второе уравнение это подтверждает.`,[x,m],{x,m,expected:m});
+ if(v==="choose_pair"){const correct=g8PairText86(x,m);return g8StrictChoice86(raw,d,v,`Какая пара является решением системы <span class="math">y=x²; y=${m}</span>?`,correct,[g8PairText86(x,m+1),g8PairText86(m,x),g8PairText86(0,m)],`Подстановка ${correct}: y=${m} и x²=${x*x}=${m}.`,[x,m],{x,m});}
+ const series1=g8ParabolaSeries86({range:6,label:"y = x²"}),series2=g8LineGraph86(0,m,`y = ${m}`,true,true),points=[{label:"A",x:rational(-r),y:rational(m)},{label:"B",x:rational(r),y:rational(m)}],data=g7GraphData([series1,series2],{range:6,points,caption:"Парабола и прямая — графики системы"});let q;
+ if(v==="count_intersections")q=g8StrictChoice86(raw,d,v,"Сколько решений имеет показанная система?","два решения",["одно решение","решений нет","бесконечно много решений"],`Прямая y=${m} пересекает параболу y=x² в точках x=−${r} и x=${r}.`,[r,m],{r,m,count:2});
+ else if(v==="compare_graphs")q=g8StrictChoice86(raw,d,v,"Какие графики показаны в этой системе?","парабола y=x² и горизонтальная прямая",["две параллельные прямые","окружность и прямая","две параболы"],"Первое уравнение задаёт параболу, второе y=const — горизонтальную прямую.",[m],{m});
+ else q=g8PairInput86(raw,d,v,"Назови одну отмеченную точку пересечения с положительным x.",r,m,`Точка (${r}; ${m}) удовлетворяет y=x² и y=${m}.`,[r,m],{x:r,y:m});
+ return g8GraphAttach86(q,data,`y=x²; y=${m}`);
+}
+
+function g8WordModel86(kind,d){
+ if(kind==="tickets"){const x=ri(3,9),y=ri(2,8),p1=g7Pick([100,120,150,200]),p2=g7Pick([50,80,100]);return {x,y,n:x+y,total:p1*x+p2*y,p1,p2,kind}}
+ if(kind==="items"){const x=ri(3,10),y=ri(2,9),p1=ri(3,9),p2=ri(1,5);return {x,y,n:x+y,total:p1*x+p2*y,p1,p2,kind}}
+ if(kind==="rectangle"){const x=ri(3,9),y=ri(x+1,x+6);return {x,y,sum:x+y,diff:y-x,kind}}
+ const x=ri(4,12),y=ri(1,x-1);return {x,y,sum:x+y,diff:x-y,kind:"sumdiff"};
+}
+function g8WordSystem86(m){if(m.kind==="tickets"||m.kind==="items")return {e1:g7Eq2(1,1,m.n),e2:g7Eq2(m.p1,m.p2,m.total),x:m.x,y:m.y};if(m.kind==="rectangle")return {e1:g7Eq2(1,1,m.sum),e2:g7Eq2(-1,1,m.diff),x:m.x,y:m.y};return {e1:g7Eq2(1,1,m.sum),e2:g7Eq2(1,-1,m.diff),x:m.x,y:m.y}}
+function g8Make86Word(raw,d){
+ const variants=d===0?["tickets_answer","items_answer","model_tickets","sumdiff_answer","interpret_pair","positive_check","model_sumdiff"]:d===1?["tickets_answer","items_answer","model_tickets","sumdiff_answer","rectangle_answer","interpret_pair","positive_check","model_sumdiff"]:["tickets_answer","items_answer","model_tickets","sumdiff_answer","rectangle_answer","interpret_pair","positive_check","model_sumdiff","restore_condition"];
+ const v=g7Pick(variants),kind=v.includes("tickets")?"tickets":v.includes("items")?"items":v.includes("rectangle")?"rectangle":v.includes("sumdiff")||v==="restore_condition"?"sumdiff":g7Pick(["tickets","items","rectangle","sumdiff"]),m=g8WordModel86(kind,d),sys=g8WordSystem86(m);
+ if(v==="model_tickets"){const correct=g7SystemHtml(sys.e1,sys.e2);return g8StrictChoice86(raw,d,v,`Продано ${m.n} билетов: взрослый билет ${m.p1} ₽, детский ${m.p2} ₽, выручка ${m.total} ₽. Пусть x — взрослых, y — детских. Какая система верна?`,correct,[g7SystemHtml(g7Eq2(1,1,m.total),g7Eq2(m.p1,m.p2,m.n)),g7SystemHtml(g7Eq2(1,-1,m.n),sys.e2),g7SystemHtml(sys.e1,g7Eq2(m.p2,m.p1,m.total))],`По количеству: x+y=${m.n}. По стоимости: ${m.p1}x+${m.p2}y=${m.total}.`,[m.n,m.p1,m.p2,m.total],{...m,...sys});}
+ if(v==="model_sumdiff"){const a=ri(4,12),b=ri(1,a-1),sum=a+b,diff=a-b,correct=g7SystemHtml(g7Eq2(1,1,sum),g7Eq2(1,-1,diff));return g8StrictChoice86(raw,d,v,`Сумма двух чисел ${sum}, а разность большего и меньшего ${diff}. Если x — большее, y — меньшее, какая система подходит?`,correct,[g7SystemHtml(g7Eq2(1,1,diff),g7Eq2(1,-1,sum)),g7SystemHtml(g7Eq2(1,-1,sum),g7Eq2(1,1,diff)),g7SystemHtml(g7Eq2(1,1,sum),g7Eq2(-1,1,diff))],`Получаем x+y=${sum} и x−y=${diff}.`,[a,b,sum,diff],{x:a,y:b,sum,diff});}
+ if(v==="interpret_pair"){return g8StrictChoice86(raw,d,v,`В задаче x — взрослые билеты, y — детские. Решение системы ${g8PairText86(m.x,m.y)}. Как его прочитать?`,`${m.x} взрослых и ${m.y} детских`,[`${m.y} взрослых и ${m.x} детских`,`всего ${m.x} билетов`,`стоимость ${m.y} рублей`],"Порядок пары фиксирован: первое число относится к x, второе — к y.",[m.x,m.y],m);}
+ if(v==="positive_check"){const good=Math.random()<.5,a=good?ri(1,9):-ri(1,5),bb=ri(1,12);return g8StrictChoice86(raw,d,v,`Можно ли в задаче о количестве предметов принять решение (${a}; ${bb})?`,good?"ДА":"НЕТ",[good?"НЕТ":"ДА"],good?"Да: оба количества положительны и допустимы по смыслу задачи.":"Нет: количество предметов не может быть отрицательным.",[a,bb],{expected:good});}
+ if(v==="restore_condition")return g8StrictChoice86(raw,d,v,`Для системы <span class="math">x+y=${m.sum}; x−y=${m.diff}</span> что описывает второе уравнение?`,`разность x и y равна ${m.diff}`,[`сумма x и y равна ${m.diff}`,`произведение x и y равно ${m.diff}`,`x в ${m.diff} раз больше y`],"Уравнение x−y=d прямо переводит условие о разности двух величин.",[m.sum,m.diff],m);
+ let text,answer,ex;
+ if(kind==="tickets"){text=`Продано ${m.n} билетов. Взрослый билет стоит ${m.p1} ₽, детский ${m.p2} ₽. Выручка ${m.total} ₽. Сколько взрослых билетов продано?`;answer=m.x;ex=`Пусть x — взрослых, y — детских. Тогда x+y=${m.n}, ${m.p1}x+${m.p2}y=${m.total}. Решение системы ${g8PairText86(m.x,m.y)}. Ответ: ${m.x}.`;}
+ else if(kind==="items"){text=`Купили ${m.n} предметов двух видов по ${m.p1} ₽ и ${m.p2} ₽, всего на ${m.total} ₽. Сколько предметов первого вида?`;answer=m.x;ex=`Система: x+y=${m.n}, ${m.p1}x+${m.p2}y=${m.total}. Получаем ${g8PairText86(m.x,m.y)}; первый вид — ${m.x}.`;}
+ else if(kind==="rectangle"){text=`Сумма длины и ширины прямоугольника ${m.sum} см, длина на ${m.diff} см больше ширины. Найди ширину.`;answer=m.x;ex=`Пусть ширина x=${m.x}, длина y=${m.y}. Тогда x+y=${m.sum}, y−x=${m.diff}. Ответ: ${m.x} см.`;}
+ else{text=`Сумма двух чисел ${m.sum}, их разность ${m.diff}. Найди большее число.`;answer=m.x;ex=`Пусть x — большее, y — меньшее. Тогда x+y=${m.sum}, x−y=${m.diff}. Решение ${g8PairText86(m.x,m.y)}; большее число ${m.x}.`;}
+ return g8Number86(raw,d,v,text,answer,ex,[m.x,m.y,m.sum||m.n,m.diff||m.total],{...m,...sys,expected:answer});
+}
+
+const G8_PRE86_MAKE=makeG8Question;
+makeG8Question=function(id,stageOverride=null){
+ const raw=rawCourseId(id),full=`g8:${raw}`,d=Math.max(0,Math.min(2,Number.isInteger(stageOverride)?stageOverride:activeDifficulty()));
+ if(!G8_STAGE86_IDS.has(full))return G8_PRE86_MAKE(id,stageOverride);
+ if(raw==="two_variable_equation_graph")return g8Make86TwoVar(raw,d);
+ if(raw==="linear_system_graphical")return g8Make86Graphical(raw,d);
+ if(raw==="linear_system_substitution")return g8Make86Sub(raw,d);
+ if(raw==="linear_system_elimination")return g8Make86Elim(raw,d);
+ if(raw==="nonlinear_systems_intro")return g8Make86Nonlinear(raw,d);
+ if(raw==="systems_word_problems")return g8Make86Word(raw,d);
+ throw new Error(`Неизвестная тема 8.6: ${raw}`);
+};
+
+const G8_PRE86_FRESH=freshQuiz;
+freshQuiz=function(id){
+ const s=String(id),full=s.startsWith("g8:")?s:`g8:${rawCourseId(s)}`;
+ if(!G8_STAGE86_IDS.has(full))return G8_PRE86_FRESH(id);
+ const raw=rawCourseId(full),maker=()=>makeG8Question(full),sigOf=q=>q.sig||`g8:${raw}:${normalizePromptForCompare(q.text)}`;
+ if(!blockSession||blockSession.kind!=="g8quiz")return freshCandidate(maker,sigOf,300);
+ const prevV=blockSession._g8LastVariant?.[raw]??null,prevP=blockSession._g8LastPosition?.[raw]??-1,prevSig=blockSession._g8LastSig?.[raw]??null,prevText=blockSession._g8LastText?.[raw]??null;let best=null;
+ for(let i=0;i<260;i++){
+  const cand=maker(),vv=cand.templateId||cand.audit?.variant||"",p=g8ChoiceIndex(cand),sig=sigOf(cand),txt=normalizePromptForCompare(cand.text);
+  if(prevV!==null&&vv===prevV)continue;if(prevSig!==null&&sig===prevSig)continue;if(prevText!==null&&txt===prevText)continue;if(p>=0&&prevP>=0&&p===prevP)continue;if(wasUsedInBlock(sig)||wasRecent(sig))continue;
+  registerSignature(sig);cand._signature=sig;best=cand;break;
+ }
+ if(!best){for(let i=0;i<320;i++){const cand=maker(),vv=cand.templateId||cand.audit?.variant||"",p=g8ChoiceIndex(cand),sig=sigOf(cand),txt=normalizePromptForCompare(cand.text);if(prevV!==null&&vv===prevV)continue;if(prevSig!==null&&sig===prevSig)continue;if(prevText!==null&&txt===prevText)continue;if(p>=0&&prevP>=0&&p===prevP)continue;registerSignature(sig);cand._signature=sig;best=cand;break}}
+ if(!best)best=freshCandidate(maker,sigOf,420);
+ blockSession._g8LastVariant=blockSession._g8LastVariant||{};blockSession._g8LastPosition=blockSession._g8LastPosition||{};blockSession._g8LastSig=blockSession._g8LastSig||{};blockSession._g8LastText=blockSession._g8LastText||{};
+ blockSession._g8LastVariant[raw]=best.templateId||best.audit?.variant||"";blockSession._g8LastPosition[raw]=g8ChoiceIndex(best);blockSession._g8LastSig[raw]=best.sig||best._signature||sigOf(best);blockSession._g8LastText[raw]=normalizePromptForCompare(best.text);return best;
+};
+
+g8CatalogAudit=function(){
+ const topics=g8AllTopics(),ids=topics.map(t=>t.id),orders=topics.map(t=>t.order),courseIds=new Set(G8_COURSES.map(c=>c.id)),groupIds=new Set(G8_GROUPS.map(g=>g.id)),issues=[];
+ if(new Set(ids).size!==ids.length)issues.push("duplicate-id");if(ids.some(id=>!id.startsWith("g8:")))issues.push("id-prefix");if(topics.some(t=>t.grade!==8))issues.push("grade");if(new Set(orders).size!==orders.length||orders.some((v,i)=>v!==i+1))issues.push("order");
+ if(topics.some(t=>G8_IMPLEMENTED_86_IDS.has(t.id)?t.implemented!==true:t.implemented!==false))issues.push("implemented-boundary");
+ if(topics.some(t=>G8_IMPLEMENTED_86_IDS.has(t.id)?t.rendererType==="pending":t.rendererType!=="pending"))issues.push("rendererType-boundary");
+ if(topics.some(t=>!t.plannedRendererType))issues.push("plannedRendererType");if(topics.some(t=>!courseIds.has(t.course)))issues.push("course");if(G8_GROUPS.some(g=>!courseIds.has(g.course)||!groupIds.has(g.id)))issues.push("group");if(topics.some(t=>!t.title||!t.shortTitle||!t.source||!t.programRef))issues.push("metadata");
+ return {ok:issues.length===0,issues,total:topics.length,implemented:g8ImplementedTopics().length,pending:topics.filter(t=>t.rendererType==="pending").length};
+};
+showG8Pending=function(id){const t=g8InfoById(id);if(!t)return renderGrade8();if(t.implemented!==false)return openG8Topic(t.id);const course=g8CourseById(t.course);show(`<div class="mtop"><h2>${esc(t.title)}</h2><button class="x" onclick="closeModal()">×</button></div><div class="lesson"><b>8 класс • ${esc(course?.title||t.course)} • ${esc(t.section||t.group)}</b><br><br>На Этапе 8.6 рабочими являются первые шесть алгебраических блоков, включая «Системы уравнений». Эта тема относится к следующему этапу и пока остаётся pending; она не считается непройденной.<br><br><small>Планируемый renderer: ${esc(t.plannedRendererType||"quiz")}. Переиспользование: ${esc(t.reuseEngine||"общий block engine")}.</small></div><div class="actions"><button class="btn primary" onclick="closeModal()">Понятно</button></div>`) };
+renderGrade8=function(){const counts=G8_COURSES.map(c=>{const ts=g8GroupsByCourse(c.id).flatMap(g=>g.topics);return {title:c.title,n:ts.length,ready:ts.filter(t=>t.implemented!==false).length}}),ready=g8ImplementedTopics().length;mainView.innerHTML=`<div class="home-back-row"><button class="home-back-btn" onclick="renderHome()">← Главный экран</button></div><section class="grade-hero"><div><h1>Математика 8 класса</h1><p>Алгебра • Геометрия • Вероятность и статистика. Рабочие блоки: «Квадратные корни и действительные числа», «Степень с целым показателем и стандартная запись», «Квадратный трёхчлен», «Алгебраические дроби и рациональные выражения», «Квадратные и рациональные уравнения», «Системы уравнений».</p></div><span class="grade-chip">${gradeBookIcon(8,true)} 8 класс</span></section><div class="g7-catalog-summary"><b>Каталог: ${g8AllTopics().length} тем • реализовано: ${ready}.</b> ${counts.map(x=>`${esc(x.title)} — ${x.ready}/${x.n}`).join(" • ")}. Остальные pending-темы не считаются слабыми или непройденными.</div>${G8_COURSES.map(renderG8Course).join("")}`};
+const G8_PRE86_REPORT_CARD=reportCourseCardHtml;
+reportCourseCardHtml=function(data,grade){if(Number(grade)!==8)return G8_PRE86_REPORT_CARD(data,grade);const c=data.courseProgress.g8,st=data.courseProgress.g8Stages,map=data.knowledge.g8,started=c.done>0||map.topics.some(x=>x.started),sections=data.courseProgress.g8Sections.map(x=>`<div class="report-section-line"><span>${esc(x.title)} (${x.availableCount}/${x.catalogCount} тем доступно)</span><b>${x.availableCount?x.percent+"%":"Скоро"}</b></div>`).join("")+`<div class="report-period-note">Этап 8.6: реализовано ${g8ImplementedTopics().length}/${g8AllTopics().length} тем. Pending-темы не входят в процент прогресса.</div>`;return `<div class="report-course-card"><div class="report-course-head"><b>${gradeBookIcon(8,true)} 8 класс</b><strong>${started?c.percent+"%":"Не начат"}</strong></div><div class="report-progress"><span style="width:${c.percent}%"></span></div><div class="report-stage-line"><span>🌱 ${st.warmup}</span><span>🚀 ${st.training}</span><span>🏆 ${st.master}</span><span>${c.done}/${c.total} ступеней</span></div><div style="margin-top:7px">${sections}</div></div>`};
+
+const G8_STAGE86_BOUNDARY_AUDIT=(()=>{const all=g8AllTopics(),implemented=all.filter(t=>t.implemented!==false).map(t=>t.id),outside=implemented.filter(id=>!G8_IMPLEMENTED_86_IDS.has(id)),missing=[...G8_IMPLEMENTED_86_IDS].filter(id=>!implemented.includes(id));return {ok:outside.length===0&&missing.length===0,implemented,pending:all.filter(t=>t.implemented===false).map(t=>t.id),outside,missing}})();
+if(!G8_STAGE86_BOUNDARY_AUDIT.ok)console.error("G8 8.6 boundary audit failed",G8_STAGE86_BOUNDARY_AUDIT);
+
+
+
+/* =========================================================
+   ЭТАП 8.7 — Неравенства
+   Ровно очередной pending-блок каталога 8 класса (order 34–37).
+   Следующий блок «Функция: основные понятия» не активируется.
+   ========================================================= */
+const G8_STAGE87_IDS=new Set([
+ "g8:numerical_inequalities_properties","g8:equivalent_inequalities",
+ "g8:linear_inequalities","g8:linear_inequality_systems"
+]);
+const G8_IMPLEMENTED_87_IDS=new Set([...G8_IMPLEMENTED_86_IDS,...G8_STAGE87_IDS]);
+for(const t of g8AllTopics())if(G8_STAGE87_IDS.has(t.id)){t.implemented=true;t.rendererType=t.plannedRendererType||"quiz"}
+
+const G8_STAGE87_LESSONS={
+ numerical_inequalities_properties:"<b>Числовое неравенство</b> сравнивает два числа. Если к обеим частям неравенства прибавить или из обеих частей вычесть одно и то же число, знак не меняется. При умножении или делении обеих частей на <b>положительное</b> число знак сохраняется, а на <b>отрицательное</b> — меняется на противоположный: &lt; ↔ &gt;, ≤ ↔ ≥.",
+ equivalent_inequalities:"<b>Равносильные неравенства</b> имеют одно и то же множество решений. Можно переносить слагаемые, то есть прибавлять или вычитать одно и то же выражение в обеих частях. При умножении или делении на положительное число знак сохраняется; на отрицательное — обязательно переворачивается.",
+ linear_inequalities:"<b>Линейное неравенство</b> с одной переменной решают преобразованиями, как уравнение, но помнят главное правило: при умножении или делении на отрицательное число знак неравенства меняется. Ответ — множество чисел; его можно записать неравенством и показать на числовой прямой.",
+ linear_inequality_systems:"<b>Решить систему неравенств</b> — значит найти числа, которые удовлетворяют <b>всем</b> неравенствам одновременно. Поэтому берут <b>пересечение</b> множеств решений. На числовой прямой это общая часть отмеченных промежутков."
+};
+const G8_PRE87_LESSON=g8Lesson;
+g8Lesson=function(id){const raw=rawCourseId(id);return G8_STAGE87_LESSONS[raw]||G8_PRE87_LESSON(id)};
+
+function g8Attach87(q,raw,d,variant,model={}){q.templateId=variant;q.audit={...(q.audit||{}),type:"g8Stage87",topic:raw,stage:d,variant,model};return q}
+function g8Choice87(raw,d,variant,text,correct,wrong,ex,parts=[],model={}){return g8Attach87(g7Choice(text,correct,wrong,ex,g8Sig(raw,d,variant,parts),{}),raw,d,variant,model)}
+function g8StrictChoice87(raw,d,variant,text,correct,wrong,ex,parts=[],model={}){return g8Attach87(g7StrictChoice(text,correct,wrong,ex,g8Sig(raw,d,variant,parts),{}),raw,d,variant,model)}
+function g8Number87(raw,d,variant,text,answer,ex,parts=[],model={},opts={}){return g8Attach87(g7Number(text,answer,ex,g8Sig(raw,d,variant,parts),{...opts,audit:{}}),raw,d,variant,model)}
+function g8IneqFlip87(op){return {"<":">",">":"<","≤":"≥","≥":"≤"}[op]||op}
+function g8IneqTrue87(a,op,b){if(op==="<")return a<b;if(op===">")return a>b;if(op==="≤")return a<=b;if(op==="≥")return a>=b;return false}
+function g8IneqRel87(a,b){return a<b?"<":a>b?">":"="}
+function g8IneqText87(k,op){return `<span class="math">x ${op} ${k}</span>`}
+function g8IntervalText87(left,leftClosed,right,rightClosed){if(left==null)return `<span class="math">x ${rightClosed?"≤":"<"} ${right}</span>`;if(right==null)return `<span class="math">x ${leftClosed?"≥":">"} ${left}</span>`;return `<span class="math">${left} ${leftClosed?"≤":"<"} x ${rightClosed?"≤":"<"} ${right}</span>`}
+function g8NumberLine87(q,{left=null,leftClosed=false,right=null,rightClosed=false,focus=0}){let vals=[-6,6,focus];if(left!=null)vals.push(left);if(right!=null)vals.push(right);let min=Math.min(...vals)-1,max=Math.max(...vals)+1;min=Math.max(-14,min);max=Math.min(14,max);if(max-min<8){min-=2;max+=2}return g6AttachNumberLine(q,{min:rational(min,1),max:rational(max,1),step:rational(1,1),interval:{left:left==null?null:rational(left,1),leftClosed,right:right==null?null:rational(right,1),rightClosed},caption:"Решение на числовой прямой"})}
+function g8LinearModel87(d,{allowBoth=false}={}){const ops=["<",">","≤","≥"],op=g8Pick(ops),k=ri(d===0?-6:-10,d===2?10:8);let a=g8Pick([-5,-4,-3,-2,-1,1,2,3,4,5]);if(d===0)a=g8Pick([-3,-2,-1,1,2,3]);const b=ri(-9,9),c=a*k+b;if(!allowBoth)return {a,b,c,op,k,solutionOp:a>0?op:g8IneqFlip87(op)};let r;do{r=g8Pick([-4,-3,-2,-1,1,2,3,4])}while(r===a);const delta=a-r,rr=ri(-8,8),rightConst=delta*k+rr,leftConst=rr;return {a,b:leftConst,r,c:rightConst,op,k,solutionOp:delta>0?op:g8IneqFlip87(op),delta}}
+function g8LinearExpr87(a,b){const x=a===1?"x":a===-1?"−x":`${a}x`;if(b===0)return x;return `${x} ${b>0?"+":"−"} ${Math.abs(b)}`}
+function g8PickSolution87(k,op,yes=true){const pool=[];for(let x=k-7;x<=k+7;x++){if(g8IneqTrue87(x,op,k)===yes)pool.push(x)}return g8Pick(pool)}
+
+function g8Make87NumProps(raw,d){
+ const vars=d===0?["compare","add_same","mult_positive","mult_negative","negative_rule","sum_pair","error_negative"]:d===1?["compare","add_same","subtract_same","mult_positive","mult_negative","divide_negative","sum_pair","error_negative","restore_relation"]:["add_same","mult_negative","divide_negative","sum_pair","error_negative","restore_relation","two_steps","counterexample_sum"];
+ const v=g8Pick(vars);
+ let a=ri(-12,4),b=ri(a+1,14); if(a===b)b++;
+ if(v==="compare")return g8StrictChoice87(raw,d,v,`Какой знак нужно поставить: <span class="math">${a} □ ${b}</span>?`,"<",[">","=","≤"],`${a} меньше ${b}, поэтому ${a} < ${b}.`,[a,b],{a,b,expected:"<"});
+ if(v==="add_same"||v==="subtract_same"){const c=ri(-9,9),aa=v==="add_same"?a+c:a-c,bb=v==="add_same"?b+c:b-c,word=v==="add_same"?"прибавили":"вычли";return g8StrictChoice87(raw,d,v,`Известно: <span class="math">${a} < ${b}</span>. К обеим частям ${word} ${Math.abs(c)}${c<0?" со знаком минус":""}. Какой знак будет между полученными числами?`,`<`,[">","=","знак определить нельзя"],`При прибавлении или вычитании одного и того же числа знак неравенства сохраняется: ${aa} < ${bb}.`,[a,b,c],{a,b,c,aa,bb,expected:"<"});}
+ if(v==="mult_positive"){const m=ri(2,6);return g8StrictChoice87(raw,d,v,`Если <span class="math">${a} < ${b}</span>, что верно после умножения обеих частей на ${m}?`,`${a*m} < ${b*m}`,[`${a*m} > ${b*m}`,`${a*m} = ${b*m}`,"сравнить нельзя"],`Умножение на положительное число сохраняет знак: ${a}·${m} < ${b}·${m}.`,[a,b,m],{a,b,m,expected:"<"});}
+ if(v==="mult_negative"||v==="divide_negative"){const m=-ri(2,6);if(v==="mult_negative")return g8StrictChoice87(raw,d,v,`Если <span class="math">${a} < ${b}</span>, какой знак получится после умножения обеих частей на ${m}?`,">",["<","=","≤"],`При умножении на отрицательное число знак меняется: ${a*m} > ${b*m}.`,[a,b,m],{a,b,m,expected:">"});const aa=m*ri(-6,0),bb=m*ri(1,6),lo=Math.min(aa,bb),hi=Math.max(aa,bb);return g8StrictChoice87(raw,d,v,`При делении обеих частей неравенства на отрицательное число знак нужно…`,"изменить на противоположный",["оставить прежним","заменить на знак равенства","убрать"],`Деление на отрицательное число меняет направление неравенства.`,[m,lo,hi],{m,expected:"flip"});}
+ if(v==="negative_rule")return g8StrictChoice87(raw,d,v,"Когда обязательно меняется знак неравенства?","при умножении или делении обеих частей на отрицательное число",["при прибавлении отрицательного числа","при вычитании одинакового числа","при умножении на положительное число"],"Знак переворачивается именно при умножении или делении обеих частей на отрицательное число.",[],{expected:"negative"});
+ if(v==="sum_pair"){const c=ri(-8,3),e=ri(c+1,10);return g8StrictChoice87(raw,d,v,`Дано: <span class="math">${a}<${b}</span> и <span class="math">${c}<${e}</span>. Сравни суммы.`,`${a+c} < ${b+e}`,[`${a+c} > ${b+e}`,`${a+c} = ${b+e}`,"сравнить нельзя"],`Складываем левые и правые части верных неравенств одного направления: ${a+c} < ${b+e}.`,[a,b,c,e],{a,b,c,e,expected:"<"});}
+ if(v==="error_negative")return g8StrictChoice87(raw,d,v,`Ученик из <span class="math">−2 < 5</span> получил <span class="math">6 < −15</span>, умножив обе части на −3. Где ошибка?`,`не поменял знак < на >`,["нельзя умножать неравенства на −3","неверно умножил −2 на −3","знак менять нужно только при делении"],`−2·(−3)=6, 5·(−3)=−15, но знак должен поменяться: 6 > −15.`,[],{expected:"flip"});
+ if(v==="restore_relation"){const m=-ri(2,5),A=a*m,B=b*m;return g8StrictChoice87(raw,d,v,`После умножения исходного неравенства на ${m} получилось <span class="math">${A} > ${B}</span>. Каким было направление исходного неравенства?`,`<`,[">","=","определить нельзя"],`Чтобы вернуться назад, делим на отрицательное число ${m}; знак снова меняется.`,[a,b,m],{a,b,m,expected:"<"});}
+ if(v==="two_steps"){const m=-ri(2,4),c=ri(-5,5),A=a*m+c,B=b*m+c;return g8StrictChoice87(raw,d,v,`Из <span class="math">${a}<${b}</span> обе части умножили на ${m}, затем прибавили ${c}. Какое сравнение верно?`,`${A} > ${B}`,[`${A} < ${B}`,`${A} = ${B}`,"сравнить нельзя"],`Умножение на ${m}<0 меняет знак, а одинаковое прибавление ${c} уже его не меняет.`,[a,b,m,c],{a,b,m,c,A,B,expected:">"});}
+ return g8StrictChoice87(raw,d,v,"Можно ли из факта a < b без дополнительных условий заключить, что a² < b²?","нет",["да, всегда","да, если a и b отрицательны","да, потому что квадрат сохраняет любой порядок"],"Нет. Например, −5 < 2, но (−5)²=25 > 4=2². Для возведения в квадрат нужны дополнительные условия.",[],{expected:"нет"});
+}
+
+function g8Make87Equivalent(raw,d){
+ const vars=d===0?["add","subtract","mult_pos","mult_neg","rule","spot_error","identify"]:d===1?["add","subtract","mult_pos","mult_neg","divide_neg","spot_error","identify","restore"]:["mult_neg","divide_neg","spot_error","identify","restore","two_step","same_solution"];
+ const v=g8Pick(vars),k=ri(-8,8),b=ri(-7,7),a=g8Pick([-4,-3,-2,2,3,4]),op=g8Pick(["<",">","≤","≥"]);
+ if(v==="rule")return g8StrictChoice87(raw,d,v,"Что означает, что два неравенства равносильны?","у них одно и то же множество решений",["у них одинаковая левая часть","у них одинаковые коэффициенты","оба имеют хотя бы одно решение"],"Равносильность означает совпадение множеств решений.",[],{expected:"same-set"});
+ if(v==="add"||v==="subtract"){const c=ri(-6,6),left=`x ${b>=0?"+":"−"} ${Math.abs(b)}`,nb=v==="add"?b+c:b-c,nk=v==="add"?k+c:k-c;return g8StrictChoice87(raw,d,v,`К неравенству <span class="math">${left} ${op} ${k}</span> ${v==="add"?"прибавили":"из обеих частей вычли"} ${c}. Какое преобразование равносильно?`,`${g8LinearExpr87(1,nb)} ${op} ${nk}`,[`${g8LinearExpr87(1,nb)} ${g8IneqFlip87(op)} ${nk}`,`${g8LinearExpr87(1,b)} ${op} ${nk}`,`${g8LinearExpr87(1,nb)} = ${nk}`],`При прибавлении или вычитании одного и того же числа знак не меняется.`,[b,k,c,op],{b,k,c,op,expected:`${nb}:${op}:${nk}`});}
+ if(v==="mult_pos"){const m=ri(2,5);return g8StrictChoice87(raw,d,v,`Неравенство <span class="math">x ${op} ${k}</span> умножили на ${m}. Что получим?`,`${m}x ${op} ${m*k}`,[`${m}x ${g8IneqFlip87(op)} ${m*k}`,`${m}x ${op} ${k}`,`x ${op} ${m*k}`],`Число ${m}>0, поэтому знак сохраняется, а обе части умножаются на ${m}.`,[m,k,op],{m,k,op,expected:`${m}:${op}:${m*k}`});}
+ if(v==="mult_neg"||v==="divide_neg"){const m=-ri(2,5),flip=g8IneqFlip87(op);if(v==="mult_neg")return g8StrictChoice87(raw,d,v,`Неравенство <span class="math">x ${op} ${k}</span> умножили на ${m}. Выбери равносильное.`,`${m}x ${flip} ${m*k}`,[`${m}x ${op} ${m*k}`,`${m}x ${flip} ${k}`,`${m}x = ${m*k}`],`При умножении на ${m}<0 знак ${op} меняется на ${flip}.`,[m,k,op],{m,k,op,expected:flip});const mm=ri(2,5),left=-mm,kk=k*left;return g8StrictChoice87(raw,d,v,`Обе части <span class="math">${left}x ${op} ${kk}</span> разделили на ${left}. Что получим?`,`x ${g8IneqFlip87(op)} ${k}`,[`x ${op} ${k}`,`x ${g8IneqFlip87(op)} ${kk}`,`x = ${k}`],`Делим на отрицательное ${left}, поэтому знак обязательно меняется.`,[left,k,op],{left,k,op,expected:g8IneqFlip87(op)});}
+ if(v==="spot_error")return g8StrictChoice87(raw,d,v,"Ученик написал: −3x > 12 ⇒ x > −4. В чём ошибка?","при делении на −3 нужно поменять знак: x < −4",["нужно получить x > 4","делить на −3 нельзя","ошибки нет"],"При делении обеих частей на отрицательное число знак > меняется на <.",[],{expected:"x<−4"});
+ if(v==="identify"){const p=ri(2,5),q=ri(-6,6),rhs=p*k+q;return g8StrictChoice87(raw,d,v,`Какое неравенство равносильно <span class="math">${p}x ${q>=0?"+":"−"} ${Math.abs(q)} ${op} ${rhs}</span>?`,`x ${op} ${k}`,[`x ${g8IneqFlip87(op)} ${k}`,`x ${op} ${rhs}`,`x = ${k}`],`Вычитаем ${q}, затем делим на положительное ${p}; направление не меняется.`,[p,q,k,op],{p,q,k,op,expected:`x${op}${k}`});}
+ if(v==="restore"){const m=-ri(2,5),flip=g8IneqFlip87(op);return g8StrictChoice87(raw,d,v,`Какое исходное неравенство при умножении обеих частей на ${m} превращается в <span class="math">${m}x ${flip} ${m*k}</span>?`,`x ${op} ${k}`,[`x ${flip} ${k}`,`x ${op} ${m*k}`,`x = ${k}`],`Обратное действие — деление на отрицательное число; знак снова меняется.`,[m,k,op],{m,k,op,expected:`x${op}${k}`});}
+ if(v==="two_step"){const m=-ri(2,4),c=ri(-5,5),flip=g8IneqFlip87(op);return g8StrictChoice87(raw,d,v,`Из <span class="math">x ${op} ${k}</span> сначала умножили обе части на ${m}, затем прибавили ${c}. Какой знак должен стоять в результате?`,flip,[op,"=","знак определить нельзя"],`Первое действие — умножение на отрицательное число — меняет знак на ${flip}; последующее прибавление его не меняет.`,[m,c,k,op],{m,c,k,op,expected:flip});}
+ const p=ri(2,5);return g8StrictChoice87(raw,d,v,`Какая пара неравенств имеет одно и то же множество решений?`,`x > ${k} и ${p}x > ${p*k}`,[`x > ${k} и x < ${k}`,`x > ${k} и x ≥ ${k}`,`x > ${k} и x > ${k+1}`],`Умножение на положительное ${p} сохраняет множество решений: x>${k} ⇔ ${p}x>${p*k}.`,[p,k],{p,k,expected:"same-set"});
+}
+
+function g8Make87Linear(raw,d){
+ const vars=d===0?["solve_choice","endpoint","membership","pick_solution","sign_after_div","number_line"]:d===1?["solve_choice","endpoint","membership","pick_solution","sign_after_div","number_line","both_sides","error","greatest_integer"]:["solve_choice","membership","pick_solution","number_line","both_sides","error","greatest_integer","least_integer","reverse_build"];
+ const v=g8Pick(vars),m=g8LinearModel87(d,{allowBoth:v==="both_sides"}),expr=v==="both_sides"?`${g8LinearExpr87(m.a,m.b)} ${m.op} ${g8LinearExpr87(m.r,m.c)}`:`${g8LinearExpr87(m.a,m.b)} ${m.op} ${m.c}`,sol=`x ${m.solutionOp} ${m.k}`;
+ if(v==="solve_choice"||v==="both_sides")return g8StrictChoice87(raw,d,v,`Реши неравенство <span class="math">${expr}</span>.`,sol,[`x ${g8IneqFlip87(m.solutionOp)} ${m.k}`,`x ${m.solutionOp} ${-m.k}`,`x = ${m.k}`],v==="both_sides"?`Переносим члены с x влево, числа вправо: получаем (${m.a}−${m.r})x ${m.op} ${m.c-m.b}. Коэффициент при x равен ${m.delta}; после деления получаем ${sol}.`:`Переносим ${m.b===0?"свободный член":"число"} и делим на ${m.a}. ${m.a<0?`Так как ${m.a}<0, знак меняется. `:""}Получаем ${sol}.`,[m.a,m.b,m.c,m.op,m.k,m.r||0],{...m,expected:sol});
+ if(v==="endpoint")return g8Number87(raw,d,v,`Решение неравенства <span class="math">${expr}</span> имеет границу x = ?. Найди граничное число.`,m.k,`При равенстве ${g8LinearExpr87(m.a,m.b)}=${m.c}. Отсюда x=${m.k}; знак решения: ${sol}.`,[m.a,m.b,m.c,m.k,m.op],{...m,expected:m.k});
+ if(v==="membership"){const yes=Math.random()<.5,x=g8PickSolution87(m.k,m.solutionOp,yes),correct=yes?"ДА":"НЕТ";return g8StrictChoice87(raw,d,v,`Является ли число <span class="math">x=${x}</span> решением неравенства <span class="math">${expr}</span>?`,correct,[correct==="ДА"?"НЕТ":"ДА"],`После решения получаем ${sol}. Число ${x} ${yes?"удовлетворяет":"не удовлетворяет"} этому условию.`,[m.a,m.b,m.c,m.op,m.k,x,yes?1:0],{...m,x,binaryProof:true,proofResult:yes,expected:correct});}
+ if(v==="pick_solution"){const good=g8PickSolution87(m.k,m.solutionOp,true),bad=[];for(let i=0;i<20&&bad.length<3;i++){const x=g8PickSolution87(m.k,m.solutionOp,false);if(x!==good&&!bad.includes(x))bad.push(x)}return g8StrictChoice87(raw,d,v,`Какое число является решением <span class="math">${expr}</span>?`,String(good),bad.map(String),`Неравенство равносильно ${sol}. Из предложенных чисел условие выполняет ${good}.`,[m.a,m.b,m.c,m.op,m.k,good],{...m,expected:good});}
+ if(v==="sign_after_div")return g8StrictChoice87(raw,d,v,`При решении <span class="math">${expr}</span> нужно разделить на ${m.a}. Что произойдёт со знаком?`,m.a<0?"знак изменится на противоположный":"знак сохранится",[m.a<0?"знак сохранится":"знак изменится на противоположный","появится знак =","знак исчезнет"],m.a<0?`Коэффициент ${m.a}<0, поэтому при делении знак меняется.`:`Коэффициент ${m.a}>0, поэтому при делении знак сохраняется.`,[m.a,m.op],{...m,expected:m.a<0?"flip":"same"});
+ if(v==="number_line"){let left=null,right=null,leftClosed=false,rightClosed=false;if(m.solutionOp===">"||m.solutionOp==="≥"){left=m.k;leftClosed=m.solutionOp==="≥"}else{right=m.k;rightClosed=m.solutionOp==="≤"}let q=g8StrictChoice87(raw,d,v,"Какое неравенство изображено на числовой прямой?",sol,[`x ${g8IneqFlip87(m.solutionOp)} ${m.k}`,`x ${m.solutionOp==="<"?"≤":m.solutionOp==="≤"?"<":m.solutionOp===">"?"≥":">"} ${m.k}`,`x = ${m.k}`],`Закрашенная точка означает нестрогий знак (≤ или ≥), пустая — строгий (< или >). Луч показывает направление множества решений.`,[m.k,m.solutionOp],{...m,expected:sol});return g8NumberLine87(q,{left,leftClosed,right,rightClosed,focus:m.k});}
+ if(v==="error")return g8StrictChoice87(raw,d,v,"Ученик решил: −4x ≤ 12 ⇒ x ≤ −3. Что нужно исправить?","после деления на −4 должно быть x ≥ −3",["ответ x ≤ 3","делить на −4 нельзя","ошибки нет"],"При делении на отрицательное число знак ≤ меняется на ≥.",[],{expected:"x≥−3"});
+ if(v==="greatest_integer"){const mm={solutionOp:"<",k:ri(-3,8)};return g8Number87(raw,d,v,`Какое наибольшее целое число удовлетворяет <span class="math">x < ${mm.k}</span>?`,mm.k-1,`Для x<${mm.k} ближайшее целое слева — ${mm.k-1}.`,[mm.k],{...mm,expected:mm.k-1});}
+ if(v==="least_integer"){const kk=ri(-8,4);return g8Number87(raw,d,v,`Какое наименьшее целое число удовлетворяет <span class="math">x > ${kk}</span>?`,kk+1,`Для x>${kk} ближайшее целое справа — ${kk+1}.`,[kk],{k:kk,solutionOp:">",expected:kk+1});}
+ const kk=ri(-6,6),op=g8Pick(["<",">","≤","≥"]),a=g8Pick([2,3,4]);return g8StrictChoice87(raw,d,v,`Какое неравенство имеет решение <span class="math">x ${op} ${kk}</span>?`,`${a}x ${op} ${a*kk}`,[`${a}x ${g8IneqFlip87(op)} ${a*kk}`,`${a}x ${op} ${kk}`,`${a}x = ${a*kk}`],`Умножаем обе части решения на положительное ${a}; знак сохраняется.`,[kk,op,a],{k:kk,op,a,expected:`${a}x${op}${a*kk}`});
+}
+
+function g8SystemModel87(d,{allowEmpty=false}={}){let L=ri(d===0?-5:-9,d===2?5:3),U=ri(L+2,L+(d===2?9:7));if(allowEmpty&&Math.random()<.25){U=L-ri(1,4)}const lc=Math.random()<.5,uc=Math.random()<.5;return {L,U,lc,uc,empty:L>U||(L===U&&!(lc&&uc))}}
+function g8SystemText87(m){return m.empty?"нет решений":g8IntervalText87(m.L,m.lc,m.U,m.uc)}
+function g8SystemContains87(m,x){if(m.empty)return false;const lo=m.lc?x>=m.L:x>m.L,hi=m.uc?x<=m.U:x<m.U;return lo&&hi}
+function g8Make87Systems(raw,d){
+ const vars=d===0?["intersection","membership","number_line","stronger_lower","stronger_upper","rule"]:d===1?["intersection","membership","number_line","stronger_lower","stronger_upper","integer_count","solve_transformed","empty_case","error_union"]:["intersection","membership","number_line","integer_count","solve_transformed","empty_case","error_union","reverse_system","boundary_type"];
+ const v=g8Pick(vars),m=g8SystemModel87(d,{allowEmpty:v==="empty_case"}),sol=g8SystemText87(m);
+ if(v==="rule")return g8StrictChoice87(raw,d,v,"Что означает решить систему неравенств?","найти пересечение множеств решений всех неравенств",["объединить все решения","решить только первое неравенство","выбрать любое решение одного из неравенств"],"Число должно удовлетворять каждому неравенству системы одновременно, поэтому берём пересечение.",[],{expected:"intersection"});
+ if(v==="intersection"){const t1=`x ${m.lc?"≥":">"} ${m.L}`,t2=`x ${m.uc?"≤":"<"} ${m.U}`;return g8StrictChoice87(raw,d,v,`Реши систему: <span class="math">${t1}; ${t2}</span>.`,sol,[`x ${m.lc?"≥":">"} ${m.L}`,`x ${m.uc?"≤":"<"} ${m.U}`,`x < ${m.L} или x > ${m.U}`],`Нужно выполнить оба условия одновременно. Их общая часть: ${sol}.`,[m.L,m.U,m.lc?1:0,m.uc?1:0],{...m,expected:sol});}
+ if(v==="membership"){const yes=Math.random()<.5;let x;if(yes&&!m.empty){const min=m.L+(m.lc?0:1),max=m.U-(m.uc?0:1);x=min<=max?ri(min,max):m.L}else{x=g8Pick([m.L-2,m.L-1,m.U+1,m.U+2])}const correct=g8SystemContains87(m,x)?"ДА":"НЕТ";return g8StrictChoice87(raw,d,v,`Принадлежит ли <span class="math">x=${x}</span> решению системы <span class="math">x ${m.lc?"≥":">"} ${m.L}; x ${m.uc?"≤":"<"} ${m.U}</span>?`,correct,[correct==="ДА"?"НЕТ":"ДА"],`Проверяем оба условия. Число ${x} ${g8SystemContains87(m,x)?"удовлетворяет обоим":"не удовлетворяет хотя бы одному"}.`,[m.L,m.U,m.lc?1:0,m.uc?1:0,x],{...m,x,binaryProof:true,proofResult:g8SystemContains87(m,x),expected:correct});}
+ if(v==="number_line"){let q=g8StrictChoice87(raw,d,v,"Какой промежуток показан на числовой прямой?",sol,[g8IntervalText87(m.L,!m.lc,m.U,m.uc),g8IntervalText87(m.L,m.lc,m.U,!m.uc),`x < ${m.L} или x > ${m.U}`],`Общая закрашенная часть идёт от ${m.L} до ${m.U}; тип точек задаёт строгие или нестрогие границы.`,[m.L,m.U,m.lc?1:0,m.uc?1:0],{...m,expected:sol});return g8NumberLine87(q,{left:m.L,leftClosed:m.lc,right:m.U,rightClosed:m.uc,focus:0});}
+ if(v==="stronger_lower"){const a=ri(-7,2),b=ri(a+1,7),strict=Math.random()<.5;const op=strict?">":"≥",correct=`x ${op} ${b}`;return g8StrictChoice87(raw,d,v,`Найди пересечение: <span class="math">x ${op} ${a}</span> и <span class="math">x ${op} ${b}</span>.`,correct,[`x ${op} ${a}`,`${a} ${strict?"<":"≤"} x ${strict?"<":"≤"} ${b}`,"нет решений"],`Оба условия требуют идти вправо; более сильная нижняя граница — ${b}.`,[a,b,strict?1:0],{a,b,strict,expected:correct});}
+ if(v==="stronger_upper"){const a=ri(-7,2),b=ri(a+1,7),strict=Math.random()<.5;const op=strict?"<":"≤",correct=`x ${op} ${a}`;return g8StrictChoice87(raw,d,v,`Найди пересечение: <span class="math">x ${op} ${a}</span> и <span class="math">x ${op} ${b}</span>.`,correct,[`x ${op} ${b}`,`${a} ${strict?"<":"≤"} x ${strict?"<":"≤"} ${b}`,"нет решений"],`Оба условия требуют идти влево; более сильная верхняя граница — ${a}.`,[a,b,strict?1:0],{a,b,strict,expected:correct});}
+ if(v==="integer_count"){const vals=[];for(let x=m.L-1;x<=m.U+1;x++)if(g8SystemContains87(m,x))vals.push(x);return g8Number87(raw,d,v,`Сколько целых решений имеет система <span class="math">x ${m.lc?"≥":">"} ${m.L}; x ${m.uc?"≤":"<"} ${m.U}</span>?`,vals.length,`Целые числа в общей части: ${vals.length?vals.join(", "):"нет"}. Их ${vals.length}.`,[m.L,m.U,m.lc?1:0,m.uc?1:0],{...m,integers:vals,expected:vals.length});}
+ if(v==="solve_transformed"){const L=ri(-5,2),U=ri(L+3,L+8),a=ri(2,4),b=ri(-5,5),leftR=a*L+b,rightR=a*U+b,lc=Math.random()<.5,uc=Math.random()<.5,mm={L,U,lc,uc,empty:false},ans=g8SystemText87(mm);return g8StrictChoice87(raw,d,v,`Реши систему: <span class="math">${a}x ${b>=0?"+":"−"} ${Math.abs(b)} ${lc?"≥":">"} ${leftR}; ${a}x ${b>=0?"+":"−"} ${Math.abs(b)} ${uc?"≤":"<"} ${rightR}</span>.`,ans,[`x ${lc?"≥":">"} ${L}`,`x ${uc?"≤":"<"} ${U}`,`x < ${L} или x > ${U}`],`В обоих неравенствах вычитаем ${b} и делим на положительное ${a}. Получаем пересечение ${ans}.`,[a,b,L,U,lc?1:0,uc?1:0],{...mm,a,b,expected:ans});}
+ if(v==="empty_case"){const L=ri(2,7),U=ri(-6,L-1),mm={L,U,lc:false,uc:false,empty:true};return g8StrictChoice87(raw,d,v,`Реши систему: <span class="math">x > ${L}; x < ${U}</span>.`,"нет решений",[`x > ${L}`,`x < ${U}`,`${U} < x < ${L}`],`Одновременно быть больше ${L} и меньше ${U} невозможно, потому что ${U}<${L}. Пересечение пусто.`,[L,U],{...mm,expected:"none"});}
+ if(v==="error_union")return g8StrictChoice87(raw,d,v,"Для системы x > 2 и x < 7 ученик записал: «x > 2 или x < 7». В чём ошибка?","для системы нужно пересечение: 2 < x < 7",["нужно оставить только x > 2","нужно оставить только x < 7","ошибки нет"],"Система требует одновременного выполнения обоих неравенств, поэтому берётся пересечение, а не объединение.",[],{expected:"2<x<7"});
+ if(v==="reverse_system"){const L=ri(-5,1),U=ri(L+3,L+8),ans=g8IntervalText87(L,false,U,true);return g8StrictChoice87(raw,d,v,`Какая система задаёт множество <span class="math">${L} < x ≤ ${U}</span>?`,`x > ${L} и x ≤ ${U}`,[`x < ${L} и x ≥ ${U}`,`x > ${L} или x ≤ ${U}`,`x ≥ ${L} и x < ${U}`],`Левая граница строгая: x>${L}; правая включена: x≤${U}. Для системы нужны оба условия одновременно.`,[L,U],{L,U,expected:ans});}
+ const L=ri(-5,2),U=ri(L+2,L+7);return g8StrictChoice87(raw,d,v,`В решении системы левая точка ${L} не входит, а правая ${U} входит. Как записать промежуток?`,`${L} < x ≤ ${U}`,[`${L} ≤ x < ${U}`,`${L} ≤ x ≤ ${U}`,`${L} < x < ${U}`],`Пустая левая точка означает строгий знак <, закрашенная правая — знак ≤.`,[L,U],{L,U,expected:`${L}<x≤${U}`});
+}
+
+const G8_PRE87_MAKE=makeG8Question;
+makeG8Question=function(id,stageOverride=null){
+ const raw=rawCourseId(id),full=`g8:${raw}`,d=Math.max(0,Math.min(2,Number.isInteger(stageOverride)?stageOverride:activeDifficulty()));
+ if(!G8_STAGE87_IDS.has(full))return G8_PRE87_MAKE(id,stageOverride);
+ if(raw==="numerical_inequalities_properties")return g8Make87NumProps(raw,d);
+ if(raw==="equivalent_inequalities")return g8Make87Equivalent(raw,d);
+ if(raw==="linear_inequalities")return g8Make87Linear(raw,d);
+ if(raw==="linear_inequality_systems")return g8Make87Systems(raw,d);
+ throw new Error(`Неизвестная тема 8.7: ${raw}`);
+};
+
+const G8_PRE87_FRESH=freshQuiz;
+freshQuiz=function(id){
+ const s=String(id),full=s.startsWith("g8:")?s:`g8:${rawCourseId(s)}`;
+ if(!G8_STAGE87_IDS.has(full))return G8_PRE87_FRESH(id);
+ const raw=rawCourseId(full),maker=()=>makeG8Question(full),sigOf=q=>q.sig||`g8:${raw}:${normalizePromptForCompare(q.text)}`;
+ if(!blockSession||blockSession.kind!=="g8quiz")return freshCandidate(maker,sigOf,300);
+ const prevV=blockSession._g8LastVariant?.[raw]??null,prevP=blockSession._g8LastPosition?.[raw]??-1,prevSig=blockSession._g8LastSig?.[raw]??null,prevText=blockSession._g8LastText?.[raw]??null;let best=null;
+ for(let i=0;i<260;i++){
+  const cand=maker(),vv=cand.templateId||cand.audit?.variant||"",p=g8ChoiceIndex(cand),sig=sigOf(cand),txt=normalizePromptForCompare(cand.text);
+  if(prevV!==null&&vv===prevV)continue;if(prevSig!==null&&sig===prevSig)continue;if(prevText!==null&&txt===prevText)continue;if(p>=0&&prevP>=0&&p===prevP)continue;if(wasUsedInBlock(sig)||wasRecent(sig))continue;
+  registerSignature(sig);cand._signature=sig;best=cand;break;
+ }
+ if(!best){for(let i=0;i<320;i++){const cand=maker(),vv=cand.templateId||cand.audit?.variant||"",p=g8ChoiceIndex(cand),sig=sigOf(cand),txt=normalizePromptForCompare(cand.text);if(prevV!==null&&vv===prevV)continue;if(prevSig!==null&&sig===prevSig)continue;if(prevText!==null&&txt===prevText)continue;if(p>=0&&prevP>=0&&p===prevP)continue;registerSignature(sig);cand._signature=sig;best=cand;break}}
+ if(!best)best=freshCandidate(maker,sigOf,420);
+ blockSession._g8LastVariant=blockSession._g8LastVariant||{};blockSession._g8LastPosition=blockSession._g8LastPosition||{};blockSession._g8LastSig=blockSession._g8LastSig||{};blockSession._g8LastText=blockSession._g8LastText||{};
+ blockSession._g8LastVariant[raw]=best.templateId||best.audit?.variant||"";blockSession._g8LastPosition[raw]=g8ChoiceIndex(best);blockSession._g8LastSig[raw]=best.sig||best._signature||sigOf(best);blockSession._g8LastText[raw]=normalizePromptForCompare(best.text);return best;
+};
+
+g8CatalogAudit=function(){
+ const topics=g8AllTopics(),ids=topics.map(t=>t.id),orders=topics.map(t=>t.order),courseIds=new Set(G8_COURSES.map(c=>c.id)),groupIds=new Set(G8_GROUPS.map(g=>g.id)),issues=[];
+ if(new Set(ids).size!==ids.length)issues.push("duplicate-id");if(ids.some(id=>!id.startsWith("g8:")))issues.push("id-prefix");if(topics.some(t=>t.grade!==8))issues.push("grade");if(new Set(orders).size!==orders.length||orders.some((v,i)=>v!==i+1))issues.push("order");
+ if(topics.some(t=>G8_IMPLEMENTED_87_IDS.has(t.id)?t.implemented!==true:t.implemented!==false))issues.push("implemented-boundary");
+ if(topics.some(t=>G8_IMPLEMENTED_87_IDS.has(t.id)?t.rendererType==="pending":t.rendererType!=="pending"))issues.push("rendererType-boundary");
+ if(topics.some(t=>!t.plannedRendererType))issues.push("plannedRendererType");if(topics.some(t=>!courseIds.has(t.course)))issues.push("course");if(G8_GROUPS.some(g=>!courseIds.has(g.course)||!groupIds.has(g.id)))issues.push("group");if(topics.some(t=>!t.title||!t.shortTitle||!t.source||!t.programRef))issues.push("metadata");
+ return {ok:issues.length===0,issues,total:topics.length,implemented:g8ImplementedTopics().length,pending:topics.filter(t=>t.rendererType==="pending").length};
+};
+showG8Pending=function(id){const t=g8InfoById(id);if(!t)return renderGrade8();if(t.implemented!==false)return openG8Topic(t.id);const course=g8CourseById(t.course);show(`<div class="mtop"><h2>${esc(t.title)}</h2><button class="x" onclick="closeModal()">×</button></div><div class="lesson"><b>8 класс • ${esc(course?.title||t.course)} • ${esc(t.section||t.group)}</b><br><br>На Этапе 8.7 рабочими являются первые семь алгебраических блоков, включая «Неравенства». Эта тема относится к следующему этапу и пока остаётся pending; она не считается непройденной.<br><br><small>Планируемый renderer: ${esc(t.plannedRendererType||"quiz")}. Переиспользование: ${esc(t.reuseEngine||"общий block engine")}.</small></div><div class="actions"><button class="btn primary" onclick="closeModal()">Понятно</button></div>`) };
+renderGrade8=function(){const counts=G8_COURSES.map(c=>{const ts=g8GroupsByCourse(c.id).flatMap(g=>g.topics);return {title:c.title,n:ts.length,ready:ts.filter(t=>t.implemented!==false).length}}),ready=g8ImplementedTopics().length;mainView.innerHTML=`<div class="home-back-row"><button class="home-back-btn" onclick="renderHome()">← Главный экран</button></div><section class="grade-hero"><div><h1>Математика 8 класса</h1><p>Алгебра • Геометрия • Вероятность и статистика. Рабочие блоки: «Квадратные корни и действительные числа», «Степень с целым показателем и стандартная запись», «Квадратный трёхчлен», «Алгебраические дроби и рациональные выражения», «Квадратные и рациональные уравнения», «Системы уравнений», «Неравенства».</p></div><span class="grade-chip">${gradeBookIcon(8,true)} 8 класс</span></section><div class="g7-catalog-summary"><b>Каталог: ${g8AllTopics().length} тем • реализовано: ${ready}.</b> ${counts.map(x=>`${esc(x.title)} — ${x.ready}/${x.n}`).join(" • ")}. Остальные pending-темы не считаются слабыми или непройденными.</div>${G8_COURSES.map(renderG8Course).join("")}`};
+const G8_PRE87_REPORT_CARD=reportCourseCardHtml;
+reportCourseCardHtml=function(data,grade){if(Number(grade)!==8)return G8_PRE87_REPORT_CARD(data,grade);const c=data.courseProgress.g8,st=data.courseProgress.g8Stages,map=data.knowledge.g8,started=c.done>0||map.topics.some(x=>x.started),sections=data.courseProgress.g8Sections.map(x=>`<div class="report-section-line"><span>${esc(x.title)} (${x.availableCount}/${x.catalogCount} тем доступно)</span><b>${x.availableCount?x.percent+"%":"Скоро"}</b></div>`).join("")+`<div class="report-period-note">Этап 8.7: реализовано ${g8ImplementedTopics().length}/${g8AllTopics().length} тем. Pending-темы не входят в процент прогресса.</div>`;return `<div class="report-course-card"><div class="report-course-head"><b>${gradeBookIcon(8,true)} 8 класс</b><strong>${started?c.percent+"%":"Не начат"}</strong></div><div class="report-progress"><span style="width:${c.percent}%"></span></div><div class="report-stage-line"><span>🌱 ${st.warmup}</span><span>🚀 ${st.training}</span><span>🏆 ${st.master}</span><span>${c.done}/${c.total} ступеней</span></div><div style="margin-top:7px">${sections}</div></div>`};
+const G8_STAGE87_BOUNDARY_AUDIT=(()=>{const all=g8AllTopics(),implemented=all.filter(t=>t.implemented!==false).map(t=>t.id),outside=implemented.filter(id=>!G8_IMPLEMENTED_87_IDS.has(id)),missing=[...G8_IMPLEMENTED_87_IDS].filter(id=>!implemented.includes(id));return {ok:outside.length===0&&missing.length===0,implemented,pending:all.filter(t=>t.implemented===false).map(t=>t.id),outside,missing}})();
+if(!G8_STAGE87_BOUNDARY_AUDIT.ok)console.error("G8 8.7 boundary audit failed",G8_STAGE87_BOUNDARY_AUDIT);
+
+/* =========================================================
+   ЭТАП 8.8 — Функция: основные понятия
+   Orders 38–41. Следующая группа остаётся pending.
+   ========================================================= */
+const G8_STAGE88_IDS=new Set([
+ "g8:function_concept","g8:function_domain_range",
+ "g8:function_representations","g8:function_graph_properties_real_processes"
+]);
+const G8_IMPLEMENTED_88_IDS=new Set([...G8_IMPLEMENTED_87_IDS,...G8_STAGE88_IDS]);
+for(const t of g8AllTopics())if(G8_STAGE88_IDS.has(t.id)){t.implemented=true;t.rendererType=t.plannedRendererType||"quiz"}
+
+const G8_STAGE88_LESSONS={
+ function_concept:"<b>Функция</b> — это зависимость, при которой каждому допустимому значению аргумента <span class='math'>x</span> соответствует ровно одно значение функции <span class='math'>y</span>. Запись <span class='math'>y=f(x)</span> означает: выбрали x, по правилу функции получили y. Например, если <span class='math'>y=2x+1</span>, то при <span class='math'>x=3</span> получаем <span class='math'>y=7</span>.",
+ function_domain_range:"<b>Область определения</b> — все допустимые значения аргумента <span class='math'>x</span>. <b>Множество значений</b> — все значения <span class='math'>y</span>, которые функция принимает. По таблице область определения читают по строке x, а множество значений — по строке y, не повторяя одинаковые значения.",
+ function_representations:"Функцию можно задавать разными способами: <b>формулой</b>, <b>таблицей</b>, <b>графиком</b> или <b>словесным правилом</b>. Эти способы описывают одну и ту же зависимость. Таблица значений строится по правилу функции: для каждого выбранного x вычисляют <span class='math'>y=f(x)</span>.",
+ function_graph_properties_real_processes:"<b>График функции</b> — множество точек <span class='math'>(x; y)</span>, где <span class='math'>y=f(x)</span>. По графику можно читать значения функции, находить наибольшие и наименьшие значения на показанном участке, видеть рост, убывание и постоянные участки, а также описывать реальные процессы."
+};
+const G8_PRE88_LESSON=g8Lesson;
+g8Lesson=function(id){const raw=rawCourseId(id);return G8_STAGE88_LESSONS[raw]||G8_PRE88_LESSON(id)};
+
+function g8Attach88(q,raw,d,variant,model={}){q.templateId=variant;q.audit={...(q.audit||{}),type:"g8Stage88",topic:raw,stage:d,variant,model};return q}
+function g8Choice88(raw,d,variant,text,correct,wrong,ex,parts=[],model={}){return g8Attach88(g7Choice(text,correct,wrong,ex,g8Sig(raw,d,variant,parts),{}),raw,d,variant,model)}
+function g8StrictChoice88(raw,d,variant,text,correct,wrong,ex,parts=[],model={}){return g8Attach88(g7StrictChoice(text,correct,wrong,ex,g8Sig(raw,d,variant,parts),{}),raw,d,variant,model)}
+function g8Number88(raw,d,variant,text,answer,ex,parts=[],model={},opts={}){return g8Attach88(g7Number(text,answer,ex,g8Sig(raw,d,variant,parts),{...opts,audit:{}}),raw,d,variant,model)}
+function g8Table88(q,data){return g6AttachTable(q,data)}
+function g8Graph88(q,data,journal=""){return g7AttachGraph(q,data,journal)}
+function g8Set88(arr){return `{${[...new Set(arr)].sort((a,b)=>Number(a)-Number(b)).join("; ")}}`}
+function g8LinearPlain88(k,b){if(k===0)return String(b);const kx=k===1?"x":k===-1?"−x":`${k}x`;if(b===0)return kx;return `${kx} ${b>0?"+":"−"} ${Math.abs(b)}`}
+function g8LinearFormula88(k,b){return `y = ${g8LinearPlain88(k,b)}`}
+function g8TableData88(xs,ys){return {headers:["x",...xs],rows:[["y",...ys]]}}
+function g8PairsText88(xs,ys){return xs.map((x,i)=>`(${x}; ${ys[i]})`).join(", ")}
+function g8FunctionModel88(d=0){const k=g8Pick(d===0?[-3,-2,2,3]:[-4,-3,-2,-1,1,2,3,4]),b=ri(d===2?-6:-4,d===2?6:4),xs=d===0?[-2,-1,0,1,2]:[-3,-1,0,2,3],ys=xs.map(x=>k*x+b);return {kind:"linear",k,b,formula:g8LinearFormula88(k,b),xs,ys}}
+function g8FunctionEval88(m,x){return m.k*x+m.b}
+function g8FunctionTableVisual88(q,m,caption="Таблица значений функции"){return g8Table88(q,{headers:["x","y"],rows:m.xs.map((x,i)=>[x,m.ys[i]]),caption})}
+function g8GraphLineData88(m,{point=null,caption="График функции"}={}){const range=6,serie=g7LineSeries(m.k,m.b,{range,label:m.formula}),points=point?[{label:point.label||"A",x:rational(point.x),y:rational(point.y)}]:[];return g7GraphData([serie],{range,points,caption})}
+function g8PolylineData88(points,{caption="График зависимости",label="y=f(x)"}={}){return g7GraphData([{points:points.map(p=>({x:rational(p.x),y:rational(p.y)})),label,thin:true}],{range:6,caption})}
+
+function g8Make88Concept(raw,d){
+ const vars=d===0?["definition","argument","value_role","evaluate","pair_check","table_function","one_output"]:d===1?["evaluate","pair_check","table_function","nonfunction_pairs","inverse_lookup","verbal_dependency","find_missing"]:["nonfunction_pairs","error_two_outputs","inverse_lookup","find_missing","rule_from_pairs","verbal_dependency","pair_not_solution","definition"];
+ const v=g8Pick(vars);
+ if(v==="definition")return g8StrictChoice88(raw,d,v,"Какое описание функции верно?","каждому допустимому x соответствует ровно одно значение y",["одному x обязательно соответствуют два значения y","каждому y соответствует ровно один x","x и y всегда равны"],"Главное условие функции: одному допустимому значению аргумента x соответствует ровно одно значение функции y.",[],{concept:"function"});
+ if(v==="argument")return g8StrictChoice88(raw,d,v,"В записи <span class='math'>y=f(x)</span> как называют x?","аргумент",["значение функции","график","область значений"],"x — аргумент функции. После выбора x по правилу функции получают y.",[],{role:"x"});
+ if(v==="value_role")return g8StrictChoice88(raw,d,v,"В записи <span class='math'>y=f(x)</span> что обозначает y?","значение функции",["аргумент","область определения","коэффициент"],"y — значение функции, соответствующее выбранному аргументу x.",[],{role:"y"});
+ if(v==="evaluate"){const m=g8FunctionModel88(d),x=g8Pick(m.xs),y=g8FunctionEval88(m,x);return g8Number88(raw,d,v,`Функция задана формулой <span class='math'>${m.formula}</span>. Найди y при x = ${x}.`,y,`Подставляем x=${x}: y=${m.k}·(${x}) ${m.b<0?"−":"+"} ${Math.abs(m.b)}=${y}.`,[m.k,m.b,x],{...m,x,y});}
+ if(v==="pair_check"||v==="pair_not_solution"){const m=g8FunctionModel88(d),x=g8Pick(m.xs),trueY=g8FunctionEval88(m,x),isTrue=Math.random()<.5,y=isTrue?trueY:trueY+g8Pick([-3,-2,-1,1,2,3]),correct=isTrue?"ДА":"НЕТ";return g8StrictChoice88(raw,d,v,`Принадлежит ли пара <span class='math'>(${x}; ${y})</span> зависимости <span class='math'>${m.formula}</span>?`,correct,[correct==="ДА"?"НЕТ":"ДА"],`При x=${x} по формуле получаем y=${trueY}. Поэтому пара (${x}; ${y}) ${isTrue?"соответствует":"не соответствует"} функции.`,[m.k,m.b,x,y],{...m,x,y,trueY,isTrue});}
+ if(v==="table_function"){const valid=Math.random()<.5,xs=valid?[-2,-1,0,1]:[-2,-1,-1,1],ys=valid?xs.map(x=>2*x+1):[-3,-1,2,3],correct=valid?"ДА":"НЕТ",q=g8StrictChoice88(raw,d,v,"Является ли показанная таблица таблицей функции x → y?",correct,[correct==="ДА"?"НЕТ":"ДА"],valid?"Каждому значению x соответствует ровно одно значение y, поэтому это функция.":"Одному x=−1 соответствуют два разных значения y: −1 и 2, поэтому это не функция.",[valid?1:0,...xs,...ys],{xs,ys,isFunction:valid});return g8Table88(q,{headers:["x","y"],rows:xs.map((x,i)=>[x,ys[i]])});}
+ if(v==="one_output"||v==="nonfunction_pairs"||v==="error_two_outputs"){const valid=Math.random()<.5,x0=ri(-3,2),y1=ri(-5,0),y2=ri(1,6),pairs=valid?[[x0,y1],[x0+1,y2],[x0+2,y1+2]]:[[x0,y1],[x0,y2],[x0+1,y1+2]],correct=valid?"ДА":"НЕТ",text=v==="error_two_outputs"?`Ученик считает, что набор пар ${pairs.map(p=>`(${p[0]}; ${p[1]})`).join(", ")} задаёт функцию y от x. Прав ли он?`:`Задаёт ли набор пар ${pairs.map(p=>`(${p[0]}; ${p[1]})`).join(", ")} функцию y от x?`,ex=valid?"Да. Все значения x различны, поэтому каждому x соответствует ровно одно y.":`Нет. Одному и тому же x=${x0} соответствуют два разных значения y: ${y1} и ${y2}.`;return g8StrictChoice88(raw,d,v,text,correct,[correct==="ДА"?"НЕТ":"ДА"],ex,[valid?1:0,x0,y1,y2],{pairs,isFunction:valid});}
+ if(v==="inverse_lookup"){const m=g8FunctionModel88(d),idx=ri(0,m.xs.length-1),x=m.xs[idx],y=m.ys[idx],q=g8Number88(raw,d,v,`По таблице функции найди x, которому соответствует y=${y}.`,x,`В таблице значение y=${y} стоит в строке с x=${x}.`,[m.k,m.b,y],{...m,x,y});return g8FunctionTableVisual88(q,m);}
+ if(v==="verbal_dependency"){const price=ri(20,80)*10,n=ri(2,7),cost=price*n;return g8Number88(raw,d,v,`Стоимость y рублей зависит от количества x одинаковых тетрадей по ${price} ₽: <span class='math'>y=${price}x</span>. Найди стоимость ${n} тетрадей.`,cost,`Подставляем x=${n}: y=${price}·${n}=${cost} ₽.`,[price,n],{price,n,cost});}
+ if(v==="find_missing"){const m=g8FunctionModel88(d),x=g8Pick(m.xs),y=g8FunctionEval88(m,x),q=g8Number88(raw,d,v,`Заполни пропуск в таблице для функции <span class='math'>${m.formula}</span>: при x=${x} значение y равно …`,y,`y=${m.k}·(${x}) ${m.b<0?"−":"+"} ${Math.abs(m.b)}=${y}.`,[m.k,m.b,x],{...m,x,y});return q;}
+ const k=g8Pick([-3,-2,2,3]),b=ri(-3,3),xs=[-1,0,1],ys=xs.map(x=>k*x+b),correct=g8LinearFormula88(k,b),b2=b===3?b-1:b+1;return g8StrictChoice88(raw,d,v,`Какое правило задаёт пары ${g8PairsText88(xs,ys)}?`,correct,[g8LinearFormula88(-k,b),g8LinearFormula88(k,b2),g8LinearFormula88(k,0)],`При x=0 получаем b=${b}; изменение y при увеличении x на 1 равно k=${k}. Поэтому ${correct}.`,[k,b,...ys],{k,b,xs,ys,formula:correct});
+}
+
+function g8Make88Domain(raw,d){
+ const vars=d===0?["domain_table","range_table","domain_member","range_member","distinguish"]:d===1?["domain_table","range_table","finite_square_range","sqrt_domain","process_domain","swap_error","range_member"]:["finite_square_range","sqrt_domain","process_domain","swap_error","range_unique","domain_excluded","distinguish"];
+ const v=g8Pick(vars);
+ if(["domain_table","range_table","domain_member","range_member","range_unique"].includes(v)){
+  const m=g8FunctionModel88(d),domain=g8Set88(m.xs),range=g8Set88(m.ys),data={headers:["x","y"],rows:m.xs.map((x,i)=>[x,m.ys[i]])};
+  if(v==="domain_table"){const wrong=[range,g8Set88(m.xs.slice(0,-1)),g8Set88([...m.xs,9])];const q=g8StrictChoice88(raw,d,v,"Найди область определения функции по таблице.",domain,wrong,`Область определения — все значения x из таблицы: ${domain}.`,[m.k,m.b,...m.xs],{...m,domain,range});return g8Table88(q,data)}
+  if(v==="range_table"||v==="range_unique"){const wrong=[domain,g8Set88(m.ys.slice(0,-1)),g8Set88([...m.ys,99])];const q=g8StrictChoice88(raw,d,v,"Найди множество значений функции по таблице.",range,wrong,`Множество значений — все полученные значения y: ${range}. Повторяющиеся значения записывают один раз.`,[m.k,m.b,...m.ys],{...m,domain,range});return g8Table88(q,data)}
+  if(v==="domain_member"){const yes=Math.random()<.5,x=yes?g8Pick(m.xs):Math.max(...m.xs)+g8Pick([2,3,4]),ans=yes?"ДА":"НЕТ",q=g8StrictChoice88(raw,d,v,`Принадлежит ли число ${x} области определения показанной функции?`,ans,[ans==="ДА"?"НЕТ":"ДА"],yes?`Да. ${x} присутствует среди значений x в таблице.`:`Нет. ${x} отсутствует среди значений x в таблице.`,[m.k,m.b,x,yes?1:0],{...m,x,domain,belongs:yes});return g8Table88(q,data)}
+  const yes=Math.random()<.5,y=yes?g8Pick(m.ys):Math.max(...m.ys)+g8Pick([2,3,4]),ans=yes?"ДА":"НЕТ",q=g8StrictChoice88(raw,d,v,`Принадлежит ли число ${y} множеству значений показанной функции?`,ans,[ans==="ДА"?"НЕТ":"ДА"],yes?`Да. Значение ${y} встречается среди значений y в таблице.`:`Нет. Значение ${y} не встречается среди значений y в таблице.`,[m.k,m.b,y,yes?1:0],{...m,y,range,belongs:yes});return g8Table88(q,data)
+ }
+ if(v==="distinguish")return g8StrictChoice88(raw,d,v,"Что называют областью определения функции?","все допустимые значения аргумента x",["все значения функции y","только положительные x","все точки графика без координат"],"Область определения состоит из допустимых значений аргумента x.",[],{concept:"domain"});
+ if(v==="finite_square_range"){const xs=d===2?[-3,-1,0,2,4]:[-2,-1,0,1,2],ys=xs.map(x=>x*x),domain=g8Set88(xs),range=g8Set88(ys),q=g8StrictChoice88(raw,d,v,`Функция <span class='math'>y=x²</span> задана только для x из множества ${domain}. Каково множество её значений?`,range,[domain,g8Set88(ys.map(y=>-y)),g8Set88([...new Set(ys),25])],`Вычисляем x² для каждого допустимого x: ${xs.map((x,i)=>`${x}²=${ys[i]}`).join(", ")}. Уникальные значения дают ${range}.`,xs,{xs,ys,domain,range});return q;}
+ if(v==="sqrt_domain"){const a=ri(-4,4),correct=`x ≥ ${a}`,wrong=[`x ≤ ${a}`,`x > ${a}`,`x ≠ ${a}`];return g8StrictChoice88(raw,d,v,`Для функции <span class='math'>y=√(x ${a<0?"+":"−"} ${Math.abs(a)})</span> укажи область определения.`,correct,wrong,`Подкоренное выражение должно быть неотрицательным: x ${a<0?"+":"−"} ${Math.abs(a)} ≥ 0, откуда ${correct}.`,[a],{a,domain:correct});}
+ if(v==="process_domain"){const end=g8Pick([5,6,8,10]),correct=`от 0 до ${end} минут`,wrong=[`от 0 до ${end} метров`,`только ${end} минут`,`все действительные числа`];return g8StrictChoice88(raw,d,v,`График показывает расстояние от дома в течение первых ${end} минут прогулки. Что является областью определения в этой модели?`,correct,wrong,`Аргумент — время. В модели рассматривается время от начала наблюдения до ${end} минут, то есть ${correct}.`,[end],{timeStart:0,timeEnd:end});}
+ if(v==="swap_error")return g8StrictChoice88(raw,d,v,"Ученик сказал: «Область определения — это значения y, а множество значений — это x». Где ошибка?","он перепутал x и y",["ошибки нет","область определения всегда состоит только из положительных чисел","множество значений всегда равно области определения"],"Область определения — допустимые x, а множество значений — получающиеся y.",[],{error:"swap-domain-range"});
+ const a=ri(-5,5),correct=`x ≠ ${a}`;return g8StrictChoice88(raw,d,v,`Функция содержит дробь с знаменателем <span class='math'>x ${a<0?"+":"−"} ${Math.abs(a)}</span>. Какое значение x нужно исключить из области определения?`,String(a),[String(a-2),String(a-1),String(a+1),String(a+2)].slice(0,3),`Знаменатель не может быть равен нулю: x ${a<0?"+":"−"} ${Math.abs(a)}=0, поэтому исключаем x=${a}.`,[a],{excluded:a,domain:correct});
+}
+
+function g8Make88Representations(raw,d){
+ const vars=d===0?["identify_formula","identify_table","identify_graph","identify_verbal","complete_table","formula_to_table"]:d===1?["complete_table","formula_from_table","verbal_to_formula","table_consistency","representation_equiv","identify_graph","identify_verbal"]:["formula_from_table","verbal_to_formula","table_consistency","representation_equiv","restore_rule","error_table","choose_graph_meaning"];
+ const v=g8Pick(vars);
+ if(v==="identify_formula")return g8StrictChoice88(raw,d,v,"Какой способ задания функции использован в записи <span class='math'>y=3x−2</span>?","формулой",["таблицей","графиком","словесным описанием"],"Зависимость записана математической формулой, значит функция задана формулой.",[],{representation:"formula"});
+ if(v==="identify_table")return g8StrictChoice88(raw,d,v,"Если значения x и соответствующие им y перечислены по строкам или столбцам, какой способ задания функции используется?","таблицей",["формулой","графиком","только словесно"],"Набор соответствующих значений x и y в строках или столбцах — табличный способ.",[],{representation:"table"});
+ if(v==="identify_graph")return g8StrictChoice88(raw,d,v,"Функция показана множеством точек на координатной плоскости. Какой способ задания использован?","графиком",["таблицей","формулой","словесным правилом"],"Изображение зависимости на координатной плоскости — графический способ задания функции.",[],{representation:"graph"});
+ if(v==="identify_verbal")return g8StrictChoice88(raw,d,v,"«Каждому числу ставят в соответствие его удвоенное значение». Как задана функция?","словесным правилом",["таблицей","графиком","только формулой"],"Правило зависимости описано словами, значит использован словесный способ.",[],{representation:"verbal"});
+ if(v==="complete_table"||v==="formula_to_table"){const m=g8FunctionModel88(d),idx=ri(0,m.xs.length-1),x=m.xs[idx],y=m.ys[idx],q=g8Number88(raw,d,v,`Для функции <span class='math'>${m.formula}</span> заполни значение y при x=${x}.`,y,`Подставляем x=${x} в формулу: y=${m.k}·(${x}) ${m.b<0?"−":"+"} ${Math.abs(m.b)}=${y}.`,[m.k,m.b,x],{...m,x,y});return g8FunctionTableVisual88(q,m,"Таблица значений");}
+ if(v==="formula_from_table"||v==="restore_rule"){const k=g8Pick([-3,-2,2,3]),b=g8Pick([-4,-3,-2,-1,1,2,3,4]),xs=[-1,0,1,2],ys=xs.map(x=>k*x+b),correct=g8LinearFormula88(k,b),b2=b===4?b-1:b+1,q=g8StrictChoice88(raw,d,v,"Какая формула соответствует таблице?",correct,[g8LinearFormula88(-k,b),g8LinearFormula88(k,b2),g8LinearFormula88(k,0)],`При x=0 получаем b=${b}. При увеличении x на 1 значение y меняется на ${k}, значит коэффициент k=${k}. Формула: ${correct}.`,[k,b,...ys],{k,b,xs,ys,formula:correct});return g8Table88(q,{headers:["x","y"],rows:xs.map((x,i)=>[x,ys[i]])});}
+ if(v==="verbal_to_formula"){const price=ri(2,9)*10,correct=`y = ${price}x`,wrong=[`y = ${price} + x`,`y = ${price} − x`,`y = x : ${price}`];return g8StrictChoice88(raw,d,v,`Один билет стоит ${price} ₽. x — число билетов, y — их общая стоимость. Какая формула задаёт зависимость?`,correct,wrong,`Стоимость одного билета умножаем на число билетов: y=${price}x.`,[price],{price,formula:correct});}
+ if(v==="table_consistency"||v==="error_table"){const m=g8FunctionModel88(d),badIndex=ri(0,m.xs.length-1),badYs=[...m.ys];badYs[badIndex]+=g8Pick([-3,-2,-1,1,2,3]);const x=m.xs[badIndex],expected=m.ys[badIndex],shown=badYs[badIndex],q=g8Number88(raw,d,v,`В таблице для функции <span class='math'>${m.formula}</span> допущена ошибка. Какое y должно стоять при x=${x}?`,expected,`По формуле при x=${x}: y=${m.k}·(${x}) ${m.b<0?"−":"+"} ${Math.abs(m.b)}=${expected}. В таблице было ${shown}, это ошибка.`,[m.k,m.b,x,shown],{...m,badIndex,shown,expected});return g8Table88(q,{headers:["x","y"],rows:m.xs.map((xx,i)=>[xx,badYs[i]])});}
+ if(v==="representation_equiv"){const m=g8FunctionModel88(d),x=g8Pick(m.xs),y=g8FunctionEval88(m,x);return g8StrictChoice88(raw,d,v,`Формула <span class='math'>${m.formula}</span> и таблица, построенная по этой формуле, описывают…`,`одну и ту же функцию`,["обязательно разные функции","только область определения","только множество значений"],`Таблица получается вычислением y=f(x) по той же формуле. Например, при x=${x} получаем y=${y}.`,[m.k,m.b,x,y],{...m,x,y});}
+ return g8StrictChoice88(raw,d,v,"Что показывает график функции?","как значение y зависит от x",["только список допустимых x","только формулу без значений","случайное расположение точек"],"Каждая точка графика имеет координаты (x; f(x)), поэтому график показывает зависимость y от x.",[],{representation:"graph-meaning"});
+}
+
+function g8ProcessModel88(){const base=ri(0,2),a=ri(1,2),b=a+ri(1,2),c=Math.max(0,b-ri(0,2)),d=c+ri(1,2);const points=[{x:0,y:base},{x:2,y:a},{x:4,y:b},{x:6,y:d}];return {points,caption:"Изменение величины во времени",label:"процесс"}}
+function g8Make88Graph(raw,d){
+ const vars=d===0?["read_y","membership","trend","point_meaning","process_read","graph_definition"]:d===1?["read_y","read_x","trend","intercept","max_value","process_read","process_compare","membership"]:["read_x","max_value","min_value","constant_section","process_compare","process_conclusion","error_read","membership"];
+ const v=g8Pick(vars);
+ if(["read_y","read_x","trend","intercept","membership","error_read"].includes(v)){
+  const m=g8FunctionModel88(d),xs=[-2,-1,0,1,2].filter(x=>Math.abs(g8FunctionEval88(m,x))<=5),x=g8Pick(xs.length?xs:[0]),y=g8FunctionEval88(m,x),data=g8GraphLineData88(m,{point:{label:"A",x,y},caption:"График функции"});let q;
+  if(v==="read_y")q=g8Number88(raw,d,v,`По графику найди y при x=${x}.`,y,`При x=${x} график проходит через точку (${x}; ${y}), поэтому y=${y}.`,[m.k,m.b,x],{...m,x,y});
+  else if(v==="read_x")q=g8Number88(raw,d,v,`По графику найди x, которому соответствует y=${y}.`,x,`На уровне y=${y} график проходит через точку (${x}; ${y}), поэтому x=${x}.`,[m.k,m.b,x,y],{...m,x,y});
+  else if(v==="trend"){const ans=m.k>0?"возрастает":"убывает";q=g8StrictChoice88(raw,d,v,"Как ведёт себя показанная функция при увеличении x?",ans,[ans==="возрастает"?"убывает":"возрастает","остаётся постоянной","сначала возрастает, затем убывает"],`Коэффициент при x равен ${m.k}. ${m.k>0?"Положительный наклон означает рост":"Отрицательный наклон означает убывание"}.`,[m.k,m.b],{...m,trend:ans});}
+  else if(v==="intercept")q=g8Number88(raw,d,v,"Каково значение функции при x=0?",m.b,`При x=0: y=${m.k}·0 ${m.b<0?"−":"+"} ${Math.abs(m.b)}=${m.b}. Это ордината пересечения с Oy.`,[m.k,m.b],{...m,x:0,y:m.b});
+  else if(v==="membership"){const good=Math.random()<.5,shownY=good?y:y+g8Pick([-2,-1,1,2]),ans=good?"ДА":"НЕТ",membershipData=g8GraphLineData88(m,{point:{label:"A",x,y:shownY},caption:"График функции"});q=g8StrictChoice88(raw,d,v,`Принадлежит ли точка A(${x}; ${shownY}) показанному графику?`,ans,[ans==="ДА"?"НЕТ":"ДА"],`Для x=${x} по формуле графика получаем y=${y}. Поэтому точка (${x}; ${shownY}) ${good?"принадлежит":"не принадлежит"} графику.`,[m.k,m.b,x,shownY],{...m,x,shownY,expectedY:y,belongs:good});return g8Graph88(q,membershipData,m.formula);}
+  else q=g8StrictChoice88(raw,d,v,`Ученик посмотрел на точку A(${x}; ${y}) и сказал: «При x=${y} значение функции равно ${x}». В чём ошибка?`,`он перепутал координаты x и y`,["ошибки нет","нужно поменять знак y","график нельзя читать по точкам"],`Первая координата точки — x=${x}, вторая — y=${y}. Значит при x=${x} значение функции равно ${y}.`,[m.k,m.b,x,y],{...m,x,y,error:"swap-coordinates"});
+  return g8Graph88(q,data,m.formula);
+ }
+ if(v==="graph_definition")return g8StrictChoice88(raw,d,v,"Что представляет собой график функции y=f(x)?","множество точек (x; y), где y=f(x)",["только ось Ox","только значения y без x","любые точки координатной плоскости"],"Точка принадлежит графику тогда и только тогда, когда её координаты удовлетворяют правилу y=f(x).",[],{concept:"graph"});
+ if(v==="point_meaning")return g8StrictChoice88(raw,d,v,"Что означает точка (3; 5) на графике зависимости y от x?","при x=3 значение y равно 5",["при x=5 значение y равно 3","x и y всегда равны","3 и 5 — только номера осей"],"Первая координата — x, вторая — соответствующее значение y.",[],{x:3,y:5});
+ const pm=g8ProcessModel88(),pts=pm.points,data=g8PolylineData88(pts,{caption:"График реального процесса",label:"процесс"});let q;
+ if(v==="process_read"){const p=g8Pick(pts);q=g8Number88(raw,d,v,`По графику процесса найди значение величины при t=${p.x}.`,p.y,`При t=${p.x} график проходит через точку (${p.x}; ${p.y}), поэтому значение равно ${p.y}.`,[...pts.flatMap(p=>[p.x,p.y]),p.x],{...pm,target:p});}
+ else if(v==="max_value"||v==="min_value"){const vals=pts.map(p=>p.y),ans=v==="max_value"?Math.max(...vals):Math.min(...vals),word=v==="max_value"?"наибольшее":"наименьшее";q=g8Number88(raw,d,v,`Какое ${word} значение принимает показанная величина на этом участке графика?`,ans,`Сравниваем ординаты показанных точек: ${vals.join(", ")}. ${word[0].toUpperCase()+word.slice(1)} значение равно ${ans}.`,vals,{...pm,answer:ans});}
+ else if(v==="constant_section"){const level=ri(1,4),points=[{x:0,y:level-1},{x:2,y:level},{x:4,y:level},{x:6,y:level+2}],d2=g8PolylineData88(points,{caption:"График реального процесса",label:"процесс"});q=g8StrictChoice88(raw,d,v,"На каком промежутке показанная величина не изменялась?","от t=2 до t=4",["от t=0 до t=2","от t=4 до t=6","на всём промежутке"],`От t=2 до t=4 график горизонтален: значение остаётся равным ${level}.`,[level],{points,interval:[2,4],level});return g8Graph88(q,d2,"процесс");}
+ else if(v==="process_compare"){const p1=pts[1],p2=pts[3],ans=p2.y-p1.y;q=g8Number88(raw,d,v,`На сколько изменилось значение величины от t=${p1.x} до t=${p2.x}?`,ans,`При t=${p1.x} значение ${p1.y}, при t=${p2.x} — ${p2.y}. Изменение: ${p2.y}−${p1.y}=${ans}.`,[...pts.flatMap(p=>[p.x,p.y])],{...pm,p1,p2,answer:ans});}
+ else {const first=pts[0],last=pts[pts.length-1],grew=last.y>first.y,ans=grew?"к концу наблюдения значение стало больше":last.y<first.y?"к концу наблюдения значение стало меньше":"к концу наблюдения значение не изменилось",wrong=grew?["к концу наблюдения значение стало меньше","к концу наблюдения значение не изменилось","значение всё время было постоянным"]:last.y<first.y?["к концу наблюдения значение стало больше","к концу наблюдения значение не изменилось","значение всё время было постоянным"]:["к концу наблюдения значение стало больше","к концу наблюдения значение стало меньше","значение всё время возрастало"];q=g8StrictChoice88(raw,d,v,"Какой вывод верен по показанному графику?",ans,wrong,`В начале значение равно ${first.y}, в конце — ${last.y}. Сравнение этих значений даёт правильный вывод.`,[...pts.flatMap(p=>[p.x,p.y])],{...pm,first,last,answer:ans});}
+ return g8Graph88(q,data,"реальный процесс");
+}
+
+const G8_PRE88_MAKE=makeG8Question;
+makeG8Question=function(id,stageOverride=null){
+ const raw=rawCourseId(id),full=`g8:${raw}`,d=Math.max(0,Math.min(2,Number.isInteger(stageOverride)?stageOverride:activeDifficulty()));
+ if(!G8_STAGE88_IDS.has(full))return G8_PRE88_MAKE(id,stageOverride);
+ if(raw==="function_concept")return g8Make88Concept(raw,d);
+ if(raw==="function_domain_range")return g8Make88Domain(raw,d);
+ if(raw==="function_representations")return g8Make88Representations(raw,d);
+ if(raw==="function_graph_properties_real_processes")return g8Make88Graph(raw,d);
+ throw new Error(`Неизвестная тема 8.8: ${raw}`);
+};
+
+const G8_PRE88_FRESH=freshQuiz;
+freshQuiz=function(id){
+ const s=String(id),full=s.startsWith("g8:")?s:`g8:${rawCourseId(s)}`;
+ if(!G8_STAGE88_IDS.has(full))return G8_PRE88_FRESH(id);
+ const raw=rawCourseId(full),maker=()=>makeG8Question(full),sigOf=q=>q.sig||`g8:${raw}:${normalizePromptForCompare(q.text)}`;
+ if(!blockSession||blockSession.kind!=="g8quiz")return freshCandidate(maker,sigOf,320);
+ const prevV=blockSession._g8LastVariant?.[raw]??null,prevP=blockSession._g8LastPosition?.[raw]??-1,prevSig=blockSession._g8LastSig?.[raw]??null,prevText=blockSession._g8LastText?.[raw]??null;let best=null;
+ for(let i=0;i<280;i++){
+  const cand=maker(),vv=cand.templateId||cand.audit?.variant||"",p=g8ChoiceIndex(cand),sig=sigOf(cand),txt=normalizePromptForCompare(cand.text);
+  if(prevV!==null&&vv===prevV)continue;if(prevSig!==null&&sig===prevSig)continue;if(prevText!==null&&txt===prevText)continue;if(p>=0&&prevP>=0&&p===prevP)continue;if(wasUsedInBlock(sig)||wasRecent(sig))continue;
+  registerSignature(sig);cand._signature=sig;best=cand;break;
+ }
+ if(!best){for(let i=0;i<360;i++){const cand=maker(),vv=cand.templateId||cand.audit?.variant||"",p=g8ChoiceIndex(cand),sig=sigOf(cand),txt=normalizePromptForCompare(cand.text);if(prevV!==null&&vv===prevV)continue;if(prevSig!==null&&sig===prevSig)continue;if(prevText!==null&&txt===prevText)continue;if(p>=0&&prevP>=0&&p===prevP)continue;registerSignature(sig);cand._signature=sig;best=cand;break}}
+ if(!best)best=freshCandidate(maker,sigOf,460);
+ blockSession._g8LastVariant=blockSession._g8LastVariant||{};blockSession._g8LastPosition=blockSession._g8LastPosition||{};blockSession._g8LastSig=blockSession._g8LastSig||{};blockSession._g8LastText=blockSession._g8LastText||{};
+ blockSession._g8LastVariant[raw]=best.templateId||best.audit?.variant||"";blockSession._g8LastPosition[raw]=g8ChoiceIndex(best);blockSession._g8LastSig[raw]=best.sig||best._signature||sigOf(best);blockSession._g8LastText[raw]=normalizePromptForCompare(best.text);return best;
+};
+
+g8CatalogAudit=function(){
+ const topics=g8AllTopics(),ids=topics.map(t=>t.id),orders=topics.map(t=>t.order),courseIds=new Set(G8_COURSES.map(c=>c.id)),groupIds=new Set(G8_GROUPS.map(g=>g.id)),issues=[];
+ if(new Set(ids).size!==ids.length)issues.push("duplicate-id");if(ids.some(id=>!id.startsWith("g8:")))issues.push("id-prefix");if(topics.some(t=>t.grade!==8))issues.push("grade");if(new Set(orders).size!==orders.length||orders.some((v,i)=>v!==i+1))issues.push("order");
+ if(topics.some(t=>G8_IMPLEMENTED_88_IDS.has(t.id)?t.implemented!==true:t.implemented!==false))issues.push("implemented-boundary");
+ if(topics.some(t=>G8_IMPLEMENTED_88_IDS.has(t.id)?t.rendererType==="pending":t.rendererType!=="pending"))issues.push("rendererType-boundary");
+ if(topics.some(t=>!t.plannedRendererType))issues.push("plannedRendererType");if(topics.some(t=>!courseIds.has(t.course)))issues.push("course");if(G8_GROUPS.some(g=>!courseIds.has(g.course)||!groupIds.has(g.id)))issues.push("group");if(topics.some(t=>!t.title||!t.shortTitle||!t.source||!t.programRef))issues.push("metadata");
+ return {ok:issues.length===0,issues,total:topics.length,implemented:g8ImplementedTopics().length,pending:topics.filter(t=>t.rendererType==="pending").length};
+};
+showG8Pending=function(id){const t=g8InfoById(id);if(!t)return renderGrade8();if(t.implemented!==false)return openG8Topic(t.id);const course=g8CourseById(t.course);show(`<div class="mtop"><h2>${esc(t.title)}</h2><button class="x" onclick="closeModal()">×</button></div><div class="lesson"><b>8 класс • ${esc(course?.title||t.course)} • ${esc(t.section||t.group)}</b><br><br>На Этапе 8.8 рабочими являются первые восемь алгебраических блоков, включая «Функция: основные понятия». Эта тема относится к следующему этапу и пока остаётся pending; она не считается непройденной.<br><br><small>Планируемый renderer: ${esc(t.plannedRendererType||"quiz")}. Переиспользование: ${esc(t.reuseEngine||"общий block engine")}.</small></div><div class="actions"><button class="btn primary" onclick="closeModal()">Понятно</button></div>`)};
+renderGrade8=function(){const counts=G8_COURSES.map(c=>{const ts=g8GroupsByCourse(c.id).flatMap(g=>g.topics);return {title:c.title,n:ts.length,ready:ts.filter(t=>t.implemented!==false).length}}),ready=g8ImplementedTopics().length;mainView.innerHTML=`<div class="home-back-row"><button class="home-back-btn" onclick="renderHome()">← Главный экран</button></div><section class="grade-hero"><div><h1>Математика 8 класса</h1><p>Алгебра • Геометрия • Вероятность и статистика. Рабочие блоки: «Квадратные корни и действительные числа», «Степень с целым показателем и стандартная запись», «Квадратный трёхчлен», «Алгебраические дроби и рациональные выражения», «Квадратные и рациональные уравнения», «Системы уравнений», «Неравенства», «Функция: основные понятия».</p></div><span class="grade-chip">${gradeBookIcon(8,true)} 8 класс</span></section><div class="g7-catalog-summary"><b>Каталог: ${g8AllTopics().length} тем • реализовано: ${ready}.</b> ${counts.map(x=>`${esc(x.title)} — ${x.ready}/${x.n}`).join(" • ")}. Остальные pending-темы не считаются слабыми или непройденными.</div>${G8_COURSES.map(renderG8Course).join("")}`};
+const G8_PRE88_REPORT_CARD=reportCourseCardHtml;
+reportCourseCardHtml=function(data,grade){if(Number(grade)!==8)return G8_PRE88_REPORT_CARD(data,grade);const c=data.courseProgress.g8,st=data.courseProgress.g8Stages,map=data.knowledge.g8,started=c.done>0||map.topics.some(x=>x.started),sections=data.courseProgress.g8Sections.map(x=>`<div class="report-section-line"><span>${esc(x.title)} (${x.availableCount}/${x.catalogCount} тем доступно)</span><b>${x.availableCount?x.percent+"%":"Скоро"}</b></div>`).join("")+`<div class="report-period-note">Этап 8.8: реализовано ${g8ImplementedTopics().length}/${g8AllTopics().length} тем. Pending-темы не входят в процент прогресса.</div>`;return `<div class="report-course-card"><div class="report-course-head"><b>${gradeBookIcon(8,true)} 8 класс</b><strong>${started?c.percent+"%":"Не начат"}</strong></div><div class="report-progress"><span style="width:${c.percent}%"></span></div><div class="report-stage-line"><span>🌱 ${st.warmup}</span><span>🚀 ${st.training}</span><span>🏆 ${st.master}</span><span>${c.done}/${c.total} ступеней</span></div><div style="margin-top:7px">${sections}</div></div>`};
+const G8_STAGE88_BOUNDARY_AUDIT=(()=>{const all=g8AllTopics(),implemented=all.filter(t=>t.implemented!==false).map(t=>t.id),outside=implemented.filter(id=>!G8_IMPLEMENTED_88_IDS.has(id)),missing=[...G8_IMPLEMENTED_88_IDS].filter(id=>!implemented.includes(id));return {ok:outside.length===0&&missing.length===0,implemented,pending:all.filter(t=>t.implemented===false).map(t=>t.id),outside,missing}})();
+if(!G8_STAGE88_BOUNDARY_AUDIT.ok)console.error("G8 8.8 boundary audit failed",G8_STAGE88_BOUNDARY_AUDIT);
+
+
 /* ЭТАП 8.2: второй рабочий блок G8 зарегистрирован; следующие блоки остаются pending. */
 const retroAchievementUnlocks=initializeExpandedAchievements();migratePersonalizationProfiles();stats();renderHome();installCoinEmojiFallback();if(retroAchievementUnlocks.length){const names=[...new Set(retroAchievementUnlocks.map(a=>a.title))];pendingAchievementToasts=[];setTimeout(()=>rewardPop(names.length===1?`🏆 Новое достижение: ${names[0]}`:`🏆 Открыто новых достижений: ${names.length}`),500)}
 </script>
-<div id="appVersionBadge" aria-label="Версия приложения" style="position:fixed;right:10px;bottom:8px;z-index:140;padding:4px 8px;border:1px solid rgba(113,131,123,.28);border-radius:999px;background:rgba(255,255,255,.88);box-shadow:0 2px 8px rgba(35,76,60,.08);color:#71837b;font:700 11px/1.2 Inter,system-ui,-apple-system,Segoe UI,Arial,sans-serif;letter-spacing:.01em;pointer-events:none;user-select:none;backdrop-filter:blur(5px)">Версия 8.4</div>
+<div id="appVersionBadge" aria-label="Версия приложения" style="position:fixed;right:10px;bottom:8px;z-index:140;padding:4px 8px;border:1px solid rgba(113,131,123,.28);border-radius:999px;background:rgba(255,255,255,.88);box-shadow:0 2px 8px rgba(35,76,60,.08);color:#71837b;font:700 11px/1.2 Inter,system-ui,-apple-system,Segoe UI,Arial,sans-serif;letter-spacing:.01em;pointer-events:none;user-select:none;backdrop-filter:blur(5px)">Версия 8.8</div>
 </body></html>
