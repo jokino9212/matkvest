@@ -997,7 +997,8 @@ const G3_GROUPS=[
   {id:"g3:area_units",grade:3,group:"Числа и величины",title:"Единицы площади",shortTitle:"Единицы площади",rendererType:"quiz",implemented:true,order:10}
  ]},
  {id:"arithmetic",title:"Арифметические действия",icon:"✖️",desc:"Табличные и внетабличные вычисления, письменные действия, свойства и порядок действий.",topics:[
-  {id:"g3:multiplication_table",grade:3,group:"Арифметические действия",title:"Таблица умножения",shortTitle:"Таблица умножения",rendererType:"quiz",implemented:true,order:11},  {id:"g3:division_table",grade:3,group:"Арифметические действия",title:"Табличное деление",shortTitle:"Табличное деление",rendererType:"quiz",implemented:true,order:12},
+  {id:"g3:multiplication_table",grade:3,group:"Арифметические действия",title:"Таблица умножения",shortTitle:"Таблица умножения",rendererType:"quiz",implemented:true,order:11},
+  {id:"g3:division_table",grade:3,group:"Арифметические действия",title:"Табличное деление",shortTitle:"Табличное деление",rendererType:"quiz",implemented:true,order:12},
   {id:"g3:offtable_multiply",grade:3,group:"Арифметические действия",title:"Внетабличное умножение",shortTitle:"Внетабличное умножение",rendererType:"quiz",implemented:true,order:13},
   {id:"g3:offtable_divide",grade:3,group:"Арифметические действия",title:"Внетабличное деление",shortTitle:"Внетабличное деление",rendererType:"quiz",implemented:true,order:14},
   {id:"g3:round_numbers",grade:3,group:"Арифметические действия",title:"Действия с десятками и сотнями",shortTitle:"Десятки и сотни",rendererType:"quiz",implemented:true,order:15},
@@ -1996,7 +1997,8 @@ function g7MakeStage73Question(raw,d){
   if(variant==="read_point"||variant==="read_multi"){const q=g6CoordinateInputQuestion("Назови координаты точки A.",pt.x,pt.y,g6CoordinateExplanation(pt),g7QuestionSig(raw,d,variant,[pt.x.n,pt.y.n]),{audit:{type:"g7CoordRead",point:pt}});return g6AttachCoordinatePlane(q,data)}
   const correct=g6CoordinateClass(pt.x,pt.y),opts=["I","II","III","IV","На Ox","На Oy"].filter(x=>x!==correct);const q=g7ChoiceUnique("Где расположена точка A?",correct,opts,`По координатам ${g6PointText(pt,true)} получаем: ${correct}.`,g7QuestionSig(raw,d,variant,[pt.x.n,pt.y.n]),{type:"g7CoordClass",point:pt,correct});return g6AttachCoordinatePlane(q,data)
  }
- if(raw==="function_concept_values"){  const variant=g7Pick(d===0?["value","concept"]:d===1?["value_negative","table","value_square"]:["table","value_square","find_argument"]);
+ if(raw==="function_concept_values"){
+  const variant=g7Pick(d===0?["value","concept"]:d===1?["value_negative","table","value_square"]:["table","value_square","find_argument"]);
   if(variant==="concept")return g7ChoiceUnique("В записи y = f(x) как обычно называют x?","аргумент",["значение функции","график","коэффициент"],"x — аргумент, а y = f(x) — соответствующее значение функции.",g7QuestionSig(raw,d,variant),{type:"g7FunctionConcept"});
   if(variant==="value_square"){const x=ri(-4,4),c=ri(-3,3),ans=x*x+c;return g7Number(`Функция задана формулой <span class="math">y = x² ${c<0?"−":"+"} ${Math.abs(c)}</span>. Найди y при x = ${x}.`,ans,`y = (${x})² ${c<0?"−":"+"} ${Math.abs(c)} = ${ans}.`,g7QuestionSig(raw,d,variant,[x,c]),{audit:{type:"g7FunctionValue",variant,x,c,ans}})}
   if(variant==="find_argument"){const k=g7Pick([-3,-2,2,3]),b=ri(-4,4),x=ri(-4,4),y=k*x+b;return g7Number(`Для функции <span class="math">y = ${formatLinearExpressionPlain(g7Lin(k,b))}</span> известно y = ${y}. Найди x.`,x,`${k}x ${b<0?"−":"+"} ${Math.abs(b)} = ${y}; x = ${x}.`,g7QuestionSig(raw,d,variant,[k,b,x]),{audit:{type:"g7FunctionFindX",k,b,x,y}})}
@@ -2995,7 +2997,8 @@ function g7MakeStage79Question(raw,d){
   return g7GeoChoice("Какое утверждение всегда верно в прямоугольном треугольнике?","гипотенуза больше каждого катета",["оба катета равны","гипотенуза равна меньшему катету","все углы равны"],"Гипотенуза лежит напротив наибольшего угла 90°, поэтому она больше каждого катета.",g7QuestionSig(raw,d,variant),{type:"g7TriRightHypLonger",variant,rightAt:"C"},data);
  }
  if(raw==="geo_right_triangle_congruence"){
-  const variants=d===0?["leg_leg","hyp_leg"]:d===1?["leg_leg","hyp_leg","leg_angle"]:["leg_leg","hyp_leg","leg_angle","recognize"],variant=g7Pick(variants);  if(variant==="leg_leg"){const data=g7TrianglePairData("R-leg-leg");return g7GeoChoice("Два прямоугольных треугольника имеют соответственно равные оба катета. Достаточно ли этого для их равенства?","да, по двум катетам",["нет, нужен третий катет","нет, обязательно знать все углы","только если гипотенузы не равны"],"Два прямоугольных треугольника равны <b>по двум катетам</b>.",g7QuestionSig(raw,d,variant),{type:"g7TriRightCongruence",variant,criterion:"по двум катетам"},data)}
+  const variants=d===0?["leg_leg","hyp_leg"]:d===1?["leg_leg","hyp_leg","leg_angle"]:["leg_leg","hyp_leg","leg_angle","recognize"],variant=g7Pick(variants);
+  if(variant==="leg_leg"){const data=g7TrianglePairData("R-leg-leg");return g7GeoChoice("Два прямоугольных треугольника имеют соответственно равные оба катета. Достаточно ли этого для их равенства?","да, по двум катетам",["нет, нужен третий катет","нет, обязательно знать все углы","только если гипотенузы не равны"],"Два прямоугольных треугольника равны <b>по двум катетам</b>.",g7QuestionSig(raw,d,variant),{type:"g7TriRightCongruence",variant,criterion:"по двум катетам"},data)}
   if(variant==="hyp_leg"){const data=g7TrianglePairData("R-hyp-leg");return g7GeoChoice("В двух прямоугольных треугольниках равны гипотенузы и по одному соответствующему катету. Какой это признак?","по гипотенузе и катету",["по трём углам","только по одному катету","по двум произвольным углам"],"Для прямоугольных треугольников равенства гипотенузы и соответствующего катета достаточно.",g7QuestionSig(raw,d,variant),{type:"g7TriRightCongruence",variant,criterion:"по гипотенузе и катету"},data)}
   if(variant==="leg_angle"){const data=g7TrianglePairData("R-leg-angle");return g7GeoChoice("В прямоугольных треугольниках равны соответствующий катет и прилежащий к нему острый угол. Можно ли сделать вывод о равенстве треугольников?","да",["нет","только если катет равен гипотенузе","только если острый угол равен 90°"],"Это один из признаков равенства прямоугольных треугольников: по катету и острому углу.",g7QuestionSig(raw,d,variant),{type:"g7TriRightCongruence",variant,criterion:"по катету и острому углу"},data)}
   const data=g7TrianglePairData("R-hyp-leg");return g7GeoChoice("Какого набора данных достаточно для равенства двух прямоугольных треугольников?","равны гипотенуза и соответствующий катет",["равен только один острый угол","равны только прямые углы","равна только гипотенуза"],"В прямоугольных треугольниках прямые углы уже равны; гипотенуза и катет задают признак равенства.",g7QuestionSig(raw,d,variant),{type:"g7TriRightCongruence",variant,criterion:"по гипотенузе и катету"},data);
@@ -3994,7 +3997,8 @@ function g6MakeEquationWordQuestion(d){
 }
 
 /* ЭТАП 6.7: координатная плоскость, таблицы, диаграммы и среднее арифметическое. */
-function g6CoordRat(v){ if(v&&typeof v==="object"&&"n" in v&&"d" in v)return rational(v.n,v.d);
+function g6CoordRat(v){
+ if(v&&typeof v==="object"&&"n" in v&&"d" in v)return rational(v.n,v.d);
  if(typeof v==="number"&&Number.isFinite(v)){const t=String(v);const p=parseExactNumberInput(t);if(p.ok)return p.rat}
  const p=parseExactNumberInput(String(v??""));if(!p.ok)throw new Error("Некорректная координата");return p.rat;
 }
@@ -4993,7 +4997,8 @@ function makeG6Question(id,stageOverride=null){
  if(raw==="direct_proportion"){
    const variant=d===0?"notebooks":g6RandomFrom(d===1?["notebooks","mass","distance"]:["fabric","mass","distance"]),x1=ri(d===0?2:3,d===0?5:d===1?8:12),x2=ri(x1+1,d===0?9:d===1?14:20),k=ri(d===0?15:20,d===0?45:d===1?90:140),y1=x1*k,answer=x2*k;let prompt,unit="";
    if(variant==="notebooks"){prompt=`${x1} одинаковые тетради стоят ${y1} ₽. Сколько стоят ${x2} таких тетрадей?`;unit="₽"}
-   else if(variant==="mass"){prompt=`${x1} кг товара стоят ${y1} ₽. Сколько стоят ${x2} кг по той же цене за килограмм?`;unit="₽"}   else if(variant==="distance"){prompt=`За ${x1} ч автомобиль при постоянной скорости проходит ${y1} км. Сколько километров он пройдёт за ${x2} ч?`;unit="км"}
+   else if(variant==="mass"){prompt=`${x1} кг товара стоят ${y1} ₽. Сколько стоят ${x2} кг по той же цене за килограмм?`;unit="₽"}
+   else if(variant==="distance"){prompt=`За ${x1} ч автомобиль при постоянной скорости проходит ${y1} км. Сколько километров он пройдёт за ${x2} ч?`;unit="км"}
    else{prompt=`${x1} м ткани стоят ${y1} ₽. Сколько стоят ${x2} м такой ткани?`;unit="₽"}
    return g6NumberInputQuestion(prompt,answer,`На одну единицу приходится ${y1} : ${x1} = ${k}. Тогда ${k} · ${x2} = ${answer}${unit?" "+unit:""}.`,`g6:${raw}:${d}:${variant}:${x1}:${y1}:${x2}`,{unitSuffix:unit,audit:{type:"direct",variant,x1,y1,x2,answer:rational(answer,1)}});
  }
@@ -5992,7 +5997,8 @@ function makeBackup(scope="all"){
   scope,
   currentProfile,
   profiles:selected,
-  ...(scope==="all"?{teacherSettings:deepCopy(teacherSettings)}:{}) };
+  ...(scope==="all"?{teacherSettings:deepCopy(teacherSettings)}:{})
+ };
 }
 function downloadJsonObject(obj,filename){
  const blob=new Blob([JSON.stringify(obj,null,2)],{type:"application/json;charset=utf-8"});
@@ -6991,7 +6997,8 @@ function startErrorWorkBlock(requested=5,groupKey=null,gradeFilter=errorWorkGrad
  if(groupKey)pool=pool.filter(x=>errorGroupKey(x)===groupKey);
  const limit=Math.min(15,Math.max(1,Number(requested)||5),pool.length);
  const selected=selectErrorsForBlock(pool,limit);if(!selected.length){openErrorWork();return}
- beginBlock("g4:errorwork",-1,"errorwork",{name:"Работа над ошибками",ico:"🧠",count:selected.length,need:selected.length,desc:"Новые аналогичные задания по реальным ошибкам"}); blockSession.grade="mixed";blockSession.topicId="errorwork";blockSession.errorSources=selected;blockSession.errorCurrentStageIndex=0;blockSession.errorXpEarned=0;blockSession.errorCoinsEarned=0;
+ beginBlock("g4:errorwork",-1,"errorwork",{name:"Работа над ошибками",ico:"🧠",count:selected.length,need:selected.length,desc:"Новые аналогичные задания по реальным ошибкам"});
+ blockSession.grade="mixed";blockSession.topicId="errorwork";blockSession.errorSources=selected;blockSession.errorCurrentStageIndex=0;blockSession.errorXpEarned=0;blockSession.errorCoinsEarned=0;
  syncActiveAttempt();
  show(`<div class="mtop"><h2>🧠 Работа над ошибками</h2><button class="x" onclick="closeModal()">×</button></div>${blockHead()}<div class="lesson">Чтобы окончательно закрыть старую ошибку, новое аналогичное задание нужно решить <b>верно с первой попытки</b>. Исправленный после ошибки ответ оставит тему на повторение.</div><div id="errorSourceBanner" class="error-source-banner"></div><div id="stage"></div><div id="tstage"></div><div id="qstage"></div>`);
  modal.classList.add("column-modal");startNextErrorWorkTask();
@@ -7990,7 +7997,8 @@ function renderMultiplication(){
  stage.innerHTML=`<div class="card">
  <div class="task-title"><b>${t.a} × ${t.b}</b> — промежуточные произведения, переносы и итог</div>
  <div class="cwrap"><div class="cgrid" style="--cols:${cols}">
-   ${mulCarryRow(t.carry1,t.a,"×"+t.units,"mulCarry1",0)}   ${row(digits(t.a,cols))}
+   ${mulCarryRow(t.carry1,t.a,"×"+t.units,"mulCarry1",0)}
+   ${row(digits(t.a,cols))}
    ${row(digits(t.b,cols),"×")}
    ${lineRow(cols)}
    ${answerInputs(t.p1,cols,0,"mul1")}
@@ -8989,7 +8997,8 @@ function renderG7ProcessChart(data){
  const pts=(data.points||[]).map(p=>({t:Number(p.t),value:Number(p.value)})),W=700,H=390,left=72,right=30,top=30,bottom=70,plotW=W-left-right,plotH=H-top-bottom,minT=Math.min(...pts.map(p=>p.t)),maxT=Math.max(...pts.map(p=>p.t)),sc=g7NiceScale(Math.max(...pts.map(p=>p.value))),maxV=Math.max(sc.max,1),x=t=>left+(t-minT)/Math.max(1,maxT-minT)*plotW,y=v=>top+plotH-v/maxV*plotH;let grid="",labels="";
  for(let v=0;v<=maxV+1e-9;v+=sc.step){const yy=y(v);grid+=`<line class="g7-process-grid" x1="${left}" y1="${yy}" x2="${W-right}" y2="${yy}"></line>`;labels+=`<text class="g7-process-label" x="${left-10}" y="${yy+4}" text-anchor="end">${v}</text>`}
  for(const p of pts){const xx=x(p.t);grid+=`<line class="g7-process-grid" x1="${xx}" y1="${top}" x2="${xx}" y2="${top+plotH}"></line>`;labels+=`<text class="g7-process-label" x="${xx}" y="${H-43}" text-anchor="middle">${p.t}</text>`}
- const line=pts.map((p,i)=>`${i?"L":"M"} ${x(p.t).toFixed(2)} ${y(p.value).toFixed(2)}`).join(" "),circles=pts.map(p=>`<circle class="g7-process-point" cx="${x(p.t).toFixed(2)}" cy="${y(p.value).toFixed(2)}" r="5"></circle>`).join(""); return `<div class="g7-process-wrap">${data.title?`<div class="g7-data-title">${esc(data.title)}</div>`:""}<svg class="g7-process-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="График реального процесса">${grid}<line class="g7-process-axis" x1="${left}" y1="${top}" x2="${left}" y2="${top+plotH}"></line><line class="g7-process-axis" x1="${left}" y1="${top+plotH}" x2="${W-right}" y2="${top+plotH}"></line><path class="g7-process-line" d="${line}"></path>${circles}${labels}<text class="g7-process-axis-title" x="${(left+W-right)/2}" y="${H-12}" text-anchor="middle">${esc(data.xLabel||"Время")}</text><text class="g7-process-axis-title" x="18" y="${(top+top+plotH)/2}" text-anchor="middle" transform="rotate(-90 18 ${(top+top+plotH)/2})">${esc(data.yLabel||"Значение")}</text></svg></div>`;
+ const line=pts.map((p,i)=>`${i?"L":"M"} ${x(p.t).toFixed(2)} ${y(p.value).toFixed(2)}`).join(" "),circles=pts.map(p=>`<circle class="g7-process-point" cx="${x(p.t).toFixed(2)}" cy="${y(p.value).toFixed(2)}" r="5"></circle>`).join("");
+ return `<div class="g7-process-wrap">${data.title?`<div class="g7-data-title">${esc(data.title)}</div>`:""}<svg class="g7-process-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="График реального процесса">${grid}<line class="g7-process-axis" x1="${left}" y1="${top}" x2="${left}" y2="${top+plotH}"></line><line class="g7-process-axis" x1="${left}" y1="${top+plotH}" x2="${W-right}" y2="${top+plotH}"></line><path class="g7-process-line" d="${line}"></path>${circles}${labels}<text class="g7-process-axis-title" x="${(left+W-right)/2}" y="${H-12}" text-anchor="middle">${esc(data.xLabel||"Время")}</text><text class="g7-process-axis-title" x="18" y="${(top+top+plotH)/2}" text-anchor="middle" transform="rotate(-90 18 ${(top+top+plotH)/2})">${esc(data.yLabel||"Значение")}</text></svg></div>`;
 }
 function g7AttachProcess(q,data){q.visual={type:"g7ProcessChart",data};q.journalPrompt=`${q.text}<br><span class="math">График: ${(data.points||[]).map(p=>`${p.t}→${p.value}`).join("; ")}</span>`;return q}
 function renderG7DataCombo(data){return `<div class="g7-combo-wrap"><div class="g7-data-title">${esc(data.title||"Сверь таблицу и диаграмму")}</div>${g6TableHtml(data.table)}${renderBarChart(data.bar)}</div>`}
@@ -9988,7 +9997,8 @@ function g8Make82IntegerProperties(raw,d){
 
 function g8Make82ScientificNotation(raw,d){
  const variants=d===0?["identify_standard","large_to_standard","small_to_standard","find_exponent_large","find_exponent_small","coefficient_condition","expand_standard"]:d===1?["identify_standard","large_to_standard","small_to_standard","expand_standard","compare_standard","normalize_nonstandard","error_decimal_shift","find_coefficient","coefficient_condition"]:["compare_standard","normalize_nonstandard","error_decimal_shift","find_coefficient","order_by_exponent","context_large","context_small","reverse_decimal_places","identify_standard","expand_standard"];
- const v=g8Pick(variants); if(v==="identify_standard"){const a=g8SciCoeff82(),n=g8NonZeroExp82(-6,8),correct=g8Sci82(a,n);return g8Choice82(raw,d,v,"Какая запись является стандартной записью числа?",correct,[g8Sci82(a*10,n-1),g8Sci82(a/10,n+1),`<span class="math">${g8Fmt82(a)}+10${g8Sup82(n)}</span>`],`В стандартной записи коэффициент должен удовлетворять 1 ≤ a < 10. У ${g8Fmt82(a)} это условие выполнено.`,[a,n],{a,n,expected:[a,n]});}
+ const v=g8Pick(variants);
+ if(v==="identify_standard"){const a=g8SciCoeff82(),n=g8NonZeroExp82(-6,8),correct=g8Sci82(a,n);return g8Choice82(raw,d,v,"Какая запись является стандартной записью числа?",correct,[g8Sci82(a*10,n-1),g8Sci82(a/10,n+1),`<span class="math">${g8Fmt82(a)}+10${g8Sup82(n)}</span>`],`В стандартной записи коэффициент должен удовлетворять 1 ≤ a < 10. У ${g8Fmt82(a)} это условие выполнено.`,[a,n],{a,n,expected:[a,n]});}
  if(v==="large_to_standard"){const a=g8SciCoeff82(),n=ri(3,8),value=a*Math.pow(10,n),correct=g8Sci82(a,n);return g8Choice82(raw,d,v,`Запиши число <span class="math">${g8Dec82(value)}</span> в стандартном виде.`,correct,[g8Sci82(a,n-1),g8Sci82(a,n+1),g8Sci82(Math.min(9.9,a+1),n)],`Переносим запятую так, чтобы коэффициент оказался от 1 до 10: ${g8Dec82(value)} = ${g8Sci82(a,n)}.`,[a,n,value],{a,n,value,expected:[a,n]});}
  if(v==="small_to_standard"){const a=g8SciCoeff82(),n=-ri(2,7),value=a*Math.pow(10,n),correct=g8Sci82(a,n);return g8Choice82(raw,d,v,`Запиши число <span class="math">${g8Dec82(value)}</span> в стандартном виде.`,correct,[g8Sci82(a,n-1),g8Sci82(a,n+1),g8Sci82(a,-n)],`Чтобы получить коэффициент ${g8Fmt82(a)}, запятую переносим вправо; поэтому показатель отрицателен: ${g8Sci82(a,n)}.`,[a,n,value],{a,n,value,expected:[a,n]});}
  if(v==="find_exponent_large"){const a=g8SciCoeff82(),n=ri(2,8),value=a*Math.pow(10,n);return g8Number82(raw,d,v,`Число ${g8Dec82(value)} записано как <span class="math">${g8Fmt82(a)}·10${g8Sup82("n")}</span>. Найди n.`,n,`${g8Dec82(value)} = ${g8Sci82(a,n)}, значит n=${n}.`,[a,n,value],{a,n,value,expected:n});}
@@ -10987,7 +10997,8 @@ function g8Attach86(q,raw,d,variant,model={}){q.templateId=variant;q.audit={...(
 function g8Choice86(raw,d,variant,text,correct,wrong,ex,parts=[],model={}){return g8Attach86(g7Choice(text,correct,wrong,ex,g8Sig(raw,d,variant,parts),{}),raw,d,variant,model)}
 function g8StrictChoice86(raw,d,variant,text,correct,wrong,ex,parts=[],model={}){return g8Attach86(g7StrictChoice(text,correct,wrong,ex,g8Sig(raw,d,variant,parts),{}),raw,d,variant,model)}
 function g8Number86(raw,d,variant,text,answer,ex,parts=[],model={},opts={}){return g8Attach86(g7Number(text,answer,ex,g8Sig(raw,d,variant,parts),{...opts,audit:{}}),raw,d,variant,model)}
-function g8PairInput86(raw,d,variant,text,x,y,ex,parts=[],model={}){return g8Attach86(g6CoordinateInputQuestion(text,x,y,ex,g8Sig(raw,d,variant,parts),{audit:{}}),raw,d,variant,model)}function g8PairText86(x,y){return g7PairHtml(x,y)}
+function g8PairInput86(raw,d,variant,text,x,y,ex,parts=[],model={}){return g8Attach86(g6CoordinateInputQuestion(text,x,y,ex,g8Sig(raw,d,variant,parts),{audit:{}}),raw,d,variant,model)}
+function g8PairText86(x,y){return g7PairHtml(x,y)}
 function g8System86(d,{simple=false,positive=false}={}){if(positive){const x=ri(2,d===0?8:12),y=ri(1,d===0?7:10);let a1=1,b1=1,a2=2,b2=-1;return g7SystemModelFromSolution(x,y,a1,b1,a2,b2)}return g7UniqueSystemFromSolution(d,{simple})}
 function g8LineGraph86(k,b,label="",alt=false,dashed=false){return g7LineSeries(k,b,{range:6,label:label||g7LineFormula(k,b),alt,dashed})}
 function g8LineModel86(){const x=ri(-3,3),y=ri(-3,3),k=g7Pick([-3,-2,-1,1,2,3]),b=y-k*x,eq=g7LineEqFromKB(k,b);return {x,y,k,b,eq}}
@@ -11986,7 +11997,8 @@ function g8Make811Square(raw,d){const vars=d===0?["all","diag","angle_half","per
  if(v==="diag")return g8GeoChoice811(raw,d,v,"Какое описание диагоналей квадрата верно?","равны, перпендикулярны и делятся пополам",["только равны","только перпендикулярны","не равны и не перпендикулярны"],"Квадрат наследует свойства диагоналей и прямоугольника, и ромба.",m);
  if(v==="angle_half")return g8GeoChoice811(raw,d,v,"Диагональ квадрата делит угол 90°. Какие углы получаются?","45° и 45°",["30° и 60°","40° и 50°","90° и 0°"],"Квадрат является ромбом, а диагонали ромба делят углы пополам: 90°:2=45°.",m);
  if(v==="perimeter"){const a=g8Pick811([3,4,5,6,8,10]);return g8GeoNumber811(raw,d,v,`Сторона квадрата ${a} см. Найди периметр.`,4*a,`P=4a=4·${a}=${4*a} см.`,m,"","см")}
- if(v==="side"){const P=g8Pick811([16,20,24,28,32,40]);return g8GeoNumber811(raw,d,v,`Периметр квадрата ${P} см. Найди сторону.`,P/4,`a=P:4=${P}:4=${P/4} см.`,m,"","см")} if(v==="is_both")return g8GeoChoice811(raw,d,v,"К каким двум частным видам параллелограмма одновременно относится квадрат?","к прямоугольнику и ромбу",["к трапеции и треугольнику","только к прямоугольнику","только к ромбу"],"Квадрат имеет и четыре прямых угла, и четыре равные стороны.",m);
+ if(v==="side"){const P=g8Pick811([16,20,24,28,32,40]);return g8GeoNumber811(raw,d,v,`Периметр квадрата ${P} см. Найди сторону.`,P/4,`a=P:4=${P}:4=${P/4} см.`,m,"","см")}
+ if(v==="is_both")return g8GeoChoice811(raw,d,v,"К каким двум частным видам параллелограмма одновременно относится квадрат?","к прямоугольнику и ромбу",["к трапеции и треугольнику","только к прямоугольнику","только к ромбу"],"Квадрат имеет и четыре прямых угла, и четыре равные стороны.",m);
  if(v==="error"){const bad=Math.random()<.5;return g8Binary811(raw,d,v,bad?"Верно ли: «У квадрата диагонали равны, но не перпендикулярны»?":"Верно ли: «Диагонали квадрата равны и перпендикулярны»?",!bad,bad?"У квадрата диагонали одновременно равны и перпендикулярны.":"Да. Квадрат наследует свойства прямоугольника и ромба.",m)}
  if(v==="compare")return g8GeoChoice811(raw,d,v,"Какое утверждение о квадрате верно?","каждый квадрат является и ромбом, и прямоугольником",["каждый ромб является квадратом","каждый прямоугольник является квадратом","квадрат не является параллелограммом"],"Квадрат — частный случай и ромба, и прямоугольника, но обратные утверждения неверны.",m);
  return g8GeoChoice811(raw,d,v,"Какая фигура изображена?","квадрат",["ромб без прямых углов","трапеция","произвольный четырёхугольник"],"Все стороны равны и все углы прямые — это квадрат.",m);
@@ -12985,7 +12997,8 @@ freshQuiz=function(id){
  const raw="probstat_grade7_review_integration",maker=()=>makeG8Question(full),sigOf=q=>q.sig||`g8:${raw}:${normalizePromptForCompare(q.text)}`;
  if(!blockSession||blockSession.kind!=="g8quiz")return freshCandidate(maker,sigOf,720);
 
- const prevSkill=blockSession._g8LastReviewSkill817??null; const prevV=blockSession._g8LastVariant?.[raw]??null;
+ const prevSkill=blockSession._g8LastReviewSkill817??null;
+ const prevV=blockSession._g8LastVariant?.[raw]??null;
  const prevP=blockSession._g8LastPosition?.[raw]??-1;
  const prevSig=blockSession._g8LastSig?.[raw]??null;
  const prevText=blockSession._g8LastText?.[raw]??null;
@@ -13984,7 +13997,8 @@ const QUICK_TRAINERS={
   config:{type:"baseRange",modes:[{id:"1-5",label:"1–5",min:1,max:5},{id:"6-10",label:"6–10",min:6,max:10},{id:"all",label:"Все",min:1,max:10}]}
  }
 };
-const QUICK_SMART_MODES=[{id:"all",label:"Все"},{id:"weak",label:"Повторить"},{id:"errors",label:"Ошибки"}];let quickTrainerId=null,quickQuestion=null,quickQuestionSettled=false,quickPenalty=false,quickSession=null,quickMode=null,quickSelection=null;
+const QUICK_SMART_MODES=[{id:"all",label:"Все"},{id:"weak",label:"Повторить"},{id:"errors",label:"Ошибки"}];
+let quickTrainerId=null,quickQuestion=null,quickQuestionSettled=false,quickPenalty=false,quickSession=null,quickMode=null,quickSelection=null;
 
 function quickMeta(id){return QUICK_TRAINERS[String(id||"").replace(/^quick:/,"")]||null}
 function quickKey(id){return String(id||"").replace(/^quick:/,"")}
