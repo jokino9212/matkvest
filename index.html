@@ -6328,7 +6328,7 @@ function achievementRewardHtml(a){const p=achievementRewardParts(a);if(!p.length
 function achievementIconHtml(a){const raw=String(a?.icon||"🏆"),len=[...raw].length,cls=len>=6?"xxs":len>=4?"xs":len>=3?"sm":"";return `<span class="achievement-icon-text ${cls}">${esc(raw)}</span>`}
 function rawInventoryHas(type,id){return profileInventoryHas(state,type,id)}
 let pendingAchievementToasts=[];
-function grantAchievementToProfile(profile,a,{at=Date.now()}={}){const u=normalizeAchievementUnlocks(profile);if(u[a.id])return false;u[a.id]={unlockedAt:at,rewardGranted:true};if(a.rewardType&&a.rewardId){profile.inventory=profile.inventory||{};profile.inventory[a.rewardType]=Array.isArray(profile.inventory[a.rewardType])?profile.inventory[a.rewardType]:[];if(!profile.inventory[a.rewardType].includes(a.rewardId))profile.inventory[a.rewardType].push(a.rewardId)}grantAchievementCatalogRewards(profile,a.id);if(a.reward?.coins)profile.coins=Number(profile.coins||0)+Number(a.reward.coins);if(a.reward?.xp)profile.xp=Number(profile.xp||0)+Number(a.reward.xp);return true}
+function grantAchievementToProfile(profile,a,{at=Date.now()}={}){const u=normalizeAchievementUnlocks(profile);if(u[a.id])return false;u[a.id]={unlockedAt:at,rewardGranted:true};if(a.rewardType&&a.rewardId && !(a.rewardType==='avatars' && !MK868_FINAL_HERO_SET.has(a.rewardId))){profile.inventory=profile.inventory||{};profile.inventory[a.rewardType]=Array.isArray(profile.inventory[a.rewardType])?profile.inventory[a.rewardType]:[];if(!profile.inventory[a.rewardType].includes(a.rewardId))profile.inventory[a.rewardType].push(a.rewardId)}grantAchievementCatalogRewards(profile,a.id);if(a.reward?.coins)profile.coins=Number(profile.coins||0)+Number(a.reward.coins);if(a.reward?.xp)profile.xp=Number(profile.xp||0)+Number(a.reward.xp);return true}
 function checkAchievementRewards({profile=state,silent=false}={}){if(!ACHIEVEMENTS_READY||!profile)return [];normalizeAchievementUnlocks(profile);const ctx=buildAchievementContext(profile),unlocked=[];for(const a of ACHIEVEMENTS){if(isAchievementUnlocked(profile,a.id))continue;const st=achievementStateForProfile(a.id,profile,ctx);if(st.raw<st.max)continue;if(grantAchievementToProfile(profile,a))unlocked.push(a)}if(profile===state&&unlocked.length&&!silent)pendingAchievementToasts.push(...unlocked.map(a=>a.title));return unlocked}
 function achievementRewardText(item){if(!item?.achievement)return item?.id==="fr_collector"?"За полный альбом":"Награда";const a=achievementById(item.achievement),st=achievementState(item.achievement);return a?`${a.title}: ${st.label}`:"Награда за достижение"}
 function achievementUnlockedDate(profile,id){const x=achievementUnlockView(profile)[id];return x?.unlockedAt?new Date(x.unlockedAt).toLocaleDateString("ru-RU"):x?"получено ранее":""}
@@ -18647,11 +18647,18 @@ function mk861CatalogEntryById(id){
  }
  return null;
 }
-function mk861ChestEntries(rarity){return (MK861_CHEST_POOLS[rarity]||[]).map(mk861CatalogEntryById).filter(Boolean)}
+function mk872ChestEligible(hit,rarity){
+ if(!hit||!hit.item)return false;
+ const {type,item}=hit;
+ if(type==='avatars'||type==='accessories')return false;
+ if(item.hiddenInStore||item.hiddenFromStore||item.legacyHero||item.deprecated||item.studentVisible===false||item.storeOnly||item.rewardOnly)return false;
+ return item.rarity===rarity&&Number(item.price||0)>0;
+}
+function mk861ChestEntries(rarity){return (MK861_CHEST_POOLS[rarity]||[]).map(mk861CatalogEntryById).filter(hit=>mk872ChestEligible(hit,rarity))}
 function mk861ValidatePools(){
  const errors=[],seen=new Set();
  for(const rarity of ["rare","epic","legendary"]){
-  for(const id of MK861_CHEST_POOLS[rarity]){
+  for(const id of mk861ChestEntries(rarity).map(x=>x.item.id)){
    const hit=mk861CatalogEntryById(id);
    if(!hit){errors.push(`missing:${id}`);continue}
    if(seen.has(id))errors.push(`duplicate:${id}`);seen.add(id);
@@ -19483,6 +19490,79 @@ document.getElementById('mk870Overlay')?.addEventListener('click',e=>{if(e.targe
   save=function(){return oldSave()};
   stats();
 })();
+</script>
+
+
+<style id="mk872-catalog-legacy-style">
+.mk872-legacy-info{border:1px solid #e2d4aa;background:#fffbeb;border-radius:13px;padding:12px;margin:12px 0;line-height:1.5}
+.mk872-legacy-info .btn{margin-top:9px}.mk872-legacy-info small{color:#706448;display:block;margin-top:5px}
+</style>
+<script id="mk872-catalog-legacy-hotfix">
+/* Stable global catalog, shared by all profiles; ownership is profile-specific. */
+const MK872_MODERN_HERO_IDS=Object.freeze([...MK868_FINAL_HERO_IDS]);
+const MK872_MODERN_HERO_SET=new Set(MK872_MODERN_HERO_IDS);
+function mk872ModernCatalog(){return MK872_MODERN_HERO_IDS.map(id=>catalogItem('avatars',id)).filter(Boolean)}
+for(const item of SHOP_CATALOG.avatars){
+  const current=MK872_MODERN_HERO_SET.has(item.id);
+  item.hiddenInStore=!current;item.legacyHero=!current;item.finalHero=current;
+  if(!current)item.chestEligible=false;
+}
+/* The actual Store hero enumeration always comes from the global registry. */
+filteredShopItems=function(category){
+ if(category!=='avatars'){
+  const items=(SHOP_CATALOG[category]||[]);
+  return shopRarityFilter==='all'?items:shopRarityFilter==='reward'?items.filter(x=>x.rewardOnly):items.filter(x=>x.rarity===shopRarityFilter);
+ }
+ const rank={common:0,uncommon:1,rare:2,epic:3,legendary:4};
+ const items=mk872ModernCatalog();
+ return items.filter(x=>shopRarityFilter==='all'||(shopRarityFilter==='reward'?!!x.rewardOnly:x.rarity===shopRarityFilter))
+  .sort((a,b)=>(rank[a.rarity]??9)-(rank[b.rarity]??9)||Number(a.level||0)-Number(b.level||0)||Number(a.price||0)-Number(b.price||0)||a.name.localeCompare(b.name,'ru'));
+};
+/* Manual DEV-only cleanup; never auto-delete historically earned legacy items. */
+function mk872LegacyItems(profile){
+ const inv=profile?.inventory||{};
+ return [
+  ...(inv.avatars||[]).filter(id=>id!=='av_default'&&!MK872_MODERN_HERO_SET.has(id)&&!!catalogItem('avatars',id)).map(id=>({type:'avatars',id})),
+  ...(inv.accessories||[]).filter(id=>id!=='acc_none'&&!!catalogItem('accessories',id)).map(id=>({type:'accessories',id}))
+ ];
+}
+function mk872LegacyPanel(){
+ const items=mk872LegacyItems(state);
+ return `<section class="mk872-legacy-info"><b>Старые предметы (Legacy Cleanup)</b><div>Выбранный профиль: <b>${esc(currentProfile)}</b></div><div>Найдено старых предметов: <b>${items.length}</b></div><small>Очистка затронет только выбранного ученика. Исторические предметы не удаляются автоматически.</small><button type="button" class="btn soft" ${items.length?'':'disabled'} onclick="mk872CleanLegacy()">Очистить legacy-предметы</button></section>`;
+}
+const MK872_PRE_OPEN_DEVELOPER_PANEL=openDeveloperPanel;
+openDeveloperPanel=function(){
+ MK872_PRE_OPEN_DEVELOPER_PANEL();
+ if(!developerModeEnabled)return;
+ const body=document.getElementById('mk870PanelBody');
+ if(body){const section=document.createElement('div');section.id='mk872LegacyPanel';section.innerHTML=mk872LegacyPanel();body.appendChild(section)}
+};
+function mk872CleanLegacy(){
+ if(!developerModeEnabled)return;
+ const items=mk872LegacyItems(state);
+ if(!items.length)return;
+ if(!confirm(`Удалить ${items.length} старых предметов только у профиля «${currentProfile}»? Историческое владение будет потеряно.`))return;
+ const next=deepCopy(state);
+ next.inventory ||= {};next.equipped ||= {};
+ const avatars=new Set(items.filter(x=>x.type==='avatars').map(x=>x.id));
+ if(avatars.has(next.equipped.avatar))next.equipped.avatar='av_default';
+ for(const type of ['avatars','accessories']){
+  const remove=new Set(items.filter(x=>x.type===type).map(x=>x.id));
+  next.inventory[type]=(next.inventory[type]||[]).filter(id=>!remove.has(id));
+ }
+ if(items.some(x=>x.type==='accessories'&&x.id===next.equipped.accessory))next.equipped.accessory='acc_none';
+ next.chestOwnedIds=(next.chestOwnedIds||[]).filter(id=>!items.some(x=>x.id===id));
+ next.developerGrantedItems=(next.developerGrantedItems||[]).filter(key=>!items.some(x=>key===`${x.type}:${x.id}`));
+ normalizeProfileShopData(next,{syncRewards:false});
+ const nextProfiles={...profiles,[currentProfile]:next};
+ try{
+  localStorage.setItem('mq4_profiles',JSON.stringify(nextProfiles));
+  localStorage.setItem('mq4_current_profile',currentProfile);
+  localStorage.setItem('mq4',JSON.stringify(next));
+ }catch(e){reportStorageError(e,true);return}
+ profiles=nextProfiles;state=next;stats();openDeveloperPanel();
+ mk870Error(`Очищено старых предметов: ${items.length}.`);
+}
 </script>
 
 <script>
