@@ -914,9 +914,35 @@ button,input{font:inherit}button{cursor:pointer}.shell{max-width:1180px;margin:a
 .mk867-avatar-svg .mk867-spark{transform-box:fill-box;transform-origin:center;animation:mk867Spark 2.8s ease-in-out infinite}
 .mk867-avatar-svg .mk867-spark.s2{animation-delay:-1.15s}.mk867-avatar-svg .mk867-spark.s3{animation-delay:-2.05s}
 @keyframes mk867Spark{0%,100%{opacity:.34;transform:scale(.82)}50%{opacity:1;transform:scale(1.13)}}
-.mk867-hero-intro{margin:0 0 12px;padding:11px 13px;border:1px solid #d8e7df;border-radius:15px;background:linear-gradient(135deg,#f4fbf7,#fff9e5);font-size:13px;line-height:1.45;color:#476357}
-.mk867-hero-intro b{color:var(--ink)}
 @media(prefers-reduced-motion:reduce){.mk867-avatar-svg .mk867-spark{animation:none!important}}
+
+/* 8.72: единая компактная контекстная справка. */
+.mk872-help-heading{display:inline-flex;align-items:center;gap:7px;flex-wrap:wrap}
+.mk872-help-trigger{display:inline-grid;place-items:center;vertical-align:middle;flex:none;width:32px;height:32px;padding:0;border:1px solid #c8dfd3;border-radius:50%;background:#f2f9f5;color:#367b5d;font-size:20px;font-weight:800;line-height:1;cursor:pointer;box-shadow:none}
+.mk872-help-trigger:hover{background:#e1f3e9;border-color:#77b495}.mk872-help-trigger:focus-visible{outline:3px solid #74bba0;outline-offset:3px}
+.mk872-help-layer{position:fixed;inset:0;z-index:160;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(14,37,29,.36)}
+.mk872-help-dialog{width:min(410px,100%);max-height:min(75vh,540px);overflow:auto;background:#fff;border:1px solid #cddfd4;border-radius:19px;box-shadow:0 18px 54px rgba(15,40,29,.2);padding:17px 19px;color:#17362c}
+.mk872-help-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:9px}.mk872-help-top h3{font-size:19px;margin:0}.mk872-help-close{border:0;background:#eef6f1;color:#244c3b;border-radius:10px;width:36px;height:36px;font-size:24px;cursor:pointer;flex:none}.mk872-help-close:focus-visible{outline:3px solid #74bba0}
+.mk872-help-content{font-size:14px;line-height:1.55}.mk872-help-content p{margin:0 0 9px}.mk872-help-content p:last-child{margin-bottom:0}
+@media(max-width:420px){.mk872-help-dialog{padding:14px 16px}.mk872-help-heading{gap:5px}.mk872-help-trigger{width:32px;height:32px}}
+
+/* 8.72 — единый индикатор прогресса XP (только UI) */
+.mk872-xp-progress{min-width:0;max-width:440px;margin:7px 0;color:inherit;font-size:12px;line-height:1.35}
+.mk872-xp-head{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-weight:850}
+.mk872-xp-track{height:8px;border-radius:99px;overflow:hidden;background:rgba(122,155,134,.22);margin:5px 0 4px}
+.mk872-xp-fill{display:block;height:100%;background:linear-gradient(90deg,#25845f,#d5ad33);border-radius:inherit;transition:width .2s ease}
+.mk872-xp-foot{font-size:11px;opacity:.86;overflow-wrap:anywhere}
+.mk872-xp-progress.compact{max-width:240px;margin:4px 0;font-size:11px}
+.mk872-xp-progress.compact .mk872-xp-track{height:5px;margin:3px 0}
+.mk872-xp-progress.compact .mk872-xp-foot{font-size:10px}
+.mk872-top-progress{flex:1 1 130px;min-width:105px;max-width:190px;align-self:center;margin:0 2px}
+.mk872-top-progress .mk872-xp-head{font-size:10px}
+.mk872-top-progress .mk872-xp-track{height:5px;margin:3px 0}
+.mk872-top-progress .mk872-xp-foot{display:none}
+.mk872-leader-progress{min-width:70px;max-width:95px}
+.mk872-leader-progress .mk872-xp-track{height:5px;margin:3px 0}
+@media(max-width:520px){.mk872-top-progress{flex-basis:100%;max-width:100%;order:2}.mk872-xp-progress{width:100%}}
+@media(prefers-reduced-motion:reduce){.mk872-xp-fill{transition:none}}
 </style>
 
 <style id="stage712-data-styles">
@@ -1478,7 +1504,7 @@ button,input{font:inherit}button{cursor:pointer}.shell{max-width:1180px;margin:a
     <div class="stats">
       <div class="pill grade-back" id="gradeBackPill" onclick="renderHome()">← Главная</div>
       <div class="pill profile-pill" onclick="openProfiles()"><span id="playerAvatar"><span class="ui-glyph ui-smile" aria-hidden="true"></span></span> <span id="playerName">Ученик</span></div>
-      <div class="pill level-pill"><span class="ui-glyph ui-medal" aria-hidden="true"></span> Ур. <span id="level">1</span></div>
+      <div class="pill level-pill"><span class="ui-glyph ui-medal" aria-hidden="true"></span> Ур. <span id="level">1</span></div><div id="mk872TopLevelProgress" class="mk872-xp-progress mk872-top-progress" aria-label="Прогресс уровня"></div>
       <div class="pill"><span class="ui-glyph ui-star" aria-hidden="true"></span> <span id="xp">0</span></div>
       <div class="pill"><span class="ui-glyph ui-coin" aria-hidden="true"></span> <span id="coins">0</span></div>
       <div class="pill"><span class="ui-glyph ui-fire" aria-hidden="true"></span> <span id="streak">0</span></div>
@@ -5955,6 +5981,22 @@ const MK859_LEVEL_CURVE={linear:100,quadratic:15};
 function levelThreshold(level){const n=Math.max(0,Math.trunc(Number(level||1))-1);return MK859_LEVEL_CURVE.linear*n+MK859_LEVEL_CURVE.quadratic*n*n}
 function levelFor(x){x=Math.max(0,Number(x||0));let lo=1,hi=2;while(levelThreshold(hi)<=x&&hi<10000)hi*=2;while(lo+1<hi){const mid=Math.floor((lo+hi)/2);if(levelThreshold(mid)<=x)lo=mid;else hi=mid}return lo}
 function levelProgressInfo(x){x=Math.max(0,Number(x||0));const level=levelFor(x),start=levelThreshold(level),next=levelThreshold(level+1),span=Math.max(1,next-start),within=Math.max(0,Math.min(span,x-start));return {level,start,next,remaining:Math.max(0,next-x),percent:Math.max(0,Math.min(100,Math.round(within/span*100)))}}
+/* Все представления читают одну и ту же исходную кривую levelFor/levelThreshold. */
+function mk872GetLevelProgress(profileXP){
+ const totalXP=Math.max(0,Number(profileXP)||0),base=levelProgressInfo(totalXP);
+ const xpNeededForLevel=Math.max(1,base.next-base.start);
+ const xpIntoLevel=Math.max(0,Math.min(xpNeededForLevel,totalXP-base.start));
+ return {currentLevel:base.level,totalXP,currentLevelStartXP:base.start,nextLevelXP:base.next,xpIntoLevel,xpNeededForLevel,xpRemaining:base.remaining,progressPercent:Math.max(0,Math.min(100,xpIntoLevel/xpNeededForLevel*100))};
+}
+function mk872LevelProgressHtml(profileXP,variant="full"){
+ const p=mk872GetLevelProgress(profileXP),compact=variant!=="full",small=variant==="tiny";
+ const label=`Уровень ${p.currentLevel}: ${Math.floor(p.xpIntoLevel)} из ${p.xpNeededForLevel} XP до уровня ${p.currentLevel+1}; осталось ${Math.ceil(p.xpRemaining)} XP`;
+ const labelText=small?`Ур. ${p.currentLevel} · ${Math.round(p.progressPercent)}%`:`Уровень ${p.currentLevel} → ${p.currentLevel+1}`;
+ const details=small?`${Math.ceil(p.xpRemaining)} XP осталось`:`${Math.floor(p.xpIntoLevel)} / ${p.xpNeededForLevel} XP · до ур. ${p.currentLevel+1}: ${Math.ceil(p.xpRemaining)} XP`;
+ return `<div class="mk872-xp-progress ${compact?'compact':''} ${variant==='top'?'mk872-top-progress':''} ${variant==='tiny'?'mk872-leader-progress':''}" role="progressbar" aria-label="${label}" aria-valuemin="0" aria-valuemax="${p.xpNeededForLevel}" aria-valuenow="${Math.floor(p.xpIntoLevel)}"><div class="mk872-xp-head"><span>${labelText}</span>${small?'':`<span>${Math.round(p.progressPercent)}%</span>`}</div><div class="mk872-xp-track"><span class="mk872-xp-fill" style="width:${p.progressPercent}%"></span></div><div class="mk872-xp-foot">${details}</div></div>`;
+}
+function mk872UpdateTopLevelProgress(){const node=document.getElementById('mk872TopLevelProgress');if(node)node.outerHTML=mk872LevelProgressHtml(state.xp||0,'top').replace('class="mk872-xp-progress','id="mk872TopLevelProgress" class="mk872-xp-progress');}
+
 
 const YANDEX_EMOJI_PNG={
   smile:"data:image/png;base64,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",
@@ -6393,7 +6435,7 @@ function profileTitleText(p=state){const c=normalizeProfileCosmetics(p);return c
 function profileTitleHtml(p=state){const title=profileTitleText(p);return title?`<div class="profile-title-line">🏷️ ${esc(title)}</div>`:`<div class="profile-title-line empty">Без титула</div>`}
 function profileBadgesHtml(p=state,size=""){const items=normalizeProfileCosmetics(p).badges||[];if(!items.length)return `<span class="profile-badge-empty">значки не выбраны</span>`;return `<span class="profile-badges ${size}">${items.map(x=>`<span class="profile-badge-chip" title="${esc(x.name)}">${x.icon}</span>`).join("")}</span>`}
 function profileBackgroundClass(p=state){return normalizeProfileCosmetics(p).background?.css||"profile-bg-none"}
-function profileIdentityCardHtml(p=state,name=currentProfile,{action=true}={}){const c=normalizeProfileCosmetics(p),bg=c.background?.css||"profile-bg-none",dark=c.background?.tone==="dark"?"profile-dark-copy":"";return `<section class="profile-identity-card profile-cosmetic-card ${bg}">${avatarHtml(p,"large")}<div class="profile-identity-main"><h2>${esc(name)}</h2>${profileTitleHtml(p)}<div class="${dark}" style="font-size:12px;margin-top:5px">Уровень ${levelFor(p?.xp||0)} • ${p?.xp||0} XP • 🪙 ${p?.coins||0}</div>${profileBadgesHtml(p,"large")}<div class="profile-sticker-line"><b style="font-size:12px">Любимые:</b> ${favoriteStickersHtml(p)}</div></div>${action?`<div class="profile-identity-side"><button class="btn soft" onclick="openShop('collection')">🎨 Оформить профиль</button></div>`:""}</section>`}
+function profileIdentityCardHtml(p=state,name=currentProfile,{action=true}={}){const c=normalizeProfileCosmetics(p),bg=c.background?.css||"profile-bg-none",dark=c.background?.tone==="dark"?"profile-dark-copy":"";return `<section class="profile-identity-card profile-cosmetic-card ${bg}">${avatarHtml(p,"large")}<div class="profile-identity-main"><h2>${esc(name)}</h2>${profileTitleHtml(p)}<div class="${dark}" style="font-size:12px;margin-top:5px">Уровень ${levelFor(p?.xp||0)} • ${p?.xp||0} XP • 🪙 ${p?.coins||0}</div>${mk872LevelProgressHtml(p?.xp||0)}${profileBadgesHtml(p,"large")}<div class="profile-sticker-line"><b style="font-size:12px">Любимые:</b> ${favoriteStickersHtml(p)}</div></div>${action?`<div class="profile-identity-side"><button class="btn soft" onclick="openShop('collection')">🎨 Оформить профиль</button></div>`:""}</section>`}
 function favoriteStickerIds(){
  normalizeShop();return state.equipped.stickers||[];
 }
@@ -6426,7 +6468,7 @@ function stickerRewardState(){
 }
 function shopPreview(){
  normalizeShop();const c=normalizeProfileCosmetics(state),petName=c.pet?.id==="pet_none"?"без питомца":c.pet?.name,bg=c.background?.css||"profile-bg-none",dark=c.background?.tone==="dark"?"profile-dark-copy":"";
- return `<div class="profile-preview profile-cosmetic-card ${bg}">${avatarHtml(state,"large")}<div class="profile-preview-info"><b>${esc(currentProfile)}</b>${profileTitleHtml(state)}<small class="${dark}">Уровень ${levelFor(state.xp)} • собрано ${Math.max(0,ownedTotal(state))} предметов<br><b>Рамка:</b> ${esc(c.frame?.name||"Обычная")} • <b>Питомец:</b> ${esc(petName||"без питомца")} • <b>Фон:</b> ${esc(c.background?.name||"Обычный")}</small>${profileBadgesHtml(state,"compact")}<div class="profile-sticker-line"><b style="font-size:12px">Любимые:</b> ${favoriteStickersHtml(state,"large")}</div></div><div class="shop-balance">🪙 ${state.coins||0}</div></div>`;
+ return `<div class="profile-preview profile-cosmetic-card ${bg}">${avatarHtml(state,"large")}<div class="profile-preview-info"><b>${esc(currentProfile)}</b>${profileTitleHtml(state)}<small class="${dark}">Уровень ${levelFor(state.xp)} • собрано ${Math.max(0,ownedTotal(state))} предметов<br><b>Рамка:</b> ${esc(c.frame?.name||"Обычная")} • <b>Питомец:</b> ${esc(petName||"без питомца")} • <b>Фон:</b> ${esc(c.background?.name||"Обычный")}</small>${mk872LevelProgressHtml(state.xp||0)}${profileBadgesHtml(state,"compact")}<div class="profile-sticker-line"><b style="font-size:12px">Любимые:</b> ${favoriteStickersHtml(state,"large")}</div></div><div class="shop-balance">🪙 ${state.coins||0}</div></div>`;
 }
 function shopTabs(active){
  return `<div class="shop-tabs"><button class="shop-tab ${active==="avatars"?"active":""}" onclick="openShop('avatars')">🙂 Аватары</button><button class="shop-tab ${active==="frames"?"active":""}" onclick="openShop('frames')">🖼️ Рамки</button><button class="shop-tab ${active==="pets"?"active":""}" onclick="openShop('pets')">🐾 Питомцы</button><button class="shop-tab ${active==="stickers"?"active":""}" onclick="openShop('stickers')">⭐ Стикеры</button><button class="shop-tab ${active==="titles"?"active":""}" onclick="openShop('titles')">🏷️ Титулы</button><button class="shop-tab ${active==="backgrounds"?"active":""}" onclick="openShop('backgrounds')">🎨 Фоны</button><button class="shop-tab ${active==="badges"?"active":""}" onclick="openShop('badges')">🎖️ Значки</button><button class="shop-tab ${active==="achievements"?"active":""}" onclick="openShop('achievements')">🏅 Достижения</button><button class="shop-tab ${active==="collection"?"active":""}" onclick="openShop('collection')">🎒 Моё</button></div>`;
@@ -6473,9 +6515,8 @@ function openShop(category="avatars",rarity=null){
  if(category==="achievements"){openAchievements();return}
  const items=filteredShopItems(category);
  const albumTotal=purchasableStickerItems().length;
- show(`<div class="mtop"><h2>🛍️ Магазин наград</h2><button class="x" onclick="closeModal()">×</button></div>
+ show(`<div class="mtop"><h2 class="mk872-help-heading">🛍️ Магазин наград <button type="button" class="mk872-help-trigger" title="Справка" aria-label="Справка: shop" onclick="mk872HelpOpen('shop',this)">ⓘ</button></h2><button class="x" onclick="closeModal()">×</button></div>
  ${shopPreview()}${shopTabs(category)}${shopRarityButtons(category)}
- <div class="lesson">Монеты тратятся только на оформление и коллекцию — <b>учебный результат купить нельзя</b>. В магазине есть обычные, редкие, эпические и <b>легендарные</b> предметы. Награды с 🏆 не продаются — они открываются достижениями. Полный покупаемый альбом из <b>${albumTotal}</b> стикеров открывает рамку «Коллекционер».</div>
  <div class="shop-grid">${items.length?items.map(x=>shopCard(category,x)).join(""):'<div class="report-empty" style="grid-column:1/-1">В этом фильтре пока нет предметов.</div>'}</div>`);
 }
 function buyShopItem(type,id){
@@ -6500,7 +6541,7 @@ function openCollection(){
  const ownedTitles=SHOP_CATALOG.titles.filter(x=>isOwned("titles",x.id)).map(x=>`<div class="cosmetic-owned-item ${state.equipped.title===x.id?"selected":""}"><b>${esc(x.name)}</b><small>${state.equipped.title===x.id?"Выбран":"В коллекции"}</small></div>`).join("");
  const ownedBackgrounds=SHOP_CATALOG.backgrounds.filter(x=>isOwned("backgrounds",x.id)).map(x=>`<div class="cosmetic-owned-item ${state.equipped.background===x.id?"selected":""}"><div class="shop-background-preview ${x.css}" style="width:100%;height:42px;border-radius:9px;margin:0 0 6px"><span>${esc(x.icon||"Aa")}</span></div><b>${esc(x.name)}</b><small>${state.equipped.background===x.id?"Выбран":"В коллекции"}</small></div>`).join("");
  const ownedBadges=SHOP_CATALOG.badges.filter(x=>isOwned("badges",x.id)).map(x=>{const selected=(state.equipped.badges||[]).includes(x.id);return `<div class="cosmetic-owned-item ${selected?"selected":""}"><b><span class="profile-badge-chip">${x.icon}</span> ${esc(x.name)}</b><small>${selected?"Показывается в профиле":"В коллекции"}</small><div class="badge-select-actions"><button class="sticker-mini-btn ${selected?"remove":""}" onclick="toggleProfileBadge('${x.id}','collection')">${selected?"Убрать":"Выбрать"}</button></div></div>`}).join("")||'<div class="teacher-empty">Значков пока нет.</div>';
- show(`<div class="mtop"><h2>🎒 Моя коллекция</h2><button class="x" onclick="closeModal()">×</button></div>${shopPreview()}${shopTabs("collection")}<div class="collection-stats"><div class="collection-stat"><b>${c.avatars}/${SHOP_CATALOG.avatars.length}</b><small>аватары</small></div><div class="collection-stat"><b>${c.frames}/${SHOP_CATALOG.frames.length}</b><small>рамки</small></div><div class="collection-stat"><b>${c.pets}/${SHOP_CATALOG.pets.length-1}</b><small>питомцы</small></div><div class="collection-stat"><b>${c.titles}/${SHOP_CATALOG.titles.length}</b><small>титулы</small></div><div class="collection-stat"><b>${c.backgrounds}/${SHOP_CATALOG.backgrounds.length}</b><small>фоны</small></div><div class="collection-stat"><b>${c.badges}/${SHOP_CATALOG.badges.length}</b><small>значки</small></div><div class="collection-stat"><b>${c.stickers}/${SHOP_CATALOG.stickers.length}</b><small>стикеры</small></div></div><div class="lesson"><b>Текущий титул:</b> ${esc(cos.title?.name||"Без титула")} • <b>фон:</b> ${esc(cos.background?.name||"Обычный")} • <b>значков:</b> ${(state.equipped.badges||[]).length}/3<br><b>Всего потрачено:</b> 🪙 ${state.shopStats.spent||0}</div><div class="album-head"><div><b>🏷️ Титулы</b><div style="color:var(--muted);font-size:12px">Выбор титула выполняется во вкладке магазина.</div></div><button class="btn soft" onclick="openShop('titles')">Титулы</button></div><div class="cosmetic-owned-grid">${ownedTitles}</div><div class="album-head"><div><b>🎨 Фоны профиля</b><div style="color:var(--muted);font-size:12px">Фон меняет только карточку профиля, а не учебные экраны.</div></div><button class="btn soft" onclick="openShop('backgrounds')">Фоны</button></div><div class="cosmetic-owned-grid">${ownedBackgrounds}</div><div class="album-head"><div><b>🎖️ Значки</b><div style="color:var(--muted);font-size:12px">Выбрано ${(state.equipped.badges||[]).length}/3. Можно показать максимум три.</div></div><button class="btn soft" onclick="openShop('badges')">Значки</button></div><div class="cosmetic-owned-grid">${ownedBadges}</div><div class="album-head"><div><b>⭐ Альбом стикеров</b><div style="color:var(--muted);font-size:12px">Собрано ${sr.got}/${sr.total}. Выбрано для показа: ${favorites.length}/3.</div></div><button class="btn soft" onclick="openShop('stickers')">В магазин</button></div><div class="favorite-help">📌 Любимые стикеры и престижные значки — разные коллекции. Для каждой можно выбрать до 3 элементов.</div><div class="sticker-reward ${sr.complete?"done":""}">${sr.complete?"🏆 <b>Альбом собран!</b> Эксклюзивная рамка «Коллекционер» уже в твоём инвентаре.":"🎁 <b>Награда за полный покупаемый альбом:</b> собери все "+sr.total+" стикеров и получи эксклюзивную рамку <b>«Коллекционер»</b>. Новые badges на альбом не влияют."}</div><div class="sticker-album">${stickerSlots}</div>${rewardStickerSlots?`<div class="album-head" style="margin-top:16px"><div><b>🏅 Наградные стикеры</b><div style="color:var(--muted);font-size:12px">Их нельзя купить — только заработать.</div></div><button class="btn soft" onclick="openAchievements()">Достижения</button></div><div class="reward-only-stickers">${rewardStickerSlots}</div>`:""}`);
+ show(`<div class="mtop"><h2 class="mk872-help-heading">🎒 Моя коллекция <button type="button" class="mk872-help-trigger" title="Справка" aria-label="Справка: collection" onclick="mk872HelpOpen('collection',this)">ⓘ</button></h2><button class="x" onclick="closeModal()">×</button></div>${shopPreview()}${shopTabs("collection")}<div class="collection-stats"><div class="collection-stat"><b>${c.avatars}/${SHOP_CATALOG.avatars.length}</b><small>аватары</small></div><div class="collection-stat"><b>${c.frames}/${SHOP_CATALOG.frames.length}</b><small>рамки</small></div><div class="collection-stat"><b>${c.pets}/${SHOP_CATALOG.pets.length-1}</b><small>питомцы</small></div><div class="collection-stat"><b>${c.titles}/${SHOP_CATALOG.titles.length}</b><small>титулы</small></div><div class="collection-stat"><b>${c.backgrounds}/${SHOP_CATALOG.backgrounds.length}</b><small>фоны</small></div><div class="collection-stat"><b>${c.badges}/${SHOP_CATALOG.badges.length}</b><small>значки</small></div><div class="collection-stat"><b>${c.stickers}/${SHOP_CATALOG.stickers.length}</b><small>стикеры</small></div></div><div class="lesson"><b>Текущий титул:</b> ${esc(cos.title?.name||"Без титула")} • <b>фон:</b> ${esc(cos.background?.name||"Обычный")} • <b>значков:</b> ${(state.equipped.badges||[]).length}/3<br><b>Всего потрачено:</b> 🪙 ${state.shopStats.spent||0}</div><div class="album-head"><div><b>🏷️ Титулы</b><div style="color:var(--muted);font-size:12px">Выбор титула выполняется во вкладке магазина.</div></div><button class="btn soft" onclick="openShop('titles')">Титулы</button></div><div class="cosmetic-owned-grid">${ownedTitles}</div><div class="album-head"><div><b>🎨 Фоны профиля</b><div style="color:var(--muted);font-size:12px">Фон меняет только карточку профиля, а не учебные экраны.</div></div><button class="btn soft" onclick="openShop('backgrounds')">Фоны</button></div><div class="cosmetic-owned-grid">${ownedBackgrounds}</div><div class="album-head"><div><b>🎖️ Значки</b><div style="color:var(--muted);font-size:12px">Выбрано ${(state.equipped.badges||[]).length}/3. Можно показать максимум три.</div></div><button class="btn soft" onclick="openShop('badges')">Значки</button></div><div class="cosmetic-owned-grid">${ownedBadges}</div><div class="album-head"><div><b>⭐ Альбом стикеров</b><div style="color:var(--muted);font-size:12px">Собрано ${sr.got}/${sr.total}. Выбрано для показа: ${favorites.length}/3.</div></div><button class="btn soft" onclick="openShop('stickers')">В магазин</button></div><div class="favorite-help">📌 Любимые стикеры и престижные значки — разные коллекции. Для каждой можно выбрать до 3 элементов.</div><div class="sticker-reward ${sr.complete?"done":""}">${sr.complete?"🏆 <b>Альбом собран!</b> Эксклюзивная рамка «Коллекционер» уже в твоём инвентаре.":"🎁 <b>Награда за полный покупаемый альбом:</b> собери все "+sr.total+" стикеров и получи эксклюзивную рамку <b>«Коллекционер»</b>. Новые badges на альбом не влияют."}</div><div class="sticker-album">${stickerSlots}</div>${rewardStickerSlots?`<div class="album-head" style="margin-top:16px"><div><b>🏅 Наградные стикеры</b><div style="color:var(--muted);font-size:12px">Их нельзя купить — только заработать.</div></div><button class="btn soft" onclick="openAchievements()">Достижения</button></div><div class="reward-only-stickers">${rewardStickerSlots}</div>`:""}`);
 }
 function stableIdHash(s){
  let h=2166136261;for(const ch of String(s||"")){h^=ch.charCodeAt(0);h=Math.imul(h,16777619)}
@@ -7295,7 +7336,7 @@ function save(){
 }
 function stats(){
  xp.textContent=state.xp||0;coins.textContent=state.coins||0;streak.textContent=state.streak||0;
- level.textContent=levelFor(state.xp||0);playerName.textContent=currentProfile;playerName.title=currentProfile;
+ level.textContent=levelFor(state.xp||0);mk872UpdateTopLevelProgress();playerName.textContent=currentProfile;playerName.title=currentProfile;
  const topAv=document.getElementById("playerAvatar");if(topAv){topAv.innerHTML=avatarHtml(state,"small")}
  if(typeof renderTopics==="function")renderTopics();
  if(currentGrade===3&&document.querySelector(".g3-card"))renderGrade3();
@@ -7329,9 +7370,8 @@ function esc(s){return String(s).replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;"
 function openProfiles(){
   const names=Object.keys(profiles).sort((a,b)=>(profiles[b].xp||0)-(profiles[a].xp||0));
   window._profileNames=names;
-  const rows=names.map((name,i)=>{const p=profiles[name],title=profileTitleText(p);return `<div class="profile-row ${name===currentProfile?"current":""}"><div class="profile-row-main">${avatarHtml(p,"small")}<div><b>${esc(name)}</b>${title?`<div class="leader-title">${esc(title)}</div>`:""}<div class="profile-info"><span>ур. ${levelFor(p.xp)}</span><span>${p.xp||0} XP</span><span>🪙 ${p.coins||0}</span><span>🔥 рекорд ${p.bestStreak||0}</span><span>🎒 ${ownedTotal(p)}</span></div>${profileBadgesHtml(p,"compact")}<div class="profile-sticker-line">${favoriteStickersHtml(p)}</div></div></div><button class="btn soft" onclick="selectProfile(${i})">${name===currentProfile?"Текущий":"Выбрать"}</button></div>`}).join("");
-  const prog=levelProgressInfo(state.xp||0);
-  show(`<div class="mk871-profiles-screen"><div class="mtop"><h2>👤 Профили учеников</h2><button class="x" onclick="closeModal()">×</button></div>${shopPreview()}<div class="level-box"><b>${esc(currentProfile)} — уровень ${prog.level}</b><div>${state.xp||0} XP • до следующего уровня ${prog.remaining} XP</div><div class="level-track"><span style="width:${prog.percent}%"></span></div></div><div class="actions"><button class="btn primary" onclick="openShop()">🛍️ Магазин</button><button class="btn soft" onclick="openCollection()">🎒 Моя коллекция</button></div><div class="profile-list">${rows}</div><div class="profile-create"><input id="newProfileName" maxlength="24" placeholder="Имя ученика" onkeydown="if(event.key==='Enter')createProfile()"><button class="btn primary" onclick="createProfile()">Создать</button></div></div>`);
+  const rows=names.map((name,i)=>{const p=profiles[name],title=profileTitleText(p);return `<div class="profile-row ${name===currentProfile?"current":""}"><div class="profile-row-main">${avatarHtml(p,"small")}<div><b>${esc(name)}</b>${title?`<div class="leader-title">${esc(title)}</div>`:""}<div class="profile-info"><span>ур. ${levelFor(p.xp)}</span><span>${p.xp||0} XP</span><span>🪙 ${p.coins||0}</span><span>🔥 рекорд ${p.bestStreak||0}</span><span>🎒 ${ownedTotal(p)}</span></div>${mk872LevelProgressHtml(p?.xp||0,"compact")}${profileBadgesHtml(p,"compact")}<div class="profile-sticker-line">${favoriteStickersHtml(p)}</div></div></div><button class="btn soft" onclick="selectProfile(${i})">${name===currentProfile?"Текущий":"Выбрать"}</button></div>`}).join("");
+  show(`<div class="mk871-profiles-screen"><div class="mtop"><h2>👤 Профили учеников</h2><button class="x" onclick="closeModal()">×</button></div>${shopPreview()}<div class="actions"><button class="btn primary" onclick="openShop()">🛍️ Магазин</button><button class="btn soft" onclick="openCollection()">🎒 Моя коллекция</button></div><div class="profile-list">${rows}</div><div class="profile-create"><input id="newProfileName" maxlength="24" placeholder="Имя ученика" onkeydown="if(event.key==='Enter')createProfile()"><button class="btn primary" onclick="createProfile()">Создать</button></div></div>`);
 }
 function selectProfile(i){
   const name=window._profileNames?.[i];if(!name||!profiles[name])return;
@@ -7345,8 +7385,8 @@ function createProfile(){
 }
 function openLeaderboard(){
   const list=Object.entries(profiles).filter(([,p])=>developerModeEnabled||p?.developerTestProfile!==true).sort((a,b)=>(b[1].xp||0)-(a[1].xp||0)||(b[1].bestStreak||0)-(a[1].bestStreak||0)||(b[1].solved||0)-(a[1].solved||0));
-  const rows=list.map(([name,p],i)=>{const title=profileTitleText(p);return `<tr class="${name===currentProfile?"leader-current":""}"><td>${i===0?"🥇":i===1?"🥈":i===2?"🥉":i+1}</td><td><div class="leader-identity">${avatarHtml(p,"small")}<div><b>${esc(name)}</b>${developerModeEnabled&&p.developerTestProfile===true?`<span class="mk870-leader-test-badge">Тестовый</span>`:""}${title?`<div class="leader-title">${esc(title)}</div>`:""}${profileBadgesHtml(p,"compact")}<div class="leader-stickers">${favoriteStickersHtml(p)}</div></div></div></td><td>ур. ${levelFor(p.xp)}</td><td>${p.xp||0}</td><td>${p.coins||0}</td><td>${p.bestStreak||0}</td><td>${p.solved||0}</td></tr>`}).join("");
-  show(`<div class="mtop"><h2>🏆 Таблица лидеров</h2><button class="x" onclick="closeModal()">×</button></div><div class="lesson">Рейтинг хранится локально. Для переноса используй <b>💾 Данные</b>: одинаковые ученики распознаются по скрытому ID и не дублируются. Сначала XP, затем лучшая серия и число решённых примеров.</div><div style="overflow:auto"><table class="leader-table"><thead><tr><th>#</th><th>Ученик</th><th>Уровень</th><th>XP</th><th>Монеты</th><th>🔥 рекорд</th><th>Решено</th></tr></thead><tbody>${rows}</tbody></table></div>`);
+  const rows=list.map(([name,p],i)=>{const title=profileTitleText(p);return `<tr class="${name===currentProfile?"leader-current":""}"><td>${i===0?"🥇":i===1?"🥈":i===2?"🥉":i+1}</td><td><div class="leader-identity">${avatarHtml(p,"small")}<div><b>${esc(name)}</b>${developerModeEnabled&&p.developerTestProfile===true?`<span class="mk870-leader-test-badge">Тестовый</span>`:""}${title?`<div class="leader-title">${esc(title)}</div>`:""}${profileBadgesHtml(p,"compact")}<div class="leader-stickers">${favoriteStickersHtml(p)}</div></div></div></td><td>ур. ${levelFor(p.xp)}${mk872LevelProgressHtml(p?.xp||0,"tiny")}</td><td>${p.xp||0}</td><td>${p.coins||0}</td><td>${p.bestStreak||0}</td><td>${p.solved||0}</td></tr>`}).join("");
+  show(`<div class="mtop"><h2 class="mk872-help-heading">🏆 Таблица лидеров <button type="button" class="mk872-help-trigger" title="Справка" aria-label="Справка: leader" onclick="mk872HelpOpen('leader',this)">ⓘ</button></h2><button class="x" onclick="closeModal()">×</button></div><div style="overflow:auto"><table class="leader-table"><thead><tr><th>#</th><th>Ученик</th><th>Уровень</th><th>XP</th><th>Монеты</th><th>🔥 рекорд</th><th>Решено</th></tr></thead><tbody>${rows}</tbody></table></div>`);
 }
 
 
@@ -18841,7 +18881,7 @@ function mk861RenderChestStore(){
  const reason=complete?"Коллекция сундука собрана":(!enough?`Нужно ещё ${Math.max(0,MK861_CHEST_PRICE-Number(state.coins||0))} 🪙`:(MK861_CHEST_TRANSACTION_LOCK?"Открытие уже выполняется":""));
  const hist=(state.chestHistory||[]).slice().reverse().slice(0,8).map(x=>`<div class="mk861-history-row"><span>${x.rarity==="legendary"?"🟡":x.rarity==="epic"?"🟣":"🟢"}</span><b>${esc(mk861HistoryName(x))}</b><small>${new Date(x.timestamp||Date.now()).toLocaleDateString("ru-RU")}</small></div>`).join("");
  const prog=["rare","epic","legendary"].map(r=>`<span>${MK861_RARITY_LABEL[r]}: ${mk861OwnedPoolCount(state,r)}/${mk861ChestEntries(r).length}</span>`).join("");
- show(`<div class="mtop"><h2>🎁 Сундуки</h2><button class="x" onclick="closeModal()">×</button></div>${shopPreview()}${shopTabs("chests")}<div class="mk861-chest-page"><section class="mk861-chest-card"><div class="mk861-chest-head"><div class="mk861-chest-icon" aria-hidden="true">🎁</div><div><h2>Сундук удачи</h2><div class="mk861-price">${MK861_CHEST_PRICE} 🪙</div><div class="mk861-note">Покупается только за монеты, заработанные в МатКвесте. Реальных денег и платной валюты здесь нет.</div></div></div><div class="mk861-probs" aria-label="Вероятности до открытия"><div class="mk861-prob rare"><b>Редкий</b><span>70%</span></div><div class="mk861-prob epic"><b>Эпический</b><span>25%</span></div><div class="mk861-prob legendary"><b>Легендарный</b><span>5%</span></div></div><div class="mk861-guarantees"><div class="${g.epicNext||g.legendaryNext?"hot":""}">${esc(g.epicPlusText)}</div><div class="${g.legendaryNext?"hot":""}">${esc(g.legendaryText)}</div></div><div class="mk861-pool-progress">${prog}</div><div class="mk861-chest-actions"><button class="btn primary" ${disabled?"disabled":""} onclick="mk861OpenChestTransaction()">Открыть за ${MK861_CHEST_PRICE} 🪙</button>${reason?`<span class="mk861-disabled-note">${esc(reason)}</span>`:""}</div></section><section class="mk861-history"><h3>Последние открытия</h3>${hist?`<div class="mk861-history-list">${hist}</div>`:`<div class="teacher-empty">Сундук ещё не открывали.</div>`}</section></div>`);
+ show(`<div class="mtop"><h2>🎁 Сундуки</h2><button class="x" onclick="closeModal()">×</button></div>${shopPreview()}${shopTabs("chests")}<div class="mk861-chest-page"><section class="mk861-chest-card"><div class="mk861-chest-head"><div class="mk861-chest-icon" aria-hidden="true">🎁</div><div><h2 class="mk872-help-heading">Сундук удачи <button type="button" class="mk872-help-trigger" title="Справка" aria-label="Справка: chest" onclick="mk872HelpOpen('chest',this)">ⓘ</button></h2><div class="mk861-price">${MK861_CHEST_PRICE} 🪙</div></div></div><div class="mk861-probs" aria-label="Вероятности до открытия"><div class="mk861-prob rare"><b>Редкий</b><span>70%</span></div><div class="mk861-prob epic"><b>Эпический</b><span>25%</span></div><div class="mk861-prob legendary"><b>Легендарный</b><span>5%</span></div></div><div class="mk861-guarantees"><div class="${g.epicNext||g.legendaryNext?"hot":""}">${esc(g.epicPlusText)}</div><div class="${g.legendaryNext?"hot":""}">${esc(g.legendaryText)}</div></div><div class="mk861-pool-progress">${prog}</div><div class="mk861-chest-actions"><button class="btn primary" ${disabled?"disabled":""} onclick="mk861OpenChestTransaction()">Открыть за ${MK861_CHEST_PRICE} 🪙</button>${reason?`<span class="mk861-disabled-note">${esc(reason)}</span>`:""}</div></section><section class="mk861-history"><h3>Последние открытия</h3>${hist?`<div class="mk861-history-list">${hist}</div>`:`<div class="teacher-empty">Сундук ещё не открывали.</div>`}</section></div>`);
 }
 const MK861_PRE_SHOP_TABS=shopTabs;
 shopTabs=function(active){
@@ -19182,9 +19222,7 @@ filteredShopItems=function(category){
 };
 const MK867_PRE_OPEN_SHOP=openShop;
 openShop=function(category="avatars",rarity=null){
- const ret=MK867_PRE_OPEN_SHOP(category,rarity);if(category==="avatars"){
-  const grid=modal?.querySelector?.(".shop-grid");if(grid&&!modal.querySelector(".mk867-hero-intro"))grid.insertAdjacentHTML("beforebegin",`<div class="mk867-hero-intro"><b>Герои МатКвеста</b> — новая оригинальная коллекция из ${MK867_AVATAR_IDS.length} персонажей. Старые классические аватары сохранены, а новые герои покупаются и продаются по обычным правилам магазина.</div>`)
- }return ret;
+ return MK867_PRE_OPEN_SHOP(category,rarity);
 };
 </script>
 
@@ -19249,12 +19287,7 @@ filteredShopItems=function(category){
 };
 const MK868_PRE_OPEN_SHOP=openShop;
 openShop=function(category='avatars',rarity=null){
- const ret=MK868_PRE_OPEN_SHOP(category,rarity);
- if(category==='avatars'){
-   const intro=modal?.querySelector?.('.mk867-hero-intro');
-   if(intro)intro.innerHTML=`<b>Герои МатКвеста</b> — финальная коллекция из <b>${MK868_FINAL_HERO_IDS.length}</b> утверждённых персонажей. Коллекция из 12 героев: от редких до легендарных. Выбери героя и открой его за монеты.`;
- }
- return ret;
+ return MK868_PRE_OPEN_SHOP(category,rarity);
 };
 </script>
 
@@ -19678,4 +19711,132 @@ if ("serviceWorker" in navigator) {
 })();
 </script>
 
+
+<style id="mk872-collection-ux-style">
+.mk872-col-count.active{background:#def3e6;border-color:#22875e;box-shadow:0 0 0 1px #22875e inset;color:#165537}
+.mk872-col-count:focus-visible,.mk872-col-action:focus-visible,.mk872-col-art:focus-visible{outline:3px solid #daa82b;outline-offset:2px}
+.mk872-col-counter-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(105px,1fr));gap:8px;margin:10px 0 15px;min-width:0}
+.mk872-col-count{border:1px solid #d9e6df;border-radius:12px;background:#fbfdfc;min-height:59px;display:grid;place-items:center;gap:1px;padding:6px 7px;cursor:pointer;color:#254b3a;text-align:center}
+.mk872-col-count b{font-size:18px}.mk872-col-count small{font-size:11px;color:#657f72;overflow-wrap:anywhere}.mk872-col-count{min-width:0;min-height:64px;touch-action:manipulation}
+.mk872-col-section{scroll-margin-top:12px}.mk872-col-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:7px;margin:10px 1px}.mk872-col-head h3{margin:0;font-size:20px}
+.mk872-col-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(165px,1fr));gap:11px}
+.mk872-col-card{min-width:0;border-radius:16px;border:1px solid #d9e8df;background:#fff;display:flex;flex-direction:column;align-items:center;text-align:center;padding:12px;gap:5px;box-shadow:0 3px 11px #22563e0b}
+.mk872-col-card.selected{background:#f3fcf7;border-color:#6fb38d}
+.mk872-col-art{width:110px;height:110px;border:0;background:#f0f7f3;border-radius:15px;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:0;position:relative}
+.mk872-col-art .mk868-avatar-img{width:100%;height:100%;object-fit:cover;display:block}
+.mk872-col-art .avatar-badge{transform:scale(1.1)}
+.mk872-col-art:not(button){cursor:default}
+.mk872-col-card strong{font-size:14px;line-height:1.3;overflow-wrap:anywhere}
+.mk872-col-meta{font-size:11px;font-weight:850}.mk872-col-action{width:100%;border:1px solid #82b99b;background:#e6f5ea;border-radius:10px;padding:9px 6px;margin-top:auto;font-weight:900;color:#215840;cursor:pointer}
+.mk872-col-action:disabled{cursor:default;opacity:.8}.mk872-col-action.primary{background:#ffd45c;border-color:#ebbf46;color:#544000}
+.mk872-col-empty{border:1px dashed #b9d8c6;background:#f8fcfa;border-radius:15px;padding:28px 12px;text-align:center;color:#667e72;line-height:1.6}
+.mk872-col-preview{width:100%;max-width:132px;min-height:75px;border-radius:13px;display:flex;justify-content:center;align-items:center;font-size:36px;overflow:hidden}
+.mk872-col-preview .avatar-badge{pointer-events:none}.mk872-col-preview .nickname-style{font-size:22px}
+.mk872-col-help{color:#73887d;font-size:12px;line-height:1.5}
+@media(max-width:520px){.mk872-col-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.mk872-col-card{padding:9px}.mk872-col-art{width:min(100px,100%);height:auto;aspect-ratio:1}.mk872-col-counter-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:365px){.mk872-col-grid{grid-template-columns:1fr}.mk872-col-art{width:120px}}
+</style>
+
+<script id="mk872-collection-ux-script">
+/* 8.72 stable visual hotfix: shared catalog, current-profile ownership; no new persistence schema. */
+const MK872_COLLECTION_SECTIONS=Object.freeze([
+ ['avatars','🙂','Аватары'],['frames','🖼️','Рамки'],['pets','🐾','Питомцы'],
+ ['effects','✨','Ауры'],['nicknameStyles','Аа','Стили имени'],['stickers','⭐','Стикеры'],
+ ['titles','🏷️','Титулы'],['backgrounds','🎨','Фоны'],['badges','🏅','Значки'],['achievements','🏆','Достижения']
+]);
+let mk872CollectionTab='avatars';
+function mk872ActiveCollectionItems(type){
+ if(type==='achievements')return ACHIEVEMENTS;
+ const items=type==='avatars'?mk872ModernCatalog():(SHOP_CATALOG[type]||[]);
+ return items.filter(item=>item && !item.legacyHero && !item.hiddenInStore && !item.hiddenFromStore && !item.deprecated && item.studentVisible!==false && item.id!=='pet_none' && item.id!=='fx_none' && item.id!=='acc_none');
+}
+function mk872CollectionOwned(type){
+ if(type==='achievements'){
+  return mk872ActiveCollectionItems(type).filter(item=>isAchievementUnlocked(state,item.id));
+ }
+ const owned=new Set(Array.isArray(state.inventory?.[type])?state.inventory[type]:[]);
+ return mk872ActiveCollectionItems(type).filter(item=>owned.has(item.id));
+}
+function mk872CollectionCount(type){return [mk872CollectionOwned(type).length,mk872ActiveCollectionItems(type).length]}
+function mk872CollectionPicked(type,item){
+ if(type==='nicknameStyles')return state.nicknameStyleId===item.styleId;
+ if(type==='effects')return state.equipped.effect===item.id;
+ if(type==='stickers')return (state.equipped.stickers||[]).includes(item.id);
+ return isEquipped(type,item.id);
+}
+function mk872CollectionChoose(type,id){
+ normalizeShop();const item=mk872CollectionOwned(type).find(x=>x.id===id);if(!item)return;
+ if(type==='badges')return toggleProfileBadge(id,'collection');
+ if(type==='stickers')return toggleFavoriteSticker(id);
+ if(type==='nicknameStyles')state.nicknameStyleId=item.styleId;
+ else if(type==='effects')state.equipped.effect=id;
+ else if(['avatars','frames','pets','titles','backgrounds'].includes(type))state.equipped[{avatars:'avatar',frames:'frame',pets:'pet',titles:'title',backgrounds:'background'}[type]]=id;
+ else return;
+ save();stats();rewardPop('Оформление профиля изменено');openCollection();
+}
+function mk872CollectionArt(type,item){
+ if(type==='avatars')return `<button type="button" class="mk872-col-art mk868-final-hero-card" title="Увеличить аватар" aria-label="Увеличить: ${esc(item.name)}"><span class="shop-icon" style="height:100%;width:100%;margin:0">${item.icon}</span></button>`;
+ if(type==='frames')return `<div class="mk872-col-preview">${shopItemIcon(type,item)}</div>`;
+ if(type==='pets')return `<div class="mk872-col-preview">${item.icon||'🐾'}</div>`;
+ if(type==='backgrounds')return `<div class="mk872-col-preview ${item.css||''}"><span>${esc(item.icon||'Aa')}</span></div>`;
+ if(type==='nicknameStyles')return `<div class="mk872-col-preview"><span class="nickname-style ${esc(NICKNAME_STYLES_854[item.styleId]?.cls||'')}">${esc(currentProfile)}</span></div>`;
+ if(type==='effects')return `<div class="mk872-col-preview">${shopItemIcon(type,item)}</div>`;
+ return `<div class="mk872-col-preview">${item.icon||'◆'}</div>`;
+}
+function mk872CollectionCards(type){
+ const items=mk872CollectionOwned(type);
+ if(!items.length)return '<div class="mk872-col-empty">Пока ничего нет в коллекции.<div class="mk872-col-help">Посмотри доступные предметы в магазине.</div></div>';
+ return `<div class="mk872-col-grid">${items.map(item=>{
+  const selected=mk872CollectionPicked(type,item);
+  const multi=type==='badges'||type==='stickers';
+  const selectable=type!=='achievements';
+  const button=selectable?`<button type="button" class="mk872-col-action ${!selected?'primary':''}" ${selected&&!multi?'disabled':''} onclick="mk872CollectionChoose('${type}','${item.id}')">${selected?(multi?'Убрать':'Выбрано ✓'):(multi?'Показать':'Выбрать')}</button>`:'';
+  return `<div class="mk872-col-card ${selected?'selected':''}">${mk872CollectionArt(type,item)}<strong>${esc(item.name||item.title||'Достижение')}</strong><span class="mk872-col-meta rarity-${item.rarity||'common'}">${item.rarity?rarityName(item.rarity):(selected?'Выбрано':'В коллекции')}</span>${button}</div>`;
+ }).join('')}</div>`;
+}
+function mk872CollectionAchievements(){
+ return `<div class="mk872-col-grid">${ACHIEVEMENTS.map(a=>{
+  const yes=isAchievementUnlocked(state,a.id);
+  return `<div class="mk872-col-card ${yes?'selected':''}"><div class="mk872-col-preview">${a.icon||'🏆'}</div><strong>${esc(a.title||a.name||'Достижение')}</strong><span class="mk872-col-meta">${yes?'Получено ✓':'Ещё не открыто'}</span></div>`;
+ }).join('')}</div>`;
+}
+function mk872CollectionSwitch(type){
+ if(!MK872_COLLECTION_SECTIONS.some(x=>x[0]===type))return;
+ mk872CollectionTab=type;
+ const root=document.getElementById('mk872CollectionUX');if(!root)return openCollection();
+ root.querySelectorAll('[data-mk872-collection-tab]').forEach(el=>{
+  const active=el.dataset.mk872CollectionTab===type;
+  el.classList.toggle('active',active);el.setAttribute('aria-pressed',String(active));
+ });
+ const current=MK872_COLLECTION_SECTIONS.find(x=>x[0]===type);
+ const counts=mk872CollectionCount(type);
+ const slot=root.querySelector('#mk872CollectionContent');
+ slot.innerHTML=`<div class="mk872-col-head"><h3>${current[1]} ${current[2]}</h3><small>${counts[0]} из ${counts[1]}</small></div>${type==='achievements'?mk872CollectionAchievements():mk872CollectionCards(type)}`;
+}
+openCollection=function(){
+ normalizeShop();
+ const summary=MK872_COLLECTION_SECTIONS.map(([type,icon,label])=>{
+  const [owned,total]=mk872CollectionCount(type);
+  return `<button type="button" class="mk872-col-count" data-mk872-collection-tab="${type}" aria-pressed="false" onclick="mk872CollectionSwitch('${type}')"><b>${owned}/${total}</b><small>${icon} ${label}</small></button>`;
+ }).join('');
+ show(`<div class="mtop"><h2 class="mk872-help-heading">🎒 Моя коллекция <button type="button" class="mk872-help-trigger" title="Справка" aria-label="Справка: collection" onclick="mk872HelpOpen('collection',this)">ⓘ</button></h2><button class="x" onclick="closeModal()">×</button></div>${shopPreview()}${shopTabs('collection')}<section id="mk872CollectionUX"><div class="mk872-col-counter-grid">${summary}</div><div id="mk872CollectionContent" class="mk872-col-section" aria-live="polite"></div></section>`);
+ mk872CollectionSwitch(mk872CollectionTab);
+};
+const MK872_COLLECTION_PRE_SHOP=openShop;
+openShop=function(category='avatars',rarity=null){if(category==='collection')mk872CollectionTab='avatars';return MK872_COLLECTION_PRE_SHOP(category,rarity)};
+</script>
+
+<script>
+/* 8.72 — один help dialog для всех контекстов; игровое состояние не изменяется. */
+const MK872_HELP_TOPICS={
+ shop:{title:'О магазине',content:'<p>Монеты тратятся только на оформление и коллекцию. Учебный результат купить нельзя.</p><p>Предметы бывают обычными, необычными, редкими, эпическими и легендарными.</p><p>Награды с 🏆 получают за достижения, а не покупают обычным способом.</p><p>Полный покупаемый альбом стикеров открывает рамку «Коллекционер».</p>'},
+ collection:{title:'О моей коллекции',content:'<p>Здесь собраны предметы, которые уже принадлежат ученику.</p><p>Нажмите на карточку-счётчик категории, чтобы посмотреть свои аватары, рамки, питомцев и другие награды.</p>'},
+ chest:{title:'О сундуке удачи',content:'<p>Сундук открывается за заработанные монеты. Внутри — случайные косметические награды.</p><p>Пока есть подходящие новые предметы, система старается не выдавать повторы. Если доступных предметов не осталось, предусмотрена компенсация.</p><p>Стоимость, вероятности редкости и доступные гарантии показаны прямо на экране сундука.</p>'},
+ leader:{title:'О таблице лидеров',content:'<p>Место определяется сначала по опыту (XP), затем по лучшей серии и количеству решённых примеров.</p><p>Рейтинг хранится на этом устройстве. Для переноса учеников и прогресса используйте раздел «Данные».</p>'}
+};
+let mk872HelpLastFocus=null;
+function mk872HelpClose(){const layer=document.getElementById('mk872-help-layer');if(!layer)return;layer.remove();if(mk872HelpLastFocus&&mk872HelpLastFocus.isConnected)mk872HelpLastFocus.focus();mk872HelpLastFocus=null;}
+function mk872HelpOpen(key,source){const topic=MK872_HELP_TOPICS[key];if(!topic)return;mk872HelpClose();mk872HelpLastFocus=source||document.activeElement;const layer=document.createElement('div');layer.id='mk872-help-layer';layer.className='mk872-help-layer';layer.innerHTML='<section class="mk872-help-dialog" role="dialog" aria-modal="true" aria-labelledby="mk872-help-title"><div class="mk872-help-top"><h3 id="mk872-help-title">'+topic.title+'</h3><button type="button" class="mk872-help-close" aria-label="Закрыть справку" onclick="mk872HelpClose()">×</button></div><div class="mk872-help-content">'+topic.content+'</div></section>';layer.addEventListener('click',function(e){if(e.target===layer)mk872HelpClose()});document.body.appendChild(layer);layer.querySelector('button').focus();}
+document.addEventListener('keydown',function(e){const layer=document.getElementById('mk872-help-layer');if(!layer)return;if(e.key==='Escape'){e.preventDefault();e.stopImmediatePropagation();mk872HelpClose();}else if(e.key==='Tab'){const focusables=[...layer.querySelectorAll('button:not([disabled])')];if(focusables.length){e.preventDefault();focusables[0].focus();}}},true);
+</script>
 </body></html>
