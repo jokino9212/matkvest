@@ -943,6 +943,19 @@ button,input{font:inherit}button{cursor:pointer}.shell{max-width:1180px;margin:a
 .mk872-leader-progress .mk872-xp-track{height:5px;margin:3px 0}
 @media(max-width:520px){.mk872-top-progress{flex-basis:100%;max-width:100%;order:2}.mk872-xp-progress{width:100%}}
 @media(prefers-reduced-motion:reduce){.mk872-xp-fill{transition:none}}
+
+/* 8.72: логотип — стабильная левая точка первой строки navbar */
+.top{align-items:flex-start}
+.mk872-brand-home{align-self:flex-start;flex:0 0 auto;display:flex;align-items:center;gap:10px;min-width:0;margin:0;padding:0;border:0;background:none;color:inherit;text-align:left;font:inherit;font-size:22px;font-weight:950;line-height:1.2;cursor:pointer;white-space:nowrap;appearance:none}
+.mk872-brand-home:hover{opacity:.84}
+/* Keep the shared logo reachable while Store/Collection/Data modal overlays the page. */
+body:has(#overlay.show) .top{position:relative;z-index:51}
+body:has(#overlay.show) .top .stats{pointer-events:none}
+body:has(#overlay.show) .top .mk872-brand-home{pointer-events:auto}
+
+.mk872-brand-home:focus-visible{outline:3px solid var(--brand);outline-offset:4px;border-radius:12px}
+.mk872-brand-home .logo{flex:none}
+@media(max-width:520px){.mk872-brand-home{font-size:22px}.mk872-brand-home .logo{display:grid!important}.mk872-brand-home #brandTitle{display:none}}
 </style>
 
 <style id="stage712-data-styles">
@@ -1500,7 +1513,7 @@ button,input{font:inherit}button{cursor:pointer}.shell{max-width:1180px;margin:a
 <body>
 <div class="shell">
   <div class="top">
-    <div class="brand"><div class="logo" id="brandLogo">M</div><span id="brandTitle">МатКвест</span></div>
+    <button class="brand mk872-brand-home" type="button" onclick="mk872BrandGoHome()" aria-label="МатКвест — на главную" title="На главную"><span class="logo" id="brandLogo">M</span><span id="brandTitle">МатКвест</span></button>
     <div class="stats">
       <div class="pill grade-back" id="gradeBackPill" onclick="renderHome()">← Главная</div>
       <div class="pill profile-pill" onclick="openProfiles()"><span id="playerAvatar"><span class="ui-glyph ui-smile" aria-hidden="true"></span></span> <span id="playerName">Ученик</span></div>
@@ -19837,5 +19850,42 @@ let mk872HelpLastFocus=null;
 function mk872HelpClose(){const layer=document.getElementById('mk872-help-layer');if(!layer)return;layer.remove();if(mk872HelpLastFocus&&mk872HelpLastFocus.isConnected)mk872HelpLastFocus.focus();mk872HelpLastFocus=null;}
 function mk872HelpOpen(key,source){const topic=MK872_HELP_TOPICS[key];if(!topic)return;mk872HelpClose();mk872HelpLastFocus=source||document.activeElement;const layer=document.createElement('div');layer.id='mk872-help-layer';layer.className='mk872-help-layer';layer.innerHTML='<section class="mk872-help-dialog" role="dialog" aria-modal="true" aria-labelledby="mk872-help-title"><div class="mk872-help-top"><h3 id="mk872-help-title">'+topic.title+'</h3><button type="button" class="mk872-help-close" aria-label="Закрыть справку" onclick="mk872HelpClose()">×</button></div><div class="mk872-help-content">'+topic.content+'</div></section>';layer.addEventListener('click',function(e){if(e.target===layer)mk872HelpClose()});document.body.appendChild(layer);layer.querySelector('button').focus();}
 document.addEventListener('keydown',function(e){const layer=document.getElementById('mk872-help-layer');if(!layer)return;if(e.key==='Escape'){e.preventDefault();e.stopImmediatePropagation();mk872HelpClose();}else if(e.key==='Tab'){const focusables=[...layer.querySelectorAll('button:not([disabled])')];if(focusables.length){e.preventDefault();focusables[0].focus();}}},true);
+</script>
+
+<script>
+/* 8.72: переход по логотипу через уже существующую историю экранов */
+function mk872BrandGoHome(){
+  if(typeof mk872HelpClose==='function')mk872HelpClose();
+  // A modal (Store / Collection / Data) may be open while route is already home.
+  // Always render Home; the core renderer closes the modal using its real "show" class.
+  if(typeof mk854Route==='function' && mk854Route().screen==='home'){
+    if(typeof mk854RunRestoring==='function' && typeof MK854_CORE_RENDER_HOME==='function'){
+      return mk854RunRestoring(()=>MK854_CORE_RENDER_HOME());
+    }
+    return renderHome();
+  }
+  if(typeof mk854PushAndRender==='function' && typeof MK854_CORE_RENDER_HOME==='function'){
+    return mk854PushAndRender({screen:'home'},()=>MK854_CORE_RENDER_HOME());
+  }
+  return renderHome();
+}
+/* Common navbar identity: individual screens may set a contextual icon/title.
+   Keep the shared Home logo stable without altering those screen renderers. */
+(function mk872KeepBrandConsistent(){
+  const icon=document.getElementById('brandLogo');
+  const title=document.getElementById('brandTitle');
+  if(!icon||!title)return;
+  let busy=false;
+  const reset=()=>{
+    if(busy)return;
+    busy=true;
+    if(icon.textContent!=='M')icon.textContent='M';
+    if(title.textContent!=='МатКвест')title.textContent='МатКвест';
+    busy=false;
+  };
+  new MutationObserver(reset).observe(icon,{childList:true,characterData:true,subtree:true});
+  new MutationObserver(reset).observe(title,{childList:true,characterData:true,subtree:true});
+  reset();
+})();
 </script>
 </body></html>
