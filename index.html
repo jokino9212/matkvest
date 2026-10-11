@@ -1505,7 +1505,6 @@ button,input{font:inherit}button{cursor:pointer}.shell{max-width:1180px;margin:a
       <div class="pill grade-back" id="gradeBackPill" onclick="renderHome()">← Главная</div>
       <div class="pill profile-pill" onclick="openProfiles()"><span id="playerAvatar"><span class="ui-glyph ui-smile" aria-hidden="true"></span></span> <span id="playerName">Ученик</span></div>
       <div class="pill level-pill"><span class="ui-glyph ui-medal" aria-hidden="true"></span> Ур. <span id="level">1</span></div><div id="mk872TopLevelProgress" class="mk872-xp-progress mk872-top-progress" aria-label="Прогресс уровня"></div>
-      <div class="pill"><span class="ui-glyph ui-star" aria-hidden="true"></span> <span id="xp">0</span></div>
       <div class="pill"><span class="ui-glyph ui-coin" aria-hidden="true"></span> <span id="coins">0</span></div>
       <div class="pill"><span class="ui-glyph ui-fire" aria-hidden="true"></span> <span id="streak">0</span></div>
       <div class="pill shop-pill" onclick="openShop()"><span class="ui-glyph ui-shop" aria-hidden="true"></span> Магазин</div>
@@ -7335,7 +7334,7 @@ function save(){
   }
 }
 function stats(){
- xp.textContent=state.xp||0;coins.textContent=state.coins||0;streak.textContent=state.streak||0;
+ coins.textContent=state.coins||0;streak.textContent=state.streak||0;
  level.textContent=levelFor(state.xp||0);mk872UpdateTopLevelProgress();playerName.textContent=currentProfile;playerName.title=currentProfile;
  const topAv=document.getElementById("playerAvatar");if(topAv){topAv.innerHTML=avatarHtml(state,"small")}
  if(typeof renderTopics==="function")renderTopics();
