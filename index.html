@@ -20050,4 +20050,254 @@ function mk872BrandGoHome(){
   mk854RunRestoring(()=>openShop(route.category||'avatars'));
 })();
 </script>
+<style id="mk872-training-guard-style">
+/* МатКвест 8.72 — локальный диалог выхода / восстановления */
+.mk872-training-dialog{position:fixed;inset:0;z-index:10000;display:flex;justify-content:center;align-items:center;padding:12px;background:rgba(11,32,24,.64);overflow-y:auto}
+.mk872-training-panel{width:min(470px,100%);max-height:calc(100dvh - 24px);overflow-y:auto;border-radius:20px;background:#fff;border:1px solid #dbe9e2;box-shadow:0 25px 75px rgba(0,0,0,.27);padding:20px;color:#17362c}
+.mk872-training-panel h2{font-size:clamp(20px,4vw,25px);line-height:1.2;margin:0 0 12px;overflow-wrap:anywhere}
+.mk872-training-panel p{font-size:15px;line-height:1.5;margin:0 0 18px;overflow-wrap:anywhere}
+.mk872-training-actions{display:grid;gap:8px}.mk872-training-actions .btn{width:100%;min-height:45px;white-space:normal;overflow-wrap:anywhere}
+@media(max-height:600px){.mk872-training-dialog{align-items:safe center}.mk872-training-panel{padding:13px}.mk872-training-panel h2{font-size:20px}.mk872-training-panel p{font-size:13px;margin-bottom:10px}.mk872-training-actions .btn{min-height:39px;padding:9px}}
+
+</style>
+<script id="mk872-training-guard">
+/* МатКвест 8.72 — hotfix сохранения учебных попыток; не меняет схему профиля и версию. */
+const MK872_DRAFT_PREFIX='mk872_learning_draft_v1_';
+let mk872Dialog=null,mk872DialogReturnFocus=null,mk872Saving=false,mk872Restoring=false,mk872SaveTimer=0;
+const mk872ProfileId=()=>String(state?.profileId||profiles?.[currentProfile]?.profileId||currentProfile||'');
+const mk872DraftKey=(id=mk872ProfileId())=>MK872_DRAFT_PREFIX+encodeURIComponent(id);
+const mk872HasFinishedRecord=id=>!!(id&&Array.isArray(state?.attemptHistory)&&state.attemptHistory.some(r=>String(r.id)===String(id)&&r.status==='finished'));
+function mk872BlockActive(){return !!(blockSession&&blockSession.attemptId&&!blockSession.reportId&&!mk872HasFinishedRecord(blockSession.attemptId)&&overlay.classList.contains('show'))}
+function mk872QuickActive(){return !!(quickMode==='training'&&quickSession&&!quickSession.finalized&&quickTrainerId)}
+function mk872HasActiveLearning(){return mk872BlockActive()||mk872QuickActive()}
+function mk872ReadDraft(id=mk872ProfileId()){
+ try{const d=JSON.parse(localStorage.getItem(mk872DraftKey(id))||'null');return d?.schema===1&&d.profileId===id?d:null}catch(e){return null}
+}
+function mk872DeleteDraft(id=mk872ProfileId()){try{localStorage.removeItem(mk872DraftKey(id))}catch(e){}}
+function mk872SafeHtml(element){
+ const clone=element.cloneNode(true),origin=element.querySelectorAll('input,textarea,select'),dest=clone.querySelectorAll('input,textarea,select');
+ for(let i=0;i<origin.length;i++){
+  const a=origin[i],b=dest[i];if(!b)continue;
+  if(a.tagName==='TEXTAREA')b.textContent=a.value;
+  else if(a.tagName==='SELECT')Array.from(b.options).forEach((o,j)=>{o.selected=!!a.options[j]?.selected});
+  else if(a.type==='checkbox'||a.type==='radio'){if(a.checked)b.setAttribute('checked','');else b.removeAttribute('checked')}
+  else b.setAttribute('value',a.value);
+ }
+ return clone.innerHTML;
+}
+function mk872PersistDraft(){
+ if(mk872Saving||mk872Restoring)return false;
+ const type=mk872BlockActive()?'block':mk872QuickActive()?'quick':null;
+ if(!type)return false;
+ const profileId=mk872ProfileId(),node=type==='block'?modal:mainView;
+ if(type==='block'&&!node.querySelector('#qstage,#tstage,#stage'))return false;
+ if(type==='quick'&&!node.querySelector('#quickStage'))return false;
+ mk872Saving=true;
+ try{
+  const values=type==='block'?{
+   block:deepCopy(blockSession),qid,q:deepCopy(q),answered,quizPenalty,
+   mode,task:deepCopy(task),columnSolved,columnPenalty,ta,tb,tableSolved,tablePenalty,
+   errorWorkGradeFilter,errorWorkStatusFilter,errorWorkTopicFilter,
+   weakGradeFilter,weakStatusFilter,controlSetupGrade,controlSetupCount
+  }:{
+   quickTrainerId,quickQuestion:deepCopy(quickQuestion),quickQuestionSettled,quickPenalty,
+   quickSession:deepCopy(quickSession),quickMode,quickSelection:deepCopy(quickSelection)
+  };
+  const d={schema:1,profileId,profileName:currentProfile,mode:type,
+   attemptId:type==='block'?blockSession.attemptId:quickSession.recordId,
+   key:type==='block'?blockSession.key:quickTrainerId,
+   stage:type==='block'?blockSession.stageIndex:null,
+   updatedAt:Date.now(),title:type==='block'?attemptTitle(blockSession.key):(quickMeta(quickTrainerId)?.title||'Быстрый тренажёр'),
+   modalClass:type==='block'?modal.className:null,
+   html:mk872SafeHtml(node),values};
+  localStorage.setItem(mk872DraftKey(profileId),JSON.stringify(d));return true;
+ }catch(e){console.warn('МатКвест: не удалось сохранить черновик попытки',e);return false}
+ finally{mk872Saving=false}
+}
+function mk872ScheduleSave(){if(mk872SaveTimer)clearTimeout(mk872SaveTimer);mk872SaveTimer=setTimeout(()=>{mk872SaveTimer=0;mk872PersistDraft();},0)}
+function mk872PruneCompleted(){
+ const d=mk872ReadDraft();if(!d)return;
+ if(mk872HasFinishedRecord(d.attemptId))mk872DeleteDraft();
+}
+function mk872LearningDialog(title,message,buttons){
+ mk872CloseDialog();mk872DialogReturnFocus=document.activeElement;
+ const layer=document.createElement('div');layer.className='mk872-training-dialog';layer.setAttribute('role','presentation');
+ const panel=document.createElement('section');panel.className='mk872-training-panel';panel.setAttribute('role','alertdialog');panel.setAttribute('aria-modal','true');
+ const h=document.createElement('h2');h.textContent=title;h.id='mk872-training-heading';const p=document.createElement('p');p.textContent=message;p.id='mk872-training-description';
+ panel.setAttribute('aria-labelledby',h.id);panel.setAttribute('aria-describedby',p.id);
+ const row=document.createElement('div');row.className='mk872-training-actions';
+ buttons.forEach((b,i)=>{const button=document.createElement('button');button.type='button';button.className='btn '+(i===0?'primary':'soft');button.textContent=b.label;button.addEventListener('click',b.run);row.appendChild(button)});
+ panel.append(h,p,row);layer.appendChild(panel);document.body.appendChild(layer);mk872Dialog=layer;
+ row.querySelector('button')?.focus();
+}
+function mk872CloseDialog(){if(mk872Dialog){mk872Dialog.remove();mk872Dialog=null;const prior=mk872DialogReturnFocus;mk872DialogReturnFocus=null;if(prior?.isConnected)prior.focus({preventScroll:true})}}
+function mk872RequestExit(){
+ if(mk872Dialog)return;
+ mk872PersistDraft();
+ mk872LearningDialog('Выйти из тренировки?','Тренировка ещё не завершена. Ты можешь продолжить с того же задания или выйти.',[
+  {label:'Продолжить тренировку',run:()=>mk872CloseDialog()},
+  {label:'Выйти из тренировки',run:()=>{
+   const id=mk872ProfileId();mk872CloseDialog();mk872DeleteDraft(id);
+   if(mk872QuickActive()){
+    finishQuickSession('abandoned');quickMode=null;quickQuestion=null;quickTrainerId=null;quickSelection=null;
+    renderHome();
+   }else{
+    if(blockSession?.attemptId===state.activeAttempt?.id)state.activeAttempt=null;
+    blockSession=null;q=null;task=null;persistSilently();
+    MK872_ORIGINAL_CLOSE_MODAL();
+   }
+  }}
+ ]);
+}
+const MK872_ORIGINAL_CLOSE_MODAL=closeModal;
+closeModal=function(){if(mk872HasActiveLearning()){mk872RequestExit();return}return MK872_ORIGINAL_CLOSE_MODAL()};
+// Обычный фон информационных окон не затрагивается: на учебном фоне click просто игнорируется.
+const mk872MainOverlay=overlay;
+mk872MainOverlay.onclick=function(event){if(event.target===mk872MainOverlay&&!mk872HasActiveLearning())closeModal()};
+function mk872DraftUsable(d){
+ if(!d||d.profileId!==mk872ProfileId()||!d.values||!d.html)return false;
+ if(mk872HasFinishedRecord(d.attemptId))return false;
+ if(d.mode==='block'){
+  const b=d.values.block;
+  return !!(b&&b.attemptId===d.attemptId&&b.key===d.key&&Array.isArray(b.items)&&b.total>0&&d.html.includes('class="mtop"'));
+ }
+ if(d.mode==='quick')return !!(d.values.quickSession?.recordId===d.attemptId&&quickMeta(d.key)&&d.html.includes('quickStage'));
+ return false;
+}
+function mk872RebindRestored(){
+ if(blockSession){
+  if(document.getElementById('qstage')){
+   bindQuizKeyboard();const next=document.getElementById('quizNext');
+   if(next&&answered)next.onclick=blockSession.finished?finishBlock:isErrorWork()?startNextErrorWorkTask:isWeakPractice()?startNextWeakPracticeTask:isControlReview()?startNextControlReviewTask:nextQ;
+  }
+  if(document.getElementById('tstage')){
+   const btn=document.getElementById('tablePrimary');if(btn&&tableSolved)btn.onclick=blockSession.finished?finishBlock:isErrorWork()?startNextErrorWorkTask:isWeakPractice()?startNextWeakPracticeTask:isControlReview()?startNextControlReviewTask:practice;
+  }
+  if(document.getElementById('stage')){
+   const btn=document.getElementById('columnPrimary');if(btn&&columnSolved){if(blockSession.finished)btn.onclick=finishBlock;else setColumnNextButton()}
+  }
+ }
+}
+function mk872RestoreDraft(d){
+ if(!mk872DraftUsable(d)){mk872CloseDialog();mk872LearningDialog('Не удалось восстановить тренировку','Сохранённые задания повреждены или несовместимы. Старые задания не будут незаметно заменены новыми.',[{label:'Хорошо',run:()=>mk872CloseDialog()},{label:'Удалить повреждённый черновик',run:()=>{mk872DeleteDraft();mk872CloseDialog()}}]);return}
+ mk872Restoring=true;
+ try{
+  mk872CloseDialog();
+  if(d.mode==='block'){
+   const v=d.values;blockSession=v.block;qid=v.qid;q=v.q;answered=!!v.answered;quizPenalty=!!v.quizPenalty;
+   mode=v.mode;task=v.task;columnSolved=!!v.columnSolved;columnPenalty=!!v.columnPenalty;
+   ta=v.ta;tb=v.tb;tableSolved=!!v.tableSolved;tablePenalty=!!v.tablePenalty;
+   errorWorkGradeFilter=v.errorWorkGradeFilter||'all';errorWorkStatusFilter=v.errorWorkStatusFilter||'active';errorWorkTopicFilter=v.errorWorkTopicFilter??null;
+   weakGradeFilter=v.weakGradeFilter||'all';weakStatusFilter=v.weakStatusFilter||'all';controlSetupGrade=v.controlSetupGrade||4;controlSetupCount=v.controlSetupCount||10;
+   modal.className=d.modalClass||'modal';modal.innerHTML=d.html;overlay.classList.add('show');
+   // A historical activeAttempt can be interrupted by route restoration. Recreate the exact same ID and item.
+   syncActiveAttempt();mk872RebindRestored();
+  }else{
+   const v=d.values;quickTrainerId=v.quickTrainerId;quickQuestion=v.quickQuestion;quickQuestionSettled=!!v.quickQuestionSettled;quickPenalty=!!v.quickPenalty;
+   quickSession=v.quickSession;quickMode='training';quickSelection=v.quickSelection;
+   currentGrade=null;mainView.innerHTML=d.html;
+   const record=quickSessionRecord();if(record&&record.status==='abandoned'){record.status='active';record.endedAt=null;persistSilently()}
+   if(!record)throw Error('Запись быстрого тренажёра недоступна');
+  }
+  mk872PersistDraft();
+  const focusTarget=(d.mode==='block'?modal:mainView).querySelector('input:not([disabled]),.quick-answer:not([disabled]),#quizNext:not([style*="display: none"]),button:not([disabled])');
+  focusTarget?.focus({preventScroll:true});
+ }catch(e){console.error('МатКвест: ошибка восстановления',e);mk872LearningDialog('Не удалось восстановить тренировку','Нельзя безопасно восстановить исходные задания. Черновик сохранён для проверки; новая задача автоматически не создаётся.',[{label:'Закрыть',run:()=>mk872CloseDialog()},{label:'Начать заново',run:()=>mk872StartOver(d)}])}
+ finally{mk872Restoring=false}
+}
+function mk872StartOver(d){
+ mk872CloseDialog();mk872DeleteDraft();
+ if(d.mode==='quick'){
+  const old=(state.attemptHistory||[]).find(r=>String(r.id)===String(d.attemptId));
+  if(old&&old.status==='active'){old.status='abandoned';old.endedAt=Date.now();persistSilently()}
+  quickSession=null;quickQuestion=null;quickMode=null;openQuickTrainer(d.key);return
+ }
+ blockSession=null;state.activeAttempt=null;persistSilently();
+ const grade=keyGrade(d.key),topic=String(d.key||'');
+ if(grade===1&&typeof openG1Topic==='function')openG1Topic(topic);
+ else if(grade===2&&typeof openG2Topic==='function')openG2Topic(topic);
+ else if(grade===3&&typeof openG3Topic==='function')openG3Topic(topic);
+ else if(grade===5&&typeof openG5Topic==='function')openG5Topic(rawCourseId(topic));
+ else if(grade===6&&typeof openG6Topic==='function')openG6Topic(topic);
+ else if(grade===7&&typeof openG7Topic==='function')openG7Topic(topic);
+ else if(grade===8&&typeof openG8Topic==='function')openG8Topic(topic);
+ else if(grade===4&&topic.startsWith('column:'))openColumnPath();
+ else if(grade===4&&topic==='table')openTablePath();
+ else if(grade===4&&typeof openTopic==='function')openTopic(rawCourseId(topic));
+ else renderHome();
+}
+function mk872OfferResume(){
+ if(mk872Dialog||mk872HasActiveLearning())return;
+ const d=mk872ReadDraft();if(!d)return;
+ if(mk872HasFinishedRecord(d.attemptId)){mk872DeleteDraft();return}
+ const msg=mk872DraftUsable(d)?'У тебя осталась незавершённая тренировка. '+d.title+'. Можно продолжить с того же задания.':'Не удалось проверить сохранённую тренировку. Автоматически подменять задания нельзя.';
+ mk872LearningDialog('У тебя осталась незавершённая тренировка',msg,[
+  {label:'Продолжить',run:()=>mk872RestoreDraft(d)},
+  {label:'Начать заново',run:()=>mk872StartOver(d)},
+  {label:'Позже',run:()=>mk872CloseDialog()}
+ ]);
+}
+// Snapshot is written after actual answer evaluation/DOM repaint, plus immediately on pagehide.
+document.addEventListener('input',()=>mk872ScheduleSave(),true);
+document.addEventListener('change',()=>mk872ScheduleSave(),true);
+document.addEventListener('click',event=>{
+ if(mk872Dialog)return;
+ if(!mk872HasActiveLearning())return;
+ if(event.target===overlay)return;
+ if(mk872BlockActive()&&overlay.contains(event.target)){
+  mk872ScheduleSave();return;
+ }
+ if(mk872QuickActive()&&mainView.contains(event.target)){
+  mk872ScheduleSave();return;
+ }
+ // Navbar and other views must not silently destroy an active exercise.
+ event.preventDefault();event.stopImmediatePropagation();mk872RequestExit();
+},true);
+document.addEventListener('keydown',event=>{
+ if(mk872Dialog){
+  if(event.key==='Escape'){event.preventDefault();event.stopImmediatePropagation();mk872CloseDialog();return}
+  if(event.key==='Tab'){
+   const buttons=[...mk872Dialog.querySelectorAll('button')];if(!buttons.length)return;
+   const n=buttons.indexOf(document.activeElement),next=event.shiftKey?(n<=0?buttons.length-1:n-1):(n<0||n===buttons.length-1?0:n+1);
+   event.preventDefault();event.stopImmediatePropagation();buttons[next].focus();
+  }
+  return;
+ }
+ if(event.key!=='Escape')return;
+ if(document.querySelector('.mk872-open,#mk872-help-layer,.mk870-overlay.open,.dev-access-overlay.open'))return;
+ if(mk872HasActiveLearning()){event.preventDefault();event.stopImmediatePropagation();mk872RequestExit()}
+},true);
+window.addEventListener('pagehide',mk872PersistDraft);
+window.addEventListener('beforeunload',mk872PersistDraft);
+// Route restoration (browser Back / forward / side-mouse) must preserve the exact unfinished attempt.
+// The app's pre-existing popstate listener calls this late-bound function.
+const MK872_ORIGINAL_RESTORE_ROUTE=mk854RestoreRoute;
+mk854RestoreRoute=function(route){
+ if(mk872HasActiveLearning()){
+  mk872PersistDraft();
+  // Leave the old view without treating it as a completed attempt or awarding a second time.
+  blockSession=null;q=null;task=null;
+  quickSession=null;quickQuestion=null;quickMode=null;
+  overlay.classList.remove('show');
+ }
+ const result=MK872_ORIGINAL_RESTORE_ROUTE(route);
+ setTimeout(mk872OfferResume,0);
+ return result;
+};
+const MK872_FINISH_BLOCK=finishBlock;
+finishBlock=function(){const result=MK872_FINISH_BLOCK();mk872PruneCompleted();return result};
+const MK872_QUICK_FINISH=quickFinishTraining;
+quickFinishTraining=function(){const result=MK872_QUICK_FINISH();if(quickMode==='summary')mk872DeleteDraft();return result};
+const MK872_SELECT_PROFILE=selectProfile;
+selectProfile=function(i){
+ if(mk872HasActiveLearning()){mk872RequestExit();return}
+ const result=MK872_SELECT_PROFILE(i);setTimeout(mk872OfferResume,0);return result;
+};
+// Save changes even if actions use programmatic .value or dynamic markup rather than input events.
+const mk872Observer=new MutationObserver(()=>{if(!mk872Restoring&&mk872HasActiveLearning())mk872ScheduleSave()});
+mk872Observer.observe(modal,{childList:true,subtree:true,attributes:true,characterData:true,attributeFilter:['class','disabled','style','value']});
+mk872Observer.observe(mainView,{childList:true,subtree:true,attributes:true,characterData:true,attributeFilter:['class','disabled','style','value']});
+setTimeout(mk872OfferResume,0);
+
+</script>
 </body></html>
