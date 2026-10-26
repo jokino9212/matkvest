@@ -6078,6 +6078,206 @@ function makeG6Question(id,stageOverride=null){
  return g6ChoiceQuestion("Тема пока не реализована.","—",["—"],"","g6:pending",{type:"pending"});
 }
 
+/* Ревизия 6 класса (2026-10-26).
+   Дополняет существующие генераторы, не меняя ID тем, формат ответов,
+   сохранённые activeAttempt/items и модель XP/монет.
+   Важное правило: новые вопросы создаются только при генерации НОВОГО item. */
+function g6LessonStepDifficulty(stageOverride){
+ if(stageOverride!==null&&stageOverride!==undefined)return Math.max(0,Math.min(2,Number(stageOverride)||0));
+ const original=activeDifficulty(),b=blockSession;
+ if(!b||b.kind!=="g6quiz"||b.finished)return original;
+ const progress=Math.max(0,Math.min(1,Number(b.done||0)/Math.max(1,Number(b.total||1)-1)));
+ // Ступени по-прежнему различаются итоговым уровнем сложности.
+ // Но теперь каждая отдельная сессия движется от базового к более сложному.
+ if(original===0)return progress<.65?0:1;
+ if(original===1)return progress<.25?0:progress<.75?1:2;
+ return progress<.20?1:2;
+}
+function g6ExtraFraction(raw,d){
+ if(raw==="fraction_reduction"){
+  const base=g6ProperForDen(ri(4,d===2?19:13)),k=ri(2,d===0?6:9),m=d===2?ri(2,6):1;
+  const n=base.n*k*m,den=base.d*k*m,model={type:"fractionReductionRevision",variant:"",source:{n,d:den},answer:base,factor:k*m};
+  const variant=g6RandomFrom(d===0?["numerator","fraction"]:d===1?["numerator","factor","fraction"]:["factor","fraction","word"]);
+  model.variant=variant;
+  if(variant==="numerator")return g6NumberInputQuestion(`После полного сокращения дроби ${g6RawFractionHtml(n,den)} какой будет <b>числитель</b>?`,base.n,`НОД(${n}; ${den}) = ${k*m}, поэтому ${n} : ${k*m} = <b>${base.n}</b>, а знаменатель станет ${base.d}.`,`g6:${raw}:${d}:numerator:${n}:${den}`,{audit:{...model,answer:rational(base.n)}});
+  if(variant==="factor")return g6NumberInputQuestion(`На какое <b>наибольшее число</b> нужно разделить одновременно числитель и знаменатель дроби ${g6RawFractionHtml(n,den)}, чтобы получить несократимую дробь?`,k*m,`НОД(${n}; ${den}) = <b>${k*m}</b>. После деления получим ${rationalHtml(base,false)}.`,`g6:${raw}:${d}:gcd:${n}:${den}`,{audit:{...model,answer:rational(k*m)}});
+  if(variant==="word")return g6FractionInputQuestion(`Из ${den} одинаковых карточек ${n} синих. Какую <b>несократимую часть</b> всех карточек составляют синие?`,base,`Часть синих карточек равна ${g6RawFractionHtml(n,den)}. Делим числитель и знаменатель на ${k*m}: ${rationalHtml(base,false)}.`,`g6:${raw}:${d}:word:${n}:${den}`,{requireReduced:true,preferMixed:false,audit:model});
+  return g6FractionInputQuestion(`Запишите в несократимом виде дробь ${g6RawFractionHtml(n,den)}.`,base,`Находим НОД(${n}; ${den}) = ${k*m}; делим оба числа на него и получаем ${rationalHtml(base,false)}.`,`g6:${raw}:${d}:fraction:${n}:${den}`,{requireReduced:true,preferMixed:false,audit:model});
+ }
+ if(raw==="fraction_compare"){
+  const ds=d===0?[4,6,8,10,12]:d===1?[6,8,9,10,12]:[8,9,12,14,15,18];
+  const den=g6RandomFrom(ds),ns=sh(Array.from({length:den-1},(_,i)=>i+1)).slice(0,3),fracs=ns.map(n=>rational(n,den)),ordered=[...fracs].sort(rationalCmp);
+  const correct=d===2?ordered.map(x=>rationalHtml(x,false)).join(" < "):rationalHtml(ordered[0],false);
+  if(d===2){
+   const fmt=a=>a.map(x=>rationalHtml(x,false)).join(" < "),wrong=[fmt([ordered[0],ordered[2],ordered[1]]),fmt([ordered[1],ordered[0],ordered[2]]),fmt([...ordered].reverse())];
+   return g6ChoiceQuestion(`Расположите дроби ${fracs.map(x=>rationalHtml(x,false)).join(", ")} <b>по возрастанию</b>.`,correct,wrong,`Знаменатели равны ${den}; сравниваем числители: ${ordered.map(x=>x.n).join(" < ")}. Значит ${correct}.`,`g6:${raw}:${d}:order:${ns.join(":")}:${den}`,{type:"fractionOrder",variant:"order",values:fracs,ascending:ordered});
+  }
+  return g6ChoiceQuestion(`Из дробей ${fracs.map(x=>rationalHtml(x,false)).join(", ")} выберите <b>наименьшую</b>.`,correct,fracs.map(x=>rationalHtml(x,false)),`Знаменатели одинаковые, поэтому наименьшая дробь имеет наименьший числитель: ${correct}.`,`g6:${raw}:${d}:least:${ns.join(":")}:${den}`,{type:"fractionMinimum",variant:"minimum",values:fracs,answer:ordered[0]});
+ }
+ if(raw==="fraction_multiply"||raw==="fraction_divide"){
+  const multiplication=raw==="fraction_multiply",a=d===2?g6RandMixed(4,12):g6RandProper(10),b=g6RandProper(d===2?12:9),c=d===2&&multiplication?g6RandProper(10):null;
+  const answer=multiplication?(c?rationalMul(rationalMul(a,b),c):rationalMul(a,b)):rationalDiv(a,b);
+  const text=multiplication?(c?`От ${rationalHtml(a,true)} л сока взяли ${rationalHtml(b,false)} объёма, а затем ${rationalHtml(c,false)} от полученного. Сколько литров сока получилось в конце?`:`В первый день прочитали ${rationalHtml(a,false)} книги, а на второй день — ${rationalHtml(b,false)} от прочитанного в первый день. Какую <b>часть всей книги</b> прочитали во второй день?`):`Для поделки нужно ${rationalHtml(b,false)} м ленты. Сколько таких отрезков по длине получится из ${rationalHtml(a,true)} м ленты? (Можно получить дробное число отрезков.)`;
+  const ex=multiplication?`Последовательно умножаем указанные части: ${g6FractionProductExplanation(c?[a,b,c]:[a,b],answer)}`:`Делим имеющуюся длину на длину отрезка: ${rationalHtml(a,true)} : ${rationalHtml(b,false)} = ${rationalHtml(a,true)} · ${rationalHtml(rational(b.d,b.n),false)} = ${rationalHtml(answer,true)}.`;
+  return g6FractionInputQuestion(text,answer,ex,`g6:${raw}:${d}:word:${a.n}:${a.d}:${b.n}:${b.d}:${c?`${c.n}:${c.d}`:"none"}`,{preferMixed:true,audit:{type:"fractionContext",variant:c?"fractionOfFractionTwice":multiplication?"fractionOfFraction":"lengthRatio",a,b,c,op:multiplication?"mul":"div",answer}});
+ }
+ if(raw==="fraction_add_subtract"){
+  const den=ri(5,12),a=d===0?g6ProperForDen(den):g6RandProper(15),b=d===0?g6ProperForDen(den):g6RandProper(12),op=d===2?"+":Math.random()<.5?"+":"−";
+  const first=op==="−"&&rationalCmp(a,b)<0?b:a,second=op==="−"&&rationalCmp(a,b)<0?a:b,third=d===2?g6RandProper(9):null;
+  const one=op==="+"?rationalAdd(first,second):rationalSub(first,second),answer=third?rationalAdd(one,third):one;
+  const text=third?`В одном кувшине ${rationalHtml(first,false)} л сока, во втором ${rationalHtml(second,false)} л, затем добавили ещё ${rationalHtml(third,false)} л. Сколько литров стало всего?`:op==="+"?`В первом стакане ${rationalHtml(first,false)} л воды, во втором ${rationalHtml(second,false)} л. Сколько литров воды всего?`:`В сосуде было ${rationalHtml(first,false)} л воды, из него отлили ${rationalHtml(second,false)} л. Сколько осталось?`;
+  const ops=third?["+","+"]:[op],terms=third?[first,second,third]:[first,second];
+  return g6FractionInputQuestion(text,answer,g6FractionAddSubExplanation(terms,ops,answer),`g6:${raw}:${d}:vessels:${terms.map(x=>`${x.n}:${x.d}`).join(":")}:${op}`,{preferMixed:true,audit:{type:"fractionAddContext",variant:"vessels",terms,ops,answer}});
+ }
+ if(raw==="mixed_add_subtract"||raw==="mixed_multiply_divide"){
+  const a=g6RandMixed(d===2?7:4,10),b=raw==="mixed_add_subtract"?g6RandMixed(3,8):d===0?g6RandProper(9):g6RandMixed(d===1?5:7,d===1?9:12),op=raw==="mixed_add_subtract"?(Math.random()<.5?"+":"−"):(Math.random()<.5?"·":":");
+  const x=op==="−"&&rationalCmp(a,b)<0?b:a,y=op==="−"&&rationalCmp(a,b)<0?a:b;
+  const answer=op==="+"?rationalAdd(x,y):op==="−"?rationalSub(x,y):op==="·"?rationalMul(x,y):rationalDiv(x,y);
+  const text=op==="+"?`На первой катушке ${rationalHtml(x,true)} м ленты, на второй ${rationalHtml(y,true)} м. Сколько метров всего?`:op==="−"?`От мотка длиной ${rationalHtml(x,true)} м отрезали ${rationalHtml(y,true)} м. Сколько метров осталось?`:op==="·"?`Одна упаковка весит ${rationalHtml(x,true)} кг. Какова масса ${rationalHtml(y,true)} такой упаковки (считайте доли упаковки)?`:`Сколько порций по ${rationalHtml(y,true)} кг получится из ${rationalHtml(x,true)} кг продукта? Допускается дробное количество порций.`;
+  const ex=`Переводим смешанные числа в неправильные дроби и выполняем действие ${op}: ${g6RawFractionHtml(x.n,x.d)} ${op} ${g6RawFractionHtml(y.n,y.d)} = <b>${rationalHtml(answer,true)}</b>.`;
+  return g6FractionInputQuestion(text,answer,ex,`g6:${raw}:${d}:context:${op}:${x.n}:${x.d}:${y.n}:${y.d}`,{preferMixed:true,audit:{type:"mixedContext",variant:"word",op,a:x,b:y,answer}});
+ }
+ return null;
+}
+function g6ExtraNumberTheory(raw,d){
+ if(raw==="prime_factorization"){
+  const p=g6RandomFrom(d===0?[2,3]:[2,3,5]),power=ri(2,d===0?2:d===2?4:3),another=g6RandomFrom([2,3,5,7].filter(x=>x!==p)),n=p**power*another;
+  if(d===0||Math.random()<.5)return g6NumberInputQuestion(`В разложении числа <b>${n}</b> на простые множители сколько раз встречается множитель <b>${p}</b>?`,power,`${n} = ${Array(power).fill(p).concat([another]).sort((a,b)=>a-b).join(" · ")}. Множитель ${p} встречается ${power} ${ruTimes(power)}.`,`g6:${raw}:${d}:power:${n}:${p}`,{audit:{type:"primePower",variant:"multiplicity",n,p,power,answer:rational(power)}});
+  return g6NumberInputQuestion(`Разложение числа: <b>${n} = ${p} · ... · ${p} · x</b>, причём множитель ${p} повторяется ${power} ${ruTimes(power)}. Найдите пропущенный <b>простой множитель x</b>.`,another,`Делим ${n} на ${p} в степени ${power}: ${n} : ${p**power} = <b>${another}</b>.`,`g6:${raw}:${d}:missing:${n}:${p}:${power}`,{audit:{type:"primeMissing",variant:"missing",n,p,power,another,answer:rational(another)}});
+ }
+ if(raw==="gcd"||raw==="lcm"){
+  const a=ri(2,d===0?6:10),b=ri(2,d===0?8:12),common=ri(2,d===2?9:5),n=a*common,m=b*common,ans=raw==="gcd"?gcd(n,m):lcm(n,m);
+  if(raw==="gcd")return g6NumberInputQuestion(`Есть две ленты длиной <b>${n} см</b> и <b>${m} см</b>. На какие <b>максимально длинные одинаковые отрезки</b> можно разрезать обе ленты без остатка?`,ans,`Максимальная возможная длина равна НОД(${n}; ${m}) = <b>${ans} см</b>.`,`g6:${raw}:${d}:ribbons:${n}:${m}`,{unitSuffix:"см",audit:{type:"gcdContext",variant:"ribbons",n,m,answer:rational(ans)}});
+  return g6NumberInputQuestion(`Первый сигнал повторяется каждые <b>${n} мин</b>, второй — каждые <b>${m} мин</b>. Через сколько минут они впервые прозвучат одновременно, если сейчас прозвучали вместе?`,ans,`Первое совпадение повторов наступит через НОК(${n}; ${m}) = <b>${ans} мин</b>.`,`g6:${raw}:${d}:signals:${n}:${m}`,{unitSuffix:"мин",audit:{type:"lcmContext",variant:"signals",n,m,answer:rational(ans)}});
+ }
+ if(raw==="proportion"){
+  const a=ri(2,d===0?6:12),b=ri(3,d===0?8:14),k=ri(2,d===0?5:9),c=a*k,dd=b*k;
+  if(Math.random()<.5)return g6NumberInputQuestion(`Для пропорции <b>${a} : ${b} = ${c} : ${dd}</b> найдите <b>произведение крайних членов</b>.`,a*dd,`Крайние члены — ${a} и ${dd}. Их произведение ${a} · ${dd} = <b>${a*dd}</b>. Оно равно ${b} · ${c}.`,`g6:${raw}:${d}:extremes:${a}:${b}:${k}`,{audit:{type:"proportionExtremes",variant:"extremes",a,b,c,d:dd,answer:rational(a*dd)}});
+  const correct=`${a} : ${b} = ${c} : ${dd}`,wrong=[`${a} : ${b} = ${c+1} : ${dd}`,`${a} : ${b} = ${c} : ${dd+1}`,`${a} : ${b} = ${dd} : ${c}`];
+  if(a===b)return g6ExtraNumberTheory(raw,d);
+  return g6ChoiceQuestion("Какое равенство является <b>верной пропорцией</b>?",correct,wrong,`Проверяем произведения крайних и средних членов: ${a} · ${dd} = ${b} · ${c} = ${a*dd}.`,`g6:${raw}:${d}:choose:${a}:${b}:${k}`,{type:"proportionChoose",variant:"choose",a,b,c,d:dd});
+ }
+ return null;
+}
+function g6ExtraGeometry(raw,d){
+ if(raw==="parallel_perpendicular"){
+  const variant=g6RandomFrom(["angle","logic"]),a=ri(10,70);
+  if(variant==="angle")return g6NumberInputQuestion(`Две прямые перпендикулярны. Один из образованных ими углов разбит лучом на углы <b>${a}°</b> и <b>x°</b>. Найдите x.`,90-a,`Перпендикулярные прямые образуют угол 90°. Поэтому x = 90° − ${a}° = <b>${90-a}°</b>.`,`g6:${raw}:${d}:angle:${a}`,{unitSuffix:"°",audit:{type:"perpendicularSplit",variant:"angle",known:a,answer:rational(90-a)}});
+  return g6ChoiceQuestion("Прямая a параллельна прямой b, а прямая c перпендикулярна a. Как расположены <b>b и c</b>?","Перпендикулярны",["Параллельны","Перпендикулярны","Совпадают"],"Если прямая перпендикулярна одной из двух параллельных прямых, она перпендикулярна и другой.",`g6:${raw}:${d}:logic:${ri(0,10000)}`,{type:"lineDeduction",variant:"logic"});
+ }
+ if(raw==="circle"){
+  const r=ri(2,d===2?18:10),extra=ri(2,d===2?7:4),ans=2*r+extra;
+  return g6NumberInputQuestion(`Диаметр круга на <b>${extra} см</b> меньше длины отрезка AB. Радиус круга равен <b>${r} см</b>. Найдите длину AB.`,ans,`Диаметр d = 2 · ${r} = ${2*r} см; AB = d + ${extra} = <b>${ans} см</b>.`,`g6:${raw}:${d}:diameterCompare:${r}:${extra}`,{unitSuffix:"см",audit:{type:"diameterCompare",variant:"compare",r,extra,answer:rational(ans)}});
+ }
+ if(raw==="circumference"){
+  const r=ri(2,d===2?15:9),turns=ri(2,d===2?7:4),one=g6Pi314MulInt(2*r),ans=rationalMul(one,rational(turns));
+  return g6NumberInputQuestion(`Колесо радиуса <b>${r} см</b> совершило <b>${turns} полных оборота</b>. Какой путь прошла точка на ободе? Считайте π ≈ 3,14.`,ans,`Один оборот: C = 2 · 3,14 · ${r} = ${rationalRu(one)} см. За ${turns} оборота: ${rationalRu(one)} · ${turns} = <b>${rationalRu(ans)} см</b>.`,`g6:${raw}:${d}:turns:${r}:${turns}`,{unitSuffix:"см",audit:{type:"circumferenceTurns",variant:"turns",r,turns,answer:ans}});
+ }
+ if(raw==="circle_area"){
+  if(d===0)return null;
+  const r=ri(2,d===2?12:9),fraction=d===2?4:2,area=g6Pi314MulInt(r*r),ans=rationalDiv(area,rational(fraction));
+  return g6NumberInputQuestion(`Радиус круга <b>${r} см</b>. Найдите площадь <b>${fraction===2?"полукруга":"четверти круга"}</b> при π ≈ 3,14.`,ans,`Площадь всего круга S = 3,14 · ${r}² = ${rationalRu(area)} см². Делим на ${fraction}: <b>${rationalRu(ans)} см²</b>.`,`g6:${raw}:${d}:sector:${r}:${fraction}`,{unitSuffix:"см²",audit:{type:"circleFractionArea",variant:"part",r,fraction,area,answer:ans}});
+ }
+ if(raw==="prism"){
+  const a=ri(3,10),b=ri(2,8),c=ri(2,7),variant=d===0?"edgePairs":d===1?g6RandomFrom(["edgePairs","surface"]):g6RandomFrom(["surface","sumEdges"]);
+  const answer=variant==="surface"?2*(a*b+a*c+b*c):variant==="sumEdges"?4*(a+b+c):2*(a+b);
+  const text=variant==="surface"?`Прямоугольный параллелепипед имеет размеры <b>${a} см, ${b} см, ${c} см</b>. Найдите площадь всей его поверхности.`:variant==="sumEdges"?`Найдите сумму длин <b>всех 12 рёбер</b> прямоугольного параллелепипеда размерами ${a} см, ${b} см, ${c} см.`:`Основание прямоугольного параллелепипеда — прямоугольник ${a} см на ${b} см. Найдите сумму длин <b>четырёх рёбер основания</b>.`;
+  const ex=variant==="surface"?`S = 2(ab + ac + bc) = 2 · (${a*b} + ${a*c} + ${b*c}) = <b>${answer} см²</b>.`:variant==="sumEdges"?`Каждое из трёх измерений повторяется у четырёх рёбер: 4 · (${a} + ${b} + ${c}) = <b>${answer} см</b>.`:`Основание — прямоугольник: 2 · (${a} + ${b}) = <b>${answer} см</b>.`;
+  const q=g6NumberInputQuestion(text,answer,ex,`g6:${raw}:${d}:${variant}:${a}:${b}:${c}`,{unitSuffix:variant==="surface"?"см²":"см",audit:{type:"prismRevision",variant,a,b,c,answer:rational(answer)}});
+  return g6AttachGeometry(q,{kind:"prism",dims:{a,b,c},unit:"см",aria:"Прямоугольный параллелепипед",caption:"Длины трёх измерений обозначены a, b, c; вычислите ответ самостоятельно."});
+ }
+ return null;
+}
+function g6ExtraPercent(raw,d){
+ if(!["percent_of_number","number_by_percent","percent_ratio"].includes(raw))return null;
+ const p=g6RandomFrom(d===0?[10,20,25,50]:[10,12,20,25,30,40,50,75]),base=ri(5,d===2?40:20)*100,part=g6PercentValue(base,p);
+ if(raw==="percent_of_number"){
+  const extra=d===2?ri(1,9)*20:0,ans=g6PercentValue(base+extra,p);
+  return g6NumberInputQuestion(`В школьной библиотеке ${base} книг${extra?`, затем поступило ещё ${extra} книг`:""}. Сколько книг составляют <b>${p}%</b> от ${extra?"нового":"указанного"} количества?`,ans,`${extra?`Сначала найдём общее количество: ${base} + ${extra} = ${base+extra}. `:""}${p}% — это ${p}/100. ${base+extra} · ${p} : 100 = <b>${rationalRu(ans)}</b>.`,`g6:${raw}:${d}:library:${base}:${extra}:${p}`,{audit:{type:"percentOf",variant:"library",base:base+extra,percent:p,answer:ans}});
+ }
+ if(raw==="number_by_percent"){
+  return g6NumberInputQuestion(`В спортивной секции <b>${p}%</b> всех участников — ${rationalRu(part)} человек. Сколько всего участников?`,base,`${p}% соответствуют ${rationalRu(part)} человек. Всё количество: ${rationalRu(part)} · 100 : ${p} = <b>${base}</b>.`,`g6:${raw}:${d}:section:${base}:${p}`,{audit:{type:"numberByPercent",variant:"section",part,percent:p,answer:rational(base)}});
+ }
+ const whole=base,portion=rationalMul(rational(whole),rational(p,100)),answer=rational(p);
+ return g6NumberInputQuestion(`В коробке ${whole} карандашей, из них ${rationalRu(portion)} цветных. Какой <b>процент</b> всех карандашей — цветные?`,answer,`Доля цветных: ${rationalRu(portion)} : ${whole}. Умножаем на 100% и получаем <b>${p}%</b>.`,`g6:${raw}:${d}:pencils:${whole}:${p}`,{unitSuffix:"%",allowPercent:true,audit:{type:"percentRatio",variant:"pencils",whole,portion,answer}});
+}
+function g6ExtraOther(raw,d){
+ if(raw==="ratio_value"){
+  const pair=g6RandomFrom(d===0?[[1,2],[2,5],[3,4]]:d===1?[[3,4],[7,10],[5,8],[9,20]]:[[7,16],[15,8],[21,40],[27,20]]),k=ri(2,d===2?15:8),part=pair[0]*k,whole=pair[1]*k,answer=rational(part,whole);
+  return g6NumberInputQuestion(`В одной коробке <b>${part}</b> одинаковых деталей, а в другой <b>${whole}</b>. Найдите <b>значение отношения</b> количества деталей в первой коробке ко второй${d>0?" и запишите десятичной дробью":""}.`,answer,`Отношение равно ${part} : ${whole} = ${rationalRu(answer)}.`, `g6:${raw}:${d}:boxes:${part}:${whole}`,{audit:{type:"ratioValueContext",variant:"boxes",part,whole,answer}});
+ }
+ if(raw==="coordinate_plane"&&d===1){
+  const x=ri(2,6)*(Math.random()<.5?-1:1),y=ri(2,6)*(Math.random()<.5?-1:1),kind=x>0?(y>0?"I":"IV"):(y>0?"II":"III");
+  return g6ChoiceQuestion(`Точка M имеет абсциссу <b>${x}</b> и ординату <b>${y}</b>. В какой <b>четверти</b> координатной плоскости она расположена?`,kind,["I","II","III","IV"],`У точки M x ${x>0?">":"<"} 0, y ${y>0?">":"<"} 0; следовательно, это ${kind} четверть.`,`g6:${raw}:${d}:signs:${x}:${y}`,{type:"quadrantFromSigns",variant:"signs",x,y,answer:kind});
+ }
+ if(raw==="volume"&&d===0){
+  const a=ri(2,6),b=ri(2,6),c=ri(2,6),v=a*b*c;
+  const q=g6NumberInputQuestion(`Сколько <b>кубических сантиметров</b> в коробке с внутренними размерами <b>${a} см × ${b} см × ${c} см</b>, если она полностью заполнена единичными кубиками?`,v,`Число кубиков равно произведению трёх размеров: ${a} · ${b} · ${c} = <b>${v}</b>.`,`g6:${raw}:${d}:unitCubes:${a}:${b}:${c}`,{audit:{type:"volumeUnitCubes",variant:"unitCubes",a,b,c,answer:rational(v)}});
+  return g6AttachGeometry(q,{kind:"prism",dims:{a,b,c},unit:"см",aria:"Прямоугольный параллелепипед",caption:"У каждой стороны указана длина в сантиметрах."});
+ }
+ if(raw==="ratio"){
+  const x=ri(2,d===2?15:8),y=ri(2,d===2?14:9),k=ri(2,d===2?10:5),a=x*k,b=y*k,[n,den]=g6ReducedRatio(a,b);
+  return g6RatioInputQuestion(`В кружке робототехники ${a} младших школьников и ${b} старших. Найдите <b>отношение количества младших к количеству старших</b> и сократите его.`,a,b,`Отношение записываем в нужном порядке: ${a} : ${b}. Делим оба числа на НОД(${a}; ${b}) = ${gcd(a,b)}. Получаем <b>${n} : ${den}</b>.`,`g6:${raw}:${d}:club:${a}:${b}`,{audit:{type:"ratioContext",variant:"club",a,b,answer:[n,den]}});
+ }
+ if(raw==="divide_in_ratio"){
+  const a=ri(1,d===2?5:3),b=ri(a+1,d===2?9:6),unit=ri(3,d===2?30:12),total=(a+b)*unit,parts=[a*unit,b*unit];
+  return g6MultiInputQuestion(`Двум командам распределили <b>${total} жетонов</b> в отношении <b>${a} : ${b}</b>. Сколько жетонов получила каждая команда? Запишите сначала долю первой команды, затем второй.`,parts,`Всего ${a+b} равных частей. Одна часть: ${total} : ${a+b} = ${unit}. Первая команда: ${a} · ${unit} = ${parts[0]}, вторая: ${b} · ${unit} = ${parts[1]}.`,`g6:${raw}:${d}:tokens:${a}:${b}:${unit}`,{audit:{type:"divideRatioContext",variant:"teams",ratio:[a,b],total,parts,answer:parts}});
+ }
+ if(raw==="plot_point"){
+  let x=ri(d===2?2:1,d===2?6:4),y=ri(d===2?2:1,d===2?7:5);if(d===2){x/=2;y/=2}
+  if(Math.random()<.5)x=-x;if(Math.random()<.5)y=-y;
+  const instruction=(a,b)=>`Сначала ${a>=0?"вправо":"влево"} на ${rationalRu(rational(Math.round(Math.abs(a)*2),2))} ед., затем ${b>=0?"вверх":"вниз"} на ${rationalRu(rational(Math.round(Math.abs(b)*2),2))} ед.`;
+  const correct=instruction(x,y),wrong=[instruction(y,x),instruction(-x,y),instruction(x,-y)];
+  return g6ChoiceQuestion(`Точку P нужно построить по координатам <b>(${String(x).replace(".",",")}; ${String(y).replace(".",",")})</b>. Какой порядок действий от начала координат верный?`,correct,wrong,`Первая координата задаёт перемещение по горизонтали, вторая — по вертикали. Знак определяет направление: ${correct}`,`g6:${raw}:${d}:moves:${x}:${y}`,{type:"plotDirections",variant:"move",x,y});
+ }
+ if(raw==="number_line"){
+  const step=d===2?rational(1,2):rational(1),a=ri(-4,0),b=ri(1,5),A=d===2?rational(2*a+1,2):rational(a),B=d===2?rational(2*b+1,2):rational(b),distance=rationalSub(B,A);
+  const data={min:rational(-6),max:rational(7),step,points:[{label:"A",value:A},{label:"B",value:B}],hidePointValueLabels:true};
+  const q=g6NumberInputQuestion(`Каково расстояние <b>между точками A и B</b> на координатной прямой в единичных отрезках?`,distance,`Расстояние равно модулю разности координат: |${rationalRu(B)} − (${rationalRu(A)})| = <b>${rationalRu(distance)}</b>.`,`g6:${raw}:${d}:distance:${A.n}:${A.d}:${B.n}:${B.d}`,{audit:{type:"numberLineDistance",variant:"distance",A,B,answer:distance}});
+  return g6AttachNumberLine(q,data);
+ }
+ if(raw==="opposite_numbers"){
+  const a=d===2?rational(ri(-35,35),10):rational(ri(-25,25)),answer=rational(-a.n,a.d);
+  return g6NumberInputQuestion(`Какое число нужно <b>прибавить к ${g6SignedHtml(a)}</b>, чтобы получить ноль?`,answer,`Противоположные числа в сумме дают ноль: ${g6SignedHtml(a)} + (${g6SignedHtml(answer)}) = 0.`,`g6:${raw}:${d}:zeroSum:${a.n}:${a.d}`,{audit:{type:"oppositeSum",variant:"zeroSum",a,answer}});
+ }
+ if(["negative_add","negative_subtract","negative_multiply","negative_divide","rational_compare"].includes(raw)){
+  const scale=d===0?1:d===1?10:4,pick=()=>rational((Math.random()<.5?-1:1)*ri(1,d===2?40:15),scale);
+  if(raw==="rational_compare"){
+   const vals=sh([pick(),pick(),pick()]),sorted=[...vals].sort(rationalCmp);
+   const best=sorted[2],correct=g6SignedChoiceLabel(best,{preferFraction:d===2});
+   return g6ChoiceQuestion(`Выберите <b>наибольшее</b> из чисел ${vals.map(x=>g6SignedHtml(x,{preferFraction:d===2})).join(", ")}.`,correct,vals.map(x=>g6SignedChoiceLabel(x,{preferFraction:d===2})),`Сначала сравниваем знаки, затем модули. Наибольшее число — ${g6SignedHtml(best,{preferFraction:d===2})}.`,`g6:${raw}:${d}:maximum:${vals.map(x=>`${x.n}:${x.d}`).join(":")}`,{type:"signedMaximum",variant:"maximum",values:vals,answer:best});
+  }
+  if(raw==="negative_add"){
+   const a=pick(),b=pick(),c=d===2?pick():null,ans=c?rationalAdd(rationalAdd(a,b),c):rationalAdd(a,b);
+   return g6NumberInputQuestion(`Температура изменилась сначала на ${g6SignedHtml(a)} °C, затем на ${g6SignedHtml(b)} °C${c?`, затем ещё на ${g6SignedHtml(c)} °C`:""}. На сколько градусов температура изменилась суммарно?`,ans,`Складываем изменения со знаками: ${g6SignedHtml(a)} + ${g6SignedOperandHtml(b)}${c?` + ${g6SignedOperandHtml(c)}`:""} = <b>${g6SignedHtml(ans)}</b>.`,`g6:${raw}:${d}:temperature:${a.n}:${a.d}:${b.n}:${b.d}:${c?.n||0}`,{unitSuffix:"°C",audit:{type:"signedContext",variant:"temperature",op:"add",terms:c?[a,b,c]:[a,b],answer:ans}});
+  }
+  if(raw==="negative_subtract"){
+   const a=pick(),b=pick(),ans=rationalSub(a,b);
+   return g6NumberInputQuestion(`На числовой прямой одна точка имеет координату ${g6SignedHtml(a)}, а другая — ${g6SignedHtml(b)}. Чему равно <b>первое число минус второе</b>?`,ans,`Заменяем вычитание сложением противоположного: ${g6SignedHtml(a)} − (${g6SignedHtml(b)}) = <b>${g6SignedHtml(ans)}</b>.`,`g6:${raw}:${d}:coordinates:${a.n}:${a.d}:${b.n}:${b.d}`,{audit:{type:"signedContext",variant:"coordinates",op:"subtract",terms:[a,b],answer:ans}});
+  }
+  if(raw==="negative_multiply"){
+   const a=pick(),b=pick(),c=d===2?pick():null,ans=c?rationalMul(rationalMul(a,b),c):rationalMul(a,b);
+   return g6NumberInputQuestion(`Найдите произведение чисел ${[a,b,...(c?[c]:[])].map(x=>g6SignedOperandHtml(x,{wrapNegative:true})).join(" · ")}.`,ans,`Сначала устанавливаем знак по числу отрицательных множителей, затем перемножаем модули. Получаем <b>${g6SignedHtml(ans)}</b>.`,`g6:${raw}:${d}:product:${[a,b,...(c?[c]:[])].map(x=>`${x.n}:${x.d}`).join(":")}`,{audit:{type:"signedContext",variant:"product",op:"multiply",terms:c?[a,b,c]:[a,b],answer:ans}});
+  }
+  const b=g6RandomFrom([-1,1])*ri(2,9),quot=g6RandomFrom([-1,1])*ri(2,d===2?14:9),a=b*quot;
+  return g6NumberInputQuestion(`При делении числа <b>${a}</b> на число <b>${b}</b> чему равно частное?`,quot,`Знак частного определяется знаками делимого и делителя. ${a} : (${b}) = <b>${quot}</b>.`,`g6:${raw}:${d}:division:${a}:${b}`,{audit:{type:"signedContext",variant:"division",op:"divide",terms:[rational(a),rational(b)],answer:rational(quot)}});
+ }
+ return null;
+}
+const G6_ORIGINAL_MAKE=makeG6Question;
+makeG6Question=function(id,stageOverride=null){
+ const raw=rawCourseId(id),d=g6LessonStepDifficulty(stageOverride);
+ // Тематические сценарии дополняют, но не подменяют существующие банки.
+ let supplement=null;
+ if(Math.random()<.52)supplement=g6ExtraFraction(raw,d)||g6ExtraNumberTheory(raw,d)||g6ExtraGeometry(raw,d)||g6ExtraPercent(raw,d)||g6ExtraOther(raw,d);
+ const q=supplement||G6_ORIGINAL_MAKE(id,d);
+ // Для вопроса об обратном нахождении диаметра показываем именно диаметр.
+ if(raw==="circumference"&&q.audit?.variant==="inverseDiameter"&&q.visual?.data?.kind==="circle"){
+  g6AttachGeometry(q,{...q.visual.data,segments:[{from:"B",to:"A",label:"d",type:"диаметр"}]});
+ }
+ return q;
+};
+
 
 const TOPICS=[
 {id:"column",ico:"🧮",title:"Счёт столбиком",sub:"сложение, вычитание, умножение, деление"},
@@ -18792,6 +18992,36 @@ function mk855MigrationSnapshot(profile){
 stats();
 mk854InitHistory();
 
+/* 6 класс: чередование педагогических шаблонов без изменения структуры
+   существующих попыток. Используем штатные подписи и историю вопросов. */
+const G6_PRE_AUDIT_FRESH=freshQuiz;
+function g6AuditFamily(sig){
+ const parts=String(sig||"").split(":");
+ return parts[0]==="g6"&&parts.length>=4?`${parts[1]}:${parts[3]}`:String(sig||"").slice(0,90);
+}
+freshQuiz=function(id){
+ const sid=String(id||"");
+ if(!sid.startsWith("g6:")||blockSession?.kind!=="g6quiz")return G6_PRE_AUDIT_FRESH(id);
+ const maker=()=>makeG6Question(sid),signature=q=>q.sig||`g6:${rawCourseId(sid)}:${normalizePromptForCompare(q.text||"")}`;
+ const used=blockSession?.usedSignatures||[],lastSig=used.length?used[used.length-1]:"",lastFamily=g6AuditFamily(lastSig);
+ const promptOf=q=>normalizePromptForCompare(quizAttemptPrompt(q)),pastPrompts=new Set((blockSession.items||[]).map(x=>normalizePromptForCompare(x.prompt||"")));
+ let candidate=null;
+ // Сначала: новый пример, новый тип действия и не та же формулировка.
+ for(let pass=0;pass<3;pass++){
+  for(let tries=0;tries<180;tries++){
+   const q=maker(),sig=signature(q),family=g6AuditFamily(sig);
+   if(wasUsedInBlock(sig))continue;
+   if(pass===0&&(wasRecent(sig)||family===lastFamily||pastPrompts.has(promptOf(q))))continue;
+   if(pass===1&&(family===lastFamily||pastPrompts.has(promptOf(q))))continue;
+   if(pass===2&&pastPrompts.has(promptOf(q)))continue;
+   candidate=q;registerSignature(sig);candidate._signature=sig;break;
+  }
+  if(candidate)break;
+ }
+ // В чрезвычайно маленьком пуле действует прежний bounded fallback.
+ return candidate||freshCandidate(maker,signature,480);
+};
+
 
 </script>
 <script id="mk861-checkpoint-b">
@@ -20298,6 +20528,1291 @@ const mk872Observer=new MutationObserver(()=>{if(!mk872Restoring&&mk872HasActive
 mk872Observer.observe(modal,{childList:true,subtree:true,attributes:true,characterData:true,attributeFilter:['class','disabled','style','value']});
 mk872Observer.observe(mainView,{childList:true,subtree:true,attributes:true,characterData:true,attributeFilter:['class','disabled','style','value']});
 setTimeout(mk872OfferResume,0);
+
+</script>
+<style id="mk873-archived-avatar-styles">
+.mk873-archive-intro{border:1px solid #d7e2d9;background:#f5faf6;border-radius:14px;padding:13px;margin:5px 0 13px;line-height:1.5;font-size:13px}
+.mk873-archive-note{font-size:12px;color:var(--muted);line-height:1.45;margin:6px 0}
+.mk873-archive-card{display:flex;flex-direction:column;gap:7px;min-width:0}
+.mk873-archive-price{font-size:13px;font-weight:700;color:#234e37}
+.mk873-archive-card .mk872-col-art{cursor:default;pointer-events:none}
+.mk873-archive-action{margin-top:auto;min-height:39px;font-weight:700}
+.mk873-archive-action:disabled{opacity:.65;cursor:default}
+.mk873-archive-help{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:13px;padding:11px;border:1px dashed var(--line);border-radius:12px}
+.mk873-archive-help p{margin:0;font-size:12px;line-height:1.5;flex:1;min-width:180px}
+@media(max-width:520px){.mk873-archive-help .btn{width:100%}.mk873-archive-card{gap:5px}}
+</style>
+<script id="mk873-archived-avatar-refund-hotfix">
+/* Frontend-only: one-time verified refunds for withdrawn avatars.
+   Uses pre-existing purchase metadata and sale history. No public coin grant. */
+Object.assign(EMPTY_STATE,{legacyAvatarRefunds:null});
+const MK873_REFUND_REGISTRY_KEY='mk873_legacy_avatar_refunds_v1';
+const MK873_REFUND_LOCKS=new Set();
+const MK873_PRE_NORMALIZE_SHOP=normalizeShop;
+const MK873_PRE_MERGE=mergeSameStudent;
+const MK873_PRE_IMPORT_NORMALIZE=normalizeImportedProfile;
+const MK873_PRE_OPEN_COLLECTION=openCollection;
+const MK873_PRE_COLLECTION_SWITCH=mk872CollectionSwitch;
+const MK873_PRE_LEGACY_PANEL=mk872LegacyPanel;
+const MK873_PRE_LEGACY_CLEAN=mk872CleanLegacy;
+function mk873IsArchivedAvatar(id){
+ const item=catalogItem('avatars',String(id||''));
+ return !!item&&item.id!=='av_default'&&!MK872_MODERN_HERO_SET.has(item.id);
+}
+function mk873ReceiptKey(profile,id){return `${String(profile?.profileId||'')}:avatars:${String(id||'')}`}
+function mk873TransactionId(profile,id){return `legacy_avatar_refund_v1:${String(profile?.profileId||'')}:${String(id||'')}`}
+function mk873Registry(){
+ try{const obj=JSON.parse(localStorage.getItem(MK873_REFUND_REGISTRY_KEY)||'{}');return obj&&typeof obj==='object'&&!Array.isArray(obj)?obj:{}}catch(_e){return {}}
+}
+function mk873Ledger(profile){return profile?.legacyAvatarRefunds&&typeof profile.legacyAvatarRefunds==='object'&&!Array.isArray(profile.legacyAvatarRefunds)?profile.legacyAvatarRefunds:{}}
+function mk873SaleRecord(profile,id){
+ return (profile?.saleHistory||[]).find(x=>x&&x.type==='avatars'&&x.id===id&&x.reason==='archivedAvatarFullRefund'&&Number(x.refundRate)===1)||null;
+}
+function mk873Receipt(profile,id){
+ if(!profile||!mk873IsArchivedAvatar(id))return null;
+ const key=mk873ReceiptKey(profile,id),byProfile=mk873Ledger(profile)[id],byDevice=profile.profileId?mk873Registry()[key]:null,oldSale=mk873SaleRecord(profile,id);
+ return byProfile||byDevice||(oldSale?{transactionId:oldSale.transactionId,itemId:id,paidPrice:oldSale.paidPrice,refundCoins:oldSale.refundCoins,refundedAt:oldSale.soldAt,reason:'archivedAvatarFullRefund'}:null);
+}
+function mk873HasOtherSale(profile,id,acq){
+ if(Number(acq?.soldTimestamp||0)>0)return true;
+ return (profile?.saleHistory||[]).some(x=>x?.type==='avatars'&&x.id===id&&Number(x.soldAt||0)>0&&Number(x.soldAt)>=Number(acq?.purchaseTimestamp||0));
+}
+function mk873Eligibility(profile,id){
+ const item=catalogItem('avatars',id),receipt=mk873Receipt(profile,id),owned=Array.isArray(profile?.inventory?.avatars)&&profile.inventory.avatars.includes(id),acq=mk865Acquisition(profile,'avatars',id);
+ if(!mk873IsArchivedAvatar(id))return {ok:false,item,reason:'Предмет не является архивным.'};
+ if(receipt)return {ok:false,item,receipt,reason:'Полная компенсация уже выплачена.'};
+ if(item.rewardOnly||Number(item.price||0)<=0)return {ok:false,item,reason:'Этот аватар был наградным, а не платным.'};
+ if(mk873HasOtherSale(profile,id,acq))return {ok:false,item,reason:'Предмет уже продавался ранее.'};
+ if(acq&&acq.source!=='store')return {ok:false,item,reason:'Не подтверждена покупка за монеты (источник: '+String(acq.source||'неизвестен')+').'};
+ const paid=Number(acq?.paidPrice),when=Number(acq?.purchaseTimestamp);
+ if(!acq||acq.source!=='store'||!Number.isSafeInteger(paid)||paid<=0||!Number.isFinite(when)||when<=0)
+  return {ok:false,item,needsReview:true,reason:'Нет надёжной записи о сумме и факте покупки.'};
+ return {ok:true,item,paidPrice:paid,acq,owned,source:acq.recoveredFrom==='verifiedShopTotals'?'Сверено с суммой старых покупок':'Запись о покупке'};
+}
+function mk873ArchiveRows(profile=state){
+ const ids=new Set();
+ for(const id of profile?.inventory?.avatars||[])ids.add(id);
+ for(const key of Object.keys(profile?.acquisitionMetadata||{}))if(key.startsWith('avatars:'))ids.add(key.slice(8));
+ for(const key of profile?.everOwned||[])if(String(key).startsWith('avatars:'))ids.add(String(key).slice(8));
+ for(const id of Object.keys(mk873Ledger(profile)))ids.add(id);
+ for(const entry of profile?.saleHistory||[])if(entry?.type==='avatars')ids.add(entry.id);
+ if(profile?.profileId)for(const key of Object.keys(mk873Registry()))if(key.startsWith(`${profile.profileId}:avatars:`))ids.add(key.slice(`${profile.profileId}:avatars:`.length));
+ return [...ids].filter(mk873IsArchivedAvatar).map(id=>({id,item:catalogItem('avatars',id),eligibility:mk873Eligibility(profile,id)})).sort((a,b)=>a.item.name.localeCompare(b.item.name,'ru'));
+}
+function mk873ReconcileReceipts(profile){
+ if(!profile||typeof profile!=='object')return profile;
+ const ledger={...mk873Ledger(profile)},device=mk873Registry();
+ if(profile.profileId)for(const [key,rec] of Object.entries(device)){
+  const prefix=`${profile.profileId}:avatars:`;
+  if(!key.startsWith(prefix))continue;
+  const id=key.slice(prefix.length);if(mk873IsArchivedAvatar(id)&&rec&&typeof rec==='object'&&!ledger[id])ledger[id]=deepCopy(rec);
+ }
+ for(const entry of profile.saleHistory||[]){
+  const id=entry?.id;if(entry?.reason==='archivedAvatarFullRefund'&&mk873IsArchivedAvatar(id)&&!ledger[id])ledger[id]={transactionId:entry.transactionId,itemId:id,paidPrice:entry.paidPrice,refundCoins:entry.refundCoins,refundedAt:entry.soldAt,reason:entry.reason};
+ }
+ if(Object.keys(ledger).length){
+  profile.legacyAvatarRefunds=ledger;
+  for(const id of Object.keys(ledger))if(mk873IsArchivedAvatar(id)){
+   if(Array.isArray(profile.inventory?.avatars))profile.inventory.avatars=profile.inventory.avatars.filter(x=>x!==id);
+   if(profile.equipped?.avatar===id)profile.equipped.avatar='av_default';
+  }
+ }
+ return profile;
+}
+normalizeShop=function(){const out=MK873_PRE_NORMALIZE_SHOP();mk873ReconcileReceipts(state);return out};
+normalizeImportedProfile=function(p,opts={}){return mk873ReconcileReceipts(MK873_PRE_IMPORT_NORMALIZE(p,opts))};
+mergeSameStudent=function(local,incoming,forcedId=null){
+ const result=MK873_PRE_MERGE(local,incoming,forcedId),combined={...mk873Ledger(local),...mk873Ledger(incoming),...mk873Ledger(result)};
+ if(Object.keys(combined).length)result.legacyAvatarRefunds=combined;
+ return mk873ReconcileReceipts(result);
+};
+function mk873RefundArchivedAvatar(id){
+ normalizeShop();const profileId=String(state?.profileId||''),key=mk873ReceiptKey(state,id);
+ if(!profileId||MK873_REFUND_LOCKS.has(key))return;
+ const e=mk873Eligibility(state,id);
+ if(!e.ok){rewardPop(e.reason||'Возврат недоступен');return}
+ if(!confirm(`Вернуть ${e.paidPrice} монет за архивный аватар «${e.item.name}»? Предмет будет убран из коллекции. Компенсация начисляется только один раз.`))return;
+ MK873_REFUND_LOCKS.add(key);
+ try{
+  // Recheck AFTER confirmation and immediately before touching the balance.
+  const fresh=mk873Eligibility(state,id);if(!fresh.ok){rewardPop('Компенсация уже обработана или покупка не подтверждена');return}
+  const before={registry:localStorage.getItem(MK873_REFUND_REGISTRY_KEY),profiles:localStorage.getItem('mq4_profiles'),state:localStorage.getItem('mq4'),current:localStorage.getItem('mq4_current_profile')};
+  const next=deepCopy(state),when=Date.now(),tx=mk873TransactionId(next,id),amount=fresh.paidPrice;
+  const receipt={transactionId:tx,type:'avatars',itemId:id,itemName:fresh.item.name,source:'store',paidPrice:amount,refundCoins:amount,refundRate:1,refundedAt:when,purchaseTimestamp:Number(fresh.acq.purchaseTimestamp),purchaseEvidence:fresh.source,reason:'archivedAvatarFullRefund'};
+  next.legacyAvatarRefunds={...mk873Ledger(next),[id]:receipt};
+  next.inventory=next.inventory||{};next.inventory.avatars=(next.inventory.avatars||[]).filter(x=>x!==id);
+  mk865FallbackAfterSale('avatars',id,next);
+  next.coins=Math.max(0,Number(next.coins||0))+amount;
+  next.shopStats=next.shopStats||{};next.shopStats.sales=Math.max(0,Number(next.shopStats.sales||0))+1;next.shopStats.refundedCoins=Math.max(0,Number(next.shopStats.refundedCoins||0))+amount;
+  if(next.acquisitionMetadata?.[mk865ItemKey('avatars',id)]){
+   const acq=next.acquisitionMetadata[mk865ItemKey('avatars',id)];acq.soldTimestamp=when;acq.legacyRefundTransactionId=tx;acq.lastRefundRate=1;acq.lastRefundCoins=amount;
+  }
+  next.saleHistory=[...(next.saleHistory||[]),{transactionId:tx,type:'avatars',id,itemName:fresh.item.name,source:'store',paidPrice:amount,purchaseTimestamp:Number(fresh.acq.purchaseTimestamp),soldAt:when,refundRate:1,refundCoins:amount,reason:'archivedAvatarFullRefund'}].slice(-MK865_SALE_HISTORY_LIMIT);
+  ensureProfileIdentity(next,{touch:true});
+  const updatedProfiles={...profiles,[currentProfile]:next};const updatedRegistry={...mk873Registry(),[key]:receipt};
+  try{
+   localStorage.setItem(MK873_REFUND_REGISTRY_KEY,JSON.stringify(updatedRegistry));
+   localStorage.setItem('mq4_profiles',JSON.stringify(updatedProfiles));
+   localStorage.setItem('mq4',JSON.stringify(next));
+   localStorage.setItem('mq4_current_profile',currentProfile);
+   const persisted=JSON.parse(localStorage.getItem('mq4_profiles')||'{}')?.[currentProfile];
+   if(persisted?.legacyAvatarRefunds?.[id]?.transactionId!==tx)throw Error('Не удалось сохранить реестр компенсаций');
+  }catch(err){
+   for(const [name,value] of Object.entries({[MK873_REFUND_REGISTRY_KEY]:before.registry,mq4_profiles:before.profiles,mq4:before.state,mq4_current_profile:before.current})){
+    try{if(value===null)localStorage.removeItem(name);else localStorage.setItem(name,value)}catch(_e){}
+   }
+   reportStorageError(err,true);rewardPop('Не удалось сохранить возврат. Баланс не изменён.');return;
+  }
+  profiles=updatedProfiles;state=next;stats();rewardPop(`Возвращено ${amount} 🪙 за архивный аватар`);openCollection();mk873CollectionSwitch('archive');
+ }finally{MK873_REFUND_LOCKS.delete(key)}
+}
+function mk873DownloadManualClaim(id=''){
+ const item=id?catalogItem('avatars',id):null,acq=item?mk865Acquisition(state,'avatars',id):null;
+ const data={kind:'matkvest_archived_avatar_manual_review_v1',status:'awaiting_human_review',automaticCredit:false,createdAt:new Date().toISOString(),profileId:state?.profileId||null,profileName:currentProfile||'',avatarId:item?.id||null,avatarName:item?.name||'Не установлен',ownedInInventory:!!item&&(state.inventory?.avatars||[]).includes(item.id),acquisition:acq?deepCopy(acq):null,everOwned:!!item&&mk865WasEverOwned(state,'avatars',item.id),shopStats:{spent:Number(state.shopStats?.spent||0),purchases:Number(state.shopStats?.purchases||0),sales:Number(state.shopStats?.sales||0)},priorSales:(state.saleHistory||[]).filter(x=>x.type==='avatars'&&(!item||x.id===item.id)).map(x=>({transactionId:x.transactionId,id:x.id,soldAt:x.soldAt,refundCoins:x.refundCoins})),alreadyRefunded:item?!!mk873Receipt(state,item.id):false,note:'Заявка для проверки владельцем проекта. Монеты в программе не начислялись.'};
+ downloadJsonObject(data,`МатКвест - проверка архивного аватара - ${safeFilePart(currentProfile)} - ${isoDateForFile()}.json`);
+ rewardPop('Заявка на ручную проверку сохранена. Монеты не начислены.');
+}
+function mk873ArchiveCards(){
+ const rows=mk873ArchiveRows(state);
+ const cards=rows.map(({id,item,eligibility:e})=>{
+  const refund=e.ok,done=!!e.receipt,owned=(state.inventory?.avatars||[]).includes(id);
+  const detail=done?`Возвращено ${Number(e.receipt.refundCoins||0)} 🪙`:
+   refund?`Подтверждена покупка: ${e.paidPrice} 🪙${owned?'':' (аватар уже скрыт из инвентаря)'}`:e.reason;
+  const action=refund?`<button type="button" class="mk872-col-action primary mk873-archive-action" onclick="mk873RefundArchivedAvatar('${id}')">Вернуть ${e.paidPrice} 🪙 (100%)</button>`:
+   done?'<button type="button" class="mk872-col-action mk873-archive-action" disabled>Возврат выполнен ✓</button>':
+   e.needsReview?`<button type="button" class="mk872-col-action mk873-archive-action" onclick="mk873DownloadManualClaim('${id}')">Заявка на проверку</button>`:'';
+  return `<div class="mk872-col-card mk873-archive-card"><div class="mk872-col-art"><span class="shop-icon" style="height:100%;width:100%;margin:0">${item.icon||'📦'}</span></div><strong>${esc(item.name)}</strong><span class="mk872-col-meta">Архивный аватар</span><div class="mk873-archive-price">${esc(detail)}</div>${action}</div>`;
+ }).join('');
+ return `<div class="mk873-archive-intro"><b>📦 Архивные предметы</b><div>Ранее купленные аватары, снятые с продажи, сохраняют историю владения. При подтверждённой покупке можно один раз вернуть <b>100% уплаченных монет</b>. Бесплатные награды и предметы из сундуков компенсации не подлежат.</div></div>${rows.length?`<div class="mk872-col-grid">${cards}</div>`:'<div class="mk872-col-empty">Архивных аватаров в этом профиле не найдено. Если аватар уже был удалён и история покупки отсутствует, сформируйте заявку для ручной проверки.</div>'}<div class="mk873-archive-help"><p>Нет подтверждения старой покупки? Сохраните заявку и передайте её владельцу проекта вместе с резервной копией, если она есть. Этот файл не начисляет монеты.</p><button type="button" class="btn soft" onclick="mk873DownloadManualClaim()">📄 Заявка на проверку</button></div>`;
+}
+function mk873CollectionSwitch(type){
+ if(type!=='archive')return MK873_PRE_COLLECTION_SWITCH(type);
+ mk872CollectionTab='archive';const root=document.getElementById('mk872CollectionUX');if(!root)return openCollection();
+ root.querySelectorAll('[data-mk872-collection-tab]').forEach(el=>{const active=el.dataset.mk872CollectionTab==='archive';el.classList.toggle('active',active);el.setAttribute('aria-pressed',String(active))});
+ const count=mk873ArchiveRows(state).length,slot=root.querySelector('#mk872CollectionContent');if(slot)slot.innerHTML=`<div class="mk872-col-head"><h3>📦 Архивные предметы</h3><small>${count} обнаружено</small></div>${mk873ArchiveCards()}`;
+}
+mk872CollectionSwitch=function(type){return mk873CollectionSwitch(type)};
+openCollection=function(){
+ MK873_PRE_OPEN_COLLECTION();const grid=document.querySelector('#mk872CollectionUX .mk872-col-counter-grid');if(!grid)return;
+ if(!grid.querySelector('[data-mk872-collection-tab="archive"]'))grid.insertAdjacentHTML('beforeend',`<button type="button" class="mk872-col-count" data-mk872-collection-tab="archive" aria-pressed="false" onclick="mk873CollectionSwitch('archive')"><b>${mk873ArchiveRows(state).length}</b><small>📦 Архивные предметы</small></button>`);
+ if(mk872CollectionTab==='archive')mk873CollectionSwitch('archive');
+};
+/* The old Developer Mode cleanup must not delete a student's archived avatar. */
+mk872LegacyPanel=function(){
+ const n=mk872LegacyItems(state).filter(x=>x.type==='avatars').length;
+ return `<section class="mk872-legacy-info"><b>Старые предметы</b><div>Архивных аватаров во владении: ${n}</div><small>Удаление старых аватаров отключено, чтобы сохранить возможность проверить покупку. Возврат доступен в «Моей коллекции».</small><button class="btn soft" onclick="openCollection();mk873CollectionSwitch('archive')">Открыть архив</button></section>`;
+};
+mk872CleanLegacy=function(){rewardPop('Удаление архивных аватаров отключено. Откройте «Архивные предметы».');return false};
+for(const p of Object.values(profiles))mk873ReconcileReceipts(p);
+mk873ReconcileReceipts(state);
+</script>
+<style id="mk874-section-icons-style">
+/* Pictograms are vector shapes, not font-dependent emoji/math glyphs. */
+#mainView .mk874-section-heading{display:flex;align-items:center;gap:13px;min-width:0;max-width:100%;line-height:1.24;overflow-wrap:break-word}
+#mainView .mk874-section-heading .mk874-section-label{min-width:0;flex:1 1 auto}
+#mainView .mk874-pictogram,#mainView .mk874-topic-icon{--mk874-fg:#2769a6;--mk874-bg:#eff7ff;--mk874-border:#cee4f8;color:var(--mk874-fg);background:var(--mk874-bg);border:1px solid var(--mk874-border);display:inline-flex;align-items:center;justify-content:center;flex:none;box-sizing:border-box}
+#mainView .mk874-theme-teal{--mk874-fg:#147c73;--mk874-bg:#eaf8f4;--mk874-border:#bde6d9}
+#mainView .mk874-theme-amber{--mk874-fg:#a46613;--mk874-bg:#fff8e8;--mk874-border:#f3dcad}
+#mainView .mk874-theme-violet{--mk874-fg:#7152ad;--mk874-bg:#f5f0ff;--mk874-border:#e0d1f8}
+#mainView .mk874-pictogram{width:44px;height:44px;border-radius:14px}
+#mainView .mk874-pictogram.mk874-course-icon{width:48px;height:48px;border-radius:15px}
+#mainView .mk874-svg{width:25px;height:25px;display:block;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;fill:none;overflow:visible}
+#mainView .mk874-course-icon .mk874-svg{width:28px;height:28px}
+#mainView .topic .ico.mk874-topic-icon{width:43px;height:43px;border-radius:13px;line-height:1}
+#mainView .topic .ico.mk874-topic-icon .mk874-svg{width:24px;height:24px}
+#mk874-sprite{position:absolute;width:0;height:0;overflow:hidden;pointer-events:none}
+@media(max-width:800px){
+ #mainView .mk874-section-heading{gap:11px}
+ #mainView .mk874-pictogram{width:41px;height:41px;border-radius:13px}
+ #mainView .mk874-pictogram.mk874-course-icon{width:44px;height:44px}
+ #mainView .mk874-svg{width:23px;height:23px}
+}
+@media(max-width:520px){
+ #mainView .mk874-section-heading{gap:9px;font-size:clamp(18px,4.8vw,23px)}
+ #mainView .mk874-pictogram{width:36px;height:36px;border-radius:11px}
+ #mainView .mk874-pictogram.mk874-course-icon{width:39px;height:39px;border-radius:12px}
+ #mainView .mk874-svg{width:21px;height:21px}
+ #mainView .mk874-course-icon .mk874-svg{width:23px;height:23px}
+ #mainView .topic .ico.mk874-topic-icon{width:39px;height:39px;border-radius:12px}
+ #mainView .topic .ico.mk874-topic-icon .mk874-svg{width:22px;height:22px}
+}
+</style>
+<script id="mk874-section-icons-hotfix">
+/* Stable semantic SVG icons for the section/course headers and topic cards.
+   No topic identifiers, course data, gameplay, profile data or storage changes. */
+(function(){
+ 'use strict';
+ const glyphs=Object.freeze({
+  numbers:'<rect x="3" y="4" width="5" height="6" rx="1"/><rect x="10" y="4" width="5" height="6" rx="1"/><rect x="17" y="4" width="4" height="6" rx="1"/><path d="M5.5 14v6M12.5 14v6M19 14v6M3 17h5M10 17h5M17 17h4"/>',
+  arithmetic:'<path d="M7 3v9M2.5 7.5h9M15 7.5h7M3 18h8M15 15l6 6M21 15l-6 6"/>',
+  story:'<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h4M8 16h3M14.5 14.5v5M12 17h5"/>',
+  partition:'<circle cx="8.5" cy="12" r="6"/><path d="M8.5 6v12M8.5 12l5.3-2.8M18 7h3M18 12h3M18 17h3"/>',
+  geometry:'<path d="M2.5 20l7-15 7 15z"/><circle cx="18.5" cy="8" r="3.2"/><path d="M6 17h6"/>',
+  table:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M3 14h18M9 4v16M15 4v16"/>',
+  factorTree:'<circle cx="12" cy="4.5" r="2.5"/><circle cx="5" cy="18.5" r="2.5"/><circle cx="19" cy="18.5" r="2.5"/><path d="M10.5 6.7L6 16M13.5 6.7l4.5 9.3M7.5 18.5h9"/>',
+  fraction:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 12h18M9 4v8M15 12v8"/><path d="M3 4h6v8H3z" fill="currentColor" opacity=".15"/>',
+  ratio:'<path d="M3 20V9M3 20h18M8 16V5h4v11M16 16V9h4v7"/><circle cx="14" cy="4" r="1" fill="currentColor" stroke="none"/>',
+  signed:'<path d="M2 12h20M5 9v6M12 9v6M19 9v6M3 20h5M17 4h5M19.5 2v4"/><circle cx="12" cy="12" r="2" fill="currentColor" stroke="none"/>',
+  equation:'<path d="M3 6l7 12M10 6L3 18M14 10h7M14 15h7"/><path d="M2 22h20" opacity=".35"/>',
+  coordinates:'<path d="M3 19h18M6 22V2M3 5l3-3 3 3M18 16l3 3-3 3"/><circle cx="12" cy="12" r="2" fill="currentColor" stroke="none"/><circle cx="18" cy="6" r="1.7" fill="currentColor" stroke="none"/>',
+  compass:'<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/><path d="M12 12L8 4M12 12l7 4M12 4v3M4 12h3"/>',
+  rational:'<path d="M2 16h20M5 13v6M12 13v6M19 13v6"/><path d="M9 4h6M10 2h4M10 9h4"/><circle cx="12" cy="16" r="2" fill="currentColor" stroke="none"/>',
+  curve:'<path d="M3 21V3M3 21h18M6 17c4 0 4-11 8-11s3 8 7 6"/><path d="M17 8l2 4 2-3"/>',
+  power:'<rect x="3" y="11" width="10" height="10" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><path d="M6 15l4 3M10 15l-4 3"/>',
+  polynomial:'<rect x="3" y="12" width="6" height="9" rx="1"/><rect x="10" y="7" width="5" height="14" rx="1"/><rect x="16" y="3" width="5" height="18" rx="1"/><path d="M4 5h5M6.5 2.5v5"/>',
+  identity:'<rect x="3" y="3" width="18" height="18" rx="1.5"/><path d="M11 3v18M3 11h18"/><path d="M3 3h8v8H3z" fill="currentColor" opacity=".12"/>',
+  system:'<path d="M7 3c-3 0-3 3-3 5v1c0 2-2 2-2 3s2 1 2 3v1c0 2 0 5 3 5M11 8h10M11 12h10M11 16h10"/>',
+  angle:'<path d="M3 19h18M3 19L15 5"/><path d="M10 19a7 7 0 0 0-2-5.2"/><circle cx="3" cy="19" r="1.3" fill="currentColor" stroke="none"/>',
+  triangle:'<path d="M12 3L2.5 21h19zM12 3l0 18M2.5 21l14.2-9"/><circle cx="12" cy="15" r="1.4" fill="currentColor" stroke="none"/>',
+  parallel:'<path d="M2 7h20M2 17h20M7 22L17 2"/><path d="M8 5l2 2-2 2M16 15l-2 2 2 2"/>',
+  circleRadius:'<circle cx="12" cy="12" r="8"/><path d="M12 12l6-5"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="18" cy="7" r="1" fill="currentColor" stroke="none"/>',
+  bar:'<path d="M3 21h18M3 3v18"/><rect x="6" y="13" width="3" height="8" rx=".5"/><rect x="11" y="7" width="3" height="14" rx=".5"/><rect x="16" y="10" width="3" height="11" rx=".5"/>',
+  statistics:'<path d="M3 12h18M6 8v8M18 8v8"/><rect x="8" y="7" width="8" height="10" rx="1"/><path d="M12 7v10M4 21h16"/>',
+  dice:'<rect x="4" y="4" width="16" height="16" rx="3"/><circle cx="8" cy="8" r="1.2" fill="currentColor" stroke="none"/><circle cx="16" cy="8" r="1.2" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none"/><circle cx="8" cy="16" r="1.2" fill="currentColor" stroke="none"/><circle cx="16" cy="16" r="1.2" fill="currentColor" stroke="none"/>',
+  network:'<path d="M6 6l12 2M6 6l4 12M18 8l-8 10M10 18l10 2"/><circle cx="6" cy="6" r="2.3" fill="white"/><circle cx="18" cy="8" r="2.3" fill="white"/><circle cx="10" cy="18" r="2.3" fill="white"/><circle cx="20" cy="20" r="2" fill="white"/>',
+  radical:'<path d="M2 13l4 5 5-13h11M13 12h8M16 16h5"/>',
+  parabola:'<path d="M3 3v18h18M6 5c3 18 9 18 15 0"/><circle cx="13.5" cy="18.5" r="1.4" fill="currentColor" stroke="none"/>',
+  fractionFormula:'<path d="M3 12h18M5 7h6M7 4v6M14 7h5M5 17h5M14 17h7M17.5 14v6"/>',
+  quadratic:'<path d="M3 2v19M3 15h19M5 4C9 24 17 24 21 4"/><circle cx="8.5" cy="15" r="1.5" fill="currentColor" stroke="none"/><circle cx="17.5" cy="15" r="1.5" fill="currentColor" stroke="none"/>',
+  inequality:'<path d="M17 5L6 11l11 6M6 20h11M4 3h16" />',
+  functionArrow:'<circle cx="5" cy="7" r="2"/><circle cx="5" cy="17" r="2"/><circle cx="19" cy="7" r="2"/><circle cx="19" cy="17" r="2"/><path d="M8 7h8l-2-2M16 7l-2 2M8 17h8l-2-2M16 17l-2 2"/>',
+  review:'<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 8h10M7 12h6M8 17l2.5 2.5L16 14"/>',
+  quadrilateral:'<path d="M6 5h11l4 14H3zM6 5l15 14M17 5L3 19"/>',
+  similar:'<path d="M3 20l7-14 7 14zM14 12l3-6 4 8h-7z"/><path d="M6 18h5M16 12h2"/>',
+  area:'<rect x="3" y="3" width="18" height="18" rx="1.5"/><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/><path d="M3 3h6v6H3zM9 9h6v6H9z" fill="currentColor" opacity=".15"/>',
+  pythagoras:'<path d="M8 5v14h12zM8 15h4v4M3 15h5V8H3zM13 19v3h7v-3"/>',
+  inscribedCircle:'<circle cx="10" cy="12" r="7"/><path d="M17 3v18M10 12h7"/><circle cx="10" cy="12" r="1.3" fill="currentColor" stroke="none"/><circle cx="17" cy="12" r="1.3" fill="currentColor" stroke="none"/>',
+  geometryReview:'<path d="M3 20l7-15 8 15H3zM8 18h4M15 7l3 3 4-5"/>',
+  dataReview:'<path d="M3 21h18M5 17v4M9 12v9M13 8v13M17 14v7M15 5l2 2 4-4"/>',
+  scatter:'<path d="M3 3v18h18"/><circle cx="7" cy="16" r="1.4" fill="currentColor" stroke="none"/><circle cx="10" cy="11" r="1.4" fill="currentColor" stroke="none"/><circle cx="15" cy="13" r="1.4" fill="currentColor" stroke="none"/><circle cx="18" cy="6" r="1.4" fill="currentColor" stroke="none"/>',
+  venn:'<circle cx="9" cy="12" r="7"/><circle cx="15" cy="12" r="7"/><path d="M12 6a7 7 0 0 1 0 12"/>',
+  chance:'<circle cx="12" cy="12" r="9"/><path d="M12 12V3M12 12l8 4M12 12l-5 7"/>',
+  tree:'<circle cx="12" cy="4" r="2"/><circle cx="5" cy="12" r="2"/><circle cx="19" cy="12" r="2"/><circle cx="3" cy="21" r="1.6"/><circle cx="8" cy="21" r="1.6"/><circle cx="16" cy="21" r="1.6"/><circle cx="21" cy="21" r="1.6"/><path d="M10.5 5.5L6 10M13.5 5.5l4.5 4.5M5 14l-2 5M5 14l3 5M19 14l-3 5M19 14l2 5"/>',
+  union:'<circle cx="9" cy="12" r="7"/><circle cx="15" cy="12" r="7"/><path d="M9 12h6M12 9v6"/>',
+  statsReview:'<path d="M3 21h18M6 14v7M11 9v12M16 13v8M15 5l2.5 2.5L22 3"/>',
+  algebraCourse:'<path d="M3 7l8 10M11 7L3 17M14 7h7M14 13h7M14 18h7"/>',
+  geometryCourse:'<path d="M2.5 20L10 4l8 16H2.5z"/><circle cx="18" cy="8" r="4"/>',
+  statsCourse:'<path d="M3 21h18M5 15v6M10 10v11M15 13v8M20 6v15"/><path d="M5 7l5-3 5 4 5-5"/>'
+ });
+ const groupIcons=Object.freeze({
+  1:{numbers_values:'numbers',arithmetic:'arithmetic',word_problems:'story',geometry:'geometry',information:'table'},
+  2:{numbers_values:'numbers',arithmetic:'arithmetic',word_problems:'story',geometry:'geometry',information:'table'},
+  3:{numbers_values:'numbers',arithmetic:'arithmetic',word_parts:'partition',geometry:'geometry',information:'table'},
+  6:{divisibility:'factorTree',fractions:'fraction',ratios:'ratio',signed:'signed',expressions:'equation',coordinates:'coordinates',geometry:'compass'},
+  7:{alg_numbers:'rational',alg_expressions_equations:'equation',alg_functions:'curve',alg_powers_monomials:'power',alg_polynomials:'polynomial',alg_formulas:'identity',alg_systems:'system',geo_basics:'angle',geo_triangles:'triangle',geo_parallels:'parallel',geo_circle_loci:'circleRadius',stat_data:'bar',stat_characteristics:'statistics',probability:'dice',graphs:'network'},
+  8:{square_roots_real:'radical',integer_exponents:'power',quadratic_trinomial:'parabola',algebraic_fractions:'fractionFormula',quadratic_equations:'quadratic',systems:'system',inequalities:'inequality',function_basics:'functionArrow',numerical_functions:'curve',algebra_review:'review',quadrilaterals:'quadrilateral',similarity:'similar',areas:'area',pythagoras_trig:'pythagoras',circle:'inscribedCircle',geometry_review:'geometryReview',probstat_review:'dataReview',dispersion:'scatter',sets:'venn',event_probability:'chance',trees:'tree',random_events:'union',probstat_review8:'statsReview'}
+ });
+ const courseIcons=Object.freeze({algebra:'algebraCourse',geometry:'geometryCourse',probability_statistics:'statsCourse'});
+ const gradeGroups=Object.freeze({1:G1_GROUPS,2:G2_GROUPS,3:G3_GROUPS,6:G6_GROUPS,7:G7_GROUPS,8:G8_GROUPS});
+ const topicsByGrade={};
+ for(const [grade,groups] of Object.entries(gradeGroups)){
+  topicsByGrade[grade]=new Map();
+  for(const group of groups)for(const topic of group.topics)topicsByGrade[grade].set(topic.id,group);
+ }
+ function mountSprite(){
+  if(document.getElementById('mk874-sprite'))return;
+  const symbols=Object.entries(glyphs).map(function(entry){
+   return '<symbol id="mk874-svg-'+entry[0]+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+entry[1]+'</symbol>';
+  }).join('');
+  document.body.insertAdjacentHTML('beforeend','<svg id="mk874-sprite" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><defs>'+symbols+'</defs></svg>');
+ }
+ function theme(grade,entry,course){
+  const id=String(entry.id||'');
+  const discipline=course?id:(entry.course||'');
+  if(discipline==='geometry'||id==='geometry'||id.startsWith('geo_')||['quadrilaterals','similarity','areas','pythagoras_trig','circle','geometry_review'].includes(id))return 'teal';
+  if(discipline==='probability_statistics'||['information','coordinates','stat_data','stat_characteristics','probability','graphs','probstat_review','dispersion','sets','event_probability','trees','random_events','probstat_review8'].includes(id))return 'violet';
+  if(['fractions','ratios','word_parts','alg_powers_monomials','alg_formulas','integer_exponents','square_roots_real','algebraic_fractions'].includes(id))return 'amber';
+  return 'blue';
+ }
+ function svg(name){return '<svg class="mk874-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#mk874-svg-'+name+'"></use></svg>'}
+ function iconFor(grade,entry,course){
+  const name=course?courseIcons[entry.id]:groupIcons[grade]&&groupIcons[grade][entry.id];
+  if(!name||!glyphs[name])return '';
+  return '<span class="mk874-pictogram mk874-theme-'+theme(grade,entry,course)+(course?' mk874-course-icon':'')+'" aria-hidden="true">'+svg(name)+'</span>';
+ }
+ function rewriteHeader(html,entry,grade,course){
+  const symbol=iconFor(grade,entry,course);
+  if(!symbol)return html;
+  return html.replace(/<div class="grade-head"><div><h2>[\s\S]*?<\/h2>/,
+   '<div class="grade-head"><div><h2 class="mk874-section-heading">'+symbol+'<span class="mk874-section-label">'+esc(entry.title)+'</span></h2>');
+ }
+ function rewriteCard(html,grade,topic){
+  const group=topicsByGrade[grade]&&topicsByGrade[grade].get(topic.id);
+  if(!group)return html;
+  const name=groupIcons[grade]&&groupIcons[grade][group.id];
+  if(!name||!glyphs[name])return html;
+  return html.replace(/<span class="ico">[\s\S]*?<\/span>/,
+   '<span class="ico mk874-topic-icon mk874-theme-'+theme(grade,group,false)+'" aria-hidden="true">'+svg(name)+'</span>');
+ }
+ const prevElementaryGroup=renderElementaryGroup;
+ renderElementaryGroup=function(group,grade){return rewriteHeader(prevElementaryGroup.apply(this,arguments),group,grade,false)};
+ const prevElementaryCard=elementaryTopicCard;
+ elementaryTopicCard=function(topic,grade){return rewriteCard(prevElementaryCard.apply(this,arguments),grade,topic)};
+ const previousGroups={3:renderG3Group,6:renderG6Group,7:renderG7Group,8:renderG8Group};
+ renderG3Group=function(group){return rewriteHeader(previousGroups[3].apply(this,arguments),group,3,false)};
+ renderG6Group=function(group){return rewriteHeader(previousGroups[6].apply(this,arguments),group,6,false)};
+ renderG7Group=function(group){return rewriteHeader(previousGroups[7].apply(this,arguments),group,7,false)};
+ renderG8Group=function(group){return rewriteHeader(previousGroups[8].apply(this,arguments),group,8,false)};
+ const prevG7Course=renderG7Course,prevG8Course=renderG8Course;
+ renderG7Course=function(course){return rewriteHeader(prevG7Course.apply(this,arguments),course,7,true)};
+ renderG8Course=function(course){return rewriteHeader(prevG8Course.apply(this,arguments),course,8,true)};
+ const prevG3Card=g3TopicCard,prevG6Card=g6TopicCard,prevG7Card=g7TopicCard,prevG8Card=g8TopicCard;
+ g3TopicCard=function(topic){return rewriteCard(prevG3Card.apply(this,arguments),3,topic)};
+ g6TopicCard=function(topic){return rewriteCard(prevG6Card.apply(this,arguments),6,topic)};
+ g7TopicCard=function(topic){return rewriteCard(prevG7Card.apply(this,arguments),7,topic)};
+ g8TopicCard=function(topic){return rewriteCard(prevG8Card.apply(this,arguments),8,topic)};
+ mountSprite();
+})();
+</script>
+<style id="mk875-topic-icons-style">
+/* Unique pictogram for each mathematical topic, laid out like the original card. */
+#mainView .topic .ico.mk875-topic-icon{
+ display:inline-flex;align-items:center;justify-content:center;
+ width:47px;height:47px;line-height:1;vertical-align:middle;flex:none;
+ margin:0;padding:0;border:0;background:transparent;border-radius:12px;
+ overflow:visible
+}
+#mainView .topic .ico.mk875-topic-icon .mk875-topic-svg{
+ width:100%;height:100%;display:block;overflow:visible;
+}
+@media(max-width:800px){
+ #mainView .topic .ico.mk875-topic-icon{width:44px;height:44px}
+}
+@media(max-width:520px){
+ #mainView .topic .ico.mk875-topic-icon{width:42px;height:42px}
+}
+</style>
+<script id="mk875-unique-topic-icons">
+/* МатКвест: individual semantic pictograms for every lesson card (grades 1,2,3,6,7,8).
+   Only the visual HTML generated for topic cards is changed. Stable topic IDs are never rewritten. */
+(function(){
+ 'use strict';
+ const rows=[
+  // 1 класс
+  'g1:numbers_1_9|numbers|1–9',
+  'g1:numbers_0_10|signed|0–10',
+  'g1:numbers_11_20|table|11–20',
+  'g1:length_measurement|ruler|см',
+  'g1:add_sub_10|arithmetic|±10',
+  'g1:add_sub_20|equation|±20',
+  'g1:word_problems|story|?',
+  'g1:spatial_relations|coordinates|↔',
+  'g1:geometric_figures|geometry|△○',
+  'g1:object_properties|partition|≡',
+  'g1:tables|table|▦',
+  // 2 класс
+  'g2:numbers_100|numbers|100',
+  'g2:quantities|mass|кг·м',
+  'g2:add_sub_100|arithmetic|±100',
+  'g2:multiply_divide|fractionFormula|×÷',
+  'g2:operations_100|equation|()',
+  'g2:word_problems|story|?→',
+  'g2:geometric_figures|geometry|◇△',
+  'g2:geometric_quantities|area|P',
+  'g2:math_information|table|✓',
+  // 3 класс: числа, вычисления, текстовые задачи, геометрия, статистика
+  'g3:numbers_1000|numbers|1000',
+  'g3:place_value|table|С-Д-Е',
+  'g3:compare_order|inequality|< >',
+  'g3:increase_decrease_times|ratio|×n',
+  'g3:multiplicative_compare|fractionFormula|во×',
+  'g3:mass|mass|г/кг',
+  'g3:money|money|₽',
+  'g3:time|clock|ч:м',
+  'g3:length_units|ruler|мм',
+  'g3:area_units|area|см²',
+  'g3:multiplication_table|table|×',
+  'g3:division_table|fractionFormula|÷',
+  'g3:offtable_multiply|arithmetic|×□',
+  'g3:offtable_divide|fraction|÷□',
+  'g3:round_numbers|numbers|10²',
+  'g3:zero_one|rational|0·1',
+  'g3:written_add|equation|+',
+  'g3:written_subtract|inequality|−',
+  'g3:written_multiply|power|×',
+  'g3:written_divide|ratio|:',
+  'g3:division_remainder|partition|ост.',
+  'g3:properties|identity|a+b',
+  'g3:unknown_component|equation|?=',
+  'g3:order_operations|story|1→2',
+  'g3:quantity_operations|ratio|ед.',
+  'g3:task_model|story|план',
+  'g3:operation_word_problems|arithmetic|4 д.',
+  'g3:difference_compare_tasks|inequality|на',
+  'g3:multiplicative_compare_tasks|ratio|в×',
+  'g3:increase_decrease_tasks|curve|↑↓',
+  'g3:price_quantity_cost|table|₽×n',
+  'g3:time_tasks|clock|Δt',
+  'g3:remainder_tasks|partition|r',
+  'g3:two_step_tasks|functionArrow|2→',
+  'g3:parts_intro|fraction|½',
+  'g3:parts_compare|ratio|⅓>¼',
+  'g3:part_of_quantity|partition|1/n',
+  'g3:geometry_figures|geometry|●—',
+  'g3:geometry_construction|quadrilateral|□',
+  'g3:broken_line_length|parallel|L',
+  'g3:perimeter|quadrilateral|P',
+  'g3:area_measure|table|S?',
+  'g3:rectangle_square_area|area|S=',
+  'g3:classification_patterns|venn|∈',
+  'g3:true_false_logic|review|Д/Н',
+  'g3:tables|table|стр.',
+  'g3:bar_charts|bar|▥',
+  'g3:algorithms_logic|tree|шаг',
+  // 6 класс: делимость
+  'g6:divisors_multiples|factorTree|a⋮b',
+  'g6:divisibility_2_5_10|numbers|2·5·10',
+  'g6:divisibility_3_9|ratio|3·9',
+  'g6:prime_composite|network|P/C',
+  'g6:prime_factorization|factorTree|p₁·p₂',
+  'g6:gcd|venn|НОД',
+  'g6:lcm|bar|НОК',
+  'g6:coprime|union|1',
+  // 6 класс: дроби
+  'g6:fraction_properties|fraction|a/b',
+  'g6:fraction_reduction|fractionFormula|÷k',
+  'g6:fraction_common_denominator|identity|НОЗ',
+  'g6:fraction_compare|inequality|⅔>½',
+  'g6:fraction_add_subtract|arithmetic|½±¼',
+  'g6:mixed_add_subtract|partition|1½±',
+  'g6:fraction_multiply|ratio|⅔×',
+  'g6:fraction_divide|fractionFormula|⅔÷',
+  'g6:mixed_multiply_divide|power|1½×',
+  'g6:fraction_expressions|equation|a/b',
+  // 6 класс: отношения и проценты
+  'g6:ratio|ratio|a:b',
+  'g6:ratio_value|fractionFormula|a/b',
+  'g6:proportion|equation|a:b=',
+  'g6:proportion_unknown|system|x',
+  'g6:direct_proportion|curve|↗',
+  'g6:inverse_proportion|hyperbola|↘',
+  'g6:divide_in_ratio|partition|2:3',
+  'g6:scale|coordinates|1:n',
+  'g6:percent_of_number|chance|p%',
+  'g6:number_by_percent|equation|100%',
+  'g6:percent_ratio|ratio|?%',
+  'g6:percent_word_problems|story|%?',
+  // 6 класс: рациональные числа
+  'g6:positive_negative|signed|±',
+  'g6:number_line|rational|−·+',
+  'g6:opposite_numbers|parallel|−a',
+  'g6:absolute_value|quadrilateral||a|',
+  'g6:rational_compare|inequality|−2<1',
+  'g6:negative_add|arithmetic|−+−',
+  'g6:negative_subtract|equation|−−',
+  'g6:negative_multiply|power|−×−',
+  'g6:negative_divide|fractionFormula|−÷−',
+  'g6:rational_expressions|system|±×÷',
+  // 6 класс: уравнения
+  'g6:brackets|identity|(a+b)',
+  'g6:like_terms|polynomial|ax+bx',
+  'g6:expression_simplify|review|→x',
+  'g6:expression_value|equation|x=',
+  'g6:linear_equations|curve|ax=b',
+  'g6:equation_word_problems|story|x?',
+  // 6 класс: координаты, данные, геометрия
+  'g6:coordinate_plane|coordinates|Oxy',
+  'g6:point_coordinates|network|(x;y)',
+  'g6:plot_point|scatter|●(x;y)',
+  'g6:tables_charts|bar|▦▥',
+  'g6:arithmetic_mean|statistics|x̄',
+  'g6:parallel_perpendicular|parallel|∥⊥',
+  'g6:symmetry|similar|↔',
+  'g6:circle|circleRadius|○',
+  'g6:circumference|circumference|2πr',
+  'g6:circle_area|chance|πr²',
+  'g6:prism|cuboid|V□',
+  'g6:volume|volumeCube|abc',
+  // 7 класс: числа и алгебра
+  'g7:rational_numbers_forms|rational|ℚ',
+  'g7:rational_compare_order|inequality|ℚ≤',
+  'g7:rational_arithmetic|arithmetic|ℚ±',
+  'g7:fraction_word_problems|partition|a/b',
+  'g7:natural_power_definition|power|aⁿ',
+  'g7:percent_fraction_conversion|chance|%↔',
+  'g7:percent_word_problems|chance|%?',
+  'g7:divisibility_factorization|factorTree|p·q',
+  'g7:direct_inverse_proportion|ratio|k/x',
+  'g7:variables_expression_value|equation|x→?',
+  'g7:admissible_values|venn|D(x)',
+  'g7:formulas_dependencies|functionArrow|F(x)',
+  'g7:expression_properties|identity|a(b)',
+  'g7:brackets_like_terms|polynomial|(a+b)',
+  'g7:identities|review|≡',
+  'g7:equation_root_equivalence|equation|=x',
+  'g7:linear_equation_one_variable|curve|ax+b',
+  'g7:linear_equation_cases|scatter|0/1/∞',
+  'g7:equation_word_problems|story|?=x',
+  // 7 класс: функции, степени, многочлены
+  'g7:number_intervals|signed|[a;b]',
+  'g7:number_line_distance|rational||AB|',
+  'g7:coordinate_plane|coordinates|xOy',
+  'g7:function_concept_values|functionArrow|f(x)',
+  'g7:function_graph_reading|curve|↗y',
+  'g7:direct_proportionality_function|ratio|y=kx',
+  'g7:linear_function|parallel|kx+b',
+  'g7:absolute_value_function|absoluteV||x|',
+  'g7:graphical_equations_systems|system|∩2',
+  'g7:power_properties|power|aᵐ⁺ⁿ',
+  'g7:power_product_power|identity|(ab)ⁿ',
+  'g7:monomial_standard_form|polynomial|axⁿ',
+  'g7:monomial_operations|arithmetic|ab·cd',
+  'g7:functions_x2_x3|parabola|x²→³',
+  'g7:polynomial_standard_degree|polynomial|P(x)',
+  'g7:polynomial_add_subtract|arithmetic|P±Q',
+  'g7:monomial_times_polynomial|ratio|a·P',
+  'g7:common_factor|identity|a(b+c)',
+  'g7:polynomial_times_polynomial|area|P·Q',
+  'g7:factorization_grouping|partition|(ab)',
+  'g7:square_sum_difference|identity|(a±b)²',
+  'g7:difference_of_squares|area|a²−b²',
+  'g7:sum_difference_cubes|quadrilateral|a³±b³',
+  'g7:integer_expression_transform|functionArrow|↔',
+  'g7:combined_factorization|factorTree|→×',
+  // 7 класс: системы
+  'g7:linear_equation_two_variables|equation|ax+by',
+  'g7:linear_equation_two_variables_graph|curve|ax+by',
+  'g7:linear_system_concept|system|2 ур.',
+  'g7:linear_system_substitution|functionArrow|x→y',
+  'g7:linear_system_addition|arithmetic|+2',
+  'g7:linear_system_word_problems|story|{x;y}',
+  // 7 класс: начальные геометрические сведения
+  'g7:geo_primitives|geometry|●—→',
+  'g7:geo_segment_angle_measurement|angle|∠/см',
+  'g7:geo_adjacent_vertical_angles|parallel|∠∠',
+  'g7:geo_angle_bisector|angle|½∠',
+  'g7:geo_broken_line_polygon|quadrilateral|L',
+  'g7:geo_parallel_perpendicular_intro|angle|∥⊥',
+  'g7:geo_axial_symmetry|similar|ось',
+  'g7:geo_basic_constructions|compass|ц+л',
+  // 7 класс: треугольники
+  'g7:geo_triangle_elements|triangle|ABC',
+  'g7:geo_triangle_medians_bisectors_altitudes|triangleMedian|m/b/h',
+  'g7:geo_isosceles_equilateral|isosceles|△=',
+  'g7:geo_isosceles_properties_criteria|isoscelesTicks|AB=AC',
+  'g7:geo_congruence_sas|triangleSAS|СУС',
+  'g7:geo_congruence_asa|triangleASA|УСУ',
+  'g7:geo_congruence_sss|triangleSSS|ССС',
+  'g7:geo_triangle_inequality|inequality|a+b>c',
+  'g7:geo_side_angle_relation|angle|a↔∠',
+  'g7:geo_right_triangle_properties|rightTriangle|90°',
+  'g7:geo_right_triangle_congruence|rightTriangles|△90°',
+  'g7:geo_right_triangle_30deg|triangle30|30°',
+  // 7 класс: параллельные и углы
+  'g7:geo_transversal_angles|parallel|∠↔',
+  'g7:geo_parallel_criteria|geometryReview|∥?',
+  'g7:geo_parallel_properties|parallel|∥✓',
+  'g7:geo_triangle_angle_sum|triangleAngles|180°',
+  'g7:geo_exterior_triangle_angle|exteriorAngle|внеш.',
+  'g7:geo_polygon_angle_sum_intro|quadrilateral|Σ∠',
+  // 7 класс: окружность и геометрические места точек
+  'g7:geo_perpendicular_oblique_distances|angle|⊥/↗',
+  'g7:geo_locus_points|scatter|ГМТ',
+  'g7:geo_perpendicular_bisector_locus|parallel|⊥½',
+  'g7:geo_angle_bisector_locus|angle|бисс.',
+  'g7:geo_circle_chord_diameter|circleRadius|r/d',
+  'g7:geo_line_circle_tangent_secant|inscribedCircle|к/с',
+  'g7:geo_circle_inscribed_in_angle|compass|○∠',
+  'g7:geo_incircle_triangle|incircle|○в',
+  'g7:geo_circumcircle_triangle|circumcircle|○о',
+  'g7:geo_constructions_lines_angles|compass|∠+л',
+  'g7:geo_constructions_triangles|geometry|△ц',
+  // 7 класс: статистика и вероятность
+  'g7:stat_tables|table|x:y',
+  'g7:stat_bar_pie_charts|bar|▥◔',
+  'g7:stat_real_process_graphs|curve|t→y',
+  'g7:stat_data_interpretation|review|данн.',
+  'g7:stat_arithmetic_mean|statistics|Σ/n',
+  'g7:stat_median|signed|Me',
+  'g7:stat_min_max_range|scatter|R',
+  'g7:stat_choose_characteristic|table|x̄/Me',
+  'g7:stat_random_variability|scatter|σ?',
+  'g7:stat_value_frequency|bar|fᵢ',
+  'g7:stat_grouping_histograms|polynomial|гист.',
+  'g7:prob_random_experiment_event|dice|случ.',
+  'g7:prob_probability_frequency|chance|P/f',
+  'g7:prob_unlikely_almost_certain|chance|0≈1',
+  'g7:prob_coin_die_models|dice|₽/⚄',
+  // 7 класс: графы
+  'g7:graph_basics|network|V,E',
+  'g7:graph_vertex_degree_edges|factorTree|deg',
+  'g7:graph_connectivity_paths|functionArrow|A→B',
+  'g7:graph_chains_cycles_euler|circleRadius|Эйл.',
+  'g7:graph_directed_modeling|tree|→G',
+  // 8 класс: корни, степени, многочлены, рациональные выражения
+  'g8:square_root_arithmetic|radical|√a',
+  'g8:irrational_numbers_approximations|rational|√2≈',
+  'g8:real_numbers_compare|inequality|ℝ',
+  'g8:equation_x2_equals_a|quadratic|x²=a',
+  'g8:square_root_properties|identity|√ab',
+  'g8:root_expression_transformations|functionArrow|√→',
+  'g8:root_calculations_applications|story|√?',
+  'g8:integer_exponent_definition|power|a⁻ⁿ',
+  'g8:integer_exponent_properties|identity|aᵐ·aⁿ',
+  'g8:scientific_notation|numbers|10ⁿ',
+  'g8:scientific_notation_operations|arithmetic|·10ⁿ',
+  'g8:quadratic_trinomial|parabola|ax²',
+  'g8:quadratic_trinomial_factorization|factorTree|(x−a)',
+  'g8:algebraic_fraction_domain|venn|ОДЗ',
+  'g8:algebraic_fraction_basic_property|fraction|×k',
+  'g8:algebraic_fraction_reduction|fractionFormula|P/Q',
+  'g8:algebraic_fraction_add_sub|arithmetic|P/Q±',
+  'g8:algebraic_fraction_mul_div|ratio|P/Q×',
+  'g8:rational_expression_transformations|functionArrow|↔P/Q',
+  // 8 класс: уравнения
+  'g8:quadratic_equation_types|quadratic|ax²+',
+  'g8:incomplete_quadratic_equations|parabola|bx=0',
+  'g8:quadratic_discriminant_formula|equation|D=b²',
+  'g8:quadratic_roots_cases|scatter|D±0',
+  'g8:vieta_theorem|identity|x₁+x₂',
+  'g8:equations_reducible_to_quadratic|functionArrow|t=x²',
+  'g8:fractional_rational_equations|fractionFormula|P/Q=0',
+  'g8:quadratic_word_problems|story|x²?',
+  // 8 класс: системы и неравенства
+  'g8:two_variable_equation_graph|curve|x+y',
+  'g8:linear_system_graphical|system|2×∩',
+  'g8:linear_system_substitution|functionArrow|подст.',
+  'g8:linear_system_elimination|arithmetic|−/+',
+  'g8:nonlinear_systems_intro|parabola|∩∪',
+  'g8:systems_word_problems|story|{x;y}?',
+  'g8:numerical_inequalities_properties|inequality|a<b',
+  'g8:equivalent_inequalities|identity|≤⇔',
+  'g8:linear_inequalities|signed|x>3',
+  'g8:linear_inequality_systems|system|{≤;≥}',
+  // 8 класс: функции
+  'g8:function_concept|functionArrow|f:x→y',
+  'g8:function_domain_range|venn|D/E',
+  'g8:function_representations|table|табл.',
+  'g8:function_graph_properties_real_processes|curve|y(t)',
+  'g8:direct_proportion_function|parallel|y=kx',
+  'g8:inverse_proportion_function|hyperbola|k/x',
+  'g8:square_cube_functions|parabola|x³',
+  'g8:square_root_function|radical|y=√x',
+  'g8:absolute_value_function|absoluteV|y=|x|',
+  'g8:graphical_equations_systems|system|∩',
+  'g8:algebra_grade8_review|review|8✓',
+  // 8 класс: четырёхугольники
+  'g8:quadrilateral_basics|quadrilateral|Σ360°',
+  'g8:parallelogram_properties|parallelogram|▱✓',
+  'g8:parallelogram_tests|parallelogram|▱?',
+  'g8:rectangle_properties_tests|quadrilateral|▭',
+  'g8:rhombus_properties_tests|rhombus|◇',
+  'g8:square_properties_tests|square|□',
+  'g8:trapezoid_types_properties|trapezoid|⏢',
+  'g8:median_doubling_method|triangle|2m',
+  'g8:central_symmetry|compass|O↔',
+  // 8 класс: подобие
+  'g8:thales_theorem|parallel|Фал.',
+  'g8:proportional_segments|parallel|a:b',
+  'g8:triangle_midline|triangleMedian|½a',
+  'g8:trapezoid_midline|trapezoid|½Σ',
+  'g8:triangle_centroid|triangleCentroid|2:1',
+  'g8:similar_triangles_coefficient|similar|k',
+  'g8:triangle_similarity_tests|geometryReview|△∼?',
+  'g8:similarity_applications|story|△∼',
+  // 8 класс: площади
+  'g8:area_properties|area|S',
+  'g8:triangle_area|triangle|½ah',
+  'g8:parallelogram_rhombus_area|parallelogram|a·h',
+  'g8:trapezoid_area|trapezoid|(a+b)h',
+  'g8:polygon_grid_area|table|▦S',
+  'g8:similar_figures_area_ratio|ratio|k²',
+  'g8:auxiliary_area_methods|partition|ΣS',
+  // 8 класс: Пифагор и тригонометрия
+  'g8:pythagorean_theorem|pythagoras|a²+b²',
+  'g8:pythagorean_applications|geometryReview|c?',
+  'g8:acute_angle_trig_ratios|angle|sin/ct',
+  'g8:trig_identity|identity|sin²+',
+  'g8:special_angles_trig|triangle|30/45',
+  // 8 класс: окружности
+  'g8:central_inscribed_angles|circleRadius|∠ц/в',
+  'g8:tangent_chord_angle|inscribedCircle|∠кх',
+  'g8:chords_secants_angles|parallel|хорд.',
+  'g8:cyclic_quadrilateral|quadrilateral|□в○',
+  'g8:tangential_quadrilateral|similar|□о○',
+  'g8:circle_relative_positions|venn|○○',
+  'g8:circle_tangency|inscribedCircle|○·○',
+  'g8:common_tangents_two_circles|parallel|○∥○',
+  'g8:geometry_grade8_review|geometryReview|8✓',
+  // 8 класс: данные и рассеивание
+  'g8:probstat_grade7_review_integration|statsReview|7→8',
+  'g8:data_dispersion|statistics|D',
+  'g8:standard_deviation|scatter|σ',
+  'g8:scatter_plot|scatter|●●●',
+  // 8 класс: множества
+  'g8:sets_elements_subsets|venn|A⊂B',
+  'g8:set_union_intersection|union|∪∩',
+  'g8:set_complement_properties|chance|¬A',
+  'g8:set_diagrams_applications|venn|Эйл.',
+  // 8 класс: вероятность
+  'g8:elementary_favorable_events|dice|m/n',
+  'g8:equiprobable_outcomes|chance|1/n',
+  'g8:event_probability_from_outcomes|ratio|P=m/n',
+  'g8:random_choice_probability|partition|P=?',
+  // 8 класс: деревья
+  'g8:tree_graph_basics|tree|V,E',
+  'g8:tree_unique_path_leaves|functionArrow|путь',
+  'g8:tree_vertices_edges_relation|factorTree|E=V−1',
+  'g8:tree_multiplication_rule|tree|n·m',
+  // 8 класс: операции с событиями
+  'g8:opposite_events|chance|P(Ā)',
+  'g8:event_union_intersection|union|A∪B',
+  'g8:disjoint_events_addition|venn|P(A)+',
+  'g8:conditional_probability|ratio|P(A|B)',
+  'g8:probability_multiplication_rule|tree|P·P',
+  'g8:independent_events|network|A⟂B',
+  'g8:random_experiment_tree|tree|исх.',
+  'g8:probstat_grade8_review|statsReview|8✓'
+ ];
+
+ /* Additional mathematical drawings that must not be reduced to a generic
+    square, clock emoji, or arbitrary graph. Each fits the same 24x24 grid. */
+ const extraGlyphs=Object.freeze({
+  cuboid:'<path d="M4 8l7-4 9 4v10l-7 4-9-4zM4 8l9 4 7-4M13 12v10"/>',
+  volumeCube:'<path d="M4 8l7-4 9 4v10l-7 4-9-4zM4 8l9 4 7-4M13 12v10"/><path d="M5.5 11.5l6 3M15 15l3-2" opacity=".65"/>',
+  hyperbola:'<path d="M3 2v19h19M6 4c.2 6 3 10 14 11"/><path d="M11 11l2 2 2-2" opacity=".55"/>',
+  absoluteV:'<path d="M3 2v19h19M6 6l7 13 7-13"/><circle cx="13" cy="19" r="1.2" fill="currentColor" stroke="none"/>',
+  circumference:'<circle cx="12" cy="12" r="8"/><path d="M4 12a8 8 0 0 1 13-6M17 3.5v3.5h-3.5" stroke-width="2.4"/><path d="M12 12l5 5"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/>',
+  ruler:'<rect x="3" y="7" width="18" height="10" rx="1.5"/><path d="M6 7v5M9 7v3M12 7v5M15 7v3M18 7v5"/>',
+  clock:'<circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 3M12 3v1M21 12h-1M12 21v-1M3 12h1"/>',
+  mass:'<path d="M12 4v16M4 8h16M6 8l-3 7h6zM18 8l-3 7h6zM8 20h8"/><circle cx="12" cy="4" r="1.5" fill="currentColor" stroke="none"/>',
+  money:'<circle cx="12" cy="12" r="9"/><path d="M9 17V7h4a3 3 0 0 1 0 6H9M7 14h7M7 17h5"/>',
+  parallelogram:'<path d="M8 5h13l-5 14H3zM8 5l8 14M21 5L3 19"/>',
+  rhombus:'<path d="M12 3l9 9-9 9-9-9zM12 3v18M3 12h18"/>',
+  square:'<rect x="4" y="4" width="16" height="16" rx=".6"/><path d="M4 4l16 16M20 4L4 20M9 4v2M15 18v2"/>',
+  trapezoid:'<path d="M8 5h8l6 14H2zM5 12h14M8 5l-6 14M16 5l6 14"/>',
+  incircle:'<path d="M12 3L2 21h20z"/><circle cx="12" cy="15" r="3.7"/>',
+  circumcircle:'<circle cx="12" cy="12" r="10"/><path d="M12 2L3.5 17h17z"/>',
+  triangleMedian:'<path d="M12 3L3 21h18zM12 3v18"/><path d="M10 20v2M14 20v2"/>',
+  isosceles:'<path d="M12 3L3 21h18zM12 3v18"/><path d="M6.6 13l2 1M15.4 14l2-1"/>',
+  isoscelesTicks:'<path d="M12 3L3 21h18zM6.8 12l2.4 1.2M14.8 13.2l2.4-1.2"/><path d="M10 21h4"/>',
+  triangleSAS:'<path d="M3 20L9 4l12 16zM8 8l2 1M17 19v2M6 17a4 4 0 0 1 3 3"/>',
+  triangleASA:'<path d="M3 20L12 3l9 17zM7 16a5 5 0 0 1 4 4M17 20a5 5 0 0 1 3-4M11 3l2 1"/>',
+  triangleSSS:'<path d="M12 3L3 21h18zM7 11l2 1M15 12l2-1M11 20v2"/>',
+  rightTriangle:'<path d="M5 4v16h15zM5 16h4v4"/>',
+  rightTriangles:'<path d="M2 3v10h10zM2 10h3v3M13 11v10h9zM13 18h3v3"/>',
+  triangle30:'<path d="M3 4v17h18zM3 17h4v4M16 21a5 5 0 0 1 2-3"/>',
+  triangleAngles:'<path d="M12 3L3 21h18zM9 8a4 4 0 0 0 6 0M6 17a4 4 0 0 1 3 4M15 21a4 4 0 0 1 3-4"/>',
+  exteriorAngle:'<path d="M3 20L12 4l8 16H3zM3 20h20M17 20a4 4 0 0 1 4-3"/>',
+  triangleCentroid:'<path d="M12 3L3 21h18zM12 3v18M3 21l13.5-9M21 21l-13.5-9"/><circle cx="12" cy="15" r="1.3" fill="currentColor" stroke="none"/>'
+ });
+ function installExtraGlyphs(){
+  if(typeof document==='undefined')return;
+  const sprite=document.getElementById('mk874-sprite');
+  const defs=sprite&&sprite.querySelector('defs');
+  if(!defs||document.getElementById('mk874-svg-cuboid'))return;
+  const symbols=Object.entries(extraGlyphs).map(function(entry){
+   return '<symbol id="mk874-svg-'+entry[0]+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+entry[1]+'</symbol>';
+  }).join('');
+  defs.insertAdjacentHTML('beforeend',symbols);
+ }
+ installExtraGlyphs();
+
+ const specs=new Map(rows.map(function(line){
+  const first=line.indexOf('|'),second=line.indexOf('|',first+1);
+  const id=line.slice(0,first),glyph=line.slice(first+1,second),mark=line.slice(second+1);
+  if(first<1||second<=first+1||!mark)throw Error('Invalid topic icon spec: '+line);
+  return [id,{glyph:glyph,mark:mark}];
+ }));
+
+ const palettes={
+  ocean:['#2368a6','#eaf4ff','#d0e4f6'],
+  mint:['#127e6e','#e6f8f1','#bfeadd'],
+  amber:['#a16919','#fff4e2','#f4dbb0'],
+  plum:['#6b50ae','#f2eeff','#dcd3f8'],
+  coral:['#aa5540','#fff0e9','#f1d0c2'],
+  cyan:['#167d91','#e9f8fb','#bde6ec'],
+  slate:['#52637b','#f1f4fa','#dce3ee']
+ };
+ const geometryGlyphs=new Set(['geometry','compass','angle','triangle','parallel','circleRadius','quadrilateral','similar','area','pythagoras','inscribedCircle','geometryReview','cuboid','volumeCube','circumference','ruler','parallelogram','rhombus','square','trapezoid','incircle','circumcircle','triangleMedian','isosceles','isoscelesTicks','triangleSAS','triangleASA','triangleSSS','rightTriangle','rightTriangles','triangle30','triangleAngles','exteriorAngle','triangleCentroid']);
+ const statsGlyphs=new Set(['table','bar','statistics','dice','network','scatter','venn','chance','tree','union','dataReview','statsReview']);
+ const fractionsGlyphs=new Set(['fraction','fractionFormula','ratio','partition','identity','radical']);
+ const operationGlyphs=new Set(['arithmetic','equation','inequality','system','functionArrow','hyperbola','absoluteV']);
+ function tone(spec,id){
+  if(geometryGlyphs.has(spec.glyph))return 'mint';
+  if(statsGlyphs.has(spec.glyph))return 'plum';
+  if(fractionsGlyphs.has(spec.glyph))return 'amber';
+  if(operationGlyphs.has(spec.glyph))return 'ocean';
+  if(spec.glyph==='money')return 'amber';
+  if(spec.glyph==='clock'||spec.glyph==='mass')return 'cyan';
+  if(/_word_problems|_tasks|_applications|_model/.test(id))return 'coral';
+  if(/graph|coordinate|function|curve/.test(id))return 'cyan';
+  return 'slate';
+ }
+ function htmlEscape(value){
+  return String(value).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+ }
+ function artwork(topic){
+  const spec=specs.get(topic.id);
+  if(!spec)return null;
+  const shade=palettes[tone(spec,topic.id)];
+  const label=htmlEscape(spec.mark);
+  const charCount=[...spec.mark].length;
+  const fontSize=charCount>6?7:charCount>4?8.2:charCount>3?9.6:11.4;
+  const graphic='<svg x="9" y="3" width="30" height="30" viewBox="0 0 24 24" style="color:'+shade[0]+'" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><use href="#mk874-svg-'+htmlEscape(spec.glyph)+'"></use></svg>';
+  const unique='mk875-'+htmlEscape(topic.id.replace(/[^A-Za-z0-9_-]/g,'-'));
+  return '<span class="ico mk875-topic-icon" style="--mk875-ink:'+shade[0]+';--mk875-bg:'+shade[1]+';--mk875-line:'+shade[2]+'" aria-hidden="true">'+
+   '<svg class="mk875-topic-svg" viewBox="0 0 48 48" focusable="false" aria-hidden="true" data-topic-icon="'+unique+'">'+
+   '<rect x="1" y="1" width="46" height="46" rx="12" fill="'+shade[1]+'" stroke="'+shade[2]+'"/>'+
+   graphic+
+   '<rect x="4" y="32" width="40" height="12" rx="5" fill="#ffffff" opacity=".92"/>'+
+   '<text x="24" y="41" text-anchor="middle" font-size="'+fontSize+'" font-family="Arial,DejaVu Sans,sans-serif" font-weight="700" fill="'+shade[0]+'">'+label+'</text>'+
+   '</svg></span>';
+ }
+ function patchCard(oldHtml,topic){
+  const icon=artwork(topic);
+  if(!icon)return oldHtml;
+  return oldHtml.replace(/<span class="ico mk874-topic-icon[\s\S]*?<\/span>/,icon);
+ }
+ const prevElementary=elementaryTopicCard;
+ elementaryTopicCard=function(topic,grade){return patchCard(prevElementary.apply(this,arguments),topic)};
+ const prev3=g3TopicCard,prev6=g6TopicCard,prev7=g7TopicCard,prev8=g8TopicCard;
+ g3TopicCard=function(topic){return patchCard(prev3.apply(this,arguments),topic)};
+ g6TopicCard=function(topic){return patchCard(prev6.apply(this,arguments),topic)};
+ g7TopicCard=function(topic){return patchCard(prev7.apply(this,arguments),topic)};
+ g8TopicCard=function(topic){return patchCard(prev8.apply(this,arguments),topic)};
+})();
+</script>
+
+<script id="mk876-grade5-quality">
+/* МатКвест 8.76: локальный hotfix качества 53 генераторов 5 класса.
+   Никаких изменений сохранённых вопросов, профилей, XP, монет и структуры стадий. */
+(()=>{
+'use strict';
+const MK5_ORIGINAL_MAKE=makeG5Question;
+const MK5_ORIGINAL_FRESH=freshQuiz;
+const mk5Gcd=(a,b)=>{a=Math.abs(a);b=Math.abs(b);while(b){[a,b]=[b,a%b]}return a||1};
+const mk5Lcm=(a,b)=>a/mk5Gcd(a,b)*b;
+const mk5Pick=x=>x[ri(0,x.length-1)];
+const mk5Number=(x,d=7)=>Number(Number(x).toFixed(d));
+const mk5Comma=x=>String(x).replace('.',',');
+const mk5Frac=(n,d)=>frac(n,d);
+function mk5Num(text,ans,why,variant,extras=[]){
+ ans=mk5Number(ans);const choices=g5nums(ans,extras.map(x=>mk5Number(x)));
+ const q=g5q(text,choices,String(ans),why,variant);
+ q.mk5Audit={type:'numeric',expected:ans};return q;
+}
+function mk5Rational(text,n,d,why,variant,errors=[]){
+ const [a,b]=g5NewRat(n,d),q=g5q(text,g5NewChoiceSet(n,d,errors),`${a}/${b}`,why,variant);
+ q.mk5Audit={type:'rational',numerator:n,denominator:d,expected:`${a}/${b}`};return q;
+}
+function mk5Sign(text,leftN,leftD,rightN,rightD,why,variant){
+ const a=leftN*rightD,b=rightN*leftD,correct=a===b?'=':a>b?'>':'<';
+ const q=g5q(text,[{label:'<',key:'<'},{label:'>',key:'>'},{label:'=',key:'='}],correct,why,variant);
+ q.mk5Audit={type:'relation',left:[leftN,leftD],right:[rightN,rightD],expected:correct};return q;
+}
+function mk5Choose(text,correct,other,why,variant){
+ const choices=[{label:String(correct),key:'ok'},...other.map((label,i)=>({label:String(label),key:`w${i}`}))];
+ const q=g5q(text,choices,'ok',why,variant);q.mk5Audit={type:'choice',expected:String(correct)};return q;
+}
+function mk5Bounds(tier,low,high,inc=1){return ri(low,high+Math.max(0,tier)*inc)}
+const mk5FracDen=(tier)=>mk5Pick(tier===0?[3,4,5,6,8]:tier===1?[5,6,7,8,9,10,12]:[7,8,9,10,11,12,15,16]);
+function mk5DistinctDigits(n){return [...new Set(String(Math.abs(n)).split('').map(Number))]}
+function mk5FractionWord(n,d){
+ const numer=['','одна','две','три','четыре','пять','шесть','семь','восемь','девять'];
+ const single={2:'вторая',3:'третья',4:'четвёртая',5:'пятая',6:'шестая',7:'седьмая',8:'восьмая',9:'девятая',10:'десятая'};
+ const multi={2:'вторых',3:'третьих',4:'четвёртых',5:'пятых',6:'шестых',7:'седьмых',8:'восьмых',9:'девятых',10:'десятых'};
+ return numer[n]+' '+(n===1?single[d]:multi[d]);
+}
+function mk5Mixed(w,n,d){return mixed(w,n,d)}
+function mk5FromMixed(w,n,d){return w*d+n}
+function mk5ScoreVariant(id,level,mode){
+ if(G5_CORE.some(t=>t.id===id))return mk5Core(id,level,mode);
+ if(G5_FRACTIONS.some(t=>t.id===id))return mk5Fractions(id,level,mode);
+ if(G5_DECIMALS.some(t=>t.id===id))return mk5Decimals(id,level,mode);
+ return null;
+}
+
+function mk5Core(id,tier,mode){
+ let a,b,c,n,ans,why;
+ switch(id){
+ case 'natural':{
+  if(mode===0){a=ri(100,10000*(tier+1)),b=a+ri(1,100*(tier+1));if(Math.random()<.5)[a,b]=[b,a];ans=Math.max(a,b);return mk5Num(`Какое из чисел больше: ${a} или ${b}?`,ans,`Сравниваем числа по разрядам, начиная с самого старшего: больше ${ans}.`,'natural_compare',[Math.min(a,b),ans+1])}
+  if(mode===1){n=ri(1000,99999*(tier+1));const step=mk5Pick([10,100,1000,10000]);ans=Math.floor(n/step)%10;return mk5Num(`Какая цифра стоит в разряде ${ {10:'десятков',100:'сотен',1000:'тысяч',10000:'десятков тысяч'}[step]} числа ${n}?`,ans,`Делим ${n} на ${step}, берём цифру единиц частного: ${ans}.`,'natural_digit')}
+  if(tier===2){const vals=[ri(10000,90000),ri(10000,90000),ri(10000,90000)];ans=Math.max(...vals);return mk5Num(`Найди наибольшее из трёх чисел: ${vals.join(', ')}.`,ans,`Поразрядное сравнение даёт наибольшее число ${ans}.`,'natural_max_three',vals.filter(v=>v!==ans))}
+  n=ri(10000,999999);const step=mk5Pick([10,100,1000]);ans=Math.floor((n+step/2)/step)*step;return mk5Num(`Округли ${n} до ${ {10:'десятков',100:'сотен',1000:'тысяч'}[step]}.`,ans,`При округлении проверяем следующий разряд справа: ответ ${ans}.`,'natural_round',[Math.floor(n/step)*step,Math.ceil(n/step)*step,n]);
+ }
+ case 'coordinate':{
+  a=ri(0,15+tier*12);b=ri(2,10+tier*7);
+  if(mode===0){c=a+b;return mk5Num(`Точки A(${a}) и B(${c}) на координатном луче. Найди AB.`,b,`Расстояние AB = ${c} − ${a} = ${b}.`,'coord_distance',[a,c,a+b+1])}
+  if(mode===1){c=ri(1,8+tier*4);ans=a+b+c;return mk5Num(`Из точки с координатой ${a} сдвинулись на ${b} вправо, затем ещё на ${c} вправо. Какая координата получилась?`,ans,`${a} + ${b} + ${c} = ${ans}.`,'coord_twosteps',[a+b,b+c,ans-c])}
+  const left=a,right=a+2*b;return mk5Num(`На луче координаты A(${left}) и C(${right}). B — середина отрезка AC. Какова координата B?`,left+b,`Между ${left} и ${right} — ${2*b} единиц, половина ${b}, значит B(${left+b}).`,'coord_midpoint',[b,right,left]);
+ }
+ case 'operations':{
+  a=ri(100,700+500*tier);b=ri(10,250+350*tier);
+  if(mode===0){ans=a+b;return mk5Num(`${a} + ${b} = ?`,ans,`Складываем по разрядам: ${a}+${b}=${ans}.`,'natural_add',[a-b,ans+10,ans-10])}
+  if(mode===1){c=ri(3,15+tier*12);ans=a*c;return mk5Num(`${a} · ${c} = ?`,ans,`Умножаем: ${a} · ${c} = ${ans}.`,'natural_multiply',[a+c,ans+c,a*(c+1)])}
+  c=ri(2,7+tier*4);ans=(a+b)*c;return mk5Num(`Вычисли (${a} + ${b}) · ${c}.`,ans,`Сначала ${a}+${b}=${a+b}, затем ${a+b}·${c}=${ans}.`,'natural_combined',[(a+b)+c,a+b*c,ans+c]);
+ }
+ case 'order':{
+  a=ri(8,30+tier*25);b=ri(2,8+tier*4);c=ri(2,9+tier*3);
+  if(mode===0){ans=a+b*c;return mk5Num(`${a} + ${b} · ${c} = ?`,ans,`Сначала ${b}·${c}=${b*c}, затем ${a}+${b*c}=${ans}.`,'priority_multiply',[(a+b)*c,a+b+c])}
+  if(mode===1){ans=(a+b)*c;return mk5Num(`(${a} + ${b}) · ${c} = ?`,ans,`Сначала ${a}+${b}=${a+b}, затем умножаем на ${c}: ${ans}.`,'priority_brackets',[a+b*c,a+b+c])}
+  const divisor=ri(2,8),quot=ri(3,12+tier*5),product=divisor*quot;ans=a+b*c+quot;return mk5Num(`${a} + ${b} · ${c} + ${product} : ${divisor} = ?`,ans,`Сначала ${b}·${c}=${b*c} и ${product}:${divisor}=${quot}; затем ${a}+${b*c}+${quot}=${ans}.`,'priority_three_operations',[a+b*c+product,(a+b)*c+quot]);
+ }
+ case 'powers':{
+  a=ri(2,7+tier*4);
+  if(mode===0){ans=a*a;return mk5Num(`Найди квадрат числа ${a}.`,ans,`${a}² = ${a}·${a} = ${ans}.`,'power_square',[2*a,a*3])}
+  if(mode===1){ans=a*a*a;return mk5Num(`Найди куб числа ${a}.`,ans,`${a}³ = ${a}·${a}·${a} = ${ans}.`,'power_cube',[a*a,3*a])}
+  b=ri(2,15+tier*6);ans=a*a+b;return mk5Num(`Вычисли ${a}² + ${b}.`,ans,`Возводим ${a} в квадрат (${a*a}), затем прибавляем ${b}: ${ans}.`,'power_in_expression',[a*2+b,(a+b)*a]);
+ }
+ case 'equations':{
+  a=ri(2,10+tier*8);const x=ri(2,30+tier*12);
+  if(mode===0){b=x+a;return mk5Num(`Реши уравнение: x + ${a} = ${b}.`,x,`x=${b}−${a}=${x}. Проверка: ${x}+${a}=${b}.`,'equation_one_step',[b,a])}
+  if(mode===1){b=a*x;return mk5Num(`Реши уравнение: ${a} · x = ${b}.`,x,`Неизвестный множитель x=${b}:${a}=${x}.`,'equation_product',[a,b])}
+  b=ri(1,18+tier*8);c=a*x+b;return mk5Num(`Реши уравнение: ${a} · x + ${b} = ${c}.`,x,`Вычтем ${b}: ${a}x=${c-b}; разделим на ${a}: x=${x}.`,'equation_two_actions',[c-b,c,x+a]);
+ }
+ case 'geometry':{
+  a=ri(3,14+tier*7);b=ri(3,12+tier*6);
+  if(mode===0){ans=a*b;return mk5Num(`Прямоугольник имеет стороны ${a} см и ${b} см. Найди площадь (см²).`,ans,`S=${a}·${b}=${ans} см².`,'geom_rectangle_area',[2*(a+b),a+b])}
+  if(mode===1){const per=2*(a+b);return mk5Num(`Периметр прямоугольника ${per} см, одна сторона ${a} см. Найди вторую сторону (см).`,b,`Половина периметра ${per}:2=${a+b}; вторая сторона ${a+b}−${a}=${b} см.`,'geom_inverse_perimeter',[per/2,a+b+a])}
+  c=ri(1,b-1);ans=a*b-a*c;return mk5Num(`Из прямоугольника ${a}×${b} см вырезали прямоугольник ${a}×${c} см. Найди оставшуюся площадь (см²).`,ans,`Было ${a*b} см², вырезали ${a*c} см². Осталось ${a*b}−${a*c}=${ans} см².`,'geom_composite_area',[a*b,a*c]);
+ }
+ case 'volume':{
+  a=ri(2,8+tier*4);b=ri(2,7+tier*3);c=ri(2,6+tier*3);
+  if(mode===0){ans=a*b*c;return mk5Num(`Коробка размером ${a}×${b}×${c} см. Найди объём (см³).`,ans,`V=${a}·${b}·${c}=${ans} см³.`,'volume_box',[a*b,2*(a+b+c)])}
+  if(mode===1){n=a*b*c;return mk5Num(`Объём параллелепипеда ${n} см³, два ребра ${a} см и ${b} см. Найди третье (см).`,c,`Третье ребро = ${n}:(${a}·${b}) = ${c} см.`,'volume_missing_edge',[a,b,n])}
+  n=a*b*c;return mk5Num(`В коробке ${a} слоёв кубиков. В каждом слое ${b} рядов по ${c} кубиков. Сколько всего кубиков?`,n,`В одном слое ${b}·${c}=${b*c}; всего ${a}·${b*c}=${n}.`,'volume_unit_cubes',[a*b,b*c,a+b+c]);
+ }
+ case 'angles':{
+  if(mode===0){a=mk5Pick([30,45,60,80,90,105,120,150,170,180]);ans=a<90?'острый':a===90?'прямой':a<180?'тупой':'развёрнутый';return mk5Choose(`Какой вид имеет угол ${a}°?`,ans,['острый','прямой','тупой','развёрнутый'].filter(x=>x!==ans),`Сравниваем ${a}° с 90° и 180°: это ${ans} угол.`,'angle_classify')}
+  if(mode===1){a=mk5Pick([30,40,45,50,60,70,80,100,110,120,130,140,150]);return mk5Num(`Определи градусную меру угла по транспортиру.${g5ProtractorSvg(a)}`,a,`Лучи транспортира указывают на отметку ${a}°.`,'angle_protractor',[180-a,a+10,Math.max(10,a-10)])}
+  a=ri(20,75);ans=90-a;return mk5Num(`Прямой угол разделили на два. Один равен ${a}°. Сколько градусов во втором?`,ans,`Прямой угол равен 90°. Второй угол: 90−${a}=${ans}°.`,'angle_complement',[90+a,a]);
+ }
+ case 'charts':{
+  a=mk5Pick([2,3,4,5,6,8,9,10,12]);
+  if(mode===0){ans=360/a;return mk5Num(`Круг разделили на ${a} равных секторов. Каков угол одного сектора (°)?`,ans,`360° : ${a} = ${ans}°.`,'chart_one_sector',[360,180,a])}
+  if(mode===1){b=ri(1,Math.min(a-1,4+tier));ans=360*b/a;return mk5Num(`Сектор составляет ${mk5Frac(b,a)} круга. Каков угол сектора (°)?`,ans,`360° · ${b} : ${a} = ${ans}°.`,'chart_fraction_to_angle',[360/a,360,ans+360/a])}
+  b=ri(1,a-1);ans=360*b/a;return mk5Rational(`На круговой диаграмме сектор равен ${ans}°. Какую часть круга он занимает?`,b,a,`Доля сектора равна ${ans}/360 = ${mk5Frac(...g5NewRat(b,a))}.`,'chart_angle_fraction',[[b+1,a],[1,a],[b,a+1]]);
+ }
+ case 'units':{
+  a=ri(2,20+tier*9);
+  if(mode===0){b=mk5Pick([60,100,1000]);ans=a*b;const units=b===60?['ч','мин']:b===100?['м','см']:['кг','г'];return mk5Num(`${a} ${units[0]} = ? ${units[1]}`,ans,`${a} · ${b} = ${ans} ${units[1]}.`,'unit_direct',[a*10,ans+b])}
+  if(mode===1){b=ri(1,58);ans=a*60+b;return mk5Num(`${a} ч ${b} мин = ? мин`,ans,`${a}·60+${b}=${ans} мин.`,'unit_mixed_time',[a*60,a+b])}
+  b=ri(1,99);ans=a*100+b;return mk5Num(`${a} м ${b} см = ? см`,ans,`${a}·100+${b}=${ans} см.`,'unit_mixed_length',[a*100,a+b]);
+ }
+ case 'word':{
+  a=ri(3,12+tier*6);b=ri(2,8+tier*3);
+  if(mode===0){const price=a*10,total=price*b;return mk5Num(`Купили ${b} ${ruCount(b,'тетрадь','тетради','тетрадей')} по ${price} ₽. Какова стоимость покупки (₽)?`,total,`${b}·${price}=${total} ₽.`,'word_price',[price,b,total+price])}
+  if(mode===1){const speed=a*5,time=b;ans=speed*time;return mk5Num(`Путешественник ехал ${time} ч со скоростью ${speed} км/ч. Сколько километров он проехал?`,ans,`S=vt=${speed}·${time}=${ans} км.`,'word_distance',[speed+time,speed])}
+  const p1=a*10,q1=b,p2=ri(2,9)*10,q2=ri(2,6),paid=(Math.ceil((p1*q1+p2*q2)/100)+2)*100;ans=paid-p1*q1-p2*q2;
+  return mk5Num(`Купили ${q1} ${ruCount(q1,'блокнот','блокнота','блокнотов')} по ${p1} ₽ и ${q2} ${ruCount(q2,'ручку','ручки','ручек')} по ${p2} ₽. Заплатили ${paid} ₽. Сколько сдачи (₽)?`,ans,`Стоимость ${p1}·${q1}+${p2}·${q2}=${p1*q1+p2*q2} ₽. Сдача ${paid}−${p1*q1+p2*q2}=${ans} ₽.`,'word_three_steps',[paid,p1*q1,p2*q2]);
+ }
+ }
+ return null;
+}
+
+function mk5MixedResult(total,d){const w=Math.floor(total/d),r=total%d;if(r===0)return String(w);const [n,den]=g5NewRat(r,d);return mixed(w,n,den)}
+function mk5MixedAnswer(text,total,d,why,variant,errors=[]){
+ const correct=mk5MixedResult(total,d),variants=[{label:correct,key:'ok'}];
+ for(const [numer,den] of errors){const label=mk5MixedResult(numer,den);if(!variants.some(x=>x.label===label))variants.push({label,key:'w'+variants.length})}
+ for(let k=1;variants.length<4&&k<20;k++){const label=mk5MixedResult(total+k,d);if(!variants.some(x=>x.label===label))variants.push({label,key:'x'+k})}
+ const q=g5q(text,variants,'ok',why,variant);q.mk5Audit={type:'mixed',numerator:total,denominator:d,expected:correct};return q;
+}
+function mk5Fractions(id,tier,mode){
+ const d=mk5FracDen(tier),a=ri(1,d-1),b=ri(1,d-1),n=ri(2,8+tier*3),k=ri(2,4+tier*2);
+ let den,numer,ans,c,e,ex;
+ switch(id){
+ case 'frac_shapes':{
+  if(mode===0){
+   const facts=[
+    ['Чем круг отличается от окружности?','Круг содержит внутреннюю область, а окружность — его граница',['Окружность содержит внутреннюю область, круг — только линия','Оба являются объёмными телами','Круг и окружность всегда имеют разные центры']],
+    ['Как называется линия, ограничивающая круг?','Окружность',['Диаметр','Радиус','Шар']],
+    ['Какая фигура имеет внутреннюю область?','Круг',['Окружность','Дуга','Отрезок']],
+    ['Что соединяет центр окружности с её точкой?','Радиус',['Хорда через центр обязательно','Дуга','Сектор']],
+    ['Как называется отрезок через центр между двумя точками окружности?','Диаметр',['Радиус','Дуга','Сектор']],
+    ['Какое тело имеет поверхность с точками на одинаковом расстоянии от центра?','Шар',['Цилиндр','Куб','Прямоугольник']],
+    ['Что является плоской фигурой?','Круг',['Шар','Цилиндр','Куб']],
+    ['Какие основания у цилиндра?','Два равных круга',['Два треугольника','Один квадрат','Две окружности без внутренней области']]
+   ];
+   const chosen=mk5Pick(facts);return mk5Choose(chosen[0],chosen[1],chosen[2],`Верно: ${chosen[1]}.`,'shape_concept_'+facts.indexOf(chosen));
+  }
+  if(mode===1){const r=ri(2,18+tier*8);return mk5Num(`Радиус круга равен ${r} см. Найди диаметр (см).`,2*r,`Диаметр в два раза длиннее радиуса: 2·${r}=${2*r} см.`,'shape_diameter',[r,4*r]);}
+  if(tier>=1){const diameter=2*ri(3,15+tier*5),extra=ri(2,7);return mk5Num(`Диаметр шара равен ${diameter} см. На сколько сантиметров его радиус меньше диаметра?`,diameter/2,`Радиус — половина диаметра (${diameter}:2=${diameter/2}); разность такая же: ${diameter}-${diameter/2}=${diameter/2}.`,'shape_radius_difference',[diameter,extra]);}
+  return mk5Choose('Какое тело имеет два равных круглых основания?','Цилиндр',['Шар','Круг','Окружность'],'У цилиндра два равных круглых основания.','shape_cylinder');
+ }
+ case 'frac_parts':{
+  if(mode===0)return mk5Num(`В дроби ${mk5Frac(a,d)} укажи числитель.`,a,`Числитель — число над чертой: ${a}.`,'parts_numerator',[d,d-a]);
+  if(mode===1)return mk5Num(`В дроби ${mk5Frac(a,d)} укажи знаменатель.`,d,`Знаменатель показывает, на сколько равных частей разделили целое: ${d}.`,'parts_denominator',[a,d+1]);
+  if(tier===2){const remaining=d-a;return mk5Rational(`Из ${d} равных долей целого взяли ${a}. Какую часть целого НЕ взяли?`,remaining,d,`Всего ${d} долей, взяли ${a}, осталось ${remaining}. Получилась дробь ${mk5Frac(remaining,d)}.`,'parts_complement',[[a,d],[d,a]]);}
+  return mk5Rational(`Целое разделили на ${d} равных частей и взяли ${a} ${ruCount(a,'часть','части','частей')}. Какая часть целого получилась?`,a,d,`Числитель равен ${a}, знаменатель ${d}.`,'parts_story',[[d,a],[d-a,d]]);
+ }
+ case 'frac_read':{
+  den=ri(2,10);numer=ri(1,Math.min(den+Math.max(0,tier-1),9));const words=mk5FractionWord(numer,den);
+  if(mode!==1)return mk5Rational(`Запиши дробью: «${words}».`,numer,den,`«${words}» — это ${mk5Frac(numer,den)}.`,'read_from_words_'+mode,[[numer+1,den],[numer,den+1],[den,numer]]);
+  const others=[];for(let z=1;z<=9;z++){const nd=2+(den+z-2)%9,nn=1+(numer+z-1)%Math.min(nd,9),word=mk5FractionWord(nn,nd);if(word!==words&&!others.includes(word))others.push(word);if(others.length>=3)break}
+  return mk5Choose(`Как читается дробь ${mk5Frac(numer,den)}?`,words,others,`Числитель ${numer} и знаменатель ${den} читаются как «${words}».`,'read_to_words');
+ }
+ case 'frac_ray':{
+  den=ri(3,7+tier*3);numer=ri(1,den-1);
+  if(mode===0)return mk5Rational(`На единичном отрезке от 0 до 1 сделали ${den} равных шагов. Точка A стоит после ${numer}-го шага. Чему равна координата A?`,numer,den,`Один шаг равен ${mk5Frac(1,den)}, ${numer} шагов — ${mk5Frac(numer,den)}.`,'ray_steps',[[numer+1,den],[numer,den+1]]);
+  if(mode===1)return mk5Rational(`Каждый отрезок длиной 1 разделили на ${den} частей. Точка B находится на ${den+numer}-й отметке от нуля. Запиши её координату неправильной дробью.`,den+numer,den,`После ${den} делений пройдена единица; ещё ${numer} долей: ${mk5Frac(den+numer,den)}.`,'ray_beyond_one',[[numer,den],[den+numer+1,den]]);
+  if(tier===2){const steps=ri(1,den-1);return mk5Rational(`На числовом луче точка A имеет координату ${mk5Frac(numer,den)}. От неё прошли ещё ${steps} делений по ${mk5Frac(1,den)} вправо. Координата новой точки?`,numer+steps,den,`К ${numer} долям прибавляем ещё ${steps} долей того же размера: ${mk5Frac(numer+steps,den)}.`,'ray_shift_fraction',[[numer,den],[steps,den],[numer+steps+1,den]]);}
+  return mk5Num(`На координатном луче единица разделена на ${den} равных частей. Через сколько маленьких делений от 0 находится точка ${mk5Frac(numer,den)}?`,numer,`У дроби ${mk5Frac(numer,den)} числитель показывает ${numer} шагов по ${mk5Frac(1,den)}.`,'ray_count_ticks',[den,den-numer]);
+ }
+ case 'frac_types':{
+  if(mode===0){numer=ri(1,2*d);ans=numer<d?'правильная':'неправильная';return mk5Choose(`Определи вид дроби ${mk5Frac(numer,d)}.`,ans,[ans==='правильная'?'неправильная':'правильная','смешанное число','десятичная дробь'],`Сравниваем ${numer} и ${d}: ${numer<d?'<':'≥'}; дробь ${ans}.`,'types_classify');}
+  if(mode===1){const opts=[mk5Frac(d-1,d),mk5Frac(d,d),mk5Frac(d+1,d),mk5Frac(d+2,d)],proper=mk5Frac(d-1,d);return mk5Choose('Какая из перечисленных дробей правильная?',proper,opts.filter(x=>x!==proper),`У правильной дроби числитель меньше знаменателя: ${d-1}<${d}.`,'types_choose_proper');}
+  return mk5Num(`При знаменателе ${d} какое наименьшее натуральное число в числителе сделает дробь неправильной?`,d,`Неправильная дробь начинается при числителе, равном знаменателю: ${d}.`,'types_boundary',[d-1,d+1]);
+ }
+ case 'frac_compare_den':{
+  if(mode===2&&tier===2){const numbers=[ri(1,d-1),ri(1,d-1),ri(1,d-1)],best=Math.max(...numbers);return mk5Num(`Три дроби со знаменателем ${d} имеют числители ${numbers.join(', ')}. Какой числитель у самой большой из этих дробей?`,best,`Знаменатели равны ${d}; чем больше числитель, тем больше дробь. Максимум ${best}.`,'compare_den_three',numbers.filter(v=>v!==best));}
+  numer=ri(1,d-1);c=ri(1,d-1);if(mode===2)c=numer;
+  return mk5Sign(`Поставь знак между ${mk5Frac(numer,d)} и ${mk5Frac(c,d)}.`,numer,d,c,d,`Одинаковый знаменатель ${d}: сравниваем числители ${numer} и ${c}.`,'compare_same_den_'+mode);
+ }
+ case 'frac_compare_num':{
+  numer=ri(1,5+tier*2);den=ri(numer+1,numer+7+tier*3);c=mode===2?den:ri(numer+1,numer+8+tier*4);
+  if(mode===2&&tier===2){const dens=[den,ri(numer+1,numer+7+tier*3),ri(numer+1,numer+7+tier*3)],smallest=Math.min(...dens);return mk5Num(`Три дроби с числителем ${numer} имеют знаменатели ${dens.join(', ')}. Какой знаменатель у самой большой дроби?`,smallest,`При равном числителе ${numer} меньший знаменатель даёт большую дробь.`,'compare_num_three',dens.filter(v=>v!==smallest));}
+  return mk5Sign(`Поставь знак между ${mk5Frac(numer,den)} и ${mk5Frac(numer,c)}.`,numer,den,numer,c,`При одинаковом числителе меньший знаменатель означает большую долю.`,'compare_same_num_'+mode);
+ }
+ case 'frac_division':{
+  numer=ri(2,14+tier*12);den=ri(2,11+tier*7);
+  if(mode===0)return mk5Rational(`Запиши частное ${numer} : ${den} в виде дроби.`,numer,den,`Делимое становится числителем, делитель — знаменателем: ${mk5Frac(numer,den)}.`,'quotient_as_fraction',[[den,numer],[numer+1,den]]);
+  if(mode===1)return mk5Choose(`Какое действие записано дробью ${mk5Frac(numer,den)}?`,`${numer} : ${den}`,[`${den} : ${numer}`,`${numer} + ${den}`,`${numer} · ${den}`],`Дробная черта означает деление числителя ${numer} на знаменатель ${den}.`,'fraction_as_quotient');
+  return mk5Rational(`${numer} одинаковых предметов разделили поровну между ${den} детьми. Какая доля предметов досталась каждому?`,numer,den,`Делим ${numer} на ${den}, то есть записываем ${mk5Frac(numer,den)}.`,'division_story',[[den,numer],[1,den]]);
+ }
+ case 'frac_to_mixed':{
+  den=mk5FracDen(tier);const whole=ri(1,3+tier*3),rem=ri(1,den-1);numer=whole*den+rem;
+  if(mode===1)return mk5Num(`У дроби ${mk5Frac(numer,den)} сколько целых частей?`,whole,`Числитель ${numer} делим на ${den}: частное ${whole}, остаток ${rem}.`,'improper_whole_part',[rem,whole+1]);
+  return mk5MixedAnswer(`Выдели целую часть дроби ${mk5Frac(numer,den)}.`,numer,den,`${numer}=${whole}·${den}+${rem}, поэтому ${mk5Frac(numer,den)} = ${mk5Mixed(whole,rem,den)}.`,'improper_to_mixed_'+mode,[[numer+den,den],[numer-den,den],[whole*den+den-rem,den]]);
+ }
+ case 'mixed_to_frac':{
+  den=mk5FracDen(tier);const whole=ri(1,3+tier*3),rem=ri(1,den-1);numer=whole*den+rem;
+  if(mode===1)return mk5Num(`Какой числитель будет у неправильной дроби, равной ${mk5Mixed(whole,rem,den)}?`,numer,`${whole}·${den}+${rem}=${numer}.`,'mixed_numerator',[whole+rem,whole*den]);
+  return mk5Rational(`Переведи ${mk5Mixed(whole,rem,den)} в неправильную дробь.`,numer,den,`Числитель ${whole}·${den}+${rem}=${numer}, знаменатель ${den}.`,'mixed_to_improper_'+mode,[[whole+rem,den],[numer,den+1]]);
+ }
+ case 'frac_add':{
+  den=mk5FracDen(tier);numer=ri(1,den-1);c=ri(1,den-1);
+  if(mode===1){e=ri(1,den-1);return mk5Rational(`Вычисли ${mk5Frac(numer,den)} + ${mk5Frac(c,den)} + ${mk5Frac(e,den)}.`,numer+c+e,den,`Складываем числители: ${numer}+${c}+${e}=${numer+c+e}; знаменатель ${den}.`,'frac_add_three',[[numer+c+e,2*den],[numer+c+e+1,den]]);}
+  if(mode===2){const third=tier===2?ri(1,den-1):0;return mk5Rational(`От ленты взяли ${mk5Frac(numer,den)} м, затем ${mk5Frac(c,den)} м${third?` и ещё ${mk5Frac(third,den)} м`:''}. Сколько метров взяли всего?`,numer+c+third,den,`Доли одинаковые: ${numer}+${c}${third?'+'+third:''}=${numer+c+third} долей по ${mk5Frac(1,den)} м.`,'frac_add_story',[[numer+c+third,2*den],[numer+c+third+1,den]]);}
+  return mk5Rational(`Вычисли ${mk5Frac(numer,den)} + ${mk5Frac(c,den)}.`,numer+c,den,`Числители складываем: ${numer}+${c}=${numer+c}, знаменатель ${den}.`,'frac_add_pair',[[numer+c,2*den],[Math.abs(numer-c),den]]);
+ }
+ case 'frac_sub':{
+  den=mk5FracDen(tier);numer=ri(3,den+tier*den);c=ri(1,numer-1);
+  if(mode===1){e=ri(1,Math.max(1,numer-c-1));numer+=e;return mk5Rational(`Вычисли ${mk5Frac(numer,den)} − ${mk5Frac(c,den)} − ${mk5Frac(e,den)}.`,numer-c-e,den,`Вычитаем числители: ${numer}−${c}−${e}=${numer-c-e}; знаменатель остаётся ${den}.`,'frac_sub_three',[[numer-c,den],[numer-c-e,2*den]]);}
+  if(mode===2){const extra=tier===2?ri(1,Math.max(1,numer-c-1)):0;const initial=numer+extra;return mk5Rational(`От ${mk5Frac(initial,den)} м ленты отрезали ${mk5Frac(c,den)} м${extra?`, затем ещё ${mk5Frac(extra,den)} м`:''}. Сколько метров осталось?`,initial-c-extra,den,`${initial}−${c}−${extra}=${initial-c-extra} долей по ${mk5Frac(1,den)} м.`,'frac_sub_story',[[initial+c,den],[initial-c,den]]);}
+  return mk5Rational(`Вычисли ${mk5Frac(numer,den)} − ${mk5Frac(c,den)}.`,numer-c,den,`Вычитаем числители: ${numer}−${c}=${numer-c}.`,'frac_sub_pair',[[numer+c,den],[numer-c,2*den]]);
+ }
+ case 'mixed_compare':{
+  const w1=ri(1,5+tier*2),w2=mode===0?w1:ri(1,5+tier*2);numer=ri(1,d-1);c=mode===2?numer:ri(1,d-1);
+  return mk5Sign(`Сравни ${mk5Mixed(w1,numer,d)} и ${mk5Mixed(w2,c,d)}.`,w1*d+numer,d,w2*d+c,d,`Переводим в неправильные дроби со знаменателем ${d}: сравниваем ${w1*d+numer} и ${w2*d+c}.`,'mixed_compare_'+mode);
+ }
+ case 'mixed_add':{
+  const w1=ri(1,4+tier*2),w2=ri(1,3+tier),n1=ri(1,d-1),n2=mode===0?ri(1,Math.max(1,d-n1-1)):ri(Math.max(1,d-n1),d-1);let sum=(w1+w2)*d+n1+n2;
+  if(mode===2){const n3=ri(1,d-1);sum+=n3;return mk5MixedAnswer(`Сложи ${mk5Mixed(w1,n1,d)} + ${mk5Mixed(w2,n2,d)} + ${mk5Frac(n3,d)}.`,sum,d,`Общее число долей ${w1*d+n1}+${w2*d+n2}+${n3}=${sum}; переводим в смешанное число.`,'mixed_add_three',[[sum+d,d],[sum-d,d]]);}
+  return mk5MixedAnswer(`Вычисли ${mk5Mixed(w1,n1,d)} + ${mk5Mixed(w2,n2,d)}.`,sum,d,`Целые части ${w1}+${w2}; дробные части ${n1}+${n2} долей со знаменателем ${d}.`,'mixed_add_'+mode,[[sum+d,d],[sum-d,d]]);
+ }
+ case 'mixed_sub':{
+  const w1=ri(3,6+tier*2),w2=ri(1,w1-2),n2=ri(2,d-1),n1=mode===0?ri(n2,d-1):ri(1,n2-1);const diff=(w1-w2)*d+n1-n2;
+  return mk5MixedAnswer(`Вычисли ${mk5Mixed(w1,n1,d)} − ${mk5Mixed(w2,n2,d)}.`,diff,d,`Разность числителей неправильных дробей: (${w1*d+n1}−${w2*d+n2})/${d} = ${mk5Frac(diff,d)}.`,'mixed_sub_'+mode,[[diff+d,d],[diff-d,d],[diff+n2,d]]);
+ }
+ case 'frac_equal':{
+  den=ri(3,12+tier*4);numer=ri(1,den-1);const factor=ri(2,5+tier*3),up=numer*factor,down=den*factor;
+  if(mode===0)return mk5Rational(`Какая дробь равна ${mk5Frac(numer,den)}?`,up,down,`Умножили числитель и знаменатель на ${factor}: ${mk5Frac(up,down)}.`,'equal_fraction',[[numer+1,den],[up,down+1]]);
+  if(mode===1)return mk5Num(`${mk5Frac(numer,den)} = ${mk5Frac('?',down)}. Какой числитель пропущен?`,up,`${den}·${factor}=${down}, значит ${numer}·${factor}=${up}.`,'equal_missing_numerator',[numer,down]);
+  return mk5Num(`${mk5Frac(numer,den)} = ${mk5Frac(up,'?')}. Какой знаменатель пропущен?`,down,`Оба члена умножаем на ${factor}: знаменатель ${den}·${factor}=${down}.`,'equal_missing_denominator',[den,up]);
+ }
+ case 'frac_reduce':{
+  den=ri(4,15+tier*5);numer=ri(1,den-1);const factor=ri(2,8+tier*4),top=numer*factor,bottom=den*factor,[rn,rd]=g5NewRat(top,bottom),div=mk5Gcd(top,bottom);
+  if(mode===0)return mk5Rational(`Сократи дробь ${mk5Frac(top,bottom)} до несократимой.`,rn,rd,`Делим числитель и знаменатель на НОД=${div}: ${mk5Frac(rn,rd)}.`,'reduce_fraction',[[top,rd],[rn,bottom]]);
+  if(mode===1)return mk5Num(`На какой наибольший делитель сократить дробь ${mk5Frac(top,bottom)}, чтобы сразу получить несократимую?`,div,`НОД(${top},${bottom})=${div}.`,'reduce_gcd',[factor,div+1]);
+  return mk5Num(`После сокращения дроби ${mk5Frac(top,bottom)} до несократимой какой получится числитель?`,rn,`Делим ${top} на НОД=${div}; числитель ${rn}.`,'reduce_new_numerator',[top,den]);
+ }
+ case 'frac_common_lcm':{
+  den=mk5Pick(tier===0?[3,4,5,6]:tier===1?[4,6,8,9,10]:[6,8,9,10,12,15]);c=mk5Pick(tier===0?[4,5,6]:tier===1?[5,8,9,12]:[8,10,12,14,15]);if(den===c)c+=2;numer=ri(1,den-1);const common=mk5Lcm(den,c),mul=common/den;
+  if(mode===0)return mk5Num(`Найди наименьший общий знаменатель дробей ${mk5Frac(numer,den)} и ${mk5Frac(1,c)}.`,common,`НОК(${den},${c})=${common}.`,'common_find_lcm',[den*c,den+c]);
+  if(mode===1)return mk5Num(`Дробь ${mk5Frac(numer,den)} привели к знаменателю ${common}. Каким стал числитель?`,numer*mul,`Дополнительный множитель ${mul}: ${numer}·${mul}=${numer*mul}.`,'common_find_numerator',[numer,numer+mul]);
+  return mk5Rational(`Приведи ${mk5Frac(numer,den)} к общему знаменателю ${common} и выбери получившуюся дробь.`,numer*mul,common,`Умножаем оба члена на ${mul}: ${mk5Frac(numer*mul,common)}.`,'common_fraction',[[numer+1,common],[numer*mul,common+1]]);
+ }
+ case 'frac_compare_diff':{
+  den=mk5Pick([3,4,5,6,8,9,10,12]);c=mk5Pick([4,5,6,7,8,10,12,15]);if(c===den)c+=1;numer=ri(1,den-1);e=ri(1,c-1);
+  if(mode===2){e=ri(1,c-1);return mk5Sign(`После приведения к общему знаменателю сравни ${mk5Frac(numer,den)} и ${mk5Frac(e,c)}.`,numer,den,e,c,`${numer}·${c}=${numer*c}; ${e}·${den}=${e*den}; сравниваем эти произведения.`,'compare_different_cross');}
+  return mk5Sign(`Поставь верный знак: ${mk5Frac(numer,den)} □ ${mk5Frac(e,c)}.`,numer,den,e,c,`Сравниваем перекрёстные произведения ${numer*c} и ${e*den}.`,'compare_different_'+mode);
+ }
+ case 'frac_add_diff':
+ case 'frac_sub_diff':{
+  const minus=id==='frac_sub_diff';den=mk5Pick([3,4,5,6,8,10,12]);c=mk5Pick([4,5,6,7,8,9,12]);if(den===c)c++;numer=ri(1,den-1);e=ri(1,c-1);
+  if(minus&&numer*c<e*den){[den,c]=[c,den];[numer,e]=[e,numer]}
+  const l=mk5Lcm(den,c),top=numer*(l/den)+(minus?-1:1)*e*(l/c);
+  const op=minus?'−':'+';
+  if(mode===2&&tier===2&&!minus){const third=ri(1,5),d3=mk5Pick([3,4,6,8]),l3=mk5Lcm(l,d3),t3=top*(l3/l)+third*(l3/d3);return mk5Rational(`Вычисли ${mk5Frac(numer,den)} + ${mk5Frac(e,c)} + ${mk5Frac(third,d3)}.`,t3,l3,`Общий знаменатель ${l3}, числитель ${t3}.`,'frac_add_different_three',[[t3+1,l3],[t3,l3+1]]);}
+  if(mode===1)return mk5Rational(`У Пети было ${mk5Frac(numer,den)} м ленты. ${minus?'Он отрезал':'Ему добавили'} ${mk5Frac(e,c)} м. Сколько ${minus?'осталось':'стало'} метров?`,top,l,`НОК(${den},${c})=${l}; ${numer*l/den} ${op} ${e*l/c} = ${top} долей.`,(minus?'frac_sub':'frac_add')+'_different_story',[[top+1,l],[numer+e,den+c]]);
+  return mk5Rational(`Вычисли ${mk5Frac(numer,den)} ${op} ${mk5Frac(e,c)}.`,top,l,`НОК(${den},${c})=${l}. Числитель: ${numer*l/den} ${op} ${e*l/c}=${top}; результат ${mk5Frac(...g5NewRat(top,l))}.`,(minus?'frac_sub':'frac_add')+'_different_'+mode,[[top+1,l],[numer+e,den+c]]);
+ }
+ case 'frac_mul_common':
+ case 'frac_div_common':{
+  const div=id==='frac_div_common';den=ri(2,6+tier*3);c=ri(2,7+tier*3);numer=ri(1,den+tier);e=ri(1,c+tier);
+  if(mode===1&&!div){const whole=ri(2,9+tier*4);return mk5Rational(`Найди ${mk5Frac(numer,den)} от ${whole}.`,numer*whole,den,`Число ${whole} представляем как ${whole}/1 и перемножаем дроби.`,'frac_mul_integer',[[numer+whole,den],[numer*whole,den+1]]);}
+  if(mode===1&&div){const whole=ri(2,8+tier*3);return mk5Rational(`Вычисли ${mk5Frac(numer,den)} : ${whole}.`,numer,den*whole,`Деление на ${whole} равно умножению на ${mk5Frac(1,whole)}.`,'frac_div_integer',[[numer*whole,den],[numer,den]]);}
+  if(mode===2&&!div){const n3=ri(1,5),d3=ri(2,8);return mk5Rational(`Вычисли ${mk5Frac(numer,den)} · ${mk5Frac(e,c)} · ${mk5Frac(n3,d3)}.`,numer*e*n3,den*c*d3,`Перемножаем все числители и знаменатели, затем сокращаем.`,'frac_mul_three',[[numer+e+n3,den+c+d3],[numer*e,den*c]]);}
+  if(mode===2&&div){const n3=ri(1,5),d3=ri(2,7);return mk5Rational(`Вычисли (${mk5Frac(numer,den)} : ${mk5Frac(e,c)}) · ${mk5Frac(n3,d3)}.`,numer*c*n3,den*e*d3,`Первый делитель переворачиваем, перемножаем с ${mk5Frac(numer,den)}, затем умножаем на ${mk5Frac(n3,d3)}.`,'frac_div_then_multiply',[[numer*e*n3,den*c*d3],[numer*c,den*e]]);}
+  const top=div?numer*c:numer*e,bottom=div?den*e:den*c;return mk5Rational(`Вычисли ${mk5Frac(numer,den)} ${div?':':'·'} ${mk5Frac(e,c)}.`,top,bottom,div?`Заменяем деление умножением на обратную дробь ${mk5Frac(c,e)}.`:`Перемножаем числители ${numer}·${e} и знаменатели ${den}·${c}.`,div?'frac_div_pair':'frac_mul_pair',[[numer+e,den+c],[numer*e,den*c]]);
+ }
+ case 'frac_part_number':{
+  den=ri(3,8+tier*3);numer=ri(1,den-1);const unit=ri(3,16+tier*8),total=unit*den,part=unit*numer;
+  if(mode===0)return mk5Num(`Найди ${mk5Frac(numer,den)} от числа ${total}.`,part,`Одна ${den}-я часть ${unit}; ${numer} частей — ${unit}·${numer}=${part}.`,'part_of_number',[unit,total]);
+  if(mode===1)return mk5Num(`В наборе ${total} деталей. Красные составляют ${mk5Frac(numer,den)}. Сколько красных деталей?`,part,`${total}:${den}·${numer}=${part}.`,'part_in_context',[unit,total]);
+  const remain=total-part;return mk5Num(`В классе ${total} тетрадей, ${mk5Frac(numer,den)} из них раздали. Сколько осталось?`,remain,`Раздали ${part}, осталось ${total}−${part}=${remain}.`,'part_remainder',[part,total]);
+ }
+ case 'frac_restore':{
+  den=ri(3,9+tier*3);numer=ri(1,den-1);const unit=ri(3,13+tier*6),part=unit*numer,whole=unit*den;
+  if(mode===0)return mk5Num(`${mk5Frac(numer,den)} числа равны ${part}. Найди число.`,whole,`Одна ${den}-я часть: ${part}:${numer}=${unit}; всё число: ${unit}·${den}=${whole}.`,'restore_whole',[part,whole+unit]);
+  if(mode===1)return mk5Num(`${mk5Frac(numer,den)} всех страниц — это ${part} страниц. Сколько страниц в книге?`,whole,`${part}:${numer}·${den}=${whole} страниц.`,'restore_book',[part,unit]);
+  return mk5Num(`После того как израсходовали ${mk5Frac(numer,den)} запаса, стало на ${part} единиц меньше. Каков был запас?`,whole,`Израсходованная часть ${part} = ${mk5Frac(numer,den)} целого, поэтому целое ${part}:${numer}·${den}=${whole}.`,'restore_from_used',[part,whole-part]);
+ }
+ case 'frac_word':{
+  den=ri(3,8+tier*2);numer=ri(1,den-1);const one=ri(4,12+tier*6),whole=one*den,part=one*numer;
+  if(mode===0)return mk5Num(`В коробке ${whole} карандашей, ${mk5Frac(numer,den)} раздали. Сколько осталось?`,whole-part,`Раздали ${whole}:${den}·${numer}=${part}; осталось ${whole-part}.`,'frac_word_remainder',[part,whole]);
+  if(mode===1){const second=ri(1,whole-part-1);return mk5Num(`В библиотеке ${whole} книг. Сначала выдали ${mk5Frac(numer,den)} всех книг, затем ещё ${second} ${ruCount(second,'книгу','книги','книг')}. Сколько осталось?`,whole-part-second,`Сначала ${part}, затем ${second}; осталось ${whole}−${part}−${second}=${whole-part-second}.`,'frac_word_two_steps',[whole-part,part]);}
+  return mk5Num(`Турист прошёл ${part} км — это ${mk5Frac(numer,den)} маршрута. Сколько километров осталось пройти?`,whole-part,`Весь путь ${part}:${numer}·${den}=${whole}; осталось ${whole-part}.`,'frac_word_reverse',[whole,part]);
+ }
+ }
+ return null;
+}
+
+function mk5Decimals(id,tier,mode){
+ let a,b,c,ans,n,m,x,why,place;
+ const tenths=(lo=1,hi=90)=>ri(lo,hi)/10;
+ const cents=(lo=101,hi=3999)=>ri(lo,hi)/100;
+ switch(id){
+ case 'dec_place':{
+  a=ri(1,9);b=ri(0,9);c=ri(0,9);const thous=ri(0,9),number=`${a},${b}${c}${thous}`,place=mk5Pick([{i:0,label:'десятых',val:b},{i:1,label:'сотых',val:c},{i:2,label:'тысячных',val:thous}]);
+  if(mode===0)return mk5Num(`В числе ${number} какая цифра стоит в разряде ${place.label}?`,place.val,`После запятой ищем ${place.i+1}-ю цифру: ${place.val}.`,'decimal_digit',[a,b,c,thous]);
+  if(mode===1)return mk5Num(`В десятичной дроби ${number} сколько всего цифр после запятой?`,3,`После запятой стоят три цифры: ${b}, ${c} и ${thous}.`,'decimal_digits_count',[1,2,4]);
+  const newDigit=ri(0,9),newNum=Number(`${a}.${b}${newDigit}${thous}`);return mk5Num(`В числе ${number} цифру сотых заменили на ${newDigit}. Какое десятичное число получилось?`,newNum,`Вторая цифра после запятой стала ${newDigit}: ${mk5Comma(newNum)}.`,'decimal_replace_digit',[Number(`${a}.${b}${c}${thous}`),a]);
+ }
+ case 'dec_compare':{
+  a=ri(101,9999);b=ri(101,9999);if(mode===2&&Math.random()<.35)b=a;
+  if(mode===0)return mk5Sign(`Поставь знак: ${mk5Comma(a/100)} □ ${mk5Comma(b/100)}.`,a,100,b,100,`Сравниваем десятичные разряды: ${a} и ${b} сотых.`,'decimal_compare_sign');
+  if(mode===1){c=ri(101,9999);ans=Math.max(a,b,c)/100;return mk5Num(`Какое число самое большое: ${mk5Comma(a/100)}; ${mk5Comma(b/100)}; ${mk5Comma(c/100)}?`,ans,`Сравниваем числа по разрядам: наибольшее ${mk5Comma(ans)}.`,'decimal_max_three',[a/100,b/100,c/100]);}
+  if(tier===2){c=ri(101,9999);const highest=Math.max(a,b,c);return mk5Num(`Найди наибольшее: ${mk5Comma(a/100)}; ${mk5Comma(b/100)}; ${mk5Comma(c/100)}.`,highest/100,`Сравниваем разряды трёх чисел. Максимум ${mk5Comma(highest/100)}.`,'decimal_compare_three',[a/100,b/100,c/100].filter(v=>v!==highest/100));}
+  return mk5Sign(`Верно сравни ${mk5Comma(a/100)} и ${mk5Comma(b/100)} (при необходимости допиши нули).`,a,100,b,100,`Разница в сотых определяется сравнением целых чисел ${a} и ${b}.`,'decimal_compare_zeroes');
+ }
+ case 'dec_add':{
+  a=ri(12,800+tier*500);b=ri(13,600+tier*400);ans=(a+b)/100;
+  if(mode===0)return mk5Num(`${mk5Comma(a/100)} + ${mk5Comma(b/100)} = ?`,ans,`Складываем сотые: (${a}+${b})/100 = ${mk5Comma(ans)}.`,'decimal_add_pair',[a/100,b/100]);
+  if(mode===1){c=ri(10,500);ans=(a+b+c)/100;return mk5Num(`Вычисли ${mk5Comma(a/100)} + ${mk5Comma(b/100)} + ${mk5Comma(c/100)}.`,ans,`Сложим все сотые: (${a}+${b}+${c})/100=${mk5Comma(ans)}.`,'decimal_add_three',[(a+b)/100,(a+c)/100]);}
+  if(tier===2){c=ri(20,900);ans=(a+b+c)/100;return mk5Num(`К верёвке длиной ${mk5Comma(a/100)} м привязали ${mk5Comma(b/100)} м, затем ещё ${mk5Comma(c/100)} м. Какой стала длина (м)?`,ans,`${mk5Comma(a/100)}+${mk5Comma(b/100)}+${mk5Comma(c/100)}=${mk5Comma(ans)} м.`,'decimal_add_context_three',[(a+b)/100,(b+c)/100]);}
+  return mk5Num(`К верёвке длиной ${mk5Comma(a/100)} м привязали ещё ${mk5Comma(b/100)} м. Какой стала длина (м)?`,ans,`${mk5Comma(a/100)} + ${mk5Comma(b/100)} = ${mk5Comma(ans)} м.`,'decimal_add_context',[a/100,b/100]);
+ }
+ case 'dec_sub':{
+  b=ri(11,700+tier*300);a=b+ri(20,800+tier*500);ans=(a-b)/100;
+  if(mode===0)return mk5Num(`${mk5Comma(a/100)} − ${mk5Comma(b/100)} = ?`,ans,`Вычитаем сотые: (${a}−${b})/100=${mk5Comma(ans)}.`,'decimal_sub_pair',[a/100,b/100]);
+  if(mode===1){c=ri(1,a-b);ans=(a-b-c)/100;return mk5Num(`Вычисли ${mk5Comma(a/100)} − ${mk5Comma(b/100)} − ${mk5Comma(c/100)}.`,ans,`Сначала ${mk5Comma((a-b)/100)}, затем вычитаем ${mk5Comma(c/100)}: ${mk5Comma(ans)}.`,'decimal_sub_three',[(a-b)/100,(a-c)/100]);}
+  if(tier===2){c=ri(1,a-b);ans=(a-b-c)/100;return mk5Num(`Было ${mk5Comma(a/100)} л сока. Утром выпили ${mk5Comma(b/100)} л, вечером ещё ${mk5Comma(c/100)} л. Сколько литров осталось?`,ans,`Вычитаем оба расхода: (${a}−${b}−${c})/100 = ${mk5Comma(ans)} л.`,'decimal_sub_context_three',[(a-b)/100,(a-c)/100]);}
+  return mk5Num(`Было ${mk5Comma(a/100)} л сока. Выпили ${mk5Comma(b/100)} л. Сколько литров осталось?`,ans,`Осталось ${mk5Comma(a/100)}−${mk5Comma(b/100)}=${mk5Comma(ans)} л.`,'decimal_sub_context',[a/100,b/100]);
+ }
+ case 'dec_round':{
+  n=ri(1010,90000+tier*40000),place=mode===0?100:mode===1?10:1000;const rounded=Math.floor((n+place/2)/place)*place/1000;ans=rounded;
+  const unit=place===100?'десятых':place===10?'сотых':'целых';return mk5Num(`Округли число ${mk5Comma(n/1000)} до ${unit}.`,ans,`Следующий разряд справа определяет округление: ${mk5Comma(ans)}.`,'decimal_round_'+mode,[n/1000,Math.floor(n/place)*place/1000]);
+ }
+ case 'dec_mul10':{
+  a=ri(101,9900+tier*5000);b=mk5Pick([10,100,1000]);ans=(a*b)/100;
+  if(mode===0)return mk5Num(`${mk5Comma(a/100)} · ${b} = ?`,ans,`При умножении на ${b} запятую переносим вправо на ${String(b).length-1} разряда.`,'decimal_shift_mul',[a/100,ans/10]);
+  if(mode===1)return mk5Num(`Некоторое число умножили на ${b} и получили ${mk5Comma(ans)}. Какое было число?`,a/100,`Обратное действие — разделить ${mk5Comma(ans)} на ${b}.`,'decimal_shift_mul_inverse',[ans,ans/b/10]);
+  c=mk5Pick([10,100]);return mk5Num(`Вычисли ${mk5Comma(a/100)} · ${b} · ${c}.`,ans*c,`Последовательно переносим запятую на ${String(b).length-1} и ${String(c).length-1} позиций вправо.`,'decimal_shift_mul_chain',[ans,ans*c/10]);
+ }
+ case 'dec_div10':{
+  a=ri(1010,90000+tier*40000);b=mk5Pick([10,100,1000]);ans=a/(100*b);
+  if(mode===0)return mk5Num(`${mk5Comma(a/100)} : ${b} = ?`,ans,`Переносим запятую влево на ${String(b).length-1} разряда: ${mk5Comma(ans)}.`,'decimal_shift_div',[a/100,ans*10]);
+  if(mode===1)return mk5Num(`Число разделили на ${b} и получили ${mk5Comma(ans)}. Какое было число?`,a/100,`Чтобы вернуть исходное число, умножаем ${mk5Comma(ans)} на ${b}.`,'decimal_shift_div_inverse',[ans,a/100+b]);
+  c=mk5Pick([10,100]);return mk5Num(`Вычисли ${mk5Comma(a/100)} : ${b} : ${c}.`,a/(100*b*c),`Два последовательных деления перемещают запятую влево на ${String(b).length+String(c).length-2} разряда.`,'decimal_shift_div_chain',[ans,a/100]);
+ }
+ case 'dec_mul_nat':{
+  a=ri(11,2000+tier*700);b=ri(2,7+tier*3);ans=a*b/100;
+  if(mode===0)return mk5Num(`${mk5Comma(a/100)} · ${b} = ?`,ans,`Умножаем сотые ${a}·${b}=${a*b}, получаем ${mk5Comma(ans)}.`,'decimal_mul_int',[a/100,a+b]);
+  if(mode===1)return mk5Num(`Цена тетради ${mk5Comma(a/100)} ₽. Сколько стоят ${b} таких тетрадей (₽)?`,ans,`${mk5Comma(a/100)}·${b}=${mk5Comma(ans)} ₽.`,'decimal_mul_int_context',[a/100,ans+b]);
+  c=ri(1,5);return mk5Num(`Найди ${mk5Comma(a/100)} · ${b} + ${c}.`,ans+c,`Сначала ${mk5Comma(ans)}, затем прибавляем ${c}: ${mk5Comma(ans+c)}.`,'decimal_mul_int_expression',[ans,(a/100)*(b+c)]);
+ }
+ case 'dec_div_nat':{
+  b=ri(2,7+tier*3);a=ri(120,2400+tier*800);ans=a/100;n=a*b/100;
+  if(mode===0)return mk5Num(`${mk5Comma(n)} : ${b} = ?`,ans,`Поскольку ${mk5Comma(ans)}·${b}=${mk5Comma(n)}, частное ${mk5Comma(ans)}.`,'decimal_div_int',[n,ans+b]);
+  if(mode===1)return mk5Num(`За ${b} одинаковых тетрадей заплатили ${mk5Comma(n)} ₽. Сколько стоит одна (₽)?`,ans,`${mk5Comma(n)}:${b}=${mk5Comma(ans)} ₽.`,'decimal_div_int_price',[n,b]);
+  c=ri(1,7);return mk5Num(`Вычисли ${mk5Comma(n)} : ${b} + ${c}.`,ans+c,`Деление даёт ${mk5Comma(ans)}; после прибавления ${c} получаем ${mk5Comma(ans+c)}.`,'decimal_div_int_expression',[ans,n+c]);
+ }
+ case 'dec_mul_dec':{
+  a=ri(11,75+tier*20);b=ri(11,69+tier*20);ans=a*b/100;
+  if(mode===0)return mk5Num(`${mk5Comma(a/10)} · ${mk5Comma(b/10)} = ?`,ans,`Перемножаем ${a}·${b}=${a*b} десятых на десятые: получаем ${mk5Comma(ans)}.`,'decimal_mul_decimal',[a/10+b/10,a*b/10]);
+  if(mode===1)return mk5Num(`Стороны прямоугольника ${mk5Comma(a/10)} м и ${mk5Comma(b/10)} м. Какова его площадь (м²)?`,ans,`S=${mk5Comma(a/10)}·${mk5Comma(b/10)}=${mk5Comma(ans)} м².`,'decimal_mul_area',[a/10,b/10]);
+  c=ri(2,4);return mk5Num(`Вычисли ${mk5Comma(a/10)} · ${mk5Comma(b/10)} · ${c}.`,ans*c,`Сначала ${mk5Comma(ans)}, затем умножаем на ${c}: ${mk5Comma(ans*c)}.`,'decimal_mul_decimal_chain',[ans,ans+c]);
+ }
+ case 'dec_div_dec':{
+  a=ri(11,45+tier*12);b=ri(12,90+tier*20);ans=a/10;n=(a*b)/100;
+  if(mode===0)return mk5Num(`${mk5Comma(n)} : ${mk5Comma(b/10)} = ?`,ans,`Умножаем делимое и делитель на 10, затем выполняем деление: ${mk5Comma(ans)}.`,'decimal_div_decimal',[n,b/10]);
+  if(mode===1)return mk5Num(`За ${mk5Comma(b/10)} кг яблок заплатили ${mk5Comma(n)} ₽. Какова цена 1 кг (₽)?`,ans,`${mk5Comma(n)}:${mk5Comma(b/10)}=${mk5Comma(ans)} ₽.`,'decimal_div_decimal_context',[n,b/10]);
+  c=ri(1,9);return mk5Num(`Вычисли ${mk5Comma(n)} : ${mk5Comma(b/10)} + ${c}.`,ans+c,`Сначала делим: ${mk5Comma(ans)}, затем прибавляем ${c}.`,'decimal_div_decimal_chain',[ans,n+c]);
+ }
+ case 'dec_to_common':{
+  const places=ri(1,tier===0?2:3),base=10**places;let parts=ri(1,base-1);if(tier===0&&places===2)parts=mk5Pick([10,20,25,40,50,75]);const reduced=g5NewRat(parts,base),decimal=mk5Comma(parts/base);
+  if(mode===0)return mk5Rational(`Переведи ${decimal} в обыкновенную дробь и сократи.`,parts,base,`${decimal} = ${mk5Frac(parts,base)} = ${mk5Frac(reduced[0],reduced[1])}.`,'convert_dec_to_fraction',[[parts+1,base],[parts,base+1]]);
+  if(mode===1)return mk5Num(`Запиши дробь ${mk5Frac(reduced[0],reduced[1])} десятичным числом.`,parts/base,`Приводим дробь к знаменателю ${base}: ${mk5Frac(parts,base)} = ${decimal}.`,'convert_fraction_to_dec',[parts/base+0.1,parts/base/10]);
+  return mk5Num(`Дробь ${mk5Frac(parts,base)} равна какому десятичному числу?`,parts/base,`Знаменатель ${base}: запятая отделяет ${places} ${places===1?'цифру':'цифры'} справа.`,'convert_by_denominator',[parts/base+0.01,parts/base/10]);
+ }
+ case 'percent':{
+  const p=mk5Pick(tier===0?[10,25,50]:tier===1?[5,10,20,25,40,50]:[5,10,12,15,20,25,30,40,50,75]);a=ri(3,25+tier*10)*20;ans=mk5Number(a*p/100);
+  if(mode===0)return mk5Num(`Найди ${p}% от ${a}.`,ans,`${a}:100·${p}=${ans}.`,'percent_of_number',[a,p,a-ans]);
+  if(mode===1)return mk5Num(`Товар стоит ${a} ₽. Скидка ${p}%. Сколько рублей составляет скидка?`,ans,`Скидка ${a}·${p}/100=${ans} ₽.`,'percent_discount_amount',[a,a-ans]);
+  return mk5Num(`Товар стоил ${a} ₽, цену увеличили на ${p}%. Сколько он стоит теперь (₽)?`,a+ans,`Прибавка ${ans} ₽; новая цена ${a}+${ans}=${a+ans} ₽.`,'percent_price_increase',[a,ans]);
+ }
+ case 'percent_whole':{
+  const p=mk5Pick(tier===0?[10,20,25,50]:tier===1?[5,10,20,25,40,50]:[5,10,12,15,20,25,30,40,50,75]);a=ri(5,30+tier*10)*20;b=a*p/100;
+  if(mode===0)return mk5Num(`${p}% некоторого числа составляют ${mk5Comma(b)}. Найди всё число.`,a,`${mk5Comma(b)} : ${p} · 100 = ${a}.`,'percent_restore',[b,p]);
+  if(mode===1)return mk5Num(`На складе продали ${p}% товара — это ${mk5Comma(b)} кг. Сколько килограммов было первоначально?`,a,`1% = ${mk5Comma(b)}:${p}, 100% = ${a} кг.`,'percent_restore_context',[a-b,b]);
+  return mk5Num(`Скидка ${p}% составила ${mk5Comma(b)} ₽. Какой была цена товара до скидки (₽)?`,a,`${mk5Comma(b)}:{p}·100=${a} ₽.`,'percent_restore_discount',[a-b,b]);
+ }
+ case 'average':{
+  a=ri(6,30+tier*8);
+  if(mode===0){b=ri(2,2*a-2);c=3*a-b-ri(2,a);const third=3*a-b-c;return mk5Num(`Найди среднее арифметическое чисел ${b}, ${c}, ${third}.`,a,`Сумма трёх чисел ${b+c+third}; делим на 3: ${a}.`,'average_three',[3*a,a+1]);}
+  if(mode===1){const one=ri(2,a),two=ri(2,a),three=ri(2,a),four=4*a-one-two-three;return mk5Num(`Найди среднее четырёх чисел: ${one}, ${two}, ${three}, ${four}.`,a,`Сумма ${4*a}; делим на 4: ${a}.`,'average_four',[4*a,a+2]);}
+  b=ri(3,a);c=ri(3,a);const unknown=3*a-b-c;return mk5Num(`Среднее трёх чисел равно ${a}. Два числа: ${b} и ${c}. Найди третье.`,unknown,`Сумма трёх равна ${3*a}; третье число ${3*a}−${b}−${c}=${unknown}.`,'average_missing',[a,3*a]);
+ }
+ }
+ return null;
+}
+
+const MK5_GRADE5_IDS=new Set([...G5_CORE,...G5_FRACTIONS,...G5_DECIMALS].map(t=>t.id));
+makeG5Question=function(id){
+ const raw=String(id||'');
+ const topic=raw==='fraction_mix'?mk5Pick(G5_FRACTIONS).id:raw;
+ if(!MK5_GRADE5_IDS.has(topic))return MK5_ORIGINAL_MAKE(id);
+ const stage=Math.max(0,Math.min(2,Number(activeDifficulty())||0));
+ const pos=Math.max(0,Number(blockSession?.done)||0);
+ const total=Math.max(3,Number(blockSession?.total)||5);
+ const phase=Math.min(2,Math.floor(3*pos/total));
+ const level=Math.min(2,Math.floor((stage+phase)/2));
+ const mode=(pos+stage)%3;
+ const qq=mk5ScoreVariant(topic,level,mode);
+ if(!qq)throw new Error('Нет генератора для темы 5 класса '+topic);
+ const correctChoice=qq.choices.find(c=>String(c.key)===String(qq.correct));
+ if(!correctChoice)throw new Error('Правильный ответ не представлен в '+topic);
+ const answerText=choicePlain(correctChoice);
+ const promptKey=qq.text.includes('<svg')?`diagram_${mk5PromptHash(qq.text)}`:stripHtmlText(qq.text);
+ // Difficulty is deliberately absent from identity: the *same visible task*
+ // cannot be accepted twice just because it was generated at another tier.
+ const sig=`g5:${raw}:${topic}:${qq.templateId}:${promptKey}:${String(qq.correct)}:${qq.choices.map(c=>academicHtmlPlain(c.label)).sort().join('~')}`;
+ return {text:qq.text,ans:String(qq.correct),choices:qq.choices.map(c=>({label:c.label,key:String(c.key)})),ex:qq.explain,
+  correctLabel:correctChoice.label,correctText:answerText,sourceTopicId:topic,templateId:qq.templateId,
+  mk5Audit:{...(qq.mk5Audit||{}),level,phase,mode,stage,topic},sig};
+};
+function mk5Family(sig){const s=String(sig||'').split(':');return s.length>4&&s[0]==='g5'?s[3]:''}
+function mk5PromptHash(value){let h=2166136261;for(const ch of String(value)){h=Math.imul(h^ch.charCodeAt(0),16777619)>>>0}return h.toString(36)}
+freshQuiz=function(id){
+ const sid=String(id||'');
+ if(!sid.startsWith('g5:')||!['g5quiz','g5mix'].includes(blockSession?.kind))return MK5_ORIGINAL_FRESH(id);
+ const raw=rawCourseId(sid),used=blockSession?.usedSignatures||[],lastFamily=mk5Family(used[used.length-1]);
+ const past=new Set((blockSession?.items||[]).map(x=>String(x.prompt||'')));
+ const familyMaker=()=>makeG5Question(raw),signature=q=>q.sig;
+ for(let pass=0;pass<3;pass++)for(let attempt=0;attempt<160;attempt++){
+  const q=familyMaker(),key=signature(q),sameFamily=mk5Family(key)===lastFamily;
+  if(wasUsedInBlock(key))continue;
+  if(pass===0&&(wasRecent(key)||sameFamily||past.has(q.text)))continue;
+  if(pass===1&&(sameFamily||past.has(q.text)))continue;
+  if(pass===2&&past.has(q.text))continue;
+  registerSignature(key);q._signature=key;return q;
+ }
+ return freshCandidate(familyMaker,signature,600);
+};
+})();
 
 </script>
 </body></html>
