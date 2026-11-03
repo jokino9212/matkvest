@@ -18,6 +18,7 @@ function g7Stage2Patch(){
  const pic=(kind="scalene")=>g7TriangleData(kind,kind==="isosceles"?{sideMarks:[{side:"AB",count:1},{side:"AC",count:1}]}:kind==="equilateral"?{sideMarks:[{side:"AB",count:1},{side:"BC",count:1},{side:"AC",count:1}]}:{});
  const N=(id,d,v,t,a,e,nums,p,u="")=>g7GeoNumber(t,a,e,g7QuestionSig(id,d,"audit2_"+v,nums),{type:"g7Stage2",variant:v,id,d,nums,answer:a},p,"Чертёж схематический; длины заданы условием.",u);
  const C=(id,d,v,t,a,wrong,e,nums,p)=>{const sig=g7QuestionSig(id,d,"audit2_"+v,nums),meta={type:"g7Stage2",variant:v,id,d,nums,answer:a};return p?g7GeoChoice(t,a,wrong,e,sig,meta,p):g7StrictChoice(t,a,wrong,e,sig,meta)};
+ const bisectorPicture=()=>{const m=g7TriModel("isosceles"),p=g7TriSidePoint(m.points.B,m.points.C,.5);return {kind:"g7-triangle",subtype:"isosceles",points:m.points,sideMarks:[{side:"AB",count:1},{side:"AC",count:1}],cevian:{kind:"bisector",from:"A",point:p,label:"D"},aria:"Равнобедренный треугольник ABC с биссектрисой AD"};};
  const T=d=>{let a,b,c;for(let i=0;i<99;i++){a=ri(5+d*3,12+d*5);b=ri(5+d*3,12+d*5);c=ri(Math.abs(a-b)+1,a+b-1);if(a!==b&&a!==c&&b!==c)break;}return {a,b,c,P:a+b+c}};
  function Q(id,d){
   if(id==="geo_triangle_elements"){
@@ -48,10 +49,10 @@ function g7Stage2Patch(){
    if(v==="copy")return N(id,d,v,`AB=AC и ∠B=${b}°. Найди ∠C.`,b,`Углы при основании равны, ∠C=<b>${b}°</b>.`,[b],pic("isosceles"),"°");
    if(v==="vertex")return N(id,d,v,`AB=AC и ∠B=${b}°. Найди ∠A.`,A,`∠A=180−2·${b}=<b>${A}°</b>.`,[b],pic("isosceles"),"°");
    if(v==="base")return N(id,d,v,`AB=AC и ∠A=${A}°. Найди ∠B.`,b,`∠B=(180−${A}):2=<b>${b}°</b>.`,[A],pic("isosceles"),"°");
-   if(v==="half")return N(id,d,v,`AB=AC, ∠B=${b}°, AD — биссектриса ∠A. Найди ∠BAD.`,90-b,`∠A=180−2·${b}=${A}°, значит ∠BAD=${A}:2=<b>${90-b}°</b>.`,[b],pic("isosceles"),"°");
+   if(v==="half")return N(id,d,v,`AB=AC, ∠B=${b}°, AD — биссектриса ∠A. Найди ∠BAD.`,90-b,`∠A=180−2·${b}=${A}°, значит ∠BAD=${A}:2=<b>${90-b}°</b>.`,[b],bisectorPicture(),"°");
    if(v==="reverse_half"){
     const h=ri(15,55);
-    return N(id,d,v,`AB=AC, AD — биссектриса ∠A, ∠BAD=${h}°. Найди ∠B.`,90-h,`∠A=${2*h}°, ∠B=(180−${2*h}):2=<b>${90-h}°</b>.`,[h],pic("isosceles"),"°");
+    return N(id,d,v,`AB=AC, AD — биссектриса ∠A, ∠BAD=${h}°. Найди ∠B.`,90-h,`∠A=${2*h}°, ∠B=(180−${2*h}):2=<b>${90-h}°</b>.`,[h],bisectorPicture(),"°");
    }
    const base=ri(61,78),delta=3*base-180;
    return N(id,d,v,`В равнобедренном △ABC угол при основании на ${delta}° больше угла при вершине. Найди угол при основании.`,base,`Если искомый угол x, то 2x+(x−${delta})=180, x=(180+${delta}):3=<b>${base}°</b>.`,[delta],pic("isosceles"),"°");
