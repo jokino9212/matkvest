@@ -1,0 +1,35 @@
+name: Rebuild G7 audit HTML after geometry refinements
+on:
+  push:
+    branches: [audit/g7-stage2-20261103]
+    paths: [.github/workflows/g7_stage2_rebuild.yml]
+permissions:
+  contents: write
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit/g7-stage2-20261103
+      - name: Update only injected G7 stage 2 code
+        run: python3 audits/g7_stage2_apply.py
+      - name: Validate JavaScript and diff
+        run: |
+          node --check audits/g7_stage2_patch.js
+          node - <<'NODE'
+          const fs=require('fs'),html=fs.readFileSync('index.html','utf8');
+          const start=html.lastIndexOf('<script>'),end=html.lastIndexOf('</script>');
+          new Function(html.slice(start+8,end));
+          if(html.includes('Math.random()<0.08)return previousG7')) throw Error('legacy fallback');
+          if(!html.includes('if(a===b)a++')) throw Error('isosceles guard missing');
+          console.log('Audit stage 2 compiled JS PASS');
+          NODE
+          git diff --check
+      - name: Commit compiled HTML to audit branch, not main
+        run: |
+          git config user.name 'MatKvest Audit Builder'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          git commit -m 'Refine G7 stage2 geometry and rebuild audit HTML'
+          git push origin HEAD:audit/g7-stage2-20261103
