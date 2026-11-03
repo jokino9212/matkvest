@@ -1,0 +1,5219 @@
+{
+  "catalog": 107,
+  "total": 5190,
+  "errors": [],
+  "stats": [
+    {
+      "raw": "stat_choose_characteristic",
+      "d": 0,
+      "requested": 220,
+      "successes": 220,
+      "newStage6": 195,
+      "uniqueTexts": 186,
+      "uniqueSignatures": 186,
+      "variantCount": 7,
+      "variants": [
+        "max_value",
+        "range_measure",
+        "min_value",
+        "mean_no_outlier",
+        "range_meaning",
+        "mean_basic",
+        "extreme"
+      ]
+    },
+    {
+      "raw": "stat_choose_characteristic",
+      "d": 1,
+      "requested": 220,
+      "successes": 220,
+      "newStage6": 182,
+      "uniqueTexts": 183,
+      "uniqueSignatures": 183,
+      "variantCount": 9,
+      "variants": [
+        "mean_no_outlier",
+        "range_meaning",
+        "compare_spread",
+        "median_outlier",
+        "max_value",
+        "median_find",
+        "range_measure",
+        "mean_basic",
+        "extreme"
+      ]
+    },
+    {
+      "raw": "stat_choose_characteristic",
+      "d": 2,
+      "requested": 220,
+      "successes": 220,
+      "newStage6": 191,
+      "uniqueTexts": 185,
+      "uniqueSignatures": 185,
+      "variantCount": 11,
+      "variants": [
+        "range_measure",
+        "median_find",
+        "outlier_effect",
+        "mean_no_outlier",
+        "median_outlier",
+        "range_effect",
+        "compare_spread",
+        "range_meaning",
+        "mean_basic",
+        "extreme",
+        "resistant"
+      ]
+    },
+    {
+      "raw": "stat_random_variability",
+      "d": 0,
+      "requested": 220,
+      "successes": 220,
+      "newStage6": 190,
+      "uniqueTexts": 177,
+      "uniqueSignatures": 180,
+      "variantCount": 5,
+      "variants": [
+        "change_count",
+        "equal_or_not",
+        "stable",
+        "recognize",
+        "range"
+      ]
+    },
+    {
+      "raw": "stat_random_variability",
+      "d": 1,
+      "requested": 220,
+      "successes": 220,
+      "newStage6": 189,
+      "uniqueTexts": 181,
+      "uniqueSignatures": 187,
+      "variantCount": 9,
+      "variants": [
+        "stable",
+        "compare",
+        "change_count",
+        "offset",
+        "equal_or_not",
+        "range",
+        "recognize",
+        "example",
+        "stronger"
+      ]
+    },
+    {
+      "raw": "stat_random_variability",
+      "d": 2,
+      "requested": 220,
+      "successes": 220,
+      "newStage6": 193,
+      "uniqueTexts": 191,
+      "uniqueSignatures": 198,
+      "variantCount": 11,
+      "variants": [
+        "change_count",
+        "example",
+        "offset",
+        "stable",
+        "equal_or_not",
+        "range",
+        "bigger_range",
+        "compare",
+        "reason",
+        "stronger",
+        "recognize"
+      ]
+    },
+    {
+      "raw": "geo_perpendicular_oblique_distances",
+      "d": 0,
+      "requested": 220,
+      "successes": 220,
+      "newStage6": 191,
+      "uniqueTexts": 101,
+      "uniqueSignatures": 101,
+      "variantCount": 6,
+      "variants": [
+        "difference",
+        "parallel",
+        "shortest",
+        "height",
+        "distance",
+        "identify"
+      ]
+    },
+    {
+      "raw": "geo_perpendicular_oblique_distances",
+      "d": 1,
+      "requested": 220,
+      "successes": 220,
+      "newStage6": 189,
+      "uniqueTexts": 153,
+      "uniqueSignatures": 153,
+      "variantCount": 8,
+      "variants": [
+        "difference",
+        "height",
+        "shortest",
+        "oblique_from_difference",
+        "identify",
+        "parallel",
+        "feasibility",
+        "distance"
+      ]
+    },
+    {
+      "raw": "geo_perpendicular_oblique_distances",
+      "d": 2,
+      "requested": 220,
+      "successes": 220,
+      "newStage6": 181,
+      "uniqueTexts": 145,
+      "uniqueSignatures": 146,
+      "variantCount": 9,
+      "variants": [
+        "difference_inverse",
+        "difference",
+        "compare",
+        "feasibility",
+        "distance",
+        "parallel",
+        "shortest",
+        "height",
+        "oblique_from_difference"
+      ]
+    },
+    {
+      "raw": "rational_numbers_forms",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 9,
+      "uniqueSignatures": 9,
+      "variantCount": 4,
+      "variants": [
+        "opposite",
+        "int_fraction",
+        "fraction_decimal",
+        "absolute"
+      ]
+    },
+    {
+      "raw": "rational_numbers_forms",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 4,
+      "variants": [
+        "absolute_decimal",
+        "opposite_fraction",
+        "decimal_fraction",
+        "equivalent"
+      ]
+    },
+    {
+      "raw": "rational_numbers_forms",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 6,
+      "uniqueSignatures": 8,
+      "variantCount": 3,
+      "variants": [
+        "signed_fraction_decimal",
+        "recover_number",
+        "equivalent_chain"
+      ]
+    },
+    {
+      "raw": "rational_compare_order",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 3,
+      "variants": [
+        "int_compare",
+        "same_den",
+        "negative_compare"
+      ]
+    },
+    {
+      "raw": "rational_compare_order",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 6,
+      "uniqueSignatures": 10,
+      "variantCount": 3,
+      "variants": [
+        "fraction_decimal",
+        "order3",
+        "negative_fraction"
+      ]
+    },
+    {
+      "raw": "rational_compare_order",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 6,
+      "uniqueSignatures": 10,
+      "variantCount": 3,
+      "variants": [
+        "mixed_compare",
+        "order4",
+        "distance_compare"
+      ]
+    },
+    {
+      "raw": "rational_arithmetic",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 3,
+      "variants": [
+        "mul_simple",
+        "div_simple",
+        "sub_signed"
+      ]
+    },
+    {
+      "raw": "rational_arithmetic",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 4,
+      "variants": [
+        "frac_add",
+        "two_step",
+        "decimal_signed",
+        "fraction_muldiv"
+      ]
+    },
+    {
+      "raw": "rational_arithmetic",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 4,
+      "variants": [
+        "fraction_combo",
+        "four_ops",
+        "bracket_combo",
+        "three_step"
+      ]
+    },
+    {
+      "raw": "fraction_word_problems",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 3,
+      "variants": [
+        "what_fraction",
+        "part",
+        "restore"
+      ]
+    },
+    {
+      "raw": "fraction_word_problems",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 3,
+      "variants": [
+        "two_action",
+        "length_part",
+        "fraction_of_remainder"
+      ]
+    },
+    {
+      "raw": "fraction_word_problems",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 8,
+      "uniqueSignatures": 8,
+      "variantCount": 3,
+      "variants": [
+        "two_fractions_total",
+        "three_action_books",
+        "route_remainder"
+      ]
+    },
+    {
+      "raw": "natural_power_definition",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 4,
+      "variants": [
+        "exponent",
+        "compute",
+        "product_to_power",
+        "base"
+      ]
+    },
+    {
+      "raw": "natural_power_definition",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 4,
+      "variants": [
+        "expand",
+        "missing_exp",
+        "negative_compute",
+        "sign"
+      ]
+    },
+    {
+      "raw": "natural_power_definition",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 4,
+      "variants": [
+        "product_identify",
+        "negative_parity",
+        "sum_powers",
+        "power_compare"
+      ]
+    },
+    {
+      "raw": "percent_fraction_conversion",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 9,
+      "uniqueSignatures": 9,
+      "variantCount": 3,
+      "variants": [
+        "decimal_percent",
+        "percent_decimal",
+        "percent_fraction"
+      ]
+    },
+    {
+      "raw": "percent_fraction_conversion",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 7,
+      "uniqueSignatures": 9,
+      "variantCount": 3,
+      "variants": [
+        "equivalent",
+        "fraction_percent",
+        "signed_compare"
+      ]
+    },
+    {
+      "raw": "percent_fraction_conversion",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 5,
+      "uniqueSignatures": 9,
+      "variantCount": 3,
+      "variants": [
+        "equivalent_chain",
+        "mixed_percent",
+        "compare_forms"
+      ]
+    },
+    {
+      "raw": "percent_word_problems",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 3,
+      "variants": [
+        "percent_ratio",
+        "number_by_percent",
+        "of_number"
+      ]
+    },
+    {
+      "raw": "percent_word_problems",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 3,
+      "variants": [
+        "increase",
+        "discount",
+        "mass"
+      ]
+    },
+    {
+      "raw": "percent_word_problems",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 9,
+      "uniqueSignatures": 9,
+      "variantCount": 4,
+      "variants": [
+        "discount_delivery",
+        "distance_combo",
+        "reverse_discount",
+        "two_changes"
+      ]
+    },
+    {
+      "raw": "divisibility_factorization",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 9,
+      "uniqueSignatures": 9,
+      "variantCount": 4,
+      "variants": [
+        "sign_rule",
+        "prime",
+        "divisor",
+        "multiple"
+      ]
+    },
+    {
+      "raw": "divisibility_factorization",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 9,
+      "uniqueSignatures": 9,
+      "variantCount": 4,
+      "variants": [
+        "prime_missing",
+        "restore",
+        "factorization",
+        "divisible_both"
+      ]
+    },
+    {
+      "raw": "divisibility_factorization",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 9,
+      "uniqueSignatures": 9,
+      "variantCount": 4,
+      "variants": [
+        "divisibility_combo_balanced",
+        "factorization_compare",
+        "lcm_tool",
+        "gcd_tool"
+      ]
+    },
+    {
+      "raw": "direct_inverse_proportion",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 3,
+      "variants": [
+        "direct_relation",
+        "direct_unknown",
+        "inverse_relation"
+      ]
+    },
+    {
+      "raw": "direct_inverse_proportion",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 3,
+      "variants": [
+        "inverse_workers",
+        "direct_unknown",
+        "inverse_time"
+      ]
+    },
+    {
+      "raw": "direct_inverse_proportion",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 3,
+      "variants": [
+        "reverse_price",
+        "combined_cost",
+        "inverse_workers"
+      ]
+    },
+    {
+      "raw": "variables_expression_value",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 3,
+      "variants": [
+        "square",
+        "two_vars",
+        "linear"
+      ]
+    },
+    {
+      "raw": "variables_expression_value",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 5,
+      "variants": [
+        "linear_negative",
+        "bracket",
+        "square",
+        "two_vars",
+        "fraction_x"
+      ]
+    },
+    {
+      "raw": "variables_expression_value",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 4,
+      "variants": [
+        "two_brackets",
+        "three_step",
+        "fraction_bracket",
+        "two_vars_square"
+      ]
+    },
+    {
+      "raw": "admissible_values",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 9,
+      "variantCount": 2,
+      "variants": [
+        "x_minus",
+        "kx_plus"
+      ]
+    },
+    {
+      "raw": "admissible_values",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 3,
+      "variants": [
+        "shifted",
+        "kx_plus",
+        "product_pair"
+      ]
+    },
+    {
+      "raw": "admissible_values",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 3,
+      "variants": [
+        "product_pair",
+        "scaled_factor",
+        "two_factors"
+      ]
+    },
+    {
+      "raw": "formulas_dependencies",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 3,
+      "variants": [
+        "rectangle_area",
+        "distance",
+        "rectangle_perimeter"
+      ]
+    },
+    {
+      "raw": "formulas_dependencies",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 4,
+      "variants": [
+        "price",
+        "find_side_area",
+        "find_speed",
+        "find_side_perimeter"
+      ]
+    },
+    {
+      "raw": "formulas_dependencies",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 3,
+      "variants": [
+        "rectangle_combo",
+        "two_leg_route",
+        "formula_reverse"
+      ]
+    },
+    {
+      "raw": "expression_properties",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 9,
+      "uniqueSignatures": 9,
+      "variantCount": 3,
+      "variants": [
+        "convenient_sum",
+        "distribute_simple",
+        "property_name"
+      ]
+    },
+    {
+      "raw": "expression_properties",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 3,
+      "variants": [
+        "distribute_linear",
+        "factor_common",
+        "combine"
+      ]
+    },
+    {
+      "raw": "expression_properties",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 4,
+      "variants": [
+        "factor_common",
+        "rational_group",
+        "negative_distribute",
+        "combine"
+      ]
+    },
+    {
+      "raw": "brackets_like_terms",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 3,
+      "variants": [
+        "minus_bracket",
+        "like",
+        "simple_bracket"
+      ]
+    },
+    {
+      "raw": "brackets_like_terms",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 3,
+      "variants": [
+        "minus_bracket",
+        "bracket_like",
+        "bracket_plus"
+      ]
+    },
+    {
+      "raw": "brackets_like_terms",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 3,
+      "variants": [
+        "two_brackets",
+        "two_brackets_negative",
+        "multi_like"
+      ]
+    },
+    {
+      "raw": "identities",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 4,
+      "uniqueSignatures": 9,
+      "variantCount": 2,
+      "variants": [
+        "recognize",
+        "yes_no"
+      ]
+    },
+    {
+      "raw": "identities",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 3,
+      "variants": [
+        "distribution",
+        "yes_no",
+        "equivalent_choice"
+      ]
+    },
+    {
+      "raw": "identities",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 3,
+      "variants": [
+        "yes_no",
+        "equivalent_choice",
+        "two_step_identity"
+      ]
+    },
+    {
+      "raw": "equation_root_equivalence",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 2,
+      "variants": [
+        "equivalent_root",
+        "is_root"
+      ]
+    },
+    {
+      "raw": "equation_root_equivalence",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 3,
+      "variants": [
+        "same_operation",
+        "is_root",
+        "equivalent_root"
+      ]
+    },
+    {
+      "raw": "equation_root_equivalence",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 3,
+      "variants": [
+        "same_operation",
+        "equivalent_root",
+        "bracket_root"
+      ]
+    },
+    {
+      "raw": "linear_equation_one_variable",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 3,
+      "variants": [
+        "x_plus",
+        "times",
+        "ax_plus"
+      ]
+    },
+    {
+      "raw": "linear_equation_one_variable",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 2,
+      "variants": [
+        "bracket",
+        "both_sides"
+      ]
+    },
+    {
+      "raw": "linear_equation_one_variable",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 3,
+      "variants": [
+        "brackets_both",
+        "both_sides_fraction_root",
+        "fraction_coef"
+      ]
+    },
+    {
+      "raw": "linear_equation_cases",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 8,
+      "uniqueSignatures": 10,
+      "variantCount": 3,
+      "variants": [
+        "choose_case",
+        "reduced_meaning",
+        "classify_canonical"
+      ]
+    },
+    {
+      "raw": "linear_equation_cases",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 9,
+      "uniqueSignatures": 10,
+      "variantCount": 3,
+      "variants": [
+        "choose_case",
+        "classify_one_bracket",
+        "reduced_meaning"
+      ]
+    },
+    {
+      "raw": "linear_equation_cases",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 7,
+      "uniqueSignatures": 10,
+      "variantCount": 3,
+      "variants": [
+        "choose_case",
+        "reduced_meaning",
+        "classify_two_brackets"
+      ]
+    },
+    {
+      "raw": "equation_word_problems",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 3,
+      "variants": [
+        "age_simple",
+        "cost",
+        "quantity_add"
+      ]
+    },
+    {
+      "raw": "equation_word_problems",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 4,
+      "variants": [
+        "perimeter",
+        "consecutive",
+        "distance",
+        "two_numbers"
+      ]
+    },
+    {
+      "raw": "equation_word_problems",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 5,
+      "variants": [
+        "perimeter",
+        "age_relation",
+        "distance_two_stage",
+        "consecutive_three",
+        "shopping"
+      ]
+    },
+    {
+      "raw": "number_intervals",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 8,
+      "uniqueSignatures": 8,
+      "variantCount": 3,
+      "variants": [
+        "visual",
+        "ineq_left",
+        "ineq_right"
+      ]
+    },
+    {
+      "raw": "number_intervals",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 7,
+      "uniqueSignatures": 10,
+      "variantCount": 4,
+      "variants": [
+        "membership",
+        "ray_visual",
+        "half_open",
+        "bounded"
+      ]
+    },
+    {
+      "raw": "number_intervals",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 4,
+      "uniqueSignatures": 10,
+      "variantCount": 3,
+      "variants": [
+        "ray_visual",
+        "membership",
+        "reverse_visual"
+      ]
+    },
+    {
+      "raw": "number_line_distance",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 7,
+      "uniqueSignatures": 7,
+      "variantCount": 2,
+      "variants": [
+        "distance",
+        "distance_zero"
+      ]
+    },
+    {
+      "raw": "number_line_distance",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 3,
+      "variants": [
+        "unknown_choice",
+        "opposite_sides",
+        "distance"
+      ]
+    },
+    {
+      "raw": "number_line_distance",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 3,
+      "variants": [
+        "distance_fraction",
+        "unknown_choice",
+        "unknown_one_side"
+      ]
+    },
+    {
+      "raw": "coordinate_plane",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 3,
+      "uniqueSignatures": 9,
+      "variantCount": 3,
+      "variants": [
+        "read_point",
+        "axis",
+        "quadrant"
+      ]
+    },
+    {
+      "raw": "coordinate_plane",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 2,
+      "uniqueSignatures": 8,
+      "variantCount": 3,
+      "variants": [
+        "read_point",
+        "quadrant_visual",
+        "point_axis"
+      ]
+    },
+    {
+      "raw": "coordinate_plane",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 2,
+      "uniqueSignatures": 10,
+      "variantCount": 2,
+      "variants": [
+        "read_multi",
+        "quadrant_visual"
+      ]
+    },
+    {
+      "raw": "function_concept_values",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 6,
+      "uniqueSignatures": 6,
+      "variantCount": 2,
+      "variants": [
+        "value",
+        "concept"
+      ]
+    },
+    {
+      "raw": "function_concept_values",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 3,
+      "variants": [
+        "value_square",
+        "table",
+        "value_negative"
+      ]
+    },
+    {
+      "raw": "function_concept_values",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 3,
+      "variants": [
+        "value_square",
+        "table",
+        "find_argument"
+      ]
+    },
+    {
+      "raw": "function_graph_reading",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 9,
+      "uniqueSignatures": 10,
+      "variantCount": 2,
+      "variants": [
+        "membership",
+        "read_y"
+      ]
+    },
+    {
+      "raw": "function_graph_reading",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 7,
+      "uniqueSignatures": 10,
+      "variantCount": 4,
+      "variants": [
+        "intercept",
+        "read_x",
+        "trend",
+        "read_y"
+      ]
+    },
+    {
+      "raw": "function_graph_reading",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 5,
+      "uniqueSignatures": 10,
+      "variantCount": 4,
+      "variants": [
+        "process_varied",
+        "intercept",
+        "trend",
+        "read_x"
+      ]
+    },
+    {
+      "raw": "direct_proportionality_function",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 8,
+      "uniqueSignatures": 9,
+      "variantCount": 3,
+      "variants": [
+        "value",
+        "property",
+        "k"
+      ]
+    },
+    {
+      "raw": "direct_proportionality_function",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 7,
+      "uniqueSignatures": 9,
+      "variantCount": 4,
+      "variants": [
+        "sign",
+        "read_graph",
+        "k",
+        "membership"
+      ]
+    },
+    {
+      "raw": "direct_proportionality_function",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 4,
+      "variants": [
+        "sign",
+        "find_x",
+        "read_graph",
+        "membership"
+      ]
+    },
+    {
+      "raw": "linear_function",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 5,
+      "uniqueSignatures": 9,
+      "variantCount": 2,
+      "variants": [
+        "b",
+        "value"
+      ]
+    },
+    {
+      "raw": "linear_function",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 6,
+      "uniqueSignatures": 10,
+      "variantCount": 3,
+      "variants": [
+        "graph_read",
+        "membership",
+        "k_b"
+      ]
+    },
+    {
+      "raw": "linear_function",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 8,
+      "uniqueSignatures": 10,
+      "variantCount": 3,
+      "variants": [
+        "membership",
+        "formula",
+        "find_k"
+      ]
+    },
+    {
+      "raw": "absolute_value_function",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 6,
+      "uniqueSignatures": 6,
+      "variantCount": 2,
+      "variants": [
+        "shape",
+        "value"
+      ]
+    },
+    {
+      "raw": "absolute_value_function",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 4,
+      "uniqueSignatures": 4,
+      "variantCount": 3,
+      "variants": [
+        "graph_read",
+        "symmetry",
+        "membership"
+      ]
+    },
+    {
+      "raw": "absolute_value_function",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 7,
+      "uniqueSignatures": 7,
+      "variantCount": 4,
+      "variants": [
+        "symmetry",
+        "compare_balanced",
+        "membership",
+        "graph_read"
+      ]
+    },
+    {
+      "raw": "graphical_equations_systems",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 2,
+      "uniqueSignatures": 10,
+      "variantCount": 2,
+      "variants": [
+        "intersection",
+        "count_one"
+      ]
+    },
+    {
+      "raw": "graphical_equations_systems",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 2,
+      "uniqueSignatures": 9,
+      "variantCount": 3,
+      "variants": [
+        "count_infinite",
+        "count_none",
+        "intersection"
+      ]
+    },
+    {
+      "raw": "graphical_equations_systems",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 2,
+      "uniqueSignatures": 10,
+      "variantCount": 4,
+      "variants": [
+        "count_infinite",
+        "count_one",
+        "intersection",
+        "count_none"
+      ]
+    },
+    {
+      "raw": "power_properties",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 9,
+      "uniqueSignatures": 9,
+      "variantCount": 3,
+      "variants": [
+        "mul",
+        "missing",
+        "div"
+      ]
+    },
+    {
+      "raw": "power_properties",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 4,
+      "variants": [
+        "missing",
+        "chain",
+        "numeric",
+        "two_vars"
+      ]
+    },
+    {
+      "raw": "power_properties",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 4,
+      "variants": [
+        "missing_chain",
+        "chain_long",
+        "two_vars",
+        "coefficient"
+      ]
+    },
+    {
+      "raw": "power_product_power",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 9,
+      "uniqueSignatures": 9,
+      "variantCount": 3,
+      "variants": [
+        "power_power",
+        "numeric_product",
+        "product"
+      ]
+    },
+    {
+      "raw": "power_product_power",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 6,
+      "uniqueSignatures": 6,
+      "variantCount": 3,
+      "variants": [
+        "coef_power",
+        "multi_vars",
+        "power_then_mul"
+      ]
+    },
+    {
+      "raw": "power_product_power",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 9,
+      "uniqueSignatures": 9,
+      "variantCount": 4,
+      "variants": [
+        "combined",
+        "numeric_product",
+        "restore",
+        "multi_vars"
+      ]
+    },
+    {
+      "raw": "monomial_standard_form",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 8,
+      "variantCount": 3,
+      "variants": [
+        "degree",
+        "recognize",
+        "coefficient"
+      ]
+    },
+    {
+      "raw": "monomial_standard_form",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 9,
+      "variantCount": 4,
+      "variants": [
+        "coefficient",
+        "recognize",
+        "degree",
+        "standardize"
+      ]
+    },
+    {
+      "raw": "monomial_standard_form",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 7,
+      "variantCount": 3,
+      "variants": [
+        "recognize",
+        "degree",
+        "choose_standard"
+      ]
+    },
+    {
+      "raw": "monomial_operations",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 9,
+      "uniqueSignatures": 9,
+      "variantCount": 2,
+      "variants": [
+        "power",
+        "multiply"
+      ]
+    },
+    {
+      "raw": "monomial_operations",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 3,
+      "variants": [
+        "divide",
+        "multiply_two_vars",
+        "power"
+      ]
+    },
+    {
+      "raw": "monomial_operations",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 4,
+      "variants": [
+        "divide_two_vars",
+        "power_two_vars",
+        "combined",
+        "multiply_two_vars"
+      ]
+    },
+    {
+      "raw": "functions_x2_x3",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 6,
+      "uniqueSignatures": 6,
+      "variantCount": 3,
+      "variants": [
+        "value_cube",
+        "value_square",
+        "shape"
+      ]
+    },
+    {
+      "raw": "functions_x2_x3",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 6,
+      "uniqueSignatures": 6,
+      "variantCount": 4,
+      "variants": [
+        "membership",
+        "symmetry",
+        "graph_square",
+        "graph_cube"
+      ]
+    },
+    {
+      "raw": "functions_x2_x3",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 7,
+      "uniqueSignatures": 7,
+      "variantCount": 4,
+      "variants": [
+        "graph_cube",
+        "opposite",
+        "membership_false",
+        "graph_square"
+      ]
+    },
+    {
+      "raw": "polynomial_standard_degree",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 3,
+      "variants": [
+        "degree",
+        "terms",
+        "combine"
+      ]
+    },
+    {
+      "raw": "polynomial_standard_degree",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 4,
+      "variants": [
+        "degree_after",
+        "degree_two_vars",
+        "combine",
+        "coefficient"
+      ]
+    },
+    {
+      "raw": "polynomial_standard_degree",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 4,
+      "variants": [
+        "combine_mixed",
+        "standard",
+        "degree_two_vars",
+        "degree_after"
+      ]
+    },
+    {
+      "raw": "polynomial_add_subtract",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 2,
+      "variants": [
+        "subtract",
+        "add"
+      ]
+    },
+    {
+      "raw": "polynomial_add_subtract",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 2,
+      "variants": [
+        "subtract",
+        "add"
+      ]
+    },
+    {
+      "raw": "polynomial_add_subtract",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 4,
+      "variants": [
+        "subtract_two_vars",
+        "subtract_master",
+        "add_two_vars",
+        "add_master"
+      ]
+    },
+    {
+      "raw": "monomial_times_polynomial",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 6,
+      "variantCount": 3,
+      "variants": [
+        "expand_0",
+        "term_product",
+        "check"
+      ]
+    },
+    {
+      "raw": "monomial_times_polynomial",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 4,
+      "variants": [
+        "coefficient",
+        "check",
+        "expand_1",
+        "term_product"
+      ]
+    },
+    {
+      "raw": "monomial_times_polynomial",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 9,
+      "variantCount": 4,
+      "variants": [
+        "expand_2",
+        "term_product",
+        "check",
+        "coefficient"
+      ]
+    },
+    {
+      "raw": "common_factor",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 2,
+      "variants": [
+        "gcf",
+        "factor"
+      ]
+    },
+    {
+      "raw": "common_factor",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 3,
+      "variants": [
+        "gcf",
+        "factor",
+        "reverse"
+      ]
+    },
+    {
+      "raw": "common_factor",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 4,
+      "variants": [
+        "factor",
+        "reverse",
+        "gcf",
+        "inside_coefficient"
+      ]
+    },
+    {
+      "raw": "polynomial_times_polynomial",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 3,
+      "variants": [
+        "expand_0",
+        "coefficient",
+        "check"
+      ]
+    },
+    {
+      "raw": "polynomial_times_polynomial",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 3,
+      "variants": [
+        "expand_1",
+        "coefficient",
+        "check"
+      ]
+    },
+    {
+      "raw": "polynomial_times_polynomial",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 4,
+      "variants": [
+        "check",
+        "term_product",
+        "coefficient",
+        "expand_2"
+      ]
+    },
+    {
+      "raw": "factorization_grouping",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 9,
+      "uniqueSignatures": 9,
+      "variantCount": 2,
+      "variants": [
+        "step",
+        "factor"
+      ]
+    },
+    {
+      "raw": "factorization_grouping",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 2,
+      "variants": [
+        "factor",
+        "step"
+      ]
+    },
+    {
+      "raw": "factorization_grouping",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 2,
+      "variants": [
+        "factor",
+        "recognize_balanced"
+      ]
+    },
+    {
+      "raw": "square_sum_difference",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 7,
+      "uniqueSignatures": 7,
+      "variantCount": 3,
+      "variants": [
+        "difference_simple",
+        "sum_simple",
+        "middle_sign"
+      ]
+    },
+    {
+      "raw": "square_sum_difference",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 4,
+      "variants": [
+        "reverse_difference",
+        "reverse_sum",
+        "difference_coeff",
+        "sum_coeff"
+      ]
+    },
+    {
+      "raw": "square_sum_difference",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 5,
+      "variants": [
+        "sum_power",
+        "reverse_sum",
+        "middle_coefficient",
+        "reverse_difference",
+        "difference_power"
+      ]
+    },
+    {
+      "raw": "difference_of_squares",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 6,
+      "uniqueSignatures": 6,
+      "variantCount": 3,
+      "variants": [
+        "factor_simple",
+        "expand_simple",
+        "recognize"
+      ]
+    },
+    {
+      "raw": "difference_of_squares",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 8,
+      "uniqueSignatures": 9,
+      "variantCount": 3,
+      "variants": [
+        "factor_coeff",
+        "expand_coeff",
+        "factor_power"
+      ]
+    },
+    {
+      "raw": "difference_of_squares",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 3,
+      "variants": [
+        "reverse_mixed",
+        "expand_power",
+        "factor_power"
+      ]
+    },
+    {
+      "raw": "sum_difference_cubes",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 5,
+      "uniqueSignatures": 5,
+      "variantCount": 3,
+      "variants": [
+        "factor_difference",
+        "sign_rule",
+        "factor_sum"
+      ]
+    },
+    {
+      "raw": "sum_difference_cubes",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 9,
+      "uniqueSignatures": 9,
+      "variantCount": 4,
+      "variants": [
+        "factor_difference_coeff",
+        "factor_sum_coeff",
+        "expand_sum",
+        "expand_difference"
+      ]
+    },
+    {
+      "raw": "sum_difference_cubes",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 8,
+      "uniqueSignatures": 8,
+      "variantCount": 3,
+      "variants": [
+        "factor_difference_power",
+        "expand_sum",
+        "expand_difference"
+      ]
+    },
+    {
+      "raw": "integer_expression_transform",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 8,
+      "uniqueSignatures": 8,
+      "variantCount": 4,
+      "variants": [
+        "cross_only",
+        "numeric_value",
+        "cancel_double",
+        "difference_squares"
+      ]
+    },
+    {
+      "raw": "integer_expression_transform",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 7,
+      "variants": [
+        "numeric_value",
+        "conjugate_plus",
+        "conjugate_minus",
+        "cancel_double",
+        "sum_squares",
+        "difference_squares",
+        "cross_only"
+      ]
+    },
+    {
+      "raw": "integer_expression_transform",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 6,
+      "variants": [
+        "scaled_difference",
+        "coefficient",
+        "conjugate_minus",
+        "sum_squares",
+        "linear_combo",
+        "product_minus_square"
+      ]
+    },
+    {
+      "raw": "combined_factorization",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 9,
+      "uniqueSignatures": 9,
+      "variantCount": 3,
+      "variants": [
+        "square_of_difference",
+        "common_difference",
+        "common_square"
+      ]
+    },
+    {
+      "raw": "combined_factorization",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 9,
+      "uniqueSignatures": 9,
+      "variantCount": 4,
+      "variants": [
+        "group_difference",
+        "fourth_powers",
+        "square_of_difference",
+        "common_difference"
+      ]
+    },
+    {
+      "raw": "combined_factorization",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 5,
+      "variants": [
+        "common_difference",
+        "group_square",
+        "group_extra",
+        "common_cube",
+        "group_difference"
+      ]
+    },
+    {
+      "raw": "linear_equation_two_variables",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 9,
+      "uniqueSignatures": 9,
+      "variantCount": 1,
+      "variants": [
+        "find_y"
+      ]
+    },
+    {
+      "raw": "linear_equation_two_variables",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 3,
+      "variants": [
+        "check_pair",
+        "find_x",
+        "pair_choice"
+      ]
+    },
+    {
+      "raw": "linear_equation_two_variables",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 4,
+      "variants": [
+        "find_c",
+        "check_pair",
+        "pair_choice",
+        "find_x"
+      ]
+    },
+    {
+      "raw": "linear_equation_two_variables_graph",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 9,
+      "uniqueSignatures": 9,
+      "variantCount": 2,
+      "variants": [
+        "read_y",
+        "membership"
+      ]
+    },
+    {
+      "raw": "linear_equation_two_variables_graph",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 7,
+      "uniqueSignatures": 10,
+      "variantCount": 4,
+      "variants": [
+        "formula",
+        "intercept",
+        "membership",
+        "read_y"
+      ]
+    },
+    {
+      "raw": "linear_equation_two_variables_graph",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 7,
+      "uniqueSignatures": 9,
+      "variantCount": 4,
+      "variants": [
+        "read_y",
+        "formula",
+        "membership",
+        "read_x"
+      ]
+    },
+    {
+      "raw": "linear_system_concept",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 6,
+      "uniqueSignatures": 6,
+      "variantCount": 3,
+      "variants": [
+        "check_pair",
+        "choose_pair",
+        "meaning"
+      ]
+    },
+    {
+      "raw": "linear_system_concept",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 3,
+      "variants": [
+        "solve_simple",
+        "choose_pair",
+        "check_pair"
+      ]
+    },
+    {
+      "raw": "linear_system_concept",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 3,
+      "variants": [
+        "solve_simple",
+        "choose_pair",
+        "check_pair"
+      ]
+    },
+    {
+      "raw": "linear_system_substitution",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 9,
+      "uniqueSignatures": 9,
+      "variantCount": 2,
+      "variants": [
+        "solve_pair",
+        "isolate"
+      ]
+    },
+    {
+      "raw": "linear_system_substitution",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 3,
+      "variants": [
+        "find_y",
+        "isolate",
+        "solve_pair"
+      ]
+    },
+    {
+      "raw": "linear_system_substitution",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 2,
+      "variants": [
+        "solve_pair",
+        "find_y"
+      ]
+    },
+    {
+      "raw": "linear_system_addition",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 2,
+      "variants": [
+        "solve_pair",
+        "first_result"
+      ]
+    },
+    {
+      "raw": "linear_system_addition",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 2,
+      "variants": [
+        "solve_pair",
+        "first_result"
+      ]
+    },
+    {
+      "raw": "linear_system_addition",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 8,
+      "variantCount": 2,
+      "variants": [
+        "solve_pair",
+        "multiplier"
+      ]
+    },
+    {
+      "raw": "linear_system_word_problems",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 2,
+      "variants": [
+        "numbers",
+        "boxes"
+      ]
+    },
+    {
+      "raw": "linear_system_word_problems",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 9,
+      "uniqueSignatures": 9,
+      "variantCount": 3,
+      "variants": [
+        "boxes",
+        "rectangle",
+        "shopping"
+      ]
+    },
+    {
+      "raw": "linear_system_word_problems",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 3,
+      "variants": [
+        "shopping",
+        "tickets",
+        "rectangle"
+      ]
+    },
+    {
+      "raw": "geo_primitives",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 2,
+      "uniqueSignatures": 5,
+      "variantCount": 2,
+      "variants": [
+        "between",
+        "identify"
+      ]
+    },
+    {
+      "raw": "geo_primitives",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 4,
+      "uniqueSignatures": 5,
+      "variantCount": 4,
+      "variants": [
+        "between",
+        "ray_name",
+        "membership",
+        "identify"
+      ]
+    },
+    {
+      "raw": "geo_primitives",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 4,
+      "uniqueSignatures": 4,
+      "variantCount": 4,
+      "variants": [
+        "identify",
+        "between",
+        "ray_name",
+        "membership"
+      ]
+    },
+    {
+      "raw": "geo_segment_angle_measurement",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 3,
+      "variants": [
+        "segment_sum",
+        "angle_type",
+        "segment_diff"
+      ]
+    },
+    {
+      "raw": "geo_segment_angle_measurement",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 9,
+      "uniqueSignatures": 9,
+      "variantCount": 4,
+      "variants": [
+        "angle_type",
+        "angle_parts",
+        "segment_diff",
+        "segment_sum"
+      ]
+    },
+    {
+      "raw": "geo_segment_angle_measurement",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 8,
+      "uniqueSignatures": 8,
+      "variantCount": 4,
+      "variants": [
+        "unit_convert",
+        "angle_type",
+        "angle_parts",
+        "segment_diff"
+      ]
+    },
+    {
+      "raw": "geo_adjacent_vertical_angles",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 2,
+      "variants": [
+        "vertical",
+        "adjacent"
+      ]
+    },
+    {
+      "raw": "geo_adjacent_vertical_angles",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 7,
+      "uniqueSignatures": 10,
+      "variantCount": 3,
+      "variants": [
+        "adjacent",
+        "relation",
+        "vertical"
+      ]
+    },
+    {
+      "raw": "geo_adjacent_vertical_angles",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 8,
+      "uniqueSignatures": 10,
+      "variantCount": 4,
+      "variants": [
+        "relation",
+        "adjacent",
+        "around",
+        "vertical"
+      ]
+    },
+    {
+      "raw": "geo_angle_bisector",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 2,
+      "variants": [
+        "half",
+        "whole"
+      ]
+    },
+    {
+      "raw": "geo_angle_bisector",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 8,
+      "uniqueSignatures": 10,
+      "variantCount": 3,
+      "variants": [
+        "property",
+        "whole",
+        "half"
+      ]
+    },
+    {
+      "raw": "geo_angle_bisector",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 9,
+      "uniqueSignatures": 10,
+      "variantCount": 4,
+      "variants": [
+        "reverse",
+        "property",
+        "whole",
+        "half"
+      ]
+    },
+    {
+      "raw": "geo_broken_line_polygon",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 8,
+      "uniqueSignatures": 9,
+      "variantCount": 2,
+      "variants": [
+        "broken_length",
+        "side_count"
+      ]
+    },
+    {
+      "raw": "geo_broken_line_polygon",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 8,
+      "uniqueSignatures": 8,
+      "variantCount": 3,
+      "variants": [
+        "perimeter",
+        "broken_length",
+        "diagonal"
+      ]
+    },
+    {
+      "raw": "geo_broken_line_polygon",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 3,
+      "variants": [
+        "broken_missing",
+        "missing_side",
+        "diagonal"
+      ]
+    },
+    {
+      "raw": "geo_parallel_perpendicular_intro",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 6,
+      "uniqueSignatures": 6,
+      "variantCount": 5,
+      "variants": [
+        "two_parallel",
+        "point_parallel",
+        "between_parallel",
+        "identify",
+        "perp_angle"
+      ]
+    },
+    {
+      "raw": "geo_parallel_perpendicular_intro",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 7,
+      "uniqueSignatures": 8,
+      "variantCount": 5,
+      "variants": [
+        "perp_parallel",
+        "identify",
+        "two_parallel",
+        "between_parallel",
+        "perp_angle"
+      ]
+    },
+    {
+      "raw": "geo_parallel_perpendicular_intro",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 6,
+      "uniqueSignatures": 6,
+      "variantCount": 5,
+      "variants": [
+        "notation",
+        "between_parallel",
+        "two_parallel",
+        "identify",
+        "perp_parallel"
+      ]
+    },
+    {
+      "raw": "geo_axial_symmetry",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 5,
+      "uniqueSignatures": 10,
+      "variantCount": 2,
+      "variants": [
+        "property",
+        "reflect"
+      ]
+    },
+    {
+      "raw": "geo_axial_symmetry",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 7,
+      "uniqueSignatures": 10,
+      "variantCount": 3,
+      "variants": [
+        "property",
+        "choose",
+        "reflect"
+      ]
+    },
+    {
+      "raw": "geo_axial_symmetry",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 8,
+      "uniqueSignatures": 10,
+      "variantCount": 4,
+      "variants": [
+        "distance",
+        "choose",
+        "reflect",
+        "property"
+      ]
+    },
+    {
+      "raw": "geo_basic_constructions",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 7,
+      "variants": [
+        "bisector_next",
+        "midpoint_next",
+        "arc_equidistance",
+        "copy_length",
+        "midpoint_double",
+        "midpoint_half",
+        "bisector_half"
+      ]
+    },
+    {
+      "raw": "geo_basic_constructions",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 6,
+      "variants": [
+        "bisector_property",
+        "midpoint_double",
+        "copy_length",
+        "bisector_half",
+        "midpoint_result",
+        "midpoint_half"
+      ]
+    },
+    {
+      "raw": "geo_basic_constructions",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 9,
+      "uniqueSignatures": 9,
+      "variantCount": 5,
+      "variants": [
+        "bisector_half",
+        "midpoint_next",
+        "midpoint_intersection",
+        "bisector_double",
+        "midpoint_double"
+      ]
+    },
+    {
+      "raw": "geo_triangle_elements",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 7,
+      "uniqueSignatures": 7,
+      "variantCount": 2,
+      "variants": [
+        "perimeter",
+        "opposite"
+      ]
+    },
+    {
+      "raw": "geo_triangle_elements",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 3,
+      "variants": [
+        "find_sum",
+        "perimeter",
+        "missing"
+      ]
+    },
+    {
+      "raw": "geo_triangle_elements",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 3,
+      "variants": [
+        "double_perimeter",
+        "missing",
+        "compare_perimeters"
+      ]
+    },
+    {
+      "raw": "geo_triangle_medians_bisectors_altitudes",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 6,
+      "uniqueSignatures": 6,
+      "variantCount": 2,
+      "variants": [
+        "bisector_half",
+        "identify_median"
+      ]
+    },
+    {
+      "raw": "geo_triangle_medians_bisectors_altitudes",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 4,
+      "uniqueSignatures": 4,
+      "variantCount": 3,
+      "variants": [
+        "height_property",
+        "median_half",
+        "identify_median"
+      ]
+    },
+    {
+      "raw": "geo_triangle_medians_bisectors_altitudes",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 5,
+      "variants": [
+        "median_half",
+        "bisector_half",
+        "height_outside",
+        "identify_median",
+        "height_property"
+      ]
+    },
+    {
+      "raw": "geo_isosceles_equilateral",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 8,
+      "uniqueSignatures": 8,
+      "variantCount": 3,
+      "variants": [
+        "equal",
+        "eq_perimeter",
+        "base"
+      ]
+    },
+    {
+      "raw": "geo_isosceles_equilateral",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 4,
+      "variants": [
+        "vertex_angle",
+        "iso_perimeter",
+        "base_from_perimeter",
+        "eq_perimeter"
+      ]
+    },
+    {
+      "raw": "geo_isosceles_equilateral",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 8,
+      "uniqueSignatures": 8,
+      "variantCount": 4,
+      "variants": [
+        "vertex_angle",
+        "base_from_perimeter",
+        "side_from_perimeter",
+        "iso_perimeter"
+      ]
+    },
+    {
+      "raw": "geo_isosceles_properties_criteria",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 9,
+      "uniqueSignatures": 9,
+      "variantCount": 2,
+      "variants": [
+        "base_equal",
+        "criterion"
+      ]
+    },
+    {
+      "raw": "geo_isosceles_properties_criteria",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 9,
+      "uniqueSignatures": 9,
+      "variantCount": 3,
+      "variants": [
+        "bisector_half",
+        "base_from_vertex",
+        "vertex_from_base"
+      ]
+    },
+    {
+      "raw": "geo_isosceles_properties_criteria",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 3,
+      "variants": [
+        "bisector_half",
+        "base_from_vertex",
+        "vertex_from_base"
+      ]
+    },
+    {
+      "raw": "geo_congruence_sas",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 2,
+      "variants": [
+        "copy",
+        "perimeter"
+      ]
+    },
+    {
+      "raw": "geo_congruence_sas",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 4,
+      "variants": [
+        "copy",
+        "perimeter",
+        "missing",
+        "angle"
+      ]
+    },
+    {
+      "raw": "geo_congruence_sas",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 3,
+      "variants": [
+        "perimeter",
+        "missing",
+        "angle"
+      ]
+    },
+    {
+      "raw": "geo_congruence_asa",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 2,
+      "variants": [
+        "angle_sum",
+        "same_angle"
+      ]
+    },
+    {
+      "raw": "geo_congruence_asa",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 3,
+      "variants": [
+        "angle_sum",
+        "third",
+        "same_angle"
+      ]
+    },
+    {
+      "raw": "geo_congruence_asa",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 2,
+      "variants": [
+        "reverse",
+        "third"
+      ]
+    },
+    {
+      "raw": "geo_congruence_sss",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 2,
+      "variants": [
+        "side",
+        "compare"
+      ]
+    },
+    {
+      "raw": "geo_congruence_sss",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 3,
+      "variants": [
+        "perimeter",
+        "side",
+        "compare"
+      ]
+    },
+    {
+      "raw": "geo_congruence_sss",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 2,
+      "variants": [
+        "missing",
+        "perimeter"
+      ]
+    },
+    {
+      "raw": "geo_triangle_inequality",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 2,
+      "variants": [
+        "max_integer",
+        "existence"
+      ]
+    },
+    {
+      "raw": "geo_triangle_inequality",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 9,
+      "uniqueSignatures": 9,
+      "variantCount": 3,
+      "variants": [
+        "max_integer",
+        "min_integer",
+        "existence"
+      ]
+    },
+    {
+      "raw": "geo_triangle_inequality",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 4,
+      "variants": [
+        "max_integer",
+        "count_integer",
+        "existence",
+        "min_integer"
+      ]
+    },
+    {
+      "raw": "geo_side_angle_relation",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 8,
+      "uniqueSignatures": 8,
+      "variantCount": 2,
+      "variants": [
+        "opposite",
+        "largest"
+      ]
+    },
+    {
+      "raw": "geo_side_angle_relation",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 9,
+      "uniqueSignatures": 9,
+      "variantCount": 3,
+      "variants": [
+        "which_side",
+        "largest",
+        "smallest"
+      ]
+    },
+    {
+      "raw": "geo_side_angle_relation",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 4,
+      "variants": [
+        "largest",
+        "angle_order",
+        "side_order",
+        "smallest"
+      ]
+    },
+    {
+      "raw": "geo_right_triangle_properties",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 2,
+      "uniqueSignatures": 2,
+      "variantCount": 2,
+      "variants": [
+        "hypotenuse",
+        "acute_sum"
+      ]
+    },
+    {
+      "raw": "geo_right_triangle_properties",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 7,
+      "uniqueSignatures": 7,
+      "variantCount": 3,
+      "variants": [
+        "acute_sum",
+        "hypotenuse",
+        "legs"
+      ]
+    },
+    {
+      "raw": "geo_right_triangle_properties",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 7,
+      "uniqueSignatures": 7,
+      "variantCount": 4,
+      "variants": [
+        "hypotenuse",
+        "legs",
+        "acute_sum",
+        "hyp_longer"
+      ]
+    },
+    {
+      "raw": "geo_right_triangle_congruence",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 9,
+      "uniqueSignatures": 9,
+      "variantCount": 5,
+      "variants": [
+        "hyp_leg",
+        "angles_only",
+        "both_legs",
+        "hyp_and_angle",
+        "hyp_and_leg"
+      ]
+    },
+    {
+      "raw": "geo_right_triangle_congruence",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 6,
+      "variants": [
+        "hyp_and_angle",
+        "both_legs",
+        "leg_leg",
+        "angles_only",
+        "leg_and_angle",
+        "single_hyp"
+      ]
+    },
+    {
+      "raw": "geo_right_triangle_congruence",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 7,
+      "variants": [
+        "hyp_and_angle",
+        "single_hyp",
+        "hyp_and_leg",
+        "angles_only",
+        "hyp_leg",
+        "both_legs",
+        "leg_and_angle"
+      ]
+    },
+    {
+      "raw": "geo_right_triangle_30deg",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 7,
+      "uniqueSignatures": 7,
+      "variantCount": 2,
+      "variants": [
+        "half",
+        "double"
+      ]
+    },
+    {
+      "raw": "geo_right_triangle_30deg",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 8,
+      "uniqueSignatures": 8,
+      "variantCount": 3,
+      "variants": [
+        "half",
+        "double",
+        "reverse"
+      ]
+    },
+    {
+      "raw": "geo_right_triangle_30deg",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 6,
+      "uniqueSignatures": 6,
+      "variantCount": 3,
+      "variants": [
+        "double",
+        "identify",
+        "half"
+      ]
+    },
+    {
+      "raw": "geo_transversal_angles",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 9,
+      "uniqueSignatures": 9,
+      "variantCount": 2,
+      "variants": [
+        "identify_type",
+        "corresponding_partner"
+      ]
+    },
+    {
+      "raw": "geo_transversal_angles",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 8,
+      "uniqueSignatures": 8,
+      "variantCount": 3,
+      "variants": [
+        "corresponding_partner",
+        "alternate_partner",
+        "identify_type"
+      ]
+    },
+    {
+      "raw": "geo_transversal_angles",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 8,
+      "uniqueSignatures": 9,
+      "variantCount": 5,
+      "variants": [
+        "alternate_partner",
+        "same_side_partner",
+        "vertical_distinction",
+        "identify_type",
+        "corresponding_partner"
+      ]
+    },
+    {
+      "raw": "geo_parallel_criteria",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 7,
+      "uniqueSignatures": 9,
+      "variantCount": 5,
+      "variants": [
+        "choose_pair",
+        "enough_data",
+        "sufficient_condition",
+        "needed_angle",
+        "identify_criterion"
+      ]
+    },
+    {
+      "raw": "geo_parallel_criteria",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 4,
+      "variants": [
+        "enough_data",
+        "needed_angle",
+        "identify_criterion",
+        "missing_condition"
+      ]
+    },
+    {
+      "raw": "geo_parallel_criteria",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 7,
+      "variants": [
+        "identify_criterion",
+        "valid_justification",
+        "missing_condition",
+        "find_error",
+        "solve_x",
+        "choose_pair",
+        "enough_data"
+      ]
+    },
+    {
+      "raw": "geo_parallel_properties",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 2,
+      "variants": [
+        "corresponding_value",
+        "alternate_value"
+      ]
+    },
+    {
+      "raw": "geo_parallel_properties",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 3,
+      "variants": [
+        "corresponding_value",
+        "same_side_value",
+        "alternate_value"
+      ]
+    },
+    {
+      "raw": "geo_parallel_properties",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 4,
+      "variants": [
+        "alternate_value",
+        "corresponding_value",
+        "chain",
+        "same_side_value"
+      ]
+    },
+    {
+      "raw": "geo_triangle_angle_sum",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 5,
+      "uniqueSignatures": 5,
+      "variantCount": 2,
+      "variants": [
+        "find_third",
+        "sum_rule"
+      ]
+    },
+    {
+      "raw": "geo_triangle_angle_sum",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 3,
+      "variants": [
+        "right_case",
+        "equation_x",
+        "find_third"
+      ]
+    },
+    {
+      "raw": "geo_triangle_angle_sum",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 4,
+      "variants": [
+        "equation_x",
+        "find_third",
+        "isosceles_case",
+        "right_case"
+      ]
+    },
+    {
+      "raw": "geo_exterior_triangle_angle",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 8,
+      "uniqueSignatures": 8,
+      "variantCount": 2,
+      "variants": [
+        "adjacent",
+        "remote_sum"
+      ]
+    },
+    {
+      "raw": "geo_exterior_triangle_angle",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 3,
+      "variants": [
+        "remote_sum",
+        "reverse",
+        "adjacent"
+      ]
+    },
+    {
+      "raw": "geo_exterior_triangle_angle",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 9,
+      "uniqueSignatures": 9,
+      "variantCount": 4,
+      "variants": [
+        "adjacent",
+        "reverse",
+        "property",
+        "remote_sum"
+      ]
+    },
+    {
+      "raw": "geo_polygon_angle_sum_intro",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 4,
+      "uniqueSignatures": 4,
+      "variantCount": 2,
+      "variants": [
+        "sum",
+        "triangles"
+      ]
+    },
+    {
+      "raw": "geo_polygon_angle_sum_intro",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 9,
+      "uniqueSignatures": 9,
+      "variantCount": 4,
+      "variants": [
+        "find_n",
+        "triangles",
+        "quad_missing",
+        "sum"
+      ]
+    },
+    {
+      "raw": "geo_polygon_angle_sum_intro",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 4,
+      "variants": [
+        "triangles",
+        "quad_missing",
+        "sum",
+        "find_n"
+      ]
+    },
+    {
+      "raw": "geo_perpendicular_oblique_distances",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 10,
+      "uniqueTexts": 9,
+      "uniqueSignatures": 9,
+      "variantCount": 4,
+      "variants": [
+        "height",
+        "shortest",
+        "difference",
+        "parallel"
+      ]
+    },
+    {
+      "raw": "geo_perpendicular_oblique_distances",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 9,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 4,
+      "variants": [
+        "parallel",
+        "oblique_from_difference",
+        "feasibility",
+        "difference"
+      ]
+    },
+    {
+      "raw": "geo_perpendicular_oblique_distances",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 10,
+      "uniqueTexts": 9,
+      "uniqueSignatures": 9,
+      "variantCount": 4,
+      "variants": [
+        "difference_inverse",
+        "height",
+        "difference",
+        "feasibility"
+      ]
+    },
+    {
+      "raw": "geo_locus_points",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 8,
+      "uniqueSignatures": 8,
+      "variantCount": 2,
+      "variants": [
+        "circle_radius",
+        "circle_or_disk"
+      ]
+    },
+    {
+      "raw": "geo_locus_points",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 9,
+      "uniqueSignatures": 9,
+      "variantCount": 3,
+      "variants": [
+        "circle_radius",
+        "classify",
+        "belong"
+      ]
+    },
+    {
+      "raw": "geo_locus_points",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 2,
+      "variants": [
+        "classify",
+        "belong"
+      ]
+    },
+    {
+      "raw": "geo_perpendicular_bisector_locus",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 7,
+      "uniqueSignatures": 7,
+      "variantCount": 3,
+      "variants": [
+        "sum_equal",
+        "equal",
+        "half_sum"
+      ]
+    },
+    {
+      "raw": "geo_perpendicular_bisector_locus",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 8,
+      "uniqueSignatures": 8,
+      "variantCount": 5,
+      "variants": [
+        "half_sum",
+        "other_distance",
+        "inverse_property",
+        "sum_equal",
+        "equal"
+      ]
+    },
+    {
+      "raw": "geo_perpendicular_bisector_locus",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 8,
+      "uniqueSignatures": 8,
+      "variantCount": 6,
+      "variants": [
+        "inverse_property",
+        "equal",
+        "sum_equal",
+        "inverse",
+        "other_distance",
+        "definition"
+      ]
+    },
+    {
+      "raw": "geo_angle_bisector_locus",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 9,
+      "uniqueSignatures": 9,
+      "variantCount": 4,
+      "variants": [
+        "equal_distance",
+        "angle_half",
+        "double_distance",
+        "half_sum"
+      ]
+    },
+    {
+      "raw": "geo_angle_bisector_locus",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 5,
+      "variants": [
+        "equal_distance",
+        "double_distance",
+        "half_sum",
+        "angle_half",
+        "property"
+      ]
+    },
+    {
+      "raw": "geo_angle_bisector_locus",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 6,
+      "variants": [
+        "equal_distance",
+        "inverse_property",
+        "double_distance",
+        "half_sum",
+        "angle_double",
+        "meaning"
+      ]
+    },
+    {
+      "raw": "geo_circle_chord_diameter",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 2,
+      "uniqueSignatures": 2,
+      "variantCount": 2,
+      "variants": [
+        "diameter",
+        "identify_radius"
+      ]
+    },
+    {
+      "raw": "geo_circle_chord_diameter",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 7,
+      "uniqueSignatures": 7,
+      "variantCount": 4,
+      "variants": [
+        "identify_chord",
+        "property",
+        "radius",
+        "diameter"
+      ]
+    },
+    {
+      "raw": "geo_circle_chord_diameter",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 4,
+      "uniqueSignatures": 4,
+      "variantCount": 4,
+      "variants": [
+        "identify_chord",
+        "diameter_def",
+        "radius",
+        "property"
+      ]
+    },
+    {
+      "raw": "geo_line_circle_tangent_secant",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 6,
+      "uniqueSignatures": 6,
+      "variantCount": 2,
+      "variants": [
+        "tangent_property",
+        "classify"
+      ]
+    },
+    {
+      "raw": "geo_line_circle_tangent_secant",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 4,
+      "uniqueSignatures": 5,
+      "variantCount": 3,
+      "variants": [
+        "points",
+        "classify",
+        "tangent_property"
+      ]
+    },
+    {
+      "raw": "geo_line_circle_tangent_secant",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 4,
+      "uniqueSignatures": 4,
+      "variantCount": 2,
+      "variants": [
+        "compare",
+        "tangent_property"
+      ]
+    },
+    {
+      "raw": "geo_circle_inscribed_in_angle",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 5,
+      "variants": [
+        "equal_distances",
+        "equal",
+        "radius_from_side",
+        "double_angle",
+        "center"
+      ]
+    },
+    {
+      "raw": "geo_circle_inscribed_in_angle",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 5,
+      "variants": [
+        "equal_distances",
+        "half_angle",
+        "radius_from_side",
+        "two_distances",
+        "center"
+      ]
+    },
+    {
+      "raw": "geo_circle_inscribed_in_angle",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 9,
+      "uniqueSignatures": 9,
+      "variantCount": 7,
+      "variants": [
+        "radius_from_side",
+        "double_angle",
+        "property",
+        "equal_distances",
+        "radius",
+        "half_angle",
+        "center_position"
+      ]
+    },
+    {
+      "raw": "geo_incircle_triangle",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 4,
+      "variants": [
+        "angle_double",
+        "from_one_side",
+        "angle_half",
+        "given_radius"
+      ]
+    },
+    {
+      "raw": "geo_incircle_triangle",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 5,
+      "variants": [
+        "center",
+        "sum_distances",
+        "given_radius",
+        "from_one_side",
+        "distance"
+      ]
+    },
+    {
+      "raw": "geo_incircle_triangle",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 6,
+      "variants": [
+        "given_radius",
+        "sum_distances",
+        "compare",
+        "tangent_count",
+        "from_one_side",
+        "angle_half"
+      ]
+    },
+    {
+      "raw": "geo_circumcircle_triangle",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 8,
+      "uniqueSignatures": 8,
+      "variantCount": 2,
+      "variants": [
+        "radius",
+        "radii"
+      ]
+    },
+    {
+      "raw": "geo_circumcircle_triangle",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 8,
+      "uniqueSignatures": 8,
+      "variantCount": 3,
+      "variants": [
+        "radius",
+        "diameter",
+        "radii"
+      ]
+    },
+    {
+      "raw": "geo_circumcircle_triangle",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 9,
+      "uniqueSignatures": 9,
+      "variantCount": 3,
+      "variants": [
+        "diameter",
+        "right",
+        "radius"
+      ]
+    },
+    {
+      "raw": "geo_constructions_lines_angles",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 6,
+      "variants": [
+        "copy",
+        "midpoint",
+        "midpoint_half",
+        "midpoint_double",
+        "angle_half",
+        "copy_length"
+      ]
+    },
+    {
+      "raw": "geo_constructions_lines_angles",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 7,
+      "variants": [
+        "copy_length",
+        "midpoint_half",
+        "angle_half",
+        "copy",
+        "angle_double",
+        "equal_arcs",
+        "perpendicular"
+      ]
+    },
+    {
+      "raw": "geo_constructions_lines_angles",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 9,
+      "uniqueSignatures": 9,
+      "variantCount": 6,
+      "variants": [
+        "angle_double",
+        "copy_length",
+        "angle_half",
+        "perpendicular_fact",
+        "midpoint",
+        "midpoint_half"
+      ]
+    },
+    {
+      "raw": "geo_constructions_triangles",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 4,
+      "variants": [
+        "sss_min",
+        "sss_max",
+        "sss_exists",
+        "sss_perimeter"
+      ]
+    },
+    {
+      "raw": "geo_constructions_triangles",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 5,
+      "variants": [
+        "sss_exists",
+        "sss_max",
+        "sas_unique",
+        "sss_min",
+        "sas"
+      ]
+    },
+    {
+      "raw": "geo_constructions_triangles",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 8,
+      "uniqueSignatures": 8,
+      "variantCount": 6,
+      "variants": [
+        "sas_unique",
+        "sss_boundary",
+        "sss_step",
+        "sss_perimeter",
+        "sss_exists",
+        "asa_third_angle"
+      ]
+    },
+    {
+      "raw": "stat_tables",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 7,
+      "uniqueSignatures": 10,
+      "variantCount": 4,
+      "variants": [
+        "compare",
+        "min",
+        "lookup",
+        "max"
+      ]
+    },
+    {
+      "raw": "stat_tables",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 8,
+      "uniqueSignatures": 10,
+      "variantCount": 5,
+      "variants": [
+        "difference",
+        "lookup",
+        "reverse",
+        "max",
+        "sum"
+      ]
+    },
+    {
+      "raw": "stat_tables",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 9,
+      "uniqueSignatures": 10,
+      "variantCount": 6,
+      "variants": [
+        "difference",
+        "max",
+        "missing",
+        "supported",
+        "unsupported",
+        "reverse"
+      ]
+    },
+    {
+      "raw": "stat_bar_pie_charts",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 7,
+      "uniqueSignatures": 10,
+      "variantCount": 4,
+      "variants": [
+        "pie_largest",
+        "bar_lookup",
+        "pie_percent",
+        "bar_max"
+      ]
+    },
+    {
+      "raw": "stat_bar_pie_charts",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 9,
+      "uniqueSignatures": 10,
+      "variantCount": 5,
+      "variants": [
+        "match_binary",
+        "pie_percent",
+        "pie_angle",
+        "bar_compare",
+        "pie_value"
+      ]
+    },
+    {
+      "raw": "stat_bar_pie_charts",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 8,
+      "uniqueSignatures": 9,
+      "variantCount": 5,
+      "variants": [
+        "match_binary",
+        "pie_value",
+        "chart_error",
+        "pie_angle",
+        "bar_max"
+      ]
+    },
+    {
+      "raw": "stat_real_process_graphs",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 4,
+      "uniqueSignatures": 10,
+      "variantCount": 4,
+      "variants": [
+        "max_time",
+        "flat_interval",
+        "story",
+        "lookup"
+      ]
+    },
+    {
+      "raw": "stat_real_process_graphs",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 7,
+      "uniqueSignatures": 10,
+      "variantCount": 7,
+      "variants": [
+        "decrease_interval",
+        "growth_interval",
+        "story",
+        "change_amount",
+        "flat_interval",
+        "max_time",
+        "lookup"
+      ]
+    },
+    {
+      "raw": "stat_real_process_graphs",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 7,
+      "uniqueSignatures": 10,
+      "variantCount": 6,
+      "variants": [
+        "decrease_interval",
+        "lookup",
+        "flat_duration",
+        "change_amount",
+        "story",
+        "endpoint_compare"
+      ]
+    },
+    {
+      "raw": "stat_data_interpretation",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 6,
+      "uniqueSignatures": 10,
+      "variantCount": 3,
+      "variants": [
+        "supported",
+        "binary",
+        "comparison"
+      ]
+    },
+    {
+      "raw": "stat_data_interpretation",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 6,
+      "uniqueSignatures": 10,
+      "variantCount": 6,
+      "variants": [
+        "binary",
+        "missing",
+        "contradiction",
+        "process_fact",
+        "unsupported",
+        "supported"
+      ]
+    },
+    {
+      "raw": "stat_data_interpretation",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 7,
+      "uniqueSignatures": 10,
+      "variantCount": 7,
+      "variants": [
+        "pie_fact",
+        "comparison",
+        "contradiction",
+        "binary",
+        "supported",
+        "missing",
+        "unsupported"
+      ]
+    },
+    {
+      "raw": "stat_arithmetic_mean",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 2,
+      "variants": [
+        "direct",
+        "check"
+      ]
+    },
+    {
+      "raw": "stat_arithmetic_mean",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 4,
+      "variants": [
+        "missing",
+        "compare",
+        "sum_from_mean",
+        "direct"
+      ]
+    },
+    {
+      "raw": "stat_arithmetic_mean",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 5,
+      "variants": [
+        "compare",
+        "sum_from_mean",
+        "missing",
+        "effect",
+        "check"
+      ]
+    },
+    {
+      "raw": "stat_median",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 2,
+      "variants": [
+        "odd",
+        "sort"
+      ]
+    },
+    {
+      "raw": "stat_median",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 3,
+      "variants": [
+        "sort",
+        "odd",
+        "ordered_missing"
+      ]
+    },
+    {
+      "raw": "stat_median",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 5,
+      "variants": [
+        "error",
+        "ordered_missing",
+        "even",
+        "sort",
+        "compare"
+      ]
+    },
+    {
+      "raw": "stat_min_max_range",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 3,
+      "variants": [
+        "range",
+        "max",
+        "min"
+      ]
+    },
+    {
+      "raw": "stat_min_max_range",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 5,
+      "variants": [
+        "range",
+        "recover_max",
+        "min",
+        "max",
+        "recover_min"
+      ]
+    },
+    {
+      "raw": "stat_min_max_range",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 4,
+      "variants": [
+        "recover_max",
+        "range",
+        "compare",
+        "recover_min"
+      ]
+    },
+    {
+      "raw": "stat_choose_characteristic",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 9,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 5,
+      "variants": [
+        "mean_basic",
+        "range_measure",
+        "max_value",
+        "mean_no_outlier",
+        "min_value"
+      ]
+    },
+    {
+      "raw": "stat_choose_characteristic",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 8,
+      "uniqueTexts": 9,
+      "uniqueSignatures": 9,
+      "variantCount": 4,
+      "variants": [
+        "median_find",
+        "median_outlier",
+        "compare_spread",
+        "max_value"
+      ]
+    },
+    {
+      "raw": "stat_choose_characteristic",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 10,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 6,
+      "variants": [
+        "median_find",
+        "outlier_effect",
+        "mean_no_outlier",
+        "compare_spread",
+        "median_outlier",
+        "range_effect"
+      ]
+    },
+    {
+      "raw": "stat_random_variability",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 10,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 4,
+      "variants": [
+        "equal_or_not",
+        "change_count",
+        "stable",
+        "range"
+      ]
+    },
+    {
+      "raw": "stat_random_variability",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 9,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 6,
+      "variants": [
+        "offset",
+        "change_count",
+        "range",
+        "compare",
+        "stable",
+        "example"
+      ]
+    },
+    {
+      "raw": "stat_random_variability",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 10,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 6,
+      "variants": [
+        "bigger_range",
+        "change_count",
+        "compare",
+        "offset",
+        "range",
+        "stable"
+      ]
+    },
+    {
+      "raw": "stat_value_frequency",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 8,
+      "uniqueSignatures": 10,
+      "variantCount": 2,
+      "variants": [
+        "table_read",
+        "count"
+      ]
+    },
+    {
+      "raw": "stat_value_frequency",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 7,
+      "uniqueSignatures": 10,
+      "variantCount": 5,
+      "variants": [
+        "total",
+        "table_read",
+        "count",
+        "most",
+        "missing"
+      ]
+    },
+    {
+      "raw": "stat_value_frequency",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 9,
+      "uniqueSignatures": 10,
+      "variantCount": 6,
+      "variants": [
+        "most",
+        "count",
+        "total",
+        "table_read",
+        "missing",
+        "match"
+      ]
+    },
+    {
+      "raw": "stat_grouping_histograms",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 8,
+      "uniqueSignatures": 10,
+      "variantCount": 3,
+      "variants": [
+        "max_interval",
+        "read",
+        "feature"
+      ]
+    },
+    {
+      "raw": "stat_grouping_histograms",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 5,
+      "variants": [
+        "read",
+        "missing",
+        "count_from_data",
+        "max_interval",
+        "total"
+      ]
+    },
+    {
+      "raw": "stat_grouping_histograms",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 7,
+      "uniqueSignatures": 10,
+      "variantCount": 6,
+      "variants": [
+        "max_interval",
+        "valid_grouping",
+        "read",
+        "count_from_data",
+        "match_binary",
+        "find_error"
+      ]
+    },
+    {
+      "raw": "prob_random_experiment_event",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 5,
+      "uniqueSignatures": 5,
+      "variantCount": 4,
+      "variants": [
+        "outcome_recognize",
+        "experiment_recognize",
+        "event_recognize",
+        "classify_event"
+      ]
+    },
+    {
+      "raw": "prob_random_experiment_event",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 7,
+      "uniqueSignatures": 7,
+      "variantCount": 6,
+      "variants": [
+        "outcome_recognize",
+        "event_recognize",
+        "event_description",
+        "classify_event",
+        "experiment_recognize",
+        "find_error"
+      ]
+    },
+    {
+      "raw": "prob_random_experiment_event",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 8,
+      "uniqueSignatures": 8,
+      "variantCount": 6,
+      "variants": [
+        "event_recognize",
+        "find_error",
+        "event_outcomes",
+        "event_description",
+        "classify_event",
+        "outcome_recognize"
+      ]
+    },
+    {
+      "raw": "prob_probability_frequency",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 9,
+      "uniqueSignatures": 9,
+      "variantCount": 4,
+      "variants": [
+        "probability_compute",
+        "favorable_outcomes",
+        "edge_probability",
+        "relative_frequency"
+      ]
+    },
+    {
+      "raw": "prob_probability_frequency",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 9,
+      "uniqueSignatures": 9,
+      "variantCount": 6,
+      "variants": [
+        "reverse_frequency",
+        "find_error",
+        "favorable_outcomes",
+        "probability_compute",
+        "probability_vs_frequency",
+        "correct_conclusion"
+      ]
+    },
+    {
+      "raw": "prob_probability_frequency",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 9,
+      "uniqueSignatures": 9,
+      "variantCount": 7,
+      "variants": [
+        "edge_probability",
+        "find_error",
+        "reverse_frequency",
+        "probability_vs_frequency",
+        "favorable_outcomes",
+        "relative_frequency",
+        "probability_compute"
+      ]
+    },
+    {
+      "raw": "prob_unlikely_almost_certain",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 5,
+      "uniqueSignatures": 5,
+      "variantCount": 3,
+      "variants": [
+        "compare",
+        "almost_certain",
+        "unlikely"
+      ]
+    },
+    {
+      "raw": "prob_unlikely_almost_certain",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 7,
+      "uniqueSignatures": 7,
+      "variantCount": 6,
+      "variants": [
+        "unlikely",
+        "compare",
+        "almost_certain",
+        "distinguish_certain",
+        "order",
+        "find_wrong"
+      ]
+    },
+    {
+      "raw": "prob_unlikely_almost_certain",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 7,
+      "uniqueSignatures": 7,
+      "variantCount": 5,
+      "variants": [
+        "distinguish_certain",
+        "almost_certain",
+        "order",
+        "description_match",
+        "unlikely"
+      ]
+    },
+    {
+      "raw": "prob_coin_die_models",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 6,
+      "uniqueSignatures": 6,
+      "variantCount": 4,
+      "variants": [
+        "list_outcomes",
+        "reverse_event",
+        "die_probability",
+        "coin_one"
+      ]
+    },
+    {
+      "raw": "prob_coin_die_models",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 7,
+      "uniqueSignatures": 7,
+      "variantCount": 5,
+      "variants": [
+        "coin_one",
+        "reverse_event",
+        "list_outcomes",
+        "compare_events",
+        "die_probability"
+      ]
+    },
+    {
+      "raw": "prob_coin_die_models",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 6,
+      "uniqueSignatures": 6,
+      "variantCount": 6,
+      "variants": [
+        "find_error",
+        "coin_two_outcomes",
+        "memory_error",
+        "exactly_vs_atleast",
+        "die_probability",
+        "compare_events"
+      ]
+    },
+    {
+      "raw": "graph_basics",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 5,
+      "uniqueSignatures": 7,
+      "variantCount": 4,
+      "variants": [
+        "edge_count",
+        "neighbors",
+        "vertex_count",
+        "adjacent"
+      ]
+    },
+    {
+      "raw": "graph_basics",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 8,
+      "uniqueSignatures": 10,
+      "variantCount": 7,
+      "variants": [
+        "scenario",
+        "vertex_count",
+        "description",
+        "existing_edge",
+        "neighbors",
+        "edge_count",
+        "adjacent"
+      ]
+    },
+    {
+      "raw": "graph_basics",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 4,
+      "uniqueSignatures": 10,
+      "variantCount": 4,
+      "variants": [
+        "vertex_count",
+        "missing_edge",
+        "neighbors",
+        "find_error"
+      ]
+    },
+    {
+      "raw": "graph_vertex_degree_edges",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 7,
+      "uniqueSignatures": 9,
+      "variantCount": 3,
+      "variants": [
+        "edges_from_sum",
+        "degree_one",
+        "degree_sum"
+      ]
+    },
+    {
+      "raw": "graph_vertex_degree_edges",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 6,
+      "variants": [
+        "degree_sum",
+        "check",
+        "degree_one",
+        "compare",
+        "missing_degree",
+        "max_degree"
+      ]
+    },
+    {
+      "raw": "graph_vertex_degree_edges",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 9,
+      "uniqueSignatures": 10,
+      "variantCount": 5,
+      "variants": [
+        "degree_sum",
+        "check",
+        "degree_set",
+        "scenario_degree",
+        "edges_from_sum"
+      ]
+    },
+    {
+      "raw": "graph_connectivity_paths",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 8,
+      "uniqueSignatures": 10,
+      "variantCount": 3,
+      "variants": [
+        "reachability",
+        "valid_path",
+        "connected"
+      ]
+    },
+    {
+      "raw": "graph_connectivity_paths",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 7,
+      "uniqueSignatures": 10,
+      "variantCount": 6,
+      "variants": [
+        "add_edge",
+        "bridge_remove",
+        "valid_path",
+        "reachability",
+        "missing_vertex",
+        "invalid_path"
+      ]
+    },
+    {
+      "raw": "graph_connectivity_paths",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 7,
+      "uniqueSignatures": 10,
+      "variantCount": 6,
+      "variants": [
+        "bridge_remove",
+        "add_edge",
+        "route_model",
+        "valid_path",
+        "invalid_path",
+        "connected"
+      ]
+    },
+    {
+      "raw": "graph_chains_cycles_euler",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 3,
+      "uniqueSignatures": 6,
+      "variantCount": 2,
+      "variants": [
+        "cycle_check",
+        "euler_exists"
+      ]
+    },
+    {
+      "raw": "graph_chains_cycles_euler",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 6,
+      "uniqueSignatures": 10,
+      "variantCount": 5,
+      "variants": [
+        "euler_cycle",
+        "cycle_check",
+        "euler_exists",
+        "contains_cycle",
+        "euler_ends"
+      ]
+    },
+    {
+      "raw": "graph_chains_cycles_euler",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 7,
+      "uniqueSignatures": 9,
+      "variantCount": 7,
+      "variants": [
+        "euler_ends",
+        "missing_step",
+        "euler_exists",
+        "contains_cycle",
+        "find_error",
+        "verify_euler",
+        "euler_cycle"
+      ]
+    },
+    {
+      "raw": "graph_directed_modeling",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 7,
+      "uniqueSignatures": 10,
+      "variantCount": 3,
+      "variants": [
+        "direction",
+        "return",
+        "transition"
+      ]
+    },
+    {
+      "raw": "graph_directed_modeling",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 10,
+      "uniqueSignatures": 10,
+      "variantCount": 6,
+      "variants": [
+        "outgoing",
+        "incoming",
+        "valid_path",
+        "return",
+        "transition",
+        "reachable"
+      ]
+    },
+    {
+      "raw": "graph_directed_modeling",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "newStage6": 0,
+      "uniqueTexts": 9,
+      "uniqueSignatures": 10,
+      "variantCount": 6,
+      "variants": [
+        "return",
+        "invalid_path",
+        "outgoing",
+        "incoming",
+        "reachable",
+        "valid_path"
+      ]
+    }
+  ],
+  "pageErrors": [],
+  "htmlSha256": "de3148549538be46ae9aeefd88a995a80aa0ac9ab461af9e6291329f132d2421",
+  "testedAt": "2026-11-03T21:49:47.208Z",
+  "browser": "Chrome/156.0.8078.47"
+}
