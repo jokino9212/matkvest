@@ -61,7 +61,7 @@ try{
    stats.push({raw,d,requested:n,successes,uniqueSignatures:signatures.size,uniqueTexts:texts.size,variantCount:variants.size,variants:[...variants]});
   }
   for(const raw of stages)for(let d=0;d<3;d++)sample(raw,d,220,true);
-  for(const t of all)for(let d=0;d<3;d++)sample(t.id.slice(3),10,false);
+  for(const t of all)for(let d=0;d<3;d++)sample(t.id.slice(3),d,10,false);
   for(const s of stats.filter(s=>stages.includes(s.raw))){
    if(s.variantCount<3||s.uniqueSignatures<40)errors.push({raw:s.raw,d:s.d,error:'insufficient variety '+JSON.stringify(s)});
   }
