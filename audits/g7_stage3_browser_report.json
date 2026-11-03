@@ -1,52 +1,21 @@
 {
   "catalog": 107,
   "total": 4530,
-  "errors": [
-    {
-      "raw": "integer_expression_transform",
-      "d": 0,
-      "error": "insufficient variety {\"raw\":\"integer_expression_transform\",\"d\":0,\"requested\":10,\"successes\":10,\"uniqueSignatures\":7,\"uniqueTexts\":7,\"variantCount\":4,\"variants\":[\"cancel_double\",\"cross_only\",\"difference_squares\",\"numeric_value\"]}"
-    },
-    {
-      "raw": "integer_expression_transform",
-      "d": 1,
-      "error": "insufficient variety {\"raw\":\"integer_expression_transform\",\"d\":1,\"requested\":10,\"successes\":10,\"uniqueSignatures\":10,\"uniqueTexts\":10,\"variantCount\":5,\"variants\":[\"cross_only\",\"coefficient\",\"cancel_double\",\"difference_squares\",\"conjugate_minus\"]}"
-    },
-    {
-      "raw": "integer_expression_transform",
-      "d": 2,
-      "error": "insufficient variety {\"raw\":\"integer_expression_transform\",\"d\":2,\"requested\":10,\"successes\":10,\"uniqueSignatures\":10,\"uniqueTexts\":10,\"variantCount\":5,\"variants\":[\"sum_squares\",\"scaled_difference\",\"difference_squares\",\"product_minus_square\",\"conjugate_plus\"]}"
-    },
-    {
-      "raw": "combined_factorization",
-      "d": 0,
-      "error": "insufficient variety {\"raw\":\"combined_factorization\",\"d\":0,\"requested\":10,\"successes\":10,\"uniqueSignatures\":10,\"uniqueTexts\":10,\"variantCount\":3,\"variants\":[\"square_of_difference\",\"common_square\",\"common_difference\"]}"
-    },
-    {
-      "raw": "combined_factorization",
-      "d": 1,
-      "error": "insufficient variety {\"raw\":\"combined_factorization\",\"d\":1,\"requested\":10,\"successes\":10,\"uniqueSignatures\":10,\"uniqueTexts\":10,\"variantCount\":5,\"variants\":[\"group_difference\",\"common_square\",\"square_of_difference\",\"common_difference\",\"fourth_powers\"]}"
-    },
-    {
-      "raw": "combined_factorization",
-      "d": 2,
-      "error": "insufficient variety {\"raw\":\"combined_factorization\",\"d\":2,\"requested\":10,\"successes\":10,\"uniqueSignatures\":10,\"uniqueTexts\":10,\"variantCount\":6,\"variants\":[\"group_difference\",\"common_difference\",\"common_cube\",\"common_square\",\"group_extra\",\"group_square\"]}"
-    }
-  ],
+  "errors": [],
   "stats": [
     {
       "raw": "integer_expression_transform",
       "d": 0,
       "requested": 220,
       "successes": 220,
-      "uniqueSignatures": 58,
-      "uniqueTexts": 58,
+      "uniqueSignatures": 55,
+      "uniqueTexts": 55,
       "variantCount": 4,
       "variants": [
-        "difference_squares",
         "cancel_double",
-        "cross_only",
-        "numeric_value"
+        "numeric_value",
+        "difference_squares",
+        "cross_only"
       ]
     },
     {
@@ -54,18 +23,18 @@
       "d": 1,
       "requested": 220,
       "successes": 220,
-      "uniqueSignatures": 92,
-      "uniqueTexts": 92,
+      "uniqueSignatures": 99,
+      "uniqueTexts": 99,
       "variantCount": 8,
       "variants": [
-        "numeric_value",
+        "conjugate_minus",
         "difference_squares",
         "conjugate_plus",
-        "sum_squares",
-        "coefficient",
         "cross_only",
-        "conjugate_minus",
-        "cancel_double"
+        "sum_squares",
+        "cancel_double",
+        "numeric_value",
+        "coefficient"
       ]
     },
     {
@@ -77,14 +46,14 @@
       "uniqueTexts": 168,
       "variantCount": 8,
       "variants": [
-        "sum_squares",
-        "linear_combo",
-        "scaled_difference",
-        "conjugate_minus",
         "product_minus_square",
-        "conjugate_plus",
+        "coefficient",
+        "linear_combo",
         "difference_squares",
-        "coefficient"
+        "conjugate_minus",
+        "sum_squares",
+        "conjugate_plus",
+        "scaled_difference"
       ]
     },
     {
@@ -92,13 +61,13 @@
       "d": 0,
       "requested": 220,
       "successes": 220,
-      "uniqueSignatures": 81,
-      "uniqueTexts": 66,
+      "uniqueSignatures": 83,
+      "uniqueTexts": 67,
       "variantCount": 3,
       "variants": [
+        "square_of_difference",
         "common_square",
-        "common_difference",
-        "square_of_difference"
+        "common_difference"
       ]
     },
     {
@@ -106,15 +75,15 @@
       "d": 1,
       "requested": 220,
       "successes": 220,
-      "uniqueSignatures": 149,
-      "uniqueTexts": 141,
+      "uniqueSignatures": 152,
+      "uniqueTexts": 148,
       "variantCount": 5,
       "variants": [
+        "common_difference",
+        "fourth_powers",
         "square_of_difference",
         "common_square",
-        "common_difference",
-        "group_difference",
-        "fourth_powers"
+        "group_difference"
       ]
     },
     {
@@ -122,17 +91,17 @@
       "d": 2,
       "requested": 220,
       "successes": 220,
-      "uniqueSignatures": 193,
-      "uniqueTexts": 193,
+      "uniqueSignatures": 199,
+      "uniqueTexts": 199,
       "variantCount": 7,
       "variants": [
-        "fourth_powers",
-        "common_cube",
-        "group_difference",
-        "group_extra",
         "group_square",
         "common_square",
-        "common_difference"
+        "common_cube",
+        "fourth_powers",
+        "common_difference",
+        "group_extra",
+        "group_difference"
       ]
     },
     {
@@ -141,13 +110,13 @@
       "requested": 10,
       "successes": 10,
       "uniqueSignatures": 10,
-      "uniqueTexts": 9,
+      "uniqueTexts": 8,
       "variantCount": 4,
       "variants": [
-        "opposite",
         "int_fraction",
+        "absolute",
         "fraction_decimal",
-        "absolute"
+        "opposite"
       ]
     },
     {
@@ -159,10 +128,10 @@
       "uniqueTexts": 10,
       "variantCount": 4,
       "variants": [
-        "absolute_decimal",
-        "opposite_fraction",
         "decimal_fraction",
-        "equivalent"
+        "equivalent",
+        "opposite_fraction",
+        "absolute_decimal"
       ]
     },
     {
@@ -170,14 +139,14 @@
       "d": 2,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 10,
+      "uniqueSignatures": 9,
       "uniqueTexts": 8,
       "variantCount": 4,
       "variants": [
-        "equivalent_chain",
         "signed_fraction_decimal",
         "recover_number",
-        "double_step"
+        "double_step",
+        "equivalent_chain"
       ]
     },
     {
@@ -214,12 +183,12 @@
       "requested": 10,
       "successes": 10,
       "uniqueSignatures": 10,
-      "uniqueTexts": 9,
+      "uniqueTexts": 10,
       "variantCount": 3,
       "variants": [
-        "order4",
+        "distance_compare",
         "mixed_compare",
-        "distance_compare"
+        "order4"
       ]
     },
     {
@@ -233,8 +202,8 @@
       "variants": [
         "div_simple",
         "add_int",
-        "sub_signed",
-        "mul_simple"
+        "mul_simple",
+        "sub_signed"
       ]
     },
     {
@@ -244,11 +213,12 @@
       "successes": 10,
       "uniqueSignatures": 10,
       "uniqueTexts": 10,
-      "variantCount": 3,
+      "variantCount": 4,
       "variants": [
         "two_step",
         "fraction_muldiv",
-        "frac_add"
+        "frac_add",
+        "decimal_signed"
       ]
     },
     {
@@ -260,10 +230,10 @@
       "uniqueTexts": 10,
       "variantCount": 4,
       "variants": [
+        "fraction_combo",
         "four_ops",
-        "bracket_combo",
         "three_step",
-        "fraction_combo"
+        "bracket_combo"
       ]
     },
     {
@@ -289,8 +259,8 @@
       "uniqueTexts": 10,
       "variantCount": 3,
       "variants": [
-        "fraction_of_remainder",
         "length_part",
+        "fraction_of_remainder",
         "two_action"
       ]
     },
@@ -304,8 +274,8 @@
       "variantCount": 3,
       "variants": [
         "two_fractions_total",
-        "three_action_books",
-        "route_remainder"
+        "route_remainder",
+        "three_action_books"
       ]
     },
     {
@@ -313,14 +283,14 @@
       "d": 0,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 8,
-      "uniqueTexts": 8,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 9,
       "variantCount": 4,
       "variants": [
-        "base",
+        "exponent",
         "product_to_power",
-        "compute",
-        "exponent"
+        "base",
+        "compute"
       ]
     },
     {
@@ -328,14 +298,14 @@
       "d": 1,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 9,
-      "uniqueTexts": 9,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
       "variantCount": 4,
       "variants": [
-        "expand",
         "sign",
+        "negative_compute",
         "missing_exp",
-        "negative_compute"
+        "expand"
       ]
     },
     {
@@ -343,13 +313,14 @@
       "d": 2,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 10,
-      "uniqueTexts": 10,
-      "variantCount": 3,
+      "uniqueSignatures": 8,
+      "uniqueTexts": 8,
+      "variantCount": 4,
       "variants": [
         "product_identify",
+        "sum_powers",
         "power_compare",
-        "sum_powers"
+        "negative_parity"
       ]
     },
     {
@@ -357,13 +328,13 @@
       "d": 0,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 8,
-      "uniqueTexts": 8,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 9,
       "variantCount": 3,
       "variants": [
+        "decimal_percent",
         "percent_decimal",
-        "percent_fraction",
-        "decimal_percent"
+        "percent_fraction"
       ]
     },
     {
@@ -372,12 +343,12 @@
       "requested": 10,
       "successes": 10,
       "uniqueSignatures": 10,
-      "uniqueTexts": 8,
+      "uniqueTexts": 9,
       "variantCount": 3,
       "variants": [
-        "signed_compare",
+        "equivalent",
         "fraction_percent",
-        "equivalent"
+        "signed_compare"
       ]
     },
     {
@@ -389,8 +360,8 @@
       "uniqueTexts": 7,
       "variantCount": 3,
       "variants": [
-        "compare_forms",
         "equivalent_chain",
+        "compare_forms",
         "mixed_percent"
       ]
     },
@@ -399,12 +370,12 @@
       "d": 0,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 9,
-      "uniqueTexts": 9,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
       "variantCount": 3,
       "variants": [
-        "percent_ratio",
         "number_by_percent",
+        "percent_ratio",
         "of_number"
       ]
     },
@@ -417,9 +388,9 @@
       "uniqueTexts": 10,
       "variantCount": 4,
       "variants": [
-        "increase",
         "discount",
         "decrease",
+        "increase",
         "mass"
       ]
     },
@@ -430,12 +401,11 @@
       "successes": 10,
       "uniqueSignatures": 10,
       "uniqueTexts": 10,
-      "variantCount": 4,
+      "variantCount": 3,
       "variants": [
+        "distance_combo",
         "two_changes",
-        "discount_delivery",
-        "reverse_discount",
-        "distance_combo"
+        "reverse_discount"
       ]
     },
     {
@@ -443,14 +413,14 @@
       "d": 0,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 9,
-      "uniqueTexts": 9,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
       "variantCount": 4,
       "variants": [
         "divisor",
         "multiple",
-        "prime",
-        "sign_rule"
+        "sign_rule",
+        "prime"
       ]
     },
     {
@@ -463,9 +433,9 @@
       "variantCount": 4,
       "variants": [
         "divisible_both",
+        "restore",
         "factorization",
-        "prime_missing",
-        "restore"
+        "prime_missing"
       ]
     },
     {
@@ -477,8 +447,8 @@
       "uniqueTexts": 10,
       "variantCount": 4,
       "variants": [
-        "divisibility_combo_balanced",
         "gcd_tool",
+        "divisibility_combo_balanced",
         "lcm_tool",
         "factorization_compare"
       ]
@@ -488,13 +458,13 @@
       "d": 0,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 9,
-      "uniqueTexts": 9,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
       "variantCount": 3,
       "variants": [
+        "direct_relation",
         "direct_unknown",
-        "inverse_relation",
-        "direct_relation"
+        "inverse_relation"
       ]
     },
     {
@@ -506,8 +476,8 @@
       "uniqueTexts": 10,
       "variantCount": 3,
       "variants": [
-        "direct_unknown",
         "inverse_workers",
+        "direct_unknown",
         "inverse_time"
       ]
     },
@@ -518,11 +488,12 @@
       "successes": 10,
       "uniqueSignatures": 10,
       "uniqueTexts": 10,
-      "variantCount": 3,
+      "variantCount": 4,
       "variants": [
+        "inverse_time",
+        "reverse_price",
         "combined_cost",
-        "inverse_workers",
-        "reverse_price"
+        "inverse_workers"
       ]
     },
     {
@@ -534,9 +505,9 @@
       "uniqueTexts": 10,
       "variantCount": 3,
       "variants": [
-        "linear",
         "square",
-        "two_vars"
+        "two_vars",
+        "linear"
       ]
     },
     {
@@ -548,11 +519,11 @@
       "uniqueTexts": 10,
       "variantCount": 5,
       "variants": [
-        "linear_negative",
         "bracket",
+        "linear_negative",
         "two_vars",
-        "square",
-        "fraction_x"
+        "fraction_x",
+        "square"
       ]
     },
     {
@@ -564,10 +535,10 @@
       "uniqueTexts": 10,
       "variantCount": 4,
       "variants": [
+        "two_brackets",
         "three_step",
         "fraction_bracket",
-        "two_vars_square",
-        "two_brackets"
+        "two_vars_square"
       ]
     },
     {
@@ -575,12 +546,12 @@
       "d": 0,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 9,
+      "uniqueSignatures": 10,
       "uniqueTexts": 10,
       "variantCount": 2,
       "variants": [
-        "x_minus",
-        "kx_plus"
+        "kx_plus",
+        "x_minus"
       ]
     },
     {
@@ -620,9 +591,9 @@
       "uniqueTexts": 10,
       "variantCount": 3,
       "variants": [
+        "rectangle_area",
         "rectangle_perimeter",
-        "distance",
-        "rectangle_area"
+        "distance"
       ]
     },
     {
@@ -634,10 +605,10 @@
       "uniqueTexts": 10,
       "variantCount": 4,
       "variants": [
-        "find_side_area",
-        "price",
+        "find_speed",
         "find_side_perimeter",
-        "find_speed"
+        "find_side_area",
+        "price"
       ]
     },
     {
@@ -645,14 +616,14 @@
       "d": 2,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 9,
-      "uniqueTexts": 9,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
       "variantCount": 4,
       "variants": [
         "rectangle_combo",
         "formula_reverse",
-        "two_leg_route",
-        "work_rate"
+        "work_rate",
+        "two_leg_route"
       ]
     },
     {
@@ -660,8 +631,8 @@
       "d": 0,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 8,
-      "uniqueTexts": 8,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 9,
       "variantCount": 3,
       "variants": [
         "distribute_simple",
@@ -679,8 +650,8 @@
       "variantCount": 4,
       "variants": [
         "combine",
-        "distribute_linear",
         "convenient_product",
+        "distribute_linear",
         "factor_common"
       ]
     },
@@ -691,11 +662,12 @@
       "successes": 10,
       "uniqueSignatures": 10,
       "uniqueTexts": 10,
-      "variantCount": 3,
+      "variantCount": 4,
       "variants": [
-        "factor_common",
+        "rational_group",
         "negative_distribute",
-        "rational_group"
+        "factor_common",
+        "combine"
       ]
     },
     {
@@ -703,12 +675,12 @@
       "d": 0,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 10,
-      "uniqueTexts": 10,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 9,
       "variantCount": 3,
       "variants": [
-        "simple_bracket",
         "like",
+        "simple_bracket",
         "minus_bracket"
       ]
     },
@@ -721,9 +693,9 @@
       "uniqueTexts": 10,
       "variantCount": 3,
       "variants": [
-        "bracket_like",
         "bracket_plus",
-        "minus_bracket"
+        "minus_bracket",
+        "bracket_like"
       ]
     },
     {
@@ -735,9 +707,9 @@
       "uniqueTexts": 10,
       "variantCount": 3,
       "variants": [
+        "two_brackets_negative",
         "two_brackets",
-        "multi_like",
-        "two_brackets_negative"
+        "multi_like"
       ]
     },
     {
@@ -746,7 +718,7 @@
       "requested": 10,
       "successes": 10,
       "uniqueSignatures": 10,
-      "uniqueTexts": 5,
+      "uniqueTexts": 7,
       "variantCount": 2,
       "variants": [
         "yes_no",
@@ -762,9 +734,9 @@
       "uniqueTexts": 10,
       "variantCount": 3,
       "variants": [
-        "yes_no",
+        "distribution",
         "equivalent_choice",
-        "distribution"
+        "yes_no"
       ]
     },
     {
@@ -776,9 +748,9 @@
       "uniqueTexts": 10,
       "variantCount": 3,
       "variants": [
+        "two_step_identity",
         "equivalent_choice",
-        "yes_no",
-        "two_step_identity"
+        "yes_no"
       ]
     },
     {
@@ -790,8 +762,8 @@
       "uniqueTexts": 10,
       "variantCount": 2,
       "variants": [
-        "is_root",
-        "equivalent_root"
+        "equivalent_root",
+        "is_root"
       ]
     },
     {
@@ -803,8 +775,8 @@
       "uniqueTexts": 10,
       "variantCount": 3,
       "variants": [
-        "equivalent_root",
         "is_root",
+        "equivalent_root",
         "same_operation"
       ]
     },
@@ -817,8 +789,8 @@
       "uniqueTexts": 10,
       "variantCount": 3,
       "variants": [
-        "equivalent_root",
         "same_operation",
+        "equivalent_root",
         "bracket_root"
       ]
     },
@@ -831,9 +803,9 @@
       "uniqueTexts": 10,
       "variantCount": 3,
       "variants": [
-        "times",
         "x_plus",
-        "ax_plus"
+        "ax_plus",
+        "times"
       ]
     },
     {
@@ -858,9 +830,9 @@
       "uniqueTexts": 10,
       "variantCount": 3,
       "variants": [
-        "fraction_coef",
+        "both_sides_fraction_root",
         "brackets_both",
-        "both_sides_fraction_root"
+        "fraction_coef"
       ]
     },
     {
@@ -869,7 +841,7 @@
       "requested": 10,
       "successes": 10,
       "uniqueSignatures": 10,
-      "uniqueTexts": 7,
+      "uniqueTexts": 10,
       "variantCount": 3,
       "variants": [
         "classify_canonical",
@@ -883,12 +855,11 @@
       "requested": 10,
       "successes": 10,
       "uniqueSignatures": 10,
-      "uniqueTexts": 10,
-      "variantCount": 3,
+      "uniqueTexts": 9,
+      "variantCount": 2,
       "variants": [
-        "reduced_meaning",
-        "choose_case",
-        "classify_one_bracket"
+        "classify_one_bracket",
+        "choose_case"
       ]
     },
     {
@@ -897,12 +868,12 @@
       "requested": 10,
       "successes": 10,
       "uniqueSignatures": 10,
-      "uniqueTexts": 6,
+      "uniqueTexts": 7,
       "variantCount": 3,
       "variants": [
+        "reduced_meaning",
         "choose_case",
-        "classify_two_brackets",
-        "reduced_meaning"
+        "classify_two_brackets"
       ]
     },
     {
@@ -914,9 +885,9 @@
       "uniqueTexts": 10,
       "variantCount": 3,
       "variants": [
+        "age_simple",
         "cost",
-        "quantity_add",
-        "age_simple"
+        "quantity_add"
       ]
     },
     {
@@ -926,10 +897,11 @@
       "successes": 10,
       "uniqueSignatures": 10,
       "uniqueTexts": 10,
-      "variantCount": 3,
+      "variantCount": 4,
       "variants": [
-        "perimeter",
         "two_numbers",
+        "distance",
+        "perimeter",
         "consecutive"
       ]
     },
@@ -940,12 +912,13 @@
       "successes": 10,
       "uniqueSignatures": 10,
       "uniqueTexts": 10,
-      "variantCount": 4,
+      "variantCount": 5,
       "variants": [
         "shopping",
         "age_relation",
         "consecutive_three",
-        "distance_two_stage"
+        "distance_two_stage",
+        "perimeter"
       ]
     },
     {
@@ -953,13 +926,13 @@
       "d": 0,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 9,
-      "uniqueTexts": 6,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 7,
       "variantCount": 3,
       "variants": [
         "ineq_left",
-        "ineq_right",
-        "visual"
+        "visual",
+        "ineq_right"
       ]
     },
     {
@@ -968,7 +941,7 @@
       "requested": 10,
       "successes": 10,
       "uniqueSignatures": 10,
-      "uniqueTexts": 10,
+      "uniqueTexts": 9,
       "variantCount": 4,
       "variants": [
         "half_open",
@@ -983,13 +956,12 @@
       "requested": 10,
       "successes": 10,
       "uniqueSignatures": 10,
-      "uniqueTexts": 4,
-      "variantCount": 4,
+      "uniqueTexts": 10,
+      "variantCount": 3,
       "variants": [
+        "membership",
         "bounded_mixed",
-        "ray_visual",
-        "reverse_visual",
-        "membership"
+        "ray_visual"
       ]
     },
     {
@@ -997,8 +969,8 @@
       "d": 0,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 8,
-      "uniqueTexts": 8,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
       "variantCount": 2,
       "variants": [
         "distance_zero",
@@ -1010,13 +982,13 @@
       "d": 1,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 9,
-      "uniqueTexts": 9,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
       "variantCount": 3,
       "variants": [
-        "unknown_choice",
+        "opposite_sides",
         "distance",
-        "opposite_sides"
+        "unknown_choice"
       ]
     },
     {
@@ -1028,9 +1000,9 @@
       "uniqueTexts": 10,
       "variantCount": 3,
       "variants": [
-        "unknown_choice",
+        "distance_fraction",
         "unknown_one_side",
-        "distance_fraction"
+        "unknown_choice"
       ]
     },
     {
@@ -1042,9 +1014,9 @@
       "uniqueTexts": 3,
       "variantCount": 3,
       "variants": [
-        "read_point",
         "axis",
-        "quadrant"
+        "quadrant",
+        "read_point"
       ]
     },
     {
@@ -1070,9 +1042,9 @@
       "uniqueTexts": 2,
       "variantCount": 3,
       "variants": [
-        "point_axis",
         "read_multi",
-        "quadrant_visual"
+        "quadrant_visual",
+        "point_axis"
       ]
     },
     {
@@ -1080,8 +1052,8 @@
       "d": 0,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 6,
-      "uniqueTexts": 6,
+      "uniqueSignatures": 7,
+      "uniqueTexts": 7,
       "variantCount": 2,
       "variants": [
         "value",
@@ -1095,11 +1067,10 @@
       "successes": 10,
       "uniqueSignatures": 10,
       "uniqueTexts": 10,
-      "variantCount": 3,
+      "variantCount": 2,
       "variants": [
-        "value_square",
-        "value_negative",
-        "table"
+        "table",
+        "value_negative"
       ]
     },
     {
@@ -1111,9 +1082,9 @@
       "uniqueTexts": 10,
       "variantCount": 3,
       "variants": [
+        "find_argument",
         "table",
-        "value_square",
-        "find_argument"
+        "value_square"
       ]
     },
     {
@@ -1121,12 +1092,12 @@
       "d": 0,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 10,
-      "uniqueTexts": 7,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 9,
       "variantCount": 2,
       "variants": [
-        "read_y",
-        "membership"
+        "membership",
+        "read_y"
       ]
     },
     {
@@ -1135,12 +1106,13 @@
       "requested": 10,
       "successes": 10,
       "uniqueSignatures": 10,
-      "uniqueTexts": 6,
-      "variantCount": 3,
+      "uniqueTexts": 7,
+      "variantCount": 4,
       "variants": [
-        "read_x",
         "read_y",
-        "trend"
+        "trend",
+        "read_x",
+        "intercept"
       ]
     },
     {
@@ -1149,11 +1121,11 @@
       "requested": 10,
       "successes": 10,
       "uniqueSignatures": 9,
-      "uniqueTexts": 6,
+      "uniqueTexts": 5,
       "variantCount": 4,
       "variants": [
-        "process_varied",
         "read_x",
+        "process_varied",
         "trend",
         "intercept"
       ]
@@ -1163,12 +1135,13 @@
       "d": 0,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 10,
-      "uniqueTexts": 10,
-      "variantCount": 2,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 8,
+      "variantCount": 3,
       "variants": [
         "value",
-        "k"
+        "k",
+        "property"
       ]
     },
     {
@@ -1176,13 +1149,13 @@
       "d": 1,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 8,
+      "uniqueSignatures": 10,
       "uniqueTexts": 6,
       "variantCount": 4,
       "variants": [
-        "sign",
         "membership",
         "k",
+        "sign",
         "read_graph"
       ]
     },
@@ -1191,14 +1164,14 @@
       "d": 2,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 7,
-      "uniqueTexts": 7,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 9,
       "variantCount": 4,
       "variants": [
-        "membership",
-        "sign",
+        "read_graph",
         "find_x",
-        "read_graph"
+        "membership",
+        "sign"
       ]
     },
     {
@@ -1207,11 +1180,11 @@
       "requested": 10,
       "successes": 10,
       "uniqueSignatures": 10,
-      "uniqueTexts": 8,
+      "uniqueTexts": 9,
       "variantCount": 2,
       "variants": [
-        "b",
-        "value"
+        "value",
+        "b"
       ]
     },
     {
@@ -1219,10 +1192,11 @@
       "d": 1,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 10,
-      "uniqueTexts": 7,
-      "variantCount": 3,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 6,
+      "variantCount": 4,
       "variants": [
+        "graph_read",
         "k_b",
         "membership",
         "value"
@@ -1234,12 +1208,13 @@
       "requested": 10,
       "successes": 10,
       "uniqueSignatures": 10,
-      "uniqueTexts": 6,
-      "variantCount": 3,
+      "uniqueTexts": 9,
+      "variantCount": 4,
       "variants": [
-        "membership",
         "formula",
-        "find_k"
+        "find_k",
+        "graph_read",
+        "membership"
       ]
     },
     {
@@ -1247,12 +1222,12 @@
       "d": 0,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 5,
-      "uniqueTexts": 5,
+      "uniqueSignatures": 7,
+      "uniqueTexts": 7,
       "variantCount": 2,
       "variants": [
-        "shape",
-        "value"
+        "value",
+        "shape"
       ]
     },
     {
@@ -1260,13 +1235,13 @@
       "d": 1,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 8,
-      "uniqueTexts": 8,
+      "uniqueSignatures": 7,
+      "uniqueTexts": 7,
       "variantCount": 3,
       "variants": [
-        "membership",
         "symmetry",
-        "graph_read"
+        "graph_read",
+        "membership"
       ]
     },
     {
@@ -1278,9 +1253,9 @@
       "uniqueTexts": 8,
       "variantCount": 3,
       "variants": [
-        "symmetry",
         "membership",
-        "graph_read"
+        "graph_read",
+        "compare_balanced"
       ]
     },
     {
@@ -1301,13 +1276,13 @@
       "d": 1,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 10,
+      "uniqueSignatures": 9,
       "uniqueTexts": 2,
       "variantCount": 3,
       "variants": [
-        "count_infinite",
         "intersection",
-        "count_none"
+        "count_none",
+        "count_infinite"
       ]
     },
     {
@@ -1315,14 +1290,14 @@
       "d": 2,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 10,
+      "uniqueSignatures": 9,
       "uniqueTexts": 2,
       "variantCount": 4,
       "variants": [
-        "intersection",
         "count_none",
         "count_infinite",
-        "count_one"
+        "count_one",
+        "intersection"
       ]
     },
     {
@@ -1330,8 +1305,8 @@
       "d": 0,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 10,
-      "uniqueTexts": 10,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 9,
       "variantCount": 3,
       "variants": [
         "mul",
@@ -1344,14 +1319,13 @@
       "d": 1,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 9,
-      "uniqueTexts": 9,
-      "variantCount": 4,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 3,
       "variants": [
-        "two_vars",
         "numeric",
-        "missing",
-        "chain"
+        "two_vars",
+        "missing"
       ]
     },
     {
@@ -1361,11 +1335,12 @@
       "successes": 10,
       "uniqueSignatures": 10,
       "uniqueTexts": 10,
-      "variantCount": 3,
+      "variantCount": 4,
       "variants": [
-        "missing_chain",
+        "chain_long",
+        "coefficient",
         "two_vars",
-        "chain_long"
+        "missing_chain"
       ]
     },
     {
@@ -1373,13 +1348,13 @@
       "d": 0,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 9,
-      "uniqueTexts": 9,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
       "variantCount": 3,
       "variants": [
-        "product",
+        "power_power",
         "numeric_product",
-        "power_power"
+        "product"
       ]
     },
     {
@@ -1387,13 +1362,13 @@
       "d": 1,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 9,
-      "uniqueTexts": 9,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
       "variantCount": 3,
       "variants": [
+        "multi_vars",
         "power_then_mul",
-        "coef_power",
-        "multi_vars"
+        "coef_power"
       ]
     },
     {
@@ -1403,12 +1378,11 @@
       "successes": 10,
       "uniqueSignatures": 10,
       "uniqueTexts": 10,
-      "variantCount": 4,
+      "variantCount": 3,
       "variants": [
-        "combined",
         "restore",
-        "numeric_product",
-        "multi_vars"
+        "multi_vars",
+        "numeric_product"
       ]
     },
     {
@@ -1420,9 +1394,9 @@
       "uniqueTexts": 10,
       "variantCount": 3,
       "variants": [
-        "coefficient",
+        "recognize",
         "degree",
-        "recognize"
+        "coefficient"
       ]
     },
     {
@@ -1434,10 +1408,10 @@
       "uniqueTexts": 10,
       "variantCount": 4,
       "variants": [
-        "standardize",
+        "recognize",
         "coefficient",
-        "degree",
-        "recognize"
+        "standardize",
+        "degree"
       ]
     },
     {
@@ -1447,10 +1421,11 @@
       "successes": 10,
       "uniqueSignatures": 10,
       "uniqueTexts": 10,
-      "variantCount": 3,
+      "variantCount": 4,
       "variants": [
-        "choose_standard",
         "standardize_two",
+        "choose_standard",
+        "recognize",
         "degree"
       ]
     },
@@ -1459,8 +1434,8 @@
       "d": 0,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 5,
-      "uniqueTexts": 5,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
       "variantCount": 2,
       "variants": [
         "power",
@@ -1486,14 +1461,14 @@
       "d": 2,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 9,
-      "uniqueTexts": 9,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
       "variantCount": 4,
       "variants": [
-        "multiply_two_vars",
-        "power_two_vars",
+        "combined",
         "divide_two_vars",
-        "combined"
+        "power_two_vars",
+        "multiply_two_vars"
       ]
     },
     {
@@ -1501,13 +1476,13 @@
       "d": 0,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 8,
-      "uniqueTexts": 8,
+      "uniqueSignatures": 7,
+      "uniqueTexts": 7,
       "variantCount": 3,
       "variants": [
-        "value_cube",
         "value_square",
-        "shape"
+        "shape",
+        "value_cube"
       ]
     },
     {
@@ -1519,10 +1494,10 @@
       "uniqueTexts": 7,
       "variantCount": 4,
       "variants": [
-        "membership",
         "symmetry",
+        "graph_square",
         "graph_cube",
-        "graph_square"
+        "membership"
       ]
     },
     {
@@ -1530,15 +1505,15 @@
       "d": 2,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 9,
-      "uniqueTexts": 9,
+      "uniqueSignatures": 7,
+      "uniqueTexts": 7,
       "variantCount": 5,
       "variants": [
         "membership_false",
-        "opposite",
-        "compare_sign",
         "graph_square",
-        "graph_cube"
+        "compare_sign",
+        "graph_cube",
+        "opposite"
       ]
     },
     {
@@ -1551,8 +1526,8 @@
       "variantCount": 3,
       "variants": [
         "degree",
-        "terms",
-        "combine"
+        "combine",
+        "terms"
       ]
     },
     {
@@ -1564,10 +1539,10 @@
       "uniqueTexts": 10,
       "variantCount": 4,
       "variants": [
+        "degree_after",
         "combine",
         "degree_two_vars",
-        "coefficient",
-        "degree_after"
+        "coefficient"
       ]
     },
     {
@@ -1579,10 +1554,10 @@
       "uniqueTexts": 10,
       "variantCount": 4,
       "variants": [
-        "standard",
-        "combine_mixed",
         "degree_two_vars",
-        "degree_after"
+        "combine_mixed",
+        "degree_after",
+        "standard"
       ]
     },
     {
@@ -1594,8 +1569,8 @@
       "uniqueTexts": 10,
       "variantCount": 2,
       "variants": [
-        "add",
-        "subtract"
+        "subtract",
+        "add"
       ]
     },
     {
@@ -1618,13 +1593,12 @@
       "successes": 10,
       "uniqueSignatures": 10,
       "uniqueTexts": 10,
-      "variantCount": 5,
+      "variantCount": 4,
       "variants": [
-        "subtract_two_vars",
-        "add_two_vars",
         "subtract_master",
-        "coefficient",
-        "add_master"
+        "add_two_vars",
+        "subtract_two_vars",
+        "coefficient"
       ]
     },
     {
@@ -1633,7 +1607,7 @@
       "requested": 10,
       "successes": 10,
       "uniqueSignatures": 8,
-      "uniqueTexts": 10,
+      "uniqueTexts": 9,
       "variantCount": 3,
       "variants": [
         "expand_0",
@@ -1650,9 +1624,9 @@
       "uniqueTexts": 10,
       "variantCount": 4,
       "variants": [
+        "coefficient",
         "check",
         "expand_1",
-        "coefficient",
         "term_product"
       ]
     },
@@ -1665,9 +1639,9 @@
       "uniqueTexts": 10,
       "variantCount": 4,
       "variants": [
-        "coefficient",
         "term_product",
         "expand_2",
+        "coefficient",
         "check"
       ]
     },
@@ -1694,7 +1668,7 @@
       "variantCount": 2,
       "variants": [
         "reverse",
-        "factor"
+        "gcf"
       ]
     },
     {
@@ -1704,11 +1678,12 @@
       "successes": 10,
       "uniqueSignatures": 10,
       "uniqueTexts": 10,
-      "variantCount": 3,
+      "variantCount": 4,
       "variants": [
         "factor",
+        "inside_coefficient",
         "reverse",
-        "inside_coefficient"
+        "gcf"
       ]
     },
     {
@@ -1718,11 +1693,10 @@
       "successes": 10,
       "uniqueSignatures": 10,
       "uniqueTexts": 10,
-      "variantCount": 3,
+      "variantCount": 2,
       "variants": [
         "check",
-        "coefficient",
-        "expand_0"
+        "coefficient"
       ]
     },
     {
@@ -1735,8 +1709,8 @@
       "variantCount": 3,
       "variants": [
         "expand_1",
-        "check",
-        "coefficient"
+        "coefficient",
+        "check"
       ]
     },
     {
@@ -1744,14 +1718,14 @@
       "d": 2,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 9,
+      "uniqueSignatures": 10,
       "uniqueTexts": 10,
       "variantCount": 4,
       "variants": [
-        "term_product",
-        "expand_2",
         "coefficient",
-        "check"
+        "check",
+        "term_product",
+        "expand_2"
       ]
     },
     {
@@ -1759,8 +1733,8 @@
       "d": 0,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 9,
-      "uniqueTexts": 9,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
       "variantCount": 2,
       "variants": [
         "factor",
@@ -1774,10 +1748,9 @@
       "successes": 10,
       "uniqueSignatures": 10,
       "uniqueTexts": 10,
-      "variantCount": 2,
+      "variantCount": 1,
       "variants": [
-        "factor",
-        "step"
+        "factor"
       ]
     },
     {
@@ -1798,12 +1771,12 @@
       "d": 0,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 7,
-      "uniqueTexts": 7,
+      "uniqueSignatures": 6,
+      "uniqueTexts": 6,
       "variantCount": 3,
       "variants": [
-        "sum_simple",
         "difference_simple",
+        "sum_simple",
         "middle_sign"
       ]
     },
@@ -1812,13 +1785,13 @@
       "d": 1,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 8,
-      "uniqueTexts": 8,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 9,
       "variantCount": 5,
       "variants": [
-        "reverse_difference",
-        "middle_coefficient",
         "sum_coeff",
+        "middle_coefficient",
+        "reverse_difference",
         "difference_coeff",
         "reverse_sum"
       ]
@@ -1828,13 +1801,14 @@
       "d": 2,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 9,
-      "uniqueTexts": 9,
-      "variantCount": 4,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 5,
       "variants": [
-        "sum_power",
-        "reverse_difference",
         "reverse_sum",
+        "reverse_difference",
+        "sum_power",
+        "difference_power",
         "middle_coefficient"
       ]
     },
@@ -1857,13 +1831,13 @@
       "d": 1,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 8,
-      "uniqueTexts": 8,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 9,
       "variantCount": 3,
       "variants": [
-        "factor_power",
         "expand_coeff",
-        "factor_coeff"
+        "factor_coeff",
+        "factor_power"
       ]
     },
     {
@@ -1871,13 +1845,13 @@
       "d": 2,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 10,
-      "uniqueTexts": 10,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 9,
       "variantCount": 3,
       "variants": [
-        "reverse_mixed",
         "factor_power",
-        "expand_power"
+        "expand_power",
+        "reverse_mixed"
       ]
     },
     {
@@ -1899,14 +1873,13 @@
       "d": 1,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 10,
-      "uniqueTexts": 10,
-      "variantCount": 4,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 9,
+      "variantCount": 3,
       "variants": [
         "expand_difference",
         "factor_sum_coeff",
-        "expand_sum",
-        "factor_difference_coeff"
+        "expand_sum"
       ]
     },
     {
@@ -1914,14 +1887,14 @@
       "d": 2,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 7,
-      "uniqueTexts": 7,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
       "variantCount": 4,
       "variants": [
-        "expand_sum",
-        "expand_difference",
+        "factor_sum_power",
         "factor_difference_power",
-        "factor_sum_power"
+        "expand_sum",
+        "expand_difference"
       ]
     },
     {
@@ -1929,14 +1902,13 @@
       "d": 0,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 7,
-      "uniqueTexts": 7,
-      "variantCount": 4,
+      "uniqueSignatures": 6,
+      "uniqueTexts": 6,
+      "variantCount": 3,
       "variants": [
-        "cancel_double",
-        "cross_only",
         "difference_squares",
-        "numeric_value"
+        "cross_only",
+        "cancel_double"
       ]
     },
     {
@@ -1946,13 +1918,14 @@
       "successes": 10,
       "uniqueSignatures": 10,
       "uniqueTexts": 10,
-      "variantCount": 5,
+      "variantCount": 6,
       "variants": [
-        "cross_only",
-        "coefficient",
+        "conjugate_minus",
+        "numeric_value",
+        "sum_squares",
         "cancel_double",
-        "difference_squares",
-        "conjugate_minus"
+        "coefficient",
+        "difference_squares"
       ]
     },
     {
@@ -1964,11 +1937,11 @@
       "uniqueTexts": 10,
       "variantCount": 5,
       "variants": [
-        "sum_squares",
-        "scaled_difference",
-        "difference_squares",
         "product_minus_square",
-        "conjugate_plus"
+        "conjugate_plus",
+        "coefficient",
+        "linear_combo",
+        "scaled_difference"
       ]
     },
     {
@@ -1980,9 +1953,9 @@
       "uniqueTexts": 10,
       "variantCount": 3,
       "variants": [
+        "common_difference",
         "square_of_difference",
-        "common_square",
-        "common_difference"
+        "common_square"
       ]
     },
     {
@@ -1995,8 +1968,8 @@
       "variantCount": 5,
       "variants": [
         "group_difference",
-        "common_square",
         "square_of_difference",
+        "common_square",
         "common_difference",
         "fourth_powers"
       ]
@@ -2008,14 +1981,13 @@
       "successes": 10,
       "uniqueSignatures": 10,
       "uniqueTexts": 10,
-      "variantCount": 6,
+      "variantCount": 5,
       "variants": [
-        "group_difference",
-        "common_difference",
-        "common_cube",
-        "common_square",
         "group_extra",
-        "group_square"
+        "common_difference",
+        "fourth_powers",
+        "group_square",
+        "common_cube"
       ]
     },
     {
@@ -2040,9 +2012,9 @@
       "uniqueTexts": 10,
       "variantCount": 3,
       "variants": [
-        "check_pair",
+        "find_x",
         "pair_choice",
-        "find_x"
+        "check_pair"
       ]
     },
     {
@@ -2054,10 +2026,10 @@
       "uniqueTexts": 10,
       "variantCount": 4,
       "variants": [
+        "find_x",
         "pair_choice",
         "check_pair",
-        "find_c",
-        "find_x"
+        "find_c"
       ]
     },
     {
@@ -2079,12 +2051,13 @@
       "requested": 10,
       "successes": 10,
       "uniqueSignatures": 10,
-      "uniqueTexts": 6,
-      "variantCount": 3,
+      "uniqueTexts": 7,
+      "variantCount": 4,
       "variants": [
         "formula",
-        "membership",
-        "read_y"
+        "read_y",
+        "intercept",
+        "membership"
       ]
     },
     {
@@ -2093,13 +2066,13 @@
       "requested": 10,
       "successes": 10,
       "uniqueSignatures": 10,
-      "uniqueTexts": 8,
+      "uniqueTexts": 9,
       "variantCount": 4,
       "variants": [
-        "membership",
-        "formula",
         "read_x",
-        "read_y"
+        "formula",
+        "read_y",
+        "membership"
       ]
     },
     {
@@ -2107,13 +2080,13 @@
       "d": 0,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 8,
-      "uniqueTexts": 8,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 9,
       "variantCount": 3,
       "variants": [
+        "check_pair",
         "choose_pair",
-        "meaning",
-        "check_pair"
+        "meaning"
       ]
     },
     {
@@ -2125,9 +2098,9 @@
       "uniqueTexts": 10,
       "variantCount": 3,
       "variants": [
-        "choose_pair",
+        "check_pair",
         "solve_simple",
-        "check_pair"
+        "choose_pair"
       ]
     },
     {
@@ -2139,9 +2112,9 @@
       "uniqueTexts": 10,
       "variantCount": 3,
       "variants": [
-        "solve_simple",
         "check_pair",
-        "choose_pair"
+        "choose_pair",
+        "solve_simple"
       ]
     },
     {
@@ -2149,8 +2122,8 @@
       "d": 0,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 9,
-      "uniqueTexts": 9,
+      "uniqueSignatures": 8,
+      "uniqueTexts": 8,
       "variantCount": 2,
       "variants": [
         "solve_pair",
@@ -2166,8 +2139,8 @@
       "uniqueTexts": 10,
       "variantCount": 3,
       "variants": [
-        "solve_pair",
         "isolate",
+        "solve_pair",
         "find_y"
       ]
     },
@@ -2178,9 +2151,10 @@
       "successes": 10,
       "uniqueSignatures": 10,
       "uniqueTexts": 10,
-      "variantCount": 1,
+      "variantCount": 2,
       "variants": [
-        "solve_pair"
+        "solve_pair",
+        "find_y"
       ]
     },
     {
@@ -2205,8 +2179,8 @@
       "uniqueTexts": 10,
       "variantCount": 2,
       "variants": [
-        "solve_pair",
-        "first_result"
+        "first_result",
+        "solve_pair"
       ]
     },
     {
@@ -2214,7 +2188,7 @@
       "d": 2,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 8,
+      "uniqueSignatures": 10,
       "uniqueTexts": 10,
       "variantCount": 2,
       "variants": [
@@ -2231,8 +2205,8 @@
       "uniqueTexts": 10,
       "variantCount": 2,
       "variants": [
-        "boxes",
-        "numbers"
+        "numbers",
+        "boxes"
       ]
     },
     {
@@ -2244,9 +2218,9 @@
       "uniqueTexts": 10,
       "variantCount": 3,
       "variants": [
+        "boxes",
         "rectangle",
-        "shopping",
-        "boxes"
+        "shopping"
       ]
     },
     {
@@ -2268,13 +2242,13 @@
       "d": 0,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 4,
+      "uniqueSignatures": 5,
       "uniqueTexts": 3,
       "variantCount": 3,
       "variants": [
         "between",
-        "ray_name",
-        "identify"
+        "identify",
+        "ray_name"
       ]
     },
     {
@@ -2282,14 +2256,13 @@
       "d": 1,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 5,
-      "uniqueTexts": 4,
-      "variantCount": 4,
+      "uniqueSignatures": 3,
+      "uniqueTexts": 3,
+      "variantCount": 3,
       "variants": [
-        "identify",
         "ray_name",
-        "between",
-        "membership"
+        "membership",
+        "between"
       ]
     },
     {
@@ -2301,10 +2274,10 @@
       "uniqueTexts": 4,
       "variantCount": 4,
       "variants": [
-        "identify",
-        "ray_name",
         "membership",
-        "between"
+        "identify",
+        "between",
+        "ray_name"
       ]
     },
     {
@@ -2312,13 +2285,13 @@
       "d": 0,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 9,
-      "uniqueTexts": 9,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
       "variantCount": 3,
       "variants": [
-        "angle_type",
         "segment_diff",
-        "segment_sum"
+        "segment_sum",
+        "angle_type"
       ]
     },
     {
@@ -2330,10 +2303,10 @@
       "uniqueTexts": 10,
       "variantCount": 4,
       "variants": [
-        "segment_diff",
         "angle_parts",
         "segment_sum",
-        "angle_type"
+        "angle_type",
+        "segment_diff"
       ]
     },
     {
@@ -2341,14 +2314,13 @@
       "d": 2,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 10,
-      "uniqueTexts": 10,
-      "variantCount": 4,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 9,
+      "variantCount": 3,
       "variants": [
-        "segment_diff",
-        "unit_convert",
         "angle_parts",
-        "angle_type"
+        "unit_convert",
+        "segment_diff"
       ]
     },
     {
@@ -2360,12 +2332,54 @@
       "uniqueTexts": 9,
       "variantCount": 2,
       "variants": [
-        "vertical",
-        "adjacent"
+        "adjacent",
+        "vertical"
       ]
     },
     {
       "raw": "geo_adjacent_vertical_angles",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 6,
+      "variantCount": 3,
+      "variants": [
+        "adjacent",
+        "vertical",
+        "relation"
+      ]
+    },
+    {
+      "raw": "geo_adjacent_vertical_angles",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 7,
+      "variantCount": 4,
+      "variants": [
+        "adjacent",
+        "vertical",
+        "relation",
+        "around"
+      ]
+    },
+    {
+      "raw": "geo_angle_bisector",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 9,
+      "variantCount": 2,
+      "variants": [
+        "whole",
+        "half"
+      ]
+    },
+    {
+      "raw": "geo_angle_bisector",
       "d": 1,
       "requested": 10,
       "successes": 10,
@@ -2373,51 +2387,9 @@
       "uniqueTexts": 8,
       "variantCount": 3,
       "variants": [
-        "vertical",
-        "relation",
-        "adjacent"
-      ]
-    },
-    {
-      "raw": "geo_adjacent_vertical_angles",
-      "d": 2,
-      "requested": 10,
-      "successes": 10,
-      "uniqueSignatures": 10,
-      "uniqueTexts": 10,
-      "variantCount": 4,
-      "variants": [
-        "vertical",
-        "around",
-        "adjacent",
-        "relation"
-      ]
-    },
-    {
-      "raw": "geo_angle_bisector",
-      "d": 0,
-      "requested": 10,
-      "successes": 10,
-      "uniqueSignatures": 9,
-      "uniqueTexts": 9,
-      "variantCount": 2,
-      "variants": [
-        "whole",
-        "half"
-      ]
-    },
-    {
-      "raw": "geo_angle_bisector",
-      "d": 1,
-      "requested": 10,
-      "successes": 10,
-      "uniqueSignatures": 10,
-      "uniqueTexts": 7,
-      "variantCount": 3,
-      "variants": [
-        "whole",
         "property",
-        "half"
+        "half",
+        "whole"
       ]
     },
     {
@@ -2430,9 +2402,9 @@
       "variantCount": 4,
       "variants": [
         "reverse",
-        "property",
         "half",
-        "whole"
+        "whole",
+        "property"
       ]
     },
     {
@@ -2440,8 +2412,8 @@
       "d": 0,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 7,
-      "uniqueTexts": 5,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 8,
       "variantCount": 2,
       "variants": [
         "broken_length",
@@ -2453,13 +2425,13 @@
       "d": 1,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 8,
-      "uniqueTexts": 8,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 9,
       "variantCount": 3,
       "variants": [
-        "diagonal",
         "perimeter",
-        "broken_length"
+        "broken_length",
+        "diagonal"
       ]
     },
     {
@@ -2467,14 +2439,13 @@
       "d": 2,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 7,
-      "uniqueTexts": 7,
-      "variantCount": 4,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 9,
+      "variantCount": 3,
       "variants": [
         "broken_missing",
-        "diagonal",
-        "missing_side",
-        "perimeter"
+        "perimeter",
+        "diagonal"
       ]
     },
     {
@@ -2482,12 +2453,12 @@
       "d": 0,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 4,
+      "uniqueSignatures": 3,
       "uniqueTexts": 2,
       "variantCount": 2,
       "variants": [
-        "identify",
-        "right_angle"
+        "right_angle",
+        "identify"
       ]
     },
     {
@@ -2496,12 +2467,12 @@
       "requested": 10,
       "successes": 10,
       "uniqueSignatures": 4,
-      "uniqueTexts": 4,
+      "uniqueTexts": 3,
       "variantCount": 3,
       "variants": [
+        "right_angle",
         "identify",
-        "notation",
-        "right_angle"
+        "notation"
       ]
     },
     {
@@ -2513,9 +2484,9 @@
       "uniqueTexts": 4,
       "variantCount": 4,
       "variants": [
+        "notation",
         "parallel_fact",
         "right_angle",
-        "notation",
         "identify"
       ]
     },
@@ -2525,11 +2496,11 @@
       "requested": 10,
       "successes": 10,
       "uniqueSignatures": 10,
-      "uniqueTexts": 4,
+      "uniqueTexts": 5,
       "variantCount": 2,
       "variants": [
-        "reflect",
-        "property"
+        "property",
+        "reflect"
       ]
     },
     {
@@ -2538,10 +2509,11 @@
       "requested": 10,
       "successes": 10,
       "uniqueSignatures": 10,
-      "uniqueTexts": 6,
-      "variantCount": 2,
+      "uniqueTexts": 7,
+      "variantCount": 3,
       "variants": [
         "property",
+        "reflect",
         "choose"
       ]
     },
@@ -2552,10 +2524,9 @@
       "successes": 10,
       "uniqueSignatures": 10,
       "uniqueTexts": 7,
-      "variantCount": 4,
+      "variantCount": 3,
       "variants": [
         "reflect",
-        "distance",
         "choose",
         "property"
       ]
@@ -2569,8 +2540,8 @@
       "uniqueTexts": 2,
       "variantCount": 2,
       "variants": [
-        "midpoint_next",
-        "bisector_next"
+        "bisector_next",
+        "midpoint_next"
       ]
     },
     {
@@ -2583,8 +2554,8 @@
       "variantCount": 3,
       "variants": [
         "midpoint_result",
-        "copy_step",
-        "bisector_result"
+        "bisector_result",
+        "copy_step"
       ]
     },
     {
@@ -2592,12 +2563,13 @@
       "d": 2,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 3,
-      "uniqueTexts": 3,
-      "variantCount": 3,
+      "uniqueSignatures": 4,
+      "uniqueTexts": 4,
+      "variantCount": 4,
       "variants": [
-        "midpoint_result",
+        "copy_step",
         "bisector_next",
+        "midpoint_result",
         "midpoint_next"
       ]
     },
@@ -2606,8 +2578,8 @@
       "d": 0,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 9,
-      "uniqueTexts": 9,
+      "uniqueSignatures": 5,
+      "uniqueTexts": 5,
       "variantCount": 2,
       "variants": [
         "opposite",
@@ -2623,8 +2595,8 @@
       "uniqueTexts": 10,
       "variantCount": 3,
       "variants": [
-        "missing",
         "perimeter",
+        "missing",
         "find_sum"
       ]
     },
@@ -2637,8 +2609,8 @@
       "uniqueTexts": 10,
       "variantCount": 3,
       "variants": [
-        "compare_perimeters",
         "missing",
+        "compare_perimeters",
         "double_perimeter"
       ]
     },
@@ -2647,8 +2619,8 @@
       "d": 0,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 5,
-      "uniqueTexts": 5,
+      "uniqueSignatures": 4,
+      "uniqueTexts": 4,
       "variantCount": 3,
       "variants": [
         "height_property",
@@ -2661,14 +2633,14 @@
       "d": 1,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 6,
-      "uniqueTexts": 6,
+      "uniqueSignatures": 8,
+      "uniqueTexts": 8,
       "variantCount": 4,
       "variants": [
-        "identify_median",
-        "height_property",
         "bisector_half",
-        "median_half"
+        "height_property",
+        "median_half",
+        "identify_median"
       ]
     },
     {
@@ -2676,14 +2648,15 @@
       "d": 2,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 9,
-      "uniqueTexts": 9,
-      "variantCount": 4,
+      "uniqueSignatures": 6,
+      "uniqueTexts": 6,
+      "variantCount": 5,
       "variants": [
-        "median_half",
-        "bisector_half",
+        "height_property",
         "identify_median",
-        "height_property"
+        "median_half",
+        "height_outside",
+        "bisector_half"
       ]
     },
     {
@@ -2691,11 +2664,10 @@
       "d": 0,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 10,
-      "uniqueTexts": 10,
-      "variantCount": 3,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 9,
+      "variantCount": 2,
       "variants": [
-        "eq_perimeter",
         "equal",
         "base"
       ]
@@ -2705,13 +2677,13 @@
       "d": 1,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 9,
-      "uniqueTexts": 9,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
       "variantCount": 3,
       "variants": [
-        "iso_perimeter",
-        "base_from_perimeter",
-        "eq_perimeter"
+        "eq_perimeter",
+        "vertex_angle",
+        "base_from_perimeter"
       ]
     },
     {
@@ -2719,14 +2691,14 @@
       "d": 2,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 10,
-      "uniqueTexts": 10,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 9,
       "variantCount": 4,
       "variants": [
-        "base_from_perimeter",
-        "iso_perimeter",
+        "vertex_angle",
         "side_from_perimeter",
-        "vertex_angle"
+        "iso_perimeter",
+        "base_from_perimeter"
       ]
     },
     {
@@ -2751,9 +2723,9 @@
       "uniqueTexts": 10,
       "variantCount": 3,
       "variants": [
+        "bisector_half",
         "base_from_vertex",
-        "vertex_from_base",
-        "bisector_half"
+        "vertex_from_base"
       ]
     },
     {
@@ -2761,14 +2733,14 @@
       "d": 2,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 10,
-      "uniqueTexts": 10,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 9,
       "variantCount": 4,
       "variants": [
-        "vertex_from_base",
-        "angle_difference",
+        "bisector_half",
         "base_from_vertex",
-        "bisector_half"
+        "vertex_from_base",
+        "angle_difference"
       ]
     },
     {
@@ -2794,9 +2766,9 @@
       "variantCount": 4,
       "variants": [
         "copy",
+        "perimeter",
         "angle",
-        "missing",
-        "perimeter"
+        "missing"
       ]
     },
     {
@@ -2808,9 +2780,9 @@
       "uniqueTexts": 10,
       "variantCount": 3,
       "variants": [
+        "angle",
         "perimeter",
-        "missing",
-        "angle"
+        "missing"
       ]
     },
     {
@@ -2819,11 +2791,11 @@
       "requested": 10,
       "successes": 10,
       "uniqueSignatures": 10,
-      "uniqueTexts": 9,
+      "uniqueTexts": 10,
       "variantCount": 2,
       "variants": [
-        "same_angle",
-        "angle_sum"
+        "angle_sum",
+        "same_angle"
       ]
     },
     {
@@ -2836,8 +2808,8 @@
       "variantCount": 3,
       "variants": [
         "angle_sum",
-        "same_angle",
-        "third"
+        "third",
+        "same_angle"
       ]
     },
     {
@@ -2849,8 +2821,8 @@
       "uniqueTexts": 10,
       "variantCount": 2,
       "variants": [
-        "third",
-        "reverse"
+        "reverse",
+        "third"
       ]
     },
     {
@@ -2862,8 +2834,8 @@
       "uniqueTexts": 10,
       "variantCount": 2,
       "variants": [
-        "side",
-        "compare"
+        "compare",
+        "side"
       ]
     },
     {
@@ -2875,8 +2847,8 @@
       "uniqueTexts": 10,
       "variantCount": 3,
       "variants": [
-        "perimeter",
         "side",
+        "perimeter",
         "compare"
       ]
     },
@@ -2902,8 +2874,8 @@
       "uniqueTexts": 10,
       "variantCount": 2,
       "variants": [
-        "max_integer",
-        "existence"
+        "existence",
+        "max_integer"
       ]
     },
     {
@@ -2915,8 +2887,8 @@
       "uniqueTexts": 10,
       "variantCount": 3,
       "variants": [
-        "max_integer",
         "existence",
+        "max_integer",
         "min_integer"
       ]
     },
@@ -2925,14 +2897,13 @@
       "d": 2,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 10,
-      "uniqueTexts": 10,
-      "variantCount": 4,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 9,
+      "variantCount": 3,
       "variants": [
+        "min_integer",
         "existence",
-        "max_integer",
-        "count_integer",
-        "min_integer"
+        "count_integer"
       ]
     },
     {
@@ -2940,12 +2911,12 @@
       "d": 0,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 7,
-      "uniqueTexts": 7,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 9,
       "variantCount": 2,
       "variants": [
-        "opposite",
-        "largest"
+        "largest",
+        "opposite"
       ]
     },
     {
@@ -2953,37 +2924,37 @@
       "d": 1,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 10,
-      "uniqueTexts": 10,
+      "uniqueSignatures": 8,
+      "uniqueTexts": 8,
       "variantCount": 3,
       "variants": [
-        "largest",
-        "smallest",
-        "which_side"
-      ]
-    },
-    {
-      "raw": "geo_side_angle_relation",
-      "d": 2,
-      "requested": 10,
-      "successes": 10,
-      "uniqueSignatures": 10,
-      "uniqueTexts": 10,
-      "variantCount": 4,
-      "variants": [
-        "side_order",
-        "angle_order",
+        "which_side",
         "largest",
         "smallest"
       ]
     },
     {
+      "raw": "geo_side_angle_relation",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 4,
+      "variants": [
+        "angle_order",
+        "largest",
+        "smallest",
+        "side_order"
+      ]
+    },
+    {
       "raw": "geo_right_triangle_properties",
       "d": 0,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 5,
-      "uniqueTexts": 5,
+      "uniqueSignatures": 4,
+      "uniqueTexts": 4,
       "variantCount": 2,
       "variants": [
         "acute_sum",
@@ -2995,13 +2966,13 @@
       "d": 1,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 4,
-      "uniqueTexts": 4,
+      "uniqueSignatures": 5,
+      "uniqueTexts": 5,
       "variantCount": 3,
       "variants": [
-        "hypotenuse",
+        "legs",
         "acute_sum",
-        "legs"
+        "hypotenuse"
       ]
     },
     {
@@ -3009,14 +2980,14 @@
       "d": 2,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 7,
-      "uniqueTexts": 7,
+      "uniqueSignatures": 4,
+      "uniqueTexts": 4,
       "variantCount": 4,
       "variants": [
-        "acute_sum",
-        "legs",
+        "hypotenuse",
         "hyp_longer",
-        "hypotenuse"
+        "acute_sum",
+        "legs"
       ]
     },
     {
@@ -3028,8 +2999,8 @@
       "uniqueTexts": 2,
       "variantCount": 2,
       "variants": [
-        "leg_leg",
-        "hyp_leg"
+        "hyp_leg",
+        "leg_leg"
       ]
     },
     {
@@ -3037,16 +3008,15 @@
       "d": 1,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 6,
-      "uniqueTexts": 6,
-      "variantCount": 6,
+      "uniqueSignatures": 5,
+      "uniqueTexts": 5,
+      "variantCount": 5,
       "variants": [
-        "mismatched_elements",
-        "hyp_leg",
         "leg_leg",
         "insufficient_one_leg",
+        "leg_angle",
         "insufficient_one_angle",
-        "leg_angle"
+        "hyp_leg"
       ]
     },
     {
@@ -3054,14 +3024,15 @@
       "d": 2,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 4,
-      "uniqueTexts": 4,
-      "variantCount": 4,
+      "uniqueSignatures": 5,
+      "uniqueTexts": 5,
+      "variantCount": 5,
       "variants": [
-        "insufficient_one_angle",
-        "mismatched_elements",
+        "leg_leg",
         "leg_angle",
-        "leg_leg"
+        "insufficient_one_angle",
+        "insufficient_one_leg",
+        "recognize"
       ]
     },
     {
@@ -3069,8 +3040,8 @@
       "d": 0,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 7,
-      "uniqueTexts": 7,
+      "uniqueSignatures": 8,
+      "uniqueTexts": 8,
       "variantCount": 2,
       "variants": [
         "half",
@@ -3082,13 +3053,13 @@
       "d": 1,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 8,
-      "uniqueTexts": 8,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 9,
       "variantCount": 3,
       "variants": [
-        "double",
         "reverse",
-        "half"
+        "half",
+        "double"
       ]
     },
     {
@@ -3096,8 +3067,8 @@
       "d": 2,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 8,
-      "uniqueTexts": 8,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 9,
       "variantCount": 4,
       "variants": [
         "reverse",
@@ -3111,12 +3082,12 @@
       "d": 0,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 7,
-      "uniqueTexts": 7,
+      "uniqueSignatures": 5,
+      "uniqueTexts": 5,
       "variantCount": 2,
       "variants": [
-        "identify_type",
-        "corresponding_partner"
+        "corresponding_partner",
+        "identify_type"
       ]
     },
     {
@@ -3124,14 +3095,14 @@
       "d": 1,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 10,
-      "uniqueTexts": 10,
+      "uniqueSignatures": 8,
+      "uniqueTexts": 8,
       "variantCount": 4,
       "variants": [
         "same_side_partner",
-        "corresponding_partner",
         "identify_type",
-        "alternate_partner"
+        "alternate_partner",
+        "corresponding_partner"
       ]
     },
     {
@@ -3139,13 +3110,15 @@
       "d": 2,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 6,
-      "uniqueTexts": 6,
-      "variantCount": 3,
+      "uniqueSignatures": 7,
+      "uniqueTexts": 7,
+      "variantCount": 5,
       "variants": [
-        "identify_type",
         "same_side_partner",
-        "vertical_distinction"
+        "alternate_partner",
+        "vertical_distinction",
+        "corresponding_partner",
+        "identify_type"
       ]
     },
     {
@@ -3157,45 +3130,46 @@
       "uniqueTexts": 8,
       "variantCount": 5,
       "variants": [
-        "enough_data",
-        "sufficient_condition",
-        "identify_criterion",
-        "choose_pair",
-        "needed_angle"
-      ]
-    },
-    {
-      "raw": "geo_parallel_criteria",
-      "d": 1,
-      "requested": 10,
-      "successes": 10,
-      "uniqueSignatures": 10,
-      "uniqueTexts": 9,
-      "variantCount": 6,
-      "variants": [
-        "find_error",
-        "sufficient_condition",
-        "enough_data",
-        "missing_condition",
         "needed_angle",
+        "sufficient_condition",
+        "choose_pair",
+        "enough_data",
         "identify_criterion"
       ]
     },
     {
       "raw": "geo_parallel_criteria",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 7,
+      "variantCount": 5,
+      "variants": [
+        "choose_pair",
+        "enough_data",
+        "missing_condition",
+        "sufficient_condition",
+        "needed_angle"
+      ]
+    },
+    {
+      "raw": "geo_parallel_criteria",
       "d": 2,
       "requested": 10,
       "successes": 10,
       "uniqueSignatures": 10,
       "uniqueTexts": 10,
-      "variantCount": 6,
+      "variantCount": 8,
       "variants": [
-        "identify_criterion",
+        "find_error",
         "valid_justification",
-        "choose_pair",
-        "solve_x",
+        "identify_criterion",
+        "missing_condition",
+        "enough_data",
+        "insufficient_data",
         "needed_angle",
-        "enough_data"
+        "choose_pair"
       ]
     },
     {
@@ -3203,8 +3177,8 @@
       "d": 0,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 10,
-      "uniqueTexts": 10,
+      "uniqueSignatures": 7,
+      "uniqueTexts": 7,
       "variantCount": 2,
       "variants": [
         "alternate_value",
@@ -3216,58 +3190,17 @@
       "d": 1,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 10,
-      "uniqueTexts": 10,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 9,
       "variantCount": 3,
       "variants": [
-        "alternate_value",
-        "same_side_value",
-        "corresponding_value"
-      ]
-    },
-    {
-      "raw": "geo_parallel_properties",
-      "d": 2,
-      "requested": 10,
-      "successes": 10,
-      "uniqueSignatures": 10,
-      "uniqueTexts": 10,
-      "variantCount": 3,
-      "variants": [
-        "chain",
         "corresponding_value",
+        "same_side_value",
         "alternate_value"
       ]
     },
     {
-      "raw": "geo_triangle_angle_sum",
-      "d": 0,
-      "requested": 10,
-      "successes": 10,
-      "uniqueSignatures": 6,
-      "uniqueTexts": 6,
-      "variantCount": 2,
-      "variants": [
-        "find_third",
-        "sum_rule"
-      ]
-    },
-    {
-      "raw": "geo_triangle_angle_sum",
-      "d": 1,
-      "requested": 10,
-      "successes": 10,
-      "uniqueSignatures": 9,
-      "uniqueTexts": 9,
-      "variantCount": 3,
-      "variants": [
-        "equation_x",
-        "right_case",
-        "find_third"
-      ]
-    },
-    {
-      "raw": "geo_triangle_angle_sum",
+      "raw": "geo_parallel_properties",
       "d": 2,
       "requested": 10,
       "successes": 10,
@@ -3275,10 +3208,52 @@
       "uniqueTexts": 10,
       "variantCount": 4,
       "variants": [
+        "alternate_value",
+        "same_side_value",
+        "chain",
+        "corresponding_value"
+      ]
+    },
+    {
+      "raw": "geo_triangle_angle_sum",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 3,
+      "uniqueTexts": 3,
+      "variantCount": 2,
+      "variants": [
+        "sum_rule",
+        "find_third"
+      ]
+    },
+    {
+      "raw": "geo_triangle_angle_sum",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 3,
+      "variants": [
         "right_case",
+        "find_third",
+        "equation_x"
+      ]
+    },
+    {
+      "raw": "geo_triangle_angle_sum",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 9,
+      "variantCount": 4,
+      "variants": [
         "isosceles_case",
         "equation_x",
-        "find_third"
+        "find_third",
+        "right_case"
       ]
     },
     {
@@ -3299,13 +3274,12 @@
       "d": 1,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 9,
-      "uniqueTexts": 9,
-      "variantCount": 3,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 2,
       "variants": [
-        "adjacent",
-        "reverse",
-        "remote_sum"
+        "remote_sum",
+        "adjacent"
       ]
     },
     {
@@ -3313,13 +3287,13 @@
       "d": 2,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 6,
-      "uniqueTexts": 6,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
       "variantCount": 3,
       "variants": [
-        "reverse",
+        "remote_sum",
         "adjacent",
-        "property"
+        "reverse"
       ]
     },
     {
@@ -3331,8 +3305,8 @@
       "uniqueTexts": 6,
       "variantCount": 2,
       "variants": [
-        "sum",
-        "triangles"
+        "triangles",
+        "sum"
       ]
     },
     {
@@ -3340,12 +3314,12 @@
       "d": 1,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 8,
-      "uniqueTexts": 8,
+      "uniqueSignatures": 7,
+      "uniqueTexts": 7,
       "variantCount": 4,
       "variants": [
-        "sum",
         "find_n",
+        "sum",
         "triangles",
         "quad_missing"
       ]
@@ -3355,14 +3329,14 @@
       "d": 2,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 9,
-      "uniqueTexts": 9,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
       "variantCount": 4,
       "variants": [
         "quad_missing",
-        "find_n",
+        "triangles",
         "sum",
-        "triangles"
+        "find_n"
       ]
     },
     {
@@ -3370,8 +3344,8 @@
       "d": 0,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 5,
-      "uniqueTexts": 5,
+      "uniqueSignatures": 3,
+      "uniqueTexts": 3,
       "variantCount": 2,
       "variants": [
         "identify",
@@ -3383,14 +3357,14 @@
       "d": 1,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 5,
-      "uniqueTexts": 5,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
       "variantCount": 4,
       "variants": [
-        "shortest",
-        "identify",
         "parallel",
-        "distance"
+        "distance",
+        "shortest",
+        "identify"
       ]
     },
     {
@@ -3398,13 +3372,13 @@
       "d": 2,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 6,
-      "uniqueTexts": 5,
+      "uniqueSignatures": 5,
+      "uniqueTexts": 4,
       "variantCount": 4,
       "variants": [
+        "compare",
         "distance",
         "shortest",
-        "compare",
         "parallel"
       ]
     },
@@ -3417,8 +3391,8 @@
       "uniqueTexts": 9,
       "variantCount": 2,
       "variants": [
-        "circle_or_disk",
-        "circle_radius"
+        "circle_radius",
+        "circle_or_disk"
       ]
     },
     {
@@ -3426,12 +3400,12 @@
       "d": 1,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 9,
-      "uniqueTexts": 9,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
       "variantCount": 3,
       "variants": [
-        "classify",
         "belong",
+        "classify",
         "circle_radius"
       ]
     },
@@ -3444,8 +3418,8 @@
       "uniqueTexts": 10,
       "variantCount": 2,
       "variants": [
-        "classify",
-        "belong"
+        "belong",
+        "classify"
       ]
     },
     {
@@ -3453,16 +3427,57 @@
       "d": 0,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 8,
-      "uniqueTexts": 8,
+      "uniqueSignatures": 5,
+      "uniqueTexts": 5,
       "variantCount": 2,
       "variants": [
-        "equal",
-        "property"
+        "property",
+        "equal"
       ]
     },
     {
       "raw": "geo_perpendicular_bisector_locus",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 3,
+      "uniqueTexts": 3,
+      "variantCount": 3,
+      "variants": [
+        "property",
+        "inverse",
+        "equal"
+      ]
+    },
+    {
+      "raw": "geo_perpendicular_bisector_locus",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 4,
+      "uniqueTexts": 4,
+      "variantCount": 3,
+      "variants": [
+        "definition",
+        "inverse",
+        "equal"
+      ]
+    },
+    {
+      "raw": "geo_angle_bisector_locus",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 3,
+      "uniqueTexts": 3,
+      "variantCount": 2,
+      "variants": [
+        "property",
+        "distance"
+      ]
+    },
+    {
+      "raw": "geo_angle_bisector_locus",
       "d": 1,
       "requested": 10,
       "successes": 10,
@@ -3470,64 +3485,22 @@
       "uniqueTexts": 4,
       "variantCount": 3,
       "variants": [
-        "equal",
-        "property",
-        "inverse"
-      ]
-    },
-    {
-      "raw": "geo_perpendicular_bisector_locus",
-      "d": 2,
-      "requested": 10,
-      "successes": 10,
-      "uniqueSignatures": 5,
-      "uniqueTexts": 5,
-      "variantCount": 3,
-      "variants": [
-        "equal",
-        "inverse",
-        "definition"
-      ]
-    },
-    {
-      "raw": "geo_angle_bisector_locus",
-      "d": 0,
-      "requested": 10,
-      "successes": 10,
-      "uniqueSignatures": 6,
-      "uniqueTexts": 6,
-      "variantCount": 2,
-      "variants": [
         "distance",
+        "inverse",
         "property"
       ]
     },
     {
       "raw": "geo_angle_bisector_locus",
-      "d": 1,
-      "requested": 10,
-      "successes": 10,
-      "uniqueSignatures": 5,
-      "uniqueTexts": 5,
-      "variantCount": 3,
-      "variants": [
-        "property",
-        "distance",
-        "inverse"
-      ]
-    },
-    {
-      "raw": "geo_angle_bisector_locus",
       "d": 2,
       "requested": 10,
       "successes": 10,
       "uniqueSignatures": 5,
       "uniqueTexts": 5,
-      "variantCount": 3,
+      "variantCount": 2,
       "variants": [
-        "distance",
-        "inverse",
-        "meaning"
+        "meaning",
+        "distance"
       ]
     },
     {
@@ -3535,12 +3508,12 @@
       "d": 0,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 4,
-      "uniqueTexts": 4,
+      "uniqueSignatures": 5,
+      "uniqueTexts": 5,
       "variantCount": 2,
       "variants": [
-        "identify_radius",
-        "diameter"
+        "diameter",
+        "identify_radius"
       ]
     },
     {
@@ -3552,10 +3525,10 @@
       "uniqueTexts": 5,
       "variantCount": 4,
       "variants": [
+        "radius",
         "diameter",
         "identify_chord",
-        "property",
-        "radius"
+        "property"
       ]
     },
     {
@@ -3563,12 +3536,13 @@
       "d": 2,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 5,
-      "uniqueTexts": 5,
-      "variantCount": 3,
+      "uniqueSignatures": 6,
+      "uniqueTexts": 6,
+      "variantCount": 4,
       "variants": [
-        "radius",
         "property",
+        "diameter_def",
+        "radius",
         "identify_chord"
       ]
     },
@@ -3577,8 +3551,8 @@
       "d": 0,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 4,
-      "uniqueTexts": 4,
+      "uniqueSignatures": 6,
+      "uniqueTexts": 6,
       "variantCount": 2,
       "variants": [
         "classify",
@@ -3591,12 +3565,12 @@
       "requested": 10,
       "successes": 10,
       "uniqueSignatures": 6,
-      "uniqueTexts": 6,
+      "uniqueTexts": 5,
       "variantCount": 3,
       "variants": [
         "points",
-        "classify",
-        "tangent_property"
+        "tangent_property",
+        "classify"
       ]
     },
     {
@@ -3604,13 +3578,14 @@
       "d": 2,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 5,
-      "uniqueTexts": 4,
-      "variantCount": 3,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 7,
+      "variantCount": 4,
       "variants": [
+        "compare",
         "tangent_property",
-        "points",
-        "compare"
+        "classify",
+        "points"
       ]
     },
     {
@@ -3635,9 +3610,9 @@
       "uniqueTexts": 5,
       "variantCount": 3,
       "variants": [
+        "radius",
         "equal",
-        "center",
-        "radius"
+        "center"
       ]
     },
     {
@@ -3649,8 +3624,8 @@
       "uniqueTexts": 6,
       "variantCount": 3,
       "variants": [
-        "radius",
         "property",
+        "radius",
         "equal"
       ]
     },
@@ -3663,8 +3638,8 @@
       "uniqueTexts": 2,
       "variantCount": 2,
       "variants": [
-        "center",
-        "touch"
+        "touch",
+        "center"
       ]
     },
     {
@@ -3676,32 +3651,32 @@
       "uniqueTexts": 4,
       "variantCount": 3,
       "variants": [
+        "touch",
         "center",
-        "distance",
-        "touch"
-      ]
-    },
-    {
-      "raw": "geo_incircle_triangle",
-      "d": 2,
-      "requested": 10,
-      "successes": 10,
-      "uniqueSignatures": 5,
-      "uniqueTexts": 5,
-      "variantCount": 3,
-      "variants": [
-        "center",
-        "compare",
         "distance"
       ]
     },
     {
+      "raw": "geo_incircle_triangle",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 6,
+      "uniqueTexts": 6,
+      "variantCount": 3,
+      "variants": [
+        "distance",
+        "compare",
+        "center"
+      ]
+    },
+    {
       "raw": "geo_circumcircle_triangle",
       "d": 0,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 8,
-      "uniqueTexts": 8,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 9,
       "variantCount": 2,
       "variants": [
         "radius",
@@ -3713,13 +3688,13 @@
       "d": 1,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 9,
-      "uniqueTexts": 9,
+      "uniqueSignatures": 7,
+      "uniqueTexts": 7,
       "variantCount": 3,
       "variants": [
+        "radii",
         "diameter",
-        "radius",
-        "radii"
+        "radius"
       ]
     },
     {
@@ -3731,55 +3706,13 @@
       "uniqueTexts": 9,
       "variantCount": 3,
       "variants": [
+        "right",
         "radius",
-        "diameter",
-        "right"
+        "diameter"
       ]
     },
     {
       "raw": "geo_constructions_lines_angles",
-      "d": 0,
-      "requested": 10,
-      "successes": 10,
-      "uniqueSignatures": 4,
-      "uniqueTexts": 4,
-      "variantCount": 2,
-      "variants": [
-        "copy",
-        "midpoint"
-      ]
-    },
-    {
-      "raw": "geo_constructions_lines_angles",
-      "d": 1,
-      "requested": 10,
-      "successes": 10,
-      "uniqueSignatures": 5,
-      "uniqueTexts": 5,
-      "variantCount": 4,
-      "variants": [
-        "midpoint",
-        "bisector",
-        "copy",
-        "perpendicular"
-      ]
-    },
-    {
-      "raw": "geo_constructions_lines_angles",
-      "d": 2,
-      "requested": 10,
-      "successes": 10,
-      "uniqueSignatures": 3,
-      "uniqueTexts": 3,
-      "variantCount": 3,
-      "variants": [
-        "perpendicular",
-        "bisector",
-        "midpoint"
-      ]
-    },
-    {
-      "raw": "geo_constructions_triangles",
       "d": 0,
       "requested": 10,
       "successes": 10,
@@ -3787,6 +3720,49 @@
       "uniqueTexts": 6,
       "variantCount": 2,
       "variants": [
+        "midpoint",
+        "copy"
+      ]
+    },
+    {
+      "raw": "geo_constructions_lines_angles",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 4,
+      "uniqueTexts": 4,
+      "variantCount": 4,
+      "variants": [
+        "perpendicular",
+        "copy",
+        "bisector",
+        "midpoint"
+      ]
+    },
+    {
+      "raw": "geo_constructions_lines_angles",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 5,
+      "uniqueTexts": 5,
+      "variantCount": 4,
+      "variants": [
+        "bisector",
+        "copy",
+        "midpoint",
+        "perpendicular"
+      ]
+    },
+    {
+      "raw": "geo_constructions_triangles",
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 4,
+      "uniqueTexts": 4,
+      "variantCount": 2,
+      "variants": [
         "sss_step",
         "sss_possible"
       ]
@@ -3796,13 +3772,14 @@
       "d": 1,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 3,
-      "uniqueTexts": 3,
-      "variantCount": 3,
+      "uniqueSignatures": 4,
+      "uniqueTexts": 4,
+      "variantCount": 4,
       "variants": [
         "asa",
+        "sas",
         "sss_step",
-        "sas"
+        "sss_possible"
       ]
     },
     {
@@ -3810,14 +3787,14 @@
       "d": 2,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 4,
-      "uniqueTexts": 4,
+      "uniqueSignatures": 5,
+      "uniqueTexts": 5,
       "variantCount": 4,
       "variants": [
         "sss_step",
         "asa",
-        "sas",
-        "sss_possible"
+        "sss_possible",
+        "sas"
       ]
     },
     {
@@ -3826,12 +3803,12 @@
       "requested": 10,
       "successes": 10,
       "uniqueSignatures": 10,
-      "uniqueTexts": 6,
+      "uniqueTexts": 5,
       "variantCount": 4,
       "variants": [
-        "compare",
-        "min",
         "max",
+        "min",
+        "compare",
         "lookup"
       ]
     },
@@ -3841,13 +3818,15 @@
       "requested": 10,
       "successes": 10,
       "uniqueSignatures": 10,
-      "uniqueTexts": 8,
-      "variantCount": 4,
+      "uniqueTexts": 10,
+      "variantCount": 6,
       "variants": [
-        "missing",
-        "lookup",
+        "reverse",
         "difference",
-        "max"
+        "sum",
+        "max",
+        "missing",
+        "lookup"
       ]
     },
     {
@@ -3856,14 +3835,14 @@
       "requested": 10,
       "successes": 10,
       "uniqueSignatures": 10,
-      "uniqueTexts": 9,
+      "uniqueTexts": 7,
       "variantCount": 6,
       "variants": [
-        "reverse",
-        "difference",
         "two_step",
-        "supported",
         "max",
+        "reverse",
+        "missing",
+        "supported",
         "sum"
       ]
     },
@@ -3872,14 +3851,13 @@
       "d": 0,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 8,
+      "uniqueSignatures": 9,
       "uniqueTexts": 6,
-      "variantCount": 4,
+      "variantCount": 3,
       "variants": [
+        "bar_max",
         "pie_percent",
-        "bar_lookup",
-        "pie_largest",
-        "bar_max"
+        "pie_largest"
       ]
     },
     {
@@ -3889,12 +3867,13 @@
       "successes": 10,
       "uniqueSignatures": 10,
       "uniqueTexts": 9,
-      "variantCount": 4,
+      "variantCount": 5,
       "variants": [
-        "match_binary",
         "pie_value",
-        "bar_difference",
-        "bar_compare"
+        "pie_percent",
+        "match_binary",
+        "bar_compare",
+        "bar_difference"
       ]
     },
     {
@@ -3902,16 +3881,14 @@
       "d": 2,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 10,
-      "uniqueTexts": 7,
-      "variantCount": 6,
+      "uniqueSignatures": 8,
+      "uniqueTexts": 5,
+      "variantCount": 4,
       "variants": [
         "match_binary",
-        "bar_max",
-        "chart_error",
-        "bar_difference",
         "pie_largest",
-        "bar_compare"
+        "pie_value",
+        "bar_difference"
       ]
     },
     {
@@ -3919,14 +3896,14 @@
       "d": 0,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 10,
-      "uniqueTexts": 4,
+      "uniqueSignatures": 8,
+      "uniqueTexts": 5,
       "variantCount": 4,
       "variants": [
-        "max_time",
+        "lookup",
         "flat_interval",
-        "story",
-        "lookup"
+        "max_time",
+        "story"
       ]
     },
     {
@@ -3934,14 +3911,15 @@
       "d": 1,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 10,
-      "uniqueTexts": 7,
-      "variantCount": 4,
+      "uniqueSignatures": 7,
+      "uniqueTexts": 5,
+      "variantCount": 5,
       "variants": [
-        "change_amount",
-        "growth_interval",
-        "flat_interval",
-        "decrease_interval"
+        "max_time",
+        "story",
+        "lookup",
+        "decrease_interval",
+        "growth_interval"
       ]
     },
     {
@@ -3949,15 +3927,16 @@
       "d": 2,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 9,
-      "uniqueTexts": 5,
-      "variantCount": 5,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 6,
       "variants": [
+        "lookup",
+        "change_amount",
+        "max_time",
         "flat_duration",
         "story",
-        "endpoint_compare",
-        "decrease_interval",
-        "change_amount"
+        "decrease_interval"
       ]
     },
     {
@@ -3966,7 +3945,7 @@
       "requested": 10,
       "successes": 10,
       "uniqueSignatures": 10,
-      "uniqueTexts": 3,
+      "uniqueTexts": 4,
       "variantCount": 3,
       "variants": [
         "supported",
@@ -3980,15 +3959,12 @@
       "requested": 10,
       "successes": 10,
       "uniqueSignatures": 10,
-      "uniqueTexts": 7,
-      "variantCount": 6,
+      "uniqueTexts": 6,
+      "variantCount": 3,
       "variants": [
         "missing",
-        "unsupported",
-        "binary",
-        "contradiction",
         "process_fact",
-        "supported"
+        "binary"
       ]
     },
     {
@@ -3997,15 +3973,15 @@
       "requested": 10,
       "successes": 10,
       "uniqueSignatures": 10,
-      "uniqueTexts": 6,
+      "uniqueTexts": 7,
       "variantCount": 6,
       "variants": [
-        "comparison",
-        "pie_fact",
+        "process_fact",
+        "supported",
         "missing",
         "contradiction",
-        "binary",
-        "process_fact"
+        "unsupported",
+        "binary"
       ]
     },
     {
@@ -4017,8 +3993,8 @@
       "uniqueTexts": 10,
       "variantCount": 2,
       "variants": [
-        "check",
-        "direct"
+        "direct",
+        "check"
       ]
     },
     {
@@ -4028,11 +4004,12 @@
       "successes": 10,
       "uniqueSignatures": 10,
       "uniqueTexts": 10,
-      "variantCount": 3,
+      "variantCount": 4,
       "variants": [
+        "direct",
+        "missing",
         "compare",
-        "sum_from_mean",
-        "missing"
+        "sum_from_mean"
       ]
     },
     {
@@ -4040,14 +4017,14 @@
       "d": 2,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 10,
-      "uniqueTexts": 10,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 9,
       "variantCount": 4,
       "variants": [
-        "check",
-        "compare",
         "missing",
-        "effect"
+        "sum_from_mean",
+        "effect",
+        "check"
       ]
     },
     {
@@ -4073,9 +4050,9 @@
       "variantCount": 4,
       "variants": [
         "even",
-        "odd",
+        "sort",
         "ordered_missing",
-        "sort"
+        "odd"
       ]
     },
     {
@@ -4085,12 +4062,13 @@
       "successes": 10,
       "uniqueSignatures": 10,
       "uniqueTexts": 10,
-      "variantCount": 4,
+      "variantCount": 5,
       "variants": [
-        "sort",
+        "compare",
+        "even",
         "ordered_missing",
         "error",
-        "compare"
+        "sort"
       ]
     },
     {
@@ -4102,9 +4080,9 @@
       "uniqueTexts": 10,
       "variantCount": 3,
       "variants": [
+        "max",
         "range",
-        "min",
-        "max"
+        "min"
       ]
     },
     {
@@ -4114,13 +4092,12 @@
       "successes": 10,
       "uniqueSignatures": 10,
       "uniqueTexts": 10,
-      "variantCount": 5,
+      "variantCount": 4,
       "variants": [
-        "range",
-        "min",
         "max",
-        "recover_min",
-        "recover_max"
+        "range",
+        "recover_max",
+        "min"
       ]
     },
     {
@@ -4128,14 +4105,13 @@
       "d": 2,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 10,
-      "uniqueTexts": 10,
-      "variantCount": 4,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 9,
+      "variantCount": 3,
       "variants": [
+        "recover_max",
         "compare",
-        "range",
-        "recover_min",
-        "add_effect"
+        "recover_min"
       ]
     },
     {
@@ -4143,12 +4119,12 @@
       "d": 0,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 3,
-      "uniqueTexts": 3,
+      "uniqueSignatures": 4,
+      "uniqueTexts": 4,
       "variantCount": 3,
       "variants": [
-        "range_meaning",
         "mean_basic",
+        "range_meaning",
         "extreme"
       ]
     },
@@ -4157,15 +4133,15 @@
       "d": 1,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 6,
-      "uniqueTexts": 6,
+      "uniqueSignatures": 5,
+      "uniqueTexts": 5,
       "variantCount": 5,
       "variants": [
         "compare_spread",
         "extreme",
+        "median_outlier",
         "mean_basic",
-        "range_meaning",
-        "median_outlier"
+        "range_meaning"
       ]
     },
     {
@@ -4173,14 +4149,16 @@
       "d": 2,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 5,
-      "uniqueTexts": 5,
-      "variantCount": 4,
+      "uniqueSignatures": 6,
+      "uniqueTexts": 6,
+      "variantCount": 6,
       "variants": [
         "extreme",
-        "compare_spread",
         "mean_basic",
-        "median_outlier"
+        "resistant",
+        "range_meaning",
+        "median_outlier",
+        "compare_spread"
       ]
     },
     {
@@ -4188,12 +4166,12 @@
       "d": 0,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 5,
+      "uniqueSignatures": 4,
       "uniqueTexts": 3,
       "variantCount": 2,
       "variants": [
-        "stable",
-        "recognize"
+        "recognize",
+        "stable"
       ]
     },
     {
@@ -4201,13 +4179,13 @@
       "d": 1,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 5,
+      "uniqueSignatures": 8,
       "uniqueTexts": 5,
       "variantCount": 4,
       "variants": [
-        "stronger",
-        "recognize",
         "example",
+        "recognize",
+        "stronger",
         "stable"
       ]
     },
@@ -4216,15 +4194,15 @@
       "d": 2,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 5,
+      "uniqueSignatures": 8,
       "uniqueTexts": 5,
       "variantCount": 5,
       "variants": [
-        "reason",
-        "recognize",
-        "example",
+        "stronger",
         "stable",
-        "stronger"
+        "recognize",
+        "reason",
+        "example"
       ]
     },
     {
@@ -4236,8 +4214,8 @@
       "uniqueTexts": 9,
       "variantCount": 2,
       "variants": [
-        "table_read",
-        "count"
+        "count",
+        "table_read"
       ]
     },
     {
@@ -4247,13 +4225,12 @@
       "successes": 10,
       "uniqueSignatures": 10,
       "uniqueTexts": 7,
-      "variantCount": 5,
+      "variantCount": 4,
       "variants": [
-        "missing",
         "most",
-        "count",
         "total",
-        "table_read"
+        "missing",
+        "count"
       ]
     },
     {
@@ -4265,11 +4242,11 @@
       "uniqueTexts": 8,
       "variantCount": 5,
       "variants": [
+        "count",
         "most",
         "table_read",
-        "count",
         "total",
-        "match"
+        "missing"
       ]
     },
     {
@@ -4278,12 +4255,11 @@
       "requested": 10,
       "successes": 10,
       "uniqueSignatures": 10,
-      "uniqueTexts": 7,
-      "variantCount": 3,
+      "uniqueTexts": 9,
+      "variantCount": 2,
       "variants": [
-        "max_interval",
-        "read",
-        "feature"
+        "feature",
+        "read"
       ]
     },
     {
@@ -4292,15 +4268,14 @@
       "requested": 10,
       "successes": 10,
       "uniqueSignatures": 10,
-      "uniqueTexts": 7,
-      "variantCount": 6,
+      "uniqueTexts": 8,
+      "variantCount": 5,
       "variants": [
-        "read",
-        "max_interval",
+        "total",
         "feature",
         "count_from_data",
-        "total",
-        "missing"
+        "missing",
+        "read"
       ]
     },
     {
@@ -4310,13 +4285,15 @@
       "successes": 10,
       "uniqueSignatures": 10,
       "uniqueTexts": 9,
-      "variantCount": 5,
+      "variantCount": 7,
       "variants": [
-        "read",
-        "valid_grouping",
-        "find_error",
         "match_binary",
-        "total"
+        "find_error",
+        "total",
+        "max_interval",
+        "missing",
+        "valid_grouping",
+        "read"
       ]
     },
     {
@@ -4326,10 +4303,11 @@
       "successes": 10,
       "uniqueSignatures": 5,
       "uniqueTexts": 5,
-      "variantCount": 3,
+      "variantCount": 4,
       "variants": [
-        "classify_event",
+        "outcome_recognize",
         "experiment_recognize",
+        "classify_event",
         "event_recognize"
       ]
     },
@@ -4338,15 +4316,15 @@
       "d": 1,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 7,
-      "uniqueTexts": 7,
+      "uniqueSignatures": 6,
+      "uniqueTexts": 6,
       "variantCount": 5,
       "variants": [
-        "experiment_recognize",
-        "classify_event",
-        "outcome_recognize",
         "event_outcomes",
-        "event_description"
+        "event_description",
+        "event_recognize",
+        "experiment_recognize",
+        "outcome_recognize"
       ]
     },
     {
@@ -4354,15 +4332,16 @@
       "d": 2,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 7,
-      "uniqueTexts": 7,
-      "variantCount": 5,
+      "uniqueSignatures": 6,
+      "uniqueTexts": 6,
+      "variantCount": 6,
       "variants": [
-        "find_error",
         "classify_event",
+        "find_error",
         "outcome_recognize",
+        "event_outcomes",
         "event_recognize",
-        "event_description"
+        "experiment_recognize"
       ]
     },
     {
@@ -4370,47 +4349,49 @@
       "d": 0,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 7,
-      "uniqueTexts": 7,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
       "variantCount": 4,
       "variants": [
-        "edge_probability",
         "relative_frequency",
-        "favorable_outcomes",
-        "probability_compute"
+        "edge_probability",
+        "probability_compute",
+        "favorable_outcomes"
       ]
     },
     {
       "raw": "prob_probability_frequency",
       "d": 1,
-      "requested": 10,
-      "successes": 10,
-      "uniqueSignatures": 6,
-      "uniqueTexts": 6,
-      "variantCount": 6,
-      "variants": [
-        "find_error",
-        "edge_probability",
-        "favorable_outcomes",
-        "probability_compute",
-        "correct_conclusion",
-        "relative_frequency"
-      ]
-    },
-    {
-      "raw": "prob_probability_frequency",
-      "d": 2,
       "requested": 10,
       "successes": 10,
       "uniqueSignatures": 8,
       "uniqueTexts": 8,
       "variantCount": 5,
       "variants": [
-        "probability_vs_frequency",
+        "probability_compute",
         "edge_probability",
-        "correct_conclusion",
         "favorable_outcomes",
-        "probability_compute"
+        "correct_conclusion",
+        "reverse_frequency"
+      ]
+    },
+    {
+      "raw": "prob_probability_frequency",
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 8,
+      "variants": [
+        "relative_frequency",
+        "edge_probability",
+        "probability_vs_frequency",
+        "correct_conclusion",
+        "probability_compute",
+        "reverse_frequency",
+        "find_error",
+        "favorable_outcomes"
       ]
     },
     {
@@ -4418,13 +4399,14 @@
       "d": 0,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 3,
-      "uniqueTexts": 3,
-      "variantCount": 3,
+      "uniqueSignatures": 4,
+      "uniqueTexts": 4,
+      "variantCount": 4,
       "variants": [
         "almost_certain",
-        "unlikely",
-        "compare"
+        "compare",
+        "distinguish_impossible",
+        "unlikely"
       ]
     },
     {
@@ -4432,15 +4414,15 @@
       "d": 1,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 7,
-      "uniqueTexts": 7,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 9,
       "variantCount": 5,
       "variants": [
         "find_wrong",
+        "compare",
         "order",
-        "almost_certain",
         "description_match",
-        "distinguish_impossible"
+        "almost_certain"
       ]
     },
     {
@@ -4448,15 +4430,16 @@
       "d": 2,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 6,
-      "uniqueTexts": 6,
-      "variantCount": 5,
+      "uniqueSignatures": 7,
+      "uniqueTexts": 7,
+      "variantCount": 6,
       "variants": [
-        "distinguish_impossible",
-        "compare",
         "description_match",
+        "unlikely",
+        "compare",
+        "find_wrong",
         "distinguish_certain",
-        "unlikely"
+        "distinguish_impossible"
       ]
     },
     {
@@ -4464,49 +4447,49 @@
       "d": 0,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 7,
-      "uniqueTexts": 7,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 9,
       "variantCount": 4,
       "variants": [
-        "coin_one",
-        "reverse_event",
         "list_outcomes",
+        "die_probability",
+        "coin_one",
+        "reverse_event"
+      ]
+    },
+    {
+      "raw": "prob_coin_die_models",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 9,
+      "variantCount": 6,
+      "variants": [
+        "find_error",
+        "exactly_vs_atleast",
+        "list_outcomes",
+        "reverse_event",
+        "coin_one",
         "die_probability"
       ]
     },
     {
       "raw": "prob_coin_die_models",
-      "d": 1,
+      "d": 2,
       "requested": 10,
       "successes": 10,
       "uniqueSignatures": 9,
       "uniqueTexts": 9,
       "variantCount": 7,
       "variants": [
-        "compare_events",
-        "die_probability",
+        "memory_error",
         "coin_one",
-        "coin_two_outcomes",
-        "reverse_event",
         "exactly_vs_atleast",
-        "find_error"
-      ]
-    },
-    {
-      "raw": "prob_coin_die_models",
-      "d": 2,
-      "requested": 10,
-      "successes": 10,
-      "uniqueSignatures": 7,
-      "uniqueTexts": 7,
-      "variantCount": 6,
-      "variants": [
-        "find_error",
         "list_outcomes",
-        "compare_events",
-        "coin_one",
         "coin_two_outcomes",
-        "memory_error"
+        "die_probability",
+        "reverse_event"
       ]
     },
     {
@@ -4515,46 +4498,46 @@
       "requested": 10,
       "successes": 10,
       "uniqueSignatures": 9,
-      "uniqueTexts": 7,
-      "variantCount": 3,
+      "uniqueTexts": 5,
+      "variantCount": 4,
       "variants": [
+        "neighbors",
         "edge_count",
+        "vertex_count",
+        "adjacent"
+      ]
+    },
+    {
+      "raw": "graph_basics",
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 8,
+      "uniqueTexts": 7,
+      "variantCount": 7,
+      "variants": [
         "adjacent",
+        "description",
+        "missing_edge",
+        "vertex_count",
+        "existing_edge",
+        "scenario",
         "neighbors"
       ]
     },
     {
       "raw": "graph_basics",
-      "d": 1,
-      "requested": 10,
-      "successes": 10,
-      "uniqueSignatures": 9,
-      "uniqueTexts": 7,
-      "variantCount": 7,
-      "variants": [
-        "description",
-        "neighbors",
-        "vertex_count",
-        "scenario",
-        "existing_edge",
-        "adjacent",
-        "missing_edge"
-      ]
-    },
-    {
-      "raw": "graph_basics",
       "d": 2,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 10,
-      "uniqueTexts": 7,
-      "variantCount": 7,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 6,
+      "variantCount": 6,
       "variants": [
-        "missing_edge",
-        "neighbors",
         "existing_edge",
-        "description",
+        "edge_count",
         "scenario",
+        "missing_edge",
         "vertex_count",
         "find_error"
       ]
@@ -4564,12 +4547,13 @@
       "d": 0,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 10,
-      "uniqueTexts": 9,
-      "variantCount": 2,
+      "uniqueSignatures": 8,
+      "uniqueTexts": 6,
+      "variantCount": 3,
       "variants": [
-        "edges_from_sum",
-        "degree_one"
+        "degree_one",
+        "degree_sum",
+        "edges_from_sum"
       ]
     },
     {
@@ -4577,15 +4561,15 @@
       "d": 1,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 9,
-      "uniqueTexts": 9,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
       "variantCount": 5,
       "variants": [
-        "edges_from_sum",
-        "degree_set",
-        "missing_degree",
         "check",
-        "degree_one"
+        "missing_degree",
+        "edges_from_sum",
+        "degree_sum",
+        "degree_set"
       ]
     },
     {
@@ -4597,12 +4581,12 @@
       "uniqueTexts": 8,
       "variantCount": 6,
       "variants": [
-        "check",
-        "degree_sum",
+        "edges_from_sum",
         "max_degree",
-        "degree_set",
-        "missing_degree",
-        "scenario_degree"
+        "degree_sum",
+        "check",
+        "scenario_degree",
+        "degree_set"
       ]
     },
     {
@@ -4611,12 +4595,11 @@
       "requested": 10,
       "successes": 10,
       "uniqueSignatures": 9,
-      "uniqueTexts": 6,
-      "variantCount": 3,
+      "uniqueTexts": 7,
+      "variantCount": 2,
       "variants": [
-        "connected",
         "reachability",
-        "valid_path"
+        "connected"
       ]
     },
     {
@@ -4624,15 +4607,15 @@
       "d": 1,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 9,
+      "uniqueSignatures": 10,
       "uniqueTexts": 6,
       "variantCount": 5,
       "variants": [
-        "valid_path",
-        "reachability",
-        "missing_vertex",
+        "add_edge",
         "connected",
-        "invalid_path"
+        "invalid_path",
+        "valid_path",
+        "missing_vertex"
       ]
     },
     {
@@ -4640,14 +4623,17 @@
       "d": 2,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 9,
+      "uniqueSignatures": 10,
       "uniqueTexts": 8,
-      "variantCount": 4,
+      "variantCount": 7,
       "variants": [
-        "route_model",
-        "path_error",
+        "connected",
+        "valid_path",
         "add_edge",
-        "bridge_remove"
+        "missing_vertex",
+        "path_error",
+        "invalid_path",
+        "route_model"
       ]
     },
     {
@@ -4656,7 +4642,7 @@
       "requested": 10,
       "successes": 10,
       "uniqueSignatures": 5,
-      "uniqueTexts": 3,
+      "uniqueTexts": 2,
       "variantCount": 2,
       "variants": [
         "cycle_check",
@@ -4668,13 +4654,15 @@
       "d": 1,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 7,
-      "uniqueTexts": 6,
-      "variantCount": 4,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 7,
+      "variantCount": 6,
       "variants": [
-        "euler_ends",
-        "cycle_check",
         "verify_euler",
+        "euler_cycle",
+        "contains_cycle",
+        "cycle_check",
+        "euler_ends",
         "euler_exists"
       ]
     },
@@ -4683,16 +4671,17 @@
       "d": 2,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 9,
-      "uniqueTexts": 9,
-      "variantCount": 6,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 8,
+      "variantCount": 7,
       "variants": [
-        "euler_cycle",
-        "find_error",
-        "verify_euler",
-        "contains_cycle",
+        "euler_ends",
+        "cycle_check",
         "missing_step",
-        "cycle_check"
+        "find_error",
+        "euler_exists",
+        "contains_cycle",
+        "euler_cycle"
       ]
     },
     {
@@ -4700,12 +4689,12 @@
       "d": 0,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 10,
-      "uniqueTexts": 8,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 7,
       "variantCount": 3,
       "variants": [
-        "transition",
         "direction",
+        "transition",
         "return"
       ]
     },
@@ -4714,16 +4703,16 @@
       "d": 1,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 9,
+      "uniqueSignatures": 10,
       "uniqueTexts": 9,
       "variantCount": 6,
       "variants": [
         "direction",
-        "outgoing",
         "transition",
-        "reachable",
+        "incoming",
         "return",
-        "incoming"
+        "reachable",
+        "valid_path"
       ]
     },
     {
@@ -4731,22 +4720,22 @@
       "d": 2,
       "requested": 10,
       "successes": 10,
-      "uniqueSignatures": 10,
-      "uniqueTexts": 7,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 8,
       "variantCount": 6,
       "variants": [
-        "outgoing",
-        "model",
-        "reachable",
         "valid_path",
+        "reachable",
+        "incoming",
         "invalid_path",
-        "return"
+        "outgoing",
+        "find_error"
       ]
     }
   ],
   "title": "МатКвест — 1–2–3–4–5–6–7–8 класс",
   "pageErrors": [],
   "htmlSha256": "62777eaad50e7afd0062a375bcf1aeff5bda9ffaa1c856ef5191e9f16c4338f5",
-  "testedAt": "2026-11-03T21:19:55.623Z",
+  "testedAt": "2026-11-03T21:21:14.419Z",
   "browser": "Chrome/156.0.8078.47"
 }
