@@ -1,0 +1,51 @@
+name: G7 stage 8 - full 321-stage UI integration sweep
+
+on:
+  push:
+    branches:
+      - audit/g7-stage8-20261104
+    paths:
+      - .github/workflows/g7_stage8.yml
+      - audits/g7_stage8_ui_test.mjs
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  ui-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Verify parent Stage 7 HTML
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib
+          actual=hashlib.sha256(Path("index.html").read_bytes()).hexdigest()
+          expected="ccd13490a734c9cd07e7985579c4a564eb08294f1c78af04a92b78e952053270"
+          assert actual==expected, f"Stage 7 source mismatch: {actual}"
+          print("Verified Stage 7",actual)
+          PY
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Puppeteer runner
+        run: npm install --no-save --no-package-lock puppeteer-core@24
+      - name: Exercise all 321 training stages in Chromium
+        run: node audits/g7_stage8_ui_test.mjs
+      - name: Store stage 8 UI report (also when tests find failures)
+        if: always()
+        run: |
+          if test -f audits/g7_stage8_ui_report.json; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add audits/g7_stage8_ui_report.json
+            if ! git diff --cached --quiet; then
+              git commit -m "test(G7): record full stage8 UI regression findings [skip ci]"
+              git push origin HEAD:audit/g7-stage8-20261104
+            fi
+          fi
