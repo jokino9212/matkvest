@@ -30,6 +30,10 @@ try{
      if(rationalValue(q.answerPoint.x)!==q.audit.expectedX||rationalValue(q.answerPoint.y)!==q.audit.expectedY)throw Error('Coordinate answer mismatch');
    }
    const data=q.visual?.data,m=q.audit;
+   if(raw==='coordinate_plane'&&m.variant==='axis_name'){
+     if(q.ans!==m.axis)throw Error('Coordinate axis name mismatch');
+     return;
+   }
    if(!data)throw Error('Missing diagram model');
    if(raw==='geo_primitives'){
      if(q.visual.type!=='geometry'||data.kind!=='g7-primitives')throw Error('Missing geometric SVG');
