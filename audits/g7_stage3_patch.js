@@ -34,7 +34,7 @@
   }
   const {A,B}=g7FormulaPair(d),plus=g7SquareFormulaModel(A,B,1),
     minus=g7SquareFormulaModel(A,B,-1),ds=g7DifferenceSquaresModel(A,B);
-  let expr='',result;
+  let expr='',result,extra={};
   if(variant==='difference_squares'){
    expr=sq(A,B,1)+' − '+sq(A,B,-1);
    result=add(plus.expansion,minus.expansion,-1);
@@ -54,10 +54,10 @@
    expr=bin(A,B,-1)+bin(A,B,1)+' − '+h(ds.a2);
    result=add(ds.target,one(ds.a2),-1);
   }else if(variant==='linear_combo'){
-   const m=ri(2,5),n=ri(2,5);expr=m+bin(A,B,1)+' − '+n+bin(A,B,-1);
+   const m=ri(2,5),n=ri(2,5);extra={m,n};expr=m+bin(A,B,1)+' − '+n+bin(A,B,-1);
    result=add(scale(g7BinomialPoly(A,B,1),m),scale(g7BinomialPoly(A,B,-1),n),-1);
   }else if(variant==='scaled_difference'){
-   const m=ri(2,6);expr=m+sq(A,B,1)+' − '+m+sq(A,B,-1);
+   const m=ri(2,6);extra={m};expr=m+sq(A,B,1)+' − '+m+sq(A,B,-1);
    result=scale(add(plus.expansion,minus.expansion,-1),m);
   }else{
    expr=bin(A,B,1)+bin(A,B,-1)+' − '+sq(A,B,-1);
@@ -67,7 +67,7 @@
   return g7PolynomialChoice('Упрости выражение: '+form(expr)+'.',result,wrong,
    'Раскрываем скобки по формулам, затем приводим подобные слагаемые: '+g7PolynomialHtml(result)+'.',
    g7QuestionSig(raw,d,'audit3_'+variant,[g7MonomialPlain(A),g7MonomialPlain(B),key]),
-   audit(raw,d,variant,{A,B,result}));
+   audit(raw,d,variant,{A,B,result,...extra}));
  }
  function factors44(raw,d){
   const variants=d===0?['common_difference','common_square','square_of_difference']:
