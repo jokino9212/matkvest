@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import {createHash} from 'node:crypto';
 import path from 'node:path';
 import {pathToFileURL} from 'node:url';
 import puppeteer from 'puppeteer-core';
@@ -41,6 +42,7 @@ try{
   return {catalog:all.length,total,errors,status,documentTitle:document.title};
  });
  report.pageErrors=pageErrors; report.testedAt=new Date().toISOString();
+ report.htmlSha256=createHash('sha256').update(fs.readFileSync('index.html')).digest('hex');
  report.browser=await browser.version();
  const output='audits/g7_stage2_browser_report.json';
  fs.mkdirSync(path.dirname(output),{recursive:true});
