@@ -1,0 +1,67 @@
+name: G7 stage 6 - statistics, geometry and Chromium QA
+
+on:
+  push:
+    branches:
+      - audit/g7-stage6-20261104
+    paths:
+      - .github/workflows/g7_stage6.yml
+      - audits/g7_stage6_patch.js
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Build stage 6 from verified stage 5
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib
+          p=Path("index.html")
+          src=p.read_text(encoding="utf-8")
+          patch=Path("audits/g7_stage6_patch.js").read_text(encoding="utf-8")
+          mark="/* МатКвест G7 этап 6: вариативность статистики и расстояний */"
+          expected="c27a623ca462137824c63dcc6895fe5192cd7b8c53ed1dc266af40df2bb2e8cf"
+          if mark in src:
+              assert src.count(mark)==1, "duplicate stage6"
+              print("Stage6 already built")
+          else:
+              got=hashlib.sha256(src.encode("utf-8")).hexdigest()
+              assert got==expected, f"Unexpected base Stage5 SHA: {got}"
+              assert patch.startswith(mark)
+              assert src.count("<script")==src.count("</script>")
+              assert src.rstrip().endswith("</body></html>")
+              at=src.rfind("</script>")
+              assert at>0
+              built=src[:at]+"\n"+patch+"\n"+src[at:]
+              assert built.count(mark)==1
+              assert built.count("<script")==src.count("<script")
+              assert built.count("</script>")==src.count("</script>")
+              p.write_text(built,encoding="utf-8")
+              print("stage6 SHA256",hashlib.sha256(built.encode("utf-8")).hexdigest())
+          PY
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install browser runner
+        run: npm install --no-save --no-package-lock puppeteer-core@24
+      - name: Browser QA
+        run: node audits/g7_stage6_browser_test.mjs
+      - name: Commit verified HTML and report to stage6 branch only
+        if: success()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html audits/g7_stage6_browser_report.json
+          if ! git diff --cached --quiet; then
+            git commit -m "test(G7): verified stage6 HTML and Chromium report [skip ci]"
+            git push origin HEAD:audit/g7-stage6-20261104
+          fi
