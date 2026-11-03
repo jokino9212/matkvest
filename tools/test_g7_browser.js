@@ -14,7 +14,7 @@ const path=require("path"),fs=require("fs");
     const q=id.startsWith("g8:")?makeG8Question(id,d):makeG7Question(id,d);
     if(!q||typeof q.text!=="string"||!q.text.trim()||typeof q.ex!=="string"||!q.ex.trim())throw Error("missing prompt/explanation");
     if(q.ans===undefined||q.ans===null)throw Error("missing answer");
-    if(q.choices){
+    if(q.choices&&q.choices.length){
      const ks=q.choices.map(x=>String(x.key));
      if(new Set(ks).size!==ks.length)throw Error("duplicate choice keys");
      if(ks.filter(x=>x===String(q.ans)).length!==1)throw Error("missing/ambiguous correct choice");
@@ -30,7 +30,7 @@ const path=require("path"),fs=require("fs");
   for(const raw of focus)for(let d=0;d<3;d++){
    const key=raw+":"+d,seen=new Set();
    for(let j=0;j<110;j++){
-    const q=inspect("g7:"+raw,d);if(q)seen.add(q.audit?.variant||q.audit?.type||q.templateId||q.sig?.split(":")[3]||q.text.slice(0,30));
+    const q=inspect("g7:"+raw,d);if(q)seen.add((raw==="integer_expression_transform"?q.audit?.model:null)||(raw==="combined_factorization"?q.audit?.mode:null)||q.audit?.variant||q.audit?.type||q.templateId||q.sig?.split(":")[3]||q.text.slice(0,30));
     counts.focus++;
    }
    variants[key]=seen.size;
