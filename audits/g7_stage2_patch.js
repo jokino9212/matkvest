@@ -112,7 +112,7 @@
    const v=pick(d===0?['perimeter','opposite']:
       d===1?['perimeter','missing','find_sum']:
       ['missing','double_perimeter','compare_perimeters']);
-   const t=triangle(d),p=t.a+t.b+t.c, data=ordinary();
+   const t=triangleDistinct(d),p=t.a+t.b+t.c, data=ordinary();
    if(v==='opposite'){
     const vertex=pick(['A','B','C']),side={A:'BC',B:'AC',C:'AB'}[vertex];
     return mkC(raw,d,v,`Какая сторона △ABC расположена напротив вершины ${vertex}?`,side,['AB','BC','AC'].filter(x=>x!==side),`Напротив вершины ${vertex} находится ${side}.`,[vertex],data);
@@ -132,7 +132,7 @@
    const v=pick(d===0?['equal','eq_perimeter','base']:
       d===1?['iso_perimeter','eq_perimeter','base_from_perimeter','vertex_angle']:
       ['base_from_perimeter','side_from_perimeter','vertex_angle','iso_perimeter']);
-   const b=ri(3+d,12+d*2),a=ri(Math.floor(b/2)+1,15+d*4),p=2*a+b;
+   const b=ri(3+d,12+d*2);let a=ri(Math.floor(b/2)+1,15+d*4);if(a===b)a++;const p=2*a+b;
    if(v==='equal')return mkC(raw,d,v,`В равнобедренном △ABC AB=AC=${a} см. Какая пара сторон равна?`,'AB и AC',['AB и BC','BC и AC','все три обязательно равны'],`По условию боковые стороны AB и AC равны.`,[a],iso());
    if(v==='base')return mkC(raw,d,v,`В равнобедренном △ABC AB=AC=${a} см и BC=${b} см. Назови основание.`,'BC',['AB','AC','AB и AC'],`Основание — сторона напротив вершины между равными боковыми сторонами: BC.`,[a,b],iso());
    if(v==='eq_perimeter'){
