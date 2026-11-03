@@ -25,7 +25,7 @@ try{
      if(!q||!q.text||!q.sig||!q.ex)throw Error('No question/text/sig/ex');
      if(String(q.text).includes('undefined')||String(q.text).includes('NaN')||String(q.ex).includes('NaN'))throw Error('Invalid rendered text');
      if(expectedPrefix&&!String(q.sig).includes(expectedPrefix))throw Error('Old generator fallback for '+raw+': '+q.sig);
-     if(Array.isArray(q.choices)){
+     if(Array.isArray(q.choices)&&q.choices.length>0){
       const matched=q.choices.filter(opt=>String(opt.key)===String(q.ans));
       if(matched.length!==1)throw Error('Choice key ambiguous: '+q.sig+' options '+q.choices.length);
      }
