@@ -13,8 +13,11 @@ let report;
 try{
  await page.setViewport({width:1024,height:768,deviceScaleFactor:1});
  await page.goto(pathToFileURL(path.resolve('index.html')).href,{waitUntil:'domcontentloaded',timeout:120000});
- report=await page.evaluate(()=>{
-   const topics=g7AllTopics(),sessions=[],errors=[],duplicates=[];
+ const topicIds=await page.evaluate(()=>g7AllTopics().map(t=>t.id));
+ const chunks=[];
+ for(const topicId of topicIds){
+ const chunk=await page.evaluate((topicId)=>{
+   const topics=[g7InfoById(topicId)],sessions=[],errors=[],duplicates=[];
    let displayed=0,skipped=0,renderedGraphs=0,renderedGeometry=0,finished=0;
    for(const topic of topics){
      for(let d=0;d<3;d++){
@@ -68,7 +71,11 @@ try{
      }
    }
    return {catalog:topics.length,expectedSessions:topics.length*3,expectedQuestions:topics.length*STAGES.reduce((n,s)=>n+s.count,0),finished,displayed,skipped,renderedGraphs,renderedGeometry,errors,duplicates,sessions};
- });
+ },topicId);
+ chunks.push(chunk);
+ if(chunks.length%10===0)console.log('Completed UI topics',chunks.length,'/',topicIds.length,'errors so far',chunks.reduce((n,x)=>n+x.errors.length,0));
+ }
+ report={catalog:topicIds.length,expectedSessions:chunks.reduce((n,x)=>n+x.expectedSessions,0),expectedQuestions:chunks.reduce((n,x)=>n+x.expectedQuestions,0),finished:chunks.reduce((n,x)=>n+x.finished,0),displayed:chunks.reduce((n,x)=>n+x.displayed,0),skipped:chunks.reduce((n,x)=>n+x.skipped,0),renderedGraphs:chunks.reduce((n,x)=>n+x.renderedGraphs,0),renderedGeometry:chunks.reduce((n,x)=>n+x.renderedGeometry,0),errors:chunks.flatMap(x=>x.errors),duplicates:chunks.flatMap(x=>x.duplicates),sessions:chunks.flatMap(x=>x.sessions)};
  report.pageErrors=pageErrors;
  report.sha256=createHash('sha256').update(fs.readFileSync('index.html')).digest('hex');
  report.browser=await browser.version();
