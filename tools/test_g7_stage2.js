@@ -12,6 +12,8 @@ const ctx={
  g7GeoChoice:(text,ans,wrong,ex,sig,audit,pic)=>({text,ans,ex,sig,audit,choices:[ans,...wrong],visual:pic}),
  g7StrictChoice:(text,ans,wrong,ex,sig,audit)=>({text,ans,ex,sig,audit,choices:[ans,...wrong]}),
  g7TriangleData:(kind,opts={})=>({kind,...opts}),
+ g7TriModel:()=>({points:{A:{x:0,y:0},B:{x:100,y:100},C:{x:200,y:100}}}),
+ g7TriSidePoint:(a,b,t)=>({x:a.x+(b.x-a.x)*t,y:a.y+(b.y-a.y)*t}),
  gPolishQuestionObject:q=>q
 };
 vm.createContext(ctx);
