@@ -62,7 +62,7 @@ try{
   }
   for(const raw of stages)for(let d=0;d<3;d++)sample(raw,d,220,true);
   for(const t of all)for(let d=0;d<3;d++)sample(t.id.slice(3),d,10,false);
-  for(const s of stats.filter(s=>stages.includes(s.raw))){
+  for(const s of stats.filter(s=>stages.includes(s.raw)&&s.requested>=200)){
    if(s.variantCount<3||s.uniqueSignatures<40)errors.push({raw:s.raw,d:s.d,error:'insufficient variety '+JSON.stringify(s)});
   }
   return {catalog:all.length,total,errors,stats,title:document.title};
