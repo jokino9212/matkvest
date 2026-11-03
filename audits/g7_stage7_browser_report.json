@@ -1,0 +1,1610 @@
+{
+  "catalog": 107,
+  "total": 7170,
+  "errors": [],
+  "stats": [
+    {
+      "raw": "geo_primitives",
+      "d": 0,
+      "attempted": 240,
+      "successes": 240,
+      "uniqueTexts": 5,
+      "uniqueSemanticCases": 206,
+      "uniqueSignatures": 208,
+      "variants": [
+        "identify",
+        "between",
+        "membership",
+        "ray_origin",
+        "ray_name"
+      ]
+    },
+    {
+      "raw": "geo_primitives",
+      "d": 1,
+      "attempted": 240,
+      "successes": 240,
+      "uniqueTexts": 6,
+      "uniqueSemanticCases": 216,
+      "uniqueSignatures": 219,
+      "variants": [
+        "identify",
+        "membership",
+        "ray_origin",
+        "between",
+        "ray_name",
+        "ray_through"
+      ]
+    },
+    {
+      "raw": "geo_primitives",
+      "d": 2,
+      "attempted": 240,
+      "successes": 240,
+      "uniqueTexts": 6,
+      "uniqueSemanticCases": 209,
+      "uniqueSignatures": 212,
+      "variants": [
+        "ray_origin",
+        "line_identify",
+        "ray_through",
+        "membership",
+        "ray_name",
+        "between",
+        "identify"
+      ]
+    },
+    {
+      "raw": "coordinate_plane",
+      "d": 0,
+      "attempted": 240,
+      "successes": 240,
+      "uniqueTexts": 18,
+      "uniqueSemanticCases": 186,
+      "uniqueSignatures": 186,
+      "variants": [
+        "axis_name",
+        "read",
+        "ordinate",
+        "quadrant",
+        "abscissa"
+      ]
+    },
+    {
+      "raw": "coordinate_plane",
+      "d": 1,
+      "attempted": 240,
+      "successes": 240,
+      "uniqueTexts": 32,
+      "uniqueSemanticCases": 226,
+      "uniqueSignatures": 232,
+      "variants": [
+        "abscissa",
+        "axis_point",
+        "read",
+        "dist_oy",
+        "quadrant",
+        "ordinate",
+        "dist_ox",
+        "reflect_ox",
+        "reflect_oy"
+      ]
+    },
+    {
+      "raw": "coordinate_plane",
+      "d": 2,
+      "attempted": 240,
+      "successes": 240,
+      "uniqueTexts": 36,
+      "uniqueSemanticCases": 226,
+      "uniqueSignatures": 230,
+      "variants": [
+        "reflect_ox",
+        "ordinate",
+        "dist_ox",
+        "reflect_oy",
+        "axis_point",
+        "read",
+        "abscissa",
+        "dist_oy",
+        "reflect_origin",
+        "quadrant"
+      ]
+    },
+    {
+      "raw": "graphical_equations_systems",
+      "d": 0,
+      "attempted": 240,
+      "successes": 240,
+      "uniqueTexts": 201,
+      "uniqueSemanticCases": 201,
+      "uniqueSignatures": 201,
+      "variants": [
+        "count_parallel",
+        "count_cross",
+        "intersection"
+      ]
+    },
+    {
+      "raw": "graphical_equations_systems",
+      "d": 1,
+      "attempted": 240,
+      "successes": 240,
+      "uniqueTexts": 220,
+      "uniqueSemanticCases": 220,
+      "uniqueSignatures": 220,
+      "variants": [
+        "intersection",
+        "count_cross",
+        "read_x",
+        "count_coincident",
+        "read_y",
+        "count_parallel"
+      ]
+    },
+    {
+      "raw": "graphical_equations_systems",
+      "d": 2,
+      "attempted": 240,
+      "successes": 240,
+      "uniqueTexts": 222,
+      "uniqueSemanticCases": 222,
+      "uniqueSignatures": 222,
+      "variants": [
+        "count_horizontal",
+        "read_x",
+        "count_parallel",
+        "intersection",
+        "read_y",
+        "count_cross",
+        "count_coincident"
+      ]
+    }
+  ],
+  "sessions": [
+    {
+      "raw": "geo_primitives",
+      "d": 0,
+      "run": 0,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 5
+    },
+    {
+      "raw": "geo_primitives",
+      "d": 0,
+      "run": 1,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 5
+    },
+    {
+      "raw": "geo_primitives",
+      "d": 0,
+      "run": 2,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 4
+    },
+    {
+      "raw": "geo_primitives",
+      "d": 0,
+      "run": 3,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 5
+    },
+    {
+      "raw": "geo_primitives",
+      "d": 0,
+      "run": 4,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 5
+    },
+    {
+      "raw": "geo_primitives",
+      "d": 0,
+      "run": 5,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 4
+    },
+    {
+      "raw": "geo_primitives",
+      "d": 0,
+      "run": 6,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 5
+    },
+    {
+      "raw": "geo_primitives",
+      "d": 0,
+      "run": 7,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 5
+    },
+    {
+      "raw": "geo_primitives",
+      "d": 0,
+      "run": 8,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 4
+    },
+    {
+      "raw": "geo_primitives",
+      "d": 0,
+      "run": 9,
+      "uniqueSemantic": 9,
+      "uniqueSig": 9,
+      "variants": 5
+    },
+    {
+      "raw": "geo_primitives",
+      "d": 0,
+      "run": 10,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 5
+    },
+    {
+      "raw": "geo_primitives",
+      "d": 0,
+      "run": 11,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 5
+    },
+    {
+      "raw": "geo_primitives",
+      "d": 0,
+      "run": 12,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 5
+    },
+    {
+      "raw": "geo_primitives",
+      "d": 0,
+      "run": 13,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 4
+    },
+    {
+      "raw": "geo_primitives",
+      "d": 0,
+      "run": 14,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 5
+    },
+    {
+      "raw": "geo_primitives",
+      "d": 0,
+      "run": 15,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 4
+    },
+    {
+      "raw": "geo_primitives",
+      "d": 0,
+      "run": 16,
+      "uniqueSemantic": 9,
+      "uniqueSig": 9,
+      "variants": 4
+    },
+    {
+      "raw": "geo_primitives",
+      "d": 0,
+      "run": 17,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 5
+    },
+    {
+      "raw": "geo_primitives",
+      "d": 0,
+      "run": 18,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 4
+    },
+    {
+      "raw": "geo_primitives",
+      "d": 0,
+      "run": 19,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 4
+    },
+    {
+      "raw": "geo_primitives",
+      "d": 1,
+      "run": 0,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 5
+    },
+    {
+      "raw": "geo_primitives",
+      "d": 1,
+      "run": 1,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 4
+    },
+    {
+      "raw": "geo_primitives",
+      "d": 1,
+      "run": 2,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 5
+    },
+    {
+      "raw": "geo_primitives",
+      "d": 1,
+      "run": 3,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 5
+    },
+    {
+      "raw": "geo_primitives",
+      "d": 1,
+      "run": 4,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 4
+    },
+    {
+      "raw": "geo_primitives",
+      "d": 1,
+      "run": 5,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 5
+    },
+    {
+      "raw": "geo_primitives",
+      "d": 1,
+      "run": 6,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 4
+    },
+    {
+      "raw": "geo_primitives",
+      "d": 1,
+      "run": 7,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 5
+    },
+    {
+      "raw": "geo_primitives",
+      "d": 1,
+      "run": 8,
+      "uniqueSemantic": 9,
+      "uniqueSig": 9,
+      "variants": 6
+    },
+    {
+      "raw": "geo_primitives",
+      "d": 1,
+      "run": 9,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 4
+    },
+    {
+      "raw": "geo_primitives",
+      "d": 1,
+      "run": 10,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 5
+    },
+    {
+      "raw": "geo_primitives",
+      "d": 1,
+      "run": 11,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 6
+    },
+    {
+      "raw": "geo_primitives",
+      "d": 1,
+      "run": 12,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 5
+    },
+    {
+      "raw": "geo_primitives",
+      "d": 1,
+      "run": 13,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 3
+    },
+    {
+      "raw": "geo_primitives",
+      "d": 1,
+      "run": 14,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 5
+    },
+    {
+      "raw": "geo_primitives",
+      "d": 1,
+      "run": 15,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 4
+    },
+    {
+      "raw": "geo_primitives",
+      "d": 1,
+      "run": 16,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 6
+    },
+    {
+      "raw": "geo_primitives",
+      "d": 1,
+      "run": 17,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 5
+    },
+    {
+      "raw": "geo_primitives",
+      "d": 1,
+      "run": 18,
+      "uniqueSemantic": 9,
+      "uniqueSig": 9,
+      "variants": 6
+    },
+    {
+      "raw": "geo_primitives",
+      "d": 1,
+      "run": 19,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 5
+    },
+    {
+      "raw": "geo_primitives",
+      "d": 2,
+      "run": 0,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 6
+    },
+    {
+      "raw": "geo_primitives",
+      "d": 2,
+      "run": 1,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 5
+    },
+    {
+      "raw": "geo_primitives",
+      "d": 2,
+      "run": 2,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 5
+    },
+    {
+      "raw": "geo_primitives",
+      "d": 2,
+      "run": 3,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 5
+    },
+    {
+      "raw": "geo_primitives",
+      "d": 2,
+      "run": 4,
+      "uniqueSemantic": 9,
+      "uniqueSig": 10,
+      "variants": 4
+    },
+    {
+      "raw": "geo_primitives",
+      "d": 2,
+      "run": 5,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 5
+    },
+    {
+      "raw": "geo_primitives",
+      "d": 2,
+      "run": 6,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 5
+    },
+    {
+      "raw": "geo_primitives",
+      "d": 2,
+      "run": 7,
+      "uniqueSemantic": 9,
+      "uniqueSig": 9,
+      "variants": 4
+    },
+    {
+      "raw": "geo_primitives",
+      "d": 2,
+      "run": 8,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 4
+    },
+    {
+      "raw": "geo_primitives",
+      "d": 2,
+      "run": 9,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 4
+    },
+    {
+      "raw": "geo_primitives",
+      "d": 2,
+      "run": 10,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 6
+    },
+    {
+      "raw": "geo_primitives",
+      "d": 2,
+      "run": 11,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 5
+    },
+    {
+      "raw": "geo_primitives",
+      "d": 2,
+      "run": 12,
+      "uniqueSemantic": 9,
+      "uniqueSig": 9,
+      "variants": 5
+    },
+    {
+      "raw": "geo_primitives",
+      "d": 2,
+      "run": 13,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 5
+    },
+    {
+      "raw": "geo_primitives",
+      "d": 2,
+      "run": 14,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 6
+    },
+    {
+      "raw": "geo_primitives",
+      "d": 2,
+      "run": 15,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 6
+    },
+    {
+      "raw": "geo_primitives",
+      "d": 2,
+      "run": 16,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 5
+    },
+    {
+      "raw": "geo_primitives",
+      "d": 2,
+      "run": 17,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 6
+    },
+    {
+      "raw": "geo_primitives",
+      "d": 2,
+      "run": 18,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 6
+    },
+    {
+      "raw": "geo_primitives",
+      "d": 2,
+      "run": 19,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 4
+    },
+    {
+      "raw": "coordinate_plane",
+      "d": 0,
+      "run": 0,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 5
+    },
+    {
+      "raw": "coordinate_plane",
+      "d": 0,
+      "run": 1,
+      "uniqueSemantic": 9,
+      "uniqueSig": 9,
+      "variants": 5
+    },
+    {
+      "raw": "coordinate_plane",
+      "d": 0,
+      "run": 2,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 5
+    },
+    {
+      "raw": "coordinate_plane",
+      "d": 0,
+      "run": 3,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 5
+    },
+    {
+      "raw": "coordinate_plane",
+      "d": 0,
+      "run": 4,
+      "uniqueSemantic": 8,
+      "uniqueSig": 8,
+      "variants": 4
+    },
+    {
+      "raw": "coordinate_plane",
+      "d": 0,
+      "run": 5,
+      "uniqueSemantic": 8,
+      "uniqueSig": 8,
+      "variants": 5
+    },
+    {
+      "raw": "coordinate_plane",
+      "d": 0,
+      "run": 6,
+      "uniqueSemantic": 8,
+      "uniqueSig": 8,
+      "variants": 4
+    },
+    {
+      "raw": "coordinate_plane",
+      "d": 0,
+      "run": 7,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 5
+    },
+    {
+      "raw": "coordinate_plane",
+      "d": 0,
+      "run": 8,
+      "uniqueSemantic": 9,
+      "uniqueSig": 9,
+      "variants": 4
+    },
+    {
+      "raw": "coordinate_plane",
+      "d": 0,
+      "run": 9,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 5
+    },
+    {
+      "raw": "coordinate_plane",
+      "d": 0,
+      "run": 10,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 4
+    },
+    {
+      "raw": "coordinate_plane",
+      "d": 0,
+      "run": 11,
+      "uniqueSemantic": 9,
+      "uniqueSig": 9,
+      "variants": 5
+    },
+    {
+      "raw": "coordinate_plane",
+      "d": 0,
+      "run": 12,
+      "uniqueSemantic": 8,
+      "uniqueSig": 8,
+      "variants": 3
+    },
+    {
+      "raw": "coordinate_plane",
+      "d": 0,
+      "run": 13,
+      "uniqueSemantic": 9,
+      "uniqueSig": 9,
+      "variants": 4
+    },
+    {
+      "raw": "coordinate_plane",
+      "d": 0,
+      "run": 14,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 5
+    },
+    {
+      "raw": "coordinate_plane",
+      "d": 0,
+      "run": 15,
+      "uniqueSemantic": 8,
+      "uniqueSig": 8,
+      "variants": 5
+    },
+    {
+      "raw": "coordinate_plane",
+      "d": 0,
+      "run": 16,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 4
+    },
+    {
+      "raw": "coordinate_plane",
+      "d": 0,
+      "run": 17,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 5
+    },
+    {
+      "raw": "coordinate_plane",
+      "d": 0,
+      "run": 18,
+      "uniqueSemantic": 9,
+      "uniqueSig": 9,
+      "variants": 5
+    },
+    {
+      "raw": "coordinate_plane",
+      "d": 0,
+      "run": 19,
+      "uniqueSemantic": 9,
+      "uniqueSig": 9,
+      "variants": 5
+    },
+    {
+      "raw": "coordinate_plane",
+      "d": 1,
+      "run": 0,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 6
+    },
+    {
+      "raw": "coordinate_plane",
+      "d": 1,
+      "run": 1,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 5
+    },
+    {
+      "raw": "coordinate_plane",
+      "d": 1,
+      "run": 2,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 6
+    },
+    {
+      "raw": "coordinate_plane",
+      "d": 1,
+      "run": 3,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 6
+    },
+    {
+      "raw": "coordinate_plane",
+      "d": 1,
+      "run": 4,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 8
+    },
+    {
+      "raw": "coordinate_plane",
+      "d": 1,
+      "run": 5,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 7
+    },
+    {
+      "raw": "coordinate_plane",
+      "d": 1,
+      "run": 6,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 5
+    },
+    {
+      "raw": "coordinate_plane",
+      "d": 1,
+      "run": 7,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 7
+    },
+    {
+      "raw": "coordinate_plane",
+      "d": 1,
+      "run": 8,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 6
+    },
+    {
+      "raw": "coordinate_plane",
+      "d": 1,
+      "run": 9,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 9
+    },
+    {
+      "raw": "coordinate_plane",
+      "d": 1,
+      "run": 10,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 8
+    },
+    {
+      "raw": "coordinate_plane",
+      "d": 1,
+      "run": 11,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 5
+    },
+    {
+      "raw": "coordinate_plane",
+      "d": 1,
+      "run": 12,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 7
+    },
+    {
+      "raw": "coordinate_plane",
+      "d": 1,
+      "run": 13,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 6
+    },
+    {
+      "raw": "coordinate_plane",
+      "d": 1,
+      "run": 14,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 6
+    },
+    {
+      "raw": "coordinate_plane",
+      "d": 1,
+      "run": 15,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 8
+    },
+    {
+      "raw": "coordinate_plane",
+      "d": 1,
+      "run": 16,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 6
+    },
+    {
+      "raw": "coordinate_plane",
+      "d": 1,
+      "run": 17,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 7
+    },
+    {
+      "raw": "coordinate_plane",
+      "d": 1,
+      "run": 18,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 6
+    },
+    {
+      "raw": "coordinate_plane",
+      "d": 1,
+      "run": 19,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 6
+    },
+    {
+      "raw": "coordinate_plane",
+      "d": 2,
+      "run": 0,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 7
+    },
+    {
+      "raw": "coordinate_plane",
+      "d": 2,
+      "run": 1,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 5
+    },
+    {
+      "raw": "coordinate_plane",
+      "d": 2,
+      "run": 2,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 6
+    },
+    {
+      "raw": "coordinate_plane",
+      "d": 2,
+      "run": 3,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 7
+    },
+    {
+      "raw": "coordinate_plane",
+      "d": 2,
+      "run": 4,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 5
+    },
+    {
+      "raw": "coordinate_plane",
+      "d": 2,
+      "run": 5,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 7
+    },
+    {
+      "raw": "coordinate_plane",
+      "d": 2,
+      "run": 6,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 7
+    },
+    {
+      "raw": "coordinate_plane",
+      "d": 2,
+      "run": 7,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 7
+    },
+    {
+      "raw": "coordinate_plane",
+      "d": 2,
+      "run": 8,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 6
+    },
+    {
+      "raw": "coordinate_plane",
+      "d": 2,
+      "run": 9,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 6
+    },
+    {
+      "raw": "coordinate_plane",
+      "d": 2,
+      "run": 10,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 7
+    },
+    {
+      "raw": "coordinate_plane",
+      "d": 2,
+      "run": 11,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 7
+    },
+    {
+      "raw": "coordinate_plane",
+      "d": 2,
+      "run": 12,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 8
+    },
+    {
+      "raw": "coordinate_plane",
+      "d": 2,
+      "run": 13,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 6
+    },
+    {
+      "raw": "coordinate_plane",
+      "d": 2,
+      "run": 14,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 6
+    },
+    {
+      "raw": "coordinate_plane",
+      "d": 2,
+      "run": 15,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 6
+    },
+    {
+      "raw": "coordinate_plane",
+      "d": 2,
+      "run": 16,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 9
+    },
+    {
+      "raw": "coordinate_plane",
+      "d": 2,
+      "run": 17,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 4
+    },
+    {
+      "raw": "coordinate_plane",
+      "d": 2,
+      "run": 18,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 5
+    },
+    {
+      "raw": "coordinate_plane",
+      "d": 2,
+      "run": 19,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 6
+    },
+    {
+      "raw": "graphical_equations_systems",
+      "d": 0,
+      "run": 0,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 3
+    },
+    {
+      "raw": "graphical_equations_systems",
+      "d": 0,
+      "run": 1,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 3
+    },
+    {
+      "raw": "graphical_equations_systems",
+      "d": 0,
+      "run": 2,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 3
+    },
+    {
+      "raw": "graphical_equations_systems",
+      "d": 0,
+      "run": 3,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 3
+    },
+    {
+      "raw": "graphical_equations_systems",
+      "d": 0,
+      "run": 4,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 3
+    },
+    {
+      "raw": "graphical_equations_systems",
+      "d": 0,
+      "run": 5,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 3
+    },
+    {
+      "raw": "graphical_equations_systems",
+      "d": 0,
+      "run": 6,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 3
+    },
+    {
+      "raw": "graphical_equations_systems",
+      "d": 0,
+      "run": 7,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 3
+    },
+    {
+      "raw": "graphical_equations_systems",
+      "d": 0,
+      "run": 8,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 2
+    },
+    {
+      "raw": "graphical_equations_systems",
+      "d": 0,
+      "run": 9,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 3
+    },
+    {
+      "raw": "graphical_equations_systems",
+      "d": 0,
+      "run": 10,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 3
+    },
+    {
+      "raw": "graphical_equations_systems",
+      "d": 0,
+      "run": 11,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 3
+    },
+    {
+      "raw": "graphical_equations_systems",
+      "d": 0,
+      "run": 12,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 3
+    },
+    {
+      "raw": "graphical_equations_systems",
+      "d": 0,
+      "run": 13,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 3
+    },
+    {
+      "raw": "graphical_equations_systems",
+      "d": 0,
+      "run": 14,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 3
+    },
+    {
+      "raw": "graphical_equations_systems",
+      "d": 0,
+      "run": 15,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 3
+    },
+    {
+      "raw": "graphical_equations_systems",
+      "d": 0,
+      "run": 16,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 3
+    },
+    {
+      "raw": "graphical_equations_systems",
+      "d": 0,
+      "run": 17,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 3
+    },
+    {
+      "raw": "graphical_equations_systems",
+      "d": 0,
+      "run": 18,
+      "uniqueSemantic": 9,
+      "uniqueSig": 9,
+      "variants": 3
+    },
+    {
+      "raw": "graphical_equations_systems",
+      "d": 0,
+      "run": 19,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 3
+    },
+    {
+      "raw": "graphical_equations_systems",
+      "d": 1,
+      "run": 0,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 6
+    },
+    {
+      "raw": "graphical_equations_systems",
+      "d": 1,
+      "run": 1,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 5
+    },
+    {
+      "raw": "graphical_equations_systems",
+      "d": 1,
+      "run": 2,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 6
+    },
+    {
+      "raw": "graphical_equations_systems",
+      "d": 1,
+      "run": 3,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 5
+    },
+    {
+      "raw": "graphical_equations_systems",
+      "d": 1,
+      "run": 4,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 6
+    },
+    {
+      "raw": "graphical_equations_systems",
+      "d": 1,
+      "run": 5,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 6
+    },
+    {
+      "raw": "graphical_equations_systems",
+      "d": 1,
+      "run": 6,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 4
+    },
+    {
+      "raw": "graphical_equations_systems",
+      "d": 1,
+      "run": 7,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 6
+    },
+    {
+      "raw": "graphical_equations_systems",
+      "d": 1,
+      "run": 8,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 5
+    },
+    {
+      "raw": "graphical_equations_systems",
+      "d": 1,
+      "run": 9,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 5
+    },
+    {
+      "raw": "graphical_equations_systems",
+      "d": 1,
+      "run": 10,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 5
+    },
+    {
+      "raw": "graphical_equations_systems",
+      "d": 1,
+      "run": 11,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 5
+    },
+    {
+      "raw": "graphical_equations_systems",
+      "d": 1,
+      "run": 12,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 5
+    },
+    {
+      "raw": "graphical_equations_systems",
+      "d": 1,
+      "run": 13,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 5
+    },
+    {
+      "raw": "graphical_equations_systems",
+      "d": 1,
+      "run": 14,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 5
+    },
+    {
+      "raw": "graphical_equations_systems",
+      "d": 1,
+      "run": 15,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 6
+    },
+    {
+      "raw": "graphical_equations_systems",
+      "d": 1,
+      "run": 16,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 6
+    },
+    {
+      "raw": "graphical_equations_systems",
+      "d": 1,
+      "run": 17,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 5
+    },
+    {
+      "raw": "graphical_equations_systems",
+      "d": 1,
+      "run": 18,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 4
+    },
+    {
+      "raw": "graphical_equations_systems",
+      "d": 1,
+      "run": 19,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 5
+    },
+    {
+      "raw": "graphical_equations_systems",
+      "d": 2,
+      "run": 0,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 6
+    },
+    {
+      "raw": "graphical_equations_systems",
+      "d": 2,
+      "run": 1,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 5
+    },
+    {
+      "raw": "graphical_equations_systems",
+      "d": 2,
+      "run": 2,
+      "uniqueSemantic": 9,
+      "uniqueSig": 9,
+      "variants": 4
+    },
+    {
+      "raw": "graphical_equations_systems",
+      "d": 2,
+      "run": 3,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 6
+    },
+    {
+      "raw": "graphical_equations_systems",
+      "d": 2,
+      "run": 4,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 5
+    },
+    {
+      "raw": "graphical_equations_systems",
+      "d": 2,
+      "run": 5,
+      "uniqueSemantic": 9,
+      "uniqueSig": 9,
+      "variants": 7
+    },
+    {
+      "raw": "graphical_equations_systems",
+      "d": 2,
+      "run": 6,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 6
+    },
+    {
+      "raw": "graphical_equations_systems",
+      "d": 2,
+      "run": 7,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 6
+    },
+    {
+      "raw": "graphical_equations_systems",
+      "d": 2,
+      "run": 8,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 6
+    },
+    {
+      "raw": "graphical_equations_systems",
+      "d": 2,
+      "run": 9,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 6
+    },
+    {
+      "raw": "graphical_equations_systems",
+      "d": 2,
+      "run": 10,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 5
+    },
+    {
+      "raw": "graphical_equations_systems",
+      "d": 2,
+      "run": 11,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 5
+    },
+    {
+      "raw": "graphical_equations_systems",
+      "d": 2,
+      "run": 12,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 6
+    },
+    {
+      "raw": "graphical_equations_systems",
+      "d": 2,
+      "run": 13,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 4
+    },
+    {
+      "raw": "graphical_equations_systems",
+      "d": 2,
+      "run": 14,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 6
+    },
+    {
+      "raw": "graphical_equations_systems",
+      "d": 2,
+      "run": 15,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 6
+    },
+    {
+      "raw": "graphical_equations_systems",
+      "d": 2,
+      "run": 16,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 6
+    },
+    {
+      "raw": "graphical_equations_systems",
+      "d": 2,
+      "run": 17,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 7
+    },
+    {
+      "raw": "graphical_equations_systems",
+      "d": 2,
+      "run": 18,
+      "uniqueSemantic": 9,
+      "uniqueSig": 9,
+      "variants": 7
+    },
+    {
+      "raw": "graphical_equations_systems",
+      "d": 2,
+      "run": 19,
+      "uniqueSemantic": 10,
+      "uniqueSig": 10,
+      "variants": 5
+    }
+  ],
+  "pageErrors": [],
+  "htmlSha256": "ccd13490a734c9cd07e7985579c4a564eb08294f1c78af04a92b78e952053270",
+  "testedAt": "2026-11-03T22:20:27.756Z",
+  "browser": "Chrome/156.0.8078.47"
+}
