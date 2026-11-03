@@ -1,0 +1,40 @@
+name: Build G7 stage 2 audit branch (no production deploy)
+on:
+  push:
+    branches:
+      - audit/g7-stage2-20261103
+    paths:
+      - .github/workflows/g7_stage2_audit_build.yml
+permissions:
+  contents: write
+jobs:
+  assemble:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit/g7-stage2-20261103
+          persist-credentials: true
+      - name: Build from unchanged production HTML and audited patch
+        run: python3 audits/g7_stage2_apply.py
+      - name: Static syntax and change validations
+        run: |
+          node --check audits/g7_stage2_patch.js
+          node - <<'NODE'
+          const fs=require('fs');
+          const h=fs.readFileSync('index.html','utf8');
+          if(!h.includes('/* МатКвест G7 этап 2: автономный проверенный патч генераторов */')) throw Error('missing marker');
+          if(h.includes('if(!targeted.has(raw)||Math.random()<0.08)')) throw Error('old fallback still enabled');
+          const start=h.lastIndexOf('<script>'),end=h.lastIndexOf('</script>');
+          if(start<0||end<=start) throw Error('no inline script');
+          new Function(h.slice(start+8,end));
+          console.log('PASS: last script parses, stage2 present, stage1 fallback removed');
+          NODE
+          git diff --check
+      - name: Save compiled audit HTML to audit branch only
+        run: |
+          git config user.name 'MatKvest Audit Builder'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          git commit -m 'Assemble audited G7 stage2 HTML from tested patch'
+          git push origin HEAD:audit/g7-stage2-20261103
