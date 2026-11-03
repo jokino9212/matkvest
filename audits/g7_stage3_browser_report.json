@@ -1,252 +1,36 @@
 {
   "catalog": 107,
-  "total": 1172,
+  "total": 4530,
   "errors": [
     {
       "raw": "integer_expression_transform",
-      "d": 2,
-      "i": 0,
-      "error": "Error: transform mismatch linear_combo: 8 != 40"
+      "d": 0,
+      "error": "insufficient variety {\"raw\":\"integer_expression_transform\",\"d\":0,\"requested\":10,\"successes\":10,\"uniqueSignatures\":7,\"uniqueTexts\":7,\"variantCount\":4,\"variants\":[\"cancel_double\",\"cross_only\",\"difference_squares\",\"numeric_value\"]}"
+    },
+    {
+      "raw": "integer_expression_transform",
+      "d": 1,
+      "error": "insufficient variety {\"raw\":\"integer_expression_transform\",\"d\":1,\"requested\":10,\"successes\":10,\"uniqueSignatures\":10,\"uniqueTexts\":10,\"variantCount\":5,\"variants\":[\"cross_only\",\"coefficient\",\"cancel_double\",\"difference_squares\",\"conjugate_minus\"]}"
     },
     {
       "raw": "integer_expression_transform",
       "d": 2,
-      "i": 9,
-      "error": "Error: transform mismatch scaled_difference: 96 != 576"
-    },
-    {
-      "raw": "integer_expression_transform",
-      "d": 2,
-      "i": 13,
-      "error": "Error: transform mismatch linear_combo: 54 != 183"
-    },
-    {
-      "raw": "integer_expression_transform",
-      "d": 2,
-      "i": 14,
-      "error": "Error: transform mismatch linear_combo: 4 != 20"
-    },
-    {
-      "raw": "integer_expression_transform",
-      "d": 2,
-      "i": 15,
-      "error": "Error: transform mismatch linear_combo: 6 != 12"
-    },
-    {
-      "raw": "integer_expression_transform",
-      "d": 2,
-      "i": 16,
-      "error": "Error: transform mismatch scaled_difference: 432 != 1728"
-    },
-    {
-      "raw": "integer_expression_transform",
-      "d": 2,
-      "i": 17,
-      "error": "Error: transform mismatch scaled_difference: 72 != 360"
-    },
-    {
-      "raw": "integer_expression_transform",
-      "d": 2,
-      "i": 20,
-      "error": "Error: transform mismatch scaled_difference: 144 != 288"
-    },
-    {
-      "raw": "integer_expression_transform",
-      "d": 2,
-      "i": 24,
-      "error": "Error: transform mismatch linear_combo: 36 != 112"
-    },
-    {
-      "raw": "integer_expression_transform",
-      "d": 2,
-      "i": 37,
-      "error": "Error: transform mismatch linear_combo: 6 != 10"
-    },
-    {
-      "raw": "integer_expression_transform",
-      "d": 2,
-      "i": 39,
-      "error": "Error: transform mismatch linear_combo: 36 != 96"
-    },
-    {
-      "raw": "integer_expression_transform",
-      "d": 2,
-      "i": 42,
-      "error": "Error: transform mismatch linear_combo: 4 != 12"
-    },
-    {
-      "raw": "integer_expression_transform",
-      "d": 2,
-      "i": 47,
-      "error": "Error: transform mismatch scaled_difference: 288 != 1440"
-    },
-    {
-      "raw": "integer_expression_transform",
-      "d": 2,
-      "i": 50,
-      "error": "Error: transform mismatch scaled_difference: 48 != 192"
-    },
-    {
-      "raw": "integer_expression_transform",
-      "d": 2,
-      "i": 52,
-      "error": "Error: transform mismatch scaled_difference: 16 != 96"
-    },
-    {
-      "raw": "integer_expression_transform",
-      "d": 2,
-      "i": 56,
-      "error": "Error: transform mismatch scaled_difference: 288 != 1728"
-    },
-    {
-      "raw": "integer_expression_transform",
-      "d": 2,
-      "i": 60,
-      "error": "Error: transform mismatch linear_combo: 4 != 12"
-    },
-    {
-      "raw": "integer_expression_transform",
-      "d": 2,
-      "i": 63,
-      "error": "Error: transform mismatch linear_combo: 18 != 81"
-    },
-    {
-      "raw": "integer_expression_transform",
-      "d": 2,
-      "i": 68,
-      "error": "Error: transform mismatch scaled_difference: 64 != 384"
-    },
-    {
-      "raw": "integer_expression_transform",
-      "d": 2,
-      "i": 69,
-      "error": "Error: transform mismatch linear_combo: 18 != 37"
-    },
-    {
-      "raw": "integer_expression_transform",
-      "d": 2,
-      "i": 70,
-      "error": "Error: transform mismatch scaled_difference: 96 != 576"
-    },
-    {
-      "raw": "integer_expression_transform",
-      "d": 2,
-      "i": 73,
-      "error": "Error: transform mismatch scaled_difference: 48 != 96"
-    },
-    {
-      "raw": "integer_expression_transform",
-      "d": 2,
-      "i": 75,
-      "error": "Error: transform mismatch linear_combo: 36 != 180"
-    },
-    {
-      "raw": "integer_expression_transform",
-      "d": 2,
-      "i": 82,
-      "error": "Error: transform mismatch linear_combo: 4 != -12"
-    },
-    {
-      "raw": "integer_expression_transform",
-      "d": 2,
-      "i": 83,
-      "error": "Error: transform mismatch linear_combo: 6 != 30"
-    },
-    {
-      "raw": "integer_expression_transform",
-      "d": 2,
-      "i": 84,
-      "error": "Error: transform mismatch scaled_difference: 144 != 720"
-    },
-    {
-      "raw": "integer_expression_transform",
-      "d": 2,
-      "i": 86,
-      "error": "Error: transform mismatch linear_combo: 6 != 27"
-    },
-    {
-      "raw": "integer_expression_transform",
-      "d": 2,
-      "i": 90,
-      "error": "Error: transform mismatch scaled_difference: 48 != 96"
-    },
-    {
-      "raw": "integer_expression_transform",
-      "d": 2,
-      "i": 94,
-      "error": "Error: transform mismatch linear_combo: 6 != 7"
-    },
-    {
-      "raw": "integer_expression_transform",
-      "d": 2,
-      "i": 95,
-      "error": "Error: transform mismatch linear_combo: 4 != 12"
-    },
-    {
-      "raw": "integer_expression_transform",
-      "d": 2,
-      "i": 96,
-      "error": "Error: transform mismatch linear_combo: 18 != 77"
-    },
-    {
-      "raw": "integer_expression_transform",
-      "d": 2,
-      "i": 97,
-      "error": "Error: transform mismatch scaled_difference: 72 != 216"
-    },
-    {
-      "raw": "integer_expression_transform",
-      "d": 2,
-      "i": 100,
-      "error": "Error: transform mismatch scaled_difference: 48 != 192"
-    },
-    {
-      "raw": "integer_expression_transform",
-      "d": 2,
-      "i": 103,
-      "error": "Error: transform mismatch linear_combo: 18 != 64"
-    },
-    {
-      "raw": "integer_expression_transform",
-      "d": 2,
-      "i": 104,
-      "error": "Error: transform mismatch linear_combo: 54 != 177"
-    },
-    {
-      "raw": "integer_expression_transform",
-      "d": 2,
-      "i": 107,
-      "error": "Error: transform mismatch linear_combo: 6 != 35"
-    },
-    {
-      "raw": "integer_expression_transform",
-      "d": 10,
-      "error": "insufficient variety {\"raw\":\"integer_expression_transform\",\"d\":10,\"requested\":false,\"successes\":0,\"uniqueSignatures\":0,\"uniqueTexts\":0,\"variantCount\":0,\"variants\":[]}"
-    },
-    {
-      "raw": "integer_expression_transform",
-      "d": 10,
-      "error": "insufficient variety {\"raw\":\"integer_expression_transform\",\"d\":10,\"requested\":false,\"successes\":0,\"uniqueSignatures\":0,\"uniqueTexts\":0,\"variantCount\":0,\"variants\":[]}"
-    },
-    {
-      "raw": "integer_expression_transform",
-      "d": 10,
-      "error": "insufficient variety {\"raw\":\"integer_expression_transform\",\"d\":10,\"requested\":false,\"successes\":0,\"uniqueSignatures\":0,\"uniqueTexts\":0,\"variantCount\":0,\"variants\":[]}"
+      "error": "insufficient variety {\"raw\":\"integer_expression_transform\",\"d\":2,\"requested\":10,\"successes\":10,\"uniqueSignatures\":10,\"uniqueTexts\":10,\"variantCount\":5,\"variants\":[\"sum_squares\",\"scaled_difference\",\"difference_squares\",\"product_minus_square\",\"conjugate_plus\"]}"
     },
     {
       "raw": "combined_factorization",
-      "d": 10,
-      "error": "insufficient variety {\"raw\":\"combined_factorization\",\"d\":10,\"requested\":false,\"successes\":0,\"uniqueSignatures\":0,\"uniqueTexts\":0,\"variantCount\":0,\"variants\":[]}"
+      "d": 0,
+      "error": "insufficient variety {\"raw\":\"combined_factorization\",\"d\":0,\"requested\":10,\"successes\":10,\"uniqueSignatures\":10,\"uniqueTexts\":10,\"variantCount\":3,\"variants\":[\"square_of_difference\",\"common_square\",\"common_difference\"]}"
     },
     {
       "raw": "combined_factorization",
-      "d": 10,
-      "error": "insufficient variety {\"raw\":\"combined_factorization\",\"d\":10,\"requested\":false,\"successes\":0,\"uniqueSignatures\":0,\"uniqueTexts\":0,\"variantCount\":0,\"variants\":[]}"
+      "d": 1,
+      "error": "insufficient variety {\"raw\":\"combined_factorization\",\"d\":1,\"requested\":10,\"successes\":10,\"uniqueSignatures\":10,\"uniqueTexts\":10,\"variantCount\":5,\"variants\":[\"group_difference\",\"common_square\",\"square_of_difference\",\"common_difference\",\"fourth_powers\"]}"
     },
     {
       "raw": "combined_factorization",
-      "d": 10,
-      "error": "insufficient variety {\"raw\":\"combined_factorization\",\"d\":10,\"requested\":false,\"successes\":0,\"uniqueSignatures\":0,\"uniqueTexts\":0,\"variantCount\":0,\"variants\":[]}"
+      "d": 2,
+      "error": "insufficient variety {\"raw\":\"combined_factorization\",\"d\":2,\"requested\":10,\"successes\":10,\"uniqueSignatures\":10,\"uniqueTexts\":10,\"variantCount\":6,\"variants\":[\"group_difference\",\"common_difference\",\"common_cube\",\"common_square\",\"group_extra\",\"group_square\"]}"
     }
   ],
   "stats": [
@@ -255,14 +39,14 @@
       "d": 0,
       "requested": 220,
       "successes": 220,
-      "uniqueSignatures": 51,
-      "uniqueTexts": 51,
+      "uniqueSignatures": 58,
+      "uniqueTexts": 58,
       "variantCount": 4,
       "variants": [
         "difference_squares",
-        "numeric_value",
+        "cancel_double",
         "cross_only",
-        "cancel_double"
+        "numeric_value"
       ]
     },
     {
@@ -270,35 +54,37 @@
       "d": 1,
       "requested": 220,
       "successes": 220,
-      "uniqueSignatures": 105,
-      "uniqueTexts": 105,
+      "uniqueSignatures": 92,
+      "uniqueTexts": 92,
       "variantCount": 8,
       "variants": [
-        "conjugate_plus",
         "numeric_value",
-        "cancel_double",
         "difference_squares",
-        "cross_only",
-        "coefficient",
+        "conjugate_plus",
         "sum_squares",
-        "conjugate_minus"
+        "coefficient",
+        "cross_only",
+        "conjugate_minus",
+        "cancel_double"
       ]
     },
     {
       "raw": "integer_expression_transform",
       "d": 2,
       "requested": 220,
-      "successes": 72,
-      "uniqueSignatures": 60,
-      "uniqueTexts": 60,
-      "variantCount": 6,
+      "successes": 220,
+      "uniqueSignatures": 168,
+      "uniqueTexts": 168,
+      "variantCount": 8,
       "variants": [
-        "conjugate_plus",
-        "coefficient",
-        "difference_squares",
-        "conjugate_minus",
         "sum_squares",
-        "product_minus_square"
+        "linear_combo",
+        "scaled_difference",
+        "conjugate_minus",
+        "product_minus_square",
+        "conjugate_plus",
+        "difference_squares",
+        "coefficient"
       ]
     },
     {
@@ -306,12 +92,12 @@
       "d": 0,
       "requested": 220,
       "successes": 220,
-      "uniqueSignatures": 87,
-      "uniqueTexts": 69,
+      "uniqueSignatures": 81,
+      "uniqueTexts": 66,
       "variantCount": 3,
       "variants": [
-        "common_difference",
         "common_square",
+        "common_difference",
         "square_of_difference"
       ]
     },
@@ -320,15 +106,15 @@
       "d": 1,
       "requested": 220,
       "successes": 220,
-      "uniqueSignatures": 159,
-      "uniqueTexts": 155,
+      "uniqueSignatures": 149,
+      "uniqueTexts": 141,
       "variantCount": 5,
       "variants": [
         "square_of_difference",
-        "fourth_powers",
-        "common_difference",
         "common_square",
-        "group_difference"
+        "common_difference",
+        "group_difference",
+        "fourth_powers"
       ]
     },
     {
@@ -336,3233 +122,4631 @@
       "d": 2,
       "requested": 220,
       "successes": 220,
-      "uniqueSignatures": 194,
-      "uniqueTexts": 194,
+      "uniqueSignatures": 193,
+      "uniqueTexts": 193,
       "variantCount": 7,
       "variants": [
-        "common_square",
+        "fourth_powers",
+        "common_cube",
         "group_difference",
         "group_extra",
-        "common_cube",
         "group_square",
-        "fourth_powers",
+        "common_square",
         "common_difference"
       ]
     },
     {
       "raw": "rational_numbers_forms",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 9,
+      "variantCount": 4,
+      "variants": [
+        "opposite",
+        "int_fraction",
+        "fraction_decimal",
+        "absolute"
+      ]
     },
     {
       "raw": "rational_numbers_forms",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 4,
+      "variants": [
+        "absolute_decimal",
+        "opposite_fraction",
+        "decimal_fraction",
+        "equivalent"
+      ]
     },
     {
       "raw": "rational_numbers_forms",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 8,
+      "variantCount": 4,
+      "variants": [
+        "equivalent_chain",
+        "signed_fraction_decimal",
+        "recover_number",
+        "double_step"
+      ]
     },
     {
       "raw": "rational_compare_order",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 3,
+      "variants": [
+        "int_compare",
+        "same_den",
+        "negative_compare"
+      ]
     },
     {
       "raw": "rational_compare_order",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 8,
+      "variantCount": 3,
+      "variants": [
+        "order3",
+        "negative_fraction",
+        "fraction_decimal"
+      ]
     },
     {
       "raw": "rational_compare_order",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 9,
+      "variantCount": 3,
+      "variants": [
+        "order4",
+        "mixed_compare",
+        "distance_compare"
+      ]
     },
     {
       "raw": "rational_arithmetic",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 4,
+      "variants": [
+        "div_simple",
+        "add_int",
+        "sub_signed",
+        "mul_simple"
+      ]
     },
     {
       "raw": "rational_arithmetic",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 3,
+      "variants": [
+        "two_step",
+        "fraction_muldiv",
+        "frac_add"
+      ]
     },
     {
       "raw": "rational_arithmetic",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 4,
+      "variants": [
+        "four_ops",
+        "bracket_combo",
+        "three_step",
+        "fraction_combo"
+      ]
     },
     {
       "raw": "fraction_word_problems",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 3,
+      "variants": [
+        "restore",
+        "part",
+        "what_fraction"
+      ]
     },
     {
       "raw": "fraction_word_problems",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 3,
+      "variants": [
+        "fraction_of_remainder",
+        "length_part",
+        "two_action"
+      ]
     },
     {
       "raw": "fraction_word_problems",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 8,
+      "uniqueTexts": 8,
+      "variantCount": 3,
+      "variants": [
+        "two_fractions_total",
+        "three_action_books",
+        "route_remainder"
+      ]
     },
     {
       "raw": "natural_power_definition",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 8,
+      "uniqueTexts": 8,
+      "variantCount": 4,
+      "variants": [
+        "base",
+        "product_to_power",
+        "compute",
+        "exponent"
+      ]
     },
     {
       "raw": "natural_power_definition",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 9,
+      "variantCount": 4,
+      "variants": [
+        "expand",
+        "sign",
+        "missing_exp",
+        "negative_compute"
+      ]
     },
     {
       "raw": "natural_power_definition",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 3,
+      "variants": [
+        "product_identify",
+        "power_compare",
+        "sum_powers"
+      ]
     },
     {
       "raw": "percent_fraction_conversion",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 8,
+      "uniqueTexts": 8,
+      "variantCount": 3,
+      "variants": [
+        "percent_decimal",
+        "percent_fraction",
+        "decimal_percent"
+      ]
     },
     {
       "raw": "percent_fraction_conversion",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 8,
+      "variantCount": 3,
+      "variants": [
+        "signed_compare",
+        "fraction_percent",
+        "equivalent"
+      ]
     },
     {
       "raw": "percent_fraction_conversion",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 7,
+      "variantCount": 3,
+      "variants": [
+        "compare_forms",
+        "equivalent_chain",
+        "mixed_percent"
+      ]
     },
     {
       "raw": "percent_word_problems",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 9,
+      "variantCount": 3,
+      "variants": [
+        "percent_ratio",
+        "number_by_percent",
+        "of_number"
+      ]
     },
     {
       "raw": "percent_word_problems",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 4,
+      "variants": [
+        "increase",
+        "discount",
+        "decrease",
+        "mass"
+      ]
     },
     {
       "raw": "percent_word_problems",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 4,
+      "variants": [
+        "two_changes",
+        "discount_delivery",
+        "reverse_discount",
+        "distance_combo"
+      ]
     },
     {
       "raw": "divisibility_factorization",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 9,
+      "variantCount": 4,
+      "variants": [
+        "divisor",
+        "multiple",
+        "prime",
+        "sign_rule"
+      ]
     },
     {
       "raw": "divisibility_factorization",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 9,
+      "variantCount": 4,
+      "variants": [
+        "divisible_both",
+        "factorization",
+        "prime_missing",
+        "restore"
+      ]
     },
     {
       "raw": "divisibility_factorization",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 4,
+      "variants": [
+        "divisibility_combo_balanced",
+        "gcd_tool",
+        "lcm_tool",
+        "factorization_compare"
+      ]
     },
     {
       "raw": "direct_inverse_proportion",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 9,
+      "variantCount": 3,
+      "variants": [
+        "direct_unknown",
+        "inverse_relation",
+        "direct_relation"
+      ]
     },
     {
       "raw": "direct_inverse_proportion",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 3,
+      "variants": [
+        "direct_unknown",
+        "inverse_workers",
+        "inverse_time"
+      ]
     },
     {
       "raw": "direct_inverse_proportion",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 3,
+      "variants": [
+        "combined_cost",
+        "inverse_workers",
+        "reverse_price"
+      ]
     },
     {
       "raw": "variables_expression_value",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 3,
+      "variants": [
+        "linear",
+        "square",
+        "two_vars"
+      ]
     },
     {
       "raw": "variables_expression_value",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 5,
+      "variants": [
+        "linear_negative",
+        "bracket",
+        "two_vars",
+        "square",
+        "fraction_x"
+      ]
     },
     {
       "raw": "variables_expression_value",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 4,
+      "variants": [
+        "three_step",
+        "fraction_bracket",
+        "two_vars_square",
+        "two_brackets"
+      ]
     },
     {
       "raw": "admissible_values",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 10,
+      "variantCount": 2,
+      "variants": [
+        "x_minus",
+        "kx_plus"
+      ]
     },
     {
       "raw": "admissible_values",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 10,
+      "variantCount": 3,
+      "variants": [
+        "product_pair",
+        "kx_plus",
+        "shifted"
+      ]
     },
     {
       "raw": "admissible_values",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 3,
+      "variants": [
+        "scaled_factor",
+        "two_factors",
+        "product_pair"
+      ]
     },
     {
       "raw": "formulas_dependencies",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 3,
+      "variants": [
+        "rectangle_perimeter",
+        "distance",
+        "rectangle_area"
+      ]
     },
     {
       "raw": "formulas_dependencies",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 4,
+      "variants": [
+        "find_side_area",
+        "price",
+        "find_side_perimeter",
+        "find_speed"
+      ]
     },
     {
       "raw": "formulas_dependencies",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 9,
+      "variantCount": 4,
+      "variants": [
+        "rectangle_combo",
+        "formula_reverse",
+        "two_leg_route",
+        "work_rate"
+      ]
     },
     {
       "raw": "expression_properties",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 8,
+      "uniqueTexts": 8,
+      "variantCount": 3,
+      "variants": [
+        "distribute_simple",
+        "property_name",
+        "convenient_sum"
+      ]
     },
     {
       "raw": "expression_properties",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 4,
+      "variants": [
+        "combine",
+        "distribute_linear",
+        "convenient_product",
+        "factor_common"
+      ]
     },
     {
       "raw": "expression_properties",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 3,
+      "variants": [
+        "factor_common",
+        "negative_distribute",
+        "rational_group"
+      ]
     },
     {
       "raw": "brackets_like_terms",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 3,
+      "variants": [
+        "simple_bracket",
+        "like",
+        "minus_bracket"
+      ]
     },
     {
       "raw": "brackets_like_terms",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 3,
+      "variants": [
+        "bracket_like",
+        "bracket_plus",
+        "minus_bracket"
+      ]
     },
     {
       "raw": "brackets_like_terms",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 3,
+      "variants": [
+        "two_brackets",
+        "multi_like",
+        "two_brackets_negative"
+      ]
     },
     {
       "raw": "identities",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 5,
+      "variantCount": 2,
+      "variants": [
+        "yes_no",
+        "recognize"
+      ]
     },
     {
       "raw": "identities",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 3,
+      "variants": [
+        "yes_no",
+        "equivalent_choice",
+        "distribution"
+      ]
     },
     {
       "raw": "identities",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 3,
+      "variants": [
+        "equivalent_choice",
+        "yes_no",
+        "two_step_identity"
+      ]
     },
     {
       "raw": "equation_root_equivalence",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 2,
+      "variants": [
+        "is_root",
+        "equivalent_root"
+      ]
     },
     {
       "raw": "equation_root_equivalence",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 3,
+      "variants": [
+        "equivalent_root",
+        "is_root",
+        "same_operation"
+      ]
     },
     {
       "raw": "equation_root_equivalence",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 3,
+      "variants": [
+        "equivalent_root",
+        "same_operation",
+        "bracket_root"
+      ]
     },
     {
       "raw": "linear_equation_one_variable",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 3,
+      "variants": [
+        "times",
+        "x_plus",
+        "ax_plus"
+      ]
     },
     {
       "raw": "linear_equation_one_variable",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 2,
+      "variants": [
+        "bracket",
+        "both_sides"
+      ]
     },
     {
       "raw": "linear_equation_one_variable",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 3,
+      "variants": [
+        "fraction_coef",
+        "brackets_both",
+        "both_sides_fraction_root"
+      ]
     },
     {
       "raw": "linear_equation_cases",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 7,
+      "variantCount": 3,
+      "variants": [
+        "classify_canonical",
+        "reduced_meaning",
+        "choose_case"
+      ]
     },
     {
       "raw": "linear_equation_cases",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 3,
+      "variants": [
+        "reduced_meaning",
+        "choose_case",
+        "classify_one_bracket"
+      ]
     },
     {
       "raw": "linear_equation_cases",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 6,
+      "variantCount": 3,
+      "variants": [
+        "choose_case",
+        "classify_two_brackets",
+        "reduced_meaning"
+      ]
     },
     {
       "raw": "equation_word_problems",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 3,
+      "variants": [
+        "cost",
+        "quantity_add",
+        "age_simple"
+      ]
     },
     {
       "raw": "equation_word_problems",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 3,
+      "variants": [
+        "perimeter",
+        "two_numbers",
+        "consecutive"
+      ]
     },
     {
       "raw": "equation_word_problems",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 4,
+      "variants": [
+        "shopping",
+        "age_relation",
+        "consecutive_three",
+        "distance_two_stage"
+      ]
     },
     {
       "raw": "number_intervals",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 6,
+      "variantCount": 3,
+      "variants": [
+        "ineq_left",
+        "ineq_right",
+        "visual"
+      ]
     },
     {
       "raw": "number_intervals",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 4,
+      "variants": [
+        "half_open",
+        "bounded",
+        "membership",
+        "ray_visual"
+      ]
     },
     {
       "raw": "number_intervals",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 4,
+      "variantCount": 4,
+      "variants": [
+        "bounded_mixed",
+        "ray_visual",
+        "reverse_visual",
+        "membership"
+      ]
     },
     {
       "raw": "number_line_distance",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 8,
+      "uniqueTexts": 8,
+      "variantCount": 2,
+      "variants": [
+        "distance_zero",
+        "distance"
+      ]
     },
     {
       "raw": "number_line_distance",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 9,
+      "variantCount": 3,
+      "variants": [
+        "unknown_choice",
+        "distance",
+        "opposite_sides"
+      ]
     },
     {
       "raw": "number_line_distance",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 3,
+      "variants": [
+        "unknown_choice",
+        "unknown_one_side",
+        "distance_fraction"
+      ]
     },
     {
       "raw": "coordinate_plane",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 5,
+      "uniqueTexts": 3,
+      "variantCount": 3,
+      "variants": [
+        "read_point",
+        "axis",
+        "quadrant"
+      ]
     },
     {
       "raw": "coordinate_plane",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 2,
+      "variantCount": 3,
+      "variants": [
+        "read_point",
+        "quadrant_visual",
+        "point_axis"
+      ]
     },
     {
       "raw": "coordinate_plane",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 2,
+      "variantCount": 3,
+      "variants": [
+        "point_axis",
+        "read_multi",
+        "quadrant_visual"
+      ]
     },
     {
       "raw": "function_concept_values",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 6,
+      "uniqueTexts": 6,
+      "variantCount": 2,
+      "variants": [
+        "value",
+        "concept"
+      ]
     },
     {
       "raw": "function_concept_values",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 3,
+      "variants": [
+        "value_square",
+        "value_negative",
+        "table"
+      ]
     },
     {
       "raw": "function_concept_values",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 3,
+      "variants": [
+        "table",
+        "value_square",
+        "find_argument"
+      ]
     },
     {
       "raw": "function_graph_reading",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 7,
+      "variantCount": 2,
+      "variants": [
+        "read_y",
+        "membership"
+      ]
     },
     {
       "raw": "function_graph_reading",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 6,
+      "variantCount": 3,
+      "variants": [
+        "read_x",
+        "read_y",
+        "trend"
+      ]
     },
     {
       "raw": "function_graph_reading",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 6,
+      "variantCount": 4,
+      "variants": [
+        "process_varied",
+        "read_x",
+        "trend",
+        "intercept"
+      ]
     },
     {
       "raw": "direct_proportionality_function",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 2,
+      "variants": [
+        "value",
+        "k"
+      ]
     },
     {
       "raw": "direct_proportionality_function",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 8,
+      "uniqueTexts": 6,
+      "variantCount": 4,
+      "variants": [
+        "sign",
+        "membership",
+        "k",
+        "read_graph"
+      ]
     },
     {
       "raw": "direct_proportionality_function",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 7,
+      "uniqueTexts": 7,
+      "variantCount": 4,
+      "variants": [
+        "membership",
+        "sign",
+        "find_x",
+        "read_graph"
+      ]
     },
     {
       "raw": "linear_function",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 8,
+      "variantCount": 2,
+      "variants": [
+        "b",
+        "value"
+      ]
     },
     {
       "raw": "linear_function",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 7,
+      "variantCount": 3,
+      "variants": [
+        "k_b",
+        "membership",
+        "value"
+      ]
     },
     {
       "raw": "linear_function",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 6,
+      "variantCount": 3,
+      "variants": [
+        "membership",
+        "formula",
+        "find_k"
+      ]
     },
     {
       "raw": "absolute_value_function",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 5,
+      "uniqueTexts": 5,
+      "variantCount": 2,
+      "variants": [
+        "shape",
+        "value"
+      ]
     },
     {
       "raw": "absolute_value_function",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 8,
+      "uniqueTexts": 8,
+      "variantCount": 3,
+      "variants": [
+        "membership",
+        "symmetry",
+        "graph_read"
+      ]
     },
     {
       "raw": "absolute_value_function",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 8,
+      "uniqueTexts": 8,
+      "variantCount": 3,
+      "variants": [
+        "symmetry",
+        "membership",
+        "graph_read"
+      ]
     },
     {
       "raw": "graphical_equations_systems",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 2,
+      "variantCount": 2,
+      "variants": [
+        "count_one",
+        "intersection"
+      ]
     },
     {
       "raw": "graphical_equations_systems",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 2,
+      "variantCount": 3,
+      "variants": [
+        "count_infinite",
+        "intersection",
+        "count_none"
+      ]
     },
     {
       "raw": "graphical_equations_systems",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 2,
+      "variantCount": 4,
+      "variants": [
+        "intersection",
+        "count_none",
+        "count_infinite",
+        "count_one"
+      ]
     },
     {
       "raw": "power_properties",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 3,
+      "variants": [
+        "mul",
+        "div",
+        "missing"
+      ]
     },
     {
       "raw": "power_properties",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 9,
+      "variantCount": 4,
+      "variants": [
+        "two_vars",
+        "numeric",
+        "missing",
+        "chain"
+      ]
     },
     {
       "raw": "power_properties",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 3,
+      "variants": [
+        "missing_chain",
+        "two_vars",
+        "chain_long"
+      ]
     },
     {
       "raw": "power_product_power",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 9,
+      "variantCount": 3,
+      "variants": [
+        "product",
+        "numeric_product",
+        "power_power"
+      ]
     },
     {
       "raw": "power_product_power",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 9,
+      "variantCount": 3,
+      "variants": [
+        "power_then_mul",
+        "coef_power",
+        "multi_vars"
+      ]
     },
     {
       "raw": "power_product_power",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 4,
+      "variants": [
+        "combined",
+        "restore",
+        "numeric_product",
+        "multi_vars"
+      ]
     },
     {
       "raw": "monomial_standard_form",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 10,
+      "variantCount": 3,
+      "variants": [
+        "coefficient",
+        "degree",
+        "recognize"
+      ]
     },
     {
       "raw": "monomial_standard_form",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 10,
+      "variantCount": 4,
+      "variants": [
+        "standardize",
+        "coefficient",
+        "degree",
+        "recognize"
+      ]
     },
     {
       "raw": "monomial_standard_form",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 3,
+      "variants": [
+        "choose_standard",
+        "standardize_two",
+        "degree"
+      ]
     },
     {
       "raw": "monomial_operations",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 5,
+      "uniqueTexts": 5,
+      "variantCount": 2,
+      "variants": [
+        "power",
+        "multiply"
+      ]
     },
     {
       "raw": "monomial_operations",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 9,
+      "variantCount": 3,
+      "variants": [
+        "divide",
+        "multiply_two_vars",
+        "power"
+      ]
     },
     {
       "raw": "monomial_operations",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 9,
+      "variantCount": 4,
+      "variants": [
+        "multiply_two_vars",
+        "power_two_vars",
+        "divide_two_vars",
+        "combined"
+      ]
     },
     {
       "raw": "functions_x2_x3",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 8,
+      "uniqueTexts": 8,
+      "variantCount": 3,
+      "variants": [
+        "value_cube",
+        "value_square",
+        "shape"
+      ]
     },
     {
       "raw": "functions_x2_x3",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 7,
+      "uniqueTexts": 7,
+      "variantCount": 4,
+      "variants": [
+        "membership",
+        "symmetry",
+        "graph_cube",
+        "graph_square"
+      ]
     },
     {
       "raw": "functions_x2_x3",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 9,
+      "variantCount": 5,
+      "variants": [
+        "membership_false",
+        "opposite",
+        "compare_sign",
+        "graph_square",
+        "graph_cube"
+      ]
     },
     {
       "raw": "polynomial_standard_degree",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 3,
+      "variants": [
+        "degree",
+        "terms",
+        "combine"
+      ]
     },
     {
       "raw": "polynomial_standard_degree",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 4,
+      "variants": [
+        "combine",
+        "degree_two_vars",
+        "coefficient",
+        "degree_after"
+      ]
     },
     {
       "raw": "polynomial_standard_degree",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 4,
+      "variants": [
+        "standard",
+        "combine_mixed",
+        "degree_two_vars",
+        "degree_after"
+      ]
     },
     {
       "raw": "polynomial_add_subtract",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 2,
+      "variants": [
+        "add",
+        "subtract"
+      ]
     },
     {
       "raw": "polynomial_add_subtract",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 2,
+      "variants": [
+        "subtract",
+        "add"
+      ]
     },
     {
       "raw": "polynomial_add_subtract",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 5,
+      "variants": [
+        "subtract_two_vars",
+        "add_two_vars",
+        "subtract_master",
+        "coefficient",
+        "add_master"
+      ]
     },
     {
       "raw": "monomial_times_polynomial",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 8,
+      "uniqueTexts": 10,
+      "variantCount": 3,
+      "variants": [
+        "expand_0",
+        "term_product",
+        "check"
+      ]
     },
     {
       "raw": "monomial_times_polynomial",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 4,
+      "variants": [
+        "check",
+        "expand_1",
+        "coefficient",
+        "term_product"
+      ]
     },
     {
       "raw": "monomial_times_polynomial",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 4,
+      "variants": [
+        "coefficient",
+        "term_product",
+        "expand_2",
+        "check"
+      ]
     },
     {
       "raw": "common_factor",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 2,
+      "variants": [
+        "factor",
+        "gcf"
+      ]
     },
     {
       "raw": "common_factor",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 2,
+      "variants": [
+        "reverse",
+        "factor"
+      ]
     },
     {
       "raw": "common_factor",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 3,
+      "variants": [
+        "factor",
+        "reverse",
+        "inside_coefficient"
+      ]
     },
     {
       "raw": "polynomial_times_polynomial",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 3,
+      "variants": [
+        "check",
+        "coefficient",
+        "expand_0"
+      ]
     },
     {
       "raw": "polynomial_times_polynomial",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 3,
+      "variants": [
+        "expand_1",
+        "check",
+        "coefficient"
+      ]
     },
     {
       "raw": "polynomial_times_polynomial",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 10,
+      "variantCount": 4,
+      "variants": [
+        "term_product",
+        "expand_2",
+        "coefficient",
+        "check"
+      ]
     },
     {
       "raw": "factorization_grouping",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 9,
+      "variantCount": 2,
+      "variants": [
+        "factor",
+        "step"
+      ]
     },
     {
       "raw": "factorization_grouping",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 2,
+      "variants": [
+        "factor",
+        "step"
+      ]
     },
     {
       "raw": "factorization_grouping",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 2,
+      "variants": [
+        "factor",
+        "recognize_balanced"
+      ]
     },
     {
       "raw": "square_sum_difference",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 7,
+      "uniqueTexts": 7,
+      "variantCount": 3,
+      "variants": [
+        "sum_simple",
+        "difference_simple",
+        "middle_sign"
+      ]
     },
     {
       "raw": "square_sum_difference",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 8,
+      "uniqueTexts": 8,
+      "variantCount": 5,
+      "variants": [
+        "reverse_difference",
+        "middle_coefficient",
+        "sum_coeff",
+        "difference_coeff",
+        "reverse_sum"
+      ]
     },
     {
       "raw": "square_sum_difference",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 9,
+      "variantCount": 4,
+      "variants": [
+        "sum_power",
+        "reverse_difference",
+        "reverse_sum",
+        "middle_coefficient"
+      ]
     },
     {
       "raw": "difference_of_squares",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 5,
+      "uniqueTexts": 5,
+      "variantCount": 3,
+      "variants": [
+        "recognize",
+        "factor_simple",
+        "expand_simple"
+      ]
     },
     {
       "raw": "difference_of_squares",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 8,
+      "uniqueTexts": 8,
+      "variantCount": 3,
+      "variants": [
+        "factor_power",
+        "expand_coeff",
+        "factor_coeff"
+      ]
     },
     {
       "raw": "difference_of_squares",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 3,
+      "variants": [
+        "reverse_mixed",
+        "factor_power",
+        "expand_power"
+      ]
     },
     {
       "raw": "sum_difference_cubes",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 7,
+      "uniqueTexts": 7,
+      "variantCount": 3,
+      "variants": [
+        "factor_difference",
+        "factor_sum",
+        "sign_rule"
+      ]
     },
     {
       "raw": "sum_difference_cubes",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 4,
+      "variants": [
+        "expand_difference",
+        "factor_sum_coeff",
+        "expand_sum",
+        "factor_difference_coeff"
+      ]
     },
     {
       "raw": "sum_difference_cubes",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 7,
+      "uniqueTexts": 7,
+      "variantCount": 4,
+      "variants": [
+        "expand_sum",
+        "expand_difference",
+        "factor_difference_power",
+        "factor_sum_power"
+      ]
     },
     {
       "raw": "integer_expression_transform",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 7,
+      "uniqueTexts": 7,
+      "variantCount": 4,
+      "variants": [
+        "cancel_double",
+        "cross_only",
+        "difference_squares",
+        "numeric_value"
+      ]
     },
     {
       "raw": "integer_expression_transform",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 5,
+      "variants": [
+        "cross_only",
+        "coefficient",
+        "cancel_double",
+        "difference_squares",
+        "conjugate_minus"
+      ]
     },
     {
       "raw": "integer_expression_transform",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 5,
+      "variants": [
+        "sum_squares",
+        "scaled_difference",
+        "difference_squares",
+        "product_minus_square",
+        "conjugate_plus"
+      ]
     },
     {
       "raw": "combined_factorization",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 3,
+      "variants": [
+        "square_of_difference",
+        "common_square",
+        "common_difference"
+      ]
     },
     {
       "raw": "combined_factorization",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 5,
+      "variants": [
+        "group_difference",
+        "common_square",
+        "square_of_difference",
+        "common_difference",
+        "fourth_powers"
+      ]
     },
     {
       "raw": "combined_factorization",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 6,
+      "variants": [
+        "group_difference",
+        "common_difference",
+        "common_cube",
+        "common_square",
+        "group_extra",
+        "group_square"
+      ]
     },
     {
       "raw": "linear_equation_two_variables",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 2,
+      "variants": [
+        "find_y",
+        "check_pair"
+      ]
     },
     {
       "raw": "linear_equation_two_variables",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 3,
+      "variants": [
+        "check_pair",
+        "pair_choice",
+        "find_x"
+      ]
     },
     {
       "raw": "linear_equation_two_variables",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 4,
+      "variants": [
+        "pair_choice",
+        "check_pair",
+        "find_c",
+        "find_x"
+      ]
     },
     {
       "raw": "linear_equation_two_variables_graph",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 2,
+      "variants": [
+        "read_y",
+        "membership"
+      ]
     },
     {
       "raw": "linear_equation_two_variables_graph",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 6,
+      "variantCount": 3,
+      "variants": [
+        "formula",
+        "membership",
+        "read_y"
+      ]
     },
     {
       "raw": "linear_equation_two_variables_graph",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 8,
+      "variantCount": 4,
+      "variants": [
+        "membership",
+        "formula",
+        "read_x",
+        "read_y"
+      ]
     },
     {
       "raw": "linear_system_concept",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 8,
+      "uniqueTexts": 8,
+      "variantCount": 3,
+      "variants": [
+        "choose_pair",
+        "meaning",
+        "check_pair"
+      ]
     },
     {
       "raw": "linear_system_concept",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 3,
+      "variants": [
+        "choose_pair",
+        "solve_simple",
+        "check_pair"
+      ]
     },
     {
       "raw": "linear_system_concept",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 3,
+      "variants": [
+        "solve_simple",
+        "check_pair",
+        "choose_pair"
+      ]
     },
     {
       "raw": "linear_system_substitution",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 9,
+      "variantCount": 2,
+      "variants": [
+        "solve_pair",
+        "isolate"
+      ]
     },
     {
       "raw": "linear_system_substitution",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 3,
+      "variants": [
+        "solve_pair",
+        "isolate",
+        "find_y"
+      ]
     },
     {
       "raw": "linear_system_substitution",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 1,
+      "variants": [
+        "solve_pair"
+      ]
     },
     {
       "raw": "linear_system_addition",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 2,
+      "variants": [
+        "first_result",
+        "solve_pair"
+      ]
     },
     {
       "raw": "linear_system_addition",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 2,
+      "variants": [
+        "solve_pair",
+        "first_result"
+      ]
     },
     {
       "raw": "linear_system_addition",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 8,
+      "uniqueTexts": 10,
+      "variantCount": 2,
+      "variants": [
+        "solve_pair",
+        "multiplier"
+      ]
     },
     {
       "raw": "linear_system_word_problems",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 2,
+      "variants": [
+        "boxes",
+        "numbers"
+      ]
     },
     {
       "raw": "linear_system_word_problems",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 3,
+      "variants": [
+        "rectangle",
+        "shopping",
+        "boxes"
+      ]
     },
     {
       "raw": "linear_system_word_problems",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 3,
+      "variants": [
+        "rectangle",
+        "shopping",
+        "tickets"
+      ]
     },
     {
       "raw": "geo_primitives",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 4,
+      "uniqueTexts": 3,
+      "variantCount": 3,
+      "variants": [
+        "between",
+        "ray_name",
+        "identify"
+      ]
     },
     {
       "raw": "geo_primitives",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 5,
+      "uniqueTexts": 4,
+      "variantCount": 4,
+      "variants": [
+        "identify",
+        "ray_name",
+        "between",
+        "membership"
+      ]
     },
     {
       "raw": "geo_primitives",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 6,
+      "uniqueTexts": 4,
+      "variantCount": 4,
+      "variants": [
+        "identify",
+        "ray_name",
+        "membership",
+        "between"
+      ]
     },
     {
       "raw": "geo_segment_angle_measurement",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 9,
+      "variantCount": 3,
+      "variants": [
+        "angle_type",
+        "segment_diff",
+        "segment_sum"
+      ]
     },
     {
       "raw": "geo_segment_angle_measurement",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 4,
+      "variants": [
+        "segment_diff",
+        "angle_parts",
+        "segment_sum",
+        "angle_type"
+      ]
     },
     {
       "raw": "geo_segment_angle_measurement",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 4,
+      "variants": [
+        "segment_diff",
+        "unit_convert",
+        "angle_parts",
+        "angle_type"
+      ]
     },
     {
       "raw": "geo_adjacent_vertical_angles",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 9,
+      "variantCount": 2,
+      "variants": [
+        "vertical",
+        "adjacent"
+      ]
     },
     {
       "raw": "geo_adjacent_vertical_angles",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 8,
+      "variantCount": 3,
+      "variants": [
+        "vertical",
+        "relation",
+        "adjacent"
+      ]
     },
     {
       "raw": "geo_adjacent_vertical_angles",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 4,
+      "variants": [
+        "vertical",
+        "around",
+        "adjacent",
+        "relation"
+      ]
     },
     {
       "raw": "geo_angle_bisector",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 9,
+      "variantCount": 2,
+      "variants": [
+        "whole",
+        "half"
+      ]
     },
     {
       "raw": "geo_angle_bisector",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 7,
+      "variantCount": 3,
+      "variants": [
+        "whole",
+        "property",
+        "half"
+      ]
     },
     {
       "raw": "geo_angle_bisector",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 4,
+      "variants": [
+        "reverse",
+        "property",
+        "half",
+        "whole"
+      ]
     },
     {
       "raw": "geo_broken_line_polygon",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 7,
+      "uniqueTexts": 5,
+      "variantCount": 2,
+      "variants": [
+        "broken_length",
+        "side_count"
+      ]
     },
     {
       "raw": "geo_broken_line_polygon",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 8,
+      "uniqueTexts": 8,
+      "variantCount": 3,
+      "variants": [
+        "diagonal",
+        "perimeter",
+        "broken_length"
+      ]
     },
     {
       "raw": "geo_broken_line_polygon",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 7,
+      "uniqueTexts": 7,
+      "variantCount": 4,
+      "variants": [
+        "broken_missing",
+        "diagonal",
+        "missing_side",
+        "perimeter"
+      ]
     },
     {
       "raw": "geo_parallel_perpendicular_intro",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 4,
+      "uniqueTexts": 2,
+      "variantCount": 2,
+      "variants": [
+        "identify",
+        "right_angle"
+      ]
     },
     {
       "raw": "geo_parallel_perpendicular_intro",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 4,
+      "uniqueTexts": 4,
+      "variantCount": 3,
+      "variants": [
+        "identify",
+        "notation",
+        "right_angle"
+      ]
     },
     {
       "raw": "geo_parallel_perpendicular_intro",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 4,
+      "uniqueTexts": 4,
+      "variantCount": 4,
+      "variants": [
+        "parallel_fact",
+        "right_angle",
+        "notation",
+        "identify"
+      ]
     },
     {
       "raw": "geo_axial_symmetry",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 4,
+      "variantCount": 2,
+      "variants": [
+        "reflect",
+        "property"
+      ]
     },
     {
       "raw": "geo_axial_symmetry",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 6,
+      "variantCount": 2,
+      "variants": [
+        "property",
+        "choose"
+      ]
     },
     {
       "raw": "geo_axial_symmetry",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 7,
+      "variantCount": 4,
+      "variants": [
+        "reflect",
+        "distance",
+        "choose",
+        "property"
+      ]
     },
     {
       "raw": "geo_basic_constructions",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 2,
+      "uniqueTexts": 2,
+      "variantCount": 2,
+      "variants": [
+        "midpoint_next",
+        "bisector_next"
+      ]
     },
     {
       "raw": "geo_basic_constructions",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 3,
+      "uniqueTexts": 3,
+      "variantCount": 3,
+      "variants": [
+        "midpoint_result",
+        "copy_step",
+        "bisector_result"
+      ]
     },
     {
       "raw": "geo_basic_constructions",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 3,
+      "uniqueTexts": 3,
+      "variantCount": 3,
+      "variants": [
+        "midpoint_result",
+        "bisector_next",
+        "midpoint_next"
+      ]
     },
     {
       "raw": "geo_triangle_elements",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 9,
+      "variantCount": 2,
+      "variants": [
+        "opposite",
+        "perimeter"
+      ]
     },
     {
       "raw": "geo_triangle_elements",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 3,
+      "variants": [
+        "missing",
+        "perimeter",
+        "find_sum"
+      ]
     },
     {
       "raw": "geo_triangle_elements",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 3,
+      "variants": [
+        "compare_perimeters",
+        "missing",
+        "double_perimeter"
+      ]
     },
     {
       "raw": "geo_triangle_medians_bisectors_altitudes",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 5,
+      "uniqueTexts": 5,
+      "variantCount": 3,
+      "variants": [
+        "height_property",
+        "identify_median",
+        "bisector_half"
+      ]
     },
     {
       "raw": "geo_triangle_medians_bisectors_altitudes",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 6,
+      "uniqueTexts": 6,
+      "variantCount": 4,
+      "variants": [
+        "identify_median",
+        "height_property",
+        "bisector_half",
+        "median_half"
+      ]
     },
     {
       "raw": "geo_triangle_medians_bisectors_altitudes",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 9,
+      "variantCount": 4,
+      "variants": [
+        "median_half",
+        "bisector_half",
+        "identify_median",
+        "height_property"
+      ]
     },
     {
       "raw": "geo_isosceles_equilateral",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 3,
+      "variants": [
+        "eq_perimeter",
+        "equal",
+        "base"
+      ]
     },
     {
       "raw": "geo_isosceles_equilateral",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 9,
+      "variantCount": 3,
+      "variants": [
+        "iso_perimeter",
+        "base_from_perimeter",
+        "eq_perimeter"
+      ]
     },
     {
       "raw": "geo_isosceles_equilateral",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 4,
+      "variants": [
+        "base_from_perimeter",
+        "iso_perimeter",
+        "side_from_perimeter",
+        "vertex_angle"
+      ]
     },
     {
       "raw": "geo_isosceles_properties_criteria",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 9,
+      "variantCount": 2,
+      "variants": [
+        "criterion",
+        "base_equal"
+      ]
     },
     {
       "raw": "geo_isosceles_properties_criteria",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 3,
+      "variants": [
+        "base_from_vertex",
+        "vertex_from_base",
+        "bisector_half"
+      ]
     },
     {
       "raw": "geo_isosceles_properties_criteria",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 4,
+      "variants": [
+        "vertex_from_base",
+        "angle_difference",
+        "base_from_vertex",
+        "bisector_half"
+      ]
     },
     {
       "raw": "geo_congruence_sas",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 2,
+      "variants": [
+        "perimeter",
+        "copy"
+      ]
     },
     {
       "raw": "geo_congruence_sas",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 4,
+      "variants": [
+        "copy",
+        "angle",
+        "missing",
+        "perimeter"
+      ]
     },
     {
       "raw": "geo_congruence_sas",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 3,
+      "variants": [
+        "perimeter",
+        "missing",
+        "angle"
+      ]
     },
     {
       "raw": "geo_congruence_asa",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 9,
+      "variantCount": 2,
+      "variants": [
+        "same_angle",
+        "angle_sum"
+      ]
     },
     {
       "raw": "geo_congruence_asa",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 3,
+      "variants": [
+        "angle_sum",
+        "same_angle",
+        "third"
+      ]
     },
     {
       "raw": "geo_congruence_asa",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 2,
+      "variants": [
+        "third",
+        "reverse"
+      ]
     },
     {
       "raw": "geo_congruence_sss",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 2,
+      "variants": [
+        "side",
+        "compare"
+      ]
     },
     {
       "raw": "geo_congruence_sss",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 3,
+      "variants": [
+        "perimeter",
+        "side",
+        "compare"
+      ]
     },
     {
       "raw": "geo_congruence_sss",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 2,
+      "variants": [
+        "perimeter",
+        "missing"
+      ]
     },
     {
       "raw": "geo_triangle_inequality",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 2,
+      "variants": [
+        "max_integer",
+        "existence"
+      ]
     },
     {
       "raw": "geo_triangle_inequality",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 3,
+      "variants": [
+        "max_integer",
+        "existence",
+        "min_integer"
+      ]
     },
     {
       "raw": "geo_triangle_inequality",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 4,
+      "variants": [
+        "existence",
+        "max_integer",
+        "count_integer",
+        "min_integer"
+      ]
     },
     {
       "raw": "geo_side_angle_relation",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 7,
+      "uniqueTexts": 7,
+      "variantCount": 2,
+      "variants": [
+        "opposite",
+        "largest"
+      ]
     },
     {
       "raw": "geo_side_angle_relation",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 3,
+      "variants": [
+        "largest",
+        "smallest",
+        "which_side"
+      ]
     },
     {
       "raw": "geo_side_angle_relation",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 4,
+      "variants": [
+        "side_order",
+        "angle_order",
+        "largest",
+        "smallest"
+      ]
     },
     {
       "raw": "geo_right_triangle_properties",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 5,
+      "uniqueTexts": 5,
+      "variantCount": 2,
+      "variants": [
+        "acute_sum",
+        "hypotenuse"
+      ]
     },
     {
       "raw": "geo_right_triangle_properties",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 4,
+      "uniqueTexts": 4,
+      "variantCount": 3,
+      "variants": [
+        "hypotenuse",
+        "acute_sum",
+        "legs"
+      ]
     },
     {
       "raw": "geo_right_triangle_properties",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 7,
+      "uniqueTexts": 7,
+      "variantCount": 4,
+      "variants": [
+        "acute_sum",
+        "legs",
+        "hyp_longer",
+        "hypotenuse"
+      ]
     },
     {
       "raw": "geo_right_triangle_congruence",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 2,
+      "uniqueTexts": 2,
+      "variantCount": 2,
+      "variants": [
+        "leg_leg",
+        "hyp_leg"
+      ]
     },
     {
       "raw": "geo_right_triangle_congruence",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 6,
+      "uniqueTexts": 6,
+      "variantCount": 6,
+      "variants": [
+        "mismatched_elements",
+        "hyp_leg",
+        "leg_leg",
+        "insufficient_one_leg",
+        "insufficient_one_angle",
+        "leg_angle"
+      ]
     },
     {
       "raw": "geo_right_triangle_congruence",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 4,
+      "uniqueTexts": 4,
+      "variantCount": 4,
+      "variants": [
+        "insufficient_one_angle",
+        "mismatched_elements",
+        "leg_angle",
+        "leg_leg"
+      ]
     },
     {
       "raw": "geo_right_triangle_30deg",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 7,
+      "uniqueTexts": 7,
+      "variantCount": 2,
+      "variants": [
+        "half",
+        "double"
+      ]
     },
     {
       "raw": "geo_right_triangle_30deg",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 8,
+      "uniqueTexts": 8,
+      "variantCount": 3,
+      "variants": [
+        "double",
+        "reverse",
+        "half"
+      ]
     },
     {
       "raw": "geo_right_triangle_30deg",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 8,
+      "uniqueTexts": 8,
+      "variantCount": 4,
+      "variants": [
+        "reverse",
+        "half",
+        "double",
+        "identify"
+      ]
     },
     {
       "raw": "geo_transversal_angles",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 7,
+      "uniqueTexts": 7,
+      "variantCount": 2,
+      "variants": [
+        "identify_type",
+        "corresponding_partner"
+      ]
     },
     {
       "raw": "geo_transversal_angles",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 4,
+      "variants": [
+        "same_side_partner",
+        "corresponding_partner",
+        "identify_type",
+        "alternate_partner"
+      ]
     },
     {
       "raw": "geo_transversal_angles",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 6,
+      "uniqueTexts": 6,
+      "variantCount": 3,
+      "variants": [
+        "identify_type",
+        "same_side_partner",
+        "vertical_distinction"
+      ]
     },
     {
       "raw": "geo_parallel_criteria",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 8,
+      "variantCount": 5,
+      "variants": [
+        "enough_data",
+        "sufficient_condition",
+        "identify_criterion",
+        "choose_pair",
+        "needed_angle"
+      ]
     },
     {
       "raw": "geo_parallel_criteria",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 9,
+      "variantCount": 6,
+      "variants": [
+        "find_error",
+        "sufficient_condition",
+        "enough_data",
+        "missing_condition",
+        "needed_angle",
+        "identify_criterion"
+      ]
     },
     {
       "raw": "geo_parallel_criteria",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 6,
+      "variants": [
+        "identify_criterion",
+        "valid_justification",
+        "choose_pair",
+        "solve_x",
+        "needed_angle",
+        "enough_data"
+      ]
     },
     {
       "raw": "geo_parallel_properties",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 2,
+      "variants": [
+        "alternate_value",
+        "corresponding_value"
+      ]
     },
     {
       "raw": "geo_parallel_properties",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 3,
+      "variants": [
+        "alternate_value",
+        "same_side_value",
+        "corresponding_value"
+      ]
     },
     {
       "raw": "geo_parallel_properties",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 3,
+      "variants": [
+        "chain",
+        "corresponding_value",
+        "alternate_value"
+      ]
     },
     {
       "raw": "geo_triangle_angle_sum",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 6,
+      "uniqueTexts": 6,
+      "variantCount": 2,
+      "variants": [
+        "find_third",
+        "sum_rule"
+      ]
     },
     {
       "raw": "geo_triangle_angle_sum",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 9,
+      "variantCount": 3,
+      "variants": [
+        "equation_x",
+        "right_case",
+        "find_third"
+      ]
     },
     {
       "raw": "geo_triangle_angle_sum",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 4,
+      "variants": [
+        "right_case",
+        "isosceles_case",
+        "equation_x",
+        "find_third"
+      ]
     },
     {
       "raw": "geo_exterior_triangle_angle",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 2,
+      "variants": [
+        "adjacent",
+        "remote_sum"
+      ]
     },
     {
       "raw": "geo_exterior_triangle_angle",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 9,
+      "variantCount": 3,
+      "variants": [
+        "adjacent",
+        "reverse",
+        "remote_sum"
+      ]
     },
     {
       "raw": "geo_exterior_triangle_angle",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 6,
+      "uniqueTexts": 6,
+      "variantCount": 3,
+      "variants": [
+        "reverse",
+        "adjacent",
+        "property"
+      ]
     },
     {
       "raw": "geo_polygon_angle_sum_intro",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 6,
+      "uniqueTexts": 6,
+      "variantCount": 2,
+      "variants": [
+        "sum",
+        "triangles"
+      ]
     },
     {
       "raw": "geo_polygon_angle_sum_intro",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 8,
+      "uniqueTexts": 8,
+      "variantCount": 4,
+      "variants": [
+        "sum",
+        "find_n",
+        "triangles",
+        "quad_missing"
+      ]
     },
     {
       "raw": "geo_polygon_angle_sum_intro",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 9,
+      "variantCount": 4,
+      "variants": [
+        "quad_missing",
+        "find_n",
+        "sum",
+        "triangles"
+      ]
     },
     {
       "raw": "geo_perpendicular_oblique_distances",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 5,
+      "uniqueTexts": 5,
+      "variantCount": 2,
+      "variants": [
+        "identify",
+        "distance"
+      ]
     },
     {
       "raw": "geo_perpendicular_oblique_distances",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 5,
+      "uniqueTexts": 5,
+      "variantCount": 4,
+      "variants": [
+        "shortest",
+        "identify",
+        "parallel",
+        "distance"
+      ]
     },
     {
       "raw": "geo_perpendicular_oblique_distances",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 6,
+      "uniqueTexts": 5,
+      "variantCount": 4,
+      "variants": [
+        "distance",
+        "shortest",
+        "compare",
+        "parallel"
+      ]
     },
     {
       "raw": "geo_locus_points",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 9,
+      "variantCount": 2,
+      "variants": [
+        "circle_or_disk",
+        "circle_radius"
+      ]
     },
     {
       "raw": "geo_locus_points",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 9,
+      "variantCount": 3,
+      "variants": [
+        "classify",
+        "belong",
+        "circle_radius"
+      ]
     },
     {
       "raw": "geo_locus_points",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 2,
+      "variants": [
+        "classify",
+        "belong"
+      ]
     },
     {
       "raw": "geo_perpendicular_bisector_locus",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 8,
+      "uniqueTexts": 8,
+      "variantCount": 2,
+      "variants": [
+        "equal",
+        "property"
+      ]
     },
     {
       "raw": "geo_perpendicular_bisector_locus",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 4,
+      "uniqueTexts": 4,
+      "variantCount": 3,
+      "variants": [
+        "equal",
+        "property",
+        "inverse"
+      ]
     },
     {
       "raw": "geo_perpendicular_bisector_locus",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 5,
+      "uniqueTexts": 5,
+      "variantCount": 3,
+      "variants": [
+        "equal",
+        "inverse",
+        "definition"
+      ]
     },
     {
       "raw": "geo_angle_bisector_locus",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 6,
+      "uniqueTexts": 6,
+      "variantCount": 2,
+      "variants": [
+        "distance",
+        "property"
+      ]
     },
     {
       "raw": "geo_angle_bisector_locus",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 5,
+      "uniqueTexts": 5,
+      "variantCount": 3,
+      "variants": [
+        "property",
+        "distance",
+        "inverse"
+      ]
     },
     {
       "raw": "geo_angle_bisector_locus",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 5,
+      "uniqueTexts": 5,
+      "variantCount": 3,
+      "variants": [
+        "distance",
+        "inverse",
+        "meaning"
+      ]
     },
     {
       "raw": "geo_circle_chord_diameter",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 4,
+      "uniqueTexts": 4,
+      "variantCount": 2,
+      "variants": [
+        "identify_radius",
+        "diameter"
+      ]
     },
     {
       "raw": "geo_circle_chord_diameter",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 5,
+      "uniqueTexts": 5,
+      "variantCount": 4,
+      "variants": [
+        "diameter",
+        "identify_chord",
+        "property",
+        "radius"
+      ]
     },
     {
       "raw": "geo_circle_chord_diameter",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 5,
+      "uniqueTexts": 5,
+      "variantCount": 3,
+      "variants": [
+        "radius",
+        "property",
+        "identify_chord"
+      ]
     },
     {
       "raw": "geo_line_circle_tangent_secant",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 4,
+      "uniqueTexts": 4,
+      "variantCount": 2,
+      "variants": [
+        "classify",
+        "tangent_property"
+      ]
     },
     {
       "raw": "geo_line_circle_tangent_secant",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 6,
+      "uniqueTexts": 6,
+      "variantCount": 3,
+      "variants": [
+        "points",
+        "classify",
+        "tangent_property"
+      ]
     },
     {
       "raw": "geo_line_circle_tangent_secant",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 5,
+      "uniqueTexts": 4,
+      "variantCount": 3,
+      "variants": [
+        "tangent_property",
+        "points",
+        "compare"
+      ]
     },
     {
       "raw": "geo_circle_inscribed_in_angle",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 2,
+      "uniqueTexts": 2,
+      "variantCount": 2,
+      "variants": [
+        "equal",
+        "center"
+      ]
     },
     {
       "raw": "geo_circle_inscribed_in_angle",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 5,
+      "uniqueTexts": 5,
+      "variantCount": 3,
+      "variants": [
+        "equal",
+        "center",
+        "radius"
+      ]
     },
     {
       "raw": "geo_circle_inscribed_in_angle",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 6,
+      "uniqueTexts": 6,
+      "variantCount": 3,
+      "variants": [
+        "radius",
+        "property",
+        "equal"
+      ]
     },
     {
       "raw": "geo_incircle_triangle",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 2,
+      "uniqueTexts": 2,
+      "variantCount": 2,
+      "variants": [
+        "center",
+        "touch"
+      ]
     },
     {
       "raw": "geo_incircle_triangle",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 4,
+      "uniqueTexts": 4,
+      "variantCount": 3,
+      "variants": [
+        "center",
+        "distance",
+        "touch"
+      ]
     },
     {
       "raw": "geo_incircle_triangle",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 5,
+      "uniqueTexts": 5,
+      "variantCount": 3,
+      "variants": [
+        "center",
+        "compare",
+        "distance"
+      ]
     },
     {
       "raw": "geo_circumcircle_triangle",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 8,
+      "uniqueTexts": 8,
+      "variantCount": 2,
+      "variants": [
+        "radius",
+        "radii"
+      ]
     },
     {
       "raw": "geo_circumcircle_triangle",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 9,
+      "variantCount": 3,
+      "variants": [
+        "diameter",
+        "radius",
+        "radii"
+      ]
     },
     {
       "raw": "geo_circumcircle_triangle",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 9,
+      "variantCount": 3,
+      "variants": [
+        "radius",
+        "diameter",
+        "right"
+      ]
     },
     {
       "raw": "geo_constructions_lines_angles",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 4,
+      "uniqueTexts": 4,
+      "variantCount": 2,
+      "variants": [
+        "copy",
+        "midpoint"
+      ]
     },
     {
       "raw": "geo_constructions_lines_angles",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 5,
+      "uniqueTexts": 5,
+      "variantCount": 4,
+      "variants": [
+        "midpoint",
+        "bisector",
+        "copy",
+        "perpendicular"
+      ]
     },
     {
       "raw": "geo_constructions_lines_angles",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 3,
+      "uniqueTexts": 3,
+      "variantCount": 3,
+      "variants": [
+        "perpendicular",
+        "bisector",
+        "midpoint"
+      ]
     },
     {
       "raw": "geo_constructions_triangles",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 6,
+      "uniqueTexts": 6,
+      "variantCount": 2,
+      "variants": [
+        "sss_step",
+        "sss_possible"
+      ]
     },
     {
       "raw": "geo_constructions_triangles",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 3,
+      "uniqueTexts": 3,
+      "variantCount": 3,
+      "variants": [
+        "asa",
+        "sss_step",
+        "sas"
+      ]
     },
     {
       "raw": "geo_constructions_triangles",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 4,
+      "uniqueTexts": 4,
+      "variantCount": 4,
+      "variants": [
+        "sss_step",
+        "asa",
+        "sas",
+        "sss_possible"
+      ]
     },
     {
       "raw": "stat_tables",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 6,
+      "variantCount": 4,
+      "variants": [
+        "compare",
+        "min",
+        "max",
+        "lookup"
+      ]
     },
     {
       "raw": "stat_tables",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 8,
+      "variantCount": 4,
+      "variants": [
+        "missing",
+        "lookup",
+        "difference",
+        "max"
+      ]
     },
     {
       "raw": "stat_tables",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 9,
+      "variantCount": 6,
+      "variants": [
+        "reverse",
+        "difference",
+        "two_step",
+        "supported",
+        "max",
+        "sum"
+      ]
     },
     {
       "raw": "stat_bar_pie_charts",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 8,
+      "uniqueTexts": 6,
+      "variantCount": 4,
+      "variants": [
+        "pie_percent",
+        "bar_lookup",
+        "pie_largest",
+        "bar_max"
+      ]
     },
     {
       "raw": "stat_bar_pie_charts",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 9,
+      "variantCount": 4,
+      "variants": [
+        "match_binary",
+        "pie_value",
+        "bar_difference",
+        "bar_compare"
+      ]
     },
     {
       "raw": "stat_bar_pie_charts",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 7,
+      "variantCount": 6,
+      "variants": [
+        "match_binary",
+        "bar_max",
+        "chart_error",
+        "bar_difference",
+        "pie_largest",
+        "bar_compare"
+      ]
     },
     {
       "raw": "stat_real_process_graphs",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 4,
+      "variantCount": 4,
+      "variants": [
+        "max_time",
+        "flat_interval",
+        "story",
+        "lookup"
+      ]
     },
     {
       "raw": "stat_real_process_graphs",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 7,
+      "variantCount": 4,
+      "variants": [
+        "change_amount",
+        "growth_interval",
+        "flat_interval",
+        "decrease_interval"
+      ]
     },
     {
       "raw": "stat_real_process_graphs",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 5,
+      "variantCount": 5,
+      "variants": [
+        "flat_duration",
+        "story",
+        "endpoint_compare",
+        "decrease_interval",
+        "change_amount"
+      ]
     },
     {
       "raw": "stat_data_interpretation",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 3,
+      "variantCount": 3,
+      "variants": [
+        "supported",
+        "comparison",
+        "binary"
+      ]
     },
     {
       "raw": "stat_data_interpretation",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 7,
+      "variantCount": 6,
+      "variants": [
+        "missing",
+        "unsupported",
+        "binary",
+        "contradiction",
+        "process_fact",
+        "supported"
+      ]
     },
     {
       "raw": "stat_data_interpretation",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 6,
+      "variantCount": 6,
+      "variants": [
+        "comparison",
+        "pie_fact",
+        "missing",
+        "contradiction",
+        "binary",
+        "process_fact"
+      ]
     },
     {
       "raw": "stat_arithmetic_mean",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 2,
+      "variants": [
+        "check",
+        "direct"
+      ]
     },
     {
       "raw": "stat_arithmetic_mean",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 3,
+      "variants": [
+        "compare",
+        "sum_from_mean",
+        "missing"
+      ]
     },
     {
       "raw": "stat_arithmetic_mean",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 4,
+      "variants": [
+        "check",
+        "compare",
+        "missing",
+        "effect"
+      ]
     },
     {
       "raw": "stat_median",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 2,
+      "variants": [
+        "odd",
+        "sort"
+      ]
     },
     {
       "raw": "stat_median",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 4,
+      "variants": [
+        "even",
+        "odd",
+        "ordered_missing",
+        "sort"
+      ]
     },
     {
       "raw": "stat_median",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 4,
+      "variants": [
+        "sort",
+        "ordered_missing",
+        "error",
+        "compare"
+      ]
     },
     {
       "raw": "stat_min_max_range",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 3,
+      "variants": [
+        "range",
+        "min",
+        "max"
+      ]
     },
     {
       "raw": "stat_min_max_range",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 5,
+      "variants": [
+        "range",
+        "min",
+        "max",
+        "recover_min",
+        "recover_max"
+      ]
     },
     {
       "raw": "stat_min_max_range",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 10,
+      "variantCount": 4,
+      "variants": [
+        "compare",
+        "range",
+        "recover_min",
+        "add_effect"
+      ]
     },
     {
       "raw": "stat_choose_characteristic",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 3,
+      "uniqueTexts": 3,
+      "variantCount": 3,
+      "variants": [
+        "range_meaning",
+        "mean_basic",
+        "extreme"
+      ]
     },
     {
       "raw": "stat_choose_characteristic",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 6,
+      "uniqueTexts": 6,
+      "variantCount": 5,
+      "variants": [
+        "compare_spread",
+        "extreme",
+        "mean_basic",
+        "range_meaning",
+        "median_outlier"
+      ]
     },
     {
       "raw": "stat_choose_characteristic",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 5,
+      "uniqueTexts": 5,
+      "variantCount": 4,
+      "variants": [
+        "extreme",
+        "compare_spread",
+        "mean_basic",
+        "median_outlier"
+      ]
     },
     {
       "raw": "stat_random_variability",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 5,
+      "uniqueTexts": 3,
+      "variantCount": 2,
+      "variants": [
+        "stable",
+        "recognize"
+      ]
     },
     {
       "raw": "stat_random_variability",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 5,
+      "uniqueTexts": 5,
+      "variantCount": 4,
+      "variants": [
+        "stronger",
+        "recognize",
+        "example",
+        "stable"
+      ]
     },
     {
       "raw": "stat_random_variability",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 5,
+      "uniqueTexts": 5,
+      "variantCount": 5,
+      "variants": [
+        "reason",
+        "recognize",
+        "example",
+        "stable",
+        "stronger"
+      ]
     },
     {
       "raw": "stat_value_frequency",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 9,
+      "variantCount": 2,
+      "variants": [
+        "table_read",
+        "count"
+      ]
     },
     {
       "raw": "stat_value_frequency",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 7,
+      "variantCount": 5,
+      "variants": [
+        "missing",
+        "most",
+        "count",
+        "total",
+        "table_read"
+      ]
     },
     {
       "raw": "stat_value_frequency",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 8,
+      "variantCount": 5,
+      "variants": [
+        "most",
+        "table_read",
+        "count",
+        "total",
+        "match"
+      ]
     },
     {
       "raw": "stat_grouping_histograms",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 7,
+      "variantCount": 3,
+      "variants": [
+        "max_interval",
+        "read",
+        "feature"
+      ]
     },
     {
       "raw": "stat_grouping_histograms",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 7,
+      "variantCount": 6,
+      "variants": [
+        "read",
+        "max_interval",
+        "feature",
+        "count_from_data",
+        "total",
+        "missing"
+      ]
     },
     {
       "raw": "stat_grouping_histograms",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 9,
+      "variantCount": 5,
+      "variants": [
+        "read",
+        "valid_grouping",
+        "find_error",
+        "match_binary",
+        "total"
+      ]
     },
     {
       "raw": "prob_random_experiment_event",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 5,
+      "uniqueTexts": 5,
+      "variantCount": 3,
+      "variants": [
+        "classify_event",
+        "experiment_recognize",
+        "event_recognize"
+      ]
     },
     {
       "raw": "prob_random_experiment_event",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 7,
+      "uniqueTexts": 7,
+      "variantCount": 5,
+      "variants": [
+        "experiment_recognize",
+        "classify_event",
+        "outcome_recognize",
+        "event_outcomes",
+        "event_description"
+      ]
     },
     {
       "raw": "prob_random_experiment_event",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 7,
+      "uniqueTexts": 7,
+      "variantCount": 5,
+      "variants": [
+        "find_error",
+        "classify_event",
+        "outcome_recognize",
+        "event_recognize",
+        "event_description"
+      ]
     },
     {
       "raw": "prob_probability_frequency",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 7,
+      "uniqueTexts": 7,
+      "variantCount": 4,
+      "variants": [
+        "edge_probability",
+        "relative_frequency",
+        "favorable_outcomes",
+        "probability_compute"
+      ]
     },
     {
       "raw": "prob_probability_frequency",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 6,
+      "uniqueTexts": 6,
+      "variantCount": 6,
+      "variants": [
+        "find_error",
+        "edge_probability",
+        "favorable_outcomes",
+        "probability_compute",
+        "correct_conclusion",
+        "relative_frequency"
+      ]
     },
     {
       "raw": "prob_probability_frequency",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 8,
+      "uniqueTexts": 8,
+      "variantCount": 5,
+      "variants": [
+        "probability_vs_frequency",
+        "edge_probability",
+        "correct_conclusion",
+        "favorable_outcomes",
+        "probability_compute"
+      ]
     },
     {
       "raw": "prob_unlikely_almost_certain",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 3,
+      "uniqueTexts": 3,
+      "variantCount": 3,
+      "variants": [
+        "almost_certain",
+        "unlikely",
+        "compare"
+      ]
     },
     {
       "raw": "prob_unlikely_almost_certain",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 7,
+      "uniqueTexts": 7,
+      "variantCount": 5,
+      "variants": [
+        "find_wrong",
+        "order",
+        "almost_certain",
+        "description_match",
+        "distinguish_impossible"
+      ]
     },
     {
       "raw": "prob_unlikely_almost_certain",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 6,
+      "uniqueTexts": 6,
+      "variantCount": 5,
+      "variants": [
+        "distinguish_impossible",
+        "compare",
+        "description_match",
+        "distinguish_certain",
+        "unlikely"
+      ]
     },
     {
       "raw": "prob_coin_die_models",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 7,
+      "uniqueTexts": 7,
+      "variantCount": 4,
+      "variants": [
+        "coin_one",
+        "reverse_event",
+        "list_outcomes",
+        "die_probability"
+      ]
     },
     {
       "raw": "prob_coin_die_models",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 9,
+      "variantCount": 7,
+      "variants": [
+        "compare_events",
+        "die_probability",
+        "coin_one",
+        "coin_two_outcomes",
+        "reverse_event",
+        "exactly_vs_atleast",
+        "find_error"
+      ]
     },
     {
       "raw": "prob_coin_die_models",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 7,
+      "uniqueTexts": 7,
+      "variantCount": 6,
+      "variants": [
+        "find_error",
+        "list_outcomes",
+        "compare_events",
+        "coin_one",
+        "coin_two_outcomes",
+        "memory_error"
+      ]
     },
     {
       "raw": "graph_basics",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 7,
+      "variantCount": 3,
+      "variants": [
+        "edge_count",
+        "adjacent",
+        "neighbors"
+      ]
     },
     {
       "raw": "graph_basics",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 7,
+      "variantCount": 7,
+      "variants": [
+        "description",
+        "neighbors",
+        "vertex_count",
+        "scenario",
+        "existing_edge",
+        "adjacent",
+        "missing_edge"
+      ]
     },
     {
       "raw": "graph_basics",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 7,
+      "variantCount": 7,
+      "variants": [
+        "missing_edge",
+        "neighbors",
+        "existing_edge",
+        "description",
+        "scenario",
+        "vertex_count",
+        "find_error"
+      ]
     },
     {
       "raw": "graph_vertex_degree_edges",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 9,
+      "variantCount": 2,
+      "variants": [
+        "edges_from_sum",
+        "degree_one"
+      ]
     },
     {
       "raw": "graph_vertex_degree_edges",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 9,
+      "variantCount": 5,
+      "variants": [
+        "edges_from_sum",
+        "degree_set",
+        "missing_degree",
+        "check",
+        "degree_one"
+      ]
     },
     {
       "raw": "graph_vertex_degree_edges",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 8,
+      "variantCount": 6,
+      "variants": [
+        "check",
+        "degree_sum",
+        "max_degree",
+        "degree_set",
+        "missing_degree",
+        "scenario_degree"
+      ]
     },
     {
       "raw": "graph_connectivity_paths",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 6,
+      "variantCount": 3,
+      "variants": [
+        "connected",
+        "reachability",
+        "valid_path"
+      ]
     },
     {
       "raw": "graph_connectivity_paths",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 6,
+      "variantCount": 5,
+      "variants": [
+        "valid_path",
+        "reachability",
+        "missing_vertex",
+        "connected",
+        "invalid_path"
+      ]
     },
     {
       "raw": "graph_connectivity_paths",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 8,
+      "variantCount": 4,
+      "variants": [
+        "route_model",
+        "path_error",
+        "add_edge",
+        "bridge_remove"
+      ]
     },
     {
       "raw": "graph_chains_cycles_euler",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 5,
+      "uniqueTexts": 3,
+      "variantCount": 2,
+      "variants": [
+        "cycle_check",
+        "euler_exists"
+      ]
     },
     {
       "raw": "graph_chains_cycles_euler",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 7,
+      "uniqueTexts": 6,
+      "variantCount": 4,
+      "variants": [
+        "euler_ends",
+        "cycle_check",
+        "verify_euler",
+        "euler_exists"
+      ]
     },
     {
       "raw": "graph_chains_cycles_euler",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 9,
+      "variantCount": 6,
+      "variants": [
+        "euler_cycle",
+        "find_error",
+        "verify_euler",
+        "contains_cycle",
+        "missing_step",
+        "cycle_check"
+      ]
     },
     {
       "raw": "graph_directed_modeling",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 0,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 8,
+      "variantCount": 3,
+      "variants": [
+        "transition",
+        "direction",
+        "return"
+      ]
     },
     {
       "raw": "graph_directed_modeling",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 1,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 9,
+      "uniqueTexts": 9,
+      "variantCount": 6,
+      "variants": [
+        "direction",
+        "outgoing",
+        "transition",
+        "reachable",
+        "return",
+        "incoming"
+      ]
     },
     {
       "raw": "graph_directed_modeling",
-      "d": 10,
-      "requested": false,
-      "successes": 0,
-      "uniqueSignatures": 0,
-      "uniqueTexts": 0,
-      "variantCount": 0,
-      "variants": []
+      "d": 2,
+      "requested": 10,
+      "successes": 10,
+      "uniqueSignatures": 10,
+      "uniqueTexts": 7,
+      "variantCount": 6,
+      "variants": [
+        "outgoing",
+        "model",
+        "reachable",
+        "valid_path",
+        "invalid_path",
+        "return"
+      ]
     }
   ],
   "title": "МатКвест — 1–2–3–4–5–6–7–8 класс",
   "pageErrors": [],
-  "htmlSha256": "3b0526912a7981ba3f180229e43759a70af136f40735c58a830e40a9013b1f57",
-  "testedAt": "2026-11-03T21:18:38.544Z",
-  "browser": "Chrome/155.0.8059.84"
+  "htmlSha256": "62777eaad50e7afd0062a375bcf1aeff5bda9ffaa1c856ef5191e9f16c4338f5",
+  "testedAt": "2026-11-03T21:19:55.623Z",
+  "browser": "Chrome/156.0.8078.47"
 }
