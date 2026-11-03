@@ -7,7 +7,7 @@
  const pol=(...terms)=>g7PolynomialNormalize(terms);
  const add=(a,b,k=1)=>g7PolynomialAdd(a,b,k);
  const mul=(a,b)=>g7PolynomialMul(a,b);
- const scale=(p,k)=>g7PolynomialScale(p,k);
+ const scale=(p,k)=>g7PolynomialScale(p,{coef:k,powers:{}});
  const polyKey=p=>g7PolynomialKey(g7PolynomialNormalize(p));
  const h=m=>g7MonomialBodyHtml(m,{absolute:true});
  const bin=(a,b,s)=>'('+g7BinomialBodyHtml(a,b,s)+')';
