@@ -6,204 +6,53 @@
   },
   "variants": {
     "direct_inverse_proportion:0": 2,
-    "direct_inverse_proportion:1": 0,
-    "direct_inverse_proportion:2": 1,
+    "direct_inverse_proportion:1": 4,
+    "direct_inverse_proportion:2": 4,
     "common_factor:0": 2,
     "common_factor:1": 3,
-    "common_factor:2": 3,
+    "common_factor:2": 4,
     "factorization_grouping:0": 3,
     "factorization_grouping:1": 3,
-    "factorization_grouping:2": 2,
-    "integer_expression_transform:0": 1,
-    "integer_expression_transform:1": 1,
-    "integer_expression_transform:2": 1,
-    "combined_factorization:0": 1,
-    "combined_factorization:1": 1,
-    "combined_factorization:2": 1,
-    "geo_triangle_elements:0": 0,
-    "geo_triangle_elements:1": 0,
-    "geo_triangle_elements:2": 0,
-    "geo_isosceles_equilateral:0": 0,
-    "geo_isosceles_equilateral:1": 0,
-    "geo_isosceles_equilateral:2": 0,
-    "geo_isosceles_properties_criteria:0": 0,
-    "geo_isosceles_properties_criteria:1": 0,
-    "geo_isosceles_properties_criteria:2": 0,
-    "geo_congruence_sas:0": 0,
-    "geo_congruence_sas:1": 0,
-    "geo_congruence_sas:2": 0,
-    "geo_congruence_asa:0": 0,
-    "geo_congruence_asa:1": 0,
-    "geo_congruence_asa:2": 0,
-    "geo_congruence_sss:0": 0,
-    "geo_congruence_sss:1": 0,
-    "geo_congruence_sss:2": 0,
-    "geo_triangle_inequality:0": 1,
-    "geo_triangle_inequality:1": 0,
-    "geo_triangle_inequality:2": 0,
+    "factorization_grouping:2": 3,
+    "integer_expression_transform:0": 3,
+    "integer_expression_transform:1": 4,
+    "integer_expression_transform:2": 5,
+    "combined_factorization:0": 2,
+    "combined_factorization:1": 3,
+    "combined_factorization:2": 4,
+    "geo_triangle_elements:0": 2,
+    "geo_triangle_elements:1": 2,
+    "geo_triangle_elements:2": 3,
+    "geo_isosceles_equilateral:0": 2,
+    "geo_isosceles_equilateral:1": 3,
+    "geo_isosceles_equilateral:2": 4,
+    "geo_isosceles_properties_criteria:0": 2,
+    "geo_isosceles_properties_criteria:1": 3,
+    "geo_isosceles_properties_criteria:2": 3,
+    "geo_congruence_sas:0": 2,
+    "geo_congruence_sas:1": 4,
+    "geo_congruence_sas:2": 3,
+    "geo_congruence_asa:0": 2,
+    "geo_congruence_asa:1": 3,
+    "geo_congruence_asa:2": 2,
+    "geo_congruence_sss:0": 2,
+    "geo_congruence_sss:1": 3,
+    "geo_congruence_sss:2": 2,
+    "geo_triangle_inequality:0": 2,
+    "geo_triangle_inequality:1": 3,
+    "geo_triangle_inequality:2": 3,
     "geo_side_angle_relation:0": 2,
     "geo_side_angle_relation:1": 3,
     "geo_side_angle_relation:2": 3,
-    "geo_locus_points:0": 1,
-    "geo_locus_points:1": 2,
+    "geo_locus_points:0": 2,
+    "geo_locus_points:1": 3,
     "geo_locus_points:2": 2,
-    "geo_circumcircle_triangle:0": 0,
-    "geo_circumcircle_triangle:1": 0,
-    "geo_circumcircle_triangle:2": 0
+    "geo_circumcircle_triangle:0": 2,
+    "geo_circumcircle_triangle:1": 3,
+    "geo_circumcircle_triangle:2": 3
   },
-  "bad": [
-    {
-      "id": "g7:rational_numbers_forms",
-      "d": 0,
-      "error": "Error: missing/ambiguous correct choice"
-    },
-    {
-      "id": "g7:rational_numbers_forms",
-      "d": 1,
-      "error": "Error: missing/ambiguous correct choice"
-    },
-    {
-      "id": "g7:rational_numbers_forms",
-      "d": 1,
-      "error": "Error: missing/ambiguous correct choice"
-    },
-    {
-      "id": "g7:rational_numbers_forms",
-      "d": 2,
-      "error": "Error: missing/ambiguous correct choice"
-    },
-    {
-      "id": "g7:rational_arithmetic",
-      "d": 0,
-      "error": "Error: missing/ambiguous correct choice"
-    },
-    {
-      "id": "g7:rational_arithmetic",
-      "d": 0,
-      "error": "Error: missing/ambiguous correct choice"
-    },
-    {
-      "id": "g7:rational_arithmetic",
-      "d": 0,
-      "error": "Error: missing/ambiguous correct choice"
-    },
-    {
-      "id": "g7:rational_arithmetic",
-      "d": 1,
-      "error": "Error: missing/ambiguous correct choice"
-    },
-    {
-      "id": "g7:rational_arithmetic",
-      "d": 1,
-      "error": "Error: missing/ambiguous correct choice"
-    },
-    {
-      "id": "g7:rational_arithmetic",
-      "d": 1,
-      "error": "Error: missing/ambiguous correct choice"
-    },
-    {
-      "id": "g7:rational_arithmetic",
-      "d": 2,
-      "error": "Error: missing/ambiguous correct choice"
-    },
-    {
-      "id": "g7:rational_arithmetic",
-      "d": 2,
-      "error": "Error: missing/ambiguous correct choice"
-    },
-    {
-      "id": "g7:rational_arithmetic",
-      "d": 2,
-      "error": "Error: missing/ambiguous correct choice"
-    },
-    {
-      "id": "g7:fraction_word_problems",
-      "d": 0,
-      "error": "Error: missing/ambiguous correct choice"
-    },
-    {
-      "id": "g7:fraction_word_problems",
-      "d": 0,
-      "error": "Error: missing/ambiguous correct choice"
-    },
-    {
-      "id": "g7:fraction_word_problems",
-      "d": 0,
-      "error": "Error: missing/ambiguous correct choice"
-    },
-    {
-      "id": "g7:fraction_word_problems",
-      "d": 1,
-      "error": "Error: missing/ambiguous correct choice"
-    },
-    {
-      "id": "g7:fraction_word_problems",
-      "d": 1,
-      "error": "Error: missing/ambiguous correct choice"
-    },
-    {
-      "id": "g7:fraction_word_problems",
-      "d": 1,
-      "error": "Error: missing/ambiguous correct choice"
-    },
-    {
-      "id": "g7:fraction_word_problems",
-      "d": 2,
-      "error": "Error: missing/ambiguous correct choice"
-    },
-    {
-      "id": "g7:fraction_word_problems",
-      "d": 2,
-      "error": "Error: missing/ambiguous correct choice"
-    },
-    {
-      "id": "g7:fraction_word_problems",
-      "d": 2,
-      "error": "Error: missing/ambiguous correct choice"
-    },
-    {
-      "id": "g7:natural_power_definition",
-      "d": 1,
-      "error": "Error: missing/ambiguous correct choice"
-    },
-    {
-      "id": "g7:natural_power_definition",
-      "d": 1,
-      "error": "Error: missing/ambiguous correct choice"
-    },
-    {
-      "id": "g7:natural_power_definition",
-      "d": 2,
-      "error": "Error: missing/ambiguous correct choice"
-    },
-    {
-      "id": "g7:percent_fraction_conversion",
-      "d": 0,
-      "error": "Error: missing/ambiguous correct choice"
-    },
-    {
-      "id": "g7:percent_fraction_conversion",
-      "d": 0,
-      "error": "Error: missing/ambiguous correct choice"
-    },
-    {
-      "id": "g7:percent_fraction_conversion",
-      "d": 0,
-      "error": "Error: missing/ambiguous correct choice"
-    },
-    {
-      "id": "g7:percent_fraction_conversion",
-      "d": 1,
-      "error": "Error: missing/ambiguous correct choice"
-    },
-    {
-      "id": "g7:percent_fraction_conversion",
-      "d": 1,
-      "error": "Error: missing/ambiguous correct choice"
-    }
-  ],
+  "bad": [],
   "pageErrors": [],
   "consoleErrors": [],
-  "checkedAt": "2026-11-03T18:48:05.509Z"
+  "checkedAt": "2026-11-03T18:50:06.018Z"
 }
