@@ -5,7 +5,7 @@
  const pick=xs=>xs[ri(0,xs.length-1)];
  const signature=(raw,d,v,params=[])=>g7QuestionSig(raw,d,'audit6_'+v,params);
  const meta=(raw,d,v,extra={})=>({type:'g7AuditStage6',raw,d,variant:v,...extra});
- const statChoice=(raw,d,v,text,correct,wrong,ex,data={})=>g7S13Choice(text,correct,wrong,ex,signature(raw,d,v,data.values||data.A||data.B||[]),meta(raw,d,v,{correct, ...data}));
+ const statChoice=(raw,d,v,text,correct,wrong,ex,data={})=>g7S13Choice(text,correct,wrong,ex,signature(raw,d,v,[...(data.values||[]),'A',...(data.A||[]),'B',...(data.B||[])]),meta(raw,d,v,{correct, ...data}));
  const statNumber=(raw,d,v,text,answer,ex,nums,model={})=>g7S13Number(text,answer,ex,signature(raw,d,v,nums),meta(raw,d,v,{answer,...model}));
  const geoNumber=(raw,d,v,text,answer,ex,parts,data,unit='см')=>g7GeoNumber(text,answer,ex,signature(raw,d,v,parts),meta(raw,d,v,{answer,...(data?{dataKind:data.kind}:{})}),data,'',unit);
  const geoChoice=(raw,d,v,text,ans,options,ex,parts,data)=>g7GeoChoice(text,ans,options,ex,signature(raw,d,v,parts),meta(raw,d,v,{correct:ans}),data);
