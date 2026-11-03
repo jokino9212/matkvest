@@ -1,0 +1,38 @@
+name: Chromium G7 stage2 audit (branch only)
+on:
+  push:
+    branches:
+      - audit/g7-stage2-20261103
+    paths:
+      - .github/workflows/g7_stage2_chromium.yml
+permissions:
+  contents: write
+jobs:
+  chromium:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit/g7-stage2-20261103
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install browser driver (system Chrome is preinstalled)
+        run: npm install --no-save --ignore-scripts puppeteer-core@24
+      - name: Check real HTML in headless Chromium
+        id: browser
+        continue-on-error: true
+        run: node audits/g7_stage2_browser_test.mjs
+      - name: Store QA report in isolated branch
+        if: always()
+        run: |
+          if [ -f audits/g7_stage2_browser_report.json ]; then
+            git config user.name 'MatKvest QA Bot'
+            git config user.email 'github-actions[bot]@users.noreply.github.com'
+            git add audits/g7_stage2_browser_report.json
+            git commit -m 'Record G7 stage2 Chromium QA results' || true
+            git push origin HEAD:audit/g7-stage2-20261103
+          fi
+      - name: Enforce QA result
+        if: steps.browser.outcome != 'success'
+        run: exit 1
