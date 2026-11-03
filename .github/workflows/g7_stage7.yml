@@ -30,7 +30,7 @@ jobs:
           src=p.read_text(encoding="utf-8")
           patch=Path("audits/g7_stage7_patch.js").read_text(encoding="utf-8")
           mark="// МатКвест G7 этап 7: реальные варианты координат, графиков и геометрических примитивов"
-          expected="de3148549538be46ae9aeefd88a995a80aa0ac9ab461af9e629132d2421"
+          expected="de3148549538be46ae9aeefd88a995a80aa0ac9ab461af9e6291329f132d2421"
           got=hashlib.sha256(src.encode("utf-8")).hexdigest()
           if mark in src:
               assert src.count(mark)==1, "Duplicate stage7 patch"
