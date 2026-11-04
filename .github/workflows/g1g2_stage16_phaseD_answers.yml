@@ -1,0 +1,52 @@
+name: MatKvest stage16D - independent answer and distractor gate
+on:
+  push:
+    branches: [audit/g1g2-stage16-20261104]
+    paths:
+      - .github/workflows/g1g2_stage16_phaseD_answers.yml
+      - audits/g1g2_stage16_phaseD_answer_semantic.mjs
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: matkvest-stage16D-answer-semantic
+  cancel-in-progress: false
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit/g1g2-stage16-20261104
+          persist-credentials: true
+      - name: Verify audited candidate and synchronized Service Worker
+        run: |
+          echo 'b953b710a471210fe0f8247b55e879cedf4d7e11c6f369d551040a9f5d46c7d3  index.html' | sha256sum --check
+          python3 audits/g7_stage12_sync_pwa.py --check
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save --no-package-lock puppeteer-core@24
+      - name: Check mathematics of incorrect options, visual shapes, explanations and accepted inputs
+        run: node audits/g1g2_stage16_phaseD_answer_semantic.mjs
+      - name: Preserve all evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: matkvest-stage16D-answers-mathematical-verification
+          path: audits/g1g2_stage16_phaseD_answer_semantic_report.json
+          retention-days: 60
+          if-no-files-found: warn
+      - name: Commit report to isolated audit branch
+        if: always()
+        run: |
+          if [ -f audits/g1g2_stage16_phaseD_answer_semantic_report.json ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add audits/g1g2_stage16_phaseD_answer_semantic_report.json
+            if ! git diff --cached --quiet; then
+              git commit -m "audit(stage16D): record independent distractor and answer QA [skip ci]"
+              git push origin HEAD:audit/g1g2-stage16-20261104
+            fi
+          fi
