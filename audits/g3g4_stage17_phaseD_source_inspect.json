@@ -2,7 +2,7 @@
   "stage": "17D-source-read-only",
   "sha256": "b953b710a471210fe0f8247b55e879cedf4d7e11c6f369d551040a9f5d46c7d3",
   "bytes": 7101598,
-  "utc": "2026-11-04T19:30:23.077656+00:00",
+  "utc": "2026-11-04T19:31:24.461566+00:00",
   "excerpts": {
     "одинаковые группы": {
       "count_at_least": 3,
@@ -242,6 +242,82 @@
       ]
     },
     "quizQuestions": {
+      "count_at_least": 0,
+      "positions": [],
+      "snippets": []
+    },
+    "function g3UnitExplanation847": {
+      "count_at_least": 1,
+      "positions": [
+        2171838
+      ],
+      "snippets": [
+        "text\",\"ex\",\"correctLabel\",\"correctText\",\"journalPrompt\"]){if(typeof q[k]===\"string\")q[k]=gPolishGeneratedText(q[k])}if(Array.isArray(q.choices))for(const c of q.choices)if(c&&typeof c.label===\"string\")c.label=gPolishGeneratedText(c.label);return q}\nconst G_PRE716_G3=makeG3Question;makeG3Question=function(...a){return gPolishQuestionObject(G_PRE716_G3(...a))};\n\nconst G3_PRE847_MAKE=makeG3Question;\nfunction g3UnitExplanation847(a){\n const bases={mass:{\"г\":1,\"кг\":1000},money:{\"коп.\":1,\"руб.\":100},time:{\"с\":1,\"мин\":60,\"ч\":3600},length:{\"мм\":1,\"см\":10,\"дм\":100,\"м\":1000,\"км\":1000000},area:{\"см²\":1,\"дм²\":100,\"м²\":10000}};\n const map=bases[a.dimension];if(!map||!map[a.from]||!map[a.to])return null;const ratio=map[a.from]/map[a.to],ans=a.answer?.n??a.answer;\n if(ratio>=1)return `1 ${a.from} = ${ratio} ${a.to}.<br>${a.value} · ${ratio} = <b>${ans} ${a.to}</b>.`;\n const k=1/ratio;return `1 ${a.to} = ${k} ${a.from}.<br>${a.value} : ${k} = <b>${ans} ${a.to}</b>.`;\n}\nfunction g3ImproveExplanation847(q,id){\n if(!q)return q;const raw=rawCourseId(id),a=q.audit||{},v=a.variant;\n if(a.type===\"g3Unit\"){const x=g3UnitExplanation847(a);if(x)q.ex=x;}\n if(raw===\"numbers_1000\"){\n  if(v===\"after\")q.ex=`Чтобы получить следующее число, прибавляем 1: ${a.n} +"
+      ]
+    },
+    "function g3ImproveExplanation847": {
+      "count_at_least": 1,
+      "positions": [
+        2172406
+      ],
+      "snippets": [
+        "00,\"км\":1000000},area:{\"см²\":1,\"дм²\":100,\"м²\":10000}};\n const map=bases[a.dimension];if(!map||!map[a.from]||!map[a.to])return null;const ratio=map[a.from]/map[a.to],ans=a.answer?.n??a.answer;\n if(ratio>=1)return `1 ${a.from} = ${ratio} ${a.to}.<br>${a.value} · ${ratio} = <b>${ans} ${a.to}</b>.`;\n const k=1/ratio;return `1 ${a.to} = ${k} ${a.from}.<br>${a.value} : ${k} = <b>${ans} ${a.to}</b>.`;\n}\nfunction g3ImproveExplanation847(q,id){\n if(!q)return q;const raw=rawCourseId(id),a=q.audit||{},v=a.variant;\n if(a.type===\"g3Unit\"){const x=g3UnitExplanation847(a);if(x)q.ex=x;}\n if(raw===\"numbers_1000\"){\n  if(v===\"after\")q.ex=`Чтобы получить следующее число, прибавляем 1: ${a.n} + 1 = <b>${a.answer?.n}</b>.`;\n  else if(v===\"before\")q.ex=`Чтобы получить предыдущее число, вычитаем 1: ${a.n} − 1 = <b>${a.answer?.n}</b>.`;\n  else if(v===\"between\")q.ex=`Числа идут по порядку: ${a.n-1}, <b>${a.n}</b>, ${a.n+1}.`;\n  else if(v===\"missing\")q.ex=`Числа увеличиваются на 1: ${a.start}, ${a.start+1}, <b>${a.start+2}</b>, ${a.start+3}.`;\n }\n if(raw===\"multiplication_table\"&&a.type===\"g3MulTable\"&&v===\"product\"){\n  const add=Array.from({length:a.a},()=>a.b).join(\" + \");q.ex=`${a.a} одинаковые группы по ${a.b}: ${add} = <b>${a.product}</b>. Поэтому ${a."
+      ]
+    },
+    "function g3MulTableQuestion": {
+      "count_at_least": 0,
+      "positions": [],
+      "snippets": []
+    },
+    "function g3UnitQuestion": {
+      "count_at_least": 0,
+      "positions": [],
+      "snippets": []
+    },
+    "g3UnitExplanation847(a)": {
+      "count_at_least": 2,
+      "positions": [
+        2171847,
+        2172546
+      ],
+      "snippets": [
+        "\",\"correctLabel\",\"correctText\",\"journalPrompt\"]){if(typeof q[k]===\"string\")q[k]=gPolishGeneratedText(q[k])}if(Array.isArray(q.choices))for(const c of q.choices)if(c&&typeof c.label===\"string\")c.label=gPolishGeneratedText(c.label);return q}\nconst G_PRE716_G3=makeG3Question;makeG3Question=function(...a){return gPolishQuestionObject(G_PRE716_G3(...a))};\n\nconst G3_PRE847_MAKE=makeG3Question;\nfunction g3UnitExplanation847(a){\n const bases={mass:{\"г\":1,\"кг\":1000},money:{\"коп.\":1,\"руб.\":100},time:{\"с\":1,\"мин\":60,\"ч\":3600},length:{\"мм\":1,\"см\":10,\"дм\":100,\"м\":1000,\"км\":1000000},area:{\"см²\":1,\"дм²\":100,\"м²\":10000}};\n const map=bases[a.dimension];if(!map||!map[a.from]||!map[a.to])return null;const ratio=map[a.from]/map[a.to],ans=a.answer?.n??a.answer;\n if(ratio>=1)return `1 ${a.from} = ${ratio} ${a.to}.<br>${a.value} · ${ratio} = <b>${ans} ${a.to}</b>.`;\n const k=1/ratio;return `1 ${a.to} = ${k} ${a.from}.<br>${a.value} : ${k} = <b>${ans} ${a.to}</b>.`;\n}\nfunction g3ImproveExplanation847(q,id){\n if(!q)return q;const raw=rawCourseId(id),a=q.audit||{},v=a.variant;\n if(a.type===\"g3Unit\"){const x=g3UnitExplanation847(a);if(x)q.ex=x;}\n if(raw===\"numbers_1000\"){\n  if(v===\"after\")q.ex=`Чтобы получить следующее число, прибавляем 1: ${a.n} + 1 = <b>$",
+        "io=map[a.from]/map[a.to],ans=a.answer?.n??a.answer;\n if(ratio>=1)return `1 ${a.from} = ${ratio} ${a.to}.<br>${a.value} · ${ratio} = <b>${ans} ${a.to}</b>.`;\n const k=1/ratio;return `1 ${a.to} = ${k} ${a.from}.<br>${a.value} : ${k} = <b>${ans} ${a.to}</b>.`;\n}\nfunction g3ImproveExplanation847(q,id){\n if(!q)return q;const raw=rawCourseId(id),a=q.audit||{},v=a.variant;\n if(a.type===\"g3Unit\"){const x=g3UnitExplanation847(a);if(x)q.ex=x;}\n if(raw===\"numbers_1000\"){\n  if(v===\"after\")q.ex=`Чтобы получить следующее число, прибавляем 1: ${a.n} + 1 = <b>${a.answer?.n}</b>.`;\n  else if(v===\"before\")q.ex=`Чтобы получить предыдущее число, вычитаем 1: ${a.n} − 1 = <b>${a.answer?.n}</b>.`;\n  else if(v===\"between\")q.ex=`Числа идут по порядку: ${a.n-1}, <b>${a.n}</b>, ${a.n+1}.`;\n  else if(v===\"missing\")q.ex=`Числа увеличиваются на 1: ${a.start}, ${a.start+1}, <b>${a.start+2}</b>, ${a.start+3}.`;\n }\n if(raw===\"multiplication_table\"&&a.type===\"g3MulTable\"&&v===\"product\"){\n  const add=Array.from({length:a.a},()=>a.b).join(\" + \");q.ex=`${a.a} одинаковые группы по ${a.b}: ${add} = <b>${a.product}</b>. Поэтому ${a.a} · ${a.b} = ${a.product}.`;\n }\n if(raw===\"zero_one\"&&a.type===\"g3ZeroOne\"){\n  const ans=a.answer?.n??q.ans,rule=v.includes(\"Zero\")?\"При ум"
+      ]
+    },
+    "function quizObject(": {
+      "count_at_least": 1,
+      "positions": [
+        1915724
+      ],
+      "snippets": [
+        "а составь короткий план решения.\"\n};\nfunction startQuizStage(id,stageIndex){beginBlock(id,stageIndex,\"quiz\");openQuiz(id)}\nfunction openQuiz(id){qid=id;let t=TOPICS.find(x=>x.id===id);show(`<div class=\"mtop\"><h2>${t.ico} ${t.title}</h2><button class=\"x\" onclick=\"closeModal()\">×</button></div>${blockHead()}<div class=\"lesson\">${g4TheoryHtml(id)||lessons[id]}</div><div id=\"qstage\"></div>`);nextQ()}\nfunction quizObject(text,ans,vals,ex,sig){\n let all=[ans,...vals].map(v=>String(v));\n all=[...new Set(all)];\n const n=Number(ans);\n let guard=0;\n while(all.length<4&&guard++<80){\n   let v;\n   if(Number.isFinite(n)){\n     const delta=ri(1,Math.max(3,Math.min(50,Math.abs(n)||5)))*(Math.random()<.5?-1:1);\n     v=String(Math.max(0,n+delta));\n   }else v=String(ri(1,99));\n   if(!all.includes(v))all.push(v);\n }\n const rows=all.map(v=>({label:v,key:v}));return {text,ans:String(ans),choices:finalizeChoices(String(ans),rows,4),ex,sig};\n}\nfunction makeQ(id){\n const d=activeDifficulty();\n let text,ans,vals=[],ex,sig,variant;\n\n if(id===\"numbers\"){\n   const variants=d===0?[\"compare\",\"round100\",\"place\"]:d===1?[\"compare\",\"round1000\",\"expanded\",\"difference\"]:[\"compare\",\"round10000\",\"expanded\",\"difference\",\"place\"];\n   variant=variants[ri(0,variants.length"
+      ]
+    },
+    "function nextQ(": {
+      "count_at_least": 1,
+      "positions": [
+        1980228
+      ],
+      "snippets": [
+        "focus(),0);\n }\n}\n\nfunction skipNormalQuiz(){\n if(!blockSession||!([\"quiz\",\"g1quiz\",\"g2quiz\",\"g3quiz\",\"g5quiz\",\"g6quiz\",\"g7quiz\",\"g8quiz\"].includes(blockSession.kind))||answered||!blockSession.currentItem)return false;\n finishAttemptItem(false,false,{skipped:true,studentAnswer:\"—\"});\n recordBlockItem(false);answered=true;save();\n if(blockSession.finished)finishBlock();else nextQ();\n return true;\n}\nfunction nextQ(){\n if(blockSession?.finished){finishBlock();return}\n if(isErrorWork()){startNextErrorWorkTask();return}\n if(isWeakPractice()){startNextWeakPracticeTask();return}\n if(isControlReview()){startNextControlReviewTask();return}\n refreshBlockHead();\n answered=false;quizPenalty=false;q=freshQuiz(qid);\n beginAttemptItem({kind:\"quiz\",label:quizTitleForId(qid),prompt:quizAttemptPrompt(q),correctAnswer:correctChoicePlain(q),correctAnswerHtml:q.correctHtml||null,answerMode:q.answerMode||\"choice\",explanation:q.ex,grade:keyGrade(qid),topicId:rawCourseId(qid),sourceTopicId:q.sourceTopicId||rawCourseId(qid),questionSignature:q.sig||q._signature||\"\",questionSubtype:g3QuestionSubtype(q)});\n qstage.innerHTML=`${quizPromptHtml(q)}${quizAnswerMarkup(\"nextQ\",\"skipNormalQuiz\")}`;bindQuizKeyboard();if(q?.answerMode&&q.answerMode!==\"choice\")setTime"
+      ]
+    },
+    "function genQuestion(": {
+      "count_at_least": 0,
+      "positions": [],
+      "snippets": []
+    },
+    "function g4TheoryHtml(": {
+      "count_at_least": 1,
+      "positions": [
+        1680175
+      ],
+      "snippets": [
+        "елит части делимого, начиная слева.</p><p><b>Алгоритм.</b> 1) Выбери первую часть делимого, которая не меньше делителя. 2) Найди цифру частного. 3) Умножь её на делитель и вычти. 4) Снеси следующую цифру. 5) Повторяй до конца.</p><p><b>Пример.</b> 936 ÷ 3: 9 ÷ 3 = 3; сносим 3, 3 ÷ 3 = 1; сносим 6, 6 ÷ 3 = 2. Частное 312.</p><p><b>Проверка.</b> Частное × делитель должно дать делимое.</p></div>`\n};\nfunction g4TheoryHtml(key){return G4_THEORY[String(key||\"\")]||\"\"}\nfunction g4WrongHint(id){\n const raw=rawCourseId(id||qid||\"\");\n const hints={numbers:\"Сравни разряды слева направо или ещё раз проверь цифру, по которой выполняется округление.\",order:\"Проверь порядок: скобки → умножение и деление → сложение и вычитание.\",equations:\"Определи, каким компонентом является x, и используй обратное действие.\",quantities:\"Сначала проверь связь единиц и переведи величину в нужную единицу.\",geometry:\"Уточни, что требуется найти: периметр, площадь или сторону, и выбери соответствующую формулу.\",word:\"Начни с вопроса задачи: какие данные нужны для первого действия и что означает полученный результат?\",table:\"Вспомни соответствующий факт таблицы и проверь его обратным делением.\"};\n return hints[raw]||\"Проверь решение по шагам и найди первый разряд или "
+      ]
+    },
+    "function makeQuizQuestion(": {
       "count_at_least": 0,
       "positions": [],
       "snippets": []
