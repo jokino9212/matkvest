@@ -1,0 +1,51 @@
+name: MatKvest stage17D - semantic content diagnostic
+on:
+  push:
+    branches: [audit/g3g4-stage17-20261104]
+    paths:
+      - audits/g3g4_stage17_phaseD_semantics.mjs
+      - .github/workflows/g3g4_stage17_phaseD_semantics.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: matkvest-stage17D-semantic
+  cancel-in-progress: false
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit/g3g4-stage17-20261104
+          persist-credentials: true
+      - name: Verify immutable candidate and SW
+        run: |
+          echo 'b953b710a471210fe0f8247b55e879cedf4d7e11c6f369d551040a9f5d46c7d3  index.html' | sha256sum --check
+          python3 audits/g7_stage12_sync_pwa.py --check
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save --no-package-lock puppeteer-core@24
+      - name: Test semantics of G3/G4 generators and choices
+        run: node audits/g3g4_stage17_phaseD_semantics.mjs
+      - name: Upload detailed diagnostics even when defects found
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: matkvest-stage17D-semantic-diagnostic
+          path: audits/g3g4_stage17_phaseD_semantics_report.json
+          if-no-files-found: warn
+      - name: Commit read-only QA evidence
+        if: always()
+        run: |
+          if [ -f audits/g3g4_stage17_phaseD_semantics_report.json ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add audits/g3g4_stage17_phaseD_semantics_report.json
+            if ! git diff --cached --quiet; then
+              git commit -m "audit(stage17D): preserve semantic diagnostic [skip ci]"
+              git push origin HEAD:audit/g3g4-stage17-20261104
+            fi
+          fi
