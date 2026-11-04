@@ -26,7 +26,7 @@ try{
     const ctx={raw,d,i},a=q?.a,b=q?.b,answer=q?.ans,expected=raw==='written_add'?a+b:raw==='written_subtract'?a-b:raw==='written_multiply'?a*b:a/b;
     if(!Number.isInteger(a)||!Number.isInteger(b)||a<1||b<1||!Number.isInteger(answer)||answer!==expected||!q.audit||a>999)
       fail('independent-column-arithmetic',{...ctx,a,b,answer,expected});
-    if(q.audit.answer!==expected)fail('column-audit-answer',{...ctx,a,b,answer,audit:q.audit});
+    if((raw==='written_divide'?q.audit.quotient:q.audit.answer)!==expected)fail('column-audit-answer',{...ctx,a,b,answer,audit:q.audit});
     if(raw==='written_add'){
       const carries=g3HasCarry(a,b);
       if(carries!==q.audit.carries||d===0&&carries!==0||d===1&&carries!==1||d===2&&carries<2||answer>1000)fail('written-add-carries',{...ctx,a,b,carries});
