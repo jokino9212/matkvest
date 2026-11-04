@@ -5355,6 +5355,7 @@ function g3DurationExplain847(start,end,duration){const sh=Math.floor(start/60),
 function g3TimeStoryQuestion(d){const variant=g6RandomFrom(d===0?["end","duration"]:["end","duration","start"]),duration=g6RandomFrom([20,25,30,35,40,45,50,60,70,80]),start=ri(8*60,18*60),safeStart=Math.min(start,21*60-duration),end=safeStart+duration;if(variant==="duration")return g3StoryNumberQuestion(`Занятие началось в ${g3TimeText(safeStart)} и закончилось в ${g3TimeText(end)}. Сколько минут оно длилось?`,duration,g3DurationExplain847(safeStart,end,duration),`g3:time_tasks:${d}:duration:${safeStart}:${end}`,{variant,start:safeStart,end,duration},"мин");if(variant==="start")return g3TimeInputQuestion(`Занятие закончилось в ${g3TimeText(end)} и длилось ${duration} мин. Когда оно началось?`,safeStart,`${g3TimeText(end)} − ${duration} мин = <b>${g3TimeText(safeStart)}</b>.`,`g3:time_tasks:${d}:start:${end}:${duration}`,{variant,start:safeStart,end,duration});return g3TimeInputQuestion(`Урок начался в ${g3TimeText(safeStart)} и длился ${duration} мин. Когда он закончился?`,end,`${g3TimeText(safeStart)} + ${duration} мин = <b>${g3TimeText(end)}</b>.`,`g3:time_tasks:${d}:end:${safeStart}:${duration}`,{variant,start:safeStart,end,duration})}
 function g3RemainderTaskQuestion(d){const divisor=ri(2,9),qv=ri(2,d===0?6:12),rem=ri(1,divisor-1),total=divisor*qv+rem;if(d===2&&Math.random()<.28){const need=qv+1,text=`Нужно перевезти ${g3Qty(total,"student")}. В одну машину помещается ${g3Qty(divisor,"person")}. Сколько машин нужно, чтобы перевезти всех?`;return g3StoryNumberQuestion(text,need,`${total} : ${divisor} = ${qv} (ост. ${rem}). Остались ещё ${rem}, значит нужна ещё одна машина: <b>${need}</b>.`,`g3:remainder_tasks:${d}:ceil:${total}:${divisor}`,{variant:"ceil",total,divisor,quotient:qv,remainder:rem,answer:need})}const text=`${g3Qty(total,"apple")} раскладывают в пакеты по ${g3Qty(divisor,"apple")}. Сколько полных пакетов получится и сколько яблок останется?`;return g3StoryRemainderQuestion(text,total,divisor,qv,rem,`${divisor} · ${qv} = ${divisor*qv}.<br>${total} − ${divisor*qv} = ${rem}.<br>Ответ: <b>${qv} (ост. ${rem})</b>.`,`g3:remainder_tasks:${d}:floor:${total}:${divisor}`,{variant:"floor",total})}
 function g3TwoStepQuestion(d){const variant=g6RandomFrom(d===0?["addSub","mulAdd"]:["addSub","mulAdd","mulSub","divAdd","divSub"]);let a,b,c,step1,answer,text,ex;if(variant==="addSub"){a=ri(8,30);b=ri(5,25);c=ri(2,a+b-1);step1=a+b;answer=step1-c;text=`В первой коробке ${g3Qty(a,"pencil")}, во второй ${g3Qty(b,"pencil")}. ${g3Qty(c,"pencil")} отдали. Сколько осталось?`;ex=`1) ${a}+${b}=${step1}.<br>2) ${step1}−${c}=<b>${answer}</b>.`}else if(variant==="mulAdd"){a=ri(2,6);b=ri(2,8);c=ri(2,15);step1=a*b;answer=step1+c;text=`В ${a} коробках по ${g3Qty(b,"candy")}. Потом добавили ещё ${g3Qty(c,"candy")}. Сколько стало?`;ex=`1) ${a}·${b}=${step1}.<br>2) ${step1}+${c}=<b>${answer}</b>.`}else if(variant==="mulSub"){a=ri(2,7);b=ri(2,8);step1=a*b;c=ri(1,step1-1);answer=step1-c;text=`В ${a} коробках по ${g3Qty(b,"toy")}. ${g3Qty(c,"toy")} убрали. Сколько осталось?`;ex=`1) ${a}·${b}=${step1}.<br>2) ${step1}−${c}=<b>${answer}</b>.`}else{const divisor=ri(2,6),qv=ri(3,10);a=divisor*qv;b=divisor;step1=qv;c=ri(1,variant==="divSub"?qv-1:12);answer=variant==="divSub"?step1-c:step1+c;text=variant==="divSub"?`${g3Qty(a,"apple")} разложили поровну в ${g3Qty(b,"box")}. Из одной коробки взяли ${g3Qty(c,"apple")}. Сколько яблок осталось в этой коробке?`:`${g3Qty(a,"apple")} разложили поровну в ${g3Qty(b,"box")}. Потом в одну коробку добавили ещё ${g3Qty(c,"apple")}. Сколько яблок стало в этой коробке?`;ex=`1) ${a}:${b}=${step1}.<br>2) ${step1}${variant==="divSub"?"−":"+"}${c}=<b>${answer}</b>.`}return g3StoryNumberQuestion(text,answer,ex,`g3:two_step_tasks:${d}:${variant}:${a}:${b}:${c}`,{variant,a,b,c,step1,answer})}
+
 function g3PartsIntroQuestion(d){
  const denoms=[2,3,4,5,10],n=g6RandomFrom(denoms),name=g3UnitFractionName(n),other=shuffleOptions(denoms.filter(x=>x!==n)).slice(0,3);let q;
  if(d===0){
@@ -5364,14 +5365,38 @@ function g3PartsIntroQuestion(d){
    if(variant==="wordToFraction")q=g3ChoiceQuestion(`Какая запись означает «<b>${name}</b>»?`,String(n),[{key:String(n),label:g3UnitFractionHtml(n)},...other.map(x=>({key:String(x),label:g3UnitFractionHtml(x)}))],`${name[0].toUpperCase()+name.slice(1)} записывается как ${g3UnitFractionHtml(n)}.`,`g3:parts_intro:${d}:${variant}:${n}`,{variant,denom:n},true);
    else q=g3ChoiceQuestion(`Как называется доля ${g3UnitFractionHtml(n)}?`,String(n),[{key:String(n),label:name},...other.map(x=>({key:String(x),label:g3UnitFractionName(x)}))],`${g3UnitFractionHtml(n)} — это <b>${name}</b>.`,`g3:parts_intro:${d}:${variant}:${n}`,{variant,denom:n},true);
  }else{
-   const variant=Math.random()<.5?"visualFraction":"visualName";
-   if(variant==="visualFraction")q=g3ChoiceQuestion(`Какая доля выделена на рисунке?`,String(n),[{key:String(n),label:g3UnitFractionHtml(n)},...other.map(x=>({key:String(x),label:g3UnitFractionHtml(x)}))],`Целое разделено на ${g3EqualPartsPhrase(n)} и выделена одна: ${g3UnitFractionHtml(n)}.`,`g3:parts_intro:${d}:${variant}:${n}`,{variant,denom:n},true);
-   else q=g3ChoiceQuestion(`Как называется выделенная на рисунке доля?`,String(n),[{key:String(n),label:name},...other.map(x=>({key:String(x),label:g3UnitFractionName(x)}))],`Выделена одна из ${n} равных частей — <b>${name}</b>.`,`g3:parts_intro:${d}:${variant}:${n}`,{variant,denom:n},true);
-   g3AttachPartsVisual(q,[n],["Одна часть выделена"]);
+   const variant=g6RandomFrom(["visualFraction","visualName","visualCount"]);
+   if(variant==="visualFraction")q=g3ChoiceQuestion("Какая доля выделена на рисунке?",String(n),[{key:String(n),label:g3UnitFractionHtml(n)},...other.map(x=>({key:String(x),label:g3UnitFractionHtml(x)}))],`Целое разделено на ${g3EqualPartsPhrase(n)} и выделена одна: ${g3UnitFractionHtml(n)}.`,`g3:parts_intro:${d}:${variant}:${n}`,{variant,denom:n},true);
+   else if(variant==="visualName")q=g3ChoiceQuestion("Как называется выделенная на рисунке доля?",String(n),[{key:String(n),label:name},...other.map(x=>({key:String(x),label:g3UnitFractionName(x)}))],`Выделена одна из ${n} равных частей — <b>${name}</b>.`,`g3:parts_intro:${d}:${variant}:${n}`,{variant,denom:n},true);
+   else q=g3ChoiceQuestion("Сколько частей размером с выделенную нужно, чтобы составить всё целое?",String(n),[{key:String(n),label:String(n)},...other.map(x=>({key:String(x),label:String(x)}))],`Целое разделено на ${n} равных частей. Одна уже выделена: потребуется ${n} таких частей, чтобы собрать целое.`,`g3:parts_intro:${d}:${variant}:${n}`,{variant,denom:n},true);
+   g3AttachPartsVisual(q,[n],["Выделенная часть"]);
  }
- return q
+ return q;
 }
-function g3PartsCompareQuestion(d){const denoms=[2,3,4,5,10],equal=d>0&&Math.random()<.16,a=g6RandomFrom(denoms),b=equal?a:g6RandomFrom(denoms.filter(x=>x!==a)),correct=a===b?"=":a<b?">":"<",text=`Что верно для долей одного и того же целого: ${g3UnitFractionHtml(a)} ? ${g3UnitFractionHtml(b)}.`;const q=g3ChoiceQuestion(text,correct,[{key:"<",label:"<"},{key:"=",label:"="},{key:">",label:">"}],a===b?`Это одинаковые доли равных целых, поэтому они равны.`:`У единичных долей одного целого меньше знаменатель — больше доля. Поэтому ${g3UnitFractionHtml(a)} <b>${correct}</b> ${g3UnitFractionHtml(b)}.`,`g3:parts_compare:${d}:${a}:${b}`,{a,b,relation:correct,equalWhole:true});if(d===2)g3AttachPartsVisual(q,[a,b],[`1 из ${a}`,`1 из ${b}`]);return q}
+function g3PartsCompareQuestion(d){
+ const denoms=[2,3,4,5,10],a=g6RandomFrom(denoms),equal=d>0&&Math.random()<.14,b=equal?a:g6RandomFrom(denoms.filter(x=>x!==a)),correct=a===b?"=":a<b?">":"<",other=[{key:"<",label:"<"},{key:"=",label:"="},{key:">",label:">"}];
+ const symbolic=`${g3UnitFractionHtml(a)} <b>?</b> ${g3UnitFractionHtml(b)}`;
+ let text,ex,variant,whole=null,first=null,second=null;
+ if(d===0){
+  variant="symbolic";
+  text=`Сравните доли одного и того же целого: ${symbolic}.`;
+  ex=`У частей одного целого меньший знаменатель означает большую долю. Поэтому ${g3UnitFractionHtml(a)} <b>${correct}</b> ${g3UnitFractionHtml(b)}.`;
+ }else if(d===1){
+  variant=Math.random()<.55?"diagram":"fractionWords";
+  text=variant==="diagram"?"Сравните выделенные части двух одинаковых целых. Выберите знак: первая ? вторая.":`Два одинаковых целых разделили на равные части. Сравните: ${g3UnitFractionName(a)} <b>?</b> ${g3UnitFractionName(b)}.`;
+  ex=a===b?`В обеих одинаковых полосках выделена ${g3UnitFractionHtml(a)} — части равны.`:`Сравниваем доли одинаковых целых: у ${g3UnitFractionHtml(a)} и ${g3UnitFractionHtml(b)} меньший знаменатель даёт большую часть. Знак <b>${correct}</b>.`;
+ }else{
+  variant=Math.random()<.5?"ribbons":"ropes";
+  const gcd=(x,y)=>y?gcd(y,x%y):x,base=a*b/gcd(a,b);
+  whole=base*ri(1,Math.max(1,Math.floor(180/base)));
+  first=whole/a;second=whole/b;
+  text=variant==="ribbons"?`Две ленты одинаковой длины, по <b>${whole} см</b> каждая. От первой отрезали ${g3UnitFractionHtml(a)}, от второй — ${g3UnitFractionHtml(b)}. Сравните длины отрезанных частей: первая <b>?</b> вторая.`:`Два одинаковых шнура длиной по <b>${whole} см</b>. От первого взяли ${g3UnitFractionHtml(a)}, от второго — ${g3UnitFractionHtml(b)}. Сравните полученные куски: первый <b>?</b> второй.`;
+  ex=`Найдём длины: ${whole} : ${a} = ${first} см; ${whole} : ${b} = ${second} см.<br>Сравним: ${first} <b>${correct}</b> ${second}. Ленты одинаковые, поэтому сравнение долей корректно.`;
+ }
+ const q=g3ChoiceQuestion(text,correct,other,ex,`g3:parts_compare:${d}:${variant}:${a}:${b}:${whole??0}`,{variant,a,b,relation:correct,equalWhole:true,whole,first,second});
+ if(variant==="diagram")g3AttachPartsVisual(q,[a,b],["Первая доля","Вторая доля"]);
+ return q;
+}
 function g3PartOfQuantityQuestion(d){const denoms=[2,3,4,5,10],n=g6RandomFrom(d===0?[2,3,4]:denoms),result=ri(2,d===0?9:d===1?12:20),quantity=result*n,name=g3UnitFractionName(n),askName=g3UnitFractionAccName(n);if(d===2&&Math.random()<.55){const unit=g6RandomFrom(["см","м","кг","г","руб.","мин"]),end=unit.endsWith(".")?"":".";return g3StoryNumberQuestion(`Найдите ${askName} от <b>${quantity} ${unit}</b>${end}`,result,`${name[0].toUpperCase()+name.slice(1)} — это одна из ${n} равных частей.<br>${quantity} : ${n} = <b>${result} ${unit}</b>${end}`,`g3:part_of_quantity:${d}:unit:${n}:${quantity}:${unit}`,{denominator:n,quantity,result,unit,variant:"unit"},unit)}return g3StoryNumberQuestion(`Найдите ${askName} числа <b>${quantity}</b>.`,result,`${name[0].toUpperCase()+name.slice(1)} — это одна из ${n} равных частей.<br>${quantity} : ${n} = <b>${result}</b>.`,`g3:part_of_quantity:${d}:number:${n}:${quantity}`,{denominator:n,quantity,result,variant:"number"})}
 
 
@@ -5425,16 +5450,47 @@ function g3GeometryConstructionQuestion(d){
  if(d===1)return g3GeoChoice("Какая фигура построена по клеткам?",correct,["квадрат","прямоугольник","ломаная"],variant==="square"?`Все стороны равны: длина каждой — ${w} ${ruCount(w,"клетка","клетки","клеток")}. Это квадрат.`:`Длины сторон: ${w} ${ruCount(w,"клетка","клетки","клеток")} и ${h} ${ruCount(h,"клетка","клетки","клеток")}. Это прямоугольник.`,`g3:geometry_construction:${d}:${variant}:${w}:${h}`,{type:"g3Construction",variant,w,h,isSquare:w===h,points:pts},data);
  return g3GeoChoice(`Какие размеры у ${variant==="square"?"квадрата":"прямоугольника"}?`,`${w}×${h}`,[`${w}×${h}`,`${h}×${Math.max(1,w-1)}`,`${w+1}×${h}`,`${Math.max(1,w-1)}×${h+1}`],`По сетке получаем ${w} ${ruCount(w,"клетку","клетки","клеток")} по горизонтали и ${h} ${ruCount(h,"клетку","клетки","клеток")} по вертикали.`,`g3:geometry_construction:${d}:dims:${variant}:${w}:${h}`,{type:"g3Construction",variant:"dimensions",shape:variant,w,h,isSquare:w===h,points:pts},data)
 }
+
 function g3BrokenLineQuestion(d){
  const count=d===0?ri(2,3):d===1?ri(3,4):ri(4,5),lengths=[],pts=[{x:2,y:6}];let x=2,y=6;
  for(let i=0;i<count;i++){
   let len;
   if(i%2===0){len=ri(1,Math.min(3,11-x));x+=len}
-  else{const goUp=(i%4===1),room=goUp?y-1:7-y;len=ri(1,Math.max(1,Math.min(3,room)));y+=goUp?-len:len}
-  lengths.push(len);pts.push({x,y})
+  else{const goUp=i%4===1,room=goUp?y-1:7-y;len=ri(1,Math.max(1,Math.min(3,room)));y+=goUp?-len:len}
+  lengths.push(len);pts.push({x,y});
  }
- const answer=lengths.reduce((a,b)=>a+b,0),measures=lengths.map((v,i)=>({a:i,b:i+1,text:`${v} см`,offset:i%2?18:-18})),data={kind:"broken",points:pts,measures,aria:"Ломаная с подписанными длинами звеньев"};
- return g3GeoNumber("Найдите длину ломаной.",answer,`Складываем длины всех звеньев:<br>${lengths.join(" + ")} = <b>${answer} см</b>.`,`g3:broken_line_length:${d}:${lengths.join("-")}`,{type:"g3BrokenLength",lengths,answer,points:pts,journalText:`Звенья: ${lengths.join(", ")} см.`},data,"см")
+ const total=lengths.reduce((a,b)=>a+b,0);
+ let variant,text,answer,ex,unknownIndex=null,delta=null,otherLength=null;
+ if(d===0){
+  variant="sum";
+  answer=total;text="Найдите длину ломаной.";
+  ex=`Складываем длины всех звеньев:<br>${lengths.join(" + ")} = <b>${answer} см</b>.`;
+ }else if(d===1){
+  variant="missing";
+  unknownIndex=ri(0,count-1);
+  const known=lengths.filter((_,i)=>i!==unknownIndex),knownSum=known.reduce((a,b)=>a+b,0);
+  answer=lengths[unknownIndex];
+  text=`Вся ломаная имеет длину <b>${total} см</b>. Найдите длину звена, отмеченного знаком «?».`;
+  ex=`Длина всей ломаной ${total} см. Известные звенья: ${known.join(" + ")} = ${knownSum} см.<br>Неизвестное звено: ${total} − ${knownSum} = <b>${answer} см</b>.`;
+ }else{
+  delta=ri(2,6);
+  const extend=Math.random()<.5;
+  variant=extend?"extend":"compare";
+  if(extend){
+   answer=total+delta;
+   text=`Найдите длину ломаной, если одно из её звеньев удлинить ещё на <b>${delta} см</b>. На рисунке показаны исходные длины.`;
+   ex=`Сначала исходная длина: ${lengths.join(" + ")} = ${total} см.<br>Удлиняем одно звено: ${total} + ${delta} = <b>${answer} см</b>.`;
+  }else{
+   otherLength=Math.max(1,total-delta);
+   answer=total-otherLength;
+   text=`На сколько длина показанной ломаной больше длины отрезка <b>${otherLength} см</b>?`;
+   ex=`Сначала считаем длину ломаной: ${lengths.join(" + ")} = ${total} см.<br>Сравниваем с отрезком: ${total} − ${otherLength} = <b>${answer} см</b>.`;
+  }
+ }
+ const measures=lengths.map((v,i)=>({a:i,b:i+1,text:d===1&&i===unknownIndex?"? см":`${v} см`,offset:i%2?18:-18}));
+ const data={kind:"broken",points:pts,measures,aria:d===1?"Ломаная с одним неизвестным звеном":"Ломаная с подписанными длинами звеньев"};
+ const audit={type:"g3BrokenLength",variant,lengths,total,answer,points:pts,unknownIndex,delta,otherLength,journalText:d===1?`Известные звенья: ${measures.filter(m=>!m.text.startsWith("?")).map(m=>m.text).join(", ")}; общая длина: ${total} см.`:`Звенья: ${lengths.join(", ")} см.`};
+ return g3GeoNumber(text,answer,ex,`g3:broken_line_length:${d}:${variant}:${lengths.join("-")}:${unknownIndex??"x"}:${delta??0}`,audit,data,"см");
 }
 function g3PerimeterQuestion(d){
  const units=["см","дм","м"],unit=g6RandomFrom(units),variant=d===0?g6RandomFrom(["rectangle","triangle"]):d===1?g6RandomFrom(["rectangle","square","triangle"]):g6RandomFrom(["rectangle","square","polygon"]);let pts,sides,answer,text,ex;
