@@ -1,0 +1,150 @@
+name: MatKvest stage17D - final grade3-4 and written arithmetic gate
+on:
+  push:
+    branches: [audit/g3g4-stage17-20261104]
+    paths:
+      - audits/g3g4_stage17_final_written_patch.py
+      - audits/g3g4_stage17_final_written_test.mjs
+      - .github/workflows/g3g4_stage17_final_comprehensive_gate.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: matkvest-stage17D-final-grade34-gate
+  cancel-in-progress: false
+jobs:
+  patch-and-verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit/g3g4-stage17-20261104
+          persist-credentials: true
+      - name: Check approved v49 HTML and PWA
+        run: |
+          echo '04a719fe8c292d8fe42b9762fdca5b8b48c316042cbdb1709ac18fe5290eff21  index.html' | sha256sum --check
+          python3 audits/g7_stage12_sync_pwa.py --check
+      - name: Patch grade3 written multiplication and division without changing production
+        run: |
+          python3 audits/g3g4_stage17_final_written_patch.py
+          python3 audits/g7_stage12_sync_pwa.py --check
+          grep -F 'matkvest-iphone-v50' sw.js
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Chrome test harness
+        run: npm install --no-save --no-package-lock puppeteer-core@24
+      - name: Verify 7200 written arithmetic models and 24 special screens
+        run: node audits/g3g4_stage17_final_written_test.mjs
+      - name: Prepare isolated historical and whole-grade tests
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib
+          sha=hashlib.sha256(Path('index.html').read_bytes()).hexdigest()
+          base='fa4db04c3a53351ed672b12daa577a2ea3bb1376932f13b821e50db95436cd9a'
+          for stem in ('g3g4_stage17_phaseD_semantics','g3g4_stage17_phaseD_recovery_theory'):
+              s=Path('audits/'+stem+'.mjs').read_text('utf8')
+              if s.count(base)!=1:raise SystemExit('Unexpected baseline SHA '+stem)
+              Path('audits/_final_'+stem+'.mjs').write_text(s.replace(base,sha),'utf8')
+          for n,old_version in ((1,44),(2,45),(3,46),(4,47),(5,48),(6,49)):
+              s=Path('audits/g3g4_stage17_phaseD_quality_batch'+str(n)+'_test.mjs').read_text('utf8')
+              cache='matkvest-iphone-v'+str(old_version)
+              if s.count(cache)!=1:raise SystemExit('Unexpected v'+str(old_version)+' PWA pin')
+              s=s.replace(cache,'matkvest-iphone-v50')
+              prev='g3g4_stage17_phaseD_quality_batch'+str(n)+'_test_report.json'
+              next='g3g4_stage17_final_previous_batch'+str(n)+'_report.json'
+              if s.count(prev)!=1:raise SystemExit('Unexpected old report '+prev)
+              Path('audits/_final_previous_batch'+str(n)+'.mjs').write_text(s.replace(prev,next),'utf8')
+          s=Path('audits/g1g2_stage16_phaseD_regression.mjs').read_text('utf8')
+          s=s.replace('g1g2_stage16_phaseD_regression_report.json','g3g4_stage17_final_crossgrade_report.json')
+          Path('audits/_final_crossgrade.mjs').write_text(s,'utf8')
+          PY
+      - name: Prior validated quality batch1
+        run: node audits/_final_previous_batch1.mjs
+      - name: Prior validated quality batch2
+        run: node audits/_final_previous_batch2.mjs
+      - name: Prior validated quality batch3
+        run: node audits/_final_previous_batch3.mjs
+      - name: Prior validated quality batch4
+        run: node audits/_final_previous_batch4.mjs
+      - name: Prior validated quality batch5
+        run: node audits/_final_previous_batch5.mjs
+      - name: Prior validated quality batch6
+        run: node audits/_final_previous_batch6.mjs
+      - name: Whole grade 3 and 4 semantic audit
+        run: |
+          node audits/_final_g3g4_stage17_phaseD_semantics.mjs
+          cp audits/g3g4_stage17_phaseD_semantics_report.json audits/g3g4_stage17_final_semantics_report.json
+      - name: Restore, theory and mobile layout regression
+        run: |
+          node audits/_final_g3g4_stage17_phaseD_recovery_theory.mjs
+          cp audits/g3g4_stage17_phaseD_recovery_theory_report.json audits/g3g4_stage17_final_recovery_report.json
+      - name: Cross-grade regression
+        run: node audits/_final_crossgrade.mjs
+      - name: Validate all 177 grade3-4 stages including special engines
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib
+          sha=hashlib.sha256(Path('index.html').read_bytes()).hexdigest()
+          base='04a719fe8c292d8fe42b9762fdca5b8b48c316042cbdb1709ac18fe5290eff21'
+          source=Path('audits/g3g4_stage17_final_coverage_diagnostic.mjs').read_text('utf8')
+          if source.count(base)!=1:raise SystemExit('Unexpected final coverage pin')
+          source=source.replace(base,sha).replace('matkvest-iphone-v49','matkvest-iphone-v50')
+          source=source.replace('g3g4_stage17_final_coverage_diagnostic.json','g3g4_stage17_final_coverage_report.json')
+          Path('audits/_final_coverage_check.mjs').write_text(source,'utf8')
+          PY
+          node audits/_final_coverage_check.mjs
+          python3 - <<'PY'
+          import json
+          with open('audits/g3g4_stage17_final_coverage_report.json',encoding='utf8') as f:r=json.load(f)
+          s=r['summary']
+          print('FINAL INVENTORY:',json.dumps(s,ensure_ascii=False))
+          if s['grade3Topics']!=48 or s['grade4Topics']!=8 or s['grade3ColumnGenerated']!=4800 or s['uiReady']!=177 or s['errors'] or s['warningCount'] or s['jsErrors']:
+              raise SystemExit('FAIL: final inventory or written arithmetic regression')
+          PY
+      - name: Upload reproducible evidence even on failed gate
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: matkvest-stage17D-final-grade34-evidence
+          path: |
+            audits/g3g4_stage17_final_written_patch_report.json
+            audits/g3g4_stage17_final_written_test_report.json
+            audits/g3g4_stage17_final_previous_batch1_report.json
+            audits/g3g4_stage17_final_previous_batch2_report.json
+            audits/g3g4_stage17_final_previous_batch3_report.json
+            audits/g3g4_stage17_final_previous_batch4_report.json
+            audits/g3g4_stage17_final_previous_batch5_report.json
+            audits/g3g4_stage17_final_semantics_report.json
+            audits/g3g4_stage17_final_recovery_report.json
+            audits/g3g4_stage17_final_crossgrade_report.json
+            audits/g3g4_stage17_final_previous_batch6_report.json
+            audits/g3g4_stage17_final_coverage_report.json
+          if-no-files-found: warn
+      - name: Commit all-Gates-passed v50 to audit branch only
+        if: success()
+        run: |
+          set -eu
+          python3 audits/g7_stage12_sync_pwa.py --check
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js audits/g7_stage12_sync_pwa.py
+          git add audits/g3g4_stage17_final_written_patch_report.json
+          git add audits/g3g4_stage17_final_written_test_report.json
+          git add audits/g3g4_stage17_final_previous_batch1_report.json
+          git add audits/g3g4_stage17_final_previous_batch2_report.json
+          git add audits/g3g4_stage17_final_previous_batch3_report.json
+          git add audits/g3g4_stage17_final_previous_batch4_report.json
+          git add audits/g3g4_stage17_final_previous_batch5_report.json
+          git add audits/g3g4_stage17_final_semantics_report.json
+          git add audits/g3g4_stage17_final_recovery_report.json
+          git add audits/g3g4_stage17_final_crossgrade_report.json
+          git add audits/g3g4_stage17_final_previous_batch6_report.json
+          git add audits/g3g4_stage17_final_coverage_report.json
+          git commit -m "fix(stage17D): written arithmetic progression and final grade3-4 coverage v50"
+          git restore -- audits/g3g4_stage17_phaseD_semantics_report.json audits/g3g4_stage17_phaseD_recovery_theory_report.json
+          git pull --rebase origin audit/g3g4-stage17-20261104
+          git push origin HEAD:audit/g3g4-stage17-20261104
