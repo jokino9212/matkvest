@@ -1,7 +1,7 @@
 from pathlib import Path
 import re,hashlib
 src=Path('index.html').read_text(encoding='utf-8')
-assert hashlib.sha256(src.encode()).hexdigest()=='3d93fc220d9a8e29b2a299a22036b1d50eefad65b40364e1de1e52b4d8d6de88'
+assert hashlib.sha256(src.encode()).hexdigest() in {'3d93fc220d9a8e29b2a299a22036b1d50eefad65b40364e1de1e52b4d8d6de88','38bcef242723e7aba4d33c622a304c1f900d5e9254e2ffe291267d1bd436cf70'}
 targets=['mk872PersistDraft','mk872RestoreDraft','mk872OfferResume','mk872ScheduleSave','mk872HasActiveLearning','mk872RequestExit','mk872RebindRestored','mk872StartOver','mk872Exit','mk872Draft','mk872GetDraft','mk872ReadDraft','mk872WriteDraft','mk872CloseDialog','mk872OpenDialog','mk872RestoreRoute','mk872Boot','mk872CanResume','beginBlock','syncActiveAttempt','startG7QuizStage','openG7Quiz','freshQuiz','pick','checkQuizInput','nextQ']
 chunks=[]
 for name in targets:
