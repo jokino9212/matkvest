@@ -1,0 +1,40 @@
+name: MatKvest stage17D - quality batch6 source inspection
+on:
+  push:
+    branches: [audit/g3g4-stage17-20261104]
+    paths:
+      - audits/g3g4_stage17_phaseD_quality_batch6_source.py
+      - .github/workflows/g3g4_stage17_phaseD_quality_batch6_source.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit/g3g4-stage17-20261104
+          persist-credentials: true
+      - name: Guard approved HTML and PWA
+        run: |
+          echo '5c079a595763241ee1a816f029543b2383980e9770e27317c5a712260fcad069  index.html' | sha256sum --check
+          python3 audits/g7_stage12_sync_pwa.py --check
+      - name: Extract read-only source
+        run: python3 audits/g3g4_stage17_phaseD_quality_batch6_source.py
+      - name: Store evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: matkvest-stage17D-quality-batch6-source
+          path: audits/g3g4_stage17_phaseD_quality_batch6_source.json
+      - name: Commit source evidence only
+        if: success()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add audits/g3g4_stage17_phaseD_quality_batch6_source.json
+          git commit -m "audit(stage17D): preserve table and chart source context [skip ci]"
+          git pull --rebase origin audit/g3g4-stage17-20261104
+          git push origin HEAD:audit/g3g4-stage17-20261104
