@@ -1,0 +1,53 @@
+name: MatKvest stage 15 - verify real production after publishing
+on:
+  push:
+    branches: [main]
+    paths:
+      - index.html
+      - sw.js
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: read
+
+concurrency:
+  group: matkvest-stage15-real-production
+  cancel-in-progress: false
+
+jobs:
+  verify-production:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate deployed repository revision and SW fingerprint
+        run: |
+          echo 'f188d39a3a16fc54dfb32238fc34d3dfe6cc3c4416cd475579bf3ed65a7e1e36  index.html' | sha256sum --check
+          python3 audits/g7_stage12_sync_pwa.py --check
+      - name: Resolve the official configured GitHub Pages URL
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          PAGE_URL="$(gh api "repos/${GITHUB_REPOSITORY}/pages" --jq '.html_url')"
+          test -n "$PAGE_URL"
+          echo "MATKVEST_PAGES_URL=$PAGE_URL" >> "$GITHUB_ENV"
+          echo "Checking configured Pages site"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install real browser test dependency
+        run: npm install --no-save --no-package-lock puppeteer-core@24
+      - name: Poll actual Pages HTML and Service Worker and test desktop/mobile
+        run: node audits/g7_stage15_production_check.mjs
+      - name: Preserve real deployment proof and screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: matkvest-stage15-real-production
+          path: |
+            audits/g7_stage15_production_report.json
+            audits/g7_stage15_prod_desktop.png
+            audits/g7_stage15_prod_mobile.png
+          if-no-files-found: warn
+          retention-days: 60
