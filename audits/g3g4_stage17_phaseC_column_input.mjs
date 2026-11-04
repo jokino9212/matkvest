@@ -34,7 +34,8 @@ try{
        checkColumn();
        const wrongFeedback=document.querySelector('#fb')?.textContent?.trim()??'';
        const wrongCorrect=(blockSession?.correct??0)-before;
-       const wrongRejected=wrongCorrect===0&&!/✅|Верно|Успех/i.test(wrongFeedback);
+       // "неверно" contains "верно": do not mistake negative feedback for success.
+       const wrongRejected=wrongCorrect===0&&/Пока неверно|Ошибок в клетках|Ошибка/i.test(wrongFeedback)&&!/✅|^Верно|^Отлично/i.test(wrongFeedback);
        scenarios.push({name,scenario:'wrong',wrongInput,credited:wrongCorrect,feedback:wrongFeedback.slice(0,170),rejected:wrongRejected});
        if(!wrongRejected&&failures.length<60)failures.push({kind:'bad-column-accepted',name,feedback:wrongFeedback,credited:wrongCorrect});
       }catch(e){if(failures.length<60)failures.push({kind:'wrong-input-exception',name,error:String(e)})}
