@@ -1,0 +1,192 @@
+{
+  "sha256": "2252fe792fbef2ba6b1a4d0794ae674164f55f3260496af1156660b986b5ae16",
+  "matches": {
+    "function g1Noun": {
+      "total": 1,
+      "samples": [
+        {
+          "offset": 3054633,
+          "context": "\nconst G1_STORY_OBJECTS=[\n {one:\"карандаш\",few:\"карандаша\",many:\"карандашей\",icon:\"✏️\"},\n {one:\"кубик\",few:\"кубика\",many:\"кубиков\",icon:\"■\"},\n {one:\"мяч\",few:\"мяча\",many:\"мячей\",icon:\"●\"},\n {one:\"книга\",few:\"книги\",many:\"книг\",icon:\"▤\"}\n];\nfunction g1Noun(n,o){n=Math.abs(Math.trunc(Number(n)||0));const m10=n%10,m100=n%100;return m10===1&&m100!==11?o.one:m10>=2&&m10<=4&&(m100<12||m100>14)?o.few:o.many}\nfunction g1StoryObjectsHtml(count,obj){\n const n=Math.max(0,Math.min(20,Math.trunc(Number(count)||0))),glyph=esc(obj?.icon||\"●\");\n if(n===0)return `<div class=\"g1-counter-wrap\"><span style=\"font-size:38px\">∅</span></div>`;\n return `<div class=\"g1-counter-wrap\" aria-label=\"Группа предметов\">${Array.from({length:n},"
+        }
+      ]
+    },
+    "function g1Story": {
+      "total": 5,
+      "samples": [
+        {
+          "offset": 3054798,
+          "context": "many:\"мячей\",icon:\"●\"},\n {one:\"книга\",few:\"книги\",many:\"книг\",icon:\"▤\"}\n];\nfunction g1Noun(n,o){n=Math.abs(Math.trunc(Number(n)||0));const m10=n%10,m100=n%100;return m10===1&&m100!==11?o.one:m10>=2&&m10<=4&&(m100<12||m100>14)?o.few:o.many}\nfunction g1StoryObjectsHtml(count,obj){\n const n=Math.max(0,Math.min(20,Math.trunc(Number(count)||0))),glyph=esc(obj?.icon||\"●\");\n if(n===0)return `<div class=\"g1-counter-wrap\"><span style=\"font-size:38px\">∅</span></div>`;\n return `<div class=\"g1-counter-wrap\" aria-label=\"Группа предметов\">${Array.from({length:n},()=>`<span aria-hidden=\"true\" style=\"font-size:29px;line-height:1\">${glyph}</span>`).join(\"\")}</div>`\n}\nfunction g1StoryVisualHtml(data){\n const kind=data?.kind||\"ad"
+        },
+        {
+          "offset": 3055217,
+          "context": "pan style=\"font-size:38px\">∅</span></div>`;\n return `<div class=\"g1-counter-wrap\" aria-label=\"Группа предметов\">${Array.from({length:n},()=>`<span aria-hidden=\"true\" style=\"font-size:29px;line-height:1\">${glyph}</span>`).join(\"\")}</div>`\n}\nfunction g1StoryVisualHtml(data){\n const kind=data?.kind||\"add\",a=Math.max(0,Math.min(20,Math.trunc(Number(data?.a)||0))),b=Math.max(0,Math.min(20,Math.trunc(Number(data?.b)||0))),result=Math.max(0,Math.min(20,Math.trunc(Number(data?.result)||0))),unknown=data?.unknown||\"result\",obj=data?.obj||G1_STORY_OBJECTS[0];\n const box=(label,count,key)=>`<div class=\"g1-story-step ${unknown===key?\"unknown\":\"\"}\"><b>${label}</b>${unknown===key?'<span class=\"g1-story-question\">?</span>':g1"
+        },
+        {
+          "offset": 3056947,
+          "context": "талось\",result,\"result\")}</div>`\n}\nconst PRE837_QUIZ_VISUAL_HTML=quizVisualHtml;\nquizVisualHtml=function(question){const v=question?.visual;if(v?.type===\"g1Story\")return g1StoryVisualHtml(v.data);return PRE837_QUIZ_VISUAL_HTML(question)};\n\nfunction g1StoryBase(op,{small=true}={}){\n const limit=20,obj=G1_STORY_OBJECTS[ri(0,G1_STORY_OBJECTS.length-1)];\n if(op===\"add\"){const a=ri(1,small?8:15),maxB=Math.min(small?5:9,limit-a),b=ri(1,Math.max(1,maxB)),result=a+b;return {kind:\"add\",a,b,result,obj,limit}}\n const a=ri(small?3:5,small?10:limit),maxB=Math.min(small?5:9,a),b=ri(1,Math.max(1,maxB)),result=a-b;return {kind:\"sub\",a,b,result,obj,limit}\n}\nfunction g1StorySentence(m,{name=\"У Маши\"}={}){\n const o=m.obj;if(m.kin"
+        },
+        {
+          "offset": 3057356,
+          "context": "mall?5:9,limit-a),b=ri(1,Math.max(1,maxB)),result=a+b;return {kind:\"add\",a,b,result,obj,limit}}\n const a=ri(small?3:5,small?10:limit),maxB=Math.min(small?5:9,a),b=ri(1,Math.max(1,maxB)),result=a-b;return {kind:\"sub\",a,b,result,obj,limit}\n}\nfunction g1StorySentence(m,{name=\"У Маши\"}={}){\n const o=m.obj;if(m.kind===\"add\")return `${name} было ${m.a} ${g1Noun(m.a,o)}. Ей дали ещё ${m.b} ${g1Noun(m.b,o)}. Сколько ${o.many} стало?`;\n return `${name} было ${m.a} ${g1Noun(m.a,o)}. Убрали ${m.b} ${g1Noun(m.b,o)}. Сколько ${o.many} осталось?`\n}\nfunction g1StoryQuestion(d){\n const warm=[\"add_result\",\"sub_result\"];\n const train=[\"add_result\",\"sub_result\",\"choose_action\",\"choose_record\",\"find_added\"];\n const master=[\"add_re"
+        },
+        {
+          "offset": 3057657,
+          "context": "j;if(m.kind===\"add\")return `${name} было ${m.a} ${g1Noun(m.a,o)}. Ей дали ещё ${m.b} ${g1Noun(m.b,o)}. Сколько ${o.many} стало?`;\n return `${name} было ${m.a} ${g1Noun(m.a,o)}. Убрали ${m.b} ${g1Noun(m.b,o)}. Сколько ${o.many} осталось?`\n}\nfunction g1StoryQuestion(d){\n const warm=[\"add_result\",\"sub_result\"];\n const train=[\"add_result\",\"sub_result\",\"choose_action\",\"choose_record\",\"find_added\"];\n const master=[\"add_result\",\"sub_result\",\"choose_action\",\"choose_record\",\"find_added\",\"find_removed\",\"find_start_add\",\"find_start_sub\"];\n const templateId=g1PickTemplate(d===0?warm:d===1?train:master),small=d===0;\n if(templateId===\"add_result\"||templateId===\"sub_result\"){\n  const m=g1StoryBase(templateId===\"add_result\"?\"a"
+        }
+      ]
+    },
+    "g1Noun\\(": {
+      "total": 10,
+      "samples": [
+        {
+          "offset": 3054642,
+          "context": "_STORY_OBJECTS=[\n {one:\"карандаш\",few:\"карандаша\",many:\"карандашей\",icon:\"✏️\"},\n {one:\"кубик\",few:\"кубика\",many:\"кубиков\",icon:\"■\"},\n {one:\"мяч\",few:\"мяча\",many:\"мячей\",icon:\"●\"},\n {one:\"книга\",few:\"книги\",many:\"книг\",icon:\"▤\"}\n];\nfunction g1Noun(n,o){n=Math.abs(Math.trunc(Number(n)||0));const m10=n%10,m100=n%100;return m10===1&&m100!==11?o.one:m10>=2&&m10<=4&&(m100<12||m100>14)?o.few:o.many}\nfunction g1StoryObjectsHtml(count,obj){\n const n=Math.max(0,Math.min(20,Math.trunc(Number(count)||0))),glyph=esc(obj?.icon||\"●\");\n if(n===0)return `<div class=\"g1-counter-wrap\"><span style=\"font-size:38px\">∅</span></div>`;\n return `<div class=\"g1-counter-wrap\" aria-label=\"Группа предметов\">${Array.from({length:n},()=>`<spa"
+        },
+        {
+          "offset": 3057467,
+          "context": "ll?3:5,small?10:limit),maxB=Math.min(small?5:9,a),b=ri(1,Math.max(1,maxB)),result=a-b;return {kind:\"sub\",a,b,result,obj,limit}\n}\nfunction g1StorySentence(m,{name=\"У Маши\"}={}){\n const o=m.obj;if(m.kind===\"add\")return `${name} было ${m.a} ${g1Noun(m.a,o)}. Ей дали ещё ${m.b} ${g1Noun(m.b,o)}. Сколько ${o.many} стало?`;\n return `${name} было ${m.a} ${g1Noun(m.a,o)}. Убрали ${m.b} ${g1Noun(m.b,o)}. Сколько ${o.many} осталось?`\n}\nfunction g1StoryQuestion(d){\n const warm=[\"add_result\",\"sub_result\"];\n const train=[\"add_result\",\"sub_result\",\"choose_action\",\"choose_record\",\"find_added\"];\n const master=[\"add_result\",\"sub_result\",\"choose_action\",\"choose_record\",\"find_added\",\"find_removed\",\"find_start_add\",\"find_start_sub"
+        },
+        {
+          "offset": 3057504,
+          "context": "small?5:9,a),b=ri(1,Math.max(1,maxB)),result=a-b;return {kind:\"sub\",a,b,result,obj,limit}\n}\nfunction g1StorySentence(m,{name=\"У Маши\"}={}){\n const o=m.obj;if(m.kind===\"add\")return `${name} было ${m.a} ${g1Noun(m.a,o)}. Ей дали ещё ${m.b} ${g1Noun(m.b,o)}. Сколько ${o.many} стало?`;\n return `${name} было ${m.a} ${g1Noun(m.a,o)}. Убрали ${m.b} ${g1Noun(m.b,o)}. Сколько ${o.many} осталось?`\n}\nfunction g1StoryQuestion(d){\n const warm=[\"add_result\",\"sub_result\"];\n const train=[\"add_result\",\"sub_result\",\"choose_action\",\"choose_record\",\"find_added\"];\n const master=[\"add_result\",\"sub_result\",\"choose_action\",\"choose_record\",\"find_added\",\"find_removed\",\"find_start_add\",\"find_start_sub\"];\n const templateId=g1PickTemplate("
+        },
+        {
+          "offset": 3057578,
+          "context": "sult,obj,limit}\n}\nfunction g1StorySentence(m,{name=\"У Маши\"}={}){\n const o=m.obj;if(m.kind===\"add\")return `${name} было ${m.a} ${g1Noun(m.a,o)}. Ей дали ещё ${m.b} ${g1Noun(m.b,o)}. Сколько ${o.many} стало?`;\n return `${name} было ${m.a} ${g1Noun(m.a,o)}. Убрали ${m.b} ${g1Noun(m.b,o)}. Сколько ${o.many} осталось?`\n}\nfunction g1StoryQuestion(d){\n const warm=[\"add_result\",\"sub_result\"];\n const train=[\"add_result\",\"sub_result\",\"choose_action\",\"choose_record\",\"find_added\"];\n const master=[\"add_result\",\"sub_result\",\"choose_action\",\"choose_record\",\"find_added\",\"find_removed\",\"find_start_add\",\"find_start_sub\"];\n const templateId=g1PickTemplate(d===0?warm:d===1?train:master),small=d===0;\n if(templateId===\"add_result\"|"
+        },
+        {
+          "offset": 3057610,
+          "context": "rySentence(m,{name=\"У Маши\"}={}){\n const o=m.obj;if(m.kind===\"add\")return `${name} было ${m.a} ${g1Noun(m.a,o)}. Ей дали ещё ${m.b} ${g1Noun(m.b,o)}. Сколько ${o.many} стало?`;\n return `${name} было ${m.a} ${g1Noun(m.a,o)}. Убрали ${m.b} ${g1Noun(m.b,o)}. Сколько ${o.many} осталось?`\n}\nfunction g1StoryQuestion(d){\n const warm=[\"add_result\",\"sub_result\"];\n const train=[\"add_result\",\"sub_result\",\"choose_action\",\"choose_record\",\"find_added\"];\n const master=[\"add_result\",\"sub_result\",\"choose_action\",\"choose_record\",\"find_added\",\"find_removed\",\"find_start_add\",\"find_start_sub\"];\n const templateId=g1PickTemplate(d===0?warm:d===1?train:master),small=d===0;\n if(templateId===\"add_result\"||templateId===\"sub_result\"){\n  c"
+        },
+        {
+          "offset": 3059984,
+          "context": "lems:${d}:choose_record:${m.kind}:${m.a}:${m.b}:${m.obj.one}`,{model,visual:{type:\"g1Story\",data:model},templateId})\n }\n if(templateId===\"find_added\"){\n  const m=g1StoryBase(\"add\",{small:false}),model={...m,unknown:\"b\"},text=`Было ${m.a} ${g1Noun(m.a,m.obj)}. Стало ${m.result}. Сколько ${m.obj.many} добавили?`,ex=`От ${m.a} до ${m.result} нужно добавить ${m.b}.`;\n  return g1NumberInput(text,m.b,ex,`g1:word_problems:${d}:find_added:${m.a}:${m.result}:${m.obj.one}`,{model,visual:{type:\"g1Story\",data:model},templateId})\n }\n if(templateId===\"find_removed\"){\n  const m=g1StoryBase(\"sub\",{small:false}),model={...m,unknown:\"b\"},text=`Было ${m.a} ${g1Noun(m.a,m.obj)}. Осталось ${m.result}. Сколько ${m.obj.many} убрали?`"
+        },
+        {
+          "offset": 3060392,
+          "context": "d_problems:${d}:find_added:${m.a}:${m.result}:${m.obj.one}`,{model,visual:{type:\"g1Story\",data:model},templateId})\n }\n if(templateId===\"find_removed\"){\n  const m=g1StoryBase(\"sub\",{small:false}),model={...m,unknown:\"b\"},text=`Было ${m.a} ${g1Noun(m.a,m.obj)}. Осталось ${m.result}. Сколько ${m.obj.many} убрали?`,ex=`Из ${m.a} убрали ${m.b}, осталось ${m.result}.`;\n  return g1NumberInput(text,m.b,ex,`g1:word_problems:${d}:find_removed:${m.a}:${m.result}:${m.obj.one}`,{model,visual:{type:\"g1Story\",data:model},templateId})\n }\n if(templateId===\"find_start_add\"){\n  const m=g1StoryBase(\"add\",{small:false}),model={...m,unknown:\"a\"},text=`Добавили ${m.b} ${g1Noun(m.b,m.obj)}, и стало ${m.result}. Сколько ${m.obj.many} б"
+        },
+        {
+          "offset": 3060808,
+          "context": "ms:${d}:find_removed:${m.a}:${m.result}:${m.obj.one}`,{model,visual:{type:\"g1Story\",data:model},templateId})\n }\n if(templateId===\"find_start_add\"){\n  const m=g1StoryBase(\"add\",{small:false}),model={...m,unknown:\"a\"},text=`Добавили ${m.b} ${g1Noun(m.b,m.obj)}, и стало ${m.result}. Сколько ${m.obj.many} было сначала?`,ex=`Сначала было ${m.a}. Добавили ${m.b}. Стало ${m.result}.`;\n  return g1NumberInput(text,m.a,ex,`g1:word_problems:${d}:find_start_add:${m.b}:${m.result}:${m.obj.one}`,{model,visual:{type:\"g1Story\",data:model},templateId})\n }\n const m=g1StoryBase(\"sub\",{small:false}),model={...m,unknown:\"a\"},text=`Убрали ${m.b} ${g1Noun(m.b,m.obj)}, и осталось ${m.result}. Сколько ${m.obj.many} было сначала?`,ex=`С"
+        },
+        {
+          "offset": 3061202,
+          "context": "mberInput(text,m.a,ex,`g1:word_problems:${d}:find_start_add:${m.b}:${m.result}:${m.obj.one}`,{model,visual:{type:\"g1Story\",data:model},templateId})\n }\n const m=g1StoryBase(\"sub\",{small:false}),model={...m,unknown:\"a\"},text=`Убрали ${m.b} ${g1Noun(m.b,m.obj)}, и осталось ${m.result}. Сколько ${m.obj.many} было сначала?`,ex=`Сначала было ${m.a}. Убрали ${m.b}. Осталось ${m.result}.`;\n return g1NumberInput(text,m.a,ex,`g1:word_problems:${d}:find_start_sub:${m.b}:${m.result}:${m.obj.one}`,{model,visual:{type:\"g1Story\",data:model},templateId:\"find_start_sub\"})\n}\n\nconst PRE837_MAKE_G1_QUESTION=makeG1Question;\nmakeG1Question=function(id,stageOverride=null){const raw=rawCourseId(id);if(raw===\"word_problems\"){const d=st"
+        },
+        {
+          "offset": 3162342,
+          "context": "add:\"положили\",sub:\"взяли\"},\n {one:\"мяч\",few:\"мяча\",many:\"мячей\",place:\"В корзине\",add:\"добавили\",sub:\"взяли\"},\n {one:\"тетрадь\",few:\"тетради\",many:\"тетрадей\",place:\"На столе\",add:\"положили\",sub:\"убрали\"}\n];\nfunction g2StoryNoun(n,o){return g1Noun(n,o)}\nfunction g2StoryAccNoun(n,o){return o.one===\"книга\"&&n%10===1&&n%100!==11?\"книгу\":g2StoryNoun(n,o)}\nfunction g2StoryTimes(n){return n%10>=2&&n%10<=4&&(n%100<12||n%100>14)?\"раза\":\"раз\"}\nfunction g2StoryPickItem(){return G2_STORY_ITEMS[ri(0,G2_STORY_ITEMS.length-1)]}\nfunction g2StoryVisualHtml(data){\n const showDerived=data?.showDerived===true,steps=(Array.isArray(data?.steps)?data.steps:[]).filter(x=>showDerived||!x?.derived);\n return `<div class=\"g2-story-visual\""
+        }
+      ]
+    },
+    "Ей дали ещё": {
+      "total": 1,
+      "samples": [
+        {
+          "offset": 3057483,
+          "context": "limit),maxB=Math.min(small?5:9,a),b=ri(1,Math.max(1,maxB)),result=a-b;return {kind:\"sub\",a,b,result,obj,limit}\n}\nfunction g1StorySentence(m,{name=\"У Маши\"}={}){\n const o=m.obj;if(m.kind===\"add\")return `${name} было ${m.a} ${g1Noun(m.a,o)}. Ей дали ещё ${m.b} ${g1Noun(m.b,o)}. Сколько ${o.many} стало?`;\n return `${name} было ${m.a} ${g1Noun(m.a,o)}. Убрали ${m.b} ${g1Noun(m.b,o)}. Сколько ${o.many} осталось?`\n}\nfunction g1StoryQuestion(d){\n const warm=[\"add_result\",\"sub_result\"];\n const train=[\"add_result\",\"sub_result\",\"choose_action\",\"choose_record\",\"find_added\"];\n const master=[\"add_result\",\"sub_result\",\"choose_action\",\"choose_record\",\"find_added\",\"find_removed\",\"find_start_add\",\"find_start_sub\"];\n const templ"
+        }
+      ]
+    },
+    "Убрали ": {
+      "total": 9,
+      "samples": [
+        {
+          "offset": 3041447,
+          "context": "nknown:\"result\"}},templateId})\n}\n if(templateId===\"sub_counters\"){\n  const model=g1ArithmeticParams(limit,\"sub\",{smallStep:true});\n  return g1Choice(\"Сколько осталось?\",model.result,g1ArithmeticWrong(model.result,0,limit),`Было ${model.a}. Убрали ${model.b}. Осталось ${model.result}.`,`g1:${raw}:${d}:sub_counters:${model.a}:${model.b}`,{model,visual:{type:\"g1Arithmetic\",data:{...model,unknown:\"result\"}},templateId})\n }\n if(templateId===\"add_line\"||templateId===\"add_input\"){\n  const p=g1ArithmeticParams(limit,\"add\",{smallStep}),model={...p};\n  const text=templateId===\"add_line\"?`Начни с ${model.a} и сделай ${model.b} ${g1StepWord(model.b)} вправо. Где остановишься?`:`Вычисли: <b>${model.a} + ${model.b}</b>`;\n  c"
+        },
+        {
+          "offset": 3047008,
+          "context": "ё 3.</b></p>${g1ArithmeticVisualHtml({op:\"add\",a:4,b:3,result:7})}<p>Стало 7. Записываем: <b>4 + 3 = 7</b>.</p><p>Такое действие называется <b>сложением</b>.</p></div><div class=\"g1-theory-block\"><h3>Когда убираем</h3><p><b>Было 7 кружков. Убрали 2.</b></p>${g1ArithmeticVisualHtml({op:\"sub\",a:7,b:2,result:5})}<p>Осталось 5. Записываем: <b>7 − 2 = 5</b>.</p><p>Такое действие называется <b>вычитанием</b>.</p></div></div>`;\n if(raw===\"add_sub_20\")return `<div class=\"elementary-theory\"><p><b>С числами до 20 смысл тот же.</b> Добавляем — число становится больше. Убираем — меньше.</p><div class=\"g1-theory-block\"><h3>Сложение</h3>${elementaryNumberLineSvg({min:0,max:20,from:8,to:13,highlight:13})}<p>Начинаем с 8. Дела"
+        },
+        {
+          "offset": 3057594,
+          "context": "}\nfunction g1StorySentence(m,{name=\"У Маши\"}={}){\n const o=m.obj;if(m.kind===\"add\")return `${name} было ${m.a} ${g1Noun(m.a,o)}. Ей дали ещё ${m.b} ${g1Noun(m.b,o)}. Сколько ${o.many} стало?`;\n return `${name} было ${m.a} ${g1Noun(m.a,o)}. Убрали ${m.b} ${g1Noun(m.b,o)}. Сколько ${o.many} осталось?`\n}\nfunction g1StoryQuestion(d){\n const warm=[\"add_result\",\"sub_result\"];\n const train=[\"add_result\",\"sub_result\",\"choose_action\",\"choose_record\",\"find_added\"];\n const master=[\"add_result\",\"sub_result\",\"choose_action\",\"choose_record\",\"find_added\",\"find_removed\",\"find_start_add\",\"find_start_sub\"];\n const templateId=g1PickTemplate(d===0?warm:d===1?train:master),small=d===0;\n if(templateId===\"add_result\"||templateId===\"s"
+        },
+        {
+          "offset": 3058317,
+          "context": "result\"){\n  const m=g1StoryBase(templateId===\"add_result\"?\"add\":\"sub\",{small}),model={...m,unknown:\"result\"},text=g1StorySentence(model),ex=model.kind===\"add\"?`Было ${model.a}. Добавили ${model.b}. Стало ${model.result}.`:`Было ${model.a}. Убрали ${model.b}. Осталось ${model.result}.`;\n  return d===0?g1Choice(text,model.result,g1UniqueNums(model.result,0,20),ex,`g1:word_problems:${d}:${templateId}:${model.a}:${model.b}:${model.obj.one}`,{model,visual:{type:\"g1Story\",data:model},templateId}):g1NumberInput(text,model.result,ex,`g1:word_problems:${d}:${templateId}:${model.a}:${model.b}:${model.obj.one}`,{model,visual:{type:\"g1Story\",data:model},templateId})\n }\n if(templateId===\"choose_action\"){\n  const m=g1StoryBa"
+        },
+        {
+          "offset": 3061186,
+          "context": "`;\n  return g1NumberInput(text,m.a,ex,`g1:word_problems:${d}:find_start_add:${m.b}:${m.result}:${m.obj.one}`,{model,visual:{type:\"g1Story\",data:model},templateId})\n }\n const m=g1StoryBase(\"sub\",{small:false}),model={...m,unknown:\"a\"},text=`Убрали ${m.b} ${g1Noun(m.b,m.obj)}, и осталось ${m.result}. Сколько ${m.obj.many} было сначала?`,ex=`Сначала было ${m.a}. Убрали ${m.b}. Осталось ${m.result}.`;\n return g1NumberInput(text,m.a,ex,`g1:word_problems:${d}:find_start_sub:${m.b}:${m.result}:${m.obj.one}`,{model,visual:{type:\"g1Story\",data:model},templateId:\"find_start_sub\"})\n}\n\nconst PRE837_MAKE_G1_QUESTION=makeG1Question;\nmakeG1Question=function(id,stageOverride=null){const raw=rawCourseId(id);if(raw===\"word_probl"
+        },
+        {
+          "offset": 3061308,
+          "context": ":{type:\"g1Story\",data:model},templateId})\n }\n const m=g1StoryBase(\"sub\",{small:false}),model={...m,unknown:\"a\"},text=`Убрали ${m.b} ${g1Noun(m.b,m.obj)}, и осталось ${m.result}. Сколько ${m.obj.many} было сначала?`,ex=`Сначала было ${m.a}. Убрали ${m.b}. Осталось ${m.result}.`;\n return g1NumberInput(text,m.a,ex,`g1:word_problems:${d}:find_start_sub:${m.b}:${m.result}:${m.obj.one}`,{model,visual:{type:\"g1Story\",data:model},templateId:\"find_start_sub\"})\n}\n\nconst PRE837_MAKE_G1_QUESTION=makeG1Question;\nmakeG1Question=function(id,stageOverride=null){const raw=rawCourseId(id);if(raw===\"word_problems\"){const d=stageOverride===null?activeDifficulty():Math.max(0,Math.min(2,Number(stageOverride)||0));return g1StoryQuest"
+        },
+        {
+          "offset": 3062701,
+          "context": "p><div class=\"elementary-example\"><b>4 + 3 = 7</b></div></div><div class=\"g1-theory-block\"><h3>Если предметы убрали</h3><div class=\"g1-story-text\">Было 8 кубиков. 2 убрали. Сколько кубиков осталось?</div>${g1StoryVisualHtml(sub)}<p>Было 8. Убрали 2. Осталось 6.</p><div class=\"elementary-example\"><b>8 − 2 = 6</b></div></div><p>Сначала решаем, нужно <b>добавить</b> или <b>убрать</b>. Потом выполняем одно действие.</p><div class=\"g1-theory-block\"><h3>Что именно нужно найти?</h3><p>Знак <b>?</b> может стоять не только в конце схемы.</p>${g1StoryVisualHtml({kind:\"add\",a:5,b:3,result:8,obj:G1_STORY_OBJECTS[2],unknown:\"b\"})}<p>Было 5, стало 8. Значит, добавили 3.</p></div></div>`\n};\n\n\n/* =============================="
+        },
+        {
+          "offset": 5697025,
+          "context": "r} штук. Какова вероятность достать красный?`,r,2*r,'По одинаковому числу шаров каждого цвета.',{red:r,blue:r});}\n case 'missing_color':{const a=rnd(4,8),b=rnd(3,7),removed=rnd(1,a-2);return P(`В мешке было ${a} красных и ${b} синих шаров. Убрали ${removed} красных. Найди вероятность синего при выборе из оставшихся.`,b,a+b-removed,`Синих ${b}, оставшихся всего ${a+b-removed}.`,{red:a-removed,blue:b,removed});}\n case 'number_interval':{const n=sample([12,15,18,20]),lo=rnd(3,5),hi=rnd(7,10),m=hi-lo+1;return P(`Номер выбирают случайно из 1, …, ${n}. Найди вероятность попадания от ${lo} до ${hi} включительно.`,m,n,`В указанном промежутке ${m} целых чисел.`,{total:n,lo,hi});}\n case 'two_dice_order':{const k=sample(["
+        },
+        {
+          "offset": 5722708,
+          "context": "добавить, чтобы получить одно дерево без циклов?`,2,'Для соединения трёх компонент в одну требуется 3−1=2 ребра.');break;}\n   case 'reverse_process':{const k=randint(2,5);SET(`В дереве ${e+k} ${g8Declension19(e+k,\"ребро\",\"ребра\",\"рёбер\")}. Убрали ${k} ${g8Declension19(k,\"лист\",\"листа\",\"листьев\")} (по одному). Сколько вершин останется?`,n,`После удаления ${k} рёбер остаётся ${e}; вершин ${e}+1=${n}.`);break;}\n  }\n }\n if(ans===null)throw Error(`Нет генератора ${raw}/${d}/${v}`);\n // Проверяем изначальные ответы не через внешний renderer, а храним числовую модель и тип сценария.\n const sig=`g8-tree:${raw}:${d}:${v}:${m.id}`;\n const audit={type:'g8TreeStage5',topic:raw,stage:d,variant:v,expected:ans,graphModel:g7Gr"
+        }
+      ]
+    },
+    "function makeG1Question": {
+      "total": 1,
+      "samples": [
+        {
+          "offset": 3026816,
+          "context": "r,1,10),`По шкале длина отрезка ${askA?\"A\":\"B\"} — ${answer} см.`,`g1:length_measurement:${d}:match:${a}:${b}:${askA?1:0}`,{model:{...model,askA,answer},visual:{type:\"g1Length\",data:{kind:\"compare\",a,b,hiddenLabels:[answer]}},templateId})\n}\nfunction makeG1Question(id,stageOverride=null){\n const raw=rawCourseId(id),d=stageOverride===null?activeDifficulty():Math.max(0,Math.min(2,Number(stageOverride)||0));\n if(raw===\"numbers_1_9\")return g1NumbersQuestion(raw,d,1,9);\n if(raw===\"numbers_0_10\")return g1NumbersQuestion(raw,d,0,10);\n if(raw===\"numbers_11_20\")return g1NumbersQuestion(raw,d,11,20);\n if(raw===\"length_measurement\")return g1LengthQuestion(d);\n throw new Error(\"Неизвестная тема 1 класса: \"+raw)\n}\nconst PRE83"
+        }
+      ]
+    },
+    "g1:word_problems": {
+      "total": 11,
+      "samples": [
+        {
+          "offset": 2994978,
+          "context": ":\"quiz\",plannedRendererType:\"elementary-number-line\",reuseEngine:\"number-line SVG + numeric input\",implemented:true,order:6}\n ]},\n {id:\"word_problems\",title:\"Текстовые задачи\",icon:\"📝\",desc:\"Простые задачи в одно действие.\",topics:[\n  {id:\"g1:word_problems\",grade:1,course:ELEMENTARY_COURSE,section:\"Текстовые задачи\",group:\"Текстовые задачи\",title:\"Текстовые задачи\",shortTitle:\"Задачи в одно действие\",programRef:ELEMENTARY_PROGRAM_REF+\" • 1 класс • 3.1\",rendererType:\"quiz\",plannedRendererType:\"elementary-story-model\",reuseEngine:\"choice/numeric input + counters\",implemented:true,order:7}\n ]},\n {id:\"geometry\",title:\"Пространственные отношения и геометрические фигуры\",icon:\"📐\",desc:\"Положение предметов и простые ф"
+        },
+        {
+          "offset": 3054373,
+          "context": "========================================\n   ЭТАП 8.37\n   1 КЛАСС — ТЕКСТОВЫЕ ЗАДАЧИ\n   Ровно TARGET_STAGE837_IDS; следующая group остаётся pending.\n   ========================================================= */\nconst TARGET_STAGE837_IDS=[\"g1:word_problems\"];\n\nconst G1_STORY_OBJECTS=[\n {one:\"карандаш\",few:\"карандаша\",many:\"карандашей\",icon:\"✏️\"},\n {one:\"кубик\",few:\"кубика\",many:\"кубиков\",icon:\"■\"},\n {one:\"мяч\",few:\"мяча\",many:\"мячей\",icon:\"●\"},\n {one:\"книга\",few:\"книги\",many:\"книг\",icon:\"▤\"}\n];\nfunction g1Noun(n,o){n=Math.abs(Math.trunc(Number(n)||0));const m10=n%10,m100=n%100;return m10===1&&m100!==11?o.one:m10>=2&&m10<=4&&(m100<12||m100>14)?o.few:o.many}\nfunction g1StoryObjectsHtml(count,obj){\n const n=Math.m"
+        },
+        {
+          "offset": 3058442,
+          "context": "ence(model),ex=model.kind===\"add\"?`Было ${model.a}. Добавили ${model.b}. Стало ${model.result}.`:`Было ${model.a}. Убрали ${model.b}. Осталось ${model.result}.`;\n  return d===0?g1Choice(text,model.result,g1UniqueNums(model.result,0,20),ex,`g1:word_problems:${d}:${templateId}:${model.a}:${model.b}:${model.obj.one}`,{model,visual:{type:\"g1Story\",data:model},templateId}):g1NumberInput(text,model.result,ex,`g1:word_problems:${d}:${templateId}:${model.a}:${model.b}:${model.obj.one}`,{model,visual:{type:\"g1Story\",data:model},templateId})\n }\n if(templateId===\"choose_action\"){\n  const m=g1StoryBase(ri(0,1)?\"add\":\"sub\",{small:false}),model={...m,unknown:\"result\"},correct=m.kind===\"add\"?\"Сложение\":\"Вычитание\",text=`${g1S"
+        },
+        {
+          "offset": 3058609,
+          "context": "urn d===0?g1Choice(text,model.result,g1UniqueNums(model.result,0,20),ex,`g1:word_problems:${d}:${templateId}:${model.a}:${model.b}:${model.obj.one}`,{model,visual:{type:\"g1Story\",data:model},templateId}):g1NumberInput(text,model.result,ex,`g1:word_problems:${d}:${templateId}:${model.a}:${model.b}:${model.obj.one}`,{model,visual:{type:\"g1Story\",data:model},templateId})\n }\n if(templateId===\"choose_action\"){\n  const m=g1StoryBase(ri(0,1)?\"add\":\"sub\",{small:false}),model={...m,unknown:\"result\"},correct=m.kind===\"add\"?\"Сложение\":\"Вычитание\",text=`${g1StorySentence(model)}<br><b>Какое действие поможет решить задачу?</b>`,ex=m.kind===\"add\"?\"Предметы добавили, значит нужно сложить.\":\"Часть предметов убрали, значит нужн"
+        },
+        {
+          "offset": 3059185,
+          "context": "><b>Какое действие поможет решить задачу?</b>`,ex=m.kind===\"add\"?\"Предметы добавили, значит нужно сложить.\":\"Часть предметов убрали, значит нужно вычесть.\";\n  return g1Choice(text,correct,[\"Сложение\",\"Вычитание\"].filter(x=>x!==correct),ex,`g1:word_problems:${d}:choose_action:${m.kind}:${m.a}:${m.b}:${m.obj.one}`,{model,visual:{type:\"g1Story\",data:model},templateId})\n }\n if(templateId===\"choose_record\"){\n  const m=g1StoryBase(ri(0,1)?\"add\":\"sub\",{small:true}),model={...m,unknown:\"result\"},correct=m.kind===\"add\"?`${m.a} + ${m.b}`:`${m.a} − ${m.b}`,wrong=m.kind===\"add\"?[`${Math.max(m.a,m.b)} − ${Math.min(m.a,m.b)}`]:[`${m.a} + ${m.b}`],text=`${g1StorySentence(model)}<br><b>Выбери запись для решения.</b>`,ex=`Подхо"
+        },
+        {
+          "offset": 3059732,
+          "context": ".b}`,wrong=m.kind===\"add\"?[`${Math.max(m.a,m.b)} − ${Math.min(m.a,m.b)}`]:[`${m.a} + ${m.b}`],text=`${g1StorySentence(model)}<br><b>Выбери запись для решения.</b>`,ex=`Подходит запись: ${correct}.`;\n  return g1Choice(text,correct,wrong,ex,`g1:word_problems:${d}:choose_record:${m.kind}:${m.a}:${m.b}:${m.obj.one}`,{model,visual:{type:\"g1Story\",data:model},templateId})\n }\n if(templateId===\"find_added\"){\n  const m=g1StoryBase(\"add\",{small:false}),model={...m,unknown:\"b\"},text=`Было ${m.a} ${g1Noun(m.a,m.obj)}. Стало ${m.result}. Сколько ${m.obj.many} добавили?`,ex=`От ${m.a} до ${m.result} нужно добавить ${m.b}.`;\n  return g1NumberInput(text,m.b,ex,`g1:word_problems:${d}:find_added:${m.a}:${m.result}:${m.obj.one}`,"
+        },
+        {
+          "offset": 3060146,
+          "context": "g1StoryBase(\"add\",{small:false}),model={...m,unknown:\"b\"},text=`Было ${m.a} ${g1Noun(m.a,m.obj)}. Стало ${m.result}. Сколько ${m.obj.many} добавили?`,ex=`От ${m.a} до ${m.result} нужно добавить ${m.b}.`;\n  return g1NumberInput(text,m.b,ex,`g1:word_problems:${d}:find_added:${m.a}:${m.result}:${m.obj.one}`,{model,visual:{type:\"g1Story\",data:model},templateId})\n }\n if(templateId===\"find_removed\"){\n  const m=g1StoryBase(\"sub\",{small:false}),model={...m,unknown:\"b\"},text=`Было ${m.a} ${g1Noun(m.a,m.obj)}. Осталось ${m.result}. Сколько ${m.obj.many} убрали?`,ex=`Из ${m.a} убрали ${m.b}, осталось ${m.result}.`;\n  return g1NumberInput(text,m.b,ex,`g1:word_problems:${d}:find_removed:${m.a}:${m.result}:${m.obj.one}`,{mod"
+        },
+        {
+          "offset": 3060554,
+          "context": "g1StoryBase(\"sub\",{small:false}),model={...m,unknown:\"b\"},text=`Было ${m.a} ${g1Noun(m.a,m.obj)}. Осталось ${m.result}. Сколько ${m.obj.many} убрали?`,ex=`Из ${m.a} убрали ${m.b}, осталось ${m.result}.`;\n  return g1NumberInput(text,m.b,ex,`g1:word_problems:${d}:find_removed:${m.a}:${m.result}:${m.obj.one}`,{model,visual:{type:\"g1Story\",data:model},templateId})\n }\n if(templateId===\"find_start_add\"){\n  const m=g1StoryBase(\"add\",{small:false}),model={...m,unknown:\"a\"},text=`Добавили ${m.b} ${g1Noun(m.b,m.obj)}, и стало ${m.result}. Сколько ${m.obj.many} было сначала?`,ex=`Сначала было ${m.a}. Добавили ${m.b}. Стало ${m.result}.`;\n  return g1NumberInput(text,m.a,ex,`g1:word_problems:${d}:find_start_add:${m.b}:${m.r"
+        },
+        {
+          "offset": 3060985,
+          "context": "small:false}),model={...m,unknown:\"a\"},text=`Добавили ${m.b} ${g1Noun(m.b,m.obj)}, и стало ${m.result}. Сколько ${m.obj.many} было сначала?`,ex=`Сначала было ${m.a}. Добавили ${m.b}. Стало ${m.result}.`;\n  return g1NumberInput(text,m.a,ex,`g1:word_problems:${d}:find_start_add:${m.b}:${m.result}:${m.obj.one}`,{model,visual:{type:\"g1Story\",data:model},templateId})\n }\n const m=g1StoryBase(\"sub\",{small:false}),model={...m,unknown:\"a\"},text=`Убрали ${m.b} ${g1Noun(m.b,m.obj)}, и осталось ${m.result}. Сколько ${m.obj.many} было сначала?`,ex=`Сначала было ${m.a}. Убрали ${m.b}. Осталось ${m.result}.`;\n return g1NumberInput(text,m.a,ex,`g1:word_problems:${d}:find_start_sub:${m.b}:${m.result}:${m.obj.one}`,{model,visual"
+        },
+        {
+          "offset": 3061382,
+          "context": "mall:false}),model={...m,unknown:\"a\"},text=`Убрали ${m.b} ${g1Noun(m.b,m.obj)}, и осталось ${m.result}. Сколько ${m.obj.many} было сначала?`,ex=`Сначала было ${m.a}. Убрали ${m.b}. Осталось ${m.result}.`;\n return g1NumberInput(text,m.a,ex,`g1:word_problems:${d}:find_start_sub:${m.b}:${m.result}:${m.obj.one}`,{model,visual:{type:\"g1Story\",data:model},templateId:\"find_start_sub\"})\n}\n\nconst PRE837_MAKE_G1_QUESTION=makeG1Question;\nmakeG1Question=function(id,stageOverride=null){const raw=rawCourseId(id);if(raw===\"word_problems\"){const d=stageOverride===null?activeDifficulty():Math.max(0,Math.min(2,Number(stageOverride)||0));return g1StoryQuestion(d)}return PRE837_MAKE_G1_QUESTION(id,stageOverride)};\n\nconst PRE837_G1"
+        },
+        {
+          "offset": 4990835,
+          "context": "strict';\n const rows=[\n  // 1 класс\n  'g1:numbers_1_9|numbers|1–9',\n  'g1:numbers_0_10|signed|0–10',\n  'g1:numbers_11_20|table|11–20',\n  'g1:length_measurement|ruler|см',\n  'g1:add_sub_10|arithmetic|±10',\n  'g1:add_sub_20|equation|±20',\n  'g1:word_problems|story|?',\n  'g1:spatial_relations|coordinates|↔',\n  'g1:geometric_figures|geometry|△○',\n  'g1:object_properties|partition|≡',\n  'g1:tables|table|▦',\n  // 2 класс\n  'g2:numbers_100|numbers|100',\n  'g2:quantities|mass|кг·м',\n  'g2:add_sub_100|arithmetic|±100',\n  'g2:multiply_divide|fractionFormula|×÷',\n  'g2:operations_100|equation|()',\n  'g2:word_problems|story|?→',\n  'g2:geometric_figures|geometry|◇△',\n  'g2:geometric_quantities|area|P',\n  'g2:math_informatio"
+        }
+      ]
+    }
+  }
+}
