@@ -1,0 +1,60 @@
+name: MatKvest stage16 G1 case patch - isolated release candidate
+on:
+  push:
+    branches: [audit/g1g2-stage16-20261104]
+    paths:
+      - .github/workflows/g1g2_stage16_g1_case.yml
+      - audits/g1g2_stage16_g1_case_patch.py
+      - audits/g1g2_stage16_g1_case_test.mjs
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: matkvest-stage16-g1-case-patch
+  cancel-in-progress: false
+jobs:
+  patch-validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit/g1g2-stage16-20261104
+          persist-credentials: true
+      - name: Patch only the exact verified stage16 candidate
+        run: |
+          python3 audits/g1g2_stage16_g1_case_patch.py
+          python3 audits/g7_stage12_sync_pwa.py --check
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save --no-package-lock puppeteer-core@24
+      - name: Stress 13,200 G1 and G2 Russian noun cases and UI launches
+        run: node audits/g1g2_stage16_g1_case_test.mjs
+      - name: Save/restore regression
+        run: node audits/g7_stage12_e2e.mjs
+      - name: Offline/PWA update regression
+        run: node audits/g7_stage12_sw_update_test.mjs
+      - name: Upload candidate/evidence even if validation failed
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: matkvest-stage16-G1-case-patched
+          path: |
+            index.html
+            sw.js
+            audits/g1g2_stage16_g1_case_report.json
+            audits/g7_stage12_e2e_report.json
+            audits/g7_stage12_sw_update_report.json
+          retention-days: 60
+          if-no-files-found: warn
+      - name: Commit verified candidate only into isolated audit branch
+        if: success()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js audits/g1g2_stage16_g1_case_report.json audits/g7_stage12_e2e_report.json audits/g7_stage12_sw_update_report.json
+          if ! git diff --cached --quiet; then
+            git commit -m "fix(g1): use 1 книгу after action verbs without altering nominative [skip ci]"
+            git push origin HEAD:audit/g1g2-stage16-20261104
+          fi
