@@ -16,9 +16,9 @@ try{
  await page.setViewport({width:390,height:844});
  await page.goto(pathToFileURL(path.resolve('index.html')).href,{waitUntil:'domcontentloaded',timeout:120000});
  const result=await page.evaluate(()=>{
-  const perTopic=[],defects=[],defectCounts={},flags=[],samples=[],ui=[];
+  const perTopic=[],defects=[],defectCounts={},defectExamples={},flags=[],samples=[],ui=[];
   const clean=x=>String(x??'').replace(/<[^>]*>/g,' ').replace(/&nbsp;/g,' ').replace(/\s+/g,' ').trim();
-  const error=(kind,ctx)=>{defectCounts[kind]=(defectCounts[kind]||0)+1;if(defects.length<180)defects.push({kind,...ctx})};
+  const error=(kind,ctx)=>{defectCounts[kind]=(defectCounts[kind]||0)+1;if(!defectExamples[kind])defectExamples[kind]=[];if(defectExamples[kind].length<8)defectExamples[kind].push({kind,...ctx});if(defects.length<180)defects.push({kind,...ctx})};
   const flag=(kind,ctx)=>{if(flags.length<160)flags.push({kind,...ctx})};
   const number=x=>typeof x==='number'?x:/^-?\d+(?:[.,]\d+)?$/.test(String(x))?Number(String(x).replace(',','.')):null;
   const correct=q=>q.ans??q.answer??q.answerRat;
@@ -56,7 +56,7 @@ try{
     const eq=/(-?\d{1,8}(?:\s*[+−\-×·:÷]\s*-?\d{1,8})+)\s*=\s*(-?\d{1,10})(?![\d.,])/gu;
     let match;
     while((match=eq.exec(ex))!==null){
-      const expression=match[1], output=Number(match[2]);
+      const expression=match[1].replace(/^\s*1\s*:\s*(?=\d+\s*[+−\-×·])/u,''), output=Number(match[2]);
       if(/[:÷]/.test(expression)&&/ост(?:ат|\.|\s)/i.test(ex))continue;
       const value=evalExpr(expression);
       if(value===null)continue;
@@ -78,7 +78,7 @@ try{
       row.independentAnswers++;
       if(op!==String(ans))error('incorrect-compare-answer',{...context,prompt,answer:String(ans),independent:op});
     }
-    const rounding=prompt.match(/Округли(?:те)? число (\d+) до (десятков|сотен|тысяч|десятков тысяч)/i);
+    const rounding=prompt.match(/Округли(?:те)? число (\d+) до (десятков тысяч|десятков|сотен|тысяч)/i);
     if(rounding&&number(ans)!==null){
       const p={'десятков':10,'сотен':100,'тысяч':1000,'десятков тысяч':10000}[rounding[2].toLowerCase()];
       const n=Math.floor(+rounding[1]/p+0.5)*p;
@@ -140,7 +140,7 @@ try{
    }
    perTopic.push(row);
   }
-  return {perTopic,defects,defectCounts,flags,samples,ui,summary:{grade3Topics:g3.length,grade4Topics:TOPICS.length,grade3Generations:perTopic.filter(x=>x.grade===3).flatMap(x=>x.levels).reduce((s,x)=>s+x.generated,0),grade4Generations:perTopic.filter(x=>x.grade===4).flatMap(x=>x.levels).reduce((s,x)=>s+x.generated,0),valid:perTopic.flatMap(x=>x.levels).reduce((s,x)=>s+x.valid,0),independentMath:perTopic.flatMap(x=>x.levels).reduce((s,x)=>s+x.independentAnswers+x.explanationEquations,0),numericDistractors:perTopic.flatMap(x=>x.levels).reduce((s,x)=>s+x.verifiedNumericDistractors,0),defects:defects.length,flags:flags.length,g4UI:ui.length}};
+  return {perTopic,defects,defectCounts,defectExamples,flags,samples,ui,summary:{grade3Topics:g3.length,grade4Topics:TOPICS.length,grade3Generations:perTopic.filter(x=>x.grade===3).flatMap(x=>x.levels).reduce((s,x)=>s+x.generated,0),grade4Generations:perTopic.filter(x=>x.grade===4).flatMap(x=>x.levels).reduce((s,x)=>s+x.generated,0),valid:perTopic.flatMap(x=>x.levels).reduce((s,x)=>s+x.valid,0),independentMath:perTopic.flatMap(x=>x.levels).reduce((s,x)=>s+x.independentAnswers+x.explanationEquations,0),numericDistractors:perTopic.flatMap(x=>x.levels).reduce((s,x)=>s+x.verifiedNumericDistractors,0),defects:defects.length,flags:flags.length,g4UI:ui.length}};
  });
  Object.assign(report,result);
  report.summary={...result.summary,jsErrors:jsErrors.length,defectTypes:result.defectCounts};
