@@ -2,7 +2,7 @@
   "stage": "17D-source-read-only",
   "sha256": "5c1532d17ff98b5f4cf7c2155233a6bfd1560c8688679bab0d906d6afa49d41f",
   "bytes": 7102009,
-  "utc": "2026-11-04T19:54:26.416232+00:00",
+  "utc": "2026-11-04T19:56:04.851512+00:00",
   "excerpts": {
     "одинаковые группы": {
       "count_at_least": 3,
@@ -461,5 +461,111 @@
         "=11&&n100<=14?forms[2]:n10===1?forms[0]:n10>=2&&n10<=4?forms[1]:forms[2]}\nfunction g3Qty(n,key){const forms=G3_STORY_NOUNS[key]||[\"предмет\",\"предмета\",\"предметов\"];return `${n} ${g3Plural(n,forms)}`}\nfunction g3StoryItem(){return g6RandomFrom([\"pencil\",\"notebook\",\"book\",\"apple\",\"toy\",\"sticker\",\"candy\",\"flower\",\"badge\"])}\nconst G3_STORY_NAMES=[\"Ани\",\"Маши\",\"Оли\",\"Димы\",\"Пети\",\"Коли\",\"Лены\",\"Саши\"];function g3StoryName(except=\"\"){return g6RandomFrom(G3_STORY_NAMES.filter(x=>x!==except))}\nfunction g3ChoiceQuestion(text,correctKey,rows,ex,sig,audit={},preserveChoices=false){if(!preserveChoices)return g6ChoiceItems(`<span class=\"g3-story\">${text}</span>`,String(correctKey),rows,ex,sig,{type:\"g3StoryChoice\",...audit});const clean=uniqueChoiceRows(String(correctKey),rows),correct=clean.find(x=>String(x.key)===String(correctKey));if(!correct)throw new Error(\"Нет правильного варианта ответа\");const choices=shuffleOptions(clean.slice(0,Math.max(2,Math.min(4,clean.length))));return{text:`<span class=\"g3-story\">${text}</span>`,ans:String(correctKey),choices,ex,sig,correctLabel:correct.label,correctText:choicePlain(correct),audit:{type:\"g3StoryChoice\",...audit}}}\nfunction g3QuestionSubtype(question){const a=question?.audit||{};return a.variant||a.direction||null}\nfunction g3TimeText(mins){mins=Math.trunc(mins);const h=Math.floor(mins/60),m=mins%60;return `${String(h).padStart(2,\"0\")}:${String(m).padStart(2,\"0\")}`}\nfunction g3TimeInputQuestion(text,answerMinutes,ex,sig,audit={}){const shown=g3TimeText(answerMinutes);return {text:`<span class=\"g3-story\">${text}</span>`,ans:shown,correctText:shown,correctHtml:`<span class=\"math g3-time-answer\">${shown}</span>`,answerMode:\"time\",answerMinutes,inputHint:\"Введите время в формате часы:минуты, например 10:55.\",choices:[],ex,sig,audit:{type:\"g3TimeStory\",answerMinutes,...audit}}}\nfunction g3StoryNumberQuestion(text,answer,ex,sig,audit={},unitSuffix=\"\"){return g6NumberInputQuestion(`<span class=\"g3-story\">${text}</span>`,answer,ex,sig,{unitSuffix,audit:{type:\"g3StoryNumber\",...audit}})}\nfunction g3StoryRemainderQuestion(text,dividend,divisor,qv,rem,ex,sig,audit={}){return {text:`<span class=\"g3-story\">${text}</span>`,answerMode:\"remainder\",answerQuotient:qv,answerRemainder:rem,ans:`${qv} (ост. ${rem})`,correctText:`${qv} (ост. ${rem})`,correctHtml:`<span class=\"math\">${qv} (ост. ${rem})</span>`,inputHint:\"Введите частное и остаток в два отдельных поля.\",ex,sig,audit:{type:\"g3RemainderStory\",dividend,divisor,quotient:qv,remainder:rem,...audit}}}\nfunction g3UnitPartsVisualHtml(data){const denoms=Array.isArray(data?.denoms)?data.denoms:[data?.denom||2],labels=Array.isArray(data?.labels)?data.labels:[];return `<div class=\"g3-parts-visual\">${denoms.map((n,i)=>{n=Math.max(2,Math.trunc(n));return `<div class=\"g3-parts-line\"><div class=\"g3-parts-name\">${esc(labels[i]||`1 из ${n}`)}</div><div class=\"g3-parts-bar\" style=\"grid-template-columns:repeat(${n},1fr)\" aria-label=\"Целое разделено на ${n} равных частей\"><span class=\"g3-parts-cell on\"></span>${Array.from({length:n-1},()=>'<span class=\"g3-parts-cell\"></span>').join(\"\")}</div></div>`}).join(\"\")}<div class=\"g3-parts-caption\">Каждая полоска — одно целое; все части внутри полоски равны.</div></div>`}\nfunction g3AttachPartsVisual(q,denoms,labels=[]){q.visual={type:\"g3UnitParts\",data:{denoms:[...denoms],labels:[...labels]}};return q}\nfunction g3UnitFractionName(n){return ({2:\"половина\",3:\"треть\",4:\"четверть\",5:\"пятая часть\",10:\"десятая часть\"})[n]||`одна из ${n} равных частей`}\nfunction g3UnitFractionAccName(n){return ({2:\"половину\",3:\"треть\",4:\"четверть\",5:\"пятую часть\",10:\"десятую часть\"})[n]||`одну из ${n} равных частей`}\nfunction g3EqualPartsPhrase(n){return `${n} ${n>=2&&n<=4?\"равные части\":\"равных частей\"}`}\nfunction g3UnitFractionHtml(n){return frac(1,n)}\nfunction g3OperationSymbol(op){return op===\"add\"?\"+\":op===\"sub\"?\"−\":op===\"mul\"?\"·\":\":\"}\nfunction g3OperationStoryModel(op,d){\n const item=g3StoryItem();let a,b,answer,text,template;\nif(op===\"add\"){a=ri(6,d===0?30:60);b=ri(3,d===0?20:40);answer=a+b;template=ri(0,1);text=template===0?`В коробке было ${g3Qty(a,item)}. Положили ещё ${g3Qty(b,item)}. Сколько стало?`:`На одной полке ${g3Qty(a,item)}, а на другой ${g3Qty(b,item)}. Сколько всего?`}\n else if(op===\"sub\"){b=ri(3,d===0?15:35);answer=ri(3,d===0?20:45);a=b+answer;template=ri(0,1);text=template===0?`Было ${g3Qty(a,item)}. Взяли ${g3Qty(b,item)}. Сколько осталось?`:`Всего было ${g3Qty(a,item)}. ${g3Qty(b,item)} уже использовали. Сколько осталось?`}\n else if(op===\"mul\"){a=ri(2,d===0?5:9);b=ri(2,d===0?6:9);answer=a*b;template=ri(0,1);text=template===0?`Есть ${g3Qty(a,\"box\")}. В каждой по ${g3Qty(b,item)}. Сколько всего?`:`Есть ${g3Qty(a,\"group\")}. В каждой по ${g3Qty(b,item)}. Сколько предметов всего?`}\n else {b=ri(2,d===0?6:9);answer=ri(2,d===0?6:9);a=b*answer;template=ri(0,1);text=template===0?`${g3Qty(a,item)} разложили поровну в ${g3Qty(b,\"box\")}. Сколько предметов в каждой коробке?`:`${g3Qty(a,item)} раскладывают по ${g3Qty(b,item)} в каждую группу. Сколько полных групп получится?`}\n return {op,a,b,answer,item,text,template};\n}\nfunction g3TaskModelQuestion(d){\n if(d===2){const a=ri(10,28),b=ri(8,22),c=ri(3,Math.min(12,a+b-1)),answer=a+b-c,text=`В первой коробке ${g3Qty(a,\"pencil\")}, во второй ${g3Qty(b,\"pencil\")}. ${g3Qty(c,\"pencil\")} отдали. Что нужно сделать, чтобы узнать, сколько осталось?`;return g3ChoiceQuestion(tex"
       ]
     }
-  }
+  },
+  "runtime_error_line_9671": [
+    {
+      "line": 9655,
+      "text": "   startNextWeakPracticeTask();return;"
+    },
+    {
+      "line": 9656,
+      "text": " }"
+    },
+    {
+      "line": 9657,
+      "text": " if(isControlReview()){"
+    },
+    {
+      "line": 9658,
+      "text": "   if(blockSession?.currentItem && !tableSolved){skipCurrentControlReview();return}"
+    },
+    {
+      "line": 9659,
+      "text": "   startNextControlReviewTask();return;"
+    },
+    {
+      "line": 9660,
+      "text": " }"
+    },
+    {
+      "line": 9661,
+      "text": " if(blockSession?.currentItem && !tableSolved){"
+    },
+    {
+      "line": 9662,
+      "text": "   // Явный пропуск: занимает слот блока, но в журнале хранится отдельно от ошибки."
+    },
+    {
+      "line": 9663,
+      "text": "   finishAttemptItem(false,false,{skipped:true,studentAnswer:\"—\"});recordBlockItem(false);"
+    },
+    {
+      "line": 9664,
+      "text": "   if(blockSession?.finished){finishBlock();return}"
+    },
+    {
+      "line": 9665,
+      "text": " }"
+    },
+    {
+      "line": 9666,
+      "text": " refreshBlockHead();"
+    },
+    {
+      "line": 9667,
+      "text": " tableSolved=false;tablePenalty=false;"
+    },
+    {
+      "line": 9668,
+      "text": " const fact=freshCandidate(tableCandidate,tableSignature,160);ta=fact.a;tb=fact.b;"
+    },
+    {
+      "line": 9669,
+      "text": " beginAttemptItem({kind:\"table\",label:\"Таблица умножения\",prompt:`${ta} × ${tb} = ?`,correctAnswer:String(ta*tb),explanation:`${ta} × ${tb} = ${ta*tb}. Проверка делением: ${ta*tb} ÷ ${tb} = ${ta}.`});"
+    },
+    {
+      "line": 9670,
+      "text": " tstage.innerHTML=`<div class=\"card\"><div class=\"flash\">${ta} × ${tb} = ?</div><input id=\"fin\" class=\"fin\" inputmode=\"numeric\" maxlength=\"3\" onkeydown=\"tableKey(event)\"><div class=\"actions\"><button id=\"tablePrimary\" class=\"btn primary\" onclick=\"checkTable()\">Проверить</button><button class=\"btn soft\" onclick=\"practice()\">${blockSession?\"⏭ Пропустить задание\":\"Другой пример\"}</button></div><div class=\"feedback\" id=\"tfb\"></div></div>`;"
+    },
+    {
+      "line": 9671,
+      "text": " setTimeout(()=>fin.focus(),0);"
+    },
+    {
+      "line": 9672,
+      "text": "}"
+    },
+    {
+      "line": 9673,
+      "text": "function checkTable(){"
+    },
+    {
+      "line": 9674,
+      "text": " if(tableSolved){practice();return}"
+    },
+    {
+      "line": 9675,
+      "text": " const raw=String(fin.value||\"\").trim();"
+    },
+    {
+      "line": 9676,
+      "text": " if(raw===\"\"){"
+    },
+    {
+      "line": 9677,
+      "text": "   tfb.innerHTML=`⌨️ Сначала введи ответ. Пустой Enter <b>не считается ошибкой</b>.`;"
+    },
+    {
+      "line": 9678,
+      "text": "   fin.focus();"
+    },
+    {
+      "line": 9679,
+      "text": "   return;"
+    },
+    {
+      "line": 9680,
+      "text": " }"
+    }
+  ]
 }
