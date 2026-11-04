@@ -1,0 +1,100 @@
+name: MatKvest stage17D - quality batch2 gated patch
+on:
+  push:
+    branches: [audit/g3g4-stage17-20261104]
+    paths:
+      - audits/g3g4_stage17_phaseD_quality_batch2_patch.py
+      - audits/g3g4_stage17_phaseD_quality_batch2_test.mjs
+      - .github/workflows/g3g4_stage17_phaseD_quality_batch2_patch.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: matkvest-stage17D-quality-batch2-patch
+  cancel-in-progress: false
+jobs:
+  patch-and-verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit/g3g4-stage17-20261104
+          persist-credentials: true
+      - name: Verify immutable approved candidate
+        run: |
+          echo '409381a4c087d9118f9334505ad3ae2b5662fa6570d8e244d97579e35adca046  index.html' | sha256sum --check
+          python3 audits/g7_stage12_sync_pwa.py --check
+      - name: Patch three math topics and synchronize PWA v45
+        run: |
+          python3 audits/g3g4_stage17_phaseD_quality_batch2_patch.py
+          python3 audits/g7_stage12_sync_pwa.py --check
+          grep -F 'matkvest-iphone-v45' sw.js
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save --no-package-lock puppeteer-core@24
+      - name: Independent visual and math test for three topics
+        run: node audits/g3g4_stage17_phaseD_quality_batch2_test.mjs
+      - name: Re-run previous batch and grade-wide audit with current SHA
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib
+          new=hashlib.sha256(Path('index.html').read_bytes()).hexdigest()
+          old='fa4db04c3a53351ed672b12daa577a2ea3bb1376932f13b821e50db95436cd9a'
+          for stem in ('g3g4_stage17_phaseD_semantics','g3g4_stage17_phaseD_recovery_theory'):
+              source=Path('audits/'+stem+'.mjs').read_text(encoding='utf8')
+              if source.count(old)!=1:raise SystemExit('Unexpected old candidate pin: '+stem)
+              Path('audits/_batch2_'+stem+'.mjs').write_text(source.replace(old,new),encoding='utf8')
+          p=Path('audits/g3g4_stage17_phaseD_quality_batch1_test.mjs')
+          source=p.read_text(encoding='utf8')
+          if source.count('matkvest-iphone-v44')!=1:raise SystemExit('Unexpected previous-batch version')
+          source=source.replace('matkvest-iphone-v44','matkvest-iphone-v45').replace('g3g4_stage17_phaseD_quality_batch1_test_report.json','g3g4_stage17_phaseD_quality_batch2_previous_batch_report.json')
+          Path('audits/_batch2_previous_batch.mjs').write_text(source,encoding='utf8')
+          source=Path('audits/g1g2_stage16_phaseD_regression.mjs').read_text(encoding='utf8')
+          source=source.replace('g1g2_stage16_phaseD_regression_report.json','g3g4_stage17_phaseD_quality_batch2_crossgrade_report.json')
+          Path('audits/_batch2_crossgrade.mjs').write_text(source,encoding='utf8')
+          PY
+          node audits/_batch2_previous_batch.mjs
+      - name: Full G3/G4 independent semantic diagnostic
+        run: |
+          node audits/_batch2_g3g4_stage17_phaseD_semantics.mjs
+          cp audits/g3g4_stage17_phaseD_semantics_report.json audits/g3g4_stage17_phaseD_quality_batch2_semantics_report.json
+      - name: Real recovery and theory UI regression
+        run: |
+          node audits/_batch2_g3g4_stage17_phaseD_recovery_theory.mjs
+          cp audits/g3g4_stage17_phaseD_recovery_theory_report.json audits/g3g4_stage17_phaseD_quality_batch2_recovery_report.json
+      - name: Crossgrade 1-2 and 3-5-7-8 tests
+        run: node audits/_batch2_crossgrade.mjs
+      - name: Preserve evidence even if a gate fails
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: matkvest-stage17D-quality-batch2-evidence
+          path: |
+            audits/g3g4_stage17_phaseD_quality_batch2_patch_report.json
+            audits/g3g4_stage17_phaseD_quality_batch2_test_report.json
+            audits/g3g4_stage17_phaseD_quality_batch2_previous_batch_report.json
+            audits/g3g4_stage17_phaseD_quality_batch2_semantics_report.json
+            audits/g3g4_stage17_phaseD_quality_batch2_recovery_report.json
+            audits/g3g4_stage17_phaseD_quality_batch2_crossgrade_report.json
+          if-no-files-found: warn
+      - name: Commit only all-Gate-passed v45 HTML and reports to audit branch
+        if: success()
+        run: |
+          set -eu
+          python3 audits/g7_stage12_sync_pwa.py --check
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js audits/g7_stage12_sync_pwa.py
+          git add audits/g3g4_stage17_phaseD_quality_batch2_patch_report.json
+          git add audits/g3g4_stage17_phaseD_quality_batch2_test_report.json
+          git add audits/g3g4_stage17_phaseD_quality_batch2_previous_batch_report.json
+          git add audits/g3g4_stage17_phaseD_quality_batch2_semantics_report.json
+          git add audits/g3g4_stage17_phaseD_quality_batch2_recovery_report.json
+          git add audits/g3g4_stage17_phaseD_quality_batch2_crossgrade_report.json
+          git commit -m "fix(stage17D): grounded fractions and broken-line progression with v45 regressions"
+          git restore -- audits/g3g4_stage17_phaseD_semantics_report.json audits/g3g4_stage17_phaseD_recovery_theory_report.json
+          git pull --rebase origin audit/g3g4-stage17-20261104
+          git push origin HEAD:audit/g3g4-stage17-20261104
