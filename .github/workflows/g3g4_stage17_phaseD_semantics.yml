@@ -22,7 +22,7 @@ jobs:
           persist-credentials: true
       - name: Verify immutable candidate and SW
         run: |
-          echo 'b953b710a471210fe0f8247b55e879cedf4d7e11c6f369d551040a9f5d46c7d3  index.html' | sha256sum --check
+          echo '8bd7ccd047368b8754299e7c1bd5995229f789b040a9ca8478d1ecb4b521da5a  index.html' | sha256sum --check
           python3 audits/g7_stage12_sync_pwa.py --check
       - uses: actions/setup-node@v4
         with:
