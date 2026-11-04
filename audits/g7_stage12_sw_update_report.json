@@ -1,0 +1,33 @@
+{
+  "runAt": "2026-11-04T10:49:47.237Z",
+  "tests": [
+    {
+      "label": "New SW reloads an idle open tab",
+      "ok": true,
+      "reloads": 1,
+      "after": {
+        "hasController": true,
+        "cache": [
+          "matkvest-iphone-v40"
+        ]
+      }
+    },
+    {
+      "label": "New SW saves G7 attempt, reloads and offers exact resume",
+      "ok": true,
+      "sameAttempt": true,
+      "sameQuestion": true
+    },
+    {
+      "label": "Offline navigation uses fresh v40 HTML cache",
+      "ok": true,
+      "offlineWorks": true,
+      "cacheBefore": [
+        "matkvest-iphone-v40"
+      ],
+      "title": "МатКвест — 1–2–3–4–5–6–7–8 класс"
+    }
+  ],
+  "errors": [],
+  "pageErrors": []
+}

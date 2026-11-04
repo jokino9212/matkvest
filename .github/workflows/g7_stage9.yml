@@ -1,0 +1,63 @@
+name: G7 stage 9 - full-session semantic uniqueness fix and QA
+
+on:
+  push:
+    branches:
+      - audit/g7-stage9-20261104
+    paths:
+      - .github/workflows/g7_stage9.yml
+      - audits/g7_stage9_patch.js
+      - audits/g7_stage9_ui_test.mjs
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  stage9-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Build isolated stage 9 HTML on verified stage 7/8
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib
+          p=Path("index.html")
+          src=p.read_text(encoding="utf-8")
+          patch=Path("audits/g7_stage9_patch.js").read_text(encoding="utf-8")
+          expected="ccd13490a734c9cd07e7985579c4a564eb08294f1c78af04a92b78e952053270"
+          marker="/* МатКвест G7 этап 9: защита от содержательных повторов внутри тренировки */"
+          assert patch.startswith(marker)
+          if marker in src:
+            assert src.count(marker)==1, "Duplicate stage9 patch"
+          else:
+            actual=hashlib.sha256(src.encode("utf-8")).hexdigest()
+            assert actual==expected, f"Unexpected base SHA256 {actual}"
+            at=src.rfind("</script>")
+            assert at>0
+            src=src[:at]+"\n"+patch+"\n"+src[at:]
+            assert src.count(marker)==1 and src.count("<script")==src.count("</script>")
+            p.write_text(src,encoding="utf-8")
+          print("Stage9 HTML SHA256",hashlib.sha256(src.encode("utf-8")).hexdigest())
+          PY
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Chromium runner
+        run: npm install --no-save --no-package-lock puppeteer-core@24
+      - name: Test real sessions and semantic repetition
+        run: node audits/g7_stage9_ui_test.mjs
+      - name: Store validated HTML and test report ONLY in isolated stage9 branch
+        if: success()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html audits/g7_stage9_ui_report.json
+          if ! git diff --cached --quiet; then
+            git commit -m "test(G7): stage9 verified QA release and report [skip ci]"
+            git push origin HEAD:audit/g7-stage9-20261104
+          fi

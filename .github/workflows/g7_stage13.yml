@@ -1,0 +1,65 @@
+name: G7 stage 13 - strict semantic uniqueness, all themes
+on:
+  push:
+    branches: [audit/g7-stage13-20261104]
+    paths:
+      - .github/workflows/g7_stage13.yml
+      - audits/g7_stage13_patch.js
+      - audits/g7_stage13_apply.py
+      - audits/g7_stage13_strict_test.mjs
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Add stage13 semantic guard to verified stage12 HTML
+        run: |
+          python3 audits/g7_stage13_apply.py
+          python3 audits/g7_stage12_sync_pwa.py --check
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save --no-package-lock puppeteer-core@24
+      - name: Strict 963-session uniqueness of all 107 topics
+        run: node audits/g7_stage13_strict_test.mjs
+      - name: Complete 321-stage UI regression
+        run: node audits/g7_stage8_ui_test.mjs
+      - name: Reject ANY duplicated substantive question in 321 stages
+        run: |
+          node -e "const r=require('./audits/g7_stage8_ui_report.json');if(r.duplicates.length){console.error(JSON.stringify(r.duplicates));process.exit(1)}console.log('PASS zero semantic duplicates in all 321 stages')"
+      - name: Regression of stage9 semantic protection
+        run: node audits/g7_stage9_ui_test.mjs
+      - name: Ensure attempt resume still works
+        run: node audits/g7_stage12_e2e.mjs
+      - name: Save all reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: g7-stage13-release-gate
+          path: |
+            index.html
+            sw.js
+            audits/g7_stage13_strict_report.json
+            audits/g7_stage8_ui_report.json
+            audits/g7_stage9_ui_report.json
+            audits/g7_stage12_e2e_report.json
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Publish verified files only to isolated stage13 audit branch
+        if: success()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js audits/g7_stage13_strict_report.json audits/g7_stage8_ui_report.json audits/g7_stage9_ui_report.json audits/g7_stage12_e2e_report.json
+          if ! git diff --cached --quiet; then
+            git commit -m "fix(G7): verified global session semantic uniqueness [skip ci]"
+            for attempt in 1 2 3; do
+              if git push origin HEAD:audit/g7-stage13-20261104; then exit 0; fi
+              sleep 3
+            done
+            exit 1
+          fi

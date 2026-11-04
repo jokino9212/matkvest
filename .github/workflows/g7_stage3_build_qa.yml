@@ -1,0 +1,56 @@
+name: G7 stage3 build and browser QA (audit only)
+on:
+  push:
+    branches: [audit/g7-stage3-20261104]
+    paths:
+      - .github/workflows/g7_stage3_build_qa.yml
+      - audits/g7_stage3_patch.js
+      - audits/g7_stage3_apply.py
+      - audits/g7_stage3_browser_test.mjs
+permissions:
+  contents: write
+jobs:
+  stage3:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit/g7-stage3-20261104
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check patch syntax
+        run: node --check audits/g7_stage3_patch.js
+      - name: Rebuild isolated audit HTML from verified stage2
+        run: python3 audits/g7_stage3_apply.py
+      - name: Check assembled HTML integrity
+        run: |
+          node - <<'NODE'
+          const fs=require('fs'),h=fs.readFileSync('index.html','utf8');
+          const from=h.lastIndexOf('<script>'),to=h.lastIndexOf('</script>');
+          if(from<0||to<=from)throw Error('last script missing');
+          new Function(h.slice(from+8,to));
+          if(!h.includes('МатКвест G7 этап 3: автономный патч тем 43 и 44'))throw Error('stage3 patch not injected');
+          if((h.match(/<script\b/g)||[]).length!==(h.match(/<\/script>/g)||[]).length)throw Error('script tags mismatch');
+          console.log('Assembled G7 stage3 HTML JavaScript PASS');
+          NODE
+          git diff --check
+      - name: Install browser QA
+        run: npm install --no-save --ignore-scripts puppeteer-core@24
+      - name: Chromium and algebra correctness checks
+        id: chromium
+        continue-on-error: true
+        run: node audits/g7_stage3_browser_test.mjs
+      - name: Record audit HTML and report, never production
+        if: always()
+        run: |
+          git config user.name 'MatKvest G7 Audit Bot'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          if [ -f audits/g7_stage3_browser_report.json ]; then git add audits/g7_stage3_browser_report.json; fi
+          git commit -m 'Record G7 stage3 HTML and QA report' || true
+          git push origin HEAD:audit/g7-stage3-20261104
+      - name: Require successful Chromium test
+        if: steps.chromium.outcome != 'success'
+        run: exit 1

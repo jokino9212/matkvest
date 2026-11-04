@@ -20019,12 +20019,46 @@ function mk872CleanLegacy(){
 }
 </script>
 
-<script>
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./sw.js").catch(() => {});
-  });
-}
+<script id="mk-stage12-pwa-refresh">
+/* МатКвест 8.72: безопасное обновление открытой вкладки при смене Service Worker. */
+(function mkStage12PwaRefresh(){
+ 'use strict';
+ if(!('serviceWorker' in navigator))return;
+ let hadController=!!navigator.serviceWorker.controller;
+ let reloading=false,reg=null,inFlight=false,lastCheck=0;
+ function reportFailure(err){console.warn('МатКвест: обновление PWA',err)}
+ function reloadOnUpdate(){
+  if(!hadController){hadController=true;return}
+  if(reloading)return;
+  try{
+   if(typeof mk872HasActiveLearning==='function'&&mk872HasActiveLearning()){
+    if(typeof mk872PersistDraft!=='function'||!mk872PersistDraft()){
+     reportFailure('Черновик не сохранён. Автообновление отложено, чтобы не потерять решение.');
+     return;
+    }
+   }
+   reloading=true;
+   window.location.reload();
+  }catch(err){reloading=false;reportFailure(err)}
+ }
+ navigator.serviceWorker.addEventListener('controllerchange',reloadOnUpdate);
+ function checkForUpdate(){
+  if(!reg||inFlight||document.visibilityState==='hidden')return;
+  const now=Date.now();
+  if(now-lastCheck<60000)return;
+  lastCheck=now;inFlight=true;
+  reg.update().catch(reportFailure).finally(()=>{inFlight=false});
+ }
+ window.addEventListener('load',()=>{
+  navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(value=>{
+   reg=value;
+   document.addEventListener('visibilitychange',checkForUpdate);
+   window.addEventListener('focus',checkForUpdate);
+   window.setInterval(checkForUpdate,300000);
+   checkForUpdate();
+  }).catch(reportFailure);
+ });
+})();
 </script>
 
 <!-- Этап 8.72: только крупный просмотр существующих аватаров; без изменения данных профилей. -->
@@ -30564,10 +30598,997 @@ window.G8_QA8_AUDIT={targets:RAW.slice(),levels:LENGTH.slice(),pools:Object.from
  }
  makeG7Question=function(id,stageOverride=null){
   const raw=rawCourseId(id),d=Math.max(0,Math.min(2,Number.isInteger(stageOverride)?stageOverride:activeDifficulty()));
-  if(!targeted.has(raw)||Math.random()<0.08)return previousG7(id,stageOverride);
+  if(!targeted.has(raw))return previousG7(id,stageOverride);
   const q=newQuestion(raw,d);
   return q?gPolishQuestionObject(q):previousG7(id,stageOverride);
  };
 })();
+/* МатКвест G7 этап 2: автономный проверенный патч генераторов */
+/* МатКвест 8.72 · аудит 7 класса, этап 2 · 2026-11-03.
+   Только генераторы G7: #9, #37, #39, #59, #61, #62, #66, #67.
+   Текущий этап 1 для #63-65, 78, 85 остаётся нетронутым;
+   случайный 8%-й откат к старым вопросам #63-65 отключается отдельной
+   однострочной правкой существующего кода (см. скрипт установки).
+   Не меняет профиль, экономику, магазин, G8, PWA и backend. */
+(function(){
+ 'use strict';
+ const g7BeforeAudit2 = makeG7Question;
+ const pick = xs => xs[ri(0,xs.length-1)];
+ const triangle = d => {
+  const a=ri(5+d,11+d*3), b=ri(5+d,11+d*3);
+  return {a,b,c:ri(Math.abs(a-b)+1,a+b-1)};
+ };
+ const triangleDistinct = d => {
+  for(let i=0;i<100;i++){
+   const t=triangle(d);
+   if(new Set([t.a,t.b,t.c]).size===3)return t;
+  }
+  return {a:8,b:9,c:11};
+ };
+ const mkN = (raw,d,v,text,answer,ex,parts=[],data=null,unit='') => {
+  const sig=g7QuestionSig(raw,d,`audit2_${v}`,parts);
+  const audit={type:'g7AuditStage2',raw,d,variant:v,answer:Number(answer),parts};
+  if(data)return g7GeoNumber(text,answer,ex,sig,audit,data,'Чертёж схематический; используем данные условия.',unit);
+  return g7Number(text,answer,ex,sig,{audit,unitSuffix:unit});
+ };
+ const mkC = (raw,d,v,text,answer,wrong,ex,parts=[],data=null) => {
+  const sig=g7QuestionSig(raw,d,`audit2_${v}`,parts);
+  const audit={type:'g7AuditStage2',raw,d,variant:v,answer:String(answer),parts};
+  if(data)return g7GeoChoice(text,answer,wrong,ex,sig,audit,data,'Чертёж схематический; используем данные условия.');
+  return g7StrictChoice(text,answer,wrong,ex,sig,audit);
+ };
+ const iso = () => g7TriangleData('isosceles',{sideMarks:[{side:'AB',count:1},{side:'AC',count:1}]});
+ const eq = () => g7TriangleData('equilateral',{sideMarks:[{side:'AB',count:1},{side:'BC',count:1},{side:'AC',count:1}]});
+ const ordinary = () => g7TriangleData('scalene');
+
+ // #37. В прежнем генераторе скобка оставалась одной и той же для каждого уровня.
+ // Подбираем взаимно простые коэффициенты, чтобы общий множитель был максимальным.
+ const originalCommonFactor = g7CommonFactorModel;
+ g7CommonFactorModel = function(level=0){
+  if(level<0 || level>2)return originalCommonFactor(level);
+  const commonCoef=pick(level===0?[2,3,4,5,6,7,8]:[3,4,5,6,7,8,9,10,12]);
+  const gx=level===0?ri(0,1):ri(1,3), gy=level===2?ri(0,2):0;
+  const g={coef:commonCoef,powers:{...(gx?{x:gx}:{}),...(gy?{y:gy}:{})}};
+  const a=pick(level===0?[2,3,4,5]:[2,3,4,5,6,7]);
+  const b=pick([1,2,3,4,5,6,7,8,9].filter(n=>gcd(n,a)===1));
+  const c=level===0?0:pick([-7,-5,-3,-1,1,2,3,5,7]);
+  let residual;
+  if(level===0)residual=[{coef:a,powers:{x:1}},{coef:b,powers:{}}];
+  else if(level===1)residual=[{coef:a,powers:{x:2}},{coef:c,powers:{x:1}},{coef:b,powers:{}}];
+  else residual=[{coef:a,powers:{x:1,y:1}},{coef:c,powers:{x:1}},{coef:b,powers:{y:1}}];
+  // b взаимно просто с a; если c кратно общему делителю a,b, он всё равно =1.
+  return {g,residual,original:g7PolynomialScale(residual,g)};
+ };
+
+ // #39. Больше не используем одни и те же (a+b)(x+y) на разминке.
+ const originalGrouping = g7GroupingModel;
+ g7GroupingModel = function(level=0){
+  if(level<0 || level>2)return originalGrouping(level);
+  const ca=level===0?1:ri(1,4),cb=level===0?ri(1,5):pick([-5,-4,-3,-2,1,2,3,4,5]);
+  const cx=ri(1,level===0?4:5),cy=level===0?1:pick([-4,-3,-2,-1,1,2,3,4]);
+  const left=[{coef:ca,powers:{a:1}},{coef:cb,powers:{b:1}}];
+  const right=[{coef:cx,powers:{x:1}},{coef:cy,powers:{y:1}}];
+  const expanded=[];
+  for(const A of left)for(const B of right)expanded.push(g7MonomialMul(A,B));
+  const poly=g7PolynomialNormalize(expanded);
+  return {left,right,expanded:poly,displayTerms:level===2?shuffleOptions(poly):poly};
+ };
+
+ function newG7Question(raw,d){
+  // #9. На разминке ранее два текста про тетради и рабочих были всегда одинаковы.
+  if(raw==='direct_inverse_proportion'){
+   const variants=d===0?['direct_relation','inverse_relation','direct_unknown']:
+     d===1?['inverse_time','direct_unknown','inverse_workers']:
+     ['inverse_workers','combined_cost','reverse_price','inverse_time'];
+   const v=pick(variants);
+   if(v==='direct_relation'){
+    const times=ri(2,6),thing=pick(['тетрадей','ручек','блокнотов']),answer=`увеличится в ${times} раз`;
+    return mkC(raw,d,v,`Цена одной штуки неизменна. Количество купленных ${thing} увеличили в ${times} раз. Как изменится общая стоимость?`,answer,[`уменьшится в ${times} раз`,'не изменится',`увеличится в ${times*times} раз`],`При постоянной цене стоимость прямо пропорциональна количеству: увеличится в ${times} раз.`,[thing,times]);
+   }
+   if(v==='inverse_relation'){
+    const times=ri(2,5),answer=`уменьшится в ${times} раз`;
+    return mkC(raw,d,v,`Одинаковые по производительности станки вместе выполняют неизменный заказ. Число одновременно работающих станков увеличили в ${times} раз. Как изменится время работы?`,answer,[`увеличится в ${times} раз`,'не изменится',`уменьшится в ${times+1} раз`],`При неизменном объёме работы произведение числа станков на время постоянно. Время уменьшится в ${times} раз.`,[times]);
+   }
+   if(v==='direct_unknown'){
+    const k=ri(3,12),x=ri(2,8),y=ri(9,20),sum=k*y;
+    return mkN(raw,d,v,`За ${x} одинаковых тетрадей заплатили ${x*k} ₽. Сколько стоят ${y} таких тетрадей без скидки?`,sum,`Цена одной: ${x*k} : ${x} = ${k} ₽. Стоимость ${y} тетрадей: ${k} · ${y} = ${sum} ₽.`,[k,x,y],null,'₽');
+   }
+   if(v==='inverse_time'){
+    const w1=ri(3,8),t1=ri(8,18),total=w1*t1;
+    const choices=allDivisors(total).filter(w=>w>w1 && w<=18);
+    if(!choices.length)return null;
+    const w2=pick(choices),ans=total/w2;
+    return mkN(raw,d,v,`${w1} одинаковых станков выполняют заказ за ${t1} ч. За сколько часов его выполнят ${w2} таких станков при совместной работе?`,ans,`При постоянном объёме работы t = (${w1} · ${t1}) : ${w2} = ${total} : ${w2} = ${ans} ч.`,[w1,w2,t1],null,'ч');
+   }
+   if(v==='inverse_workers'){
+    const w1=pick([3,4,5,6]),days1=pick([8,10,12,18,20]);
+    const total=w1*days1,w2=pick(allDivisors(total).filter(w=>w>w1 && w<=15));
+    const ans=total/w2;
+    return mkN(raw,d,v,`${w1} рабочих выполняют задание за ${days1} дней. Сколько дней понадобится ${w2} рабочим при одинаковой производительности?`,ans,`Человеко-дней всего ${w1} · ${days1} = ${total}. Время работы: ${total} : ${w2} = ${ans} дней.`,[w1,w2,days1],null,'дн.');
+   }
+   if(v==='combined_cost'){
+    const n1=ri(3,7),price=pick([25,40,50,60,75,80,90]),n2=ri(8,15),discount=pick([50,100,125,150]),cost=n2*price-discount;
+    return mkN(raw,d,v,`${n1} одинаковых наборов стоят ${n1*price} ₽. Купили ${n2} таких наборов и получили скидку ${discount} ₽ на всю покупку. Сколько заплатили?`,cost,`Цена набора ${n1*price}:${n1}=${price} ₽. Стоимость до скидки ${n2*price} ₽, после скидки — ${cost} ₽.`,[n1,n2,price,discount],null,'₽');
+   }
+   const n1=ri(3,8),n2=ri(10,17),unit=pick([30,40,50,60,75,80,90,100]),cost=n1*unit,answer=unit*n2;
+   return mkN(raw,d,v,`${n1} одинаковых пакетов стоят ${cost} ₽. Сколько таких пакетов можно купить на ${answer} ₽ без сдачи?`,n2,`Цена пакета ${cost}:${n1}=${unit} ₽. Значит, ${answer}:${unit}=${n2} пакетов.`,[n1,n2,cost]);
+  }
+  // #59. На сложных уровнях — не только называние сторон и углов.
+  if(raw==='geo_triangle_elements'){
+   const v=pick(d===0?['perimeter','opposite']:
+      d===1?['perimeter','missing','find_sum']:
+      ['missing','double_perimeter','compare_perimeters']);
+   const t=triangleDistinct(d),p=t.a+t.b+t.c, data=ordinary();
+   if(v==='opposite'){
+    const vertex=pick(['A','B','C']),side={A:'BC',B:'AC',C:'AB'}[vertex];
+    return mkC(raw,d,v,`Какая сторона △ABC расположена напротив вершины ${vertex}?`,side,['AB','BC','AC'].filter(x=>x!==side),`Напротив вершины ${vertex} находится ${side}.`,[vertex],data);
+   }
+   if(v==='perimeter')return mkN(raw,d,v,`Стороны △ABC равны AB=${t.a} см, BC=${t.b} см, AC=${t.c} см. Найди периметр.`,p,`P=${t.a}+${t.b}+${t.c}=${p} см.`,[t.a,t.b,t.c],data,'см');
+   if(v==='missing')return mkN(raw,d,v,`Периметр △ABC равен ${p} см, AB=${t.a} см, BC=${t.b} см. Найди AC.`,t.c,`AC = ${p} − ${t.a} − ${t.b} = ${t.c} см.`,[t.a,t.b,t.c],data,'см');
+   if(v==='find_sum')return mkN(raw,d,v,`У △ABC стороны AB=${t.a}, BC=${t.b}, AC=${t.c} см. Найди сумму сторон AB и AC.`,t.a+t.c,`AB + AC = ${t.a}+${t.c}=${t.a+t.c} см.`,[t.a,t.b,t.c],data,'см');
+   if(v==='double_perimeter'){
+    const delta=ri(1,4),newP=p+3*delta;
+    return mkN(raw,d,v,`Все три стороны △ABC увеличили на ${delta} см. Первоначальные стороны ${t.a}, ${t.b}, ${t.c} см. Каким стал периметр?`,newP,`Было ${p} см. Каждая из трёх сторон выросла на ${delta} см, значит новый периметр ${p}+3·${delta}=${newP} см.`,[t.a,t.b,t.c,delta],data,'см');
+   }
+   const scale=ri(2,4);
+   return mkN(raw,d,v,`Стороны △ABC равны ${t.a}, ${t.b}, ${t.c} см. Стороны △DEF в ${scale} раза больше соответствующих сторон △ABC. Найди периметр △DEF.`,p*scale,`P(ABC)=${p} см. При увеличении всех сторон в ${scale} раза периметр увеличится в ${scale} раза: ${p}·${scale}=${p*scale} см.`,[t.a,t.b,t.c,scale],null,'см');
+  }
+  // #61. Расширяем задачи на основание, боковые стороны, углы, периметр.
+  if(raw==='geo_isosceles_equilateral'){
+   const v=pick(d===0?['equal','eq_perimeter','base']:
+      d===1?['iso_perimeter','eq_perimeter','base_from_perimeter','vertex_angle']:
+      ['base_from_perimeter','side_from_perimeter','vertex_angle','iso_perimeter']);
+   const b=ri(3+d,12+d*2);let a=ri(Math.floor(b/2)+1,15+d*4);if(a===b)a++;const p=2*a+b;
+   if(v==='equal')return mkC(raw,d,v,`В равнобедренном △ABC AB=AC=${a} см. Какая пара сторон равна?`,'AB и AC',['AB и BC','BC и AC','все три обязательно равны'],`По условию боковые стороны AB и AC равны.`,[a],iso());
+   if(v==='base')return mkC(raw,d,v,`В равнобедренном △ABC AB=AC=${a} см и BC=${b} см. Назови основание.`,'BC',['AB','AC','AB и AC'],`Основание — сторона напротив вершины между равными боковыми сторонами: BC.`,[a,b],iso());
+   if(v==='eq_perimeter'){
+    const side=ri(3+d,15+d*2);
+    return mkN(raw,d,v,`В равностороннем треугольнике каждая сторона равна ${side} см. Найди периметр.`,3*side,`P=3·${side}=${3*side} см.`,[side],eq(),'см');
+   }
+   if(v==='iso_perimeter')return mkN(raw,d,v,`В равнобедренном треугольнике боковые стороны по ${a} см, основание ${b} см. Найди периметр.`,p,`P=2·${a}+${b}=${p} см.`,[a,b],iso(),'см');
+   if(v==='base_from_perimeter')return mkN(raw,d,v,`Периметр равнобедренного △ABC равен ${p} см; AB=AC=${a} см. Найди основание BC.`,b,`BC=${p}−2·${a}=${b} см.`,[a,b],iso(),'см');
+   if(v==='side_from_perimeter')return mkN(raw,d,v,`Периметр равнобедренного △ABC равен ${p} см, основание BC=${b} см. Найди длину каждой боковой стороны.`,a,`AB=AC=(${p}−${b}):2=${a} см.`,[a,b],iso(),'см');
+   const angle=pick([40,50,60,70,80,90,100]);
+   return mkN(raw,d,v,`В равнобедренном △ABC AB=AC; угол при вершине A равен ${angle}°. Найди угол B.`,(180-angle)/2,`Углы при основании равны: ∠B=(180°−${angle}°):2=${(180-angle)/2}°.`,[angle],iso(),'°');
+  }
+  // #62. Разные числовые связи свойств равнобедренного треугольника.
+  if(raw==='geo_isosceles_properties_criteria'){
+   const v=pick(d===0?['base_equal','criterion']:
+      d===1?['vertex_from_base','base_from_vertex','bisector_half']:
+      ['vertex_from_base','base_from_vertex','bisector_half','angle_difference']);
+   const baseAngle=ri(d?35:30,70),vertexAngle=180-2*baseAngle;
+   if(v==='base_equal')return mkN(raw,d,v,`В △ABC AB=AC, ∠B=${baseAngle}°. Найди ∠C.`,baseAngle,`Углы при основании BC равны: ∠C=∠B=${baseAngle}°.`,[baseAngle],iso(),'°');
+   if(v==='criterion'){
+    const a=ri(30,65);
+    return mkC(raw,d,v,`В △ABC известно ∠B=∠C=${a}°. Какие стороны обязательно равны?`,'AB и AC',['AB и BC','BC и AC','все стороны равны'],`Равным углам B и C противоположны стороны AC и AB.`,[a],iso());
+   }
+   if(v==='vertex_from_base')return mkN(raw,d,v,`△ABC равнобедренный: AB=AC, ∠B=${baseAngle}°. Найди ∠A.`,vertexAngle,`∠A=180°−2·${baseAngle}°=${vertexAngle}°.`,[baseAngle],iso(),'°');
+   if(v==='base_from_vertex')return mkN(raw,d,v,`△ABC равнобедренный: AB=AC, ∠A=${vertexAngle}°. Найди ∠C.`,baseAngle,`∠B=∠C=(180°−${vertexAngle}°):2=${baseAngle}°.`,[vertexAngle],iso(),'°');
+   if(v==='bisector_half')return mkN(raw,d,v,`В равнобедренном △ABC AB=AC и ∠A=${vertexAngle}°. AD — биссектриса угла A. Найди ∠BAD.`,vertexAngle/2,`Биссектриса делит угол пополам: ∠BAD=${vertexAngle}°:2=${vertexAngle/2}°.`,[vertexAngle],iso(),'°');
+   return mkN(raw,d,v,`В равнобедренном △ABC AB=AC, угол B=${baseAngle}°. Найди разность ∠B − ∠A в градусах.`,baseAngle-vertexAngle,`∠A=180°−2·${baseAngle}°=${vertexAngle}°. Разность ∠B−∠A=${baseAngle}−${vertexAngle}=${baseAngle-vertexAngle}°.`,[baseAngle],iso(),'°');
+  }
+  // #66. Условия существования, целые границы и подсчёт вариантов.
+  if(raw==='geo_triangle_inequality'){
+   const v=pick(d===0?['existence','max_integer']:
+      d===1?['existence','max_integer','min_integer']:
+      ['max_integer','min_integer','count_integer','existence']);
+   const a=ri(4,9+d*2),b=ri(4,9+d*2),min=Math.abs(a-b)+1,max=a+b-1;
+   if(v==='existence'){
+    const valid=Math.random()<.5,c=valid?ri(min,max):pick([a+b,a+b+ri(1,5),(Math.abs(a-b)||a+b)]);
+    const answer=valid?'да':'нет';
+    return mkC(raw,d,v,`Могут ли ${a} см, ${b} см и ${c} см быть сторонами невырожденного треугольника?`,answer,[answer==='да'?'нет':'да'],`Для третьей стороны нужно |${a}−${b}| < c < ${a}+${b}. Здесь c=${c}, поэтому ответ «${answer}».`,[a,b,c,valid?1:0]);
+   }
+   if(v==='max_integer')return mkN(raw,d,v,`Две стороны треугольника равны ${a} см и ${b} см. Найди наибольшую целую длину третьей стороны.`,max,`c < ${a}+${b}=${a+b}; максимальное целое c=${max}. Нижняя граница тоже выполняется.`,[a,b]);
+   if(v==='min_integer')return mkN(raw,d,v,`Две стороны треугольника равны ${a} см и ${b} см. Найди наименьшую целую длину третьей стороны.`,min,`c > |${a}−${b}|=${Math.abs(a-b)}; минимальное целое c=${min}. Верхняя граница тоже выполняется.`,[a,b]);
+   const count=max-min+1;
+   return mkN(raw,d,v,`Две стороны треугольника равны ${a} см и ${b} см. Сколько различных целых положительных значений может иметь третья сторона?`,count,`|${a}−${b}| < c < ${a}+${b}. Целые c от ${min} до ${max} включительно, их ${max}−${min}+1=${count}.`,[a,b]);
+  }
+  // #67. Строго разные длины исключают неоднозначный «наибольший угол».
+  if(raw==='geo_side_angle_relation'){
+   const v=pick(d===0?['largest','opposite']:
+      d===1?['largest','smallest','which_side']:
+      ['largest','smallest','angle_order','side_order']);
+   const t=triangleDistinct(d);
+   const bySide=[{side:'AB',n:t.a,angle:'∠C'},
+                 {side:'AC',n:t.b,angle:'∠B'},
+                 {side:'BC',n:t.c,angle:'∠A'}];
+   const sorted=bySide.slice().sort((x,y)=>y.n-x.n);
+   if(v==='largest'||v==='smallest'){
+    const target=v==='largest'?sorted[0]:sorted[2];
+    return mkC(raw,d,v,`AB=${t.a} см, AC=${t.b} см, BC=${t.c} см. Какой угол ${v==='largest'?'наибольший':'наименьший'}?`,target.angle,['∠A','∠B','∠C'].filter(x=>x!==target.angle),`${v==='largest'?'Наибольшему':'Наименьшему'} углу противоположна ${v==='largest'?'наибольшая':'наименьшая'} сторона. Это ${target.side}=${target.n} см, значит ${target.angle}.`,[t.a,t.b,t.c],null);
+   }
+   if(v==='opposite'){
+    const side=pick(['AB','AC','BC']),target={AB:'∠C',AC:'∠B',BC:'∠A'}[side];
+    return mkC(raw,d,v,`Какой угол в треугольнике ABC находится напротив стороны ${side}?`,target,['∠A','∠B','∠C'].filter(x=>x!==target),`Стороне ${side} противоположен ${target}.`,[side],ordinary());
+   }
+   if(v==='which_side'){
+    const angle=pick(['∠A','∠B','∠C']),target={'∠A':'BC','∠B':'AC','∠C':'AB'}[angle];
+    return mkC(raw,d,v,`Какую сторону треугольника ABC нужно сравнивать с другими, чтобы определить величину ${angle}?`,target,['AB','BC','AC'].filter(x=>x!==target),`Угол ${angle} лежит напротив стороны ${target}.`,[angle],ordinary());
+   }
+   if(v==='angle_order'){
+    const correct=sorted.map(x=>x.angle).join(' > ');
+    const ordered=sorted.map(x=>x.angle);
+    const distractors=[ordered.slice().reverse().join(' > '),[ordered[1],ordered[0],ordered[2]].join(' > '),[ordered[0],ordered[2],ordered[1]].join(' > ')];
+    return mkC(raw,d,v,`В △ABC AB=${t.a} см, AC=${t.b} см, BC=${t.c} см. Расположи углы по убыванию.`,correct,distractors,`Порядок сторон по убыванию: ${sorted.map(x=>x.side+'='+x.n).join(' > ')}. Противоположные углы имеют тот же порядок: ${correct}.`,[t.a,t.b,t.c]);
+   }
+   const correct=sorted.map(x=>x.side).join(' > '),order=sorted.map(x=>x.side),distractors=[order.slice().reverse().join(' > '),[order[1],order[0],order[2]].join(' > '),[order[0],order[2],order[1]].join(' > ')];
+   return mkC(raw,d,v,`В △ABC AB=${t.a} см, AC=${t.b} см, BC=${t.c} см. Расположи стороны по убыванию.`,correct,distractors,`Сравниваем длины всех сторон: ${correct}, так как ${sorted[0].n} > ${sorted[1].n} > ${sorted[2].n}.`,[t.a,t.b,t.c]);
+  }
+  return null;
+ }
+ makeG7Question = function(id,stageOverride=null){
+  const raw=rawCourseId(id),d=Math.max(0,Math.min(2,Number.isInteger(stageOverride)?stageOverride:activeDifficulty()));
+  const q=newG7Question(raw,d);
+  return q?gPolishQuestionObject(q):g7BeforeAudit2(id,stageOverride);
+ };
+})();
+
+/* МатКвест G7 этап 3: автономный патч тем 43 и 44 */
+/* МатКвест 8.72: G7 stage 3, topics 43/44 only. Independent QA branch. */
+(function(){
+ 'use strict';
+ const beforeStage3=makeG7Question;
+ const pick3=arr=>arr[ri(0,arr.length-1)];
+ const one=m=>[g7MonoCopy(m)];
+ const pol=(...terms)=>g7PolynomialNormalize(terms);
+ const add=(a,b,k=1)=>g7PolynomialAdd(a,b,k);
+ const mul=(a,b)=>g7PolynomialMul(a,b);
+ const scale=(p,k)=>g7PolynomialScale(p,{coef:k,powers:{}});
+ const polyKey=p=>g7PolynomialKey(g7PolynomialNormalize(p));
+ const h=m=>g7MonomialBodyHtml(m,{absolute:true});
+ const bin=(a,b,s)=>'('+g7BinomialBodyHtml(a,b,s)+')';
+ const sq=(a,b,s)=>bin(a,b,s)+'<span class="sup">2</span>';
+ const form=s=>'<span class="math">'+s+'</span>';
+ const audit=(raw,d,variant,extra={})=>({type:'g7AuditStage3',raw,d,variant,...extra});
+ function transform43(raw,d){
+  const variants=d===0?['difference_squares','cancel_double','cross_only','numeric_value']:
+     d===1?['difference_squares','sum_squares','cancel_double','cross_only','conjugate_plus','conjugate_minus','numeric_value','coefficient']:
+           ['difference_squares','sum_squares','conjugate_plus','conjugate_minus','linear_combo','scaled_difference','product_minus_square','coefficient'];
+  const variant=pick3(variants);
+  if(variant==='numeric_value'){
+   const b=ri(2,9+d*2),x=ri(-6,6)||3,ans=4*b*x;
+   const text=form('(x + '+b+')<span class="sup">2</span> − (x − '+b+')<span class="sup">2</span>');
+   return g7Number('Найди значение '+text+' при x = '+x+'.',ans,
+    'По формуле разности квадратов двучленов получаем 4·'+b+'·x; при x = '+x+' это '+ans+'.',
+    g7QuestionSig(raw,d,'audit3_'+variant,[b,x]),{audit:audit(raw,d,variant,{b,x,answer:ans})});
+  }
+  if(variant==='coefficient'){
+   const a=ri(1,4+d),b=ri(2,8+d),ans=4*a*b;
+   return g7Number('Найди коэффициент при x после упрощения '+form('('+a+'x + '+b+')<span class="sup">2</span> − ('+a+'x − '+b+')<span class="sup">2</span>')+'.',ans,
+     'Разность квадратов двучленов равна 4·'+a+'·'+b+'·x = '+ans+'x. Значит коэффициент равен '+ans+'.',
+     g7QuestionSig(raw,d,'audit3_'+variant,[a,b]),{audit:audit(raw,d,variant,{a,b,answer:ans})});
+  }
+  const {A,B}=g7FormulaPair(d),plus=g7SquareFormulaModel(A,B,1),
+    minus=g7SquareFormulaModel(A,B,-1),ds=g7DifferenceSquaresModel(A,B);
+  let expr='',result,extra={};
+  if(variant==='difference_squares'){
+   expr=sq(A,B,1)+' − '+sq(A,B,-1);
+   result=add(plus.expansion,minus.expansion,-1);
+  }else if(variant==='sum_squares'){
+   expr=sq(A,B,1)+' + '+sq(A,B,-1);
+   result=add(plus.expansion,minus.expansion,1);
+  }else if(variant==='cancel_double'){
+   expr=sq(A,B,1)+' − 2·'+h(A)+'·'+h(B);
+   result=add(plus.expansion,[g7MonoScale(plus.ab,2)],-1);
+  }else if(variant==='cross_only'){
+   expr=sq(A,B,1)+' − '+h(plus.a2)+' − '+h(plus.b2);
+   result=add(add(plus.expansion,one(plus.a2),-1),one(plus.b2),-1);
+  }else if(variant==='conjugate_plus'){
+   expr=bin(A,B,-1)+bin(A,B,1)+' + '+h(ds.b2);
+   result=add(ds.target,one(ds.b2));
+  }else if(variant==='conjugate_minus'){
+   expr=bin(A,B,-1)+bin(A,B,1)+' − '+h(ds.a2);
+   result=add(ds.target,one(ds.a2),-1);
+  }else if(variant==='linear_combo'){
+   const m=ri(2,5),n=ri(2,5);extra={m,n};expr=m+bin(A,B,1)+' − '+n+bin(A,B,-1);
+   result=add(scale(g7BinomialPoly(A,B,1),m),scale(g7BinomialPoly(A,B,-1),n),-1);
+  }else if(variant==='scaled_difference'){
+   const m=ri(2,6);extra={m};expr=m+sq(A,B,1)+' − '+m+sq(A,B,-1);
+   result=scale(add(plus.expansion,minus.expansion,-1),m);
+  }else{
+   expr=bin(A,B,1)+bin(A,B,-1)+' − '+sq(A,B,-1);
+   result=add(ds.target,minus.expansion,-1);
+  }
+  const key=polyKey(result),wrong=[scale(result,-1),add(result,[{coef:1,powers:{}}]),add(result,[{coef:3,powers:{}}])];
+  return g7PolynomialChoice('Упрости выражение: '+form(expr)+'.',result,wrong,
+   'Раскрываем скобки по формулам, затем приводим подобные слагаемые: '+g7PolynomialHtml(result)+'.',
+   g7QuestionSig(raw,d,'audit3_'+variant,[g7MonomialPlain(A),g7MonomialPlain(B),key]),
+   audit(raw,d,variant,{A,B,result,...extra}));
+ }
+ function factors44(raw,d){
+  const variants=d===0?['common_difference','common_square','square_of_difference']:
+    d===1?['common_difference','common_square','square_of_difference','group_difference','fourth_powers']:
+          ['common_difference','common_square','group_difference','group_square','fourth_powers','group_extra','common_cube'];
+  const variant=pick3(variants);
+  let A,B,G,factors;
+  if(variant==='fourth_powers'){
+   A={coef:1,powers:{x:1}};B={coef:ri(2,7),powers:{}};
+   const diff=g7BinomialPoly(A,B,-1),sum=g7BinomialPoly(A,B,1);
+   const quad=pol(g7MonomialPow(A,2),g7MonomialPow(B,2));
+   factors=[diff,sum,quad];
+  }else{
+   ({A,B}=g7FormulaPair(d,{cubes:variant==='common_cube'}));
+   G={coef:ri(2,d===0?6:9),powers:d===0?{}:d===1?(Math.random()<.5?{z:1}:{}):{z:ri(1,2)}};
+   if(variant==='common_difference'){
+    const ds=g7DifferenceSquaresModel(A,B);
+    factors=[one(G),ds.minus,ds.plus];
+   }else if(variant==='common_square'||variant==='square_of_difference'){
+    const sign=variant==='square_of_difference'?-1:pick3([1,-1]),p=g7BinomialPoly(A,B,sign);
+    factors=[one(G),p,p];
+   }else if(variant==='common_cube'){
+    const cube=g7CubeFormulaModel(A,B,pick3([1,-1]));
+    factors=[one(G),cube.first,cube.second];
+   }else if(variant==='group_extra'){
+    const ds=g7DifferenceSquaresModel(A,B),t={coef:ri(1,6),powers:{}};
+    factors=[ds.minus,add(ds.plus,one(t))];
+   }else{
+    const left=pol({coef:ri(1,3),powers:{a:1}},{coef:ri(1,5),powers:{b:1}});
+    if(variant==='group_square'){
+     const p=g7BinomialPoly(A,B,pick3([1,-1]));
+     factors=[left,p,p];
+    }else{
+     const ds=g7DifferenceSquaresModel(A,B);factors=[left,ds.minus,ds.plus];
+    }
+   }
+  }
+  const target=g7FactorizationExpand(factors),wrong=[];
+  for(let i=0;i<Math.min(3,factors.length);i++){
+   const w=factors.map(f=>g7PolynomialNormalize(f).map(g7MonoCopy));
+   w[i][0].coef+=(w[i][0].coef>=0?1:-1);wrong.push(w);
+  }
+  return g7FactorizationChoice('Разложи на множители полностью: '+g7PolynomialHtml(target)+'.',
+    factors,wrong,'Выделяем общий множитель, применяем формулы сокращённого умножения и при необходимости группировку. Получаем '+g7FactorizationHtml(factors)+'.',
+    g7QuestionSig(raw,d,'audit3_'+variant,[polyKey(target)]),
+    audit(raw,d,variant,{target,factors,A,B,G}));
+ }
+ makeG7Question=function(id,stageOverride=null){
+  const raw=rawCourseId(id);
+  if(raw!=='integer_expression_transform'&&raw!=='combined_factorization')return beforeStage3(id,stageOverride);
+  const d=Math.max(0,Math.min(2,Number.isInteger(stageOverride)?stageOverride:activeDifficulty()));
+  const q=raw==='integer_expression_transform'?transform43(raw,d):factors44(raw,d);
+  return gPolishQuestionObject(q);
+ };
+})();
+
+/* МатКвест G7 этап 4: вариативность 4 геометрических тем, отдельная ветка */
+(function G7Stage4(){
+ "use strict";
+ const beforeStage4=makeG7Question;
+ const pick=a=>a[ri(0,a.length-1)];
+ const sig=(raw,d,v,parts=[])=>g7QuestionSig(raw,d,"audit4_"+v,parts);
+ const audit=(raw,d,v,more={})=>({type:"g7AuditStage4",raw,d,variant:v,...more});
+ const num=(raw,d,v,txt,ans,exp,parts,data,unit="",caption="")=>
+   g7GeoNumber(txt,ans,exp,sig(raw,d,v,parts),audit(raw,d,v,{answer:ans}),data,caption,unit);
+ const choice=(raw,d,v,txt,ans,wrong,exp,parts,data)=>
+   g7GeoChoice(txt,ans,wrong,exp,sig(raw,d,v,parts),audit(raw,d,v,{answer:ans}),data);
+ function generated(raw,d){
+  if(raw==="geo_basic_constructions"){
+   const variants=d===0?["midpoint_half","midpoint_double","bisector_half","bisector_double","copy_length","arc_equidistance"]:
+    d===1?["midpoint_half","midpoint_double","bisector_half","bisector_double","copy_length","arc_equidistance","bisector_property"]:
+    ["midpoint_half","midpoint_double","bisector_half","bisector_double","copy_length","arc_equidistance","bisector_property","midpoint_intersection"];
+   const v=pick(variants),mid={kind:"g7-construction",subtype:"midpoint",showResult:true,aria:"Середина отрезка при построении серединного перпендикуляра"},
+    bis={kind:"g7-construction",subtype:"bisector",showResult:true,aria:"Биссектриса построенного угла"},
+    copy={kind:"g7-construction",subtype:"copy",showResult:true,aria:"Перенос отрезка циркулем"};
+   if(v==="midpoint_half"){
+    const n=ri(3,18);return num(raw,d,v,`С помощью циркуля и линейки построили середину M отрезка AB длиной ${2*n} см. Найди AM.`,n,`Середина делит отрезок на две равные части: AM = ${2*n} : 2 = ${n} см.`,[n],mid,"см");
+   }
+   if(v==="midpoint_double"){
+    const n=ri(3,17);return num(raw,d,v,`M — середина отрезка AB. Известно, что MB = ${n} см. Найди длину AB.`,2*n,`AM = MB = ${n} см, поэтому AB = ${n} + ${n} = ${2*n} см.`,[n],mid,"см");
+   }
+   if(v==="bisector_half"){
+    const a=ri(12,70);return num(raw,d,v,`Биссектриса делит угол величиной ${2*a}° пополам. Найди величину каждого получившегося угла.`,a,`Обе части равны: ${2*a}° : 2 = ${a}°.`,[a],bis,"°");
+   }
+   if(v==="bisector_double"){
+    const a=ri(9,68);return num(raw,d,v,`После построения биссектрисы одна из двух равных частей угла оказалась ${a}°. Найди исходный угол.`,2*a,`Биссектриса делит угол пополам; исходный угол ${a}° · 2 = ${2*a}°.`,[a],bis,"°");
+   }
+   if(v==="copy_length"){
+    const n=ri(4,26);return num(raw,d,v,`Циркулем перенесли длину AB = ${n} см и отложили равный отрезок CD. Сколько сантиметров в CD?`,n,`Перенос раствора циркуля сохраняет длину: CD = AB = ${n} см.`,[n],copy,"см");
+   }
+   if(v==="arc_equidistance"){
+    const n=ri(5,23);return num(raw,d,v,`В построении середины AB точка P — пересечение дуг с центрами A и B, проведённых одним радиусом. AP = ${n} см. Найди BP.`,n,`Дуги проведены одинаковым радиусом, значит AP = BP = ${n} см.`,[n],mid,"см");
+   }
+   if(v==="bisector_property"){
+    return choice(raw,d,v,"Какое условие проверяет правильность построенной биссектрисы угла B?","∠ABM = ∠MBC",["BM перпендикулярен BA","BM равен длине BA","AM = BC"],"Биссектриса делит угол B на два равных угла.",[],bis);
+   }
+   return choice(raw,d,v,"Почему прямая через две точки пересечения равных дуг из A и B проходит через середину AB?","каждая из этих точек равноудалена от A и B",["прямая параллельна AB","радиусы дуг всегда равны AB","их пересечение обязательно совпадает с A"],"Геометрическое место точек, равноудалённых от концов отрезка, — серединный перпендикуляр.",[],mid);
+  }
+  if(raw==="geo_right_triangle_congruence"){
+   const variants=d===0?["both_legs","hyp_and_leg","hyp_and_angle","angles_only"]:
+    d===1?["both_legs","hyp_and_leg","hyp_and_angle","angles_only","leg_and_angle","single_hyp"]:
+    ["both_legs","hyp_and_leg","hyp_and_angle","angles_only","leg_and_angle","single_hyp","criterion_inverse"];
+   const v=pick(variants),h=g7TrianglePairData("R-hyp-leg"),l=g7TrianglePairData("R-leg-leg"),a=g7TrianglePairData("R-leg-angle");
+   if(v==="both_legs"){
+    const x=ri(3,11),y=ri(3,11);return choice(raw,d,v,`Два прямоугольных треугольника имеют соответствующие катеты длиной ${x} см и ${y} см. Обязательно ли они равны?`,"да",["нет"],"Два прямоугольных треугольника равны по двум катетам.",[x,y],l);
+   }
+   if(v==="hyp_and_leg"){
+    const x=ri(10,25),y=ri(3,x-1);return choice(raw,d,v,`У двух прямоугольных треугольников гипотенузы равны ${x} см, а один соответствующий катет равен ${y} см. Достаточно ли этого для их равенства?`,"да",["нет"],"Равенство гипотенузы и соответствующего катета — признак равенства прямоугольных треугольников.",[x,y],h);
+   }
+   if(v==="hyp_and_angle"){
+    const x=ri(9,22),angle=ri(20,65);return choice(raw,d,v,`Гипотенузы двух прямоугольных треугольников равны ${x} см. В каждом из них равен один и тот же соответствующий острый угол ${angle}°. Будут ли треугольники равны?`,"да",["нет"],"Гипотенуза вместе с соответствующим острым углом однозначно задаёт прямоугольный треугольник.",[x,angle],h);
+   }
+   if(v==="angles_only"){
+    const x=ri(20,68);return choice(raw,d,v,`У двух прямоугольных треугольников равны острые углы: ${x}° и ${90-x}°. Достаточно ли этого, чтобы утверждать, что сами треугольники равны?`,"нет",["да"],"Равные углы ещё не определяют длины сторон; треугольники могут иметь разные размеры.",[x],a);
+   }
+   if(v==="leg_and_angle"){
+    const x=ri(4,17),angle=ri(15,70);return choice(raw,d,v,`В двух прямоугольных треугольниках равны катеты длиной ${x} см и соответствующие острые углы ${angle}°, лежащие напротив этих катетов. Достаточно ли условий для равенства?`,"да",["нет"],"Катет и соответствующий острый угол — признак равенства прямоугольных треугольников.",[x,angle],a);
+   }
+   if(v==="single_hyp"){
+    const x=ri(8,22);return choice(raw,d,v,`Известно лишь, что у двух прямоугольных треугольников гипотенузы равны ${x} см. Достаточно ли этого для равенства треугольников?`,"нет",["да"],"Одинаковой гипотенузы недостаточно: катеты и острые углы могут различаться.",[x],h);
+   }
+   return choice(raw,d,v,"Какие дополнительные данные вместе с равными прямыми углами и равными гипотенузами позволят доказать равенство двух прямоугольных треугольников?","равные соответствующие катеты",["только равенство площадей","равенство любых двух острых углов в одном треугольнике","одинаковая запись названий вершин"],"Достаточно равенства гипотенузы и соответствующего катета.",[],h);
+  }
+  if(raw==="geo_circle_inscribed_in_angle"){
+   const variants=d===0?["radius_from_side","equal_distances","half_angle","double_angle"]:
+    d===1?["radius_from_side","equal_distances","half_angle","double_angle","two_distances"]:
+    ["radius_from_side","equal_distances","half_angle","double_angle","two_distances","center_position"];
+   const v=pick(variants),data=g7CircleTopicData("g7-circle-angle");
+   if(v==="radius_from_side"){const r=ri(3,18);return num(raw,d,v,`Окружность касается обеих сторон угла. Расстояние от её центра до одной стороны равно ${r} см. Найди радиус.`,r,`Радиус к точке касания перпендикулярен стороне угла и равен ${r} см.`,[r],data,"см");}
+   if(v==="equal_distances"){const r=ri(3,18);return num(raw,d,v,`Центр O вписанной в угол окружности равноудалён от его сторон. Расстояние до первой стороны ${r} см. Найди расстояние до второй.`,r,`Центр находится на биссектрисе и расстояния до сторон равны: ${r} см.`,[r],data,"см");}
+   if(v==="half_angle"){const a=ri(15,70);return num(raw,d,v,`Центр O окружности, вписанной в угол величиной ${2*a}°, лежит на биссектрисе. Какой угол образует биссектриса с каждой стороной?`,a,`Биссектриса делит ${2*a}° пополам, получается ${a}°.`,[a],data,"°");}
+   if(v==="double_angle"){const a=ri(10,65);return num(raw,d,v,`Биссектриса проходит через центр окружности, вписанной в угол, и образует с одной из сторон угол ${a}°. Найди величину исходного угла.`,2*a,`Угол из двух равных частей: 2 · ${a}° = ${2*a}°.`,[a],data,"°");}
+   if(v==="two_distances"){const a=ri(3,18);return num(raw,d,v,`Из центра окружности, вписанной в угол, опущены перпендикуляры к обеим сторонам. Каждый равен ${a} см. Найди сумму их длин.`,2*a,`Оба перпендикуляра — радиусы длиной ${a} см; их сумма ${2*a} см.`,[a],data,"см");}
+   return choice(raw,d,v,"На какой прямой расположен центр окружности, касающейся обеих сторон одного угла?","на биссектрисе угла",["на любой прямой через его вершину","на продолжении только одной стороны","на перпендикуляре к одной стороне, проведённом из вершины"],"Центр равноудалён от сторон, следовательно лежит на внутренней биссектрисе.",[],data);
+  }
+  if(raw==="geo_incircle_triangle"){
+   const variants=d===0?["from_one_side","given_radius","angle_half","angle_double"]:
+    d===1?["from_one_side","given_radius","angle_half","angle_double","sum_distances"]:
+    ["from_one_side","given_radius","angle_half","angle_double","sum_distances","tangent_count"];
+   const v=pick(variants),data=g7CircleTopicData("g7-incircle",{points:g7TriModel("scalene").points,showBisectors:true});
+   if(v==="from_one_side"){const r=ri(2,17);return num(raw,d,v,`В треугольник вписана окружность с центром I. Расстояние от I до стороны AB равно ${r} см. Найди расстояние до стороны BC.`,r,`Инцентр равноудалён от всех сторон треугольника, поэтому искомое расстояние ${r} см.`,[r],data,"см");}
+   if(v==="given_radius"){const r=ri(2,17);return num(raw,d,v,`Радиус вписанной в треугольник окружности равен ${r} см. Найди расстояние от её центра до стороны AC.`,r,`Расстояние от центра окружности до стороны касания равно радиусу ${r} см.`,[r],data,"см");}
+   if(v==="angle_half"){const a=ri(12,68);return num(raw,d,v,`Биссектриса угла A треугольника проходит через центр вписанной окружности I. Если ∠A = ${2*a}°, найди ∠BAI.`,a,`AI — биссектриса угла A: ${2*a}° : 2 = ${a}°.`,[a],data,"°");}
+   if(v==="angle_double"){const a=ri(12,68);return num(raw,d,v,`Центр I вписанной окружности лежит на биссектрисе угла A треугольника. Если ∠BAI = ${a}°, найди ∠A.`,2*a,`Биссектриса делит угол A пополам, значит ∠A = 2 · ${a}° = ${2*a}°.`,[a],data,"°");}
+   if(v==="sum_distances"){const r=ri(2,14);return num(raw,d,v,`Расстояние от инцентра до каждой из трёх сторон треугольника равно ${r} см. Чему равна сумма этих трёх расстояний?`,3*r,`Каждое расстояние равно ${r} см, поэтому сумма 3 · ${r} = ${3*r} см.`,[r],data,"см");}
+   return choice(raw,d,v,"Сколько сторон невырожденного треугольника касается его вписанная окружность?","3",["1","2","0"],"Вписанная окружность касается всех трёх сторон треугольника.",[],data);
+  }
+  return null;
+ }
+ makeG7Question=function(id,stageOverride=null){
+  const raw=rawCourseId(id);
+  if(!["geo_basic_constructions","geo_right_triangle_congruence","geo_circle_inscribed_in_angle","geo_incircle_triangle"].includes(raw))return beforeStage4(id,stageOverride);
+  const d=Math.max(0,Math.min(2,Number.isInteger(stageOverride)?stageOverride:activeDifficulty()));
+  if(Math.random()<0.14)return beforeStage4(id,stageOverride);
+  return gPolishQuestionObject(generated(raw,d));
+ };
+})();
+
+
+/* МатКвест G7 этап 5: расширение вариативности 5 тем геометрии */
+(function G7Stage5(){
+ "use strict";
+ const previous=makeG7Question;
+ const pick=rows=>rows[ri(0,rows.length-1)];
+ const sig=(raw,d,v,parts=[])=>g7QuestionSig(raw,d,"audit5_"+v,parts);
+ const audit=(raw,d,v,more={})=>({type:"g7AuditStage5",raw,d,variant:v,...more});
+ const number=(raw,d,v,text,ans,ex,parts,data,unit="",caption="")=>
+  g7GeoNumber(text,ans,ex,sig(raw,d,v,parts),audit(raw,d,v,{answer:ans}),data,caption,unit);
+ const choice=(raw,d,v,text,ans,wrong,ex,parts,data)=>
+  data?g7GeoChoice(text,ans,wrong,ex,sig(raw,d,v,parts),audit(raw,d,v,{answer:ans}),data):
+       g7StrictChoice(text,ans,wrong,ex,sig(raw,d,v,parts),audit(raw,d,v,{answer:ans}));
+ function build(raw,d){
+  if(raw==="geo_parallel_perpendicular_intro"){
+   const variants=d===0?["between_parallel","point_parallel","identify","perp_angle","two_parallel"]:
+    d===1?["between_parallel","point_parallel","identify","two_parallel","perp_parallel","common_perpendicular","perp_angle"]:
+           ["between_parallel","point_parallel","identify","two_parallel","perp_parallel","common_perpendicular","perp_angle","notation"];
+   const v=pick(variants),par=g7SafeLineRelationModel("parallel"),per=g7SafeLineRelationModel("perpendicular");
+   if(v==="between_parallel"){
+    const a=ri(3,24);return number(raw,d,v,`Две разные параллельные прямые a и b находятся на расстоянии ${a} см друг от друга. Найди длину перпендикуляра между ними.`,a,`Расстояние между параллельными прямыми измеряют общим перпендикуляром, поэтому оно равно ${a} см.`,[a],par,"см");
+   }
+   if(v==="point_parallel"){
+    const a=ri(2,25);return number(raw,d,v,`Прямая a параллельна прямой b. Точка P лежит на a, а расстояние между прямыми равно ${a} см. Чему равно расстояние от P до b?`,a,`Все точки прямой a находятся на одинаковом перпендикулярном расстоянии ${a} см от параллельной b.`,[a],par,"см");
+   }
+   if(v==="identify"){
+    const v2=pick(["parallel","perpendicular","intersecting"]),labels={parallel:"параллельные",perpendicular:"перпендикулярные",intersecting:"пересекающиеся, но не перпендикулярные"},data=g7SafeLineRelationModel(v2);
+    return choice(raw,d,v,"Определи по схеме взаимное расположение прямых a и b.",labels[v2],Object.values(labels).filter(t=>t!==labels[v2]),"Параллельные прямые не пересекаются; перпендикулярные образуют угол 90°; остальные пересекаются под другим углом.",[v2],data);
+   }
+   if(v==="perp_angle"){
+    return number(raw,d,v,"Прямые a и b перпендикулярны. Найди величину одного из углов между ними.",90,"Все четыре угла при пересечении двух перпендикулярных прямых равны 90°.",[],per,"°");
+   }
+   if(v==="two_parallel"){
+    return choice(raw,d,v,"В одной плоскости прямые a и b обе перпендикулярны третьей прямой c и не совпадают. Как расположены a и b?","параллельны",["перпендикулярны","обязательно пересекаются","образуют угол 45°"],"Две разные прямые, перпендикулярные одной и той же прямой, параллельны.",[]);
+   }
+   if(v==="perp_parallel"){
+    return choice(raw,d,v,"Если a ∥ b, а прямая c перпендикулярна a, то как c расположена относительно b?","перпендикулярна b",["параллельна b","совпадает с b","не имеет определённого положения"],"Прямая, перпендикулярная одной из двух параллельных, перпендикулярна и другой.",[]);
+   }
+   if(v==="common_perpendicular"){
+    return choice(raw,d,v,"Прямая c пересекает a под углом 90°. Известно, что a ∥ b. Какой угол между c и b?","90°",["0°","45°","180°"],"c перпендикулярна a, значит при a ∥ b она перпендикулярна и b.",[]);
+   }
+   return choice(raw,d,v,"Как записывают факт, что прямые a и b не пересекаются и лежат в одной плоскости?","a ∥ b",["a ⟂ b","a = b","a < b"],"Для параллельных прямых используют символ ∥.",[]);
+  }
+  if(raw==="geo_perpendicular_bisector_locus"){
+   const variants=d===0?["other_distance","sum_equal","half_sum","inverse_property"]:
+    d===1?["other_distance","sum_equal","half_sum","triangle_perimeter","inverse_property"]:
+           ["other_distance","sum_equal","half_sum","triangle_perimeter","inverse_property","definition"];
+   const v=pick(variants),data=g7CircleTopicData("g7-perp-bisector",{showDistances:true});
+   if(v==="other_distance"){
+    const n=ri(3,27);return number(raw,d,v,`Точка M равноудалена от A и B. Если MA = ${n} см, найди MB.`,n,`MA = MB по свойству серединного перпендикуляра, следовательно MB = ${n} см.`,[n],data,"см");
+   }
+   if(v==="sum_equal"){
+    const n=ri(3,25);return number(raw,d,v,`M лежит на серединном перпендикуляре к AB, MA = ${n} см. Найди MA + MB.`,2*n,`MA = MB = ${n} см, поэтому сумма равна ${2*n} см.`,[n],data,"см");
+   }
+   if(v==="half_sum"){
+    const n=ri(4,23);return number(raw,d,v,`M лежит на серединном перпендикуляре к AB. Известно, что MA + MB = ${2*n} см. Найди MB.`,n,`Так как MA = MB, делим сумму на 2: MB = ${2*n} : 2 = ${n} см.`,[n],data,"см");
+   }
+   if(v==="triangle_perimeter"){
+    const n=ri(6,22),c=ri(3,2*n-1);return number(raw,d,v,`M лежит на серединном перпендикуляре к AB. MA = ${n} см, AB = ${c} см. Найди периметр треугольника AMB.`,2*n+c,`MA = MB = ${n} см; P = ${n} + ${n} + ${c} = ${2*n+c} см.`,[n,c],data,"см");
+   }
+   if(v==="inverse_property"){
+    return choice(raw,d,v,"Известно, что точка M удовлетворяет MA = MB. К какому геометрическому месту она принадлежит?","к серединному перпендикуляру к AB",["только к отрезку AB","к окружности с диаметром AB","к лучу AB"],"Точки, равноудалённые от A и B, образуют серединный перпендикуляр к AB.",[],data);
+   }
+   return choice(raw,d,v,"Какое условие одновременно выполняется у серединного перпендикуляра к отрезку?","он проходит через середину и перпендикулярен отрезку",["он только делит отрезок в отношении 2:1","он параллелен отрезку","он проходит через любой конец отрезка"],"Серединный перпендикуляр должен быть перпендикулярен отрезку и проходить через его середину.",[],data);
+  }
+  if(raw==="geo_angle_bisector_locus"){
+   const variants=d===0?["equal_distance","double_distance","half_sum","angle_half"]:
+    d===1?["equal_distance","double_distance","half_sum","angle_half","angle_double"]:
+           ["equal_distance","double_distance","half_sum","angle_half","angle_double","inverse_property"];
+   const v=pick(variants),data=g7CircleTopicData("g7-angle-locus");
+   if(v==="equal_distance"){
+    const n=ri(3,24);return number(raw,d,v,`Точка M находится на биссектрисе угла. Перпендикулярное расстояние до одной его стороны равно ${n} см. Найди расстояние до другой стороны.`,n,`Точки биссектрисы равноудалены от обеих сторон угла, поэтому расстояние равно ${n} см.`,[n],data,"см");
+   }
+   if(v==="double_distance"){
+    const n=ri(4,23);return number(raw,d,v,`M находится внутри угла на его биссектрисе. Расстояние MP до одной стороны равно ${n} см, а MQ — до другой. Найди MP + MQ.`,2*n,`Расстояния до сторон угла равны, поэтому ${n} + ${n} = ${2*n} см.`,[n],data,"см");
+   }
+   if(v==="half_sum"){
+    const n=ri(3,22);return number(raw,d,v,`Из точки M на биссектрисе угла опустили перпендикуляры к его сторонам. Сумма длин перпендикуляров равна ${2*n} см. Найди длину одного из них.`,n,`Перпендикуляры равны, значит длина каждого ${2*n} : 2 = ${n} см.`,[n],data,"см");
+   }
+   if(v==="angle_half"){
+    const n=ri(10,68);return number(raw,d,v,`Биссектриса делит угол ${2*n}° на два равных угла. Найди величину каждого угла.`,n,`${2*n}° : 2 = ${n}°.`,[n],data,"°");
+   }
+   if(v==="angle_double"){
+    const n=ri(10,68);return number(raw,d,v,`Известно, что биссектриса образует с одной из сторон исходного угла угол ${n}°. Чему равен весь исходный угол?`,2*n,`Обе части равны по ${n}°, значит угол ${2*n}°.`,[n],data,"°");
+   }
+   return choice(raw,d,v,"Где лежит точка внутри угла, равноудалённая от его сторон?","на биссектрисе",["на любой прямой через вершину","на одной из сторон","на серединном перпендикуляре к любой стороне"],"Равноудалённость от сторон внутри угла — свойство биссектрисы.",[],data);
+  }
+  if(raw==="geo_constructions_lines_angles"){
+   const variants=d===0?["copy_length","midpoint_half","midpoint_double","angle_half"]:
+    d===1?["copy_length","midpoint_half","midpoint_double","angle_half","angle_double","equal_arcs"]:
+           ["copy_length","midpoint_half","midpoint_double","angle_half","angle_double","equal_arcs","perpendicular_fact"];
+   const v=pick(variants),mid={kind:"g7-construction",subtype:"midpoint",showResult:true,aria:"Построение середины отрезка"},
+    bis={kind:"g7-construction",subtype:"bisector",showResult:true,aria:"Построение биссектрисы"},
+    copy={kind:"g7-construction",subtype:"copy",showResult:true,aria:"Перенос отрезка циркулем"},
+    per={kind:"g7-construction",subtype:"perpendicular",showResult:true,aria:"Построение перпендикуляра"};
+   if(v==="copy_length"){
+    const n=ri(4,25);return number(raw,d,v,`Отрезок AB длиной ${n} см перенесли циркулем из точки C. Какова длина построенного отрезка CD?`,n,`При переносе циркулем длина не изменяется, поэтому CD = ${n} см.`,[n],copy,"см");
+   }
+   if(v==="midpoint_half"){
+    const n=ri(5,22);return number(raw,d,v,`Построили середину M отрезка AB длиной ${2*n} см. Найди MB.`,n,`Середина делит AB на два равных отрезка по ${n} см.`,[n],mid,"см");
+   }
+   if(v==="midpoint_double"){
+    const n=ri(4,24);return number(raw,d,v,`M — середина построенного отрезка AB. При AM = ${n} см найди AB.`,2*n,`AB состоит из двух равных частей, поэтому AB = 2·${n} = ${2*n} см.`,[n],mid,"см");
+   }
+   if(v==="angle_half"){
+    const n=ri(12,64);return number(raw,d,v,`Биссектриса построенного угла величиной ${2*n}° разделила его пополам. Сколько градусов в каждой части?`,n,`${2*n}° : 2 = ${n}°.`,[n],bis,"°");
+   }
+   if(v==="angle_double"){
+    const n=ri(12,64);return number(raw,d,v,`Построенная биссектриса разделила угол на две части, по ${n}° каждая. Найди исходный угол.`,2*n,`Исходный угол равен ${n}° + ${n}° = ${2*n}°.`,[n],bis,"°");
+   }
+   if(v==="equal_arcs"){
+    const n=ri(5,22);return number(raw,d,v,`При построении середины AB циркуль из A и B провёл дуги одного радиуса. Если AP = ${n} см, то какова длина BP до точки пересечения дуг?`,n,`AP и BP равны радиусу одной настройки циркуля, поэтому BP = ${n} см.`,[n],mid,"см");
+   }
+   return choice(raw,d,v,"Каков угол между построенным перпендикуляром и исходной прямой?","90°",["45°","180°","0°"],"Перпендикуляр пересекает исходную прямую под прямым углом 90°.",[],per);
+  }
+  if(raw==="geo_constructions_triangles"){
+   const variants=d===0?["sss_exists","sss_min","sss_max","sss_perimeter"]:
+    d===1?["sss_exists","sss_min","sss_max","sss_perimeter","asa_third_angle","sas_unique"]:
+           ["sss_exists","sss_min","sss_max","sss_perimeter","asa_third_angle","sas_unique","sss_boundary"];
+   const v=pick(variants),
+    data={kind:"g7-triangle-construction",subtype:"sss",aria:"Построение треугольника по трём сторонам"};
+   if(v==="sss_exists"){
+    const a=ri(3,16),b=ri(3,16),valid=Math.random()<.5,c=valid?ri(Math.abs(a-b)+1,a+b-1):a+b+ri(0,5);
+    return choice(raw,d,v,`Можно ли построить невырожденный треугольник со сторонами ${a}, ${b}, ${c} см?`,valid?"да":"нет",[valid?"нет":"да"],valid?"Наибольшая сторона меньше суммы остальных; треугольник существует.":"Третья сторона не меньше суммы двух других; треугольник невозможен.",[a,b,c,valid?1:0],data);
+   }
+   if(v==="sss_min"){
+    const a=ri(4,16),b=ri(4,16),x=Math.abs(a-b)+1;
+    return number(raw,d,v,`У треугольника две стороны равны ${a} см и ${b} см. Найди наименьшую возможную целую длину третьей стороны.`,x,`Третья сторона c должна удовлетворять |${a} − ${b}| < c < ${a+b}; минимальное целое c = ${x} см.`,[a,b],data,"см");
+   }
+   if(v==="sss_max"){
+    const a=ri(4,16),b=ri(4,16),x=a+b-1;
+    return number(raw,d,v,`У треугольника две стороны равны ${a} см и ${b} см. Найди наибольшую возможную целую длину третьей стороны.`,x,`По неравенству треугольника c < ${a+b}; наибольшее целое c = ${x} см.`,[a,b],data,"см");
+   }
+   if(v==="sss_perimeter"){
+    const a=ri(4,13),b=ri(4,13),c=ri(Math.abs(a-b)+1,a+b-1);
+    return number(raw,d,v,`По трём сторонам построили треугольник со сторонами ${a}, ${b}, ${c} см. Найди его периметр.`,a+b+c,`Периметр равен сумме сторон: ${a} + ${b} + ${c} = ${a+b+c} см.`,[a,b,c],data,"см");
+   }
+   if(v==="asa_third_angle"){
+    const a=ri(23,70),b=ri(23,70),x=180-a-b;
+    return number(raw,d,v,`Треугольник строят по стороне AB и двум прилежащим к ней углам: ∠A=${a}°, ∠B=${b}°. Найди ∠C.`,x,`Сумма углов треугольника равна 180°, поэтому ∠C = 180° − ${a}° − ${b}° = ${x}°.`,[a,b],{kind:"g7-triangle-construction",subtype:"asa",aria:"Построение по стороне и двум углам"},"°");
+   }
+   if(v==="sas_unique"){
+    const a=ri(4,16),b=ri(4,16),ang=ri(25,145);
+    return choice(raw,d,v,`Заданы две стороны ${a} см и ${b} см, а также угол ${ang}° строго между ними. Можно ли построить треугольник, однозначно определённый с точностью до совмещения?`,"да",["нет"],"Две стороны и угол между ними определяют треугольник (SAS).",[a,b,ang],{kind:"g7-triangle-construction",subtype:"sas",aria:"Построение по двум сторонам и углу между ними"});
+   }
+   return choice(raw,d,v,"При построении по трём сторонам сумма двух сторон равна третьей. Получится ли невырожденный треугольник?","нет",["да"],"При равенстве сумм окружности касаются в одной точке на прямой, а треугольник вырождается.",[],data);
+  }
+  return null;
+ }
+ makeG7Question=function(id,stageOverride=null){
+  const raw=rawCourseId(id);
+  if(!["geo_parallel_perpendicular_intro","geo_perpendicular_bisector_locus","geo_angle_bisector_locus","geo_constructions_lines_angles","geo_constructions_triangles"].includes(raw))return previous(id,stageOverride);
+  const d=Math.max(0,Math.min(2,Number.isInteger(stageOverride)?stageOverride:activeDifficulty()));
+  return Math.random()<0.13?previous(id,stageOverride):gPolishQuestionObject(build(raw,d));
+ };
+})();
+
+
+/* МатКвест G7 этап 6: вариативность статистики и расстояний */
+(function G7Stage6(){
+ 'use strict';
+ const prior=makeG7Question;
+ const pick=xs=>xs[ri(0,xs.length-1)];
+ const signature=(raw,d,v,params=[])=>g7QuestionSig(raw,d,'audit6_'+v,params);
+ const meta=(raw,d,v,extra={})=>({type:'g7AuditStage6',raw,d,variant:v,...extra});
+ const statChoice=(raw,d,v,text,correct,wrong,ex,data={})=>g7S13Choice(text,correct,wrong,ex,signature(raw,d,v,[...(data.values||[]),'A',...(data.A||[]),'B',...(data.B||[])]),meta(raw,d,v,{correct, ...data}));
+ const statNumber=(raw,d,v,text,answer,ex,nums,model={})=>g7S13Number(text,answer,ex,signature(raw,d,v,nums),meta(raw,d,v,{answer,...model}));
+ const geoNumber=(raw,d,v,text,answer,ex,parts,data,unit='см')=>g7GeoNumber(text,answer,ex,signature(raw,d,v,parts),meta(raw,d,v,{answer,...(data?{dataKind:data.kind}:{})}),data,'',unit);
+ const geoChoice=(raw,d,v,text,ans,options,ex,parts,data)=>g7GeoChoice(text,ans,options,ex,signature(raw,d,v,parts),meta(raw,d,v,{correct:ans}),data);
+ function build(raw,d){
+  if(raw==='stat_choose_characteristic'){
+   const variants=d===0?['mean_no_outlier','range_measure','max_value','min_value']:
+     d===1?['mean_no_outlier','range_measure','median_outlier','compare_spread','median_find','max_value']:
+           ['median_outlier','compare_spread','median_find','range_effect','outlier_effect','range_measure','mean_no_outlier'];
+   const v=pick(variants),b=ri(8,28),deltas=pick([[ -3,-1,0,1,3 ],[-4,-2,0,2,4],[-5,-1,0,1,5]]),values=deltas.map(x=>b+x);
+   if(v==='mean_no_outlier'){
+    return statChoice(raw,d,v,`Набор наблюдений: ${g7S13List(values)}. Выбери характеристику для вычисления общего среднего уровня.`,'среднее арифметическое',['размах','максимум','минимум'],`Среднее арифметическое — сумма всех наблюдений, делённая на их число. Здесь среднее равно ${b}.`,{values});
+   }
+   if(v==='range_measure'){
+    const lo=ri(3,15),hi=lo+ri(5,26);
+    return statNumber(raw,d,v,`В ряду измерений минимум равен ${lo}, максимум — ${hi}. Найди размах.`,hi-lo,`Размах равен максимальному значению минус минимальное: ${hi} − ${lo} = ${hi-lo}.`,[lo,hi],{min:lo,max:hi});
+   }
+   if(v==='max_value'){
+    const rows=pick([[1,4,7,9,11],[3,6,8,12,16],[5,6,13,14,18]]).map(x=>x+ri(1,12));
+    return statNumber(raw,d,v,`Найди максимальное значение ряда: ${g7S13List(rows)}.`,Math.max(...rows),`Максимум — наибольшее значение, здесь это ${Math.max(...rows)}.`,rows,{values:rows});
+   }
+   if(v==='min_value'){
+    const rows=pick([[3,6,8,10,12],[7,9,13,15,20],[4,10,12,18,25]]).map(x=>x+ri(0,7));
+    return statNumber(raw,d,v,`Найди минимальное значение ряда: ${g7S13List(rows)}.`,Math.min(...rows),`Минимум — наименьшее значение, здесь это ${Math.min(...rows)}.`,rows,{values:rows});
+   }
+   if(v==='median_outlier'){
+    const out=ri(70,140),ordered=[b-2,b-1,b,b+1,b+out];
+    return statChoice(raw,d,v,`Ряд ${g7S13List(ordered)} содержит один очень большой выброс. Какая характеристика лучше показывает типичное центральное значение?`,'медиана',['среднее арифметическое','максимум','размах'],`Медиана этого упорядоченного ряда — ${b}, тогда как большой выброс увеличивает среднее.`,{values:ordered});
+   }
+   if(v==='compare_spread'){
+    const k=ri(3,14),small=[b-2,b,b+2],large=[b-k,b,b+k];
+    return statChoice(raw,d,v,`Два ряда имеют одинаковое среднее ${b}: A = ${g7S13List(small)}, Б = ${g7S13List(large)}. Какую характеристику удобно сравнить для оценки разброса?`,'размах',['медиану','среднее арифметическое','моду'],`Размах A равен 4, размах Б равен ${2*k}. Он показывает различие между наибольшим и наименьшим значениями.`,{A:small,B:large});
+   }
+   if(v==='median_find'){
+    const k=ri(4,12),ordered=[b-3,b-1,b,b+1,b+k];
+    return statNumber(raw,d,v,`Какова медиана упорядоченного ряда ${g7S13List(ordered)}?`,b,`В ряду из пяти значений медиана — третье число, равное ${b}.`,ordered,{values:ordered});
+   }
+   if(v==='range_effect'){
+    const k=ri(2,19),a=b-3,c=b+3;
+    return statNumber(raw,d,v,`Был ряд ${g7S13List([a,b-1,b+1,c])}. Максимум ${c} заменили числом ${c+k}, остальные значения не изменились. На сколько увеличился размах?`,k,`Минимум ${a} сохранился, максимум увеличился на ${k}; размах тоже увеличился на ${k}.`,[a,b,c,k],{increment:k});
+   }
+   const k=ri(80,160),ordered=[b-2,b-1,b,b+1,b+2],altered=[...ordered.slice(0,4),b+k];
+   return statChoice(raw,d,v,`В ряду ${g7S13List(ordered)} последнее значение заменили на ${b+k}. Какой показатель центрального положения не изменится?`,'медиана',['среднее арифметическое','максимум','размах'],`Серединное третье значение остаётся ${b}; среднее и максимум увеличиваются.`,{values:altered});
+  }
+  if(raw==='stat_random_variability'){
+   const variants=d===0?['equal_or_not','range','stable','change_count']:
+     d===1?['equal_or_not','range','stable','compare','change_count','offset']:
+           ['compare','stable','range','offset','bigger_range','equal_or_not','change_count'];
+   const v=pick(variants),b=ri(10,42),s=ri(1,5);
+   if(v==='equal_or_not'){
+    const varied=Math.random()<.65,rows=varied?[b,b+s,b-s,b+ri(1,4)]:[b,b,b,b];
+    return statChoice(raw,d,v,`Есть ли изменчивость в серии результатов: ${g7S13List(rows)}?`,varied?'ДА':'НЕТ',[varied?'НЕТ':'ДА'],varied?'Часть значений различается, следовательно изменчивость наблюдается.':'Все значения одинаковы, значит в этой серии изменчивости нет.',{values:rows});
+   }
+   if(v==='range'){
+    const rows=[b-s,b,b+s],ans=2*s;
+    return statNumber(raw,d,v,`Результаты повторных наблюдений: ${g7S13List(rows)}. Найди размах.`,ans,`Максимум ${b+s}, минимум ${b-s}; размах ${b+s} − ${b-s} = ${ans}.`,rows,{values:rows});
+   }
+   if(v==='stable'){
+    const r=ri(3,10),A=[b-1,b,b+1],B=[b-r,b,b+r],stable=Math.random()<.5;
+    const first=stable?A:B,second=stable?B:A;
+    return statChoice(raw,d,v,`Сравни две серии: A = ${g7S13List(first)}; Б = ${g7S13List(second)}. Какая серия стабильнее по размаху?`,stable?'A':'Б',[stable?'Б':'A','одинакова','недостаточно данных'],`Размах первой серии ${2*(stable?1:r)}, второй ${2*(stable?r:1)}. Стабильнее серия с меньшим размахом.`,{A:first,B:second});
+   }
+   if(v==='compare'){
+    const r=ri(4,13),bigFirst=Math.random()<.5,A=bigFirst?[b-r,b,b+r]:[b-2,b,b+2],B=bigFirst?[b-2,b,b+2]:[b-r,b,b+r];
+    return statChoice(raw,d,v,`Какая серия имеет большую изменчивость? A: ${g7S13List(A)}. Б: ${g7S13List(B)}.`,bigFirst?'A':'Б',[bigFirst?'Б':'A','одинаковая','зависит от порядка записи'],`Размах A = ${g7S13Range(A)}, размах Б = ${g7S13Range(B)}; более изменчива серия с большим размахом.`,{A,B});
+   }
+   if(v==='change_count'){
+    const rows=[b,b,b+1,b+ri(2,6)],correct=new Set(rows).size;
+    return statNumber(raw,d,v,`Сколько различных значений содержит серия ${g7S13List(rows)}?`,correct,`Здесь ${correct} различных результата; значения могут повторяться, что не отменяет изменчивости.`,rows,{values:rows});
+   }
+   if(v==='offset'){
+    const rows=[b-s,b,b+s],add=ri(2,12),shifted=rows.map(x=>x+add);
+    return statNumber(raw,d,v,`Все наблюдения серии ${g7S13List(rows)} увеличили на ${add}: получилась ${g7S13List(shifted)}. Чему равен размах новой серии?`,2*s,`При добавлении одного и того же числа к каждому наблюдению размах не меняется: он равен ${2*s}.`,[...rows,add],{values:shifted});
+   }
+   const add=ri(3,12),rows=[b-1,b,b+1],spread=[b-add,b,b+add];
+   return statNumber(raw,d,v,`У первой серии ${g7S13List(rows)}, у второй ${g7S13List(spread)}. На сколько размах второй больше размаха первой?`,2*add-2,`Размах второй ${2*add}, первой 2; разница ${2*add-2}.`,[...rows,...spread],{A:rows,B:spread});
+  }
+  if(raw==='geo_perpendicular_oblique_distances'){
+   const variants=d===0?['height','parallel','difference','shortest']:
+     d===1?['height','parallel','difference','shortest','feasibility','oblique_from_difference']:
+           ['height','parallel','difference','shortest','feasibility','oblique_from_difference','difference_inverse'];
+   const v=pick(variants),data=g7CircleTopicData('g7-distance',{subtype:v==='parallel'?'parallel':'point_line'}),h=ri(3,18),diff=ri(2,13),long=h+diff;
+   if(v==='height')return geoNumber(raw,d,v,`Из точки A к прямой a проведён перпендикуляр AH длиной ${h} см. Найди расстояние от A до a.`,h,`Расстояние от точки до прямой равно длине перпендикуляра AH, то есть ${h} см.`,[h],data);
+   if(v==='parallel')return geoNumber(raw,d,v,`Прямые a и b параллельны, длина общего перпендикуляра между ними равна ${h} см. Найди расстояние между прямыми.`,h,`Расстояние между параллельными прямыми равно длине их общего перпендикуляра: ${h} см.`,[h],data);
+   if(v==='difference')return geoNumber(raw,d,v,`AH = ${h} см — перпендикуляр от A к прямой a, AB = ${long} см — наклонная. На сколько сантиметров AB длиннее AH?`,diff,`Длина наклонной минус перпендикуляр: ${long} − ${h} = ${diff} см.`,[h,long],data);
+   if(v==='shortest')return geoChoice(raw,d,v,`От A к прямой a проведены AH ⟂ a и наклонная AB длиной ${long} см. Какое сравнение верно?`,'AH < AB',['AH = AB','AH > AB','оба отрезка обязательно равны нулю'],`Перпендикуляр короче любой наклонной к той же прямой.`,[long],data);
+   if(v==='feasibility'){
+    const possible=Math.random()<.5,l=possible?long:h-ri(0,Math.min(2,h-1));
+    return geoChoice(raw,d,v,`AH = ${h} см — перпендикуляр от A к прямой a. Может ли другая наклонная AB к a иметь длину ${l} см?`,possible?'да':'нет',[possible?'нет':'да'],`Наклонная должна быть строго длиннее перпендикуляра: AB > AH. Здесь ${l} ${possible?'>':'≤'} ${h}.`,[h,l],data);
+   }
+   if(v==='oblique_from_difference')return geoNumber(raw,d,v,`Наклонная AB на ${diff} см длиннее перпендикуляра AH = ${h} см. Найди длину AB.`,long,`AB = AH + ${diff} = ${h} + ${diff} = ${long} см.`,[h,diff],data);
+   return geoNumber(raw,d,v,`Наклонная AB = ${long} см, перпендикуляр AH на ${diff} см короче AB. Найди AH.`,h,`AH = AB − ${diff} = ${long} − ${diff} = ${h} см.`,[h,diff],data);
+  }
+  return null;
+ }
+ makeG7Question=function(id,stageOverride=null){
+  const raw=rawCourseId(id);
+  if(!['stat_choose_characteristic','stat_random_variability','geo_perpendicular_oblique_distances'].includes(raw))return prior(id,stageOverride);
+  const d=Math.max(0,Math.min(2,Number.isInteger(stageOverride)?stageOverride:activeDifficulty()));
+  return Math.random()<0.13?prior(id,stageOverride):gPolishQuestionObject(build(raw,d));
+ };
+})();
+
+
+// МатКвест G7 этап 7: реальные варианты координат, графиков и геометрических примитивов
+(function G7Stage7(){
+ 'use strict';
+ const previous=makeG7Question,primitiveSvgBefore=g7GeometryPrimitivesSvg;
+ const pick=xs=>xs[ri(0,xs.length-1)];
+ const signature=(raw,d,v,parts=[])=>g7QuestionSig(raw,d,'audit7_'+v,parts);
+ const audit=(raw,d,v,extra={})=>({type:'g7AuditStage7',raw,d,variant:v,...extra});
+ const letters=['A','B','C','D','E','F','K','M','P','T'];
+ const drawLetters=n=>shuffleOptions(letters).slice(0,n);
+ const number=(raw,d,v,text,ans,ex,parts,extra={})=>
+   g7Number(text,ans,ex,signature(raw,d,v,parts),{audit:audit(raw,d,v,{answer:ans,...extra})});
+ const choice=(raw,d,v,text,ans,wrong,ex,parts,extra={})=>
+   g7StrictChoice(text,ans,wrong,ex,signature(raw,d,v,parts),audit(raw,d,v,{correct:ans,...extra}));
+ const coordQuestion=(raw,d,v,text,px,py,ex,parts,extra={})=>
+   g6CoordinateInputQuestion(text,px,py,ex,signature(raw,d,v,parts),{audit:audit(raw,d,v,{expectedX:px,expectedY:py,...extra})});
+ const coordinateData=(label,x,y)=>({...g7GraphRange(6),points:[{label,x:rational(x),y:rational(y)}],caption:'Координатная плоскость'});
+ const lettersSample=['A','B','C','D','E','F','K','M','P','T'];
+ const near=(pt,label,dx,dy)=>g7GeoLabelNear(pt,label,dx,dy);
+ // Старый рендер жёстко выводил A/B, даже если data.labels отличались.
+ // Меняем только рисунки с stage7Labels. Старые чертежи не затрагиваются.
+ g7GeometryPrimitivesSvg=function(data){
+   if(!data?.stage7Labels)return primitiveSvgBefore(data);
+   const [a,b]=data.labels||['A','B'],A={x:150,y:220},B={x:330,y:220},C={x:500,y:220};
+   if(data.subtype==='point')return near({x:320,y:200},a,12,-12);
+   if(data.subtype==='line'){
+     const p={x:80,y:260},q={x:560,y:140},v={x:480,y:-120};
+     return g6GeoLine(p.x,p.y,q.x,q.y,'geo-line')+
+       '<polygon fill="#315d4d" points="'+g7GeoArrowTip(p,{x:-v.x,y:-v.y})+'"></polygon>'+
+       '<polygon fill="#315d4d" points="'+g7GeoArrowTip(q,v)+'"></polygon>'+
+       near({x:250,y:217},a,-6,-12)+near({x:410,y:177},b,8,-10);
+   }
+   if(data.subtype==='segment')return g6GeoLine(A.x,A.y,C.x,C.y,'geo-segment')+near(A,a,-22,-12)+near(C,b,10,-12);
+   if(data.subtype==='ray'){
+     const end={x:560,y:220};
+     return g6GeoLine(A.x,A.y,end.x,end.y,'geo-line')+
+       '<polygon fill="#315d4d" points="'+g7GeoArrowTip(end,{x:1,y:0})+'"></polygon>'+
+       near(A,a,-22,-12)+near(B,b,8,-12);
+   }
+   return primitiveSvgBefore(data);
+ };
+ function makePrimitive(raw,d){
+   const variants=d===0?['identify','between','ray_name','ray_origin','membership']:
+     d===1?['identify','between','ray_name','ray_origin','membership','ray_through']:
+           ['identify','between','ray_name','ray_origin','membership','ray_through','line_identify'];
+   const v=pick(variants),ids=drawLetters(4),[a,b,c,off]=ids;
+   const shape=(subtype,n=2)=>({kind:'g7-primitives',subtype,labels:ids.slice(0,n),
+     stage7Labels:true,aria:'Геометрическая фигура с обозначениями '+ids.slice(0,n).join(', ')});
+   const make=(t,ans,wrong,ex,parts,data)=>g7GeoChoice(t,ans,wrong,ex,signature(raw,d,v,parts),
+     audit(raw,d,v,{correct:ans,labels:data.labels,subtype:data.subtype,offPoint:data.offPoint||null}),data);
+   if(v==='identify'||v==='line_identify'){
+     const subtype=v==='line_identify'?'line':pick(['point','line','segment','ray']);
+     const names={point:'точка',line:'прямая',segment:'отрезок',ray:'луч'},data=shape(subtype,subtype==='point'?1:2);
+     return make('Определи вид изображённой геометрической фигуры.',names[subtype],
+       Object.values(names).filter(t=>t!==names[subtype]),'У прямой нет концов, у отрезка два конца, у луча одно начало, точка отмечает положение.',
+       [subtype,a,b],data);
+   }
+   if(v==='ray_name'||v==='ray_origin'||v==='ray_through'){
+     const data=shape('ray');
+     if(v==='ray_name')return make('Как обозначается луч, изображённый на чертеже?',`луч ${a}${b}`,
+       [`луч ${b}${a}`,`отрезок ${a}${b}`,`прямая ${a}${b}`],`Луч начинается в ${a} и проходит через ${b}; порядок букв имеет значение.`,
+       [a,b],data);
+     if(v==='ray_origin')return make('Какая точка является началом изображённого луча?',a,
+       [b,c,off],`Начало луча — точка ${a}; от неё луч идёт через ${b}.`,[a,b],data);
+     return make('Через какую отмеченную точку луч проходит после своего начала?',b,
+       [a,c,off],`Луч начинается в ${a}, затем проходит через ${b}.`,[a,b],data);
+   }
+   if(v==='between'){
+     const data=shape('collinear',3);
+     return make('Какая точка расположена между двумя другими на прямой?',b,[a,c,off],
+       `На рисунке точки идут в порядке ${a} — ${b} — ${c}; между крайними точками находится ${b}.`,
+       [a,b,c],data);
+   }
+   const data={...shape('collinear',3),offPoint:off,aria:'Три точки на прямой и одна вне прямой'};
+   return make('Какая точка не принадлежит изображённой прямой?',off,[a,b,c],
+     `${a}, ${b}, ${c} лежат на прямой, а ${off} расположена вне прямой.`,[a,b,c,off],data);
+ }
+ function makeCoordinate(raw,d){
+   const variants=d===0?['read','quadrant','abscissa','ordinate','axis_name']:
+     d===1?['read','quadrant','abscissa','ordinate','dist_ox','dist_oy','reflect_ox','reflect_oy','axis_point']:
+           ['read','quadrant','abscissa','ordinate','dist_ox','dist_oy','reflect_ox','reflect_oy','reflect_origin','axis_point'];
+   const v=pick(variants),label=pick(['A','M','P','K']),kind=pick(['I','II','III','IV','На Ox','На Oy']);
+   const pt=g6PointForClass(v==='axis_point'?pick(['На Ox','На Oy']):kind,5);
+   const x=pt.x.n,y=pt.y.n,data=coordinateData(label,x,y),parts=[label,x,y];
+   if(v==='axis_name'){
+     const xAxis=Math.random()<.5,axis=xAxis?'Ox':'Oy',word=xAxis?'абсцисс':'ординат';
+     return choice(raw,d,v,`Как обозначают ось ${word}?`,axis,[xAxis?'Oy':'Ox','O','I четверть'],
+       `Ось ${word} — ${xAxis?'горизонтальная':'вертикальная'} ось ${axis}.`,[axis],{axis});
+   }
+   if(v==='read'){
+     const q=coordQuestion(raw,d,v,`Определи координаты точки ${label} по чертежу.`,x,y,
+       `От начала координат по Ox откладываем ${x}, по Oy — ${y}: ${label}(${x}; ${y}).`,parts,{x,y});
+     return g6AttachCoordinatePlane(q,data);
+   }
+   if(v==='quadrant'||v==='axis_point'){
+     const ans=g6CoordinateClass(pt.x,pt.y);
+     const distractors=shuffleOptions(['I','II','III','IV','На Ox','На Oy','Начало координат'].filter(z=>z!==ans));
+     const q=choice(raw,d,v,`Где расположена точка ${label} на координатной плоскости?`,ans,distractors,
+       `У точки ${label} координаты (${x}; ${y}); её положение — ${ans}.`,parts,{x,y,classification:ans});
+     return g6AttachCoordinatePlane(q,data);
+   }
+   if(v==='abscissa'||v==='ordinate'){
+     const isX=v==='abscissa',ans=isX?x:y;
+     const q=number(raw,d,v,`Прочитай ${isX?'абсциссу':'ординату'} точки ${label} на рисунке.`,ans,
+       `${isX?'Абсцисса x':'Ордината y'} точки ${label} равна ${ans}.`,parts,{x,y});
+     return g6AttachCoordinatePlane(q,data);
+   }
+   if(v==='dist_ox'||v==='dist_oy'){
+     const axis=v==='dist_ox'?'Ox':'Oy',ans=Math.abs(v==='dist_ox'?y:x);
+     const q=number(raw,d,v,`Чему равно расстояние от точки ${label} до оси ${axis} (в единичных отрезках)?`,ans,
+       `Расстояние до ${axis} равно модулю ${axis==='Ox'?'ординаты':'абсциссы'}: ${ans}.`,parts,{x,y,axis});
+     return g6AttachCoordinatePlane(q,data);
+   }
+   const nx=v==='reflect_oy'||v==='reflect_origin'?-x:x;
+   const ny=v==='reflect_ox'||v==='reflect_origin'?-y:y;
+   const axis=v==='reflect_origin'?'начала координат':v==='reflect_ox'?'оси Ox':'оси Oy';
+   const q=coordQuestion(raw,d,v,`Точка ${label} отражена относительно ${axis}. Найди координаты её образа.`,nx,ny,
+     `При отражении относительно ${axis} получаем (${nx}; ${ny}).`,parts,{x,y,axis});
+   return g6AttachCoordinatePlane(q,data);
+ }
+ function makeSystem(raw,d){
+   const variants=d===0?['intersection','count_cross','count_parallel']:
+     d===1?['intersection','count_cross','count_parallel','count_coincident','read_x','read_y']:
+           ['intersection','count_cross','count_parallel','count_coincident','read_x','read_y','count_horizontal'];
+   const v=pick(variants),range=6,slopes=d===0?[-2,-1,1,2]:[-3,-2,-1,0,1,2,3];
+   const isCount=v.startsWith('count_'),same=v==='count_parallel'||v==='count_coincident';
+   let k1,k2,b1,b2,x0=null,y0=null;
+   if(!isCount||v==='intersection'){
+     let found=false;
+     for(let i=0;i<100;i++){
+       const x=ri(-3,3),y=ri(-3,3),k=pick(slopes),other=pick(slopes.filter(z=>z!==k));
+       const a=y-k*x,b=y-other*x;
+       if(Math.abs(a)<=5&&Math.abs(b)<=5){x0=x;y0=y;k1=k;k2=other;b1=a;b2=b;found=true;break;}
+     }
+     if(!found)throw Error('Could not generate an intersection model');
+   }else if(same){
+     k1=pick(slopes);k2=k1;b1=ri(-3,3);b2=v==='count_coincident'?b1:b1+pick([-2,-1,1,2]);
+   }else {
+     k1=v==='count_horizontal'?0:pick(slopes);
+     k2=pick(slopes.filter(z=>z!==k1));b1=ri(-3,3);b2=ri(-3,3);
+   }
+   const lines=[g7LineSeries(k1,b1,{range,label:g7LineFormula(k1,b1)}),
+     g7LineSeries(k2,b2,{range,label:g7LineFormula(k2,b2),alt:true,dashed:true})];
+   const data=g7GraphData(lines,{range,points:x0===null?[]:[{label:'S',x:rational(x0),y:rational(y0)}],caption:'Графики двух линейных функций'});
+   const equations=`${g7LineFormula(k1,b1)} и ${g7LineFormula(k2,b2)}`,parts=[k1,b1,k2,b2],model={k1,b1,k2,b2,x0,y0,case:same?(b1===b2?'infinite':'none'):'one'};
+   let q;
+   if(v==='intersection'){
+     q=coordQuestion(raw,d,v,`Найди координаты пересечения графиков ${equations}.`,x0,y0,
+       `Подставляем (${x0}; ${y0}) в оба уравнения — получаем верные равенства.`,parts,model);
+   }else if(v==='read_x'||v==='read_y'){
+     const ans=v==='read_x'?x0:y0;
+     q=number(raw,d,v,`По графикам ${equations} найди ${v==='read_x'?'абсциссу':'ординату'} точки пересечения S.`,ans,
+       `Графики пересекаются в точке (${x0}; ${y0}), поэтому ответ ${ans}.`,parts,model);
+   }else{
+     const ans=model.case==='infinite'?'бесконечно много решений':model.case==='none'?'нет решений':'одно решение';
+     q=choice(raw,d,v,`Сколько решений имеет система, заданная графиками ${equations}?`,ans,
+       ['одно решение','нет решений','бесконечно много решений'].filter(z=>z!==ans),
+       model.case==='one'?'Наклоны прямых различны, поэтому они пересекаются один раз.':
+       model.case==='none'?'Наклоны одинаковы, свободные члены различны: прямые параллельны.':
+       'Обе прямые совпадают: общих точек бесконечно много.',parts,model);
+   }
+   return g7AttachGraph(q,data,equations);
+ }
+ makeG7Question=function(id,stageOverride=null){
+   const raw=rawCourseId(id);
+   if(!['geo_primitives','coordinate_plane','graphical_equations_systems'].includes(raw))return previous(id,stageOverride);
+   const d=Math.max(0,Math.min(2,Number.isInteger(stageOverride)?stageOverride:activeDifficulty()));
+   const q=raw==='geo_primitives'?makePrimitive(raw,d):
+      raw==='coordinate_plane'?makeCoordinate(raw,d):makeSystem(raw,d);
+   return gPolishQuestionObject(q);
+ };
+})();
+
+
+/* МатКвест G7 этап 9: защита от содержательных повторов внутри тренировки */
+(function G7Stage9SessionUniqueness(){
+ 'use strict';
+ const before=freshQuiz;
+ const targets=new Set([
+  'fraction_word_problems','number_line_distance','absolute_value_function',
+  'graphical_equations_systems','linear_system_substitution',
+  'geo_right_triangle_properties','geo_circle_chord_diameter'
+ ]);
+ const sigOf=q=>String(q?.sig||q?._signature||'');
+ const semOf=q=>JSON.stringify([String(q?.text||''),String(q?.ans??''),q?.visual?.data||null]);
+ const variantOf=q=>String(q?.audit?.variant||q?.templateId||q?.audit?.type||'legacy');
+ freshQuiz=function(id){
+  const name=String(id),raw=rawCourseId(id),current=before(id);
+  const b=blockSession;
+  if(!name.startsWith('g7:')||!targets.has(raw)||!b||b.kind!=='g7quiz'||b.topicId!==raw)return current;
+  const stage=b.stageIndex,key=raw+':'+stage;
+  b._g7Stage9Used=b._g7Stage9Used||{};
+  b._g7Stage9LastVariant=b._g7Stage9LastVariant||{};
+  const used=b._g7Stage9Used[key]||(b._g7Stage9Used[key]=[]);
+  const seenSigs=new Set(used.map(x=>x.sig)),seenSemantic=new Set(used.map(x=>x.semantic));
+  const fits=q=>!!q&&!!q.text&&!!sigOf(q)&&!seenSigs.has(sigOf(q))&&!seenSemantic.has(semOf(q));
+  let chosen=current;
+  const last=b._g7Stage9LastVariant[key]||null;
+  if(!fits(chosen)||(last&&variantOf(chosen)===last)){
+   let alternative=null;
+   for(let tries=0;tries<600;tries++){
+    const q=makeG7Question(id,stage);
+    if(!fits(q))continue;
+    if(!alternative)alternative=q;
+    if(!last||variantOf(q)!==last){alternative=q;break;}
+   }
+   if(alternative)chosen=alternative;
+  }
+  if(!fits(chosen)&&used.length){
+   b._g7Stage9Exhausted=b._g7Stage9Exhausted||[];
+   b._g7Stage9Exhausted.push({raw,stage,position:used.length+1});
+  }
+  if(chosen!==current&&chosen?.sig){
+   registerSignature(chosen.sig);
+   chosen._signature=chosen.sig;
+  }
+  used.push({sig:sigOf(chosen),semantic:semOf(chosen)});
+  b._g7Stage9LastVariant[key]=variantOf(chosen);
+  return chosen;
+ };
+})();
+
+
+/* МатКвест G7 этап 11: сброс прокрутки при запуске другой тренировки */
+(function G7Stage11ModalScrollReset(){
+  'use strict';
+  const before=startG7QuizStage;
+  startG7QuizStage=function(...args){
+    const result=before.apply(this,args);
+    const modal=document.getElementById('modal');
+    if(modal&&modal.scrollTop!==0)modal.scrollTop=0;
+    return result;
+  };
+})();
+
+
+/* МатКвест G7 этап 13: без содержательных повторов во всех 107 темах */
+(function G7Stage13NoSemanticDuplicates(){
+ 'use strict';
+ const previous=freshQuiz;
+ const semantic=q=>JSON.stringify([String(q?.text||'').replace(/\s+/g,' ').trim(),String(q?.ans??''),q?.visual?.data||null]);
+ freshQuiz=function(id){
+  const initial=previous(id);
+  const b=blockSession,name=String(id),raw=rawCourseId(id);
+  if(!name.startsWith('g7:')||!b||b.kind!=='g7quiz'||b.topicId!==raw||b.finished)return initial;
+  const key=raw+':'+b.stageIndex;
+  b._g7Stage13Used=b._g7Stage13Used||{};
+  const used=b._g7Stage13Used[key]||(b._g7Stage13Used[key]=[]);
+  const signatures=new Set(used.map(x=>x.sig)),meanings=new Set(used.map(x=>x.semantic));
+  const fits=q=>!!q?.text&&!!q?.sig&&!signatures.has(String(q.sig))&&!meanings.has(semantic(q));
+  let chosen=initial;
+  if(!fits(chosen)){
+   for(let attempt=0;attempt<600;attempt++){
+    const candidate=makeG7Question(id,b.stageIndex);
+    if(fits(candidate)){chosen=candidate;break;}
+   }
+  }
+  if(!fits(chosen)){
+   b._g7Stage13Exhausted=b._g7Stage13Exhausted||[];
+   b._g7Stage13Exhausted.push({raw,stage:b.stageIndex,position:used.length+1});
+  }
+  if(chosen!==initial&&chosen?.sig){
+   registerSignature(chosen.sig);
+   chosen._signature=chosen.sig;
+  }
+  used.push({sig:String(chosen?.sig||''),semantic:semantic(chosen)});
+  return chosen;
+ };
+})();
+
 </script>
 </body></html>

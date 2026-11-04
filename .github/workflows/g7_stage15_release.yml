@@ -1,0 +1,56 @@
+name: MatKvest stage 15 - predeployment release gate
+on:
+  push:
+    branches: [release/stage15-20261104]
+    paths:
+      - .github/workflows/g7_stage15_release.yml
+      - audits/g7_stage15_release_gate.mjs
+      - audits/g7_stage15_legacy_upgrade.mjs
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  release-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Assert exact immutable audited HTML
+        run: |
+          echo 'f188d39a3a16fc54dfb32238fc34d3dfe6cc3c4416cd475579bf3ed65a7e1e36  index.html' | sha256sum --check
+          python3 audits/g7_stage12_sync_pwa.py --check
+      - name: Install existing headless browser test dependency
+        run: npm install --no-save --no-package-lock puppeteer-core@24
+      - name: Stage15 isolated release and real v39-to-v40 browser migration
+        run: node audits/g7_stage15_release_gate.mjs
+      - name: Actual old production main v39 to candidate v40 without hard refresh
+        run: node audits/g7_stage15_legacy_upgrade.mjs
+      - name: Existing full G7 persistence and exact draft recovery
+        run: node audits/g7_stage12_e2e.mjs
+      - name: Existing SW automatic reload and offline recovery
+        run: node audits/g7_stage12_sw_update_test.mjs
+      - name: Existing cross-grade generator regression
+        run: node audits/g7_stage14_crossgrade_test.mjs
+      - name: Existing grade 4 real interface regression
+        run: node audits/g7_stage14_grade4_test.mjs
+      - name: Preserve machine-readable results even on failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: matkvest-stage15-release-gate
+          path: |
+            audits/g7_stage15_release_gate_report.json
+            audits/g7_stage15_legacy_upgrade_report.json
+            audits/g7_stage12_e2e_report.json
+            audits/g7_stage12_sw_update_report.json
+            audits/g7_stage14_crossgrade_report.json
+            audits/g7_stage14_grade4_report.json
+          if-no-files-found: warn
+          retention-days: 60

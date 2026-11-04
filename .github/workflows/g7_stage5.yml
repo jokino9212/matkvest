@@ -1,0 +1,67 @@
+name: G7 stage 5 - isolated geometry build and Chromium QA
+
+on:
+  push:
+    branches:
+      - audit/g7-stage5-20261104
+    paths:
+      - .github/workflows/g7_stage5.yml
+      - audits/g7_stage5_patch.js
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Build stage 5 from verified stage 4
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib
+          p=Path("index.html")
+          src=p.read_text(encoding="utf-8")
+          patch=Path("audits/g7_stage5_patch.js").read_text(encoding="utf-8")
+          mark="/* МатКвест G7 этап 5: расширение вариативности 5 тем геометрии */"
+          expected="41d84c973c8b109a4e857ddd75ca2333676bdbcb63753753109f8f5b7911b34a"
+          if mark in src:
+              assert src.count(mark)==1, "duplicate marker"
+              print("Stage 5 already built; preserving verified HTML")
+          else:
+              got=hashlib.sha256(src.encode("utf-8")).hexdigest()
+              assert got==expected, f"Unexpected stage4 base SHA256: {got}"
+              assert patch.startswith(mark), "wrong stage5 patch"
+              assert src.count("<script")==src.count("</script>"), "unbalanced original scripts"
+              assert src.rstrip().endswith("</body></html>"), "unexpected HTML footer"
+              at=src.rfind("</script>")
+              assert at>0
+              fixed=src[:at]+"\n"+patch+"\n"+src[at:]
+              assert fixed.count(mark)==1, "duplicate patch after build"
+              assert fixed.count("<script")==src.count("<script")
+              assert fixed.count("</script>")==src.count("</script>")
+              p.write_text(fixed,encoding="utf-8")
+              print("Stage5 SHA256:",hashlib.sha256(fixed.encode("utf-8")).hexdigest())
+          PY
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Chromium browser runner package
+        run: npm install --no-save --no-package-lock puppeteer-core@24
+      - name: Run stage 5 math and full G7 browser smoke tests
+        run: node audits/g7_stage5_browser_test.mjs
+      - name: Commit verified HTML and report only to audit branch
+        if: success()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html audits/g7_stage5_browser_report.json
+          if ! git diff --cached --quiet; then
+            git commit -m "test(G7): verified stage5 HTML and Chromium report [skip ci]"
+            git push origin HEAD:audit/g7-stage5-20261104
+          fi
