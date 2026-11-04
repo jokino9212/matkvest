@@ -16,9 +16,9 @@ try{
  await page.setViewport({width:390,height:844});
  await page.goto(pathToFileURL(path.resolve('index.html')).href,{waitUntil:'domcontentloaded',timeout:120000});
  const result=await page.evaluate(()=>{
-  const perTopic=[],defects=[],flags=[],samples=[],ui=[];
+  const perTopic=[],defects=[],defectCounts={},flags=[],samples=[],ui=[];
   const clean=x=>String(x??'').replace(/<[^>]*>/g,' ').replace(/&nbsp;/g,' ').replace(/\s+/g,' ').trim();
-  const error=(kind,ctx)=>{if(defects.length<180)defects.push({kind,...ctx})};
+  const error=(kind,ctx)=>{defectCounts[kind]=(defectCounts[kind]||0)+1;if(defects.length<180)defects.push({kind,...ctx})};
   const flag=(kind,ctx)=>{if(flags.length<160)flags.push({kind,...ctx})};
   const number=x=>typeof x==='number'?x:/^-?\d+(?:[.,]\d+)?$/.test(String(x))?Number(String(x).replace(',','.')):null;
   const correct=q=>q.ans??q.answer??q.answerRat;
@@ -34,9 +34,9 @@ try{
    function expr(){let v=term();while(tokens[i]==='+'||tokens[i]==='-'){const op=tokens[i++],a=term();v=op==='+'?v+a:v-a}return v}
    try{const v=expr();return i===tokens.length&&Number.isFinite(v)?v:null}catch{return null}
   }
-  const groupPattern=/\b(?:[5-9]|1[1-9]|\d*[05-9])\s+одинаковые\s+группы\b/giu;
-  const badRaza=/\b(?:[5-9]|1[1-9]|\d*[05-9])\s+раза\b/giu;
-  const moneyPunct=/\b(?:коп|руб)\.\s*\./giu;
+  const groupPattern=/(?:^|[^\d])(?:[5-9]|1[1-9]|\d*[05-9])\s+одинаковые\s+группы(?=\W|$)/giu;
+  const badRaza=/(?:^|[^\d])(?:[5-9]|1[1-9]|\d*[05-9])\s+раза(?=\W|$)/giu;
+  const moneyPunct=/(?:коп|руб)\.\s*\./giu;
   function inspectQuestion(q,context,row){
     const prompt=clean(q?.text),ex=clean(q?.ex),ans=correct(q);
     if(!prompt||!ex||ans===undefined||ans===null){error('missing-prompt-explanation-answer',{...context,prompt:prompt.slice(0,100),ex:ex.slice(0,100),ans:String(ans)});return}
@@ -53,14 +53,15 @@ try{
        if(regex.test(s))error(rule,{...context,field,text:s.slice(0,280)});
       }
     }
-    const eq=/(-?\d{1,8})\s*([+−\-×·:÷])\s*(-?\d{1,8})\s*=\s*(-?\d{1,10})(?![\d.,])/gu;
+    const eq=/(-?\d{1,8}(?:\s*[+−\-×·:÷]\s*-?\d{1,8})+)\s*=\s*(-?\d{1,10})(?![\d.,])/gu;
     let match;
     while((match=eq.exec(ex))!==null){
-      let [,a,op,b,output]=match;
-      const value=op==='+'?+a+(+b):op==='−'||op==='-'?+a-(+b):op==='×'||op==='·'?+a*(+b):+b!==0?+a/+b:NaN;
-      if((op===':'||op==='÷')&&/ост(?:ат|\.|\s)/i.test(ex))continue;
+      const expression=match[1], output=Number(match[2]);
+      if(/[:÷]/.test(expression)&&/ост(?:ат|\.|\s)/i.test(ex))continue;
+      const value=evalExpr(expression);
+      if(value===null)continue;
       row.explanationEquations++;
-      if(!Number.isFinite(value)||Math.abs(value-(+output))>1e-8)
+      if(Math.abs(value-output)>1e-8)
        error('incorrect-explanation-equation',{...context,match:match[0],calculated:value,text:ex.slice(0,320)});
     }
     const arithmetic=prompt.match(/^([\d\s()+−\-×·÷:]+)\s*=\s*\?/);
@@ -139,10 +140,10 @@ try{
    }
    perTopic.push(row);
   }
-  return {perTopic,defects,flags,samples,ui,summary:{grade3Topics:g3.length,grade4Topics:TOPICS.length,grade3Generations:perTopic.filter(x=>x.grade===3).flatMap(x=>x.levels).reduce((s,x)=>s+x.generated,0),grade4Generations:perTopic.filter(x=>x.grade===4).flatMap(x=>x.levels).reduce((s,x)=>s+x.generated,0),valid:perTopic.flatMap(x=>x.levels).reduce((s,x)=>s+x.valid,0),independentMath:perTopic.flatMap(x=>x.levels).reduce((s,x)=>s+x.independentAnswers+x.explanationEquations,0),numericDistractors:perTopic.flatMap(x=>x.levels).reduce((s,x)=>s+x.verifiedNumericDistractors,0),defects:defects.length,flags:flags.length,g4UI:ui.length}};
+  return {perTopic,defects,defectCounts,flags,samples,ui,summary:{grade3Topics:g3.length,grade4Topics:TOPICS.length,grade3Generations:perTopic.filter(x=>x.grade===3).flatMap(x=>x.levels).reduce((s,x)=>s+x.generated,0),grade4Generations:perTopic.filter(x=>x.grade===4).flatMap(x=>x.levels).reduce((s,x)=>s+x.generated,0),valid:perTopic.flatMap(x=>x.levels).reduce((s,x)=>s+x.valid,0),independentMath:perTopic.flatMap(x=>x.levels).reduce((s,x)=>s+x.independentAnswers+x.explanationEquations,0),numericDistractors:perTopic.flatMap(x=>x.levels).reduce((s,x)=>s+x.verifiedNumericDistractors,0),defects:defects.length,flags:flags.length,g4UI:ui.length}};
  });
  Object.assign(report,result);
- report.summary={...result.summary,jsErrors:jsErrors.length,defectTypes:result.defects.reduce((a,x)=>(a[x.kind]=(a[x.kind]||0)+1,a),{})};
+ report.summary={...result.summary,jsErrors:jsErrors.length,defectTypes:result.defectCounts};
  console.log('STAGE17 D SEMANTIC SUMMARY',JSON.stringify(report.summary));
  console.log('STAGE17 D DEFECTS',JSON.stringify(report.defects.slice(0,28)));
  console.log('STAGE17 D QUALITY FLAGS',JSON.stringify(report.flags.slice(0,18)));
