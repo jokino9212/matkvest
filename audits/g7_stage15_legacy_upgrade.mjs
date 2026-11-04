@@ -44,16 +44,29 @@ try{
   fs.writeFileSync(path.join(temp,'index.html'),candidateHtml);
   fs.writeFileSync(path.join(temp,'sw.js'),candidateSw);
   // Normal online navigation; no DevTools, cache disable or Ctrl+Shift+R.
-  await page.goto(url,{waitUntil:'domcontentloaded',timeout:120000});
-  await page.waitForFunction(()=>!!document.getElementById('mk-stage12-pwa-refresh'),{timeout:15000});
+  await page.goto(url,{waitUntil:'load',timeout:120000});
+  // The newly installed SW calls clients.claim(), and the v40 page may reload itself.
+  // Waiting for the SW cache alone was a race: it can be ready before the new document.
+  await page.waitForFunction(()=>!!document.getElementById('mk-stage12-pwa-refresh'),{timeout:20000});
   await page.evaluate(async()=>{const r=await navigator.serviceWorker.getRegistration();if(!r)throw Error('Registration lost');await r.update();}).catch(()=>{});
-  await page.waitForFunction(async()=>{const k=await caches.keys();return k.includes('matkvest-iphone-v40');},{timeout:35000});
+  await page.waitForFunction(async()=>{
+    const keys=await caches.keys();
+    return keys.includes('matkvest-iphone-v40') &&
+      !!document.getElementById('mk-stage12-pwa-refresh') &&
+      typeof mk872PersistDraft==='function' &&
+      document.readyState==='complete';
+  },{timeout:50000});
+  // Ensure document and worker settle after the controllerchange-driven navigation.
+  await delay(650);
   const newer=await page.evaluate(async()=>({
     sentinel:localStorage.getItem('matkvest-stage15-real-old-html-storage-probe'),
     keys:Object.keys(localStorage),
     caches:await caches.keys(),
     hasDraftSaver:typeof mk872PersistDraft==='function',
-    title:document.title
+    hasStage12Markup:!!document.getElementById('mk-stage12-pwa-refresh'),
+    title:document.title,
+    readyState:document.readyState,
+    workerScript:(await navigator.serviceWorker.getRegistration())?.active?.scriptURL||null
   }));
   if(newer.sentinel!==old.sentinel)throw Error('Previously stored profile/progress/coins/collection probe changed during upgrade');
   const missing=old.existingKeys.filter(k=>!newer.keys.includes(k));
