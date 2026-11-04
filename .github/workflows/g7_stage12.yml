@@ -9,8 +9,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: python3 audits/g7_stage12_probe.py
+      - run: python3 audits/g7_stage12_source_extract.py
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: g7-stage12-probe
-          path: audits/g7_stage12_probe.json
+          path: |
+            audits/g7_stage12_probe.json
+            audits/g7_stage12_source_snippets.txt
