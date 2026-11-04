@@ -1,0 +1,55 @@
+name: MatKvest stage16 D - G1 G2 substantive diagnostic
+on:
+  push:
+    branches: [audit/g1g2-stage16-20261104]
+    paths:
+      - audits/g1g2_stage16_phaseD_diagnostic.mjs
+      - .github/workflows/g1g2_stage16_phaseD.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: matkvest-stage16-D-diagnostic
+  cancel-in-progress: false
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit/g1g2-stage16-20261104
+          persist-credentials: true
+      - name: Validate isolated input and SW fingerprint
+        run: |
+          echo '2be11af0d9ca5db18d45bc10011388f502803a12b0f92ca474ee11ba97939d03  index.html' | sha256sum --check
+          python3 audits/g7_stage12_sync_pwa.py --check
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save --no-package-lock puppeteer-core@24
+      - name: Inspect 20 topics, answer choices, Russian agreement, arithmetic models and rendered lessons
+        run: node audits/g1g2_stage16_phaseD_diagnostic.mjs
+      - name: Preserve audit evidence even when the diagnostic detects defects
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: matkvest-stage16D-diagnostic-evidence
+          path: audits/g1g2_stage16_phaseD_diagnostic_report.json
+          if-no-files-found: warn
+          retention-days: 60
+      - name: Commit diagnostic evidence into isolated branch
+        if: always()
+        run: |
+          if [ -f audits/g1g2_stage16_phaseD_diagnostic_report.json ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add audits/g1g2_stage16_phaseD_diagnostic_report.json
+            if ! git diff --cached --quiet; then
+              git commit -m "audit(stage16D): preserve content diagnostics [skip ci]"
+              git push origin HEAD:audit/g1g2-stage16-20261104
+            fi
+          fi
