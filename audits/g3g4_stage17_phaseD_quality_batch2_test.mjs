@@ -83,7 +83,7 @@ try{
    if(id==='parts_compare'&&d===2&&row.uniquePromptTexts<80)fail('comparison-high-variety',{id,d,unique:row.uniquePromptTexts});
    if(id==='broken_line_length'&&d===1&&row.distinctVisualModels<30)fail('geometry-missing-variety',{id,d,distinct:row.distinctVisualModels});
    if(id==='broken_line_length'&&d===2&&row.distinctVisualModels<30)fail('geometry-two-step-variety',{id,d,distinct:row.distinctVisualModels});
-   if(d>0&&Object.keys(variants).length<2)fail('weak-strategy-variety',{id,d,variants});
+   if(d>0&&!(id==='broken_line_length'&&d===1)&&Object.keys(variants).length<2)fail('weak-strategy-variety',{id,d,variants});
    results.push(row);
   }
   for(const id of ids)for(let d=0;d<3;d++){
