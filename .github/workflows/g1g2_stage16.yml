@@ -1,0 +1,36 @@
+name: MatKvest stage16 - grades1-2 full topic diagnostic
+on:
+  push:
+    branches: [audit/g1g2-stage16-20261104]
+    paths:
+      - audits/g1g2_stage16_initial_probe.mjs
+      - .github/workflows/g1g2_stage16.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  inventory-g1g2:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Assert untouched verified production HTML
+        run: |
+          echo 'f188d39a3a16fc54dfb32238fc34d3dfe6cc3c4416cd475579bf3ed65a7e1e36  index.html' | sha256sum --check
+          python3 audits/g7_stage12_sync_pwa.py --check
+      - run: npm install --no-save --no-package-lock puppeteer-core@24
+      - name: Audit every G1 and G2 topic at each difficulty using browser JS and UI
+        run: node audits/g1g2_stage16_initial_probe.mjs
+      - name: Preserve detailed diagnostic evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: matkvest-stage16-g1g2-inventory
+          path: audits/g1g2_stage16_initial_report.json
+          if-no-files-found: warn
+          retention-days: 60
