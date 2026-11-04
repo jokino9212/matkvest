@@ -3,7 +3,7 @@ import {spawn} from 'node:child_process';
 import {createHash} from 'node:crypto';
 import {setTimeout as delay} from 'node:timers/promises';
 import puppeteer from 'puppeteer-core';
-const expected='5c1532d17ff98b5f4cf7c2155233a6bfd1560c8688679bab0d906d6afa49d41f';
+const expected='fa4db04c3a53351ed672b12daa577a2ea3bb1376932f13b821e50db95436cd9a';
 const got=createHash('sha256').update(fs.readFileSync('index.html')).digest('hex');
 if(got!==expected||!fs.readFileSync('sw.js','utf8').includes('const APP_BUILD_HASH = "'+got+'"'))throw Error('Unknown G3/G4 HTML or PWA');
 const executable=[process.env.CHROME_BIN,'/usr/bin/google-chrome','/usr/bin/google-chrome-stable','/usr/bin/chromium'].find(x=>x&&fs.existsSync(x));

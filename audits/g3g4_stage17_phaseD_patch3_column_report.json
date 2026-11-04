@@ -1,0 +1,594 @@
+{
+  "stage": "17C-g3g4-column-input-accept-reject",
+  "sha256": "fa4db04c3a53351ed672b12daa577a2ea3bb1376932f13b821e50db95436cd9a",
+  "at": "2026-11-04T19:59:27.790Z",
+  "scenarios": [
+    {
+      "name": "3-add-0",
+      "scenario": "wrong",
+      "wrongInput": {
+        "count": 6,
+        "alteredRow": "final",
+        "correct": "3"
+      },
+      "credited": 0,
+      "feedback": "🟡 Пока неверно. Ошибок в клетках: 1. Красным отмечены места, которые нужно исправить. Проверь правило темы и повтори вычисление по шагам.",
+      "rejected": true
+    },
+    {
+      "name": "3-add-0",
+      "scenario": "correct",
+      "correctInput": {
+        "count": 6,
+        "alteredRow": "final",
+        "correct": "6"
+      },
+      "credited": 1,
+      "feedback": "✅ Отлично! Итог 699 верен. Переносы сверху были подсказкой и проверены только там, где ты их заполнил.Складываем по разрядам справа налево. Если сумма разряда больше 9, п",
+      "accepted": true
+    },
+    {
+      "name": "3-add-1",
+      "scenario": "wrong",
+      "wrongInput": {
+        "count": 6,
+        "alteredRow": "final",
+        "correct": "8"
+      },
+      "credited": 0,
+      "feedback": "🟡 Пока неверно. Ошибок в клетках: 1. Красным отмечены места, которые нужно исправить. Проверь правило темы и повтори вычисление по шагам.",
+      "rejected": true
+    },
+    {
+      "name": "3-add-1",
+      "scenario": "correct",
+      "correctInput": {
+        "count": 6,
+        "alteredRow": "final",
+        "correct": "7"
+      },
+      "credited": 1,
+      "feedback": "✅ Отлично! Итог 782 верен. Переносы сверху были подсказкой и проверены только там, где ты их заполнил.Складываем по разрядам справа налево. Если сумма разряда больше 9, п",
+      "accepted": true
+    },
+    {
+      "name": "3-add-2",
+      "scenario": "wrong",
+      "wrongInput": {
+        "count": 6,
+        "alteredRow": "final",
+        "correct": "8"
+      },
+      "credited": 0,
+      "feedback": "🟡 Пока неверно. Ошибок в клетках: 1. Красным отмечены места, которые нужно исправить. Проверь правило темы и повтори вычисление по шагам.",
+      "rejected": true
+    },
+    {
+      "name": "3-add-2",
+      "scenario": "correct",
+      "correctInput": {
+        "count": 6,
+        "alteredRow": "final",
+        "correct": "9"
+      },
+      "credited": 1,
+      "feedback": "✅ Отлично! Итог 942 верен. Переносы сверху были подсказкой и проверены только там, где ты их заполнил.Складываем по разрядам справа налево. Если сумма разряда больше 9, п",
+      "accepted": true
+    },
+    {
+      "name": "3-sub-0",
+      "scenario": "wrong",
+      "wrongInput": {
+        "count": 9,
+        "alteredRow": "final",
+        "correct": "2"
+      },
+      "credited": 0,
+      "feedback": "🟡 Пока неверно. Ошибок в клетках: 1. Красным отмечены места, которые нужно исправить. Проверь правило темы и повтори вычисление по шагам.",
+      "rejected": true
+    },
+    {
+      "name": "3-sub-0",
+      "scenario": "correct",
+      "correctInput": {
+        "count": 9,
+        "alteredRow": "final",
+        "correct": "5"
+      },
+      "credited": 1,
+      "feedback": "✅ Отлично! Итог 514 верен. Точки и единицы занимания сверху необязательны; заполненные отметки проверены.Вычитаем по разрядам справа налево. Если цифры не хватает, занима",
+      "accepted": true
+    },
+    {
+      "name": "3-sub-1",
+      "scenario": "wrong",
+      "wrongInput": {
+        "count": 8,
+        "alteredRow": "final",
+        "correct": "3"
+      },
+      "credited": 0,
+      "feedback": "🟡 Пока неверно. Ошибок в клетках: 1. Красным отмечены места, которые нужно исправить. Проверь правило темы и повтори вычисление по шагам.",
+      "rejected": true
+    },
+    {
+      "name": "3-sub-1",
+      "scenario": "correct",
+      "correctInput": {
+        "count": 9,
+        "alteredRow": "final",
+        "correct": "1"
+      },
+      "credited": 1,
+      "feedback": "✅ Отлично! Итог 176 верен. Точки и единицы занимания сверху необязательны; заполненные отметки проверены.Вычитаем по разрядам справа налево. Если цифры не хватает, занима",
+      "accepted": true
+    },
+    {
+      "name": "3-sub-2",
+      "scenario": "wrong",
+      "wrongInput": {
+        "count": 9,
+        "alteredRow": "final",
+        "correct": "3"
+      },
+      "credited": 0,
+      "feedback": "🟡 Пока неверно. Ошибок в клетках: 1. Красным отмечены места, которые нужно исправить. Проверь правило темы и повтори вычисление по шагам.",
+      "rejected": true
+    },
+    {
+      "name": "3-sub-2",
+      "scenario": "correct",
+      "correctInput": {
+        "count": 9,
+        "alteredRow": "final",
+        "correct": "1"
+      },
+      "credited": 1,
+      "feedback": "✅ Отлично! Итог 148 верен. Точки и единицы занимания сверху необязательны; заполненные отметки проверены.Вычитаем по разрядам справа налево. Если цифры не хватает, занима",
+      "accepted": true
+    },
+    {
+      "name": "3-mul-0",
+      "scenario": "wrong",
+      "wrongInput": {
+        "count": 3,
+        "alteredRow": "final",
+        "correct": "6"
+      },
+      "credited": 0,
+      "feedback": "🟡 Пока неверно. Ошибок в клетках: 1. Красным отмечены места, которые нужно исправить. Проверь правило темы и повтори вычисление по шагам.",
+      "rejected": true
+    },
+    {
+      "name": "3-mul-0",
+      "scenario": "correct",
+      "correctInput": {
+        "count": 3,
+        "alteredRow": "final",
+        "correct": "2"
+      },
+      "credited": 1,
+      "feedback": "✅ Отлично! Обязательная запись и итог 22 верны. Переносы проверены там, где ты их указал.Умножаем справа налево на 2. При необходимости переносим десятки в следующий разр",
+      "accepted": true
+    },
+    {
+      "name": "3-mul-1",
+      "scenario": "wrong",
+      "wrongInput": {
+        "count": 4,
+        "alteredRow": "final",
+        "correct": "1"
+      },
+      "credited": 0,
+      "feedback": "🟡 Пока неверно. Ошибок в клетках: 1. Красным отмечены места, которые нужно исправить. Проверь правило темы и повтори вычисление по шагам.",
+      "rejected": true
+    },
+    {
+      "name": "3-mul-1",
+      "scenario": "correct",
+      "correctInput": {
+        "count": 3,
+        "alteredRow": "final",
+        "correct": "7"
+      },
+      "credited": 1,
+      "feedback": "✅ Отлично! Обязательная запись и итог 78 верны. Переносы проверены там, где ты их указал.Умножаем справа налево на 3. При необходимости переносим десятки в следующий разр",
+      "accepted": true
+    },
+    {
+      "name": "3-mul-2",
+      "scenario": "wrong",
+      "wrongInput": {
+        "count": 4,
+        "alteredRow": "final",
+        "correct": "1"
+      },
+      "credited": 0,
+      "feedback": "🟡 Пока неверно. Ошибок в клетках: 1. Красным отмечены места, которые нужно исправить. Проверь правило темы и повтори вычисление по шагам.",
+      "rejected": true
+    },
+    {
+      "name": "3-mul-2",
+      "scenario": "correct",
+      "correctInput": {
+        "count": 4,
+        "alteredRow": "final",
+        "correct": "1"
+      },
+      "credited": 1,
+      "feedback": "✅ Отлично! Обязательная запись и итог 196 верны. Переносы проверены там, где ты их указал.Умножаем справа налево на 4. При необходимости переносим десятки в следующий раз",
+      "accepted": true
+    },
+    {
+      "name": "3-div-0",
+      "scenario": "wrong",
+      "wrongInput": {
+        "count": 8,
+        "alteredRow": "quot",
+        "correct": "1"
+      },
+      "credited": 0,
+      "feedback": "🟡 Пока неверно. Ошибок в клетках: 1. Красным отмечены места, которые нужно исправить. Проверь правило темы и повтори вычисление по шагам.",
+      "rejected": true
+    },
+    {
+      "name": "3-div-0",
+      "scenario": "correct",
+      "correctInput": {
+        "count": 8,
+        "alteredRow": "quot",
+        "correct": "1"
+      },
+      "credited": 1,
+      "feedback": "✅ Отлично! Все шаги деления и частное 15 записаны правильно.7 : 5 = 1; 1 · 5 = 5; остаток 2.25 : 5 = 5; 5 · 5 = 25; остаток 0.Получаем частное 15, остаток 0.Награда: +10 ",
+      "accepted": true
+    },
+    {
+      "name": "3-div-1",
+      "scenario": "wrong",
+      "wrongInput": {
+        "count": 9,
+        "alteredRow": "quot",
+        "correct": "4"
+      },
+      "credited": 0,
+      "feedback": "🟡 Пока неверно. Ошибок в клетках: 1. Красным отмечены места, которые нужно исправить. Проверь правило темы и повтори вычисление по шагам.",
+      "rejected": true
+    },
+    {
+      "name": "3-div-1",
+      "scenario": "correct",
+      "correctInput": {
+        "count": 9,
+        "alteredRow": "quot",
+        "correct": "4"
+      },
+      "credited": 1,
+      "feedback": "✅ Отлично! Все шаги деления и частное 45 записаны правильно.31 : 7 = 4; 4 · 7 = 28; остаток 3.35 : 7 = 5; 5 · 7 = 35; остаток 0.Получаем частное 45, остаток 0.Награда: +1",
+      "accepted": true
+    },
+    {
+      "name": "3-div-2",
+      "scenario": "wrong",
+      "wrongInput": {
+        "count": 9,
+        "alteredRow": "quot",
+        "correct": "2"
+      },
+      "credited": 0,
+      "feedback": "🟡 Пока неверно. Ошибок в клетках: 1. Красным отмечены места, которые нужно исправить. Проверь правило темы и повтори вычисление по шагам.",
+      "rejected": true
+    },
+    {
+      "name": "3-div-2",
+      "scenario": "correct",
+      "correctInput": {
+        "count": 9,
+        "alteredRow": "quot",
+        "correct": "3"
+      },
+      "credited": 1,
+      "feedback": "✅ Отлично! Все шаги деления и частное 39 записаны правильно.15 : 4 = 3; 3 · 4 = 12; остаток 3.36 : 4 = 9; 9 · 4 = 36; остаток 0.Получаем частное 39, остаток 0.Награда: +1",
+      "accepted": true
+    },
+    {
+      "name": "4-add-0",
+      "scenario": "wrong",
+      "wrongInput": {
+        "count": 8,
+        "alteredRow": "final",
+        "correct": "1"
+      },
+      "credited": 0,
+      "feedback": "🟡 Пока неверно. Ошибок в клетках: 1. Красным отмечены места, которые нужно исправить. Проверь решение по шагам и найди первый разряд или действие, где мог появиться пром",
+      "rejected": true
+    },
+    {
+      "name": "4-add-0",
+      "scenario": "correct",
+      "correctInput": {
+        "count": 8,
+        "alteredRow": "final",
+        "correct": "1"
+      },
+      "credited": 1,
+      "feedback": "✅ Отлично! Итог 1059 верен. Переносы сверху были подсказкой и проверены только там, где ты их заполнил.Складываем справа налево по разрядам. Если сумма разряда больше 9, ",
+      "accepted": true
+    },
+    {
+      "name": "4-add-1",
+      "scenario": "wrong",
+      "wrongInput": {
+        "count": 8,
+        "alteredRow": "final",
+        "correct": "8"
+      },
+      "credited": 0,
+      "feedback": "🟡 Пока неверно. Ошибок в клетках: 1. Красным отмечены места, которые нужно исправить. Проверь решение по шагам и найди первый разряд или действие, где мог появиться пром",
+      "rejected": true
+    },
+    {
+      "name": "4-add-1",
+      "scenario": "correct",
+      "correctInput": {
+        "count": 10,
+        "alteredRow": "final",
+        "correct": "1"
+      },
+      "credited": 1,
+      "feedback": "✅ Отлично! Итог 10899 верен. Переносы сверху были подсказкой и проверены только там, где ты их заполнил.Складываем справа налево по разрядам. Если сумма разряда больше 9,",
+      "accepted": true
+    },
+    {
+      "name": "4-add-2",
+      "scenario": "wrong",
+      "wrongInput": {
+        "count": 10,
+        "alteredRow": "final",
+        "correct": "7"
+      },
+      "credited": 0,
+      "feedback": "🟡 Пока неверно. Ошибок в клетках: 1. Красным отмечены места, которые нужно исправить. Проверь решение по шагам и найди первый разряд или действие, где мог появиться пром",
+      "rejected": true
+    },
+    {
+      "name": "4-add-2",
+      "scenario": "correct",
+      "correctInput": {
+        "count": 12,
+        "alteredRow": "final",
+        "correct": "1"
+      },
+      "credited": 1,
+      "feedback": "✅ Отлично! Итог 161707 верен. Переносы сверху были подсказкой и проверены только там, где ты их заполнил.Складываем справа налево по разрядам. Если сумма разряда больше 9",
+      "accepted": true
+    },
+    {
+      "name": "4-sub-0",
+      "scenario": "wrong",
+      "wrongInput": {
+        "count": 9,
+        "alteredRow": "final",
+        "correct": "5"
+      },
+      "credited": 0,
+      "feedback": "🟡 Пока неверно. Ошибок в клетках: 1. Красным отмечены места, которые нужно исправить. Проверь решение по шагам и найди первый разряд или действие, где мог появиться пром",
+      "rejected": true
+    },
+    {
+      "name": "4-sub-0",
+      "scenario": "correct",
+      "correctInput": {
+        "count": 9,
+        "alteredRow": "final",
+        "correct": "2"
+      },
+      "credited": 1,
+      "feedback": "✅ Отлично! Итог 237 верен. Точки и единицы занимания сверху необязательны; заполненные отметки проверены.Вычитаем справа налево. Когда верхней цифры не хватает, занимаем ",
+      "accepted": true
+    },
+    {
+      "name": "4-sub-1",
+      "scenario": "wrong",
+      "wrongInput": {
+        "count": 11,
+        "alteredRow": "final",
+        "correct": "3"
+      },
+      "credited": 0,
+      "feedback": "🟡 Пока неверно. Ошибок в клетках: 1. Красным отмечены места, которые нужно исправить. Проверь решение по шагам и найди первый разряд или действие, где мог появиться пром",
+      "rejected": true
+    },
+    {
+      "name": "4-sub-1",
+      "scenario": "correct",
+      "correctInput": {
+        "count": 12,
+        "alteredRow": "final",
+        "correct": "2"
+      },
+      "credited": 1,
+      "feedback": "✅ Отлично! Итог 2491 верен. Точки и единицы занимания сверху необязательны; заполненные отметки проверены.Вычитаем справа налево. Когда верхней цифры не хватает, занимаем",
+      "accepted": true
+    },
+    {
+      "name": "4-sub-2",
+      "scenario": "wrong",
+      "wrongInput": {
+        "count": 14,
+        "alteredRow": "final",
+        "correct": "2"
+      },
+      "credited": 0,
+      "feedback": "🟡 Пока неверно. Ошибок в клетках: 1. Красным отмечены места, которые нужно исправить. Проверь решение по шагам и найди первый разряд или действие, где мог появиться пром",
+      "rejected": true
+    },
+    {
+      "name": "4-sub-2",
+      "scenario": "correct",
+      "correctInput": {
+        "count": 14,
+        "alteredRow": "final",
+        "correct": "7"
+      },
+      "credited": 1,
+      "feedback": "✅ Отлично! Итог 7753 верен. Точки и единицы занимания сверху необязательны; заполненные отметки проверены.Вычитаем справа налево. Когда верхней цифры не хватает, занимаем",
+      "accepted": true
+    },
+    {
+      "name": "4-mul-0",
+      "scenario": "wrong",
+      "wrongInput": {
+        "count": 19,
+        "alteredRow": "final",
+        "correct": "3"
+      },
+      "credited": 0,
+      "feedback": "🟡 Пока неверно. Ошибок в клетках: 1. Красным отмечены места, которые нужно исправить. Проверь решение по шагам и найди первый разряд или действие, где мог появиться пром",
+      "rejected": true
+    },
+    {
+      "name": "4-mul-0",
+      "scenario": "correct",
+      "correctInput": {
+        "count": 21,
+        "alteredRow": "final",
+        "correct": "1"
+      },
+      "credited": 1,
+      "feedback": "✅ Отлично! Обязательная запись и итог 16256 верны. Переносы проверены там, где ты их указал.Сначала 508 × 2 = 1016. Затем 508 × 3 десятков = 15240. Складываем неполные пр",
+      "accepted": true
+    },
+    {
+      "name": "4-mul-1",
+      "scenario": "wrong",
+      "wrongInput": {
+        "count": 21,
+        "alteredRow": "final",
+        "correct": "1"
+      },
+      "credited": 0,
+      "feedback": "🟡 Пока неверно. Ошибок в клетках: 1. Красным отмечены места, которые нужно исправить. Проверь решение по шагам и найди первый разряд или действие, где мог появиться пром",
+      "rejected": true
+    },
+    {
+      "name": "4-mul-1",
+      "scenario": "correct",
+      "correctInput": {
+        "count": 25,
+        "alteredRow": "final",
+        "correct": "1"
+      },
+      "credited": 1,
+      "feedback": "✅ Отлично! Обязательная запись и итог 103085 верны. Переносы проверены там, где ты их указал.Сначала 1945 × 3 = 5835. Затем 1945 × 5 десятков = 97250. Складываем неполные",
+      "accepted": true
+    },
+    {
+      "name": "4-mul-2",
+      "scenario": "wrong",
+      "wrongInput": {
+        "count": 24,
+        "alteredRow": "final",
+        "correct": "9"
+      },
+      "credited": 0,
+      "feedback": "🟡 Пока неверно. Ошибок в клетках: 1. Красным отмечены места, которые нужно исправить. Проверь решение по шагам и найди первый разряд или действие, где мог появиться пром",
+      "rejected": true
+    },
+    {
+      "name": "4-mul-2",
+      "scenario": "correct",
+      "correctInput": {
+        "count": 27,
+        "alteredRow": "final",
+        "correct": "2"
+      },
+      "credited": 1,
+      "feedback": "✅ Отлично! Обязательная запись и итог 222249 верны. Переносы проверены там, где ты их указал.Сначала 3221 × 9 = 28989. Затем 3221 × 6 десятков = 193260. Складываем неполн",
+      "accepted": true
+    },
+    {
+      "name": "4-div-0",
+      "scenario": "wrong",
+      "wrongInput": {
+        "count": 9,
+        "alteredRow": "quot",
+        "correct": "4"
+      },
+      "credited": 0,
+      "feedback": "🟡 Пока неверно. Ошибок в клетках: 1. Красным отмечены места, которые нужно исправить. Проверь решение по шагам и найди первый разряд или действие, где мог появиться пром",
+      "rejected": true
+    },
+    {
+      "name": "4-div-0",
+      "scenario": "correct",
+      "correctInput": {
+        "count": 9,
+        "alteredRow": "quot",
+        "correct": "4"
+      },
+      "credited": 1,
+      "feedback": "✅ Отлично! Все шаги деления и частное 49 записаны правильно.Делим слева направо: 24 ÷ 5: цифра частного 4, остаток 4; 45 ÷ 5: цифра частного 9, остаток 0. Частное 49. Про",
+      "accepted": true
+    },
+    {
+      "name": "4-div-1",
+      "scenario": "wrong",
+      "wrongInput": {
+        "count": 14,
+        "alteredRow": "quot",
+        "correct": "9"
+      },
+      "credited": 0,
+      "feedback": "🟡 Пока неверно. Ошибок в клетках: 1. Красным отмечены места, которые нужно исправить. Проверь решение по шагам и найди первый разряд или действие, где мог появиться пром",
+      "rejected": true
+    },
+    {
+      "name": "4-div-1",
+      "scenario": "correct",
+      "correctInput": {
+        "count": 13,
+        "alteredRow": "quot",
+        "correct": "9"
+      },
+      "credited": 1,
+      "feedback": "✅ Отлично! Все шаги деления и частное 929 записаны правильно.Делим слева направо: 37 ÷ 4: цифра частного 9, остаток 1; 11 ÷ 4: цифра частного 2, остаток 3; 36 ÷ 4: цифра ",
+      "accepted": true
+    },
+    {
+      "name": "4-div-2",
+      "scenario": "wrong",
+      "wrongInput": {
+        "count": 18,
+        "alteredRow": "quot",
+        "correct": "7"
+      },
+      "credited": 0,
+      "feedback": "🟡 Пока неверно. Ошибок в клетках: 1. Красным отмечены места, которые нужно исправить. Проверь решение по шагам и найди первый разряд или действие, где мог появиться пром",
+      "rejected": true
+    },
+    {
+      "name": "4-div-2",
+      "scenario": "correct",
+      "correctInput": {
+        "count": 19,
+        "alteredRow": "quot",
+        "correct": "3"
+      },
+      "credited": 1,
+      "feedback": "✅ Отлично! Все шаги деления и частное 3337 записаны правильно.Делим слева направо: 26 ÷ 8: цифра частного 3, остаток 2; 26 ÷ 8: цифра частного 3, остаток 2; 29 ÷ 8: цифра",
+      "accepted": true
+    }
+  ],
+  "failures": [],
+  "pageErrors": [],
+  "summary": {
+    "scenarios": 48,
+    "wrong": 24,
+    "wrongRejected": 24,
+    "correct": 24,
+    "correctAccepted": 24,
+    "failures": 0,
+    "pageErrors": 0
+  }
+}

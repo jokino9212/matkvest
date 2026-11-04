@@ -4,7 +4,7 @@ import {createHash} from 'node:crypto';
 import {pathToFileURL} from 'node:url';
 import puppeteer from 'puppeteer-core';
 
-const expected='5c1532d17ff98b5f4cf7c2155233a6bfd1560c8688679bab0d906d6afa49d41f';
+const expected='fa4db04c3a53351ed672b12daa577a2ea3bb1376932f13b821e50db95436cd9a';
 const hash=createHash('sha256').update(fs.readFileSync('index.html')).digest('hex');
 if(hash!==expected || !fs.readFileSync('sw.js','utf8').includes('const APP_BUILD_HASH = "'+hash+'"'))throw Error('Refuse unchecked HTML or mismatched PWA hash: '+hash);
 const binary=[process.env.CHROME_BIN,'/usr/bin/google-chrome','/usr/bin/google-chrome-stable','/usr/bin/chromium'].find(p=>p&&fs.existsSync(p));
