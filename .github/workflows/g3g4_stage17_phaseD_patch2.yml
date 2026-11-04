@@ -1,0 +1,71 @@
+name: MatKvest stage17D - second content quality fix
+on:
+  push:
+    branches: [audit/g3g4-stage17-20261104]
+    paths:
+      - audits/g3g4_stage17_phaseD_patch2.py
+      - .github/workflows/g3g4_stage17_phaseD_patch2.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: matkvest-stage17D-second-patch
+  cancel-in-progress: false
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit/g3g4-stage17-20261104
+          persist-credentials: true
+      - name: Verify audited v41 source before touching files
+        run: |
+          echo '8bd7ccd047368b8754299e7c1bd5995229f789b040a9ca8478d1ecb4b521da5a  index.html' | sha256sum --check
+          python3 audits/g7_stage12_sync_pwa.py --check
+      - name: Patch confirmed G3 content defects and synchronize PWA v42
+        run: |
+          python3 audits/g3g4_stage17_phaseD_patch2.py
+          python3 audits/g7_stage12_sync_pwa.py --check
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save --no-package-lock puppeteer-core@24
+      - name: Independently verify names, geometry and area in 3150 samples
+        run: node audits/g3g4_stage17_phaseD_patch2_targeted.mjs
+      - name: Recheck 48 G3 topics and 8 G4 sections for arithmetic and content
+        run: node audits/g3g4_stage17_phaseD_semantics.mjs
+      - name: Prepare post-fix written answer regression
+        run: |
+          python3 - <<'PY'
+          import pathlib,json
+          d=json.loads(pathlib.Path('audits/g3g4_stage17_phaseD_patch2_report.json').read_text())
+          s=pathlib.Path('audits/g3g4_stage17_phaseC_column_input.mjs').read_text(encoding='utf8')
+          s=s.replace('b953b710a471210fe0f8247b55e879cedf4d7e11c6f369d551040a9f5d46c7d3',d['newSha256'])
+          s=s.replace('g3g4_stage17_phaseC_column_input_report.json','g3g4_stage17_phaseD_patch2_column_report.json')
+          pathlib.Path('audits/_stage17D_patch2_column.mjs').write_text(s,encoding='utf8')
+          PY
+      - name: Verify column answer and error feedback remains correct
+        run: node audits/_stage17D_patch2_column.mjs
+      - name: Preserve diagnostic artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: matkvest-stage17D-second-patch-evidence
+          path: |
+            audits/g3g4_stage17_phaseD_patch2_report.json
+            audits/g3g4_stage17_phaseD_patch2_targeted_report.json
+            audits/g3g4_stage17_phaseD_semantics_report.json
+            audits/g3g4_stage17_phaseD_patch2_column_report.json
+          if-no-files-found: warn
+      - name: Commit source, SW and reports on audit branch after full success
+        if: success()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js audits/g7_stage12_sync_pwa.py audits/g3g4_stage17_phaseD_semantics.mjs
+          git add audits/g3g4_stage17_phaseD_patch2_report.json audits/g3g4_stage17_phaseD_patch2_targeted_report.json
+          git add audits/g3g4_stage17_phaseD_semantics_report.json audits/g3g4_stage17_phaseD_patch2_column_report.json
+          git commit -m "fix(stage17D): correct G3 gender, geometry explanation and grid area units"
+          git push origin HEAD:audit/g3g4-stage17-20261104
