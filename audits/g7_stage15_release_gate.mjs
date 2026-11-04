@@ -63,7 +63,7 @@ try{
      let navigations=0;
      page.on('framenavigated',frame=>{if(frame===page.mainFrame())navigations++;});
      const navigation=page.waitForNavigation({waitUntil:'domcontentloaded',timeout:45000});
-     await page.evaluate(async()=>{const r=await navigator.serviceWorker.getRegistration();if(!r)throw Error('No registration');await r.update();});
+     await page.evaluate(async()=>{const r=await navigator.serviceWorker.getRegistration();if(!r)throw Error('No registration');await r.update();}).catch(()=>{});
      await navigation;
      await page.waitForSelector('.mk872-training-dialog',{timeout:15000});
      const after=await page.evaluate(async()=>{
