@@ -1,0 +1,63 @@
+name: G7 stage 11 - restore top of modal on topic change
+
+on:
+  push:
+    branches: [audit/g7-stage11-20261104]
+    paths:
+      - .github/workflows/g7_stage11.yml
+      - audits/g7_stage11_scroll_patch.js
+      - audits/g7_stage11_scroll_test.mjs
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  stage11-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build isolated stage 11 HTML from verified stage 10
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib
+          p=Path('index.html')
+          source=p.read_text(encoding='utf-8')
+          patch=Path('audits/g7_stage11_scroll_patch.js').read_text(encoding='utf-8')
+          expected='f54327a5ae104f38259f962265115094df699cf946854e1193693de6cf1aec59'
+          marker='/* МатКвест G7 этап 11: сброс прокрутки при запуске другой тренировки */'
+          assert hashlib.sha256(source.encode('utf-8')).hexdigest()==expected, 'Unverified stage 10 base HTML'
+          assert patch.startswith(marker)
+          assert marker not in source
+          at=source.rfind('</script>')
+          assert at>0
+          output=source[:at]+'\n'+patch+'\n'+source[at:]
+          assert output.count(marker)==1
+          assert output.count('<script')==output.count('</script>')
+          p.write_text(output,encoding='utf-8')
+          print('Stage11 HTML SHA256:',hashlib.sha256(output.encode('utf-8')).hexdigest())
+          PY
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Chromium support
+        run: npm install --no-save --no-package-lock puppeteer-core@24
+      - name: Test scroll behavior on mobile and desktop
+        run: node audits/g7_stage11_scroll_test.mjs
+      - name: Full 321-stage UI regression
+        run: node audits/g7_stage8_ui_test.mjs
+      - name: Stage 9 targeted semantic uniqueness regression
+        run: node audits/g7_stage9_ui_test.mjs
+      - name: Store QA results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: g7-stage11-qa
+          path: |
+            audits/g7_stage11_scroll_report.json
+            audits/g7_stage8_ui_report.json
+            audits/g7_stage9_ui_report.json
+          if-no-files-found: warn
+          retention-days: 30
