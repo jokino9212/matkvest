@@ -27,15 +27,13 @@ jobs:
       - name: Run deep math and UI tests
         if: hashFiles('audits/g7_stage10_deep_test.mjs') != ''
         run: node audits/g7_stage10_deep_test.mjs
-      - name: Save diagnostic reports
+      - name: Upload full diagnostic reports even on test failure
         if: always()
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          for file in audits/g7_stage10_probe.json audits/g7_stage10_deep_report.json; do
-            if test -f "$file"; then git add "$file"; fi
-          done
-          if ! git diff --cached --quiet; then
-            git commit -m "test(G7): save stage10 probe and deep QA results [skip ci]"
-            git push origin HEAD:audit/g7-stage10-20261104
-          fi
+        uses: actions/upload-artifact@v4
+        with:
+          name: g7-stage10-diagnostics
+          path: |
+            audits/g7_stage10_probe.json
+            audits/g7_stage10_deep_report.json
+          if-no-files-found: warn
+          retention-days: 30
