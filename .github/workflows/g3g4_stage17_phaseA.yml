@@ -1,0 +1,52 @@
+name: MatKvest stage17A - grade 3 and 4 discovery
+on:
+  push:
+    branches: [audit/g3g4-stage17-20261104]
+    paths:
+      - audits/g3g4_stage17_phaseA_discovery.mjs
+      - .github/workflows/g3g4_stage17_phaseA.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: matkvest-stage17-g3g4-phaseA
+  cancel-in-progress: false
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit/g3g4-stage17-20261104
+          persist-credentials: true
+      - name: Verify isolated source, PWA integrity and no rebuild
+        run: |
+          echo 'b953b710a471210fe0f8247b55e879cedf4d7e11c6f369d551040a9f5d46c7d3  index.html' | sha256sum --check
+          python3 audits/g7_stage12_sync_pwa.py --check
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save --no-package-lock puppeteer-core@24
+      - name: Check regular G3 questions and render G3/G4 written columns and tables
+        run: node audits/g3g4_stage17_phaseA_discovery.mjs
+      - name: Preserve QA report on failures too
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: matkvest-stage17A-g3g4-discovery
+          path: audits/g3g4_stage17_phaseA_discovery_report.json
+          if-no-files-found: warn
+          retention-days: 60
+      - name: Commit evidence only on isolated grade3-grade4 audit branch
+        if: always()
+        run: |
+          if [ -f audits/g3g4_stage17_phaseA_discovery_report.json ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add audits/g3g4_stage17_phaseA_discovery_report.json
+            if ! git diff --cached --quiet; then
+              git commit -m "audit(stage17A): preserve G3 and G4 column baseline [skip ci]"
+              git push origin HEAD:audit/g3g4-stage17-20261104
+            fi
+          fi
