@@ -22,6 +22,8 @@ markers = {
     "generator_functions": ["function makeG3Question", "const makeG3Question", "function g3TheoryHtml", "function startG3WrittenStage"],
     "legacy_functions": ["function startQuizStage", "function startColumnStage", "function startTableStage", "const TOPICS", "function makeQuestion"],
     "error_feedback": ["function checkColumn", "function pick(", "quizQuestions"],
+    "g3_target_grammar": ["function g3UnitExplanation847", "function g3ImproveExplanation847", "function g3MulTableQuestion", "function g3UnitQuestion", "g3UnitExplanation847(a)"],
+    "g4_quiz_engine": ["function quizObject(", "function nextQ(", "function pick(", "function genQuestion(", "function g4TheoryHtml(", "function makeQuizQuestion("],
 }
 out = {"stage": "17D-source-read-only", "sha256": actual, "bytes": len(src),
        "utc": datetime.now(timezone.utc).isoformat(), "excerpts": {}}
