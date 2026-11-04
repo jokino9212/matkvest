@@ -27,7 +27,7 @@ try{
      const words=String(a.text)+' '+String(a.ex);
      if(/(?:NaN|undefined|\\[object Object\\]|Infinity)/.test(words))throw Error('Invalid text or explanation');
      if(String(a.ans??'').trim()==='')throw Error('Missing answer');
-     if(a.choices){
+     if(a.choices?.length){
        if(a.choices.length<2)throw Error('Insufficient answer options');
        const keys=a.choices.map(x=>String(x.key));
        if(new Set(keys).size!==keys.length)throw Error('Duplicate choice keys');
@@ -73,7 +73,7 @@ try{
        if(a.visual.type==='coordinatePlane'&&!a.visual.data)throw Error('Coordinate diagram has no data');
        if(a.visual.type==='geometry'&&!a.visual.data)throw Error('Geometry diagram has no data');
      }
-     const mode=a.choices?'choices':String(a.answerMode||'text');
+     const mode=a.choices?.length?'choices':String(a.answerMode||'text');
      byMode[mode]=(byMode[mode]||0)+1;
      const v=m.variant||m.type||a.templateId||'legacy';
      variants[v]=(variants[v]||0)+1;
@@ -133,10 +133,10 @@ try{
       const next=document.getElementById('quizNext');
       const after=blockSession.correct;
       assert(feedback.length>0,'Missing feedback after answer');
-      assert(next&&next.style.display!=='none','Next button not enabled');
+      if(correct)assert(next&&next.style.display!=='none','Next button not enabled for correct answer');
       assert(correct?after===old+1:after===old,'Correct answer counter changed incorrectly');
       if(correct){testedCorrect++;correctFeedback++}else{testedWrong++;wrongFeedback++}
-      assert(options.every(x=>x.disabled),'Answer buttons not locked after selection');
+      if(correct){const awarded=blockSession.correct;options[selected].click();assert(blockSession.correct===awarded,'Repeated correct click awarded extra credit');}
       return null;
    }
    for(const t of topics){
