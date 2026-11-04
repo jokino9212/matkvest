@@ -1,0 +1,54 @@
+name: MatKvest stage17D - PWA v43 cross-grade regression
+on:
+  push:
+    branches: [audit/g3g4-stage17-20261104]
+    paths:
+      - .github/workflows/g3g4_stage17_phaseD_v43_crossgrade.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: matkvest-stage17D-v43-crossgrade
+  cancel-in-progress: false
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit/g3g4-stage17-20261104
+          persist-credentials: true
+      - name: Check approved v43 HTML and PWA hash
+        run: |
+          echo 'fa4db04c3a53351ed672b12daa577a2ea3bb1376932f13b821e50db95436cd9a  index.html' | sha256sum --check
+          python3 audits/g7_stage12_sync_pwa.py --check
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save --no-package-lock puppeteer-core@24
+      - name: Independently rerun cross-grade regressions
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          source=Path('audits/g1g2_stage16_phaseD_regression.mjs').read_text(encoding='utf8')
+          source=source.replace('g1g2_stage16_phaseD_regression_report.json','g3g4_stage17_phaseD_v43_crossgrade_report.json')
+          Path('audits/_stage17D_v43_crossgrade.mjs').write_text(source,encoding='utf8')
+          PY
+          node audits/_stage17D_v43_crossgrade.mjs
+      - name: Always upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: matkvest-stage17D-v43-crossgrade
+          path: audits/g3g4_stage17_phaseD_v43_crossgrade_report.json
+      - name: Save clean cross-grade evidence on audit branch
+        if: success()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add audits/g3g4_stage17_phaseD_v43_crossgrade_report.json
+          if ! git diff --cached --quiet; then
+            git commit -m "audit(stage17D): verify PWA v43 has no 1-2/3/5/7/8 crossgrade regression [skip ci]"
+            git push origin HEAD:audit/g3g4-stage17-20261104
+          fi
