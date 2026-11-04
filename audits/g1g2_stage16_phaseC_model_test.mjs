@@ -44,7 +44,7 @@ try{
         if(m.shape==='rectangle'||m.shape==='square'||m.shape==='triangle'){
           const p=perimeter(m);
           const extra=[['perimeter',p]];
-          if(m.answer!==undefined&&m.hidden!==undefined)extra.push(['answer',m.c]);
+          if(m.answer!==undefined&&m.hidden!==undefined)extra.push(['answer',[m.a,m.b,m.c][m.hidden]]);
           return {value:p,field:'perimeter',extra};
         }
         if(m.left&&m.right){
