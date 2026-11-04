@@ -1,0 +1,40 @@
+name: MatKvest stage17D - final coverage source inspection
+on:
+  push:
+    branches: [audit/g3g4-stage17-20261104]
+    paths:
+      - audits/g3g4_stage17_final_inventory_source.py
+      - .github/workflows/g3g4_stage17_final_inventory_source.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit/g3g4-stage17-20261104
+          persist-credentials: true
+      - name: Guard v49 application and service worker
+        run: |
+          echo '04a719fe8c292d8fe42b9762fdca5b8b48c316042cbdb1709ac18fe5290eff21  index.html' | sha256sum --check
+          python3 audits/g7_stage12_sync_pwa.py --check
+      - name: Extract special-renderer sources
+        run: python3 audits/g3g4_stage17_final_inventory_source.py
+      - name: Store source evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: matkvest-stage17D-final-inventory-source
+          path: audits/g3g4_stage17_final_inventory_source.json
+      - name: Commit source evidence to audit branch only
+        if: success()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add audits/g3g4_stage17_final_inventory_source.json
+          git commit -m "audit(stage17D): retain final special renderer source evidence [skip ci]"
+          git pull --rebase origin audit/g3g4-stage17-20261104
+          git push origin HEAD:audit/g3g4-stage17-20261104
