@@ -33,9 +33,6 @@ assert old_checker.count("matkvest-iphone-v40")==1
 sem=pathlib.Path("audits/g3g4_stage17_phaseD_semantics.mjs")
 old_sem=sem.read_text(encoding="utf8")
 assert old_sem.count(OLD)==1
-wf=pathlib.Path(".github/workflows/g3g4_stage17_phaseD_semantics.yml")
-old_wf=wf.read_text(encoding="utf8")
-assert old_wf.count(OLD)==1
 new_sw=sw.replace("matkvest-iphone-v40","matkvest-iphone-v41").replace(OLD,NEW)
 assert new_sw.count(NEW)==1
 # All preconditions satisfied; write only approved files.
@@ -43,7 +40,6 @@ p.write_bytes(new_bytes)
 worker.write_text(new_sw,encoding="utf8")
 checker.write_text(old_checker.replace("matkvest-iphone-v40","matkvest-iphone-v41"),encoding="utf8")
 sem.write_text(old_sem.replace(OLD,NEW),encoding="utf8")
-wf.write_text(old_wf.replace(OLD,NEW),encoding="utf8")
 report={"stage":"17D-G3-grammar-repair","at":datetime.now(timezone.utc).isoformat(),
  "oldSha256":OLD,"newSha256":NEW,"bytesBefore":len(source),"bytesAfter":len(new_bytes),
  "changes":["g3 multiplication table numeral agreement","g3 money abbreviation punctuation"],
