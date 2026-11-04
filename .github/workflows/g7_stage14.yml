@@ -1,9 +1,10 @@
 name: MatKvest stage 14 - cross-grade release readiness
 on:
   push:
-    branches: [audit/g7-stage14-20261104]
+    branches: [audit/g7-stage14-20261104, audit/g1g2-stage16-20261104]
     paths:
       - .github/workflows/g7_stage14.yml
+      - audits/g1g2_stage16_initial_probe.mjs
       - audits/g7_stage14_crossgrade_probe.mjs
       - audits/g7_stage14_crossgrade_test.mjs
       - audits/g7_stage14_grade4_test.mjs
@@ -27,6 +28,8 @@ jobs:
         run: node audits/g7_stage14_crossgrade_test.mjs
       - name: Test grade4 calculation and column UI
         run: node audits/g7_stage14_grade4_test.mjs
+      - name: Stage16 all-topic content diagnostic for G1 and G2
+        run: node audits/g1g2_stage16_initial_probe.mjs
       - name: Save test evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -36,5 +39,6 @@ jobs:
             audits/g7_stage14_probe_report.json
             audits/g7_stage14_crossgrade_report.json
             audits/g7_stage14_grade4_report.json
+            audits/g1g2_stage16_initial_report.json
           if-no-files-found: warn
           retention-days: 30
