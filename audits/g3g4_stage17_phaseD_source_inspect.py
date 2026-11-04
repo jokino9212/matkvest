@@ -34,7 +34,7 @@ for group, words in markers.items():
         out["excerpts"][word] = {
             "count_at_least": len(hits), "positions": hits,
             "snippets": [s[max(0, p-(1100 if group in ("g3_multiplication_text", "g3_money_text") else 400)):
-                          min(len(s), p+(1800 if group in ("g3_multiplication_text", "g3_money_text") else 850))]
+                          min(len(s), p+(5000 if group=="g3_new_findings" else 1800 if group in ("g3_multiplication_text", "g3_money_text") else 850))]
                          for p in hits[:3]]
         }
 pathlib.Path("audits/g3g4_stage17_phaseD_source_inspect.json").write_text(
