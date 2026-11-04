@@ -22,11 +22,11 @@ try{
        const q=makeG2Question('g2:word_problems',d);
        if(!q?.text||(!('ans' in q)&&!('answer' in q)&&!('answerRat' in q)))throw Error('Invalid G2 question at difficulty '+d);
        const text=String(q.text).replace(/<[^>]+>/g,' '),ex=String(q.ex??'');
-       if(/(?:Поставили|поставили|Сняли|сняли)\s+(?:ещё\s+)?(?:1|21|31|41|51|61|71|81|91)\s+книга(?=[\s.,!?]|$)/.test(text))throw Error('Wrong accusative: '+text);
-       if(/(?:Поставили|поставили|Сняли|сняли)\s+(?:ещё\s+)?(?:1|21|31|41|51|61|71|81|91)\s+книгу(?=[\s.,!?]|$)/.test(text))correctAccusative++;
-       if(/(?:^|\s)(?:5|6) раза(?=[\s.,!?]|$)/.test(ex))throw Error('Wrong «5 раза» / «6 раза»: '+ex);
-       if(/(?:^|\s)(?:5|6) раз(?=[\s.,!?]|$)/.test(ex))correctTimes++;
-       if(/было (?:1|21|31|41|51|61|71|81|91) книга(?=[\s.,!?]|$)/.test(text))validOriginalCounts++;
+       if(/(?:Поставили|поставили|Сняли|сняли)\s+(?:ещё\s+)?(?:1|21|31|41|51|61|71|81|91)\s+книга(?=[\s.,!?:;]|$)/.test(text))throw Error('Wrong accusative: '+text);
+       if(/(?:Поставили|поставили|Сняли|сняли)\s+(?:ещё\s+)?(?:1|21|31|41|51|61|71|81|91)\s+книгу(?=[\s.,!?:;]|$)/.test(text))correctAccusative++;
+       if(/(?:^|\s)(?:5|6) раза(?=[\s.,!?:;]|$)/.test(ex))throw Error('Wrong «5 раза» / «6 раза»: '+ex);
+       if(/(?:^|\s)(?:5|6) раз(?=[\s.,!?:;]|$)/.test(ex))correctTimes++;
+       if(/было (?:1|21|31|41|51|61|71|81|91) книга(?=[\s.,!?:;]|$)/.test(text))validOriginalCounts++;
        const m=ex.match(/(\d+) повторяется (\d+) (раза|раз): (\d+)\s*[·×*]\s*(\d+)\s*=\s*(\d+)/);
        if(m){
          const [,each,groups,word,a,b,result]=m;
