@@ -1,0 +1,4884 @@
+{
+  "stage": "17D-initial-semantic-diagnostic",
+  "htmlSha256": "fcbfe6dc439330704e8865930d1dbf9962fda48039e59b6e467e7fc07bfae55b",
+  "at": "2026-11-04T20:54:54.468Z",
+  "perTopic": [
+    {
+      "grade": 3,
+      "id": "g3:numbers_1000",
+      "title": "Числа от 1 до 1000",
+      "isColumn": false,
+      "levels": [
+        {
+          "d": 0,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 80,
+          "structuralShapes": 3,
+          "meanPromptLength": 32,
+          "meanDigits": 3.6,
+          "explanationEquations": 51,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 1,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 81,
+          "structuralShapes": 4,
+          "meanPromptLength": 33,
+          "meanDigits": 5.1,
+          "explanationEquations": 47,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 2,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 89,
+          "structuralShapes": 23,
+          "meanPromptLength": 35,
+          "meanDigits": 3.8,
+          "explanationEquations": 38,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        }
+      ]
+    },
+    {
+      "grade": 3,
+      "id": "g3:place_value",
+      "title": "Разрядный состав трёхзначного числа",
+      "isColumn": false,
+      "levels": [
+        {
+          "d": 0,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 89,
+          "structuralShapes": 3,
+          "meanPromptLength": 45,
+          "meanDigits": 3,
+          "explanationEquations": 0,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 1,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 89,
+          "structuralShapes": 4,
+          "meanPromptLength": 46,
+          "meanDigits": 3,
+          "explanationEquations": 0,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 2,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 74,
+          "structuralShapes": 5,
+          "meanPromptLength": 48,
+          "meanDigits": 3,
+          "explanationEquations": 0,
+          "independentAnswers": 0,
+          "choiceQuestions": 18,
+          "verifiedNumericDistractors": 0
+        }
+      ]
+    },
+    {
+      "grade": 3,
+      "id": "g3:compare_order",
+      "title": "Сравнение и упорядочивание чисел",
+      "isColumn": false,
+      "levels": [
+        {
+          "d": 0,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 90,
+          "structuralShapes": 1,
+          "meanPromptLength": 7,
+          "meanDigits": 4,
+          "explanationEquations": 0,
+          "independentAnswers": 90,
+          "choiceQuestions": 90,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 1,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 90,
+          "structuralShapes": 3,
+          "meanPromptLength": 17,
+          "meanDigits": 7,
+          "explanationEquations": 0,
+          "independentAnswers": 46,
+          "choiceQuestions": 90,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 2,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 90,
+          "structuralShapes": 3,
+          "meanPromptLength": 47,
+          "meanDigits": 11.2,
+          "explanationEquations": 37,
+          "independentAnswers": 0,
+          "choiceQuestions": 90,
+          "verifiedNumericDistractors": 0
+        }
+      ]
+    },
+    {
+      "grade": 3,
+      "id": "g3:increase_decrease_times",
+      "title": "Увеличение и уменьшение числа в несколько раз",
+      "isColumn": false,
+      "levels": [
+        {
+          "d": 0,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 56,
+          "structuralShapes": 4,
+          "meanPromptLength": 21,
+          "meanDigits": 2.4,
+          "explanationEquations": 90,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 1,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 72,
+          "structuralShapes": 4,
+          "meanPromptLength": 21,
+          "meanDigits": 2.6,
+          "explanationEquations": 90,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 2,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 70,
+          "structuralShapes": 4,
+          "meanPromptLength": 49,
+          "meanDigits": 2.7,
+          "explanationEquations": 90,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        }
+      ]
+    },
+    {
+      "grade": 3,
+      "id": "g3:multiplicative_compare",
+      "title": "Кратное сравнение чисел",
+      "isColumn": false,
+      "levels": [
+        {
+          "d": 0,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 55,
+          "structuralShapes": 2,
+          "meanPromptLength": 28,
+          "meanDigits": 2.9,
+          "explanationEquations": 90,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 1,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 70,
+          "structuralShapes": 2,
+          "meanPromptLength": 28,
+          "meanDigits": 3.1,
+          "explanationEquations": 90,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 2,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 78,
+          "structuralShapes": 5,
+          "meanPromptLength": 75,
+          "meanDigits": 3.4,
+          "explanationEquations": 90,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        }
+      ]
+    },
+    {
+      "grade": 3,
+      "id": "g3:mass",
+      "title": "Масса: грамм и килограмм",
+      "isColumn": false,
+      "levels": [
+        {
+          "d": 0,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 16,
+          "structuralShapes": 2,
+          "meanPromptLength": 11,
+          "meanDigits": 2.5,
+          "explanationEquations": 90,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 1,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 76,
+          "structuralShapes": 2,
+          "meanPromptLength": 14,
+          "meanDigits": 4.5,
+          "explanationEquations": 41,
+          "independentAnswers": 0,
+          "choiceQuestions": 49,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 2,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 88,
+          "structuralShapes": 2,
+          "meanPromptLength": 89,
+          "meanDigits": 7.7,
+          "explanationEquations": 227,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        }
+      ]
+    },
+    {
+      "grade": 3,
+      "id": "g3:money",
+      "title": "Рубли и копейки",
+      "isColumn": false,
+      "levels": [
+        {
+          "d": 0,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 37,
+          "structuralShapes": 2,
+          "meanPromptLength": 16,
+          "meanDigits": 2.3,
+          "explanationEquations": 90,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 1,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 90,
+          "structuralShapes": 2,
+          "meanPromptLength": 21,
+          "meanDigits": 4.1,
+          "explanationEquations": 48,
+          "independentAnswers": 0,
+          "choiceQuestions": 42,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 2,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 90,
+          "structuralShapes": 2,
+          "meanPromptLength": 85,
+          "meanDigits": 5.8,
+          "explanationEquations": 270,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        }
+      ]
+    },
+    {
+      "grade": 3,
+      "id": "g3:time",
+      "title": "Время: час, минута, секунда",
+      "isColumn": false,
+      "levels": [
+        {
+          "d": 0,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 27,
+          "structuralShapes": 4,
+          "meanPromptLength": 12,
+          "meanDigits": 2,
+          "explanationEquations": 90,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 1,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 18,
+          "structuralShapes": 2,
+          "meanPromptLength": 11,
+          "meanDigits": 1.1,
+          "explanationEquations": 90,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 2,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 52,
+          "structuralShapes": 2,
+          "meanPromptLength": 17,
+          "meanDigits": 3,
+          "explanationEquations": 90,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        }
+      ]
+    },
+    {
+      "grade": 3,
+      "id": "g3:length_units",
+      "title": "Длина: мм, см, дм, м, км",
+      "isColumn": false,
+      "levels": [
+        {
+          "d": 0,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 18,
+          "structuralShapes": 2,
+          "meanPromptLength": 11,
+          "meanDigits": 1,
+          "explanationEquations": 90,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 1,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 54,
+          "structuralShapes": 4,
+          "meanPromptLength": 11,
+          "meanDigits": 1.6,
+          "explanationEquations": 90,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 2,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 77,
+          "structuralShapes": 3,
+          "meanPromptLength": 15,
+          "meanDigits": 3.6,
+          "explanationEquations": 57,
+          "independentAnswers": 0,
+          "choiceQuestions": 33,
+          "verifiedNumericDistractors": 0
+        }
+      ]
+    },
+    {
+      "grade": 3,
+      "id": "g3:area_units",
+      "title": "Единицы площади",
+      "isColumn": false,
+      "levels": [
+        {
+          "d": 0,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 9,
+          "structuralShapes": 1,
+          "meanPromptLength": 13,
+          "meanDigits": 1,
+          "explanationEquations": 90,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 1,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 15,
+          "structuralShapes": 2,
+          "meanPromptLength": 14,
+          "meanDigits": 2.2,
+          "explanationEquations": 90,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 2,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 56,
+          "structuralShapes": 2,
+          "meanPromptLength": 14,
+          "meanDigits": 2.7,
+          "explanationEquations": 39,
+          "independentAnswers": 0,
+          "choiceQuestions": 51,
+          "verifiedNumericDistractors": 0
+        }
+      ]
+    },
+    {
+      "grade": 3,
+      "id": "g3:multiplication_table",
+      "title": "Таблица умножения",
+      "isColumn": false,
+      "levels": [
+        {
+          "d": 0,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 16,
+          "structuralShapes": 1,
+          "meanPromptLength": 9,
+          "meanDigits": 2,
+          "explanationEquations": 90,
+          "independentAnswers": 90,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 1,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 52,
+          "structuralShapes": 1,
+          "meanPromptLength": 9,
+          "meanDigits": 2,
+          "explanationEquations": 90,
+          "independentAnswers": 90,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 2,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 66,
+          "structuralShapes": 3,
+          "meanPromptLength": 9,
+          "meanDigits": 2.4,
+          "explanationEquations": 51,
+          "independentAnswers": 51,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        }
+      ]
+    },
+    {
+      "grade": 3,
+      "id": "g3:division_table",
+      "title": "Табличное деление",
+      "isColumn": false,
+      "levels": [
+        {
+          "d": 0,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 25,
+          "structuralShapes": 1,
+          "meanPromptLength": 10,
+          "meanDigits": 2.8,
+          "explanationEquations": 90,
+          "independentAnswers": 90,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 1,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 53,
+          "structuralShapes": 1,
+          "meanPromptLength": 10,
+          "meanDigits": 2.9,
+          "explanationEquations": 90,
+          "independentAnswers": 90,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 2,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 69,
+          "structuralShapes": 3,
+          "meanPromptLength": 10,
+          "meanDigits": 2.7,
+          "explanationEquations": 69,
+          "independentAnswers": 53,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        }
+      ]
+    },
+    {
+      "grade": 3,
+      "id": "g3:offtable_multiply",
+      "title": "Внетабличное умножение",
+      "isColumn": false,
+      "levels": [
+        {
+          "d": 0,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 13,
+          "structuralShapes": 1,
+          "meanPromptLength": 10,
+          "meanDigits": 3,
+          "explanationEquations": 0,
+          "independentAnswers": 90,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 1,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 61,
+          "structuralShapes": 4,
+          "meanPromptLength": 38,
+          "meanDigits": 3,
+          "explanationEquations": 180,
+          "independentAnswers": 45,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 2,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 90,
+          "structuralShapes": 12,
+          "meanPromptLength": 71,
+          "meanDigits": 4.5,
+          "explanationEquations": 180,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        }
+      ]
+    },
+    {
+      "grade": 3,
+      "id": "g3:offtable_divide",
+      "title": "Внетабличное деление",
+      "isColumn": false,
+      "levels": [
+        {
+          "d": 0,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 10,
+          "structuralShapes": 1,
+          "meanPromptLength": 10,
+          "meanDigits": 3,
+          "explanationEquations": 0,
+          "independentAnswers": 90,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 1,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 52,
+          "structuralShapes": 3,
+          "meanPromptLength": 41,
+          "meanDigits": 3,
+          "explanationEquations": 90,
+          "independentAnswers": 50,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 2,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 76,
+          "structuralShapes": 12,
+          "meanPromptLength": 128,
+          "meanDigits": 4,
+          "explanationEquations": 180,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        }
+      ]
+    },
+    {
+      "grade": 3,
+      "id": "g3:round_numbers",
+      "title": "Действия с десятками и сотнями",
+      "isColumn": false,
+      "levels": [
+        {
+          "d": 0,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 53,
+          "structuralShapes": 4,
+          "meanPromptLength": 12,
+          "meanDigits": 4.7,
+          "explanationEquations": 0,
+          "independentAnswers": 90,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 1,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 67,
+          "structuralShapes": 4,
+          "meanPromptLength": 11,
+          "meanDigits": 4.2,
+          "explanationEquations": 0,
+          "independentAnswers": 90,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 2,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 67,
+          "structuralShapes": 6,
+          "meanPromptLength": 12,
+          "meanDigits": 4.5,
+          "explanationEquations": 14,
+          "independentAnswers": 90,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        }
+      ]
+    },
+    {
+      "grade": 3,
+      "id": "g3:zero_one",
+      "title": "Умножение и деление с 0 и 1",
+      "isColumn": false,
+      "levels": [
+        {
+          "d": 0,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 55,
+          "structuralShapes": 2,
+          "meanPromptLength": 9,
+          "meanDigits": 2.5,
+          "explanationEquations": 90,
+          "independentAnswers": 90,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 1,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 85,
+          "structuralShapes": 2,
+          "meanPromptLength": 11,
+          "meanDigits": 3.5,
+          "explanationEquations": 90,
+          "independentAnswers": 90,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 2,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 90,
+          "structuralShapes": 4,
+          "meanPromptLength": 12,
+          "meanDigits": 4.5,
+          "explanationEquations": 90,
+          "independentAnswers": 90,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        }
+      ]
+    },
+    {
+      "grade": 3,
+      "id": "g3:written_add",
+      "title": "Письменное сложение до 1000",
+      "isColumn": true,
+      "levels": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:written_subtract",
+      "title": "Письменное вычитание до 1000",
+      "isColumn": true,
+      "levels": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:written_multiply",
+      "title": "Письменное умножение на однозначное число",
+      "isColumn": true,
+      "levels": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:written_divide",
+      "title": "Письменное деление на однозначное число",
+      "isColumn": true,
+      "levels": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:division_remainder",
+      "title": "Деление с остатком",
+      "isColumn": false,
+      "levels": [
+        {
+          "d": 0,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 76,
+          "structuralShapes": 1,
+          "meanPromptLength": 45,
+          "meanDigits": 2.9,
+          "explanationEquations": 0,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 1,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 81,
+          "structuralShapes": 12,
+          "meanPromptLength": 110,
+          "meanDigits": 3.1,
+          "explanationEquations": 0,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 2,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 90,
+          "structuralShapes": 12,
+          "meanPromptLength": 155,
+          "meanDigits": 4.6,
+          "explanationEquations": 0,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        }
+      ]
+    },
+    {
+      "grade": 3,
+      "id": "g3:properties",
+      "title": "Переместительное и сочетательное свойства",
+      "isColumn": false,
+      "levels": [
+        {
+          "d": 0,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 82,
+          "structuralShapes": 2,
+          "meanPromptLength": 44,
+          "meanDigits": 4.5,
+          "explanationEquations": 0,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 1,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 82,
+          "structuralShapes": 4,
+          "meanPromptLength": 43,
+          "meanDigits": 4.4,
+          "explanationEquations": 37,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 2,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 62,
+          "structuralShapes": 3,
+          "meanPromptLength": 41,
+          "meanDigits": 4.6,
+          "explanationEquations": 90,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        }
+      ]
+    },
+    {
+      "grade": 3,
+      "id": "g3:unknown_component",
+      "title": "Неизвестный компонент действия",
+      "isColumn": false,
+      "levels": [
+        {
+          "d": 0,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 86,
+          "structuralShapes": 4,
+          "meanPromptLength": 10,
+          "meanDigits": 3.4,
+          "explanationEquations": 90,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 1,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 85,
+          "structuralShapes": 6,
+          "meanPromptLength": 10,
+          "meanDigits": 3.1,
+          "explanationEquations": 90,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 2,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 87,
+          "structuralShapes": 6,
+          "meanPromptLength": 10,
+          "meanDigits": 3.1,
+          "explanationEquations": 90,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        }
+      ]
+    },
+    {
+      "grade": 3,
+      "id": "g3:order_operations",
+      "title": "Порядок действий",
+      "isColumn": false,
+      "levels": [
+        {
+          "d": 0,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 89,
+          "structuralShapes": 2,
+          "meanPromptLength": 10,
+          "meanDigits": 3.9,
+          "explanationEquations": 90,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 1,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 89,
+          "structuralShapes": 3,
+          "meanPromptLength": 11,
+          "meanDigits": 3.9,
+          "explanationEquations": 90,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 2,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 90,
+          "structuralShapes": 2,
+          "meanPromptLength": 15,
+          "meanDigits": 4.9,
+          "explanationEquations": 134,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        }
+      ]
+    },
+    {
+      "grade": 3,
+      "id": "g3:quantity_operations",
+      "title": "Действия с однородными величинами",
+      "isColumn": false,
+      "levels": [
+        {
+          "d": 0,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 86,
+          "structuralShapes": 10,
+          "meanPromptLength": 34,
+          "meanDigits": 3,
+          "explanationEquations": 90,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 1,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 87,
+          "structuralShapes": 10,
+          "meanPromptLength": 33,
+          "meanDigits": 2.9,
+          "explanationEquations": 90,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 2,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 90,
+          "structuralShapes": 10,
+          "meanPromptLength": 33,
+          "meanDigits": 3.1,
+          "explanationEquations": 90,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        }
+      ]
+    },
+    {
+      "grade": 3,
+      "id": "g3:task_model",
+      "title": "Данные, вопрос, схема и план решения",
+      "isColumn": false,
+      "levels": [
+        {
+          "d": 0,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 86,
+          "structuralShapes": 75,
+          "meanPromptLength": 103,
+          "meanDigits": 2.8,
+          "explanationEquations": 0,
+          "independentAnswers": 0,
+          "choiceQuestions": 90,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 1,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 90,
+          "structuralShapes": 85,
+          "meanPromptLength": 97,
+          "meanDigits": 3.1,
+          "explanationEquations": 0,
+          "independentAnswers": 0,
+          "choiceQuestions": 90,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 2,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 89,
+          "structuralShapes": 9,
+          "meanPromptLength": 127,
+          "meanDigits": 5.1,
+          "explanationEquations": 0,
+          "independentAnswers": 0,
+          "choiceQuestions": 90,
+          "verifiedNumericDistractors": 0
+        }
+      ]
+    },
+    {
+      "grade": 3,
+      "id": "g3:operation_word_problems",
+      "title": "Задачи на смысл четырёх арифметических действий",
+      "isColumn": false,
+      "levels": [
+        {
+          "d": 0,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 89,
+          "structuralShapes": 72,
+          "meanPromptLength": 64,
+          "meanDigits": 2.9,
+          "explanationEquations": 90,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 1,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 90,
+          "structuralShapes": 73,
+          "meanPromptLength": 64,
+          "meanDigits": 3,
+          "explanationEquations": 90,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 2,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 89,
+          "structuralShapes": 74,
+          "meanPromptLength": 66,
+          "meanDigits": 3.1,
+          "explanationEquations": 90,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        }
+      ]
+    },
+    {
+      "grade": 3,
+      "id": "g3:difference_compare_tasks",
+      "title": "Задачи на разностное сравнение",
+      "isColumn": false,
+      "levels": [
+        {
+          "d": 0,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 90,
+          "structuralShapes": 89,
+          "meanPromptLength": 63,
+          "meanDigits": 3.4,
+          "explanationEquations": 90,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 1,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 90,
+          "structuralShapes": 88,
+          "meanPromptLength": 64,
+          "meanDigits": 3.8,
+          "explanationEquations": 90,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 2,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 90,
+          "structuralShapes": 89,
+          "meanPromptLength": 64,
+          "meanDigits": 3.8,
+          "explanationEquations": 90,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        }
+      ]
+    },
+    {
+      "grade": 3,
+      "id": "g3:multiplicative_compare_tasks",
+      "title": "Задачи на кратное сравнение",
+      "isColumn": false,
+      "levels": [
+        {
+          "d": 0,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 83,
+          "structuralShapes": 45,
+          "meanPromptLength": 89,
+          "meanDigits": 2.8,
+          "explanationEquations": 90,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 1,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 86,
+          "structuralShapes": 49,
+          "meanPromptLength": 89,
+          "meanDigits": 3.1,
+          "explanationEquations": 90,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 2,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 87,
+          "structuralShapes": 48,
+          "meanPromptLength": 90,
+          "meanDigits": 3.2,
+          "explanationEquations": 90,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        }
+      ]
+    },
+    {
+      "grade": 3,
+      "id": "g3:increase_decrease_tasks",
+      "title": "Больше/меньше на… и в…",
+      "isColumn": false,
+      "levels": [
+        {
+          "d": 0,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 85,
+          "structuralShapes": 50,
+          "meanPromptLength": 54,
+          "meanDigits": 2.8,
+          "explanationEquations": 90,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 1,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 90,
+          "structuralShapes": 62,
+          "meanPromptLength": 55,
+          "meanDigits": 3.3,
+          "explanationEquations": 90,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 2,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 90,
+          "structuralShapes": 60,
+          "meanPromptLength": 55,
+          "meanDigits": 3.2,
+          "explanationEquations": 90,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        }
+      ]
+    },
+    {
+      "grade": 3,
+      "id": "g3:price_quantity_cost",
+      "title": "Цена, количество, стоимость",
+      "isColumn": false,
+      "levels": [
+        {
+          "d": 0,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 59,
+          "structuralShapes": 4,
+          "meanPromptLength": 60,
+          "meanDigits": 2.6,
+          "explanationEquations": 90,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 1,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 84,
+          "structuralShapes": 5,
+          "meanPromptLength": 68,
+          "meanDigits": 3.3,
+          "explanationEquations": 90,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 2,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 83,
+          "structuralShapes": 5,
+          "meanPromptLength": 66,
+          "meanDigits": 3.1,
+          "explanationEquations": 90,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        }
+      ]
+    },
+    {
+      "grade": 3,
+      "id": "g3:time_tasks",
+      "title": "Начало, окончание и продолжительность события",
+      "isColumn": false,
+      "levels": [
+        {
+          "d": 0,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 90,
+          "structuralShapes": 2,
+          "meanPromptLength": 65,
+          "meanDigits": 6.9,
+          "explanationEquations": 11,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 1,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 90,
+          "structuralShapes": 3,
+          "meanPromptLength": 65,
+          "meanDigits": 6.6,
+          "explanationEquations": 6,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 2,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 90,
+          "structuralShapes": 3,
+          "meanPromptLength": 65,
+          "meanDigits": 6.6,
+          "explanationEquations": 10,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        }
+      ]
+    },
+    {
+      "grade": 3,
+      "id": "g3:remainder_tasks",
+      "title": "Задачи на деление с остатком",
+      "isColumn": false,
+      "levels": [
+        {
+          "d": 0,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 69,
+          "structuralShapes": 5,
+          "meanPromptLength": 103,
+          "meanDigits": 2.9,
+          "explanationEquations": 0,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 1,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 70,
+          "structuralShapes": 6,
+          "meanPromptLength": 103,
+          "meanDigits": 3,
+          "explanationEquations": 0,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 2,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 83,
+          "structuralShapes": 11,
+          "meanPromptLength": 104,
+          "meanDigits": 3,
+          "explanationEquations": 0,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        }
+      ]
+    },
+    {
+      "grade": 3,
+      "id": "g3:two_step_tasks",
+      "title": "Задачи в два действия",
+      "isColumn": false,
+      "levels": [
+        {
+          "d": 0,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 85,
+          "structuralShapes": 13,
+          "meanPromptLength": 81,
+          "meanDigits": 4.3,
+          "explanationEquations": 90,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 1,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 87,
+          "structuralShapes": 30,
+          "meanPromptLength": 99,
+          "meanDigits": 4.1,
+          "explanationEquations": 90,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 2,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 89,
+          "structuralShapes": 28,
+          "meanPromptLength": 90,
+          "meanDigits": 4,
+          "explanationEquations": 90,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        }
+      ]
+    },
+    {
+      "grade": 3,
+      "id": "g3:parts_intro",
+      "title": "Половина, треть, четверть, пятая и десятая часть",
+      "isColumn": false,
+      "levels": [
+        {
+          "d": 0,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 5,
+          "structuralShapes": 2,
+          "meanPromptLength": 63,
+          "meanDigits": 1.2,
+          "explanationEquations": 0,
+          "independentAnswers": 0,
+          "choiceQuestions": 90,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 1,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 10,
+          "structuralShapes": 6,
+          "meanPromptLength": 31,
+          "meanDigits": 1,
+          "explanationEquations": 0,
+          "independentAnswers": 0,
+          "choiceQuestions": 90,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 2,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 3,
+          "structuralShapes": 3,
+          "meanPromptLength": 49,
+          "meanDigits": 0,
+          "explanationEquations": 0,
+          "independentAnswers": 0,
+          "choiceQuestions": 90,
+          "verifiedNumericDistractors": 102
+        }
+      ]
+    },
+    {
+      "grade": 3,
+      "id": "g3:parts_compare",
+      "title": "Сравнение долей одной величины",
+      "isColumn": false,
+      "levels": [
+        {
+          "d": 0,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 20,
+          "structuralShapes": 1,
+          "meanPromptLength": 50,
+          "meanDigits": 4.4,
+          "explanationEquations": 0,
+          "independentAnswers": 0,
+          "choiceQuestions": 90,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 1,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 22,
+          "structuralShapes": 22,
+          "meanPromptLength": 80,
+          "meanDigits": 0,
+          "explanationEquations": 0,
+          "independentAnswers": 0,
+          "choiceQuestions": 90,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 2,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 81,
+          "structuralShapes": 2,
+          "meanPromptLength": 132,
+          "meanDigits": 6.8,
+          "explanationEquations": 180,
+          "independentAnswers": 0,
+          "choiceQuestions": 90,
+          "verifiedNumericDistractors": 0
+        }
+      ]
+    },
+    {
+      "grade": 3,
+      "id": "g3:part_of_quantity",
+      "title": "Нахождение доли величины",
+      "isColumn": false,
+      "levels": [
+        {
+          "d": 0,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 24,
+          "structuralShapes": 3,
+          "meanPromptLength": 26,
+          "meanDigits": 1.8,
+          "explanationEquations": 90,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 1,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 45,
+          "structuralShapes": 5,
+          "meanPromptLength": 28,
+          "meanDigits": 1.9,
+          "explanationEquations": 90,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 2,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 80,
+          "structuralShapes": 28,
+          "meanPromptLength": 28,
+          "meanDigits": 2.1,
+          "explanationEquations": 90,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        }
+      ]
+    },
+    {
+      "grade": 3,
+      "id": "g3:geometry_figures",
+      "title": "Точка, прямая, прямой угол, ломаная, многоугольник",
+      "isColumn": false,
+      "levels": [
+        {
+          "d": 0,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 1,
+          "structuralShapes": 1,
+          "meanPromptLength": 15,
+          "meanDigits": 0,
+          "explanationEquations": 0,
+          "independentAnswers": 0,
+          "choiceQuestions": 90,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 1,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 2,
+          "structuralShapes": 2,
+          "meanPromptLength": 39,
+          "meanDigits": 0,
+          "explanationEquations": 0,
+          "independentAnswers": 0,
+          "choiceQuestions": 90,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 2,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 4,
+          "structuralShapes": 4,
+          "meanPromptLength": 34,
+          "meanDigits": 0,
+          "explanationEquations": 22,
+          "independentAnswers": 0,
+          "choiceQuestions": 32,
+          "verifiedNumericDistractors": 0
+        }
+      ]
+    },
+    {
+      "grade": 3,
+      "id": "g3:geometry_construction",
+      "title": "Отрезок, прямоугольник и квадрат на клетчатой бумаге",
+      "isColumn": false,
+      "levels": [
+        {
+          "d": 0,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 1,
+          "structuralShapes": 1,
+          "meanPromptLength": 43,
+          "meanDigits": 0,
+          "explanationEquations": 0,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 1,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 1,
+          "structuralShapes": 1,
+          "meanPromptLength": 34,
+          "meanDigits": 0,
+          "explanationEquations": 0,
+          "independentAnswers": 0,
+          "choiceQuestions": 90,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 2,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 3,
+          "structuralShapes": 3,
+          "meanPromptLength": 59,
+          "meanDigits": 0,
+          "explanationEquations": 35,
+          "independentAnswers": 0,
+          "choiceQuestions": 55,
+          "verifiedNumericDistractors": 0
+        }
+      ]
+    },
+    {
+      "grade": 3,
+      "id": "g3:broken_line_length",
+      "title": "Длина ломаной",
+      "isColumn": false,
+      "levels": [
+        {
+          "d": 0,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 1,
+          "structuralShapes": 1,
+          "meanPromptLength": 22,
+          "meanDigits": 0,
+          "explanationEquations": 90,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 1,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 9,
+          "structuralShapes": 1,
+          "meanPromptLength": 75,
+          "meanDigits": 1.1,
+          "explanationEquations": 180,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 2,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 15,
+          "structuralShapes": 2,
+          "meanPromptLength": 85,
+          "meanDigits": 1,
+          "explanationEquations": 180,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        }
+      ]
+    },
+    {
+      "grade": 3,
+      "id": "g3:perimeter",
+      "title": "Периметр многоугольника, прямоугольника и квадрата",
+      "isColumn": false,
+      "levels": [
+        {
+          "d": 0,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 30,
+          "structuralShapes": 4,
+          "meanPromptLength": 55,
+          "meanDigits": 0.8,
+          "explanationEquations": 90,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 1,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 38,
+          "structuralShapes": 7,
+          "meanPromptLength": 52,
+          "meanDigits": 1,
+          "explanationEquations": 90,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 2,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 34,
+          "structuralShapes": 7,
+          "meanPromptLength": 52,
+          "meanDigits": 1,
+          "explanationEquations": 90,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        }
+      ]
+    },
+    {
+      "grade": 3,
+      "id": "g3:area_measure",
+      "title": "Измерение и сравнение площади",
+      "isColumn": false,
+      "levels": [
+        {
+          "d": 0,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 1,
+          "structuralShapes": 1,
+          "meanPromptLength": 42,
+          "meanDigits": 0,
+          "explanationEquations": 0,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 1,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 2,
+          "structuralShapes": 2,
+          "meanPromptLength": 45,
+          "meanDigits": 0,
+          "explanationEquations": 0,
+          "independentAnswers": 0,
+          "choiceQuestions": 25,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 2,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 2,
+          "structuralShapes": 2,
+          "meanPromptLength": 85,
+          "meanDigits": 0,
+          "explanationEquations": 180,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        }
+      ]
+    },
+    {
+      "grade": 3,
+      "id": "g3:rectangle_square_area",
+      "title": "Площадь прямоугольника и квадрата",
+      "isColumn": false,
+      "levels": [
+        {
+          "d": 0,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 1,
+          "structuralShapes": 1,
+          "meanPromptLength": 53,
+          "meanDigits": 0,
+          "explanationEquations": 90,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 1,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 40,
+          "structuralShapes": 6,
+          "meanPromptLength": 48,
+          "meanDigits": 1.4,
+          "explanationEquations": 90,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 2,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 35,
+          "structuralShapes": 7,
+          "meanPromptLength": 50,
+          "meanDigits": 1,
+          "explanationEquations": 90,
+          "independentAnswers": 0,
+          "choiceQuestions": 0,
+          "verifiedNumericDistractors": 0
+        }
+      ]
+    },
+    {
+      "grade": 3,
+      "id": "g3:classification_patterns",
+      "title": "Классификация и закономерности",
+      "isColumn": false,
+      "levels": [
+        {
+          "d": 0,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 48,
+          "structuralShapes": 7,
+          "meanPromptLength": 42,
+          "meanDigits": 4.9,
+          "explanationEquations": 32,
+          "independentAnswers": 0,
+          "choiceQuestions": 58,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 1,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 75,
+          "structuralShapes": 17,
+          "meanPromptLength": 42,
+          "meanDigits": 8.8,
+          "explanationEquations": 21,
+          "independentAnswers": 0,
+          "choiceQuestions": 44,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 2,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 72,
+          "structuralShapes": 20,
+          "meanPromptLength": 49,
+          "meanDigits": 11.3,
+          "explanationEquations": 25,
+          "independentAnswers": 0,
+          "choiceQuestions": 41,
+          "verifiedNumericDistractors": 0
+        }
+      ]
+    },
+    {
+      "grade": 3,
+      "id": "g3:true_false_logic",
+      "title": "Истинные и ложные утверждения",
+      "isColumn": false,
+      "levels": [
+        {
+          "d": 0,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 53,
+          "structuralShapes": 12,
+          "meanPromptLength": 18,
+          "meanDigits": 3,
+          "explanationEquations": 0,
+          "independentAnswers": 0,
+          "choiceQuestions": 90,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 1,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 69,
+          "structuralShapes": 16,
+          "meanPromptLength": 27,
+          "meanDigits": 3.6,
+          "explanationEquations": 23,
+          "independentAnswers": 0,
+          "choiceQuestions": 90,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 2,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 76,
+          "structuralShapes": 17,
+          "meanPromptLength": 33,
+          "meanDigits": 3.7,
+          "explanationEquations": 35,
+          "independentAnswers": 0,
+          "choiceQuestions": 90,
+          "verifiedNumericDistractors": 0
+        }
+      ]
+    },
+    {
+      "grade": 3,
+      "id": "g3:tables",
+      "title": "Чтение и заполнение таблиц",
+      "isColumn": false,
+      "levels": [
+        {
+          "d": 0,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 6,
+          "structuralShapes": 6,
+          "meanPromptLength": 30,
+          "meanDigits": 0,
+          "explanationEquations": 0,
+          "independentAnswers": 0,
+          "choiceQuestions": 55,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 1,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 26,
+          "structuralShapes": 26,
+          "meanPromptLength": 37,
+          "meanDigits": 0,
+          "explanationEquations": 42,
+          "independentAnswers": 0,
+          "choiceQuestions": 30,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 2,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 22,
+          "structuralShapes": 22,
+          "meanPromptLength": 37,
+          "meanDigits": 0,
+          "explanationEquations": 35,
+          "independentAnswers": 0,
+          "choiceQuestions": 35,
+          "verifiedNumericDistractors": 0
+        }
+      ]
+    },
+    {
+      "grade": 3,
+      "id": "g3:bar_charts",
+      "title": "Столбчатые диаграммы",
+      "isColumn": false,
+      "levels": [
+        {
+          "d": 0,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 6,
+          "structuralShapes": 6,
+          "meanPromptLength": 32,
+          "meanDigits": 0,
+          "explanationEquations": 0,
+          "independentAnswers": 0,
+          "choiceQuestions": 60,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 1,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 23,
+          "structuralShapes": 23,
+          "meanPromptLength": 38,
+          "meanDigits": 0,
+          "explanationEquations": 37,
+          "independentAnswers": 0,
+          "choiceQuestions": 36,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 2,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 24,
+          "structuralShapes": 24,
+          "meanPromptLength": 39,
+          "meanDigits": 0,
+          "explanationEquations": 39,
+          "independentAnswers": 0,
+          "choiceQuestions": 33,
+          "verifiedNumericDistractors": 0
+        }
+      ]
+    },
+    {
+      "grade": 3,
+      "id": "g3:algorithms_logic",
+      "title": "Алгоритмы, последовательности и простые логические задачи",
+      "isColumn": false,
+      "levels": [
+        {
+          "d": 0,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 84,
+          "structuralShapes": 50,
+          "meanPromptLength": 61,
+          "meanDigits": 4.6,
+          "explanationEquations": 0,
+          "independentAnswers": 0,
+          "choiceQuestions": 32,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 1,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 85,
+          "structuralShapes": 57,
+          "meanPromptLength": 72,
+          "meanDigits": 6,
+          "explanationEquations": 0,
+          "independentAnswers": 0,
+          "choiceQuestions": 26,
+          "verifiedNumericDistractors": 0
+        },
+        {
+          "d": 2,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 84,
+          "structuralShapes": 59,
+          "meanPromptLength": 82,
+          "meanDigits": 6.2,
+          "explanationEquations": 0,
+          "independentAnswers": 0,
+          "choiceQuestions": 30,
+          "verifiedNumericDistractors": 0
+        }
+      ]
+    },
+    {
+      "grade": 4,
+      "id": "column",
+      "title": "Счёт столбиком",
+      "legacySpecial": true,
+      "levels": []
+    },
+    {
+      "grade": 4,
+      "id": "table",
+      "title": "Таблица умножения",
+      "legacySpecial": true,
+      "levels": []
+    },
+    {
+      "grade": 4,
+      "id": "numbers",
+      "title": "Многозначные числа",
+      "legacySpecial": false,
+      "levels": [
+        {
+          "d": 0,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 90,
+          "structuralShapes": 6,
+          "meanPromptLength": 37,
+          "meanDigits": 5.1,
+          "explanationEquations": 0,
+          "independentAnswers": 32,
+          "choiceQuestions": 90,
+          "verifiedNumericDistractors": 270
+        },
+        {
+          "d": 1,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 90,
+          "structuralShapes": 6,
+          "meanPromptLength": 40,
+          "meanDigits": 9.8,
+          "explanationEquations": 0,
+          "independentAnswers": 21,
+          "choiceQuestions": 90,
+          "verifiedNumericDistractors": 270
+        },
+        {
+          "d": 2,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 90,
+          "structuralShapes": 10,
+          "meanPromptLength": 48,
+          "meanDigits": 11.2,
+          "explanationEquations": 0,
+          "independentAnswers": 12,
+          "choiceQuestions": 90,
+          "verifiedNumericDistractors": 270
+        }
+      ]
+    },
+    {
+      "grade": 4,
+      "id": "order",
+      "title": "Порядок действий",
+      "legacySpecial": false,
+      "levels": [
+        {
+          "d": 0,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 88,
+          "structuralShapes": 3,
+          "meanPromptLength": 14,
+          "meanDigits": 3.8,
+          "explanationEquations": 0,
+          "independentAnswers": 90,
+          "choiceQuestions": 90,
+          "verifiedNumericDistractors": 270
+        },
+        {
+          "d": 1,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 90,
+          "structuralShapes": 4,
+          "meanPromptLength": 16,
+          "meanDigits": 4.5,
+          "explanationEquations": 0,
+          "independentAnswers": 90,
+          "choiceQuestions": 90,
+          "verifiedNumericDistractors": 270
+        },
+        {
+          "d": 2,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 89,
+          "structuralShapes": 4,
+          "meanPromptLength": 20,
+          "meanDigits": 5.1,
+          "explanationEquations": 0,
+          "independentAnswers": 90,
+          "choiceQuestions": 90,
+          "verifiedNumericDistractors": 270
+        }
+      ]
+    },
+    {
+      "grade": 4,
+      "id": "equations",
+      "title": "Уравнения",
+      "legacySpecial": false,
+      "levels": [
+        {
+          "d": 0,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 88,
+          "structuralShapes": 3,
+          "meanPromptLength": 25,
+          "meanDigits": 3.4,
+          "explanationEquations": 0,
+          "independentAnswers": 0,
+          "choiceQuestions": 90,
+          "verifiedNumericDistractors": 270
+        },
+        {
+          "d": 1,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 89,
+          "structuralShapes": 3,
+          "meanPromptLength": 29,
+          "meanDigits": 4.6,
+          "explanationEquations": 0,
+          "independentAnswers": 0,
+          "choiceQuestions": 90,
+          "verifiedNumericDistractors": 270
+        },
+        {
+          "d": 2,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 89,
+          "structuralShapes": 3,
+          "meanPromptLength": 32,
+          "meanDigits": 5.9,
+          "explanationEquations": 0,
+          "independentAnswers": 0,
+          "choiceQuestions": 90,
+          "verifiedNumericDistractors": 270
+        }
+      ]
+    },
+    {
+      "grade": 4,
+      "id": "quantities",
+      "title": "Величины",
+      "legacySpecial": false,
+      "levels": [
+        {
+          "d": 0,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 49,
+          "structuralShapes": 4,
+          "meanPromptLength": 11,
+          "meanDigits": 1.4,
+          "explanationEquations": 90,
+          "independentAnswers": 0,
+          "choiceQuestions": 90,
+          "verifiedNumericDistractors": 270
+        },
+        {
+          "d": 1,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 75,
+          "structuralShapes": 4,
+          "meanPromptLength": 16,
+          "meanDigits": 2.9,
+          "explanationEquations": 90,
+          "independentAnswers": 0,
+          "choiceQuestions": 90,
+          "verifiedNumericDistractors": 270
+        },
+        {
+          "d": 2,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 85,
+          "structuralShapes": 4,
+          "meanPromptLength": 15,
+          "meanDigits": 3.4,
+          "explanationEquations": 71,
+          "independentAnswers": 0,
+          "choiceQuestions": 90,
+          "verifiedNumericDistractors": 270
+        }
+      ]
+    },
+    {
+      "grade": 4,
+      "id": "geometry",
+      "title": "Периметр и площадь",
+      "legacySpecial": false,
+      "levels": [
+        {
+          "d": 0,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 67,
+          "structuralShapes": 3,
+          "meanPromptLength": 49,
+          "meanDigits": 2.4,
+          "explanationEquations": 35,
+          "independentAnswers": 0,
+          "choiceQuestions": 90,
+          "verifiedNumericDistractors": 270
+        },
+        {
+          "d": 1,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 66,
+          "structuralShapes": 3,
+          "meanPromptLength": 62,
+          "meanDigits": 2.9,
+          "explanationEquations": 97,
+          "independentAnswers": 0,
+          "choiceQuestions": 90,
+          "verifiedNumericDistractors": 270
+        },
+        {
+          "d": 2,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 80,
+          "structuralShapes": 4,
+          "meanPromptLength": 71,
+          "meanDigits": 3.3,
+          "explanationEquations": 134,
+          "independentAnswers": 0,
+          "choiceQuestions": 90,
+          "verifiedNumericDistractors": 270
+        }
+      ]
+    },
+    {
+      "grade": 4,
+      "id": "word",
+      "title": "Текстовые задачи",
+      "legacySpecial": false,
+      "levels": [
+        {
+          "d": 0,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 78,
+          "structuralShapes": 14,
+          "meanPromptLength": 59,
+          "meanDigits": 3,
+          "explanationEquations": 37,
+          "independentAnswers": 0,
+          "choiceQuestions": 90,
+          "verifiedNumericDistractors": 270
+        },
+        {
+          "d": 1,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 81,
+          "structuralShapes": 12,
+          "meanPromptLength": 66,
+          "meanDigits": 4.7,
+          "explanationEquations": 81,
+          "independentAnswers": 0,
+          "choiceQuestions": 90,
+          "verifiedNumericDistractors": 270
+        },
+        {
+          "d": 2,
+          "generated": 90,
+          "valid": 90,
+          "uniquePrompts": 89,
+          "structuralShapes": 17,
+          "meanPromptLength": 93,
+          "meanDigits": 6.4,
+          "explanationEquations": 36,
+          "independentAnswers": 0,
+          "choiceQuestions": 90,
+          "verifiedNumericDistractors": 270
+        }
+      ]
+    }
+  ],
+  "defects": [],
+  "flags": [
+    {
+      "kind": "one-structural-template",
+      "id": "g3:compare_order",
+      "d": 0,
+      "shapes": 1
+    },
+    {
+      "kind": "one-structural-template",
+      "id": "g3:area_units",
+      "d": 0,
+      "shapes": 1
+    },
+    {
+      "kind": "one-structural-template",
+      "id": "g3:multiplication_table",
+      "d": 0,
+      "shapes": 1
+    },
+    {
+      "kind": "one-structural-template",
+      "id": "g3:multiplication_table",
+      "d": 1,
+      "shapes": 1
+    },
+    {
+      "kind": "one-structural-template",
+      "id": "g3:division_table",
+      "d": 0,
+      "shapes": 1
+    },
+    {
+      "kind": "one-structural-template",
+      "id": "g3:division_table",
+      "d": 1,
+      "shapes": 1
+    },
+    {
+      "kind": "one-structural-template",
+      "id": "g3:offtable_multiply",
+      "d": 0,
+      "shapes": 1
+    },
+    {
+      "kind": "one-structural-template",
+      "id": "g3:offtable_divide",
+      "d": 0,
+      "shapes": 1
+    },
+    {
+      "kind": "one-structural-template",
+      "id": "g3:division_remainder",
+      "d": 0,
+      "shapes": 1
+    },
+    {
+      "kind": "low-exact-variety",
+      "id": "g3:parts_intro",
+      "d": 0,
+      "unique": 5
+    },
+    {
+      "kind": "low-exact-variety",
+      "id": "g3:parts_intro",
+      "d": 2,
+      "unique": 3
+    },
+    {
+      "kind": "one-structural-template",
+      "id": "g3:parts_compare",
+      "d": 0,
+      "shapes": 1
+    },
+    {
+      "kind": "low-exact-variety",
+      "id": "g3:geometry_figures",
+      "d": 0,
+      "unique": 1
+    },
+    {
+      "kind": "one-structural-template",
+      "id": "g3:geometry_figures",
+      "d": 0,
+      "shapes": 1
+    },
+    {
+      "kind": "low-exact-variety",
+      "id": "g3:geometry_figures",
+      "d": 1,
+      "unique": 2
+    },
+    {
+      "kind": "low-exact-variety",
+      "id": "g3:geometry_figures",
+      "d": 2,
+      "unique": 4
+    },
+    {
+      "kind": "low-exact-variety",
+      "id": "g3:geometry_construction",
+      "d": 0,
+      "unique": 1
+    },
+    {
+      "kind": "one-structural-template",
+      "id": "g3:geometry_construction",
+      "d": 0,
+      "shapes": 1
+    },
+    {
+      "kind": "low-exact-variety",
+      "id": "g3:geometry_construction",
+      "d": 1,
+      "unique": 1
+    },
+    {
+      "kind": "one-structural-template",
+      "id": "g3:geometry_construction",
+      "d": 1,
+      "shapes": 1
+    },
+    {
+      "kind": "low-exact-variety",
+      "id": "g3:geometry_construction",
+      "d": 2,
+      "unique": 3
+    },
+    {
+      "kind": "low-exact-variety",
+      "id": "g3:broken_line_length",
+      "d": 0,
+      "unique": 1
+    },
+    {
+      "kind": "one-structural-template",
+      "id": "g3:broken_line_length",
+      "d": 0,
+      "shapes": 1
+    },
+    {
+      "kind": "one-structural-template",
+      "id": "g3:broken_line_length",
+      "d": 1,
+      "shapes": 1
+    },
+    {
+      "kind": "low-exact-variety",
+      "id": "g3:area_measure",
+      "d": 0,
+      "unique": 1
+    },
+    {
+      "kind": "one-structural-template",
+      "id": "g3:area_measure",
+      "d": 0,
+      "shapes": 1
+    },
+    {
+      "kind": "low-exact-variety",
+      "id": "g3:area_measure",
+      "d": 1,
+      "unique": 2
+    },
+    {
+      "kind": "low-exact-variety",
+      "id": "g3:area_measure",
+      "d": 2,
+      "unique": 2
+    },
+    {
+      "kind": "low-exact-variety",
+      "id": "g3:rectangle_square_area",
+      "d": 0,
+      "unique": 1
+    },
+    {
+      "kind": "one-structural-template",
+      "id": "g3:rectangle_square_area",
+      "d": 0,
+      "shapes": 1
+    },
+    {
+      "kind": "low-exact-variety",
+      "id": "g3:tables",
+      "d": 0,
+      "unique": 6
+    },
+    {
+      "kind": "low-exact-variety",
+      "id": "g3:bar_charts",
+      "d": 0,
+      "unique": 6
+    }
+  ],
+  "samples": [
+    {
+      "grade": 3,
+      "id": "g3:numbers_1000",
+      "d": 0,
+      "i": 0,
+      "prompt": "Какое число пропущено: 76, 77, __, 79 ?",
+      "ex": "Числа увеличиваются на 1: 76, 77, 78 , 79.",
+      "answer": "78",
+      "auditType": "numbers1000",
+      "auditVariant": "missing",
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:numbers_1000",
+      "d": 1,
+      "i": 0,
+      "prompt": "Какое число пропущено: 838, 839, __, 841 ?",
+      "ex": "Числа увеличиваются на 1: 838, 839, 840 , 841.",
+      "answer": "840",
+      "auditType": "numbers1000",
+      "auditVariant": "missing",
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:numbers_1000",
+      "d": 2,
+      "i": 0,
+      "prompt": "Какое число пропущено: 430, 431, __, 433 ?",
+      "ex": "Числа увеличиваются на 1: 430, 431, 432 , 433.",
+      "answer": "432",
+      "auditType": "numbers1000",
+      "auditVariant": "missing",
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:place_value",
+      "d": 0,
+      "i": 0,
+      "prompt": "Сколько десятков в разрядной записи числа 704 ?",
+      "ex": "Число 704: 7 сот., 0 дес., 4 ед. Ответ: 0 .",
+      "answer": "0",
+      "auditType": "placeValue",
+      "auditVariant": "digitT",
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:place_value",
+      "d": 1,
+      "i": 0,
+      "prompt": "Какое число состоит из 4 сот. , 9 дес. и 5 ед. ?",
+      "ex": "4 сот. = 400, 9 дес. = 90, 5 ед. = 5. Получаем 495 .",
+      "answer": "495",
+      "auditType": "placeValue",
+      "auditVariant": "build",
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:place_value",
+      "d": 2,
+      "i": 0,
+      "prompt": "Сколько десятков в разрядной записи числа 506 ?",
+      "ex": "Число 506: 5 сот., 0 дес., 6 ед. Ответ: 0 .",
+      "answer": "0",
+      "auditType": "placeValue",
+      "auditVariant": "digitT",
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:compare_order",
+      "d": 0,
+      "i": 0,
+      "prompt": "47 ? 66",
+      "ex": "Сравниваем числа по разрядам: 47 .",
+      "answer": "<",
+      "auditType": "g3Compare",
+      "auditVariant": "direct",
+      "visual": null,
+      "choices": [
+        "<",
+        ">",
+        "="
+      ]
+    },
+    {
+      "grade": 3,
+      "id": "g3:compare_order",
+      "d": 1,
+      "i": 0,
+      "prompt": "Сравните: 296 + 20 ? 600 .",
+      "ex": "Сначала вычислим: 296 + 20 = 316. Затем сравним 316 < 600.",
+      "answer": "<",
+      "auditType": "g3Compare",
+      "auditVariant": "changeTens",
+      "visual": null,
+      "choices": [
+        "=",
+        "<",
+        ">"
+      ]
+    },
+    {
+      "grade": 3,
+      "id": "g3:compare_order",
+      "d": 2,
+      "i": 0,
+      "prompt": "Сравните результаты: 617 + 10 ? 262 − 50 .",
+      "ex": "Вычисляем оба выражения: 617 + 10 = 627; 262 − 50 = 212. Сравниваем: 627 > 212 .",
+      "answer": ">",
+      "auditType": "g3Compare",
+      "auditVariant": "expressions",
+      "visual": null,
+      "choices": [
+        ">",
+        "<",
+        "="
+      ]
+    },
+    {
+      "grade": 3,
+      "id": "g3:increase_decrease_times",
+      "d": 0,
+      "i": 0,
+      "prompt": "Уменьшите 45 в 5 раз.",
+      "ex": "Уменьшить в 5 раз — значит разделить на 5. 45 : 5 = 9 .",
+      "answer": "9",
+      "auditType": "times",
+      "auditVariant": null,
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:increase_decrease_times",
+      "d": 1,
+      "i": 0,
+      "prompt": "Уменьшите 24 в 6 раз.",
+      "ex": "Уменьшить в 6 раз — значит разделить на 6. 24 : 6 = 4 .",
+      "answer": "4",
+      "auditType": "times",
+      "auditVariant": null,
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:increase_decrease_times",
+      "d": 2,
+      "i": 0,
+      "prompt": "Какое число получится, если 14 уменьшить в 7 раз?",
+      "ex": "Уменьшить в 7 раз — значит разделить на 7. 14 : 7 = 2 .",
+      "answer": "2",
+      "auditType": "times",
+      "auditVariant": null,
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:multiplicative_compare",
+      "d": 0,
+      "i": 0,
+      "prompt": "Во сколько раз 8 меньше 24 ?",
+      "ex": "Делим большее число на меньшее: 24 : 8 = 3 .",
+      "answer": "3",
+      "auditType": "multiplicativeCompare",
+      "auditVariant": null,
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:multiplicative_compare",
+      "d": 1,
+      "i": 0,
+      "prompt": "Во сколько раз 6 меньше 48 ?",
+      "ex": "Делим большее число на меньшее: 48 : 6 = 8 .",
+      "answer": "8",
+      "auditType": "multiplicativeCompare",
+      "auditVariant": null,
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:multiplicative_compare",
+      "d": 2,
+      "i": 0,
+      "prompt": "У Маши 2 карандаша, а у Пети 6 . Во сколько раз у Пети карандашей больше?",
+      "ex": "Делим большее число на меньшее: 6 : 2 = 3 .",
+      "answer": "3",
+      "auditType": "multiplicativeCompare",
+      "auditVariant": null,
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:mass",
+      "d": 0,
+      "i": 0,
+      "prompt": "1000 г = ? кг",
+      "ex": "1 кг = 1000 г. 1000 : 1000 = 1 кг .",
+      "answer": "1",
+      "auditType": "g3Unit",
+      "auditVariant": null,
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:mass",
+      "d": 1,
+      "i": 0,
+      "prompt": "4 кг 700 г = ? г",
+      "ex": "1 кг = 1000 г. 4 кг = 4000 г; 4000 + 700 = 4700 г .",
+      "answer": "4700",
+      "auditType": "g3UnitMixed",
+      "auditVariant": "mixed",
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:mass",
+      "d": 2,
+      "i": 0,
+      "prompt": "В мешке было 3 кг 500 г крупы. Отсыпали 1200 г . Сколько граммов осталось?",
+      "ex": "Переведём массу в граммы: 3 · 1000 + 500 = 3500 г. Вычтем отсыпанное: 3500 − 1200 = 2300 г .",
+      "answer": "2300",
+      "auditType": "g3StoryNumber",
+      "auditVariant": "afterTaking",
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:money",
+      "d": 0,
+      "i": 0,
+      "prompt": "6 руб. = ? коп.",
+      "ex": "1 руб. = 100 коп. 6 · 100 = 600 коп.",
+      "answer": "600",
+      "auditType": "g3Unit",
+      "auditVariant": null,
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:money",
+      "d": 1,
+      "i": 0,
+      "prompt": "7 руб. 51 коп. = ? коп.",
+      "ex": "7 руб. = 700 коп. 700 + 51 = 751 коп.",
+      "answer": "751",
+      "auditType": "g3UnitMixed",
+      "auditVariant": "mixed",
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:money",
+      "d": 2,
+      "i": 0,
+      "prompt": "Покупка стоит 3 руб. 68 коп. Заплатили 4 руб. Сколько копеек сдачи должны дать?",
+      "ex": "Стоимость: 3 · 100 + 68 = 368 коп. Оплата: 4 · 100 = 400 коп. Сдача: 400 − 368 = 32 коп.",
+      "answer": "32",
+      "auditType": "g3StoryNumber",
+      "auditVariant": "change",
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:time",
+      "d": 0,
+      "i": 0,
+      "prompt": "360 мин = ? ч",
+      "ex": "1 ч = 60 мин. 360 : 60 = 6 ч .",
+      "answer": "6",
+      "auditType": "g3Unit",
+      "auditVariant": null,
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:time",
+      "d": 1,
+      "i": 0,
+      "prompt": "5 мин = ? с",
+      "ex": "1 мин = 60 с. 5 · 60 = 300 с .",
+      "answer": "300",
+      "auditType": "g3Unit",
+      "auditVariant": null,
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:time",
+      "d": 2,
+      "i": 0,
+      "prompt": "3 ч 30 мин = ? мин",
+      "ex": "3 ч = 180 мин. 180 + 30 = 210 мин .",
+      "answer": "210",
+      "auditType": "g3UnitMixed",
+      "auditVariant": null,
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:length_units",
+      "d": 0,
+      "i": 0,
+      "prompt": "7 м = ? дм",
+      "ex": "1 м = 10 дм. 7 · 10 = 70 дм .",
+      "answer": "70",
+      "auditType": "g3Unit",
+      "auditVariant": null,
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:length_units",
+      "d": 1,
+      "i": 0,
+      "prompt": "20 м = ? см",
+      "ex": "1 м = 100 см. 20 · 100 = 2000 см .",
+      "answer": "2000",
+      "auditType": "g3Unit",
+      "auditVariant": null,
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:length_units",
+      "d": 2,
+      "i": 0,
+      "prompt": "5 м 30 см = ? см",
+      "ex": "5 м = 500 см. 500 + 30 = 530 см .",
+      "answer": "530",
+      "auditType": "g3UnitMixed",
+      "auditVariant": null,
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:area_units",
+      "d": 0,
+      "i": 0,
+      "prompt": "6 дм² = ? см²",
+      "ex": "1 дм² = 100 см². 6 · 100 = 600 см² .",
+      "answer": "600",
+      "auditType": "g3Unit",
+      "auditVariant": null,
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:area_units",
+      "d": 1,
+      "i": 0,
+      "prompt": "800 см² = ? дм²",
+      "ex": "1 дм² = 100 см². 800 : 100 = 8 дм² .",
+      "answer": "8",
+      "auditType": "g3Unit",
+      "auditVariant": null,
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:area_units",
+      "d": 2,
+      "i": 0,
+      "prompt": "1 м² = ? см²",
+      "ex": "1 м² = 10000 см². 1 · 10000 = 10000 см² .",
+      "answer": "10000",
+      "auditType": "g3Unit",
+      "auditVariant": null,
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:multiplication_table",
+      "d": 0,
+      "i": 0,
+      "prompt": "5 · 2 = ?",
+      "ex": "5 одинаковых групп по 2: 2 + 2 + 2 + 2 + 2 = 10 . Поэтому 5 · 2 = 10.",
+      "answer": "10",
+      "auditType": "g3MulTable",
+      "auditVariant": "product",
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:multiplication_table",
+      "d": 1,
+      "i": 0,
+      "prompt": "6 · 8 = ?",
+      "ex": "6 одинаковых групп по 8: 8 + 8 + 8 + 8 + 8 + 8 = 48 . Поэтому 6 · 8 = 48.",
+      "answer": "48",
+      "auditType": "g3MulTable",
+      "auditVariant": "product",
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:multiplication_table",
+      "d": 2,
+      "i": 0,
+      "prompt": "4 · 3 = ?",
+      "ex": "4 одинаковые группы по 3: 3 + 3 + 3 + 3 = 12 . Поэтому 4 · 3 = 12.",
+      "answer": "12",
+      "auditType": "g3MulTable",
+      "auditVariant": "product",
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:division_table",
+      "d": 0,
+      "i": 0,
+      "prompt": "12 : 4 = ?",
+      "ex": "12 : 4 = 3 , потому что 4 · 3 = 12.",
+      "answer": "3",
+      "auditType": "g3DivTable",
+      "auditVariant": "quotient",
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:division_table",
+      "d": 1,
+      "i": 0,
+      "prompt": "15 : 5 = ?",
+      "ex": "15 : 5 = 3 , потому что 5 · 3 = 15.",
+      "answer": "3",
+      "auditType": "g3DivTable",
+      "auditVariant": "quotient",
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:division_table",
+      "d": 2,
+      "i": 0,
+      "prompt": "18 : 3 = ?",
+      "ex": "18 : 3 = 6 , потому что 3 · 6 = 18.",
+      "answer": "6",
+      "auditType": "g3DivTable",
+      "auditVariant": "quotient",
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:offtable_multiply",
+      "d": 0,
+      "i": 0,
+      "prompt": "10 · 4 = ?",
+      "ex": "1 дес. · 4 = 4 дес. = 40 .",
+      "answer": "40",
+      "auditType": "g3OffMul",
+      "auditVariant": "tens",
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:offtable_multiply",
+      "d": 1,
+      "i": 0,
+      "prompt": "27 · 3 = ?",
+      "ex": "В каждой группе 27, групп 3. Раскладываем 27 = 20 + 7. 20 · 3 = 60; 7 · 3 = 21. 60 + 21 = 81 .",
+      "answer": "81",
+      "auditType": "g3OffMul",
+      "auditVariant": "decomp",
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:offtable_multiply",
+      "d": 2,
+      "i": 0,
+      "prompt": "На 2 полках по 27 книг. С полок забрали 8 книг. Сколько книг осталось?",
+      "ex": "Сначала находим количество на полках: 27 = 20 + 7; 20 · 2 = 40; 7 · 2 = 14. 40 + 14 = 54. Затем вычитаем: 54 − 8 = 46 .",
+      "answer": "46",
+      "auditType": "g3OffMul",
+      "auditVariant": "multiplyThenSubtract",
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:offtable_divide",
+      "d": 0,
+      "i": 0,
+      "prompt": "60 : 2 = ?",
+      "ex": "6 дес. : 2 = 3 дес. = 30 .",
+      "answer": "30",
+      "auditType": "g3OffDiv",
+      "auditVariant": "tens",
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:offtable_divide",
+      "d": 1,
+      "i": 0,
+      "prompt": "76 карандашей разложили поровну в 2 коробки. Сколько карандашей в каждой коробке?",
+      "ex": "Разложим 76 = 70 + 6. 70 : 2 = 35; 6 : 2 = 3. 35 + 3 = 38. Ответ: 38 .",
+      "answer": "38",
+      "auditType": "g3OffDiv",
+      "auditVariant": "equalSharing",
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:offtable_divide",
+      "d": 2,
+      "i": 0,
+      "prompt": "28 карандашей разложили поровну в 4 коробки. В каждую коробку добавили ещё 6 карандашей. Сколько карандашей теперь в одной коробке?",
+      "ex": "Разложим 28 = 20 + 8. 20 : 4 = 5; 8 : 4 = 2. 5 + 2 = 7. Затем прибавляем 6: 7 + 6 = 13 .",
+      "answer": "13",
+      "auditType": "g3OffDiv",
+      "auditVariant": "divideThenAdd",
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:round_numbers",
+      "d": 0,
+      "i": 0,
+      "prompt": "700 − 100 = ?",
+      "ex": "7 сот. − 1 сот. = 6 сот. = 600 .",
+      "answer": "600",
+      "auditType": "roundNumbers",
+      "auditVariant": "hSub",
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:round_numbers",
+      "d": 1,
+      "i": 0,
+      "prompt": "50 − 40 = ?",
+      "ex": "5 дес. − 4 дес. = 1 дес. = 10 .",
+      "answer": "10",
+      "auditType": "roundNumbers",
+      "auditVariant": "tSub",
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:round_numbers",
+      "d": 2,
+      "i": 0,
+      "prompt": "90 : 3 = ?",
+      "ex": "9 дес. : 3 = 3 дес. = 30 .",
+      "answer": "30",
+      "auditType": "roundNumbers",
+      "auditVariant": "tDiv",
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:zero_one",
+      "d": 0,
+      "i": 0,
+      "prompt": "8 · 0 = ?",
+      "ex": "При умножении на 0 получается 0. 8 · 0 = 0 .",
+      "answer": "0",
+      "auditType": "g3ZeroOne",
+      "auditVariant": "mulZeroR",
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:zero_one",
+      "d": 1,
+      "i": 0,
+      "prompt": "39 : 1 = ?",
+      "ex": "При делении на 1 число не меняется. 39 : 1 = 39 .",
+      "answer": "39",
+      "auditType": "g3ZeroOne",
+      "auditVariant": "divOne",
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:zero_one",
+      "d": 2,
+      "i": 0,
+      "prompt": "117 · 1 + 3 = ?",
+      "ex": "117 · 1 = 117. 117 + 3 = 120 .",
+      "answer": "120",
+      "auditType": "g3ZeroOne",
+      "auditVariant": "exprMulOne",
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:division_remainder",
+      "d": 0,
+      "i": 0,
+      "prompt": "Разделите 26 : 5 . Найдите частное и остаток.",
+      "ex": "5 · 5 = 25. 26 − 25 = 1. Проверка: 26 = 5 · 5 + 1, причём 1 меньше 5. Ответ: 5 (ост. 1) .",
+      "answer": "5 (ост. 1)",
+      "auditType": "g3Remainder",
+      "auditVariant": "numeric",
+      "visual": null
+    },
+    {
+      "grade": 3,
+      "id": "g3:division_remainder",
+      "d": 1,
+      "i": 0,
+      "prompt": "62 карандаша раскладывают по 5 карандашей в коробку. Сколько полных коробок получится и сколько карандашей останется?",
+      "ex": "5 · 12 = 60. 62 − 60 = 2. Проверка: 62 = 5 · 12 + 2, причём 2 меньше 5. Получилось 12 полных упаковок , осталось 2 .",
+      "answer": "12 (ост. 2)",
+      "auditType": "g3Remainder",
+      "auditVariant": "packPencils",
+      "visual": null
+    },
+    {
+      "grade": 3,
+      "id": "g3:division_remainder",
+      "d": 2,
+      "i": 0,
+      "prompt": "Было 88 карандашей. 10 карандашей отдали. Остальные раскладывают по 4 карандаша в коробку. Сколько полных коробок получится и сколько карандашей останется?",
+      "ex": "Сначала найдём, сколько осталось после выдачи: 88 − 10 = 78. Делим оставшиеся по 4. 4 · 19 = 76. 78 − 76 = 2. Проверка: 78 = 4 · 19 + 2, причём 2 меньше 4. Ответ: 19 полных коробок, 2 карандашей осталось .",
+      "answer": "19 (ост. 2)",
+      "auditType": "g3Remainder",
+      "auditVariant": "subtractThenDivide",
+      "visual": null
+    },
+    {
+      "grade": 3,
+      "id": "g3:properties",
+      "d": 0,
+      "i": 0,
+      "prompt": "Вычислите удобным способом: 55 + 7 = 7 + □ .",
+      "ex": "При перестановке слагаемых сумма не меняется. Значит □ = 55 .",
+      "answer": "55",
+      "auditType": "g3Properties",
+      "auditVariant": "commAdd",
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:properties",
+      "d": 1,
+      "i": 0,
+      "prompt": "Вычислите удобным способом: 2 · 7 · 5 .",
+      "ex": "Удобно сначала 2 · 5 = 10, затем 10 · 7 = 70 .",
+      "answer": "70",
+      "auditType": "g3Properties",
+      "auditVariant": "assocMul",
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:properties",
+      "d": 2,
+      "i": 0,
+      "prompt": "Вычислите удобным способом: 2 · 9 · 5 .",
+      "ex": "Удобно сначала 2 · 5 = 10, затем 10 · 9 = 90 .",
+      "answer": "90",
+      "auditType": "g3Properties",
+      "auditVariant": "assocMul",
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:unknown_component",
+      "d": 0,
+      "i": 0,
+      "prompt": "□ + 13 = 27",
+      "ex": "Чтобы найти неизвестное слагаемое, из суммы вычитаем известное: 27 − 13 = 14 .",
+      "answer": "14",
+      "auditType": "g3Unknown",
+      "auditVariant": "addend",
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:unknown_component",
+      "d": 1,
+      "i": 0,
+      "prompt": "□ · 2 = 16",
+      "ex": "Чтобы найти неизвестный множитель, произведение делим на известный множитель: 16 : 2 = 8 .",
+      "answer": "8",
+      "auditType": "g3Unknown",
+      "auditVariant": "factor",
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:unknown_component",
+      "d": 2,
+      "i": 0,
+      "prompt": "28 : □ = 4",
+      "ex": "Чтобы найти неизвестный делитель, делимое делим на частное: 28 : 4 = 7 .",
+      "answer": "7",
+      "auditType": "g3Unknown",
+      "auditVariant": "divisor",
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:order_operations",
+      "d": 0,
+      "i": 0,
+      "prompt": "35 : 5 + 15",
+      "ex": "Сначала деление: 35 : 5 = 7. Затем сложение: 7 + 15 = 22 .",
+      "answer": "22",
+      "auditType": "g3OrderOps",
+      "auditVariant": "divFirst",
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:order_operations",
+      "d": 1,
+      "i": 0,
+      "prompt": "21 − 4 · 4",
+      "ex": "Сначала умножение: 4 · 4 = 16. Затем вычитание: 21 − 16 = 5 .",
+      "answer": "5",
+      "auditType": "g3OrderOps",
+      "auditVariant": "subMul",
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:order_operations",
+      "d": 2,
+      "i": 0,
+      "prompt": "(18 + 6) : 2 + 4",
+      "ex": "Сначала скобки: 18 + 6 = 24. Затем деление: 24 : 2 = 12. Потом сложение: 12 + 4 = 16 .",
+      "answer": "16",
+      "auditType": "g3OrderOps",
+      "auditVariant": "bracket3",
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:quantity_operations",
+      "d": 0,
+      "i": 0,
+      "prompt": "20 коп. − 19 коп. Сколько это в коп.?",
+      "ex": "Единицы одинаковые. 20 − 19 = 1 коп.",
+      "answer": "1",
+      "auditType": "g3Quantity",
+      "auditVariant": "same",
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:quantity_operations",
+      "d": 1,
+      "i": 0,
+      "prompt": "3 руб. − 38 коп. Сколько это в коп.?",
+      "ex": "3 руб. = 300 коп. 300 − 38 = 262 коп.",
+      "answer": "262",
+      "auditType": "g3Quantity",
+      "auditVariant": "convert",
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:quantity_operations",
+      "d": 2,
+      "i": 0,
+      "prompt": "7 дм² + 69 см² . Сколько это в см²?",
+      "ex": "7 дм² = 700 см². 700 + 69 = 769 см² .",
+      "answer": "769",
+      "auditType": "g3Quantity",
+      "auditVariant": "convert",
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:task_model",
+      "d": 0,
+      "i": 0,
+      "prompt": "В коробке было 6 яблок. Положили ещё 4 яблока. Сколько стало? Какое выражение соответствует задаче?",
+      "ex": "По смыслу задачи подходит действие + . Правильное выражение: 6 + 4 .",
+      "answer": "add",
+      "auditType": "g3StoryChoice",
+      "auditVariant": "expression",
+      "visual": null,
+      "choices": [
+        "6 − 4",
+        "6 · 4",
+        "6 : 4",
+        "6 + 4"
+      ]
+    },
+    {
+      "grade": 3,
+      "id": "g3:task_model",
+      "d": 1,
+      "i": 0,
+      "prompt": "На одной полке 41 конфета, а на другой 7 конфет. Сколько всего? Какое выражение соответствует задаче?",
+      "ex": "По смыслу задачи подходит действие + . Правильное выражение: 41 + 7 .",
+      "answer": "add",
+      "auditType": "g3StoryChoice",
+      "auditVariant": "expression",
+      "visual": null,
+      "choices": [
+        "41 : 7",
+        "41 − 7",
+        "41 · 7",
+        "41 + 7"
+      ]
+    },
+    {
+      "grade": 3,
+      "id": "g3:task_model",
+      "d": 2,
+      "i": 0,
+      "prompt": "В первой коробке 14 карандашей, во второй 8 карандашей. 4 карандаша отдали. Что нужно сделать, чтобы узнать, сколько осталось?",
+      "ex": "Сначала узнаём, сколько было вместе: 14+8=22. Затем вычитаем 4: получаем 18 .",
+      "answer": "plan",
+      "auditType": "g3StoryChoice",
+      "auditVariant": "plan",
+      "visual": null,
+      "choices": [
+        "1) 14 + 8; 2) 22 − 4",
+        "1) 14 + 4; 2) вычесть 8",
+        "1) 14 − 8; 2) умножить на 4",
+        "Сразу 14 · 8"
+      ]
+    },
+    {
+      "grade": 3,
+      "id": "g3:operation_word_problems",
+      "d": 0,
+      "i": 0,
+      "prompt": "В коробке было 24 книги. Положили ещё 20 книг. Сколько стало?",
+      "ex": "Нужно узнать, сколько стало всего, поэтому складываем. 24 + 20 = 44 .",
+      "answer": "44",
+      "auditType": "g3StoryNumber",
+      "auditVariant": "add",
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:operation_word_problems",
+      "d": 1,
+      "i": 0,
+      "prompt": "На одной полке 27 значков, а на другой 9 значков. Сколько всего?",
+      "ex": "Нужно узнать, сколько стало всего, поэтому складываем. 27 + 9 = 36 .",
+      "answer": "36",
+      "auditType": "g3StoryNumber",
+      "auditVariant": "add",
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:operation_word_problems",
+      "d": 2,
+      "i": 0,
+      "prompt": "На одной полке 15 тетрадей, а на другой 20 тетрадей. Сколько всего?",
+      "ex": "Нужно узнать, сколько стало всего, поэтому складываем. 15 + 20 = 35 .",
+      "answer": "35",
+      "auditType": "g3StoryNumber",
+      "auditVariant": "add",
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:difference_compare_tasks",
+      "d": 0,
+      "i": 0,
+      "prompt": "У Коли 9 цветов, а у Саши 7 цветов. На сколько у Коли больше?",
+      "ex": "Для разностного сравнения вычитаем меньшее из большего: 9 − 7 = 2 .",
+      "answer": "2",
+      "auditType": "g3StoryNumber",
+      "auditVariant": null,
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:difference_compare_tasks",
+      "d": 1,
+      "i": 0,
+      "prompt": "У Коли 35 яблок, а у Лены 45 яблок. На сколько у Коли меньше?",
+      "ex": "Для разностного сравнения вычитаем меньшее из большего: 45 − 35 = 10 .",
+      "answer": "10",
+      "auditType": "g3StoryNumber",
+      "auditVariant": null,
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:difference_compare_tasks",
+      "d": 2,
+      "i": 0,
+      "prompt": "У Димы 33 цветка, а у Маши 10 цветов. На сколько у Димы больше?",
+      "ex": "Для разностного сравнения вычитаем меньшее из большего: 33 − 10 = 23 .",
+      "answer": "23",
+      "auditType": "g3StoryNumber",
+      "auditVariant": null,
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:multiplicative_compare_tasks",
+      "d": 0,
+      "i": 0,
+      "prompt": "В первой группе 2 конфеты, а во второй 8 конфет. Во сколько раз во второй группе больше?",
+      "ex": "Для кратного сравнения делим большее число на меньшее: 8 : 2 = 4 .",
+      "answer": "4",
+      "auditType": "g3StoryNumber",
+      "auditVariant": null,
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:multiplicative_compare_tasks",
+      "d": 1,
+      "i": 0,
+      "prompt": "В первой группе 3 книги, а во второй 24 книги. Во сколько раз во второй группе больше?",
+      "ex": "Для кратного сравнения делим большее число на меньшее: 24 : 3 = 8 .",
+      "answer": "8",
+      "auditType": "g3StoryNumber",
+      "auditVariant": null,
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:multiplicative_compare_tasks",
+      "d": 2,
+      "i": 0,
+      "prompt": "В первой группе 6 цветов, а во второй 12 цветов. Во сколько раз в первой группе меньше?",
+      "ex": "Для кратного сравнения делим большее число на меньшее: 12 : 6 = 2 .",
+      "answer": "2",
+      "auditType": "g3StoryNumber",
+      "auditVariant": null,
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:increase_decrease_tasks",
+      "d": 0,
+      "i": 0,
+      "prompt": "У Ани 60 тетрадей. У Маши в 5 раз меньше. Сколько у Маши?",
+      "ex": "Фраза «в несколько раз меньше» означает действие : . 60 : 5 = 12 .",
+      "answer": "12",
+      "auditType": "g3StoryNumber",
+      "auditVariant": "lessTimes",
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:increase_decrease_tasks",
+      "d": 1,
+      "i": 0,
+      "prompt": "У Ани 30 наклеек. У Маши в 4 раза больше. Сколько у Маши?",
+      "ex": "Фраза «в несколько раз больше» означает действие · . 30 · 4 = 120 .",
+      "answer": "120",
+      "auditType": "g3StoryNumber",
+      "auditVariant": "moreTimes",
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:increase_decrease_tasks",
+      "d": 2,
+      "i": 0,
+      "prompt": "У Ани 56 книг. У Маши в 4 раза меньше. Сколько у Маши?",
+      "ex": "Фраза «в несколько раз меньше» означает действие : . 56 : 4 = 14 .",
+      "answer": "14",
+      "auditType": "g3StoryNumber",
+      "auditVariant": "lessTimes",
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:price_quantity_cost",
+      "d": 0,
+      "i": 0,
+      "prompt": "Одна тетрадь стоит 11 руб. Купили 6 тетрадей. Сколько заплатили?",
+      "ex": "Стоимость = цена · количество. 11 · 6 = 66 руб.",
+      "answer": "66",
+      "auditType": "g3StoryNumber",
+      "auditVariant": "cost",
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:price_quantity_cost",
+      "d": 1,
+      "i": 0,
+      "prompt": "Один карандаш стоит 20 руб. На покупку потратили 40 руб. Сколько карандашей купили?",
+      "ex": "Количество = стоимость : цена. 40 : 20 = 2 .",
+      "answer": "2",
+      "auditType": "g3StoryNumber",
+      "auditVariant": "quantity",
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:price_quantity_cost",
+      "d": 2,
+      "i": 0,
+      "prompt": "Один карандаш стоит 15 руб. На покупку потратили 45 руб. Сколько карандашей купили?",
+      "ex": "Количество = стоимость : цена. 45 : 15 = 3 .",
+      "answer": "3",
+      "auditType": "g3StoryNumber",
+      "auditVariant": "quantity",
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:time_tasks",
+      "d": 0,
+      "i": 0,
+      "prompt": "Урок начался в 11:02 и длился 25 мин. Когда он закончился?",
+      "ex": "11:02 + 25 мин = 11:27 .",
+      "answer": "11:27",
+      "auditType": "g3TimeStory",
+      "auditVariant": "end",
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:time_tasks",
+      "d": 1,
+      "i": 0,
+      "prompt": "Урок начался в 09:38 и длился 60 мин. Когда он закончился?",
+      "ex": "09:38 + 60 мин = 10:38 .",
+      "answer": "10:38",
+      "auditType": "g3TimeStory",
+      "auditVariant": "end",
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:time_tasks",
+      "d": 2,
+      "i": 0,
+      "prompt": "Занятие началось в 11:49 и закончилось в 12:19. Сколько минут оно длилось?",
+      "ex": "11 мин до 12:00 + 19 мин после 12:00 = 30 мин .",
+      "answer": "30",
+      "auditType": "g3StoryNumber",
+      "auditVariant": "duration",
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:remainder_tasks",
+      "d": 0,
+      "i": 0,
+      "prompt": "11 яблок раскладывают в пакеты по 2 яблока. Сколько полных пакетов получится и сколько яблок останется?",
+      "ex": "2 · 5 = 10. 11 − 10 = 1. Ответ: 5 (ост. 1) .",
+      "answer": "5 (ост. 1)",
+      "auditType": "g3RemainderStory",
+      "auditVariant": "floor",
+      "visual": null
+    },
+    {
+      "grade": 3,
+      "id": "g3:remainder_tasks",
+      "d": 1,
+      "i": 0,
+      "prompt": "29 яблок раскладывают в пакеты по 3 яблока. Сколько полных пакетов получится и сколько яблок останется?",
+      "ex": "3 · 9 = 27. 29 − 27 = 2. Ответ: 9 (ост. 2) .",
+      "answer": "9 (ост. 2)",
+      "auditType": "g3RemainderStory",
+      "auditVariant": "floor",
+      "visual": null
+    },
+    {
+      "grade": 3,
+      "id": "g3:remainder_tasks",
+      "d": 2,
+      "i": 0,
+      "prompt": "Нужно перевезти 18 учеников. В одну машину помещается 5 человек. Сколько машин нужно, чтобы перевезти всех?",
+      "ex": "18 : 5 = 3 (ост. 3). Остались ещё 3, значит нужна ещё одна машина: 4 .",
+      "answer": "4",
+      "auditType": "g3StoryNumber",
+      "auditVariant": "ceil",
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:two_step_tasks",
+      "d": 0,
+      "i": 0,
+      "prompt": "В первой коробке 18 карандашей, во второй 25 карандашей. 5 карандашей отдали. Сколько осталось?",
+      "ex": "1) 18+25=43. 2) 43−5= 38 .",
+      "answer": "38",
+      "auditType": "g3StoryNumber",
+      "auditVariant": "addSub",
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:two_step_tasks",
+      "d": 1,
+      "i": 0,
+      "prompt": "18 яблок разложили поровну в 3 коробки. Из одной коробки взяли 4 яблока. Сколько яблок осталось в этой коробке?",
+      "ex": "1) 18:3=6. 2) 6−4= 2 .",
+      "answer": "2",
+      "auditType": "g3StoryNumber",
+      "auditVariant": "divSub",
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:two_step_tasks",
+      "d": 2,
+      "i": 0,
+      "prompt": "40 яблок разложили поровну в 4 коробки. Из одной коробки взяли 2 яблока. Сколько яблок осталось в этой коробке?",
+      "ex": "1) 40:4=10. 2) 10−2= 8 .",
+      "answer": "8",
+      "auditType": "g3StoryNumber",
+      "auditVariant": "divSub",
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:parts_intro",
+      "d": 0,
+      "i": 0,
+      "prompt": "Целое разделили на 4 равные части . Как называется одна часть?",
+      "ex": "Одна из 4 равных частей — четверть .",
+      "answer": "4",
+      "auditType": "g3StoryChoice",
+      "auditVariant": "name",
+      "visual": null,
+      "choices": [
+        "четверть",
+        "десятая часть",
+        "треть",
+        "пятая часть"
+      ]
+    },
+    {
+      "grade": 3,
+      "id": "g3:parts_intro",
+      "d": 1,
+      "i": 0,
+      "prompt": "Как называется доля 1 4 ?",
+      "ex": "1 4 — это четверть .",
+      "answer": "4",
+      "auditType": "g3StoryChoice",
+      "auditVariant": "fractionToWord",
+      "visual": null,
+      "choices": [
+        "треть",
+        "десятая часть",
+        "четверть",
+        "пятая часть"
+      ]
+    },
+    {
+      "grade": 3,
+      "id": "g3:parts_intro",
+      "d": 2,
+      "i": 0,
+      "prompt": "Как называется выделенная на рисунке доля?",
+      "ex": "Выделена одна из 5 равных частей — пятая часть .",
+      "answer": "5",
+      "auditType": "g3StoryChoice",
+      "auditVariant": "visualName",
+      "visual": "g3UnitParts",
+      "choices": [
+        "треть",
+        "четверть",
+        "десятая часть",
+        "пятая часть"
+      ]
+    },
+    {
+      "grade": 3,
+      "id": "g3:parts_compare",
+      "d": 0,
+      "i": 0,
+      "prompt": "Сравните доли одного и того же целого: 1 10 ? 1 4 .",
+      "ex": "У частей одного целого меньший знаменатель означает большую долю. Поэтому 1 10 1 4 .",
+      "answer": "<",
+      "auditType": "g3StoryChoice",
+      "auditVariant": "symbolic",
+      "visual": null,
+      "choices": [
+        "<",
+        ">",
+        "="
+      ]
+    },
+    {
+      "grade": 3,
+      "id": "g3:parts_compare",
+      "d": 1,
+      "i": 0,
+      "prompt": "Два одинаковых целых разделили на равные части. Сравните: четверть ? треть.",
+      "ex": "Сравниваем доли одинаковых целых: у 1 4 и 1 3 меньший знаменатель даёт большую часть. Знак .",
+      "answer": "<",
+      "auditType": "g3StoryChoice",
+      "auditVariant": "fractionWords",
+      "visual": null,
+      "choices": [
+        ">",
+        "<",
+        "="
+      ]
+    },
+    {
+      "grade": 3,
+      "id": "g3:parts_compare",
+      "d": 2,
+      "i": 0,
+      "prompt": "Две ленты одинаковой длины, по 60 см каждая. От первой отрезали 1 3 , от второй — 1 4 . Сравните длины отрезанных частей: первая ? вторая.",
+      "ex": "Найдём длины: 60 : 3 = 20 см; 60 : 4 = 15 см. Сравним: 20 > 15. Ленты одинаковые, поэтому сравнение долей корректно.",
+      "answer": ">",
+      "auditType": "g3StoryChoice",
+      "auditVariant": "ribbons",
+      "visual": null,
+      "choices": [
+        ">",
+        "=",
+        "<"
+      ]
+    },
+    {
+      "grade": 3,
+      "id": "g3:part_of_quantity",
+      "d": 0,
+      "i": 0,
+      "prompt": "Найдите четверть числа 28 .",
+      "ex": "Четверть — это одна из 4 равных частей. 28 : 4 = 7 .",
+      "answer": "7",
+      "auditType": "g3StoryNumber",
+      "auditVariant": "number",
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:part_of_quantity",
+      "d": 1,
+      "i": 0,
+      "prompt": "Найдите пятую часть числа 20 .",
+      "ex": "Пятая часть — это одна из 5 равных частей. 20 : 5 = 4 .",
+      "answer": "4",
+      "auditType": "g3StoryNumber",
+      "auditVariant": "number",
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:part_of_quantity",
+      "d": 2,
+      "i": 0,
+      "prompt": "Найдите половину числа 32 .",
+      "ex": "Половина — это одна из 2 равных частей. 32 : 2 = 16 .",
+      "answer": "16",
+      "auditType": "g3StoryNumber",
+      "auditVariant": "number",
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:geometry_figures",
+      "d": 0,
+      "i": 0,
+      "prompt": "Что изображено?",
+      "ex": "Линия продолжается в обе стороны — это прямая.",
+      "answer": "прямая",
+      "auditType": "g3GeoFigures",
+      "auditVariant": "identify",
+      "visual": "g3geometry",
+      "choices": [
+        "ломаная",
+        "отрезок",
+        "точка",
+        "прямая"
+      ]
+    },
+    {
+      "grade": 3,
+      "id": "g3:geometry_figures",
+      "d": 1,
+      "i": 0,
+      "prompt": "Прямой ли угол изображён?",
+      "ex": "Стороны угла перпендикулярны, угол прямой.",
+      "answer": "ДА",
+      "auditType": "g3GeoFigures",
+      "auditVariant": "right",
+      "visual": "g3geometry",
+      "choices": [
+        "ДА",
+        "НЕТ"
+      ]
+    },
+    {
+      "grade": 3,
+      "id": "g3:geometry_figures",
+      "d": 2,
+      "i": 0,
+      "prompt": "Какой угол изображён?",
+      "ex": "Стороны образуют точный угол 90°.",
+      "answer": "прямой",
+      "auditType": "g3GeoFigures",
+      "auditVariant": "right",
+      "visual": "g3geometry",
+      "choices": [
+        "прямой",
+        "не прямой"
+      ]
+    },
+    {
+      "grade": 3,
+      "id": "g3:geometry_construction",
+      "d": 0,
+      "i": 0,
+      "prompt": "Сколько клеток составляет длина отрезка AB?",
+      "ex": "Считаем промежутки между соседними линиями сетки: 2 .",
+      "answer": "2",
+      "auditType": "g3Construction",
+      "auditVariant": "segment",
+      "visual": "g3geometry",
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:geometry_construction",
+      "d": 1,
+      "i": 0,
+      "prompt": "Какая фигура построена по клеткам?",
+      "ex": "Длины сторон: 3 клетки и 5 клеток. Это прямоугольник.",
+      "answer": "прямоугольник",
+      "auditType": "g3Construction",
+      "auditVariant": "rectangle",
+      "visual": "g3geometry",
+      "choices": [
+        "ломаная",
+        "прямоугольник",
+        "квадрат"
+      ]
+    },
+    {
+      "grade": 3,
+      "id": "g3:geometry_construction",
+      "d": 2,
+      "i": 0,
+      "prompt": "Какие размеры у прямоугольника?",
+      "ex": "По сетке получаем 5 клеток по горизонтали и 4 клетки по вертикали.",
+      "answer": "5×4",
+      "auditType": "g3Construction",
+      "auditVariant": "dimensions",
+      "visual": "g3geometry",
+      "choices": [
+        "6×4",
+        "5×4",
+        "4×5",
+        "4×4"
+      ]
+    },
+    {
+      "grade": 3,
+      "id": "g3:broken_line_length",
+      "d": 0,
+      "i": 0,
+      "prompt": "Найдите длину ломаной.",
+      "ex": "Складываем длины всех звеньев: 1 + 3 = 4 см .",
+      "answer": "4",
+      "auditType": "g3BrokenLength",
+      "auditVariant": "sum",
+      "visual": "g3geometry",
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:broken_line_length",
+      "d": 1,
+      "i": 0,
+      "prompt": "Вся ломаная имеет длину 9 см . Найдите длину звена, отмеченного знаком «?».",
+      "ex": "Длина всей ломаной 9 см. Известные звенья: 1 + 2 + 3 = 6 см. Неизвестное звено: 9 − 6 = 3 см .",
+      "answer": "3",
+      "auditType": "g3BrokenLength",
+      "auditVariant": "missing",
+      "visual": "g3geometry",
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:broken_line_length",
+      "d": 2,
+      "i": 0,
+      "prompt": "На сколько длина показанной ломаной больше длины отрезка 4 см ?",
+      "ex": "Сначала считаем длину ломаной: 2 + 3 + 2 + 2 = 9 см. Сравниваем с отрезком: 9 − 4 = 5 см .",
+      "answer": "5",
+      "auditType": "g3BrokenLength",
+      "auditVariant": "compare",
+      "visual": "g3geometry",
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:perimeter",
+      "d": 0,
+      "i": 0,
+      "prompt": "Найдите периметр треугольника по подписанным сторонам.",
+      "ex": "Складываем все стороны: 6 + 10 + 8 = 24 дм .",
+      "answer": "24",
+      "auditType": "g3Perimeter",
+      "auditVariant": "triangle",
+      "visual": "g3geometry",
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:perimeter",
+      "d": 1,
+      "i": 0,
+      "prompt": "Найдите периметр треугольника по подписанным сторонам.",
+      "ex": "Складываем все стороны: 3 + 5 + 4 = 12 см .",
+      "answer": "12",
+      "auditType": "g3Perimeter",
+      "auditVariant": "triangle",
+      "visual": "g3geometry",
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:perimeter",
+      "d": 2,
+      "i": 0,
+      "prompt": "Найдите периметр прямоугольника со сторонами 7 м и 2 м .",
+      "ex": "Периметр — сумма всех сторон: 7 + 2 + 7 + 2 = 18 м .",
+      "answer": "18",
+      "auditType": "g3Perimeter",
+      "auditVariant": "rectangle",
+      "visual": "g3geometry",
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:area_measure",
+      "d": 0,
+      "i": 0,
+      "prompt": "Сколько квадратных единиц занимает фигура?",
+      "ex": "Считаем занятые клетки: 6 .",
+      "answer": "6",
+      "auditType": "g3AreaMeasure",
+      "auditVariant": "rectangle",
+      "visual": "g3geometry",
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:area_measure",
+      "d": 1,
+      "i": 0,
+      "prompt": "Сколько квадратных единиц занимает фигура?",
+      "ex": "Считаем занятые клетки: 17 .",
+      "answer": "17",
+      "auditType": "g3AreaMeasure",
+      "auditVariant": "L",
+      "visual": "g3geometry",
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:area_measure",
+      "d": 2,
+      "i": 0,
+      "prompt": "На сколько квадратных единиц площадь большей фигуры больше площади меньшей?",
+      "ex": "Площади: 4 · 2 = 8; 3 · 2 = 6. Разность: 8 − 6 = 2 .",
+      "answer": "2",
+      "auditType": "g3AreaMeasure",
+      "auditVariant": "difference",
+      "visual": "g3geometry",
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:rectangle_square_area",
+      "d": 0,
+      "i": 0,
+      "prompt": "Найдите площадь прямоугольника по клетчатому рисунку.",
+      "ex": "По рисунку: в каждом ряду 7 клеток, рядов 2. S = 7 · 2 = 14 кв. ед. .",
+      "answer": "14",
+      "auditType": "g3RectArea",
+      "auditVariant": "gridRect",
+      "visual": "g3geometry",
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:rectangle_square_area",
+      "d": 1,
+      "i": 0,
+      "prompt": "Найдите площадь квадрата со стороной 5 дм .",
+      "ex": "Площадь квадрата: S = a · a = 5 · 5 = 25 дм² .",
+      "answer": "25",
+      "auditType": "g3RectArea",
+      "auditVariant": "square",
+      "visual": "g3geometry",
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:rectangle_square_area",
+      "d": 2,
+      "i": 0,
+      "prompt": "Найдите площадь квадрата со стороной 5 м .",
+      "ex": "Площадь квадрата: S = a · a = 5 · 5 = 25 м² .",
+      "answer": "25",
+      "auditType": "g3RectArea",
+      "auditVariant": "square",
+      "visual": "g3geometry",
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:classification_patterns",
+      "d": 0,
+      "i": 0,
+      "prompt": "Продолжи закономерность: 160, 165, 170, 175, 180, ...",
+      "ex": "Каждый раз прибавляем 5. Следующее число: 180 + 5 = 185 .",
+      "answer": "185",
+      "auditType": "g3StoryNumber",
+      "auditVariant": "patternNext",
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:classification_patterns",
+      "d": 1,
+      "i": 0,
+      "prompt": "Продолжи закономерность: 282, 332, 382, 432, 482, 532, ...",
+      "ex": "Каждый раз прибавляем 50. Следующее число: 532 + 50 = 582 .",
+      "answer": "582",
+      "auditType": "g3StoryNumber",
+      "auditVariant": "patternNext",
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:classification_patterns",
+      "d": 2,
+      "i": 0,
+      "prompt": "Какое число НЕ является трёхзначным ?",
+      "ex": "Только число 82 не подходит под правило: «является трёхзначным».",
+      "answer": "value_3",
+      "auditType": "g3StoryChoice",
+      "auditVariant": "odd",
+      "visual": null,
+      "choices": [
+        "Число 82",
+        "Число 333",
+        "Число 918",
+        "Число 970"
+      ]
+    },
+    {
+      "grade": 3,
+      "id": "g3:true_false_logic",
+      "d": 0,
+      "i": 0,
+      "prompt": "90 = 22.",
+      "ex": "Сравниваем числа: 90 = 22 — это неверно. Вывод: Ложь.",
+      "answer": "Ложь",
+      "auditType": "g3StoryChoice",
+      "auditVariant": "trueFalse",
+      "visual": null,
+      "choices": [
+        "Ложь",
+        "Истина"
+      ]
+    },
+    {
+      "grade": 3,
+      "id": "g3:true_false_logic",
+      "d": 1,
+      "i": 0,
+      "prompt": "У квадрата все стороны равны.",
+      "ex": "У квадрата все четыре стороны равны, поэтому фраза «все стороны равны» верна. Вывод: Истина.",
+      "answer": "Истина",
+      "auditType": "g3StoryChoice",
+      "auditVariant": "trueFalse",
+      "visual": null,
+      "choices": [
+        "Ложь",
+        "Истина"
+      ]
+    },
+    {
+      "grade": 3,
+      "id": "g3:true_false_logic",
+      "d": 2,
+      "i": 0,
+      "prompt": "6 · 3 = 16.",
+      "ex": "Считаем левую часть: 6 · 3 = 18. В утверждении написано 16, поэтому равенство неверное. Вывод: Ложь.",
+      "answer": "Ложь",
+      "auditType": "g3StoryChoice",
+      "auditVariant": "trueFalse",
+      "visual": null,
+      "choices": [
+        "Истина",
+        "Ложь"
+      ]
+    },
+    {
+      "grade": 3,
+      "id": "g3:tables",
+      "d": 0,
+      "i": 0,
+      "prompt": "Сколько книг прочитала Оля ?",
+      "ex": "На пересечении строки «Оля» и столбца «Прочитано книг» стоит 19 .",
+      "answer": "19",
+      "auditType": "g3StoryNumber",
+      "auditVariant": "lookup",
+      "visual": "tableData",
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:tables",
+      "d": 1,
+      "i": 0,
+      "prompt": "Кто прочитал больше всего книг?",
+      "ex": "Нужное значение — 17. Оно стоит в строке «Миша».",
+      "answer": "Миша",
+      "auditType": "g3StoryChoice",
+      "auditVariant": "max",
+      "visual": "tableData",
+      "choices": [
+        "Дима",
+        "Миша",
+        "Оля",
+        "Аня"
+      ]
+    },
+    {
+      "grade": 3,
+      "id": "g3:tables",
+      "d": 2,
+      "i": 0,
+      "prompt": "Кто прочитал меньше всего книг?",
+      "ex": "Нужное значение — 12. Оно стоит в строке «Аня».",
+      "answer": "Аня",
+      "auditType": "g3StoryChoice",
+      "auditVariant": "min",
+      "visual": "tableData",
+      "choices": [
+        "Аня",
+        "Миша",
+        "Оля",
+        "Дима"
+      ]
+    },
+    {
+      "grade": 3,
+      "id": "g3:bar_charts",
+      "d": 0,
+      "i": 0,
+      "prompt": "У кого значение наименьшее ?",
+      "ex": "Самый низкий столбец — «Дима», его значение 2.",
+      "answer": "Дима",
+      "auditType": "g3StoryChoice",
+      "auditVariant": "min",
+      "visual": "barChart",
+      "choices": [
+        "Аня",
+        "Оля",
+        "Дима",
+        "Миша"
+      ]
+    },
+    {
+      "grade": 3,
+      "id": "g3:bar_charts",
+      "d": 1,
+      "i": 0,
+      "prompt": "Какое значение показывает столбец Аня ?",
+      "ex": "Столбец «Аня» достигает отметки 9 .",
+      "answer": "9",
+      "auditType": "g3StoryNumber",
+      "auditVariant": "lookup",
+      "visual": "barChart",
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:bar_charts",
+      "d": 2,
+      "i": 0,
+      "prompt": "Сколько всего показано на диаграмме?",
+      "ex": "3 + 5 + 15 + 2 = 25 .",
+      "answer": "25",
+      "auditType": "g3StoryNumber",
+      "auditVariant": "total",
+      "visual": "barChart",
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:algorithms_logic",
+      "d": 0,
+      "i": 0,
+      "prompt": "Начальное число 10 . 1. Раздели результат на 2. 2. Умножь результат на 5. Какое число получится?",
+      "ex": "Раздели на 2. Получаем 5. Умножь на 5. Получаем 25. Ответ: 25 .",
+      "answer": "25",
+      "auditType": "g3StoryNumber",
+      "auditVariant": "algorithm",
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:algorithms_logic",
+      "d": 1,
+      "i": 0,
+      "prompt": "Начальное число 58 . 1. Вычти 20. 2. Раздели результат на 2. 3. Умножь результат на 2. Какое число получится?",
+      "ex": "Вычти 20. Получаем 38. Раздели на 2. Получаем 19. Умножь на 2. Получаем 38. Ответ: 38 .",
+      "answer": "38",
+      "auditType": "g3StoryNumber",
+      "auditVariant": "algorithm",
+      "visual": null,
+      "choices": []
+    },
+    {
+      "grade": 3,
+      "id": "g3:algorithms_logic",
+      "d": 2,
+      "i": 0,
+      "prompt": "Лена стоит левее Аня. Аня стоит левее Маша. Маша стоит левее Оля. Кто стоит вторым слева?",
+      "ex": "Единственный порядок: Лена → Аня → Маша → Оля . Поэтому ответ: Аня .",
+      "answer": "Аня",
+      "auditType": "g3StoryChoice",
+      "auditVariant": "logic",
+      "visual": null,
+      "choices": [
+        "Лена",
+        "Аня",
+        "Маша",
+        "Оля"
+      ]
+    },
+    {
+      "grade": 4,
+      "id": "numbers",
+      "d": 0,
+      "i": 0,
+      "prompt": "Округли число 1722 до сотен.",
+      "ex": "Сначала определяем нужный разряд и работаем только после этого. Смотрим на десятки. Получаем 1700.",
+      "answer": "1700",
+      "auditType": null,
+      "auditVariant": null,
+      "visual": null,
+      "choices": [
+        "1600",
+        "1720",
+        "1800",
+        "1700"
+      ]
+    },
+    {
+      "grade": 4,
+      "id": "numbers",
+      "d": 1,
+      "i": 0,
+      "prompt": "Какое число записано суммой 80000 + 9000 + 900 + 50 + 2 ?",
+      "ex": "Сначала определяем нужный разряд и работаем только после этого. Собираем число по разрядам: 89952.",
+      "answer": "89952",
+      "auditType": null,
+      "auditVariant": null,
+      "visual": null,
+      "choices": [
+        "90052",
+        "89962",
+        "89952",
+        "89852"
+      ]
+    },
+    {
+      "grade": 4,
+      "id": "numbers",
+      "d": 2,
+      "i": 0,
+      "prompt": "Какое число больше: 323866 или 330291 ?",
+      "ex": "Сначала определяем нужный разряд и работаем только после этого. Сравниваем со старших разрядов. Больше число 330291.",
+      "answer": "330291",
+      "auditType": null,
+      "auditVariant": null,
+      "visual": null,
+      "choices": [
+        "330301",
+        "323856",
+        "330291",
+        "323866"
+      ]
+    },
+    {
+      "grade": 4,
+      "id": "order",
+      "d": 0,
+      "i": 0,
+      "prompt": "25 × 2 − 3 = ?",
+      "ex": "Сначала отмечаем действия более высокого приоритета. Сначала умножение, затем вычитание.",
+      "answer": "47",
+      "auditType": null,
+      "auditVariant": null,
+      "visual": null,
+      "choices": [
+        "46",
+        "48",
+        "30",
+        "47"
+      ]
+    },
+    {
+      "grade": 4,
+      "id": "order",
+      "d": 1,
+      "i": 0,
+      "prompt": "90 : 5 + 18 = ?",
+      "ex": "Сначала отмечаем действия более высокого приоритета. Сначала деление: 90:5=18.",
+      "answer": "36",
+      "auditType": null,
+      "auditVariant": null,
+      "visual": null,
+      "choices": [
+        "31",
+        "37",
+        "36",
+        "35"
+      ]
+    },
+    {
+      "grade": 4,
+      "id": "order",
+      "d": 2,
+      "i": 0,
+      "prompt": "21 × 8 + 2 × 4 = ?",
+      "ex": "Сначала отмечаем действия более высокого приоритета. Сначала оба умножения, затем сложение.",
+      "answer": "176",
+      "auditType": null,
+      "auditVariant": null,
+      "visual": null,
+      "choices": [
+        "175",
+        "177",
+        "176",
+        "31"
+      ]
+    },
+    {
+      "grade": 4,
+      "id": "equations",
+      "d": 0,
+      "i": 0,
+      "prompt": "16 − x = 12. Чему равен x?",
+      "ex": "Сначала определяем роль x и выбираем обратное действие. x = 16 − 12 = 4. Проверка: подставь найденное значение x в исходное равенство — обе части должны совпасть.",
+      "answer": "4",
+      "auditType": null,
+      "auditVariant": null,
+      "visual": null,
+      "choices": [
+        "16",
+        "0",
+        "5",
+        "4"
+      ]
+    },
+    {
+      "grade": 4,
+      "id": "equations",
+      "d": 1,
+      "i": 0,
+      "prompt": "704 : x = 8. Чему равен x?",
+      "ex": "Сначала определяем роль x и выбираем обратное действие. x = 704 : 8 = 88. Проверка: подставь найденное значение x в исходное равенство — обе части должны совпасть.",
+      "answer": "88",
+      "auditType": null,
+      "auditVariant": null,
+      "visual": null,
+      "choices": [
+        "89",
+        "80",
+        "96",
+        "88"
+      ]
+    },
+    {
+      "grade": 4,
+      "id": "equations",
+      "d": 2,
+      "i": 0,
+      "prompt": "(x + 8) · 8 = 248. Чему равен x?",
+      "ex": "Сначала определяем роль x и выбираем обратное действие. 248:8=31, затем 31−8=23. Проверка: подставь найденное значение x в исходное равенство — обе части должны совпасть.",
+      "answer": "23",
+      "auditType": null,
+      "auditVariant": null,
+      "visual": null,
+      "choices": [
+        "24",
+        "31",
+        "23",
+        "15"
+      ]
+    },
+    {
+      "grade": 4,
+      "id": "quantities",
+      "d": 0,
+      "i": 0,
+      "prompt": "17 м = ? см",
+      "ex": "Сначала выясняем, в какую единицу нужно перевести величину. 17 × 100 = 1700 см.",
+      "answer": "1700",
+      "auditType": null,
+      "auditVariant": null,
+      "visual": null,
+      "choices": [
+        "1700",
+        "1710",
+        "1690",
+        "170"
+      ]
+    },
+    {
+      "grade": 4,
+      "id": "quantities",
+      "d": 1,
+      "i": 0,
+      "prompt": "4 суток = ? ч",
+      "ex": "Сначала выясняем, в какую единицу нужно перевести величину. 4×24=96 ч.",
+      "answer": "96",
+      "auditType": null,
+      "auditVariant": null,
+      "visual": null,
+      "choices": [
+        "106",
+        "10",
+        "96",
+        "86"
+      ]
+    },
+    {
+      "grade": 4,
+      "id": "quantities",
+      "d": 2,
+      "i": 0,
+      "prompt": "7 км 211 м = ? м",
+      "ex": "Сначала выясняем, в какую единицу нужно перевести величину. 7×1000+211=7211 м.",
+      "answer": "7211",
+      "auditType": null,
+      "auditVariant": null,
+      "visual": null,
+      "choices": [
+        "7201",
+        "721",
+        "7211",
+        "7221"
+      ]
+    },
+    {
+      "grade": 4,
+      "id": "geometry",
+      "d": 0,
+      "i": 0,
+      "prompt": "Сторона квадрата 10 см. Найди его периметр.",
+      "ex": "Сначала определяем, что именно нужно найти, и выбираем формулу. P = 4a = 40 см.",
+      "answer": "40",
+      "auditType": null,
+      "auditVariant": null,
+      "visual": null,
+      "choices": [
+        "40",
+        "50",
+        "80",
+        "38"
+      ]
+    },
+    {
+      "grade": 4,
+      "id": "geometry",
+      "d": 1,
+      "i": 0,
+      "prompt": "Сторона квадрата 9 см. Найди его площадь.",
+      "ex": "Сначала определяем, что именно нужно найти, и выбираем формулу. S = a·a = 81 см².",
+      "answer": "81",
+      "auditType": null,
+      "auditVariant": null,
+      "visual": null,
+      "choices": [
+        "79",
+        "162",
+        "90",
+        "81"
+      ]
+    },
+    {
+      "grade": 4,
+      "id": "geometry",
+      "d": 2,
+      "i": 0,
+      "prompt": "Два прямоугольника имеют общую сторону 3 см. Их другие стороны 6 см и 3 см. Найди сумму площадей.",
+      "ex": "Сначала определяем, что именно нужно найти, и выбираем формулу. 3·6 + 3·3 = 27 см².",
+      "answer": "27",
+      "auditType": null,
+      "auditVariant": null,
+      "visual": null,
+      "choices": [
+        "30",
+        "54",
+        "25",
+        "27"
+      ]
+    },
+    {
+      "grade": 4,
+      "id": "word",
+      "d": 0,
+      "i": 0,
+      "prompt": "Купили 2 тетради по 30 ₽. Сколько рублей заплатили?",
+      "ex": "Сначала связываем вопрос задачи с данными и выбираем первое действие. 30·2=60 ₽. Полученный результат отвечает именно на вопрос задачи.",
+      "answer": "60",
+      "auditType": null,
+      "auditVariant": null,
+      "visual": null,
+      "choices": [
+        "60",
+        "30",
+        "50",
+        "70"
+      ]
+    },
+    {
+      "grade": 4,
+      "id": "word",
+      "d": 1,
+      "i": 0,
+      "prompt": "Купили 3 ручки по 50 ₽ и 5 альбомов по 80 ₽. Сколько заплатили всего?",
+      "ex": "Сначала связываем вопрос задачи с данными и выбираем первое действие. 50·3+80·5=550 ₽. Полученный результат отвечает именно на вопрос задачи.",
+      "answer": "550",
+      "auditType": null,
+      "auditVariant": null,
+      "visual": null,
+      "choices": [
+        "560",
+        "550",
+        "540",
+        "275"
+      ]
+    },
+    {
+      "grade": 4,
+      "id": "word",
+      "d": 2,
+      "i": 0,
+      "prompt": "Маршрут 505 км. В первый день проехали 143 км, во второй 186 км. Сколько осталось?",
+      "ex": "Сначала связываем вопрос задачи с данными и выбираем первое действие. 505−143−186=176 км. Полученный результат отвечает именно на вопрос задачи.",
+      "answer": "176",
+      "auditType": null,
+      "auditVariant": null,
+      "visual": null,
+      "choices": [
+        "176",
+        "186",
+        "166",
+        "88"
+      ]
+    }
+  ],
+  "ui": [
+    {
+      "grade": 4,
+      "id": "numbers",
+      "d": 0,
+      "hasQuiz": true,
+      "theoryChars": 503
+    },
+    {
+      "grade": 4,
+      "id": "numbers",
+      "d": 1,
+      "hasQuiz": true,
+      "theoryChars": 503
+    },
+    {
+      "grade": 4,
+      "id": "numbers",
+      "d": 2,
+      "hasQuiz": true,
+      "theoryChars": 503
+    },
+    {
+      "grade": 4,
+      "id": "order",
+      "d": 0,
+      "hasQuiz": true,
+      "theoryChars": 413
+    },
+    {
+      "grade": 4,
+      "id": "order",
+      "d": 1,
+      "hasQuiz": true,
+      "theoryChars": 413
+    },
+    {
+      "grade": 4,
+      "id": "order",
+      "d": 2,
+      "hasQuiz": true,
+      "theoryChars": 413
+    },
+    {
+      "grade": 4,
+      "id": "equations",
+      "d": 0,
+      "hasQuiz": true,
+      "theoryChars": 516
+    },
+    {
+      "grade": 4,
+      "id": "equations",
+      "d": 1,
+      "hasQuiz": true,
+      "theoryChars": 516
+    },
+    {
+      "grade": 4,
+      "id": "equations",
+      "d": 2,
+      "hasQuiz": true,
+      "theoryChars": 516
+    },
+    {
+      "grade": 4,
+      "id": "quantities",
+      "d": 0,
+      "hasQuiz": true,
+      "theoryChars": 478
+    },
+    {
+      "grade": 4,
+      "id": "quantities",
+      "d": 1,
+      "hasQuiz": true,
+      "theoryChars": 478
+    },
+    {
+      "grade": 4,
+      "id": "quantities",
+      "d": 2,
+      "hasQuiz": true,
+      "theoryChars": 478
+    },
+    {
+      "grade": 4,
+      "id": "geometry",
+      "d": 0,
+      "hasQuiz": true,
+      "theoryChars": 548
+    },
+    {
+      "grade": 4,
+      "id": "geometry",
+      "d": 1,
+      "hasQuiz": true,
+      "theoryChars": 548
+    },
+    {
+      "grade": 4,
+      "id": "geometry",
+      "d": 2,
+      "hasQuiz": true,
+      "theoryChars": 548
+    },
+    {
+      "grade": 4,
+      "id": "word",
+      "d": 0,
+      "hasQuiz": true,
+      "theoryChars": 484
+    },
+    {
+      "grade": 4,
+      "id": "word",
+      "d": 1,
+      "hasQuiz": true,
+      "theoryChars": 484
+    },
+    {
+      "grade": 4,
+      "id": "word",
+      "d": 2,
+      "hasQuiz": true,
+      "theoryChars": 484
+    }
+  ],
+  "jsErrors": [],
+  "summary": {
+    "grade3Topics": 48,
+    "grade4Topics": 8,
+    "grade3Generations": 11880,
+    "grade4Generations": 1620,
+    "valid": 13500,
+    "independentMath": 10614,
+    "numericDistractors": 4962,
+    "defects": 0,
+    "flags": 32,
+    "g4UI": 18,
+    "jsErrors": 0,
+    "defectTypes": {}
+  },
+  "defectCounts": {},
+  "defectExamples": {}
+}

@@ -5840,9 +5840,39 @@ function makeG3Question(id,stageOverride=null){
   if(variant==="decompose"){const parts=[];if(h)parts.push(h*100);if(t)parts.push(t*10);if(o)parts.push(o);const correct=parts.join(" + ")||"0",wrong=g3DecomposeDistractors(n,h,t,o);return g6ChoiceQuestion(`Как верно разложить число <b>${n}</b> на разрядные слагаемые?`,correct,wrong,`${n} = <b>${correct}</b>. Нулевой разряд можно не записывать.`,`g3:${raw}:${d}:${variant}:${n}`,{type:"placeValueDecompose",n,parts,answer:correct})}
   const digit=variant==="digitH"?h:variant==="digitT"?t:o,name=variant==="digitH"?"сотен":variant==="digitT"?"десятков":"единиц";return g6NumberInputQuestion(`Сколько ${name} в разрядной записи числа <b>${n}</b>?`,digit,`Число ${n}: ${h} сот., ${t} дес., ${o} ед. Ответ: <b>${digit}</b>.`,`g3:${raw}:${d}:${variant}:${n}`,{audit:{type:"placeValue",variant,n,h,t,o,answer:rational(digit,1)}});
  }
+
  if(raw==="compare_order"){
-  if(d===2&&Math.random()<.65){const set=new Set();while(set.size<4)set.add(ri(100,999));const values=shuffleOptions([...set]),ascending=Math.random()<.5;return g3OrderChoiceQuestion(values,ascending,`g3:${raw}:${d}:order:${ascending?"asc":"desc"}:${[...set].sort((a,b)=>a-b).join(":")}`)}
-  let a,b;if(d===0){a=ri(10,99);b=Math.random()<.18?a:ri(10,99)}else{const h=ri(1,9);a=h*100+ri(0,99);b=Math.random()<.18?a:h*100+ri(0,99);if(a===b&&Math.random()>.5)b=Math.min(999,a+1)}const correct=a<b?"<":a>b?">":"=";return g3CompareQuestion(`<b>${a}</b> ? <b>${b}</b>`,a,b,`Сравниваем числа по разрядам: <b>${a} ${correct} ${b}</b>.`,`g3:${raw}:${d}:compare:${a}:${b}`,{a,b});
+  if(d===2){
+   if(Math.random()<.65){
+    const set=new Set();while(set.size<4)set.add(ri(100,999));
+    const values=shuffleOptions([...set]),ascending=Math.random()<.5;
+    return g3OrderChoiceQuestion(values,ascending,`g3:${raw}:${d}:order:${ascending?"asc":"desc"}:${[...set].sort((a,b)=>a-b).join(":")}`);
+   }
+   const a=ri(120,800),b=ri(180,900),plus=ri(1,7)*10,minus=ri(1,6)*10,
+     leftBase=a+plus,rightBase=b-minus;
+   return g3CompareQuestion(`Сравните результаты: <b>${a} + ${plus}</b> ? <b>${b} − ${minus}</b>.`,
+     leftBase,rightBase,
+     `Вычисляем оба выражения: ${a} + ${plus} = ${leftBase}; ${b} − ${minus} = ${rightBase}.<br>Сравниваем: <b>${leftBase} ${leftBase<rightBase?"<":leftBase>rightBase?">":"="} ${rightBase}</b>.`,
+     `g3:${raw}:${d}:expressions:${a}:${plus}:${b}:${minus}`,
+     {variant:"expressions",a,b,plus,minus,leftBase,rightBase});
+  }
+  if(d===1&&Math.random()<.45){
+   const a=ri(130,820),delta=ri(1,7)*10,add=Math.random()<.5,
+     leftBase=add?a+delta:a-delta,b=ri(100,899),rightBase=b;
+   return g3CompareQuestion(`Сравните: <b>${a} ${add?"+":"−"} ${delta}</b> ? <b>${b}</b>.`,
+     leftBase,rightBase,
+     `Сначала вычислим: ${a} ${add?"+":"−"} ${delta} = ${leftBase}.<br>Затем сравним ${leftBase} ${leftBase<rightBase?"<":leftBase>rightBase?">":"="} ${rightBase}.`,
+     `g3:${raw}:${d}:changeTens:${a}:${add?1:0}:${delta}:${b}`,
+     {variant:"changeTens",a,b,delta,add,leftBase,rightBase});
+  }
+  let a,b;
+  if(d===0){a=ri(10,99);b=Math.random()<.18?a:ri(10,99)}
+  else{const h=ri(1,9);a=h*100+ri(0,99);b=Math.random()<.18?a:h*100+ri(0,99);if(a===b&&Math.random()>.5)b=Math.min(999,a+1)}
+  const correct=a<b?"<":a>b?">":"=";
+  return g3CompareQuestion(`<b>${a}</b> ? <b>${b}</b>`,a,b,
+    `Сравниваем числа по разрядам: <b>${a} ${correct} ${b}</b>.`,
+    `g3:${raw}:${d}:direct:${a}:${b}`,
+    {variant:"direct",a,b});
  }
  if(raw==="increase_decrease_times"){
   const inc=Math.random()<.5,k=ri(2,d===0?6:9),base=ri(2,d===0?9:d===1?12:15);let source,answer,text,ex;if(inc){source=base;answer=base*k;text=d===2?`Число <b>${source}</b> увеличили в <b>${k}</b> ${ruTimes(k)}. Какое число получили?`:`Увеличьте <b>${source}</b> в <b>${k}</b> ${ruTimes(k)}.`;ex=`Увеличить в ${k} ${ruTimes(k)} — значит умножить на ${k}.<br>${source} · ${k} = <b>${answer}</b>.`}else{answer=base;source=base*k;text=d===2?`Какое число получится, если <b>${source}</b> уменьшить в <b>${k}</b> ${ruTimes(k)}?`:`Уменьшите <b>${source}</b> в <b>${k}</b> ${ruTimes(k)}.`;ex=`Уменьшить в ${k} ${ruTimes(k)} — значит разделить на ${k}.<br>${source} : ${k} = <b>${answer}</b>.`}return g6NumberInputQuestion(text,answer,ex,`g3:${raw}:${d}:${inc?"inc":"dec"}:${source}:${k}`,{audit:{type:"times",increase:inc,source,k,answer:rational(answer,1)}});
@@ -5850,15 +5880,77 @@ function makeG3Question(id,stageOverride=null){
  if(raw==="multiplicative_compare"){
   const small=ri(2,d===0?9:d===1?12:15),k=ri(2,d===0?6:9),large=small*k,larger=Math.random()<.5,text=d===2?(larger?`У Маши <b>${small}</b> ${ruCount(small,"карандаш","карандаша","карандашей")}, а у Пети <b>${large}</b>. Во сколько раз у Пети карандашей больше?`:`У Пети <b>${large}</b> ${ruCount(large,"карандаш","карандаша","карандашей")}, а у Маши <b>${small}</b>. Во сколько раз у Маши карандашей меньше?`):(larger?`Во сколько раз <b>${large}</b> больше <b>${small}</b>?`:`Во сколько раз <b>${small}</b> меньше <b>${large}</b>?`),ex=`Делим большее число на меньшее: ${large} : ${small} = <b>${k}</b>.`;return g6NumberInputQuestion(text,k,ex,`g3:${raw}:${d}:${larger?"larger":"smaller"}:${small}:${large}`,{audit:{type:"multiplicativeCompare",small,large,k,answer:rational(k,1)}});
  }
+
  if(raw==="mass"){
-  if(d===0){const kg=Math.random()<.5,amount=kg?ri(1,8):ri(1,8)*1000,from=kg?"кг":"г",to=kg?"г":"кг",answer=g3UnitInteger("mass",amount,from,to);return g3UnitNumberQuestion("mass",`<b>${amount} ${from}</b> = ? ${to}`,amount,from,to,`1 кг = 1000 г. Получаем <b>${answer} ${to}</b>.`,`g3:${raw}:${d}:convert:${amount}:${from}:${to}`)}
-  if(d===1){const kg=ri(1,6),g=ri(5,65)*100,left=kg*1000,right=g,correct=left<right?"<":left>right?">":"=";return g3CompareQuestion(`<b>${kg} кг</b> ? <b>${g} г</b>`,left,right,`${kg} кг = ${left} г.<br>${left} г ${correct} ${right} г.`,`g3:${raw}:${d}:compare:${kg}:${g}`,{dimension:"mass",kg,g})}
-  const kg=ri(1,5),g=ri(1,9)*100,answer=kg*1000+g;return g6NumberInputQuestion(`<b>${kg} кг ${g} г</b> = ? г`,answer,`1 кг = 1000 г.<br>${kg} кг = ${kg*1000} г; ${kg*1000} + ${g} = <b>${answer} г</b>.`,`g3:${raw}:${d}:mixed:${kg}:${g}`,{unitSuffix:"г",audit:{type:"g3UnitMixed",dimension:"mass",kg,g,answer:rational(answer,1)}});
+  if(d===0){
+   const kg=Math.random()<.5,amount=kg?ri(1,8):ri(1,8)*1000,from=kg?"кг":"г",to=kg?"г":"кг",answer=g3UnitInteger("mass",amount,from,to);
+   return g3UnitNumberQuestion("mass",`<b>${amount} ${from}</b> = ? ${to}`,amount,from,to,
+     `1 кг = 1000 г. Получаем <b>${answer} ${to}</b>.`,
+     `g3:${raw}:${d}:convert:${amount}:${from}:${to}`);
+  }
+  if(d===1){
+   if(Math.random()<.55){
+    const kg=ri(1,6),g=ri(5,65)*100,left=kg*1000,right=g;
+    return g3CompareQuestion(`<b>${kg} кг</b> ? <b>${g} г</b>`,left,right,
+      `${kg} кг = ${left} г.<br>${left} г ${left<right?"<":left>right?">":"="} ${right} г.`,
+      `g3:${raw}:${d}:compare:${kg}:${g}`,{variant:"compare",dimension:"mass",kg,g,left,right});
+   }
+   const kg=ri(1,5),g=ri(1,9)*100,answer=kg*1000+g;
+   return g6NumberInputQuestion(`<b>${kg} кг ${g} г</b> = ? г`,answer,
+     `1 кг = 1000 г.<br>${kg} кг = ${kg*1000} г; ${kg*1000} + ${g} = <b>${answer} г</b>.`,
+     `g3:${raw}:${d}:mixed:${kg}:${g}`,
+     {unitSuffix:"г",audit:{type:"g3UnitMixed",variant:"mixed",dimension:"mass",kg,g,answer:rational(answer,1)}});
+  }
+  if(Math.random()<.5){
+   const kg=ri(2,6),g=ri(1,8)*100,taken=ri(1,15)*100,starting=kg*1000+g,answer=starting-taken;
+   return g3StoryNumberQuestion(`В мешке было <b>${kg} кг ${g} г</b> крупы. Отсыпали <b>${taken} г</b>. Сколько граммов осталось?`,
+     answer,`Переведём массу в граммы: ${kg} · 1000 + ${g} = ${starting} г.<br>Вычтем отсыпанное: ${starting} − ${taken} = <b>${answer} г</b>.`,
+     `g3:${raw}:${d}:afterTaking:${kg}:${g}:${taken}`,
+     {variant:"afterTaking",dimension:"mass",kg,g,taken,starting,answer},"г");
+  }
+  const kgA=ri(2,6),gA=ri(1,8)*100,kgB=ri(1,kgA-1),gB=ri(1,8)*100,
+    gramsA=kgA*1000+gA,gramsB=kgB*1000+gB,answer=gramsA-gramsB;
+  return g3StoryNumberQuestion(`Первый мешок весит <b>${kgA} кг ${gA} г</b>, а второй — <b>${kgB} кг ${gB} г</b>. На сколько граммов первый мешок тяжелее второго?`,
+    answer,`Первый: ${kgA} · 1000 + ${gA} = ${gramsA} г.<br>Второй: ${kgB} · 1000 + ${gB} = ${gramsB} г.<br>Разница: ${gramsA} − ${gramsB} = <b>${answer} г</b>.`,
+    `g3:${raw}:${d}:twoBags:${kgA}:${gA}:${kgB}:${gB}`,
+    {variant:"twoBags",dimension:"mass",kgA,gA,kgB,gB,gramsA,gramsB,answer},"г");
  }
+
  if(raw==="money"){
-  if(d===0){const rub=Math.random()<.5,amount=rub?ri(1,20):ri(1,20)*100,from=rub?"руб.":"коп.",to=rub?"коп.":"руб.",answer=g3UnitInteger("money",amount,from,to);return g3UnitNumberQuestion("money",`<b>${amount} ${from}</b> = ? ${to}`,amount,from,to,`1 руб. = 100 коп. Получаем <b>${answer} ${to}</b>.`,`g3:${raw}:${d}:convert:${amount}:${from}:${to}`)}
-  if(d===1){const rub=ri(1,20),kop=ri(1,99),answer=rub*100+kop;return g6NumberInputQuestion(`<b>${rub} руб. ${kop} коп.</b> = ? коп.`,answer,`${rub} руб. = ${rub*100} коп.<br>${rub*100} + ${kop} = <b>${answer} коп.</b>.`,`g3:${raw}:${d}:mixed:${rub}:${kop}`,{unitSuffix:"коп.",audit:{type:"g3UnitMixed",dimension:"money",rub,kop,answer:rational(answer,1)}})}
-  const rub=ri(1,15),kop=ri(100,1700),left=rub*100,right=kop,correct=left<right?"<":left>right?">":"=";return g3CompareQuestion(`<b>${rub} руб.</b> ? <b>${kop} коп.</b>`,left,right,`${rub} руб. = ${left} коп.<br>${left} коп. ${correct} ${right} коп.`,`g3:${raw}:${d}:compare:${rub}:${kop}`,{dimension:"money",rub,kop});
+  if(d===0){
+   const rub=Math.random()<.5,amount=rub?ri(1,20):ri(1,20)*100,from=rub?"руб.":"коп.",to=rub?"коп.":"руб.",answer=g3UnitInteger("money",amount,from,to);
+   return g3UnitNumberQuestion("money",`<b>${amount} ${from}</b> = ? ${to}`,amount,from,to,
+     `1 руб. = 100 коп. Получаем <b>${answer} ${to}</b>.`,
+     `g3:${raw}:${d}:convert:${amount}:${from}:${to}`);
+  }
+  if(d===1){
+   if(Math.random()<.55){
+    const rub=ri(1,20),kop=ri(1,99),answer=rub*100+kop;
+    return g6NumberInputQuestion(`<b>${rub} руб. ${kop} коп.</b> = ? коп.`,answer,
+      `${rub} руб. = ${rub*100} коп.<br>${rub*100} + ${kop} = <b>${answer} коп.</b>.`,
+      `g3:${raw}:${d}:mixed:${rub}:${kop}`,
+      {unitSuffix:"коп.",audit:{type:"g3UnitMixed",variant:"mixed",dimension:"money",rub,kop,answer:rational(answer,1)}});
+   }
+   const rub=ri(1,15),kop=ri(100,1700),left=rub*100,right=kop;
+   return g3CompareQuestion(`<b>${rub} руб.</b> ? <b>${kop} коп.</b>`,left,right,
+     `${rub} руб. = ${left} коп.<br>${left} коп. ${left<right?"<":left>right?">":"="} ${right} коп.`,
+     `g3:${raw}:${d}:compare:${rub}:${kop}`,
+     {variant:"compare",dimension:"money",rub,kop,left,right});
+  }
+  if(Math.random()<.5){
+   const costRub=ri(2,18),costKop=ri(1,99),paidRub=costRub+ri(1,5),
+     cost=costRub*100+costKop,paid=paidRub*100,answer=paid-cost;
+   return g3StoryNumberQuestion(`Покупка стоит <b>${costRub} руб. ${costKop} коп.</b>. Заплатили <b>${paidRub} руб.</b> Сколько копеек сдачи должны дать?`,
+     answer,`Стоимость: ${costRub} · 100 + ${costKop} = ${cost} коп.<br>Оплата: ${paidRub} · 100 = ${paid} коп.<br>Сдача: ${paid} − ${cost} = <b>${answer} коп.</b>.`,
+     `g3:${raw}:${d}:change:${costRub}:${costKop}:${paidRub}`,
+     {variant:"change",dimension:"money",costRub,costKop,paidRub,cost,paid,answer},"коп.");
+  }
+  const balanceRub=ri(3,15),balanceKop=ri(10,95),spentRub=ri(1,Math.min(5,balanceRub-1)),
+    spentKop=ri(1,90),balance=balanceRub*100+balanceKop,spent=spentRub*100+spentKop,answer=balance-spent;
+  return g3StoryNumberQuestion(`В кошельке было <b>${balanceRub} руб. ${balanceKop} коп.</b>. Купили карандаш за <b>${spentRub} руб. ${spentKop} коп.</b> Сколько копеек осталось?`,
+    answer,`Было: ${balanceRub} · 100 + ${balanceKop} = ${balance} коп.<br>Потратили: ${spentRub} · 100 + ${spentKop} = ${spent} коп.<br>Осталось: ${balance} − ${spent} = <b>${answer} коп.</b>.`,
+    `g3:${raw}:${d}:wallet:${balanceRub}:${balanceKop}:${spentRub}:${spentKop}`,
+    {variant:"wallet",dimension:"money",balanceRub,balanceKop,spentRub,spentKop,balance,spent,answer},"коп.");
  }
  if(raw==="time"){
   if(d===0){const v=g6RandomFrom(["minSec","secMin","hMin","minH"]);let value,from,to;if(v==="minSec"){value=ri(1,8);from="мин";to="с"}else if(v==="secMin"){value=ri(1,8)*60;from="с";to="мин"}else if(v==="hMin"){value=ri(1,6);from="ч";to="мин"}else{value=ri(1,6)*60;from="мин";to="ч"}const answer=g3UnitInteger("time",value,from,to),relation=(from==="ч"||to==="ч")?"1 ч = 60 мин":"1 мин = 60 с";return g3UnitNumberQuestion("time",`<b>${value} ${from}</b> = ? ${to}`,value,from,to,`${relation}. Получаем <b>${answer} ${to}</b>.`,`g3:${raw}:${d}:${v}:${value}`)}
