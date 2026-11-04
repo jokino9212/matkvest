@@ -1,0 +1,51 @@
+name: MatKvest stage17D - training recovery and theory content
+on:
+  push:
+    branches: [audit/g3g4-stage17-20261104]
+    paths:
+      - audits/g3g4_stage17_phaseD_recovery_theory.mjs
+      - .github/workflows/g3g4_stage17_phaseD_recovery_theory.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: matkvest-stage17D-recovery-theory
+  cancel-in-progress: false
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit/g3g4-stage17-20261104
+          persist-credentials: true
+      - name: Verify G3 and G4 build and cache integrity
+        run: |
+          echo '5c1532d17ff98b5f4cf7c2155233a6bfd1560c8688679bab0d906d6afa49d41f  index.html' | sha256sum --check
+          python3 audits/g7_stage12_sync_pwa.py --check
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save --no-package-lock puppeteer-core@24
+      - name: Verify actual grade 3/4 reload and theory viewport
+        run: node audits/g3g4_stage17_phaseD_recovery_theory.mjs
+      - name: Upload detailed report even if regression fails
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: matkvest-stage17D-recovery-theory
+          path: audits/g3g4_stage17_phaseD_recovery_theory_report.json
+          if-no-files-found: warn
+      - name: Store evidence on isolated branch
+        if: always()
+        run: |
+          if [ -f audits/g3g4_stage17_phaseD_recovery_theory_report.json ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add audits/g3g4_stage17_phaseD_recovery_theory_report.json
+            if ! git diff --cached --quiet; then
+              git commit -m "audit(stage17D): preserve actual G3/G4 reload and theory findings [skip ci]"
+              git push origin HEAD:audit/g3g4-stage17-20261104
+            fi
+          fi
