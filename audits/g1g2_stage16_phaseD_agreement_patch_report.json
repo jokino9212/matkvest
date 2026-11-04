@@ -1,0 +1,61 @@
+{
+  "stage": "16D-agreement-patch",
+  "inputSha256": "2be11af0d9ca5db18d45bc10011388f502803a12b0f92ca474ee11ba97939d03",
+  "outputSha256": "0954820458a758c8208eb3bea7b220abb40d712de428d1ed742fc5339ebe54ea",
+  "replacementCount": 8,
+  "counts": {
+    "g1Noun": 4,
+    "g2StoryNoun": 4
+  },
+  "changes": [
+    {
+      "variable": "m.a",
+      "nounFn": "g1Noun",
+      "obj": "o",
+      "before": "было ${m.a} ${g1Noun(m.a,o)}"
+    },
+    {
+      "variable": "m.a",
+      "nounFn": "g1Noun",
+      "obj": "o",
+      "before": "было ${m.a} ${g1Noun(m.a,o)}"
+    },
+    {
+      "variable": "m.a",
+      "nounFn": "g1Noun",
+      "obj": "m.obj",
+      "before": "Было ${m.a} ${g1Noun(m.a,m.obj)}"
+    },
+    {
+      "variable": "m.a",
+      "nounFn": "g1Noun",
+      "obj": "m.obj",
+      "before": "Было ${m.a} ${g1Noun(m.a,m.obj)}"
+    },
+    {
+      "variable": "m.a",
+      "nounFn": "g2StoryNoun",
+      "obj": "m.obj",
+      "before": "было ${m.a} ${g2StoryNoun(m.a,m.obj)}"
+    },
+    {
+      "variable": "m.a",
+      "nounFn": "g2StoryNoun",
+      "obj": "m.obj",
+      "before": "было ${m.a} ${g2StoryNoun(m.a,m.obj)}"
+    },
+    {
+      "variable": "model.a",
+      "nounFn": "g2StoryNoun",
+      "obj": "o",
+      "before": "было ${model.a} ${g2StoryNoun(model.a,o)}"
+    },
+    {
+      "variable": "model.a",
+      "nounFn": "g2StoryNoun",
+      "obj": "o",
+      "before": "было ${model.a} ${g2StoryNoun(model.a,o)}"
+    }
+  ],
+  "mainUntouched": true
+}

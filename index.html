@@ -16815,9 +16815,10 @@ function g1StoryBase(op,{small=true}={}){
  const a=ri(small?3:5,small?10:limit),maxB=Math.min(small?5:9,a),b=ri(1,Math.max(1,maxB)),result=a-b;return {kind:"sub",a,b,result,obj,limit}
 }
 function g1ActionNoun(n,o){return o.one==="книга"&&n%10===1&&n%100!==11?"книгу":g1Noun(n,o)}
+function g1ExistVerb(n,o,upper=false){const v=n%10===1&&n%100!==11?(o.one==="книга"||o.one==="тетрадь"?"была":"был"):"было";return upper?v[0].toUpperCase()+v.slice(1):v}
 function g1StorySentence(m,{name="У Маши"}={}){
- const o=m.obj;if(m.kind==="add")return `${name} было ${m.a} ${g1Noun(m.a,o)}. Ей дали ещё ${m.b} ${g1ActionNoun(m.b,o)}. Сколько ${o.many} стало?`;
- return `${name} было ${m.a} ${g1Noun(m.a,o)}. Убрали ${m.b} ${g1ActionNoun(m.b,o)}. Сколько ${o.many} осталось?`
+ const o=m.obj;if(m.kind==="add")return `${name} ${g1ExistVerb(m.a,o)} ${m.a} ${g1Noun(m.a,o)}. Ей дали ещё ${m.b} ${g1ActionNoun(m.b,o)}. Сколько ${o.many} стало?`;
+ return `${name} ${g1ExistVerb(m.a,o)} ${m.a} ${g1Noun(m.a,o)}. Убрали ${m.b} ${g1ActionNoun(m.b,o)}. Сколько ${o.many} осталось?`
 }
 function g1StoryQuestion(d){
  const warm=["add_result","sub_result"];
@@ -16837,11 +16838,11 @@ function g1StoryQuestion(d){
   return g1Choice(text,correct,wrong,ex,`g1:word_problems:${d}:choose_record:${m.kind}:${m.a}:${m.b}:${m.obj.one}`,{model,visual:{type:"g1Story",data:model},templateId})
  }
  if(templateId==="find_added"){
-  const m=g1StoryBase("add",{small:false}),model={...m,unknown:"b"},text=`Было ${m.a} ${g1Noun(m.a,m.obj)}. Стало ${m.result}. Сколько ${m.obj.many} добавили?`,ex=`От ${m.a} до ${m.result} нужно добавить ${m.b}.`;
+  const m=g1StoryBase("add",{small:false}),model={...m,unknown:"b"},text=`${g1ExistVerb(m.a,m.obj,true)} ${m.a} ${g1Noun(m.a,m.obj)}. Стало ${m.result}. Сколько ${m.obj.many} добавили?`,ex=`От ${m.a} до ${m.result} нужно добавить ${m.b}.`;
   return g1NumberInput(text,m.b,ex,`g1:word_problems:${d}:find_added:${m.a}:${m.result}:${m.obj.one}`,{model,visual:{type:"g1Story",data:model},templateId})
  }
  if(templateId==="find_removed"){
-  const m=g1StoryBase("sub",{small:false}),model={...m,unknown:"b"},text=`Было ${m.a} ${g1Noun(m.a,m.obj)}. Осталось ${m.result}. Сколько ${m.obj.many} убрали?`,ex=`Из ${m.a} убрали ${m.b}, осталось ${m.result}.`;
+  const m=g1StoryBase("sub",{small:false}),model={...m,unknown:"b"},text=`${g1ExistVerb(m.a,m.obj,true)} ${m.a} ${g1Noun(m.a,m.obj)}. Осталось ${m.result}. Сколько ${m.obj.many} убрали?`,ex=`Из ${m.a} убрали ${m.b}, осталось ${m.result}.`;
   return g1NumberInput(text,m.b,ex,`g1:word_problems:${d}:find_removed:${m.a}:${m.result}:${m.obj.one}`,{model,visual:{type:"g1Story",data:model},templateId})
  }
  if(templateId==="find_start_add"){
@@ -17789,8 +17790,8 @@ function g2StoryDivModel({easy=false}={}){
  return {kind:"div",groups,each,total,result:each,steps:[{label:"Всего",value:`${total}`},{label:"Групп",value:`${groups}`},{label:"В каждой",value:"?",answer:true}]}
 }
 function g2StoryOneText(m){
- if(m.kind==="add")return `${m.obj.place} было ${m.a} ${g2StoryNoun(m.a,m.obj)}. ${m.obj.add[0].toUpperCase()+m.obj.add.slice(1)} ещё ${m.b} ${g2StoryAccNoun(m.b,m.obj)}. Сколько ${m.obj.many} стало?`;
- if(m.kind==="sub")return `${m.obj.place} было ${m.a} ${g2StoryNoun(m.a,m.obj)}. ${m.obj.sub[0].toUpperCase()+m.obj.sub.slice(1)} ${m.b} ${g2StoryAccNoun(m.b,m.obj)}. Сколько ${m.obj.many} осталось?`;
+ if(m.kind==="add")return `${m.obj.place} ${g1ExistVerb(m.a,m.obj)} ${m.a} ${g2StoryNoun(m.a,m.obj)}. ${m.obj.add[0].toUpperCase()+m.obj.add.slice(1)} ещё ${m.b} ${g2StoryAccNoun(m.b,m.obj)}. Сколько ${m.obj.many} стало?`;
+ if(m.kind==="sub")return `${m.obj.place} ${g1ExistVerb(m.a,m.obj)} ${m.a} ${g2StoryNoun(m.a,m.obj)}. ${m.obj.sub[0].toUpperCase()+m.obj.sub.slice(1)} ${m.b} ${g2StoryAccNoun(m.b,m.obj)}. Сколько ${m.obj.many} осталось?`;
  if(m.kind==="mul")return `Есть ${m.groups} ${g2GroupWord(m.groups)}. В каждой по ${m.each} ${g2ItemWord(m.each)}. Сколько предметов всего?`;
  return `${m.total} предметов разделили поровну на ${m.groups} ${g2GroupWord(m.groups)}. Сколько предметов в каждой группе?`
 }
@@ -17836,11 +17837,11 @@ function g2WordProblemsQuestion(d){
   return g2Choice(text,correct,g2StoryRecordDistractors(model),`По условию подходит запись ${correct}.`,`g2:word_problems:${d}:choose_record:${kind}:${model.a??model.total}:${model.b??model.groups}:${model.each??0}`,{model,visual,templateId})
  }
  if(templateId==="two_add_sub"){
-  const model=g2StoryTwoAddSubModel(),o=model.obj,text=`${o.place} было ${model.a} ${g2StoryNoun(model.a,o)}. ${o.add[0].toUpperCase()+o.add.slice(1)} ${model.b} ${g2StoryAccNoun(model.b,o)}, потом ${o.sub} ${model.c} ${g2StoryAccNoun(model.c,o)}. Сколько ${o.many} осталось?`,ex=`Сначала ${model.a} + ${model.b} = ${model.mid}. Потом ${model.mid} − ${model.c} = ${model.result}.`;
+  const model=g2StoryTwoAddSubModel(),o=model.obj,text=`${o.place} ${g1ExistVerb(model.a,o)} ${model.a} ${g2StoryNoun(model.a,o)}. ${o.add[0].toUpperCase()+o.add.slice(1)} ${model.b} ${g2StoryAccNoun(model.b,o)}, потом ${o.sub} ${model.c} ${g2StoryAccNoun(model.c,o)}. Сколько ${o.many} осталось?`,ex=`Сначала ${model.a} + ${model.b} = ${model.mid}. Потом ${model.mid} − ${model.c} = ${model.result}.`;
   return g2NumberInput(text,model.result,ex,`g2:word_problems:${d}:two_add_sub:${model.a}:${model.b}:${model.c}:${o.one}`,{model,visual:{type:"g2Story",data:{steps:model.steps,aria:text}},templateId})
  }
  if(templateId==="two_sub_add"){
-  const model=g2StoryTwoSubAddModel(),o=model.obj,text=`${o.place} было ${model.a} ${g2StoryNoun(model.a,o)}. ${o.sub[0].toUpperCase()+o.sub.slice(1)} ${model.b} ${g2StoryAccNoun(model.b,o)}, потом ${o.add} ${model.c} ${g2StoryAccNoun(model.c,o)}. Сколько ${o.many} стало?`,ex=`Сначала ${model.a} − ${model.b} = ${model.mid}. Потом ${model.mid} + ${model.c} = ${model.result}.`;
+  const model=g2StoryTwoSubAddModel(),o=model.obj,text=`${o.place} ${g1ExistVerb(model.a,o)} ${model.a} ${g2StoryNoun(model.a,o)}. ${o.sub[0].toUpperCase()+o.sub.slice(1)} ${model.b} ${g2StoryAccNoun(model.b,o)}, потом ${o.add} ${model.c} ${g2StoryAccNoun(model.c,o)}. Сколько ${o.many} стало?`,ex=`Сначала ${model.a} − ${model.b} = ${model.mid}. Потом ${model.mid} + ${model.c} = ${model.result}.`;
   return g2NumberInput(text,model.result,ex,`g2:word_problems:${d}:two_sub_add:${model.a}:${model.b}:${model.c}:${o.one}`,{model,visual:{type:"g2Story",data:{steps:model.steps,aria:text}},templateId})
  }
  const model=g2StoryTwoMulAddModel(),text=`Есть ${model.groups} ${g2GroupWord(model.groups)}. В каждой по ${model.each} ${g2ItemWord(model.each)}. Потом добавили ещё ${model.extra} ${g2ItemWord(model.extra)}. Сколько предметов стало всего?`,ex=`Сначала узнаём количество в группах: ${model.each} · ${model.groups} = ${model.product}. Потом ${model.product} + ${model.extra} = ${model.result}.`;
