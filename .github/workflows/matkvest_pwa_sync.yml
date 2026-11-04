@@ -1,0 +1,40 @@
+name: MatKvest PWA - keep worker synchronized with HTML
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - index.html
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: matkvest-pwa-main
+  cancel-in-progress: false
+
+jobs:
+  synchronize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: true
+      - name: Rebuild tiny worker fingerprint after HTML changes
+        run: python3 audits/g7_stage12_sync_pwa.py
+      - name: Check fingerprint consistency
+        run: python3 audits/g7_stage12_sync_pwa.py --check
+      - name: Publish worker change on main when necessary
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add sw.js
+          if ! git diff --cached --quiet; then
+            git commit -m "chore(pwa): refresh worker fingerprint after frontend update"
+            git push origin HEAD:main
+          else
+            echo "PWA fingerprint already matches current index.html."
+          fi
