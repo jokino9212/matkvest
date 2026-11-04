@@ -6,6 +6,7 @@ on:
     paths:
       - .github/workflows/g7_stage10.yml
       - audits/g7_stage10_probe.mjs
+      - audits/g7_stage10_input_probe.mjs
       - audits/g7_stage10_deep_test.mjs
   workflow_dispatch:
 permissions:
@@ -24,6 +25,8 @@ jobs:
       - run: npm install --no-save --no-package-lock puppeteer-core@24
       - name: Run stage 10 probe
         run: node audits/g7_stage10_probe.mjs
+      - name: Probe typed answer inputs
+        run: node audits/g7_stage10_input_probe.mjs
       - name: Run deep math and UI tests
         if: hashFiles('audits/g7_stage10_deep_test.mjs') != ''
         run: node audits/g7_stage10_deep_test.mjs
@@ -34,6 +37,7 @@ jobs:
           name: g7-stage10-diagnostics
           path: |
             audits/g7_stage10_probe.json
+            audits/g7_stage10_input_probe.json
             audits/g7_stage10_deep_report.json
           if-no-files-found: warn
           retention-days: 30
