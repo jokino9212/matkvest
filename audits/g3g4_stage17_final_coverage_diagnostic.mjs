@@ -87,7 +87,7 @@ try{
     try{
      startG3QuizStage(t.id,l);
      const session={kind:blockSession?.kind,key:blockSession?.key,stageIndex:blockSession?.stageIndex},
-      dom=document.querySelector(t.rendererType==='column'?'#cstage':'#qstage'),txt=normalize(dom?.textContent),
+      dom=document.querySelector(t.rendererType==='column'?'#modal':'#qstage'),txt=normalize(dom?.textContent),
       isColumn=t.rendererType==='column',
       hasTask=!!dom&&(txt.length>20||!!dom.querySelector('.column'));
      ui.push({grade:3,id:t.id,l,session,textChars:txt.length,hasTask,isColumn});
@@ -127,7 +127,7 @@ try{
     try{
      startColumnStage(mode,l);
      const task=generateColumnTask(),expected=mode==='add'?task.a+task.b:mode==='sub'?task.a-task.b:mode==='mul'?task.a*task.b:task.a/task.b,
-      dom=document.querySelector('#cstage'),txt=normalize(dom?.textContent);
+      dom=document.querySelector('#modal'),txt=normalize(dom?.textContent);
      ui.push({grade:4,id:'column:'+mode,l,hasTask:!!dom&&txt.length>20,textChars:txt.length,task:{a:task.a,b:task.b,ans:task.ans}});
      if(!task||task.ans!==expected)fail('grade4-column-math',{mode,l,task,expected});
      if(!dom||txt.length<20)fail('grade4-column-ui',{mode,l,textChars:txt.length});
