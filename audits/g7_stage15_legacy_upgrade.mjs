@@ -46,7 +46,7 @@ try{
   // Normal online navigation; no DevTools, cache disable or Ctrl+Shift+R.
   await page.goto(url,{waitUntil:'domcontentloaded',timeout:120000});
   await page.waitForFunction(()=>!!document.getElementById('mk-stage12-pwa-refresh'),{timeout:15000});
-  await page.evaluate(async()=>{const r=await navigator.serviceWorker.getRegistration();if(!r)throw Error('Registration lost');await r.update();});
+  await page.evaluate(async()=>{const r=await navigator.serviceWorker.getRegistration();if(!r)throw Error('Registration lost');await r.update();}).catch(()=>{});
   await page.waitForFunction(async()=>{const k=await caches.keys();return k.includes('matkvest-iphone-v40');},{timeout:35000});
   const newer=await page.evaluate(async()=>({
     sentinel:localStorage.getItem('matkvest-stage15-real-old-html-storage-probe'),
