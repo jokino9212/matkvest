@@ -5571,7 +5571,48 @@ function g3AreaMeasureQuestion(d){
  const m=g3AreaCellsShape(d),data={kind:"cells",cells:m.cells,aria:"Фигура на квадратной сетке"};
  return g3GeoNumber("Сколько квадратных единиц занимает фигура?",m.area,`Считаем занятые клетки: <b>${m.area}</b>.`,`g3:area_measure:${d}:${m.variant}:${m.w}:${m.h}:${m.cutW||0}:${m.cutH||0}`,{type:"g3AreaMeasure",variant:m.variant,area:m.area,cells:m.cells,w:m.w,h:m.h,cutW:m.cutW||0,cutH:m.cutH||0,journalText:`Фигура занимает ${m.area} ${ruCount(m.area,"клетку","клетки","клеток")}.`},data,"кв. ед.")
 }
-function g3RectangleSquareAreaQuestion(d){const variant=d===0?"gridRect":d===1?g6RandomFrom(["rect","square"]):g6RandomFrom(["gridRect","rect","square"]),unit=variant==="gridRect"?"кв. ед.":g6RandomFrom(["см²","дм²","м²"]);let a,b,answer,text,ex,pts,data;if(variant==="square"){a=ri(2,5);b=a;answer=a*a;text=`Найдите площадь квадрата со стороной <b>${a} ${unit.replace("²","")}</b>.`;ex=`Площадь квадрата: S = a · a = ${a} · ${a} = <b>${answer} ${unit}</b>.`}else{a=ri(2,8);b=g6RandomFrom([2,3,4,5,6].filter(v=>v!==a));answer=a*b;text=variant==="gridRect"?"Найдите площадь прямоугольника по клетчатому рисунку.":`Найдите площадь прямоугольника со сторонами <b>${a} ${unit.replace("²","")}</b> и <b>${b} ${unit.replace("²","")}</b>.`;ex=variant==="gridRect"?`По рисунку: в каждом ряду ${a} ${ruCount(a,"клетка","клетки","клеток")}, рядов ${b}.<br>S = ${a} · ${b} = <b>${answer} ${unit}</b>.`:`Площадь прямоугольника равна длине, умноженной на ширину:<br>S = ${a} · ${b} = <b>${answer} ${unit}</b>.`}pts=[{x:3,y:2},{x:3+a,y:2},{x:3+a,y:2+b},{x:3,y:2+b}];data={kind:"polygon",points:pts,aria:variant==="square"?"Квадрат":"Прямоугольник"};return g3GeoNumber(text,answer,ex,`g3:rectangle_square_area:${d}:${variant}:${a}:${b}:${unit}`,{type:"g3RectArea",variant,a,b,answer,unit,isSquare:a===b,points:pts,journalText:variant==="gridRect"?`По клеткам: ${a} × ${b}.`:`Стороны: ${a} и ${b} ${unit.replace("²","")}.`},data,unit)}
+
+function g3RectangleSquareAreaQuestion(d){
+ const variant=d===0?"gridRect":d===1?g6RandomFrom(["rect","square"]):g6RandomFrom(["missingSide","extendedSide"]),
+   unit=variant==="gridRect"?"кв. ед.":g6RandomFrom(["см²","дм²","м²"]),
+   baseUnit=unit.replace("²",""),u=(x)=>`${x} ${unit}`;
+ let a,b,answer,text,ex,pts,data,details={};
+ if(variant==="square"){
+  a=ri(2,5);b=a;answer=a*a;
+  text=`Найдите площадь квадрата со стороной <b>${a} ${baseUnit}</b>.`;
+  ex=`Площадь квадрата: S = a · a = ${a} · ${a} = <b>${answer} ${unit}</b>.`;
+ }else{
+  a=ri(2,7);
+  b=g6RandomFrom([2,3,4,5,6].filter(v=>v!==a));
+  answer=a*b;
+  if(variant==="gridRect"){
+   text="Найдите площадь прямоугольника по клетчатому рисунку.";
+   ex=`На рисунке ${a} клеток в каждом ряду и ${b} рядов. S = ${a} · ${b} = <b>${answer} ${unit}</b>.`;
+  }else if(variant==="missingSide"){
+   const originalArea=answer,knownSide=a;answer=b;
+   text=`Площадь прямоугольника <b>${originalArea} ${unit}</b>, одна сторона — <b>${knownSide} ${baseUnit}</b>. Найдите длину другой стороны.`;
+   ex=`Площадь прямоугольника S = a · b. Поэтому неизвестная сторона: ${originalArea} : ${knownSide} = <b>${answer} ${baseUnit}</b>.`;
+   details={originalArea,knownSide};
+  }else if(variant==="extendedSide"){
+   const delta=ri(1,3),newSide=a+delta;answer=newSide*b;
+   text=`Прямоугольник имеет стороны <b>${a} ${baseUnit}</b> и <b>${b} ${baseUnit}</b>. Первую сторону увеличили на <b>${delta} ${baseUnit}</b>. Найдите новую площадь.`;
+   ex=`Новая сторона: ${a} + ${delta} = ${newSide} ${baseUnit}. Новая площадь: ${newSide} · ${b} = <b>${answer} ${unit}</b>.`;
+   details={delta,newSide,originalArea:a*b};
+  }else{
+   text=`Найдите площадь прямоугольника со сторонами <b>${a} ${baseUnit}</b> и <b>${b} ${baseUnit}</b>.`;
+   ex=`Площадь прямоугольника S = a · b = ${a} · ${b} = <b>${answer} ${unit}</b>.`;
+  }
+ }
+ pts=[{x:3,y:2},{x:3+a,y:2},{x:3+a,y:2+b},{x:3,y:2+b}];
+ data={kind:"polygon",points:pts,aria:variant==="square"?"Квадрат":"Прямоугольник на клетчатой сетке"};
+ const audit={type:"g3RectArea",variant,a,b,answer,unit,isSquare:a===b,points:pts,...details,
+   journalText:variant==="missingSide"?`Площадь: ${details.originalArea} ${unit}, известная сторона: ${a} ${baseUnit}.`:
+    variant==="extendedSide"?`Начальные стороны: ${a} и ${b} ${baseUnit}; увеличить первую на ${details.delta} ${baseUnit}.`:
+    variant==="gridRect"?`По клеткам: ${a} × ${b}.`:`Стороны: ${a} и ${b} ${baseUnit}.`};
+ return g3GeoNumber(text,answer,ex,
+  `g3:rectangle_square_area:${d}:${variant}:${a}:${b}:${details.delta??0}:${unit}`,
+  audit,data,variant==="missingSide"?baseUnit:unit);
+}
 
 /* =========================================================
    ЭТАП 3.7 — математическая информация, таблицы, диаграммы и логика.
@@ -5757,19 +5798,80 @@ function makeG3Question(id,stageOverride=null){
  if(raw==="unknown_component")return g3UnknownQuestion(d);
  if(raw==="order_operations")return g3OrderQuestion(d);
  if(raw==="quantity_operations")return g3QuantityQuestion(d);
+
  if(raw==="multiplication_table"){
-  const max=d===0?5:9,fact=multiplicationFactCandidate(2,max),a=fact.a,b=fact.b,product=a*b,variant=d===2&&Math.random()<.38?g6RandomFrom(["unknownA","unknownB"]):"product";
-  if(variant==="unknownA")return g6NumberInputQuestion(`<b>? · ${b} = ${product}</b>`,a,`${a} · ${b} = ${product}. Значит, неизвестный множитель — <b>${a}</b>.`,`g3:${raw}:${d}:unknownA:${a}:${b}`,{audit:{type:"g3MulTable",variant,a,b,product,answer:rational(a,1)}});
-  if(variant==="unknownB")return g6NumberInputQuestion(`<b>${a} · ? = ${product}</b>`,b,`${a} · ${b} = ${product}. Значит, неизвестный множитель — <b>${b}</b>.`,`g3:${raw}:${d}:unknownB:${a}:${b}`,{audit:{type:"g3MulTable",variant,a,b,product,answer:rational(b,1)}});
-  const pair=[Math.min(a,b),Math.max(a,b)];return g6NumberInputQuestion(`<b>${a} · ${b}</b> = ?`,product,`${a} · ${b} = <b>${product}</b>.`,`g3:${raw}:${d}:product:${pair[0]}:${pair[1]}`,{audit:{type:"g3MulTable",variant,a,b,product,answer:rational(product,1)}});
- }
- if(raw==="division_table"){
-  const max=d===0?6:9,fact=multiplicationFactCandidate(2,max),a=fact.a,b=fact.b,product=a*b,byA=Math.random()<.5,divisor=byA?a:b,quotient=byA?b:a,variant=d===2&&Math.random()<.38?g6RandomFrom(["unknownDividend","unknownDivisor"]):"quotient";
-  if(variant==="unknownDividend")return g6NumberInputQuestion(`<b>? : ${divisor} = ${quotient}</b>`,product,`${quotient} · ${divisor} = ${product}, поэтому <b>${product} : ${divisor} = ${quotient}</b>.`,`g3:${raw}:${d}:unknownDividend:${product}:${divisor}:${quotient}`,{audit:{type:"g3DivTable",variant,product,divisor,quotient,answer:rational(product,1)}});
-  if(variant==="unknownDivisor")return g6NumberInputQuestion(`<b>${product} : ? = ${quotient}</b>`,divisor,`${quotient} · ${divisor} = ${product}, поэтому неизвестный делитель — <b>${divisor}</b>.`,`g3:${raw}:${d}:unknownDivisor:${product}:${divisor}:${quotient}`,{audit:{type:"g3DivTable",variant,product,divisor,quotient,answer:rational(divisor,1)}});
-  return g6NumberInputQuestion(`<b>${product} : ${divisor}</b> = ?`,quotient,`${product} : ${divisor} = <b>${quotient}</b>, потому что ${divisor} · ${quotient} = ${product}.`,`g3:${raw}:${d}:quotient:${product}:${divisor}`,{audit:{type:"g3DivTable",variant,product,divisor,quotient,answer:rational(quotient,1)}});
+  const max=d===0?5:9,fact=multiplicationFactCandidate(2,max),a=fact.a,b=fact.b,product=a*b;
+  if(d===0){
+   return g6NumberInputQuestion(`<b>${a} · ${b}</b> = ?`,product,
+     `По таблице умножения: ${a} · ${b} = <b>${product}</b>.`,
+     `g3:${raw}:${d}:product:${a}:${b}`,{audit:{type:"g3MulTable",variant:"product",a,b,product,answer:rational(product,1)}});
+  }
+  if(d===1){
+   if(Math.random()<.48)return g6NumberInputQuestion(`<b>${a} · ${b}</b> = ?`,product,
+     `Табличное умножение: ${a} · ${b} = <b>${product}</b>.`,
+     `g3:${raw}:${d}:product:${a}:${b}`,{audit:{type:"g3MulTable",variant:"product",a,b,product,answer:rational(product,1)}});
+   const variant=Math.random()<.5?"pencils":"books";
+   const text=variant==="pencils"?`В ${a} коробках лежит по ${b} карандашей. Сколько карандашей всего?`:`На ${a} полках стоит по ${b} книг. Сколько книг всего?`;
+   return g3StoryNumberQuestion(text,product,
+     `Есть ${a} одинаковых групп по ${b} предметов. Значит, ${a} · ${b} = <b>${product}</b>.`,
+     `g3:${raw}:${d}:${variant}:${a}:${b}`,
+     {type:"g3MulTable",variant,a,b,product,answer:rational(product,1)});
+  }
+  if(Math.random()<.54){
+   const variant=Math.random()<.5?"unknownA":"unknownB";
+   if(variant==="unknownA")return g6NumberInputQuestion(`<b>? · ${b} = ${product}</b>`,a,
+     `Так как ${product} : ${b} = ${a}, неизвестный множитель — <b>${a}</b>.`,
+     `g3:${raw}:${d}:unknownA:${a}:${b}`,{audit:{type:"g3MulTable",variant,a,b,product,answer:rational(a,1)}});
+   return g6NumberInputQuestion(`<b>${a} · ? = ${product}</b>`,b,
+     `Так как ${product} : ${a} = ${b}, неизвестный множитель — <b>${b}</b>.`,
+     `g3:${raw}:${d}:unknownB:${a}:${b}`,{audit:{type:"g3MulTable",variant,a,b,product,answer:rational(b,1)}});
+  }
+  const variant=Math.random()<.5?"extra":"taken",change=ri(2,Math.min(9,product-1)),
+   answer=variant==="extra"?product+change:product-change,
+   text=variant==="extra"?`В ${a} коробках по ${b} карандашей. Положили ещё ${change} карандашей. Сколько карандашей теперь?`:`На ${a} полках стояло по ${b} книг. ${change} книг взяли. Сколько книг осталось?`;
+  return g3StoryNumberQuestion(text,answer,
+    `Сначала ${a} · ${b} = ${product}. Затем ${product} ${variant==="extra"?"+":"−"} ${change} = <b>${answer}</b>.`,
+    `g3:${raw}:${d}:${variant}:${a}:${b}:${change}`,
+    {type:"g3MulTable",variant,a,b,product,change,answer:rational(answer,1)});
  }
 
+ if(raw==="division_table"){
+  const max=d===0?6:9,fact=multiplicationFactCandidate(2,max),a=fact.a,b=fact.b,product=a*b,
+   byA=Math.random()<.5,divisor=byA?a:b,quotient=byA?b:a;
+  if(d===0||d===1&&Math.random()<.5){
+   return g6NumberInputQuestion(`<b>${product} : ${divisor}</b> = ?`,quotient,
+     `${product} : ${divisor} = <b>${quotient}</b>, ведь ${quotient} · ${divisor} = ${product}.`,
+     `g3:${raw}:${d}:quotient:${product}:${divisor}`,
+     {audit:{type:"g3DivTable",variant:"quotient",product,divisor,quotient,answer:rational(quotient,1)}});
+  }
+  if(d===1){
+   const variant=Math.random()<.5?"equalBoxes":"equalGroups",
+    text=variant==="equalBoxes"?`${product} карандашей разложили поровну в ${divisor} коробок. Сколько карандашей в каждой коробке?`:`${product} тетрадей разложили по ${divisor} в стопку. Сколько стопок получилось?`,
+    answer=variant==="equalBoxes"?quotient:product/divisor;
+   return g3StoryNumberQuestion(text,answer,
+     `Делим поровну: ${product} : ${divisor} = <b>${answer}</b>. Проверка: ${divisor} · ${answer} = ${product}.`,
+     `g3:${raw}:${d}:${variant}:${product}:${divisor}`,
+     {type:"g3DivTable",variant,product,divisor,quotient,answer:rational(answer,1)});
+  }
+  if(Math.random()<.53){
+   const variant=Math.random()<.5?"unknownDividend":"unknownDivisor";
+   if(variant==="unknownDividend")return g6NumberInputQuestion(`<b>? : ${divisor} = ${quotient}</b>`,product,
+     `Чтобы найти делимое, умножаем делитель на частное.<br>${divisor} · ${quotient} = <b>${product}</b>.`,
+     `g3:${raw}:${d}:unknownDividend:${product}:${divisor}`,
+     {audit:{type:"g3DivTable",variant,product,divisor,quotient,answer:rational(product,1)}});
+   return g6NumberInputQuestion(`<b>${product} : ? = ${quotient}</b>`,divisor,
+     `Неизвестный делитель: ${product} : ${quotient} = <b>${divisor}</b>.`,
+     `g3:${raw}:${d}:unknownDivisor:${product}:${quotient}`,
+     {audit:{type:"g3DivTable",variant,product,divisor,quotient,answer:rational(divisor,1)}});
+  }
+  const variant=Math.random()<.5?"moreEach":"takeEach",change=ri(1,Math.max(1,Math.min(4,quotient-1))),
+   answer=variant==="moreEach"?quotient+change:quotient-change,
+   text=variant==="moreEach"?`${product} яблок разложили поровну в ${divisor} корзин, затем в каждую добавили по ${change} яблок. Сколько яблок стало в одной корзине?`:`${product} карандашей разложили поровну в ${divisor} пеналов, затем из каждого взяли по ${change} карандашей. Сколько карандашей осталось в одном пенале?`;
+  return g3StoryNumberQuestion(text,answer,
+    `Сначала в одной группе ${product} : ${divisor} = ${quotient}. Затем ${quotient} ${variant==="moreEach"?"+":"−"} ${change} = <b>${answer}</b>.`,
+    `g3:${raw}:${d}:${variant}:${product}:${divisor}:${change}`,
+    {type:"g3DivTable",variant,product,divisor,quotient,change,answer:rational(answer,1)});
+ }
  if(raw==="offtable_multiply"){
   if(d===0){
    const tens=ri(1,4)*10,k=ri(2,Math.min(7,Math.floor(100/tens))),answer=tens*k;

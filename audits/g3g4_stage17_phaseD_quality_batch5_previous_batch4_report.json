@@ -1,0 +1,206 @@
+{
+  "phase": "17D-quality-batch4",
+  "sha256": "5c079a595763241ee1a816f029543b2383980e9770e27317c5a712260fcad069",
+  "at": "2026-11-04T21:08:05.882Z",
+  "rows": [
+    {
+      "id": "compare_order",
+      "d": 0,
+      "generated": 500,
+      "verified": 500,
+      "variants": {
+        "direct": 500
+      },
+      "mathChecks": 500,
+      "uniquePrompts": 447,
+      "shapes": 1
+    },
+    {
+      "id": "compare_order",
+      "d": 1,
+      "generated": 500,
+      "verified": 500,
+      "variants": {
+        "changeTens": 229,
+        "direct": 271
+      },
+      "mathChecks": 500,
+      "uniquePrompts": 500,
+      "shapes": 3
+    },
+    {
+      "id": "compare_order",
+      "d": 2,
+      "generated": 500,
+      "verified": 500,
+      "variants": {
+        "unknown": 308,
+        "order": 308,
+        "expressions": 192
+      },
+      "mathChecks": 500,
+      "uniquePrompts": 500,
+      "shapes": 3
+    },
+    {
+      "id": "mass",
+      "d": 0,
+      "generated": 500,
+      "verified": 500,
+      "variants": {
+        "convert": 500
+      },
+      "mathChecks": 500,
+      "uniquePrompts": 16,
+      "shapes": 2
+    },
+    {
+      "id": "mass",
+      "d": 1,
+      "generated": 500,
+      "verified": 500,
+      "variants": {
+        "mixed": 232,
+        "compare": 268
+      },
+      "mathChecks": 500,
+      "uniquePrompts": 244,
+      "shapes": 2
+    },
+    {
+      "id": "mass",
+      "d": 2,
+      "generated": 500,
+      "verified": 500,
+      "variants": {
+        "afterTaking": 249,
+        "twoBags": 251
+      },
+      "mathChecks": 500,
+      "uniquePrompts": 423,
+      "shapes": 2
+    },
+    {
+      "id": "money",
+      "d": 0,
+      "generated": 500,
+      "verified": 500,
+      "variants": {
+        "convert": 500
+      },
+      "mathChecks": 500,
+      "uniquePrompts": 40,
+      "shapes": 2
+    },
+    {
+      "id": "money",
+      "d": 1,
+      "generated": 500,
+      "verified": 500,
+      "variants": {
+        "mixed": 265,
+        "compare": 235
+      },
+      "mathChecks": 500,
+      "uniquePrompts": 486,
+      "shapes": 2
+    },
+    {
+      "id": "money",
+      "d": 2,
+      "generated": 500,
+      "verified": 500,
+      "variants": {
+        "wallet": 250,
+        "change": 250
+      },
+      "mathChecks": 500,
+      "uniquePrompts": 494,
+      "shapes": 2
+    }
+  ],
+  "ui": [
+    {
+      "id": "compare_order",
+      "d": 0,
+      "quiz": true,
+      "numeric": false,
+      "choices": false,
+      "overflow": 0
+    },
+    {
+      "id": "compare_order",
+      "d": 1,
+      "quiz": true,
+      "numeric": false,
+      "choices": false,
+      "overflow": 0
+    },
+    {
+      "id": "compare_order",
+      "d": 2,
+      "quiz": true,
+      "numeric": false,
+      "choices": false,
+      "overflow": 0
+    },
+    {
+      "id": "mass",
+      "d": 0,
+      "quiz": true,
+      "numeric": true,
+      "choices": false,
+      "overflow": 0
+    },
+    {
+      "id": "mass",
+      "d": 1,
+      "quiz": true,
+      "numeric": false,
+      "choices": false,
+      "overflow": 0
+    },
+    {
+      "id": "mass",
+      "d": 2,
+      "quiz": true,
+      "numeric": true,
+      "choices": false,
+      "overflow": 0
+    },
+    {
+      "id": "money",
+      "d": 0,
+      "quiz": true,
+      "numeric": true,
+      "choices": false,
+      "overflow": 0
+    },
+    {
+      "id": "money",
+      "d": 1,
+      "quiz": true,
+      "numeric": true,
+      "choices": false,
+      "overflow": 0
+    },
+    {
+      "id": "money",
+      "d": 2,
+      "quiz": true,
+      "numeric": true,
+      "choices": false,
+      "overflow": 0
+    }
+  ],
+  "errors": [],
+  "jsErrors": [],
+  "summary": {
+    "generated": 4500,
+    "independentMath": 4500,
+    "ui": 9,
+    "uiReady": 9,
+    "errors": 0,
+    "jsErrors": 0
+  }
+}
