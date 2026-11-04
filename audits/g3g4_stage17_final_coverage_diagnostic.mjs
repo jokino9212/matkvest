@@ -33,7 +33,7 @@ try{
     for(let i=0;i<80;i++){
      try{
       const q=t.rendererType==='column'?generateG3ColumnTask(t.id,l):makeG3Question(t.id,l);
-      if(!q||!Number.isFinite(t.rendererType==='column'?q.ans:Number(q?.answerRat?.n??q?.ans))&&!q.choices?.length)fail('unreadable-g3-answer',{id:t.id,l,i});
+      if(!q||q.ans===undefined||q.ans===null||String(q.ans)==='')fail('unreadable-g3-answer',{id:t.id,l,i});
       if(t.rendererType==='quiz'&&(!q.text||!q.ex||!q.sig))fail('g3-missing-fields',{id:t.id,l,i});
       if(q.sig)sigs.add(q.sig);
       values.add(q.ans);
@@ -141,7 +141,8 @@ try{
      if(!dom||txt.length<20)fail('grade4-table-ui',{l,textChars:txt.length});
     }catch(e){fail('grade4-table-exception',{l,error:String(e)})}
   }
-  return {topics,columns,grade4,ui,errors,warnings,summary:{grade3Topics:sets.length,grade3Quiz:basic.length,grade3Column:written.length,grade4Topics:TOPICS.length,grade4LegacySpecial:specials.length,grade3ColumnGenerated:columns.reduce((s,x)=>s+x.generated,0),grade3ColumnCorrect:columns.reduce((s,x)=>s+x.correct,0),grade3UI:ui.filter(x=>x.grade===3).length,grade4UI:ui.filter(x=>x.grade===4).length,uiReady:ui.filter(x=>x.hasTask).length,uiExpected:48*3+(6+4+1)*3}};
+  const runtimeHints={startG3WrittenStage:typeof startG3WrittenStage==='function'?String(startG3WrittenStage).slice(0,3500):'missing',startColumnStage:typeof startColumnStage==='function'?String(startColumnStage).slice(0,3500):'missing',startTableStage:typeof startTableStage==='function'?String(startTableStage).slice(0,3500):'missing',openColumn:typeof openColumn==='function'?String(openColumn).slice(0,1500):'missing',visibleIds:[...document.querySelectorAll('[id]')].filter(el=>{const r=el.getBoundingClientRect();return r.width>10&&r.height>10&&r.y>=-700&&r.y<1600}).slice(-50).map(el=>({id:el.id,text:normalize(el.textContent).slice(0,100)}))};
+  return {topics,columns,grade4,ui,errors,warnings,runtimeHints,summary:{grade3Topics:sets.length,grade3Quiz:basic.length,grade3Column:written.length,grade4Topics:TOPICS.length,grade4LegacySpecial:specials.length,grade3ColumnGenerated:columns.reduce((s,x)=>s+x.generated,0),grade3ColumnCorrect:columns.reduce((s,x)=>s+x.correct,0),grade3UI:ui.filter(x=>x.grade===3).length,grade4UI:ui.filter(x=>x.grade===4).length,uiReady:ui.filter(x=>x.hasTask).length,uiExpected:48*3+(6+4+1)*3}};
  });
  Object.assign(report,d);
  report.summary={...d.summary,errors:d.errors.length,warningCount:d.warnings.length,jsErrors:jsErrors.length};
