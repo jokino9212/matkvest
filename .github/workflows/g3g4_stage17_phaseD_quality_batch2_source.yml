@@ -1,0 +1,45 @@
+name: MatKvest stage17D - quality batch2 source discovery
+on:
+  push:
+    branches: [audit/g3g4-stage17-20261104]
+    paths:
+      - audits/g3g4_stage17_phaseD_quality_batch2_source.py
+      - .github/workflows/g3g4_stage17_phaseD_quality_batch2_source.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: matkvest-stage17D-quality-batch2-discovery
+  cancel-in-progress: false
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit/g3g4-stage17-20261104
+          persist-credentials: true
+      - name: Verify starting HTML and service worker
+        run: |
+          echo '409381a4c087d9118f9334505ad3ae2b5662fa6570d8e244d97579e35adca046  index.html' | sha256sum --check
+          python3 audits/g7_stage12_sync_pwa.py --check
+      - name: Inspect visual models and generator sources
+        run: python3 audits/g3g4_stage17_phaseD_quality_batch2_source.py
+      - name: Upload read-only contexts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: matkvest-stage17D-quality-batch2-source
+          path: audits/g3g4_stage17_phaseD_quality_batch2_source.json
+      - name: Save read-only audit evidence
+        if: success()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add audits/g3g4_stage17_phaseD_quality_batch2_source.json
+          if ! git diff --cached --quiet; then
+            git commit -m "audit(stage17D): save exact fraction and broken-line source [skip ci]"
+            git pull --rebase origin audit/g3g4-stage17-20261104
+            git push origin HEAD:audit/g3g4-stage17-20261104
+          fi
