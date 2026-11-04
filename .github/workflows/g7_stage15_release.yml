@@ -40,6 +40,10 @@ jobs:
         run: node audits/g7_stage14_crossgrade_test.mjs
       - name: Existing grade 4 real interface regression
         run: node audits/g7_stage14_grade4_test.mjs
+      - name: Verify actual published GitHub Pages bytes and live desktop/mobile browser
+        env:
+          MATKVEST_PAGES_URL: https://jokino9212.github.io/matkvest/
+        run: node audits/g7_stage15_production_check.mjs
       - name: Preserve machine-readable results even on failure
         if: always()
         uses: actions/upload-artifact@v4
@@ -52,5 +56,8 @@ jobs:
             audits/g7_stage12_sw_update_report.json
             audits/g7_stage14_crossgrade_report.json
             audits/g7_stage14_grade4_report.json
+            audits/g7_stage15_production_report.json
+            audits/g7_stage15_prod_desktop.png
+            audits/g7_stage15_prod_mobile.png
           if-no-files-found: warn
           retention-days: 60
