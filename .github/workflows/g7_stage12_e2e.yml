@@ -1,0 +1,30 @@
+name: G7 stage 12 - persistence and service worker E2E
+on:
+  push:
+    branches: [audit/g7-stage12-20261104]
+    paths:
+      - .github/workflows/g7_stage12_e2e.yml
+      - audits/g7_stage12_e2e.mjs
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save --no-package-lock puppeteer-core@24
+      - name: Verify resume and service-worker lifecycle in real browser
+        run: node audits/g7_stage12_e2e.mjs
+      - name: Save E2E report even if tests fail
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: g7-stage12-e2e-report
+          path: audits/g7_stage12_e2e_report.json
+          if-no-files-found: warn
+          retention-days: 30
