@@ -38,6 +38,8 @@ for group, words in markers.items():
                           min(len(s), p+(5000 if group=="g3_new_findings" else 1800 if group in ("g3_multiplication_text", "g3_money_text") else 850))]
                          for p in hits[:3]]
         }
+lines = s.splitlines()
+out["runtime_error_line_9671"] = [{"line": n, "text": lines[n-1]} for n in range(9655,9681) if n <= len(lines)]
 pathlib.Path("audits/g3g4_stage17_phaseD_source_inspect.json").write_text(
     json.dumps(out, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 print(json.dumps({"stage": out["stage"], "hash": actual, "size": len(src),
