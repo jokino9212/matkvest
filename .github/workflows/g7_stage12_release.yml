@@ -1,0 +1,41 @@
+name: G7 stage 12 - PWA safe upgrade and resume release gate
+on:
+  push:
+    branches: [audit/g7-stage12-20261104]
+    paths:
+      - .github/workflows/g7_stage12_release.yml
+      - audits/g7_stage12_apply.py
+      - audits/g7_stage12_autoupdate.html
+      - audits/g7_stage12_sw_update_test.mjs
+      - audits/g7_stage12_e2e.mjs
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build only isolated stage12 HTML and SW
+        run: python3 audits/g7_stage12_apply.py
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save --no-package-lock puppeteer-core@24
+      - name: Verify drafts and exact resume on updated HTML
+        run: node audits/g7_stage12_e2e.mjs
+      - name: Verify forced SW update, safe reload, offline fallback
+        run: node audits/g7_stage12_sw_update_test.mjs
+      - name: Preserve reports and patched artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: g7-stage12-release-gate
+          path: |
+            index.html
+            sw.js
+            audits/g7_stage12_e2e_report.json
+            audits/g7_stage12_sw_update_report.json
+          if-no-files-found: warn
+          retention-days: 30
