@@ -1,7 +1,7 @@
 {
   "phase": "16C",
-  "builtFrom": "2252fe792fbef2ba6b1a4d0794ae674164f55f3260496af1156660b986b5ae16",
-  "createdAt": "2026-11-04T18:25:34.066Z",
+  "builtFrom": "2be11af0d9ca5db18d45bc10011388f502803a12b0f92ca474ee11ba97939d03",
+  "createdAt": "2026-11-04T18:29:39.355Z",
   "checks": [
     {
       "id": "g2:operations_100",
@@ -11,11 +11,11 @@
           "tested": 650,
           "verified": 650,
           "skipped": 0,
-          "answerVerified": 333,
+          "answerVerified": 327,
           "choiceVerified": 650,
           "templates": {
-            "two_step_add_sub": 333,
-            "choose_first": 317
+            "choose_first": 323,
+            "two_step_add_sub": 327
           }
         },
         {
@@ -24,13 +24,13 @@
           "verified": 650,
           "skipped": 0,
           "answerVerified": 393,
-          "choiceVerified": 530,
+          "choiceVerified": 513,
           "templates": {
-            "two_step_add_sub": 154,
-            "compute_input": 120,
-            "div_before_sub": 120,
-            "mul_before_add": 119,
-            "choose_first": 137
+            "choose_first": 120,
+            "mul_before_add": 137,
+            "two_step_add_sub": 131,
+            "compute_input": 137,
+            "div_before_sub": 125
           }
         },
         {
@@ -38,17 +38,17 @@
           "tested": 650,
           "verified": 650,
           "skipped": 0,
-          "answerVerified": 240,
-          "choiceVerified": 411,
+          "answerVerified": 233,
+          "choiceVerified": 397,
           "templates": {
-            "two_step_add_sub": 86,
-            "find_error": 94,
-            "mul_before_add": 88,
-            "restore_step": 81,
-            "parentheses_first": 86,
-            "compute_input": 72,
-            "choose_first": 77,
-            "div_before_sub": 66
+            "choose_first": 80,
+            "mul_before_add": 92,
+            "find_error": 84,
+            "compute_input": 98,
+            "two_step_add_sub": 68,
+            "restore_step": 72,
+            "div_before_sub": 73,
+            "parentheses_first": 83
           }
         }
       ],
@@ -56,14 +56,14 @@
       "verified": 1950,
       "unrecognized": 0,
       "types": {
-        "two_step_add_sub": 573,
-        "choose_first": 531,
-        "compute_input": 192,
-        "div_before_sub": 186,
-        "mul_before_add": 207,
-        "find_error": 94,
-        "restore_step": 81,
-        "parentheses_first": 86
+        "choose_first": 523,
+        "two_step_add_sub": 526,
+        "mul_before_add": 229,
+        "compute_input": 235,
+        "div_before_sub": 198,
+        "find_error": 84,
+        "restore_step": 72,
+        "parentheses_first": 83
       }
     },
     {
@@ -77,8 +77,8 @@
           "answerVerified": 650,
           "choiceVerified": 650,
           "templates": {
-            "add_result": 322,
-            "sub_result": 328
+            "sub_result": 337,
+            "add_result": 313
           }
         },
         {
@@ -87,14 +87,14 @@
           "verified": 650,
           "skipped": 0,
           "answerVerified": 0,
-          "choiceVerified": 214,
+          "choiceVerified": 237,
           "templates": {
-            "divide_result": 109,
-            "sub_result": 130,
-            "choose_action": 111,
-            "multiply_result": 99,
-            "choose_record": 103,
-            "add_result": 98
+            "sub_result": 109,
+            "divide_result": 90,
+            "add_result": 106,
+            "choose_action": 112,
+            "multiply_result": 108,
+            "choose_record": 125
           }
         },
         {
@@ -103,17 +103,17 @@
           "verified": 650,
           "skipped": 0,
           "answerVerified": 0,
-          "choiceVerified": 151,
+          "choiceVerified": 128,
           "templates": {
-            "multiply_result": 61,
-            "divide_result": 57,
-            "sub_result": 84,
-            "choose_action": 77,
-            "two_add_sub": 82,
-            "add_result": 65,
-            "choose_record": 74,
-            "two_sub_add": 78,
-            "two_mul_add": 72
+            "sub_result": 69,
+            "two_sub_add": 73,
+            "add_result": 76,
+            "multiply_result": 75,
+            "two_mul_add": 80,
+            "choose_record": 70,
+            "choose_action": 58,
+            "divide_result": 85,
+            "two_add_sub": 64
           }
         }
       ],
@@ -121,15 +121,15 @@
       "verified": 1950,
       "unrecognized": 0,
       "types": {
-        "add_result": 485,
-        "sub_result": 542,
-        "divide_result": 166,
-        "choose_action": 188,
-        "multiply_result": 160,
-        "choose_record": 177,
-        "two_add_sub": 82,
-        "two_sub_add": 78,
-        "two_mul_add": 72
+        "sub_result": 515,
+        "add_result": 495,
+        "divide_result": 175,
+        "choose_action": 170,
+        "multiply_result": 183,
+        "choose_record": 195,
+        "two_sub_add": 73,
+        "two_mul_add": 80,
+        "two_add_sub": 64
       }
     },
     {
@@ -140,12 +140,12 @@
           "tested": 650,
           "verified": 650,
           "skipped": 0,
-          "answerVerified": 221,
-          "choiceVerified": 221,
+          "answerVerified": 200,
+          "choiceVerified": 200,
           "templates": {
-            "rectangle_perimeter": 229,
-            "measure_segment": 221,
-            "square_perimeter": 200
+            "measure_segment": 200,
+            "rectangle_perimeter": 228,
+            "square_perimeter": 222
           }
         },
         {
@@ -153,15 +153,15 @@
           "tested": 650,
           "verified": 650,
           "skipped": 0,
-          "answerVerified": 94,
-          "choiceVerified": 323,
+          "answerVerified": 101,
+          "choiceVerified": 311,
           "templates": {
-            "triangle_perimeter": 102,
-            "square_perimeter": 111,
-            "choose_record": 113,
-            "rectangle_perimeter": 114,
-            "compare_perimeters": 116,
-            "measure_segment": 94
+            "triangle_perimeter": 105,
+            "measure_segment": 101,
+            "choose_record": 103,
+            "square_perimeter": 118,
+            "rectangle_perimeter": 116,
+            "compare_perimeters": 107
           }
         },
         {
@@ -169,17 +169,17 @@
           "tested": 650,
           "verified": 650,
           "skipped": 0,
-          "answerVerified": 78,
+          "answerVerified": 73,
           "choiceVerified": 235,
           "templates": {
-            "measure_segment": 78,
-            "triangle_perimeter": 93,
-            "missing_square_side": 93,
-            "square_perimeter": 71,
-            "missing_triangle_side": 89,
-            "compare_perimeters": 64,
-            "rectangle_perimeter": 69,
-            "choose_record": 93
+            "compare_perimeters": 80,
+            "triangle_perimeter": 76,
+            "rectangle_perimeter": 82,
+            "missing_triangle_side": 79,
+            "missing_square_side": 88,
+            "square_perimeter": 90,
+            "choose_record": 82,
+            "measure_segment": 73
           }
         }
       ],
@@ -187,1728 +187,47 @@
       "verified": 1950,
       "unrecognized": 0,
       "types": {
-        "rectangle_perimeter": 412,
-        "measure_segment": 393,
-        "square_perimeter": 382,
-        "triangle_perimeter": 195,
-        "choose_record": 206,
-        "compare_perimeters": 180,
-        "missing_square_side": 93,
-        "missing_triangle_side": 89
+        "measure_segment": 374,
+        "rectangle_perimeter": 426,
+        "square_perimeter": 430,
+        "triangle_perimeter": 181,
+        "choose_record": 185,
+        "compare_perimeters": 187,
+        "missing_triangle_side": 79,
+        "missing_square_side": 88
       }
     }
   ],
-  "defects": [
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 8 книг. Ей дали ещё 1 книга. Сколько книг стало?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 8 книг. Ей дали ещё 1 книга. Сколько книг стало?",
-      "model": {
-        "kind": "add",
-        "a": 8,
-        "b": 1,
-        "result": 9,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 10 книг. Убрали 1 книга. Сколько книг осталось?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 10 книг. Убрали 1 книга. Сколько книг осталось?",
-      "model": {
-        "kind": "sub",
-        "a": 10,
-        "b": 1,
-        "result": 9,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 6 книг. Ей дали ещё 1 книга. Сколько книг стало?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 6 книг. Ей дали ещё 1 книга. Сколько книг стало?",
-      "model": {
-        "kind": "add",
-        "a": 6,
-        "b": 1,
-        "result": 7,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 8 книг. Убрали 1 книга. Сколько книг осталось?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 8 книг. Убрали 1 книга. Сколько книг осталось?",
-      "model": {
-        "kind": "sub",
-        "a": 8,
-        "b": 1,
-        "result": 7,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 4 книги. Ей дали ещё 1 книга. Сколько книг стало?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 4 книги. Ей дали ещё 1 книга. Сколько книг стало?",
-      "model": {
-        "kind": "add",
-        "a": 4,
-        "b": 1,
-        "result": 5,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 7 книг. Ей дали ещё 1 книга. Сколько книг стало?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 7 книг. Ей дали ещё 1 книга. Сколько книг стало?",
-      "model": {
-        "kind": "add",
-        "a": 7,
-        "b": 1,
-        "result": 8,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 2 книги. Ей дали ещё 1 книга. Сколько книг стало?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 2 книги. Ей дали ещё 1 книга. Сколько книг стало?",
-      "model": {
-        "kind": "add",
-        "a": 2,
-        "b": 1,
-        "result": 3,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 4 книги. Ей дали ещё 1 книга. Сколько книг стало?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 4 книги. Ей дали ещё 1 книга. Сколько книг стало?",
-      "model": {
-        "kind": "add",
-        "a": 4,
-        "b": 1,
-        "result": 5,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 5 книг. Убрали 1 книга. Сколько книг осталось?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 5 книг. Убрали 1 книга. Сколько книг осталось?",
-      "model": {
-        "kind": "sub",
-        "a": 5,
-        "b": 1,
-        "result": 4,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 4 книги. Убрали 1 книга. Сколько книг осталось?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 4 книги. Убрали 1 книга. Сколько книг осталось?",
-      "model": {
-        "kind": "sub",
-        "a": 4,
-        "b": 1,
-        "result": 3,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 5 книг. Ей дали ещё 1 книга. Сколько книг стало?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 5 книг. Ей дали ещё 1 книга. Сколько книг стало?",
-      "model": {
-        "kind": "add",
-        "a": 5,
-        "b": 1,
-        "result": 6,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 5 книг. Ей дали ещё 1 книга. Сколько книг стало?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 5 книг. Ей дали ещё 1 книга. Сколько книг стало?",
-      "model": {
-        "kind": "add",
-        "a": 5,
-        "b": 1,
-        "result": 6,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 4 книги. Убрали 1 книга. Сколько книг осталось?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 4 книги. Убрали 1 книга. Сколько книг осталось?",
-      "model": {
-        "kind": "sub",
-        "a": 4,
-        "b": 1,
-        "result": 3,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 7 книг. Убрали 1 книга. Сколько книг осталось?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 7 книг. Убрали 1 книга. Сколько книг осталось?",
-      "model": {
-        "kind": "sub",
-        "a": 7,
-        "b": 1,
-        "result": 6,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 4 книги. Ей дали ещё 1 книга. Сколько книг стало?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 4 книги. Ей дали ещё 1 книга. Сколько книг стало?",
-      "model": {
-        "kind": "add",
-        "a": 4,
-        "b": 1,
-        "result": 5,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 8 книг. Ей дали ещё 1 книга. Сколько книг стало?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 8 книг. Ей дали ещё 1 книга. Сколько книг стало?",
-      "model": {
-        "kind": "add",
-        "a": 8,
-        "b": 1,
-        "result": 9,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 3 книги. Ей дали ещё 1 книга. Сколько книг стало?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 3 книги. Ей дали ещё 1 книга. Сколько книг стало?",
-      "model": {
-        "kind": "add",
-        "a": 3,
-        "b": 1,
-        "result": 4,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 7 книг. Убрали 1 книга. Сколько книг осталось?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 7 книг. Убрали 1 книга. Сколько книг осталось?",
-      "model": {
-        "kind": "sub",
-        "a": 7,
-        "b": 1,
-        "result": 6,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 3 книги. Убрали 1 книга. Сколько книг осталось?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 3 книги. Убрали 1 книга. Сколько книг осталось?",
-      "model": {
-        "kind": "sub",
-        "a": 3,
-        "b": 1,
-        "result": 2,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 7 книг. Ей дали ещё 1 книга. Сколько книг стало?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 7 книг. Ей дали ещё 1 книга. Сколько книг стало?",
-      "model": {
-        "kind": "add",
-        "a": 7,
-        "b": 1,
-        "result": 8,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 10 книг. Убрали 1 книга. Сколько книг осталось?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 10 книг. Убрали 1 книга. Сколько книг осталось?",
-      "model": {
-        "kind": "sub",
-        "a": 10,
-        "b": 1,
-        "result": 9,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 5 книг. Ей дали ещё 1 книга. Сколько книг стало?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 5 книг. Ей дали ещё 1 книга. Сколько книг стало?",
-      "model": {
-        "kind": "add",
-        "a": 5,
-        "b": 1,
-        "result": 6,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 6 книг. Убрали 1 книга. Сколько книг осталось?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 6 книг. Убрали 1 книга. Сколько книг осталось?",
-      "model": {
-        "kind": "sub",
-        "a": 6,
-        "b": 1,
-        "result": 5,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 10 книг. Убрали 1 книга. Сколько книг осталось?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 10 книг. Убрали 1 книга. Сколько книг осталось?",
-      "model": {
-        "kind": "sub",
-        "a": 10,
-        "b": 1,
-        "result": 9,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 5 книг. Ей дали ещё 1 книга. Сколько книг стало?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 5 книг. Ей дали ещё 1 книга. Сколько книг стало?",
-      "model": {
-        "kind": "add",
-        "a": 5,
-        "b": 1,
-        "result": 6,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 6 книг. Ей дали ещё 1 книга. Сколько книг стало?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 6 книг. Ей дали ещё 1 книга. Сколько книг стало?",
-      "model": {
-        "kind": "add",
-        "a": 6,
-        "b": 1,
-        "result": 7,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 2 книги. Ей дали ещё 1 книга. Сколько книг стало?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 2 книги. Ей дали ещё 1 книга. Сколько книг стало?",
-      "model": {
-        "kind": "add",
-        "a": 2,
-        "b": 1,
-        "result": 3,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 5 книг. Ей дали ещё 1 книга. Сколько книг стало?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 5 книг. Ей дали ещё 1 книга. Сколько книг стало?",
-      "model": {
-        "kind": "add",
-        "a": 5,
-        "b": 1,
-        "result": 6,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 8 книг. Ей дали ещё 1 книга. Сколько книг стало?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 8 книг. Ей дали ещё 1 книга. Сколько книг стало?",
-      "model": {
-        "kind": "add",
-        "a": 8,
-        "b": 1,
-        "result": 9,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 7 книг. Ей дали ещё 1 книга. Сколько книг стало?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 7 книг. Ей дали ещё 1 книга. Сколько книг стало?",
-      "model": {
-        "kind": "add",
-        "a": 7,
-        "b": 1,
-        "result": 8,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 5 книг. Убрали 1 книга. Сколько книг осталось?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 5 книг. Убрали 1 книга. Сколько книг осталось?",
-      "model": {
-        "kind": "sub",
-        "a": 5,
-        "b": 1,
-        "result": 4,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 7 книг. Ей дали ещё 1 книга. Сколько книг стало?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 7 книг. Ей дали ещё 1 книга. Сколько книг стало?",
-      "model": {
-        "kind": "add",
-        "a": 7,
-        "b": 1,
-        "result": 8,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 9 книг. Убрали 1 книга. Сколько книг осталось?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 9 книг. Убрали 1 книга. Сколько книг осталось?",
-      "model": {
-        "kind": "sub",
-        "a": 9,
-        "b": 1,
-        "result": 8,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 6 книг. Ей дали ещё 1 книга. Сколько книг стало?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 6 книг. Ей дали ещё 1 книга. Сколько книг стало?",
-      "model": {
-        "kind": "add",
-        "a": 6,
-        "b": 1,
-        "result": 7,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 8 книг. Ей дали ещё 1 книга. Сколько книг стало?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 8 книг. Ей дали ещё 1 книга. Сколько книг стало?",
-      "model": {
-        "kind": "add",
-        "a": 8,
-        "b": 1,
-        "result": 9,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 6 книг. Убрали 1 книга. Сколько книг осталось?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 6 книг. Убрали 1 книга. Сколько книг осталось?",
-      "model": {
-        "kind": "sub",
-        "a": 6,
-        "b": 1,
-        "result": 5,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 8 книг. Убрали 1 книга. Сколько книг осталось?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 8 книг. Убрали 1 книга. Сколько книг осталось?",
-      "model": {
-        "kind": "sub",
-        "a": 8,
-        "b": 1,
-        "result": 7,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 5 книг. Убрали 1 книга. Сколько книг осталось?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 5 книг. Убрали 1 книга. Сколько книг осталось?",
-      "model": {
-        "kind": "sub",
-        "a": 5,
-        "b": 1,
-        "result": 4,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 1 книга. Ей дали ещё 1 книга. Сколько книг стало?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 1 книга. Ей дали ещё 1 книга. Сколько книг стало?",
-      "model": {
-        "kind": "add",
-        "a": 1,
-        "b": 1,
-        "result": 2,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 8 книг. Ей дали ещё 1 книга. Сколько книг стало?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 8 книг. Ей дали ещё 1 книга. Сколько книг стало?",
-      "model": {
-        "kind": "add",
-        "a": 8,
-        "b": 1,
-        "result": 9,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 6 книг. Ей дали ещё 1 книга. Сколько книг стало?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 6 книг. Ей дали ещё 1 книга. Сколько книг стало?",
-      "model": {
-        "kind": "add",
-        "a": 6,
-        "b": 1,
-        "result": 7,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 8 книг. Убрали 1 книга. Сколько книг осталось?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 8 книг. Убрали 1 книга. Сколько книг осталось?",
-      "model": {
-        "kind": "sub",
-        "a": 8,
-        "b": 1,
-        "result": 7,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 3 книги. Убрали 1 книга. Сколько книг осталось?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 3 книги. Убрали 1 книга. Сколько книг осталось?",
-      "model": {
-        "kind": "sub",
-        "a": 3,
-        "b": 1,
-        "result": 2,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 6 книг. Убрали 1 книга. Сколько книг осталось?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 6 книг. Убрали 1 книга. Сколько книг осталось?",
-      "model": {
-        "kind": "sub",
-        "a": 6,
-        "b": 1,
-        "result": 5,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 8 книг. Убрали 1 книга. Сколько книг осталось?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 8 книг. Убрали 1 книга. Сколько книг осталось?",
-      "model": {
-        "kind": "sub",
-        "a": 8,
-        "b": 1,
-        "result": 7,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 2 книги. Ей дали ещё 1 книга. Сколько книг стало?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 2 книги. Ей дали ещё 1 книга. Сколько книг стало?",
-      "model": {
-        "kind": "add",
-        "a": 2,
-        "b": 1,
-        "result": 3,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 6 книг. Убрали 1 книга. Сколько книг осталось?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 6 книг. Убрали 1 книга. Сколько книг осталось?",
-      "model": {
-        "kind": "sub",
-        "a": 6,
-        "b": 1,
-        "result": 5,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 4 книги. Убрали 1 книга. Сколько книг осталось?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 4 книги. Убрали 1 книга. Сколько книг осталось?",
-      "model": {
-        "kind": "sub",
-        "a": 4,
-        "b": 1,
-        "result": 3,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 2 книги. Ей дали ещё 1 книга. Сколько книг стало?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 2 книги. Ей дали ещё 1 книга. Сколько книг стало?",
-      "model": {
-        "kind": "add",
-        "a": 2,
-        "b": 1,
-        "result": 3,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 7 книг. Убрали 1 книга. Сколько книг осталось?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 7 книг. Убрали 1 книга. Сколько книг осталось?",
-      "model": {
-        "kind": "sub",
-        "a": 7,
-        "b": 1,
-        "result": 6,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 1 книга. Ей дали ещё 1 книга. Сколько книг стало?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 1 книга. Ей дали ещё 1 книга. Сколько книг стало?",
-      "model": {
-        "kind": "add",
-        "a": 1,
-        "b": 1,
-        "result": 2,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 5 книг. Ей дали ещё 1 книга. Сколько книг стало?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 5 книг. Ей дали ещё 1 книга. Сколько книг стало?",
-      "model": {
-        "kind": "add",
-        "a": 5,
-        "b": 1,
-        "result": 6,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 7 книг. Ей дали ещё 1 книга. Сколько книг стало?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 7 книг. Ей дали ещё 1 книга. Сколько книг стало?",
-      "model": {
-        "kind": "add",
-        "a": 7,
-        "b": 1,
-        "result": 8,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 10 книг. Убрали 1 книга. Сколько книг осталось?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 10 книг. Убрали 1 книга. Сколько книг осталось?",
-      "model": {
-        "kind": "sub",
-        "a": 10,
-        "b": 1,
-        "result": 9,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 9 книг. Убрали 1 книга. Сколько книг осталось?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 9 книг. Убрали 1 книга. Сколько книг осталось?",
-      "model": {
-        "kind": "sub",
-        "a": 9,
-        "b": 1,
-        "result": 8,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 3 книги. Убрали 1 книга. Сколько книг осталось?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 3 книги. Убрали 1 книга. Сколько книг осталось?",
-      "model": {
-        "kind": "sub",
-        "a": 3,
-        "b": 1,
-        "result": 2,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 4 книги. Убрали 1 книга. Сколько книг осталось?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 4 книги. Убрали 1 книга. Сколько книг осталось?",
-      "model": {
-        "kind": "sub",
-        "a": 4,
-        "b": 1,
-        "result": 3,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 7 книг. Убрали 1 книга. Сколько книг осталось?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 7 книг. Убрали 1 книга. Сколько книг осталось?",
-      "model": {
-        "kind": "sub",
-        "a": 7,
-        "b": 1,
-        "result": 6,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 8 книг. Убрали 1 книга. Сколько книг осталось?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 8 книг. Убрали 1 книга. Сколько книг осталось?",
-      "model": {
-        "kind": "sub",
-        "a": 8,
-        "b": 1,
-        "result": 7,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 4 книги. Ей дали ещё 1 книга. Сколько книг стало?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 4 книги. Ей дали ещё 1 книга. Сколько книг стало?",
-      "model": {
-        "kind": "add",
-        "a": 4,
-        "b": 1,
-        "result": 5,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 10 книг. Убрали 1 книга. Сколько книг осталось?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 10 книг. Убрали 1 книга. Сколько книг осталось?",
-      "model": {
-        "kind": "sub",
-        "a": 10,
-        "b": 1,
-        "result": 9,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 5 книг. Ей дали ещё 1 книга. Сколько книг стало?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 5 книг. Ей дали ещё 1 книга. Сколько книг стало?",
-      "model": {
-        "kind": "add",
-        "a": 5,
-        "b": 1,
-        "result": 6,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 5 книг. Убрали 1 книга. Сколько книг осталось?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 5 книг. Убрали 1 книга. Сколько книг осталось?",
-      "model": {
-        "kind": "sub",
-        "a": 5,
-        "b": 1,
-        "result": 4,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 3 книги. Убрали 1 книга. Сколько книг осталось?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 3 книги. Убрали 1 книга. Сколько книг осталось?",
-      "model": {
-        "kind": "sub",
-        "a": 3,
-        "b": 1,
-        "result": 2,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 2 книги. Ей дали ещё 1 книга. Сколько книг стало?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 2 книги. Ей дали ещё 1 книга. Сколько книг стало?",
-      "model": {
-        "kind": "add",
-        "a": 2,
-        "b": 1,
-        "result": 3,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 4 книги. Убрали 1 книга. Сколько книг осталось?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 4 книги. Убрали 1 книга. Сколько книг осталось?",
-      "model": {
-        "kind": "sub",
-        "a": 4,
-        "b": 1,
-        "result": 3,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 2 книги. Ей дали ещё 1 книга. Сколько книг стало?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 2 книги. Ей дали ещё 1 книга. Сколько книг стало?",
-      "model": {
-        "kind": "add",
-        "a": 2,
-        "b": 1,
-        "result": 3,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 8 книг. Убрали 1 книга. Сколько книг осталось?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 8 книг. Убрали 1 книга. Сколько книг осталось?",
-      "model": {
-        "kind": "sub",
-        "a": 8,
-        "b": 1,
-        "result": 7,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 1 книга. Ей дали ещё 1 книга. Сколько книг стало?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 1 книга. Ей дали ещё 1 книга. Сколько книг стало?",
-      "model": {
-        "kind": "add",
-        "a": 1,
-        "b": 1,
-        "result": 2,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 4 книги. Ей дали ещё 1 книга. Сколько книг стало?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 4 книги. Ей дали ещё 1 книга. Сколько книг стало?",
-      "model": {
-        "kind": "add",
-        "a": 4,
-        "b": 1,
-        "result": 5,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 1 книга. Ей дали ещё 1 книга. Сколько книг стало?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 1 книга. Ей дали ещё 1 книга. Сколько книг стало?",
-      "model": {
-        "kind": "add",
-        "a": 1,
-        "b": 1,
-        "result": 2,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 2 книги. Ей дали ещё 1 книга. Сколько книг стало?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 2 книги. Ей дали ещё 1 книга. Сколько книг стало?",
-      "model": {
-        "kind": "add",
-        "a": 2,
-        "b": 1,
-        "result": 3,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 8 книг. Убрали 1 книга. Сколько книг осталось?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 8 книг. Убрали 1 книга. Сколько книг осталось?",
-      "model": {
-        "kind": "sub",
-        "a": 8,
-        "b": 1,
-        "result": 7,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 3 книги. Убрали 1 книга. Сколько книг осталось?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 3 книги. Убрали 1 книга. Сколько книг осталось?",
-      "model": {
-        "kind": "sub",
-        "a": 3,
-        "b": 1,
-        "result": 2,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 6 книг. Ей дали ещё 1 книга. Сколько книг стало?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 6 книг. Ей дали ещё 1 книга. Сколько книг стало?",
-      "model": {
-        "kind": "add",
-        "a": 6,
-        "b": 1,
-        "result": 7,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 1 книга. Ей дали ещё 1 книга. Сколько книг стало?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 1 книга. Ей дали ещё 1 книга. Сколько книг стало?",
-      "model": {
-        "kind": "add",
-        "a": 1,
-        "b": 1,
-        "result": 2,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 7 книг. Ей дали ещё 1 книга. Сколько книг стало?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 7 книг. Ей дали ещё 1 книга. Сколько книг стало?",
-      "model": {
-        "kind": "add",
-        "a": 7,
-        "b": 1,
-        "result": 8,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 6 книг. Убрали 1 книга. Сколько книг осталось?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 6 книг. Убрали 1 книга. Сколько книг осталось?",
-      "model": {
-        "kind": "sub",
-        "a": 6,
-        "b": 1,
-        "result": 5,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 5 книг. Убрали 1 книга. Сколько книг осталось?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 5 книг. Убрали 1 книга. Сколько книг осталось?",
-      "model": {
-        "kind": "sub",
-        "a": 5,
-        "b": 1,
-        "result": 4,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 7 книг. Убрали 1 книга. Сколько книг осталось?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 7 книг. Убрали 1 книга. Сколько книг осталось?",
-      "model": {
-        "kind": "sub",
-        "a": 7,
-        "b": 1,
-        "result": 6,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    }
-  ],
+  "defects": [],
   "browserErrors": [],
   "summary": {
     "generated": 11250,
     "mathModelsVerified": 5850,
     "mathModelsUnrecognized": 0,
     "grammarG1Checked": 5400,
-    "grammarWrong": 213,
-    "defectSamples": 80,
+    "grammarWrong": 0,
+    "defectSamples": 0,
     "browserErrors": 0
   },
   "grammar": {
     "id": "g1:word_problems",
     "total": 5400,
-    "patterns": 213,
+    "patterns": 0,
     "casesByLevel": [
       {
         "level": 0,
         "tested": 1800,
-        "wrongCase": 107
+        "wrongCase": 0
       },
       {
         "level": 1,
         "tested": 1800,
-        "wrongCase": 66
+        "wrongCase": 0
       },
       {
         "level": 2,
         "tested": 1800,
-        "wrongCase": 40
+        "wrongCase": 0
       }
     ]
   }
