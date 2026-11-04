@@ -11322,8 +11322,9 @@ const G3_PRE847_MAKE=makeG3Question;
 function g3UnitExplanation847(a){
  const bases={mass:{"г":1,"кг":1000},money:{"коп.":1,"руб.":100},time:{"с":1,"мин":60,"ч":3600},length:{"мм":1,"см":10,"дм":100,"м":1000,"км":1000000},area:{"см²":1,"дм²":100,"м²":10000}};
  const map=bases[a.dimension];if(!map||!map[a.from]||!map[a.to])return null;const ratio=map[a.from]/map[a.to],ans=a.answer?.n??a.answer;
- if(ratio>=1)return `1 ${a.from} = ${ratio} ${a.to}.<br>${a.value} · ${ratio} = <b>${ans} ${a.to}</b>.`;
- const k=1/ratio;return `1 ${a.to} = ${k} ${a.from}.<br>${a.value} : ${k} = <b>${ans} ${a.to}</b>.`;
+ const punct=u=>String(u).endsWith(".")?"":".";
+ if(ratio>=1)return `1 ${a.from} = ${ratio} ${a.to}${punct(a.to)}<br>${a.value} · ${ratio} = <b>${ans} ${a.to}</b>${punct(a.to)}`;
+ const k=1/ratio;return `1 ${a.to} = ${k} ${a.from}${punct(a.from)}<br>${a.value} : ${k} = <b>${ans} ${a.to}</b>${punct(a.to)}`;
 }
 function g3ImproveExplanation847(q,id){
  if(!q)return q;const raw=rawCourseId(id),a=q.audit||{},v=a.variant;
@@ -11335,7 +11336,8 @@ function g3ImproveExplanation847(q,id){
   else if(v==="missing")q.ex=`Числа увеличиваются на 1: ${a.start}, ${a.start+1}, <b>${a.start+2}</b>, ${a.start+3}.`;
  }
  if(raw==="multiplication_table"&&a.type==="g3MulTable"&&v==="product"){
-  const add=Array.from({length:a.a},()=>a.b).join(" + ");q.ex=`${a.a} одинаковые группы по ${a.b}: ${add} = <b>${a.product}</b>. Поэтому ${a.a} · ${a.b} = ${a.product}.`;
+  const n=a.a,form=n%100>=11&&n%100<=14?"одинаковых групп":n%10===1?"одинаковая группа":n%10>=2&&n%10<=4?"одинаковые группы":"одинаковых групп";
+  const add=Array.from({length:a.a},()=>a.b).join(" + ");q.ex=`${a.a} ${form} по ${a.b}: ${add} = <b>${a.product}</b>. Поэтому ${a.a} · ${a.b} = ${a.product}.`;
  }
  if(raw==="zero_one"&&a.type==="g3ZeroOne"){
   const ans=a.answer?.n??q.ans,rule=v.includes("Zero")?"При умножении на 0 получается 0.":v==="divOne"?"При делении на 1 число не меняется.":v==="selfDiv"?"Ненулевое число, делённое само на себя, равно 1.":v==="zeroDiv"?"Ноль, разделённый на ненулевое число, равен 0.":v.includes("One")?"При умножении на 1 число не меняется.":null;
