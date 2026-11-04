@@ -5,6 +5,7 @@ on:
     paths:
       - .github/workflows/g7_stage15_release.yml
       - audits/g7_stage15_release_gate.mjs
+      - audits/g7_stage15_legacy_upgrade.mjs
   workflow_dispatch:
 
 permissions:
@@ -16,6 +17,8 @@ jobs:
     timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -27,6 +30,8 @@ jobs:
         run: npm install --no-save --no-package-lock puppeteer-core@24
       - name: Stage15 isolated release and real v39-to-v40 browser migration
         run: node audits/g7_stage15_release_gate.mjs
+      - name: Actual old production main v39 to candidate v40 without hard refresh
+        run: node audits/g7_stage15_legacy_upgrade.mjs
       - name: Existing full G7 persistence and exact draft recovery
         run: node audits/g7_stage12_e2e.mjs
       - name: Existing SW automatic reload and offline recovery
@@ -42,6 +47,7 @@ jobs:
           name: matkvest-stage15-release-gate
           path: |
             audits/g7_stage15_release_gate_report.json
+            audits/g7_stage15_legacy_upgrade_report.json
             audits/g7_stage12_e2e_report.json
             audits/g7_stage12_sw_update_report.json
             audits/g7_stage14_crossgrade_report.json
