@@ -1,0 +1,6337 @@
+{
+  "stage": "16D-diagnostic",
+  "sha256": "2be11af0d9ca5db18d45bc10011388f502803a12b0f92ca474ee11ba97939d03",
+  "at": "2026-11-04T18:51:41.128Z",
+  "sourceExcerpts": [
+    {
+      "pattern": "/function g1StorySentence\\(/g",
+      "count": 1,
+      "samples": [
+        ",o){return o.one===\"книга\"&&n%10===1&&n%100!==11?\"книгу\":g1Noun(n,o)}\nfunction g1StorySentence(m,{name=\"У Маши\"}={}){\n const o=m.obj;if(m.kind===\"add\")return `${name} было ${m.a} ${g1Noun(m.a,o)}. Ей дали ещё ${m.b} ${g1ActionNoun(m.b,o)}. Сколько ${o.many} стало?`;\n return `${name} было ${m.a} ${g1Noun(m.a,o)}. Убрали ${m.b} ${g1ActionNoun(m.b,o)}. Сколько ${o.many} осталось?`\n}\nfunction g1StoryQuestion(d){\n const warm=[\"add_result\",\"sub_result\"];\n const train=[\"add_result\",\"sub_result\",\"choose_action\",\"choose_record\",\"find_added\"];\n const master=[\"add_result\",\"sub_result\",\"choose_action\",\"choose_record\",\"find_added\",\"find_removed\",\"find_start_add\",\"find_start_sub\"];\n const templateId=g1PickTemplate(d===0?warm:d===1?train:master),small=d===0;\n if(templateId===\"add_result\"||templateId===\"sub_result\"){\n  const m=g1StoryBase(templateId===\"add_result\"?\"add\":\"sub\",{small}),model={...m,unknown:\"result\"},text=g1StorySentence(model),ex=model.kind===\"add\"?`Было ${"
+      ]
+    },
+    {
+      "pattern": "/function g2StorySentence\\(/g",
+      "count": 0,
+      "samples": []
+    },
+    {
+      "pattern": "/function g2StoryBase\\(/g",
+      "count": 0,
+      "samples": []
+    },
+    {
+      "pattern": "/function g1StoryQuestion\\(/g",
+      "count": 1,
+      "samples": [
+        " Убрали ${m.b} ${g1ActionNoun(m.b,o)}. Сколько ${o.many} осталось?`\n}\nfunction g1StoryQuestion(d){\n const warm=[\"add_result\",\"sub_result\"];\n const train=[\"add_result\",\"sub_result\",\"choose_action\",\"choose_record\",\"find_added\"];\n const master=[\"add_result\",\"sub_result\",\"choose_action\",\"choose_record\",\"find_added\",\"find_removed\",\"find_start_add\",\"find_start_sub\"];\n const templateId=g1PickTemplate(d===0?warm:d===1?train:master),small=d===0;\n if(templateId===\"add_result\"||templateId===\"sub_result\"){\n  const m=g1StoryBase(templateId===\"add_result\"?\"add\":\"sub\",{small}),model={...m,unknown:\"result\"},text=g1StorySentence(model),ex=model.kind===\"add\"?`Было ${model.a}. Добавили ${model.b}. Стало ${model.result}.`:`Было ${model.a}. Убрали ${model.b}. Осталось ${model.result}.`;\n  return d===0?g1Choice(text,model.result,g1UniqueNums(model.result,0,20),ex,`g1:word_problems:${d}:${templateId}:${model.a}:${model.b}:${model.obj.one}`,{model,visual:{type:\"g1Story\",data:mode"
+      ]
+    },
+    {
+      "pattern": "/function g2StoryQuestion\\(/g",
+      "count": 0,
+      "samples": []
+    },
+    {
+      "pattern": "/function g1TheoryHtml\\(/g",
+      "count": 1,
+      "samples": [
+        "асс • ${t.group} • ${t.title}`}\n return PRE835_ATTEMPT_TITLE(key)\n};\n\nfunction g1TheoryHtml(id){\n const raw=rawCourseId(id);\n if(raw===\"numbers_1_9\")return `<div class=\"elementary-theory\"><p><b>Числа помогают узнать, сколько предметов.</b></p>${g1CounterVisualHtml({count:5})}<p>Считаем по одному: 1, 2, 3, 4, 5.</p><div class=\"elementary-example\">Пять кружков — это число <b>5</b>.</div></div>`;\n if(raw===\"numbers_0_10\")return `<div class=\"elementary-theory\"><p><b>Иногда предметов не остаётся совсем.</b></p>${g1CounterVisualHtml({count:0})}<p>Тогда говорим: <b>ноль</b>.</p>${elementaryNumberLineSvg({min:0,max:10,highlight:7})}<div class=\"elementary-example\">На луче числа идут по порядку от 0 до 10.</div></div>`;\n if(raw===\"numbers_11_20\")return `<div class=\"elementary-theory\"><p><b>После 10 счёт продолжается.</b></p>${g1CounterVisualHtml({count:14,splitTen:true})}<p>Десять предметов вместе — это один <b>десяток</b>.</p><p>Остальные считаем по одному — это <b"
+      ]
+    },
+    {
+      "pattern": "/function g2TheoryHtml\\(/g",
+      "count": 1,
+      "samples": [
+        " класс • ${t.group} • ${t.title}`}return PRE841_ATTEMPT_TITLE(key)};\n\nfunction g2TheoryHtml(id){\n const raw=rawCourseId(id);\n if(raw===\"numbers_100\")return `<div class=\"elementary-theory\"><p><b>Числа до 100 удобно собирать из десятков и единиц.</b></p><div class=\"g2-theory-block\"><h3>Десятки и единицы</h3>${g2TensOnesVisualHtml({tens:3,ones:4})}<p>Три десятка — это 30. Ещё 4 единицы. Получаем <b>34</b>.</p><div class=\"elementary-example\"><b>34 = 3 десятка и 4 единицы.</b></div></div><div class=\"g2-theory-block\"><h3>Место числа</h3>${elementaryNumberLineSvg({min:30,max:40,highlight:34})}<p>На числовом луче числа растут вправо. Перед 34 стоит 33, после 34 — 35.</p></div><p>Сначала смотри на десятки. Если десятков поровну — сравни единицы.</p><div class=\"elementary-example\"><b>100 — это 10 десятков.</b></div></div>`;\n return `<div class=\"elementary-theory\"><p><b>Длину, массу и время измеряют разными единицами.</b></p><div class=\"g2-theory-block\"><h3>Длина</h3"
+      ]
+    },
+    {
+      "pattern": "/function g2StoryNoun\\(/g",
+      "count": 1,
+      "samples": [
+        "ади\",many:\"тетрадей\",place:\"На столе\",add:\"положили\",sub:\"убрали\"}\n];\nfunction g2StoryNoun(n,o){return g1Noun(n,o)}\nfunction g2StoryAccNoun(n,o){return o.one===\"книга\"&&n%10===1&&n%100!==11?\"книгу\":g2StoryNoun(n,o)}\nfunction g2StoryTimes(n){return n%10>=2&&n%10<=4&&(n%100<12||n%100>14)?\"раза\":\"раз\"}\nfunction g2StoryPickItem(){return G2_STORY_ITEMS[ri(0,G2_STORY_ITEMS.length-1)]}\nfunction g2StoryVisualHtml(data){\n const showDerived=data?.showDerived===true,steps=(Array.isArray(data?.steps)?data.steps:[]).filter(x=>showDerived||!x?.derived);\n return `<div class=\"g2-story-visual\" role=\"img\" aria-label=\"${esc(String(data?.aria||\"Схема задачи\"))}\">${steps.map((x,i)=>`<div class=\"g2-story-step ${x.answer?\"is-answer\":\"\"}\"><small>${esc(String(x.label||`Шаг ${i+1}`))}</small><b>${esc(String(x.value))}</b></div>`).join(\"\")}</div>`\n}\nconst PRE843_QUIZ_VISUAL_HTML=quizVisualHtml;\nquizVisualHtml=function(question){const v=question?.visual;if(v?.type===\"g2Story\")return "
+      ]
+    },
+    {
+      "pattern": "/function g1ActionNoun\\(/g",
+      "count": 1,
+      "samples": [
+        "th.max(1,maxB)),result=a-b;return {kind:\"sub\",a,b,result,obj,limit}\n}\nfunction g1ActionNoun(n,o){return o.one===\"книга\"&&n%10===1&&n%100!==11?\"книгу\":g1Noun(n,o)}\nfunction g1StorySentence(m,{name=\"У Маши\"}={}){\n const o=m.obj;if(m.kind===\"add\")return `${name} было ${m.a} ${g1Noun(m.a,o)}. Ей дали ещё ${m.b} ${g1ActionNoun(m.b,o)}. Сколько ${o.many} стало?`;\n return `${name} было ${m.a} ${g1Noun(m.a,o)}. Убрали ${m.b} ${g1ActionNoun(m.b,o)}. Сколько ${o.many} осталось?`\n}\nfunction g1StoryQuestion(d){\n const warm=[\"add_result\",\"sub_result\"];\n const train=[\"add_result\",\"sub_result\",\"choose_action\",\"choose_record\",\"find_added\"];\n const master=[\"add_result\",\"sub_result\",\"choose_action\",\"choose_record\",\"find_added\",\"find_removed\",\"find_start_add\",\"find_start_sub\"];\n const templateId=g1PickTemplate(d===0?warm:d===1?train:master),small=d===0;\n if(templateId===\"add_result\"||templateId===\"sub_result\"){\n  const m=g1StoryBase(templateId===\"add_result\"?\"add\":\"sub\",{sma"
+      ]
+    },
+    {
+      "pattern": "/\\$\\{g2StoryNoun\\(model\\.a,[^}]+\\)\\}/g",
+      "count": 2,
+      "samples": [
+        "=g2StoryTwoAddSubModel(),o=model.obj,text=`${o.place} было ${model.a} ${g2StoryNoun(model.a,o)}. ${o.add[0].toUpperCase()+o.add.slice(1)} ${model.b} ${g2StoryAccNoun(model.b,o)}, потом ${o.sub} ${model.c} ${g2StoryAccNoun(model.c,o)}. Сколько ${o.many} осталось?`,ex=`Сначала ${model.a} + ${model.b} = ${model.mid}. Потом ${model.mid} − ${model.c} = ${model.result}.`;\n  return g2NumberInput(text,model.result,ex,`g2:word_problems:${d}:two_add_sub:${model.a}:${model.b}:${model.c}:${o.one}`,{model,visual:{type:\"g2Story\",data:{steps:model.steps,aria:text}},templateId})\n }\n if(templateId===\"two_sub_add\"){\n  const model=g2StoryTwoSubAddModel(),o=model.obj,text=`${o.place} было ${model.a} ${g2StoryNoun(model.a,o)}. ${o.sub[0].toUpperCase()+o.sub.slice(1)} ${model.b} ${g2StoryAccNoun(model.b,o)}, потом ${o.add} ${model.c} ${g2StoryAccNoun(model.c,o)}. Сколько ${o.many} стало?`,ex=`Сначала ${model.a} − ${model.b} = ${model.mid}. Потом ${model.mid} + ${model.c} = ${mo",
+        "=g2StoryTwoSubAddModel(),o=model.obj,text=`${o.place} было ${model.a} ${g2StoryNoun(model.a,o)}. ${o.sub[0].toUpperCase()+o.sub.slice(1)} ${model.b} ${g2StoryAccNoun(model.b,o)}, потом ${o.add} ${model.c} ${g2StoryAccNoun(model.c,o)}. Сколько ${o.many} стало?`,ex=`Сначала ${model.a} − ${model.b} = ${model.mid}. Потом ${model.mid} + ${model.c} = ${model.result}.`;\n  return g2NumberInput(text,model.result,ex,`g2:word_problems:${d}:two_sub_add:${model.a}:${model.b}:${model.c}:${o.one}`,{model,visual:{type:\"g2Story\",data:{steps:model.steps,aria:text}},templateId})\n }\n const model=g2StoryTwoMulAddModel(),text=`Есть ${model.groups} ${g2GroupWord(model.groups)}. В каждой по ${model.each} ${g2ItemWord(model.each)}. Потом добавили ещё ${model.extra} ${g2ItemWord(model.extra)}. Сколько предметов стало всего?`,ex=`Сначала узнаём количество в группах: ${model.each} · ${model.groups} = ${model.product}. Потом ${model.product} + ${model.extra} = ${model.result}.`;\n retu"
+      ]
+    },
+    {
+      "pattern": "/\\$\\{g1Noun\\(m\\.a,[^}]+\\)\\}/g",
+      "count": 4,
+      "samples": [
+        "и\"}={}){\n const o=m.obj;if(m.kind===\"add\")return `${name} было ${m.a} ${g1Noun(m.a,o)}. Ей дали ещё ${m.b} ${g1ActionNoun(m.b,o)}. Сколько ${o.many} стало?`;\n return `${name} было ${m.a} ${g1Noun(m.a,o)}. Убрали ${m.b} ${g1ActionNoun(m.b,o)}. Сколько ${o.many} осталось?`\n}\nfunction g1StoryQuestion(d){\n const warm=[\"add_result\",\"sub_result\"];\n const train=[\"add_result\",\"sub_result\",\"choose_action\",\"choose_record\",\"find_added\"];\n const master=[\"add_result\",\"sub_result\",\"choose_action\",\"choose_record\",\"find_added\",\"find_removed\",\"find_start_add\",\"find_start_sub\"];\n const templateId=g1PickTemplate(d===0?warm:d===1?train:master),small=d===0;\n if(templateId===\"add_result\"||templateId===\"sub_result\"){\n  const m=g1StoryBase(templateId===\"add_result\"?\"add\":\"sub\",{small}),model={...m,unknown:\"result\"},text=g1StorySentence(model),ex=model.kind===\"add\"?`Было ${model.a}. Добавили ${model.b}. Стало ${model.result}.`:`Было ${model.a}. Убрали ${model.b}. Осталось ${model.",
+        "Noun(m.b,o)}. Сколько ${o.many} стало?`;\n return `${name} было ${m.a} ${g1Noun(m.a,o)}. Убрали ${m.b} ${g1ActionNoun(m.b,o)}. Сколько ${o.many} осталось?`\n}\nfunction g1StoryQuestion(d){\n const warm=[\"add_result\",\"sub_result\"];\n const train=[\"add_result\",\"sub_result\",\"choose_action\",\"choose_record\",\"find_added\"];\n const master=[\"add_result\",\"sub_result\",\"choose_action\",\"choose_record\",\"find_added\",\"find_removed\",\"find_start_add\",\"find_start_sub\"];\n const templateId=g1PickTemplate(d===0?warm:d===1?train:master),small=d===0;\n if(templateId===\"add_result\"||templateId===\"sub_result\"){\n  const m=g1StoryBase(templateId===\"add_result\"?\"add\":\"sub\",{small}),model={...m,unknown:\"result\"},text=g1StorySentence(model),ex=model.kind===\"add\"?`Было ${model.a}. Добавили ${model.b}. Стало ${model.result}.`:`Было ${model.a}. Убрали ${model.b}. Осталось ${model.result}.`;\n  return d===0?g1Choice(text,model.result,g1UniqueNums(model.result,0,20),ex,`g1:word_problems:${d}:${temp",
+        "yBase(\"add\",{small:false}),model={...m,unknown:\"b\"},text=`Было ${m.a} ${g1Noun(m.a,m.obj)}. Стало ${m.result}. Сколько ${m.obj.many} добавили?`,ex=`От ${m.a} до ${m.result} нужно добавить ${m.b}.`;\n  return g1NumberInput(text,m.b,ex,`g1:word_problems:${d}:find_added:${m.a}:${m.result}:${m.obj.one}`,{model,visual:{type:\"g1Story\",data:model},templateId})\n }\n if(templateId===\"find_removed\"){\n  const m=g1StoryBase(\"sub\",{small:false}),model={...m,unknown:\"b\"},text=`Было ${m.a} ${g1Noun(m.a,m.obj)}. Осталось ${m.result}. Сколько ${m.obj.many} убрали?`,ex=`Из ${m.a} убрали ${m.b}, осталось ${m.result}.`;\n  return g1NumberInput(text,m.b,ex,`g1:word_problems:${d}:find_removed:${m.a}:${m.result}:${m.obj.one}`,{model,visual:{type:\"g1Story\",data:model},templateId})\n }\n if(templateId===\"find_start_add\"){\n  const m=g1StoryBase(\"add\",{small:false}),model={...m,unknown:\"a\"},text=`Добавили ${m.b} ${g1ActionNoun(m.b,m.obj)}, и стало ${m.result}. Сколько ${m.obj.many} было ",
+        "yBase(\"sub\",{small:false}),model={...m,unknown:\"b\"},text=`Было ${m.a} ${g1Noun(m.a,m.obj)}. Осталось ${m.result}. Сколько ${m.obj.many} убрали?`,ex=`Из ${m.a} убрали ${m.b}, осталось ${m.result}.`;\n  return g1NumberInput(text,m.b,ex,`g1:word_problems:${d}:find_removed:${m.a}:${m.result}:${m.obj.one}`,{model,visual:{type:\"g1Story\",data:model},templateId})\n }\n if(templateId===\"find_start_add\"){\n  const m=g1StoryBase(\"add\",{small:false}),model={...m,unknown:\"a\"},text=`Добавили ${m.b} ${g1ActionNoun(m.b,m.obj)}, и стало ${m.result}. Сколько ${m.obj.many} было сначала?`,ex=`Сначала было ${m.a}. Добавили ${m.b}. Стало ${m.result}.`;\n  return g1NumberInput(text,m.a,ex,`g1:word_problems:${d}:find_start_add:${m.b}:${m.result}:${m.obj.one}`,{model,visual:{type:\"g1Story\",data:model},templateId})\n }\n const m=g1StoryBase(\"sub\",{small:false}),model={...m,unknown:\"a\"},text=`Убрали ${m.b} ${g1ActionNoun(m.b,m.obj)}, и осталось ${m.result}. Сколько ${m.obj.many} было снача"
+      ]
+    }
+  ],
+  "topics": [
+    {
+      "grade": 1,
+      "id": "g1:numbers_1_9",
+      "title": "Числа от 1 до 9",
+      "levels": [
+        {
+          "d": 0,
+          "attempted": 135,
+          "validated": 135,
+          "templates": 2,
+          "topTemplates": [
+            [
+              "count",
+              68
+            ],
+            [
+              "next",
+              67
+            ]
+          ],
+          "unique": 114,
+          "modelChecked": 0,
+          "wrongGrammar": 0,
+          "badPunctuation": 0,
+          "choicesChecked": 135,
+          "answerKinds": {
+            "choice": 135
+          },
+          "samples": [
+            {
+              "tpl": "next",
+              "text": "Какое число идёт после 8?",
+              "ex": "После 8 идёт 9.",
+              "answer": "9",
+              "visual": null
+            },
+            {
+              "tpl": "count",
+              "text": "Сколько кружков?",
+              "ex": "Посчитай кружки по одному. Их 1.",
+              "answer": "1",
+              "visual": "g1Counters"
+            }
+          ]
+        },
+        {
+          "d": 1,
+          "attempted": 135,
+          "validated": 135,
+          "templates": 4,
+          "topTemplates": [
+            [
+              "count",
+              45
+            ],
+            [
+              "missing",
+              41
+            ],
+            [
+              "compare",
+              27
+            ],
+            [
+              "next",
+              22
+            ]
+          ],
+          "unique": 124,
+          "modelChecked": 0,
+          "wrongGrammar": 0,
+          "badPunctuation": 0,
+          "choicesChecked": 135,
+          "answerKinds": {
+            "choice": 135
+          },
+          "samples": [
+            {
+              "tpl": "count",
+              "text": "Сколько кружков?",
+              "ex": "Посчитай кружки по одному. Их 5.",
+              "answer": "5",
+              "visual": "g1Counters"
+            },
+            {
+              "tpl": "missing",
+              "text": "Какого числа не хватает? 4 ? 6",
+              "ex": "Считаем по порядку: 4, 5, 6.",
+              "answer": "5",
+              "visual": null
+            },
+            {
+              "tpl": "compare",
+              "text": "Где кружков больше?",
+              "ex": "Сравниваем: 9 и 7. Больше 9.",
+              "answer": "Слева",
+              "visual": "g1Groups"
+            },
+            {
+              "tpl": "next",
+              "text": "Какое число идёт после 4?",
+              "ex": "После 4 идёт 5.",
+              "answer": "5",
+              "visual": null
+            }
+          ]
+        },
+        {
+          "d": 2,
+          "attempted": 135,
+          "validated": 135,
+          "templates": 4,
+          "topTemplates": [
+            [
+              "count",
+              35
+            ],
+            [
+              "compare",
+              35
+            ],
+            [
+              "missing",
+              34
+            ],
+            [
+              "next",
+              31
+            ]
+          ],
+          "unique": 128,
+          "modelChecked": 0,
+          "wrongGrammar": 0,
+          "badPunctuation": 0,
+          "choicesChecked": 135,
+          "answerKinds": {
+            "choice": 135
+          },
+          "samples": [
+            {
+              "tpl": "count",
+              "text": "Сколько кружков?",
+              "ex": "Посчитай кружки по одному. Их 8.",
+              "answer": "8",
+              "visual": "g1Counters"
+            },
+            {
+              "tpl": "missing",
+              "text": "Какого числа не хватает? 6 ? 8",
+              "ex": "Считаем по порядку: 6, 7, 8.",
+              "answer": "7",
+              "visual": null
+            },
+            {
+              "tpl": "compare",
+              "text": "Где кружков больше?",
+              "ex": "Сравниваем: 1 и 6. Больше 6.",
+              "answer": "Справа",
+              "visual": "g1Groups"
+            },
+            {
+              "tpl": "next",
+              "text": "Какое число идёт после 6?",
+              "ex": "После 6 идёт 7.",
+              "answer": "7",
+              "visual": null
+            }
+          ]
+        }
+      ],
+      "uiStarts": [
+        {
+          "level": 0,
+          "rendered": true,
+          "mode": null
+        },
+        {
+          "level": 1,
+          "rendered": true,
+          "mode": null
+        },
+        {
+          "level": 2,
+          "rendered": true,
+          "mode": null
+        }
+      ]
+    },
+    {
+      "grade": 1,
+      "id": "g1:numbers_0_10",
+      "title": "Числа от 0 до 10",
+      "levels": [
+        {
+          "d": 0,
+          "attempted": 135,
+          "validated": 135,
+          "templates": 2,
+          "topTemplates": [
+            [
+              "count",
+              76
+            ],
+            [
+              "line",
+              59
+            ]
+          ],
+          "unique": 120,
+          "modelChecked": 0,
+          "wrongGrammar": 0,
+          "badPunctuation": 0,
+          "choicesChecked": 135,
+          "answerKinds": {
+            "choice": 135
+          },
+          "samples": [
+            {
+              "tpl": "count",
+              "text": "Сколько кружков?",
+              "ex": "Посчитай кружки по одному. Их 10.",
+              "answer": "10",
+              "visual": "g1Counters"
+            },
+            {
+              "tpl": "line",
+              "text": "Какое число отмечено на луче?",
+              "ex": "Точка стоит у числа 2.",
+              "answer": "2",
+              "visual": "g1NumberLine"
+            }
+          ]
+        },
+        {
+          "d": 1,
+          "attempted": 135,
+          "validated": 135,
+          "templates": 4,
+          "topTemplates": [
+            [
+              "compare",
+              35
+            ],
+            [
+              "line",
+              35
+            ],
+            [
+              "count",
+              33
+            ],
+            [
+              "missing",
+              32
+            ]
+          ],
+          "unique": 131,
+          "modelChecked": 0,
+          "wrongGrammar": 0,
+          "badPunctuation": 0,
+          "choicesChecked": 135,
+          "answerKinds": {
+            "choice": 135
+          },
+          "samples": [
+            {
+              "tpl": "count",
+              "text": "Сколько кружков?",
+              "ex": "Посчитай кружки по одному. Их 2.",
+              "answer": "2",
+              "visual": "g1Counters"
+            },
+            {
+              "tpl": "compare",
+              "text": "Где кружков больше?",
+              "ex": "Сравниваем: 9 и 10. Больше 10.",
+              "answer": "Справа",
+              "visual": "g1Groups"
+            },
+            {
+              "tpl": "missing",
+              "text": "Какого числа не хватает? 7 ? 9",
+              "ex": "Считаем по порядку: 7, 8, 9.",
+              "answer": "8",
+              "visual": null
+            },
+            {
+              "tpl": "line",
+              "text": "Какое число отмечено на луче?",
+              "ex": "Точка стоит у числа 9.",
+              "answer": "9",
+              "visual": "g1NumberLine"
+            }
+          ]
+        },
+        {
+          "d": 2,
+          "attempted": 135,
+          "validated": 135,
+          "templates": 5,
+          "topTemplates": [
+            [
+              "missing",
+              31
+            ],
+            [
+              "compare",
+              29
+            ],
+            [
+              "before",
+              29
+            ],
+            [
+              "count",
+              26
+            ],
+            [
+              "line",
+              20
+            ]
+          ],
+          "unique": 130,
+          "modelChecked": 0,
+          "wrongGrammar": 0,
+          "badPunctuation": 0,
+          "choicesChecked": 135,
+          "answerKinds": {
+            "choice": 135
+          },
+          "samples": [
+            {
+              "tpl": "compare",
+              "text": "Где кружков больше?",
+              "ex": "Сравниваем: 6 и 2. Больше 6.",
+              "answer": "Слева",
+              "visual": "g1Groups"
+            },
+            {
+              "tpl": "missing",
+              "text": "Какого числа не хватает? 0 ? 2",
+              "ex": "Считаем по порядку: 0, 1, 2.",
+              "answer": "1",
+              "visual": null
+            },
+            {
+              "tpl": "before",
+              "text": "Какое число идёт перед 2?",
+              "ex": "Перед 2 стоит 1.",
+              "answer": "1",
+              "visual": null
+            },
+            {
+              "tpl": "count",
+              "text": "Сколько кружков?",
+              "ex": "Посчитай кружки по одному. Их 3.",
+              "answer": "3",
+              "visual": "g1Counters"
+            },
+            {
+              "tpl": "line",
+              "text": "Какое число отмечено на луче?",
+              "ex": "Точка стоит у числа 4.",
+              "answer": "4",
+              "visual": "g1NumberLine"
+            }
+          ]
+        }
+      ],
+      "uiStarts": [
+        {
+          "level": 0,
+          "rendered": true,
+          "mode": null
+        },
+        {
+          "level": 1,
+          "rendered": true,
+          "mode": null
+        },
+        {
+          "level": 2,
+          "rendered": true,
+          "mode": null
+        }
+      ]
+    },
+    {
+      "grade": 1,
+      "id": "g1:numbers_11_20",
+      "title": "Числа от 11 до 20",
+      "levels": [
+        {
+          "d": 0,
+          "attempted": 135,
+          "validated": 135,
+          "templates": 2,
+          "topTemplates": [
+            [
+              "line",
+              72
+            ],
+            [
+              "count",
+              63
+            ]
+          ],
+          "unique": 125,
+          "modelChecked": 0,
+          "wrongGrammar": 0,
+          "badPunctuation": 0,
+          "choicesChecked": 135,
+          "answerKinds": {
+            "choice": 135
+          },
+          "samples": [
+            {
+              "tpl": "line",
+              "text": "Какое число отмечено на луче?",
+              "ex": "Точка стоит у числа 11.",
+              "answer": "11",
+              "visual": "g1NumberLine"
+            },
+            {
+              "tpl": "count",
+              "text": "Сколько кружков?",
+              "ex": "Посчитай кружки по одному. Их 16.",
+              "answer": "16",
+              "visual": "g1Counters"
+            }
+          ]
+        },
+        {
+          "d": 1,
+          "attempted": 135,
+          "validated": 135,
+          "templates": 4,
+          "topTemplates": [
+            [
+              "count",
+              46
+            ],
+            [
+              "missing",
+              33
+            ],
+            [
+              "line",
+              30
+            ],
+            [
+              "compare",
+              26
+            ]
+          ],
+          "unique": 126,
+          "modelChecked": 0,
+          "wrongGrammar": 0,
+          "badPunctuation": 0,
+          "choicesChecked": 135,
+          "answerKinds": {
+            "choice": 135
+          },
+          "samples": [
+            {
+              "tpl": "missing",
+              "text": "Какого числа не хватает? 17 ? 19",
+              "ex": "Считаем по порядку: 17, 18, 19.",
+              "answer": "18",
+              "visual": null
+            },
+            {
+              "tpl": "line",
+              "text": "Какое число отмечено на луче?",
+              "ex": "Точка стоит у числа 18.",
+              "answer": "18",
+              "visual": "g1NumberLine"
+            },
+            {
+              "tpl": "count",
+              "text": "Сколько кружков?",
+              "ex": "Посчитай кружки по одному. Их 11.",
+              "answer": "11",
+              "visual": "g1Counters"
+            },
+            {
+              "tpl": "compare",
+              "text": "Где кружков больше?",
+              "ex": "Сравниваем: 16 и 13. Больше 16.",
+              "answer": "Слева",
+              "visual": "g1Groups"
+            }
+          ]
+        },
+        {
+          "d": 2,
+          "attempted": 135,
+          "validated": 135,
+          "templates": 5,
+          "topTemplates": [
+            [
+              "count",
+              35
+            ],
+            [
+              "compare",
+              27
+            ],
+            [
+              "line",
+              26
+            ],
+            [
+              "ones",
+              24
+            ],
+            [
+              "missing",
+              23
+            ]
+          ],
+          "unique": 128,
+          "modelChecked": 0,
+          "wrongGrammar": 0,
+          "badPunctuation": 0,
+          "choicesChecked": 135,
+          "answerKinds": {
+            "choice": 135
+          },
+          "samples": [
+            {
+              "tpl": "compare",
+              "text": "Где кружков больше?",
+              "ex": "Сравниваем: 16 и 20. Больше 20.",
+              "answer": "Справа",
+              "visual": "g1Groups"
+            },
+            {
+              "tpl": "missing",
+              "text": "Какого числа не хватает? 16 ? 18",
+              "ex": "Считаем по порядку: 16, 17, 18.",
+              "answer": "17",
+              "visual": null
+            },
+            {
+              "tpl": "count",
+              "text": "Сколько кружков?",
+              "ex": "Посчитай кружки по одному. Их 13.",
+              "answer": "13",
+              "visual": "g1Counters"
+            },
+            {
+              "tpl": "line",
+              "text": "Какое число отмечено на луче?",
+              "ex": "Точка стоит у числа 12.",
+              "answer": "12",
+              "visual": "g1NumberLine"
+            },
+            {
+              "tpl": "ones",
+              "text": "В числе 16 есть один десяток. Сколько ещё единиц?",
+              "ex": "После одного десятка остаётся 6 единиц.",
+              "answer": "6",
+              "visual": "g1Counters"
+            }
+          ]
+        }
+      ],
+      "uiStarts": [
+        {
+          "level": 0,
+          "rendered": true,
+          "mode": null
+        },
+        {
+          "level": 1,
+          "rendered": true,
+          "mode": null
+        },
+        {
+          "level": 2,
+          "rendered": true,
+          "mode": null
+        }
+      ]
+    },
+    {
+      "grade": 1,
+      "id": "g1:length_measurement",
+      "title": "Длина. Измерение длины",
+      "levels": [
+        {
+          "d": 0,
+          "attempted": 135,
+          "validated": 135,
+          "templates": 2,
+          "topTemplates": [
+            [
+              "measure",
+              80
+            ],
+            [
+              "compare",
+              55
+            ]
+          ],
+          "unique": 113,
+          "modelChecked": 0,
+          "wrongGrammar": 0,
+          "badPunctuation": 0,
+          "choicesChecked": 135,
+          "answerKinds": {
+            "choice": 135
+          },
+          "samples": [
+            {
+              "tpl": "measure",
+              "text": "Какова длина отрезка?",
+              "ex": "Отрезок начинается у 0 и заканчивается у 6. Его длина — 6 см.",
+              "answer": "6",
+              "visual": "g1Length"
+            },
+            {
+              "tpl": "compare",
+              "text": "Какой отрезок длиннее?",
+              "ex": "Отрезок A длиннее.",
+              "answer": "A",
+              "visual": "g1Length"
+            }
+          ]
+        },
+        {
+          "d": 1,
+          "attempted": 135,
+          "validated": 135,
+          "templates": 3,
+          "topTemplates": [
+            [
+              "match",
+              54
+            ],
+            [
+              "measure",
+              45
+            ],
+            [
+              "compare",
+              36
+            ]
+          ],
+          "unique": 131,
+          "modelChecked": 0,
+          "wrongGrammar": 0,
+          "badPunctuation": 0,
+          "choicesChecked": 135,
+          "answerKinds": {
+            "choice": 135
+          },
+          "samples": [
+            {
+              "tpl": "match",
+              "text": "Какова длина отрезка B?",
+              "ex": "По шкале длина отрезка B — 8 см.",
+              "answer": "8",
+              "visual": "g1Length"
+            },
+            {
+              "tpl": "measure",
+              "text": "Какова длина отрезка?",
+              "ex": "Отрезок начинается у 0 и заканчивается у 1. Его длина — 1 см.",
+              "answer": "1",
+              "visual": "g1Length"
+            },
+            {
+              "tpl": "compare",
+              "text": "Какой отрезок длиннее?",
+              "ex": "Отрезок B длиннее.",
+              "answer": "B",
+              "visual": "g1Length"
+            }
+          ]
+        },
+        {
+          "d": 2,
+          "attempted": 135,
+          "validated": 135,
+          "templates": 4,
+          "topTemplates": [
+            [
+              "measure",
+              38
+            ],
+            [
+              "match",
+              34
+            ],
+            [
+              "compare",
+              32
+            ],
+            [
+              "shorter",
+              31
+            ]
+          ],
+          "unique": 130,
+          "modelChecked": 0,
+          "wrongGrammar": 0,
+          "badPunctuation": 0,
+          "choicesChecked": 135,
+          "answerKinds": {
+            "choice": 135
+          },
+          "samples": [
+            {
+              "tpl": "shorter",
+              "text": "Какой отрезок короче?",
+              "ex": "Отрезок A короче.",
+              "answer": "A",
+              "visual": "g1Length"
+            },
+            {
+              "tpl": "match",
+              "text": "Какова длина отрезка B?",
+              "ex": "По шкале длина отрезка B — 5 см.",
+              "answer": "5",
+              "visual": "g1Length"
+            },
+            {
+              "tpl": "compare",
+              "text": "Какой отрезок длиннее?",
+              "ex": "Отрезок B длиннее.",
+              "answer": "B",
+              "visual": "g1Length"
+            },
+            {
+              "tpl": "measure",
+              "text": "Какова длина отрезка?",
+              "ex": "Отрезок начинается у 0 и заканчивается у 2. Его длина — 2 см.",
+              "answer": "2",
+              "visual": "g1Length"
+            }
+          ]
+        }
+      ],
+      "uiStarts": [
+        {
+          "level": 0,
+          "rendered": true,
+          "mode": null
+        },
+        {
+          "level": 1,
+          "rendered": true,
+          "mode": null
+        },
+        {
+          "level": 2,
+          "rendered": true,
+          "mode": null
+        }
+      ]
+    },
+    {
+      "grade": 1,
+      "id": "g1:add_sub_10",
+      "title": "Сложение и вычитание в пределах 10",
+      "levels": [
+        {
+          "d": 0,
+          "attempted": 135,
+          "validated": 135,
+          "templates": 2,
+          "topTemplates": [
+            [
+              "add_counters",
+              69
+            ],
+            [
+              "sub_counters",
+              66
+            ]
+          ],
+          "unique": 125,
+          "modelChecked": 0,
+          "wrongGrammar": 0,
+          "badPunctuation": 0,
+          "choicesChecked": 135,
+          "answerKinds": {
+            "choice": 135
+          },
+          "samples": [
+            {
+              "tpl": "sub_counters",
+              "text": "Сколько осталось?",
+              "ex": "Было 2. Убрали 1. Осталось 1.",
+              "answer": "1",
+              "visual": "g1Arithmetic"
+            },
+            {
+              "tpl": "add_counters",
+              "text": "Сколько стало?",
+              "ex": "Было 2. Добавили 1. Стало 3.",
+              "answer": "3",
+              "visual": "g1Arithmetic"
+            }
+          ]
+        },
+        {
+          "d": 1,
+          "attempted": 135,
+          "validated": 135,
+          "templates": 6,
+          "topTemplates": [
+            [
+              "sub_line",
+              27
+            ],
+            [
+              "complete_add",
+              24
+            ],
+            [
+              "complete_sub",
+              23
+            ],
+            [
+              "add_counters",
+              23
+            ],
+            [
+              "add_line",
+              21
+            ],
+            [
+              "sub_counters",
+              17
+            ]
+          ],
+          "unique": 118,
+          "modelChecked": 0,
+          "wrongGrammar": 0,
+          "badPunctuation": 0,
+          "choicesChecked": 88,
+          "answerKinds": {
+            "choice": 88,
+            "string": 47
+          },
+          "samples": [
+            {
+              "tpl": "sub_line",
+              "text": "Начни с 2 и сделай 1 шаг влево. Где остановишься?",
+              "ex": "Начинаем с 2. Вычитаем 1. Получаем 1.",
+              "answer": "1",
+              "visual": "g1NumberLine"
+            },
+            {
+              "tpl": "sub_counters",
+              "text": "Сколько осталось?",
+              "ex": "Было 2. Убрали 2. Осталось 0.",
+              "answer": "0",
+              "visual": "g1Arithmetic"
+            },
+            {
+              "tpl": "add_line",
+              "text": "Начни с 5 и сделай 5 шагов вправо. Где остановишься?",
+              "ex": "Начинаем с 5. Прибавляем 5. Получаем 10.",
+              "answer": "10",
+              "visual": "g1NumberLine"
+            },
+            {
+              "tpl": "complete_sub",
+              "text": "Какое число пропущено? 1 − ? = 0",
+              "ex": "Из 1 нужно вычесть 1, чтобы осталось 0.",
+              "answer": "1",
+              "visual": "g1NumberLine"
+            },
+            {
+              "tpl": "complete_add",
+              "text": "Какое число пропущено? 5 + ? = 8",
+              "ex": "К 5 нужно добавить 3, чтобы получить 8.",
+              "answer": "3",
+              "visual": "g1NumberLine"
+            },
+            {
+              "tpl": "add_counters",
+              "text": "Сколько стало?",
+              "ex": "Было 7. Добавили 2. Стало 9.",
+              "answer": "9",
+              "visual": "g1Arithmetic"
+            }
+          ]
+        },
+        {
+          "d": 2,
+          "attempted": 135,
+          "validated": 135,
+          "templates": 8,
+          "topTemplates": [
+            [
+              "complete_add",
+              25
+            ],
+            [
+              "complete_sub",
+              18
+            ],
+            [
+              "choose_record",
+              18
+            ],
+            [
+              "sub_counters",
+              17
+            ],
+            [
+              "add_line",
+              15
+            ],
+            [
+              "add_counters",
+              15
+            ]
+          ],
+          "unique": 122,
+          "modelChecked": 0,
+          "wrongGrammar": 0,
+          "badPunctuation": 0,
+          "choicesChecked": 92,
+          "answerKinds": {
+            "choice": 92,
+            "string": 43
+          },
+          "samples": [
+            {
+              "tpl": "add_line",
+              "text": "Начни с 9 и сделай 1 шаг вправо. Где остановишься?",
+              "ex": "Начинаем с 9. Прибавляем 1. Получаем 10.",
+              "answer": "10",
+              "visual": "g1NumberLine"
+            },
+            {
+              "tpl": "complete_sub",
+              "text": "Какое число пропущено? 7 − ? = 1",
+              "ex": "Из 7 нужно вычесть 6, чтобы осталось 1.",
+              "answer": "6",
+              "visual": "g1NumberLine"
+            },
+            {
+              "tpl": "complete_add",
+              "text": "Какое число пропущено? 6 + ? = 7",
+              "ex": "К 6 нужно добавить 1, чтобы получить 7.",
+              "answer": "1",
+              "visual": "g1NumberLine"
+            },
+            {
+              "tpl": "sub_line",
+              "text": "Начни с 10 и сделай 9 шагов влево. Где остановишься?",
+              "ex": "Начинаем с 10. Вычитаем 9. Получаем 1.",
+              "answer": "1",
+              "visual": "g1NumberLine"
+            },
+            {
+              "tpl": "compare_results",
+              "text": "Какая запись даёт больше? A: 4 + 5 B: 5 − 4",
+              "ex": "A = 9. B = 1. Больше результат A.",
+              "answer": "A",
+              "visual": null
+            },
+            {
+              "tpl": "sub_counters",
+              "text": "Сколько осталось?",
+              "ex": "Было 2. Убрали 1. Осталось 1.",
+              "answer": "1",
+              "visual": "g1Arithmetic"
+            },
+            {
+              "tpl": "add_counters",
+              "text": "Сколько стало?",
+              "ex": "Было 9. Добавили 1. Стало 10.",
+              "answer": "10",
+              "visual": "g1Arithmetic"
+            },
+            {
+              "tpl": "choose_record",
+              "text": "Выбери правильную запись.",
+              "ex": "5 + 1 = 6.",
+              "answer": "5 + 1 = 6",
+              "visual": "g1Arithmetic"
+            }
+          ]
+        }
+      ],
+      "uiStarts": [
+        {
+          "level": 0,
+          "rendered": true,
+          "mode": null
+        },
+        {
+          "level": 1,
+          "rendered": true,
+          "mode": null
+        },
+        {
+          "level": 2,
+          "rendered": true,
+          "mode": null
+        }
+      ]
+    },
+    {
+      "grade": 1,
+      "id": "g1:add_sub_20",
+      "title": "Сложение и вычитание в пределах 20",
+      "levels": [
+        {
+          "d": 0,
+          "attempted": 135,
+          "validated": 135,
+          "templates": 2,
+          "topTemplates": [
+            [
+              "sub_line",
+              71
+            ],
+            [
+              "add_line",
+              64
+            ]
+          ],
+          "unique": 132,
+          "modelChecked": 0,
+          "wrongGrammar": 0,
+          "badPunctuation": 0,
+          "choicesChecked": 135,
+          "answerKinds": {
+            "choice": 135
+          },
+          "samples": [
+            {
+              "tpl": "sub_line",
+              "text": "Начни с 9 и сделай 1 шаг влево. Где остановишься?",
+              "ex": "Начинаем с 9. Вычитаем 1. Получаем 8.",
+              "answer": "8",
+              "visual": "g1NumberLine"
+            },
+            {
+              "tpl": "add_line",
+              "text": "Начни с 17 и сделай 1 шаг вправо. Где остановишься?",
+              "ex": "Начинаем с 17. Прибавляем 1. Получаем 18.",
+              "answer": "18",
+              "visual": "g1NumberLine"
+            }
+          ]
+        },
+        {
+          "d": 1,
+          "attempted": 135,
+          "validated": 135,
+          "templates": 6,
+          "topTemplates": [
+            [
+              "add_input",
+              27
+            ],
+            [
+              "complete_add",
+              25
+            ],
+            [
+              "sub_input",
+              25
+            ],
+            [
+              "complete_sub",
+              22
+            ],
+            [
+              "add_line",
+              22
+            ],
+            [
+              "sub_line",
+              14
+            ]
+          ],
+          "unique": 126,
+          "modelChecked": 0,
+          "wrongGrammar": 0,
+          "badPunctuation": 0,
+          "choicesChecked": 36,
+          "answerKinds": {
+            "string": 99,
+            "choice": 36
+          },
+          "samples": [
+            {
+              "tpl": "complete_sub",
+              "text": "Какое число пропущено? 20 − ? = 8",
+              "ex": "Из 20 нужно вычесть 12, чтобы осталось 8.",
+              "answer": "12",
+              "visual": "g1NumberLine"
+            },
+            {
+              "tpl": "complete_add",
+              "text": "Какое число пропущено? 1 + ? = 2",
+              "ex": "К 1 нужно добавить 1, чтобы получить 2.",
+              "answer": "1",
+              "visual": "g1NumberLine"
+            },
+            {
+              "tpl": "add_line",
+              "text": "Начни с 14 и сделай 3 шага вправо. Где остановишься?",
+              "ex": "Начинаем с 14. Прибавляем 3. Получаем 17.",
+              "answer": "17",
+              "visual": "g1NumberLine"
+            },
+            {
+              "tpl": "add_input",
+              "text": "Вычисли: 17 + 1",
+              "ex": "Начинаем с 17. Прибавляем 1. Получаем 18.",
+              "answer": "18",
+              "visual": "g1NumberLine"
+            },
+            {
+              "tpl": "sub_line",
+              "text": "Начни с 18 и сделай 7 шагов влево. Где остановишься?",
+              "ex": "Начинаем с 18. Вычитаем 7. Получаем 11.",
+              "answer": "11",
+              "visual": "g1NumberLine"
+            },
+            {
+              "tpl": "sub_input",
+              "text": "Вычисли: 5 − 2",
+              "ex": "Начинаем с 5. Вычитаем 2. Получаем 3.",
+              "answer": "3",
+              "visual": "g1NumberLine"
+            }
+          ]
+        },
+        {
+          "d": 2,
+          "attempted": 135,
+          "validated": 135,
+          "templates": 9,
+          "topTemplates": [
+            [
+              "choose_record",
+              20
+            ],
+            [
+              "complete_add",
+              20
+            ],
+            [
+              "add_line",
+              20
+            ],
+            [
+              "sub_line",
+              14
+            ],
+            [
+              "restore_start",
+              13
+            ],
+            [
+              "sub_input",
+              13
+            ]
+          ],
+          "unique": 132,
+          "modelChecked": 0,
+          "wrongGrammar": 0,
+          "badPunctuation": 0,
+          "choicesChecked": 67,
+          "answerKinds": {
+            "choice": 67,
+            "string": 68
+          },
+          "samples": [
+            {
+              "tpl": "choose_record",
+              "text": "Выбери правильную запись.",
+              "ex": "4 + 10 = 14.",
+              "answer": "4 + 10 = 14",
+              "visual": "g1Arithmetic"
+            },
+            {
+              "tpl": "restore_start",
+              "text": "Какое число было сначала? ? + 6 = 15",
+              "ex": "Было 9. Добавили 6. Стало 15.",
+              "answer": "9",
+              "visual": "g1NumberLine"
+            },
+            {
+              "tpl": "complete_add",
+              "text": "Какое число пропущено? 2 + ? = 10",
+              "ex": "К 2 нужно добавить 8, чтобы получить 10.",
+              "answer": "8",
+              "visual": "g1NumberLine"
+            },
+            {
+              "tpl": "sub_line",
+              "text": "Начни с 19 и сделай 7 шагов влево. Где остановишься?",
+              "ex": "Начинаем с 19. Вычитаем 7. Получаем 12.",
+              "answer": "12",
+              "visual": "g1NumberLine"
+            },
+            {
+              "tpl": "add_line",
+              "text": "Начни с 14 и сделай 6 шагов вправо. Где остановишься?",
+              "ex": "Начинаем с 14. Прибавляем 6. Получаем 20.",
+              "answer": "20",
+              "visual": "g1NumberLine"
+            },
+            {
+              "tpl": "sub_input",
+              "text": "Вычисли: 12 − 11",
+              "ex": "Начинаем с 12. Вычитаем 11. Получаем 1.",
+              "answer": "1",
+              "visual": "g1NumberLine"
+            },
+            {
+              "tpl": "complete_sub",
+              "text": "Какое число пропущено? 10 − ? = 4",
+              "ex": "Из 10 нужно вычесть 6, чтобы осталось 4.",
+              "answer": "6",
+              "visual": "g1NumberLine"
+            },
+            {
+              "tpl": "add_input",
+              "text": "Вычисли: 7 + 3",
+              "ex": "Начинаем с 7. Прибавляем 3. Получаем 10.",
+              "answer": "10",
+              "visual": "g1NumberLine"
+            }
+          ]
+        }
+      ],
+      "uiStarts": [
+        {
+          "level": 0,
+          "rendered": true,
+          "mode": null
+        },
+        {
+          "level": 1,
+          "rendered": true,
+          "mode": null
+        },
+        {
+          "level": 2,
+          "rendered": true,
+          "mode": null
+        }
+      ]
+    },
+    {
+      "grade": 1,
+      "id": "g1:word_problems",
+      "title": "Текстовые задачи",
+      "levels": [
+        {
+          "d": 0,
+          "attempted": 1400,
+          "validated": 1400,
+          "templates": 2,
+          "topTemplates": [
+            [
+              "sub_result",
+              708
+            ],
+            [
+              "add_result",
+              692
+            ]
+          ],
+          "unique": 1267,
+          "modelChecked": 1400,
+          "wrongGrammar": 85,
+          "badPunctuation": 0,
+          "choicesChecked": 1400,
+          "answerKinds": {
+            "choice": 1400
+          },
+          "samples": [
+            {
+              "tpl": "sub_result",
+              "text": "У Маши было 3 книги. Убрали 2 книги. Сколько книг осталось?",
+              "ex": "Было 3. Убрали 2. Осталось 1.",
+              "answer": "1",
+              "visual": "g1Story"
+            },
+            {
+              "tpl": "add_result",
+              "text": "У Маши было 1 книга. Ей дали ещё 2 книги. Сколько книг стало?",
+              "ex": "Было 1. Добавили 2. Стало 3.",
+              "answer": "3",
+              "visual": "g1Story"
+            }
+          ]
+        },
+        {
+          "d": 1,
+          "attempted": 1400,
+          "validated": 1400,
+          "templates": 5,
+          "topTemplates": [
+            [
+              "choose_action",
+              293
+            ],
+            [
+              "choose_record",
+              288
+            ],
+            [
+              "add_result",
+              286
+            ],
+            [
+              "sub_result",
+              277
+            ],
+            [
+              "find_added",
+              256
+            ]
+          ],
+          "unique": 1145,
+          "modelChecked": 1400,
+          "wrongGrammar": 53,
+          "badPunctuation": 0,
+          "choicesChecked": 581,
+          "answerKinds": {
+            "string": 819,
+            "choice": 581
+          },
+          "samples": [
+            {
+              "tpl": "add_result",
+              "text": "У Маши было 12 кубиков. Ей дали ещё 6 кубиков. Сколько кубиков стало?",
+              "ex": "Было 12. Добавили 6. Стало 18.",
+              "answer": "18",
+              "visual": "g1Story"
+            },
+            {
+              "tpl": "choose_record",
+              "text": "У Маши было 4 кубика. Ей дали ещё 1 кубик. Сколько кубиков стало? Выбери запись для решения.",
+              "ex": "Подходит запись: 4 + 1.",
+              "answer": "4 + 1",
+              "visual": "g1Story"
+            },
+            {
+              "tpl": "choose_action",
+              "text": "У Маши было 14 карандашей. Убрали 9 карандашей. Сколько карандашей осталось? Какое действие поможет решить задачу?",
+              "ex": "Часть предметов убрали, значит нужно вычесть.",
+              "answer": "Вычитание",
+              "visual": "g1Story"
+            },
+            {
+              "tpl": "find_added",
+              "text": "Было 1 кубик. Стало 4. Сколько кубиков добавили?",
+              "ex": "От 1 до 4 нужно добавить 3.",
+              "answer": "3",
+              "visual": "g1Story"
+            },
+            {
+              "tpl": "sub_result",
+              "text": "У Маши было 5 кубиков. Убрали 5 кубиков. Сколько кубиков осталось?",
+              "ex": "Было 5. Убрали 5. Осталось 0.",
+              "answer": "0",
+              "visual": "g1Story"
+            }
+          ]
+        },
+        {
+          "d": 2,
+          "attempted": 1400,
+          "validated": 1400,
+          "templates": 8,
+          "topTemplates": [
+            [
+              "find_start_sub",
+              187
+            ],
+            [
+              "find_start_add",
+              180
+            ],
+            [
+              "find_removed",
+              176
+            ],
+            [
+              "choose_record",
+              174
+            ],
+            [
+              "add_result",
+              172
+            ],
+            [
+              "choose_action",
+              171
+            ]
+          ],
+          "unique": 1192,
+          "modelChecked": 1400,
+          "wrongGrammar": 37,
+          "badPunctuation": 0,
+          "choicesChecked": 345,
+          "answerKinds": {
+            "string": 1055,
+            "choice": 345
+          },
+          "samples": [
+            {
+              "tpl": "find_start_sub",
+              "text": "Убрали 1 книгу, и осталось 16. Сколько книг было сначала?",
+              "ex": "Сначала было 17. Убрали 1. Осталось 16.",
+              "answer": "17",
+              "visual": "g1Story"
+            },
+            {
+              "tpl": "find_added",
+              "text": "Было 8 книг. Стало 12. Сколько книг добавили?",
+              "ex": "От 8 до 12 нужно добавить 4.",
+              "answer": "4",
+              "visual": "g1Story"
+            },
+            {
+              "tpl": "add_result",
+              "text": "У Маши было 6 книг. Ей дали ещё 9 книг. Сколько книг стало?",
+              "ex": "Было 6. Добавили 9. Стало 15.",
+              "answer": "15",
+              "visual": "g1Story"
+            },
+            {
+              "tpl": "choose_record",
+              "text": "У Маши было 2 кубика. Ей дали ещё 1 кубик. Сколько кубиков стало? Выбери запись для решения.",
+              "ex": "Подходит запись: 2 + 1.",
+              "answer": "2 + 1",
+              "visual": "g1Story"
+            },
+            {
+              "tpl": "choose_action",
+              "text": "У Маши было 9 кубиков. Ей дали ещё 8 кубиков. Сколько кубиков стало? Какое действие поможет решить задачу?",
+              "ex": "Предметы добавили, значит нужно сложить.",
+              "answer": "Сложение",
+              "visual": "g1Story"
+            },
+            {
+              "tpl": "find_removed",
+              "text": "Было 7 мячей. Осталось 1. Сколько мячей убрали?",
+              "ex": "Из 7 убрали 6, осталось 1.",
+              "answer": "6",
+              "visual": "g1Story"
+            },
+            {
+              "tpl": "find_start_add",
+              "text": "Добавили 1 карандаш, и стало 11. Сколько карандашей было сначала?",
+              "ex": "Сначала было 10. Добавили 1. Стало 11.",
+              "answer": "10",
+              "visual": "g1Story"
+            },
+            {
+              "tpl": "sub_result",
+              "text": "У Маши было 12 книг. Убрали 9 книг. Сколько книг осталось?",
+              "ex": "Было 12. Убрали 9. Осталось 3.",
+              "answer": "3",
+              "visual": "g1Story"
+            }
+          ]
+        }
+      ],
+      "uiStarts": [
+        {
+          "level": 0,
+          "rendered": true,
+          "mode": null
+        },
+        {
+          "level": 1,
+          "rendered": true,
+          "mode": null
+        },
+        {
+          "level": 2,
+          "rendered": true,
+          "mode": null
+        }
+      ]
+    },
+    {
+      "grade": 1,
+      "id": "g1:spatial_relations",
+      "title": "Пространственные отношения",
+      "levels": [
+        {
+          "d": 0,
+          "attempted": 135,
+          "validated": 135,
+          "templates": 2,
+          "topTemplates": [
+            [
+              "place",
+              75
+            ],
+            [
+              "relation",
+              60
+            ]
+          ],
+          "unique": 93,
+          "modelChecked": 0,
+          "wrongGrammar": 0,
+          "badPunctuation": 0,
+          "choicesChecked": 135,
+          "answerKinds": {
+            "choice": 135
+          },
+          "samples": [
+            {
+              "tpl": "relation",
+              "text": "С какой стороны от оранжевого находится зелёный кружок?",
+              "ex": "Зелёный кружок находится снизу от оранжевого.",
+              "answer": "Снизу",
+              "visual": "g1Spatial"
+            },
+            {
+              "tpl": "place",
+              "text": "Оранжевый кружок слева от зелёного. С какой стороны от оранжевого должен быть зелёный?",
+              "ex": "Оранжевый слева от зелёного, значит зелёный справа от оранжевого.",
+              "answer": "Справа",
+              "visual": "g1Spatial"
+            }
+          ]
+        },
+        {
+          "d": 1,
+          "attempted": 135,
+          "validated": 135,
+          "templates": 5,
+          "topTemplates": [
+            [
+              "find_color",
+              28
+            ],
+            [
+              "true_sentence",
+              27
+            ],
+            [
+              "reverse",
+              27
+            ],
+            [
+              "relation",
+              27
+            ],
+            [
+              "place",
+              26
+            ]
+          ],
+          "unique": 121,
+          "modelChecked": 0,
+          "wrongGrammar": 0,
+          "badPunctuation": 0,
+          "choicesChecked": 135,
+          "answerKinds": {
+            "choice": 135
+          },
+          "samples": [
+            {
+              "tpl": "true_sentence",
+              "text": "Выбери верное предложение.",
+              "ex": "Верно: зелёный кружок слева от оранжевого.",
+              "answer": "Зелёный кружок — слева",
+              "visual": "g1Spatial"
+            },
+            {
+              "tpl": "reverse",
+              "text": "С какой стороны от зелёного находится оранжевый кружок?",
+              "ex": "Зелёный сверху от оранжевого, значит оранжевый снизу от зелёного.",
+              "answer": "Снизу",
+              "visual": "g1Spatial"
+            },
+            {
+              "tpl": "place",
+              "text": "Оранжевый кружок справа от зелёного. С какой стороны от оранжевого должен быть зелёный?",
+              "ex": "Оранжевый справа от зелёного, значит зелёный слева от оранжевого.",
+              "answer": "Слева",
+              "visual": "g1Spatial"
+            },
+            {
+              "tpl": "find_color",
+              "text": "Какой кружок находится слева от оранжевого?",
+              "ex": "Розовый кружок находится слева от оранжевого.",
+              "answer": "Розовый",
+              "visual": "g1Spatial"
+            },
+            {
+              "tpl": "relation",
+              "text": "С какой стороны от оранжевого находится зелёный кружок?",
+              "ex": "Зелёный кружок находится слева от оранжевого.",
+              "answer": "Слева",
+              "visual": "g1Spatial"
+            }
+          ]
+        },
+        {
+          "d": 2,
+          "attempted": 135,
+          "validated": 135,
+          "templates": 5,
+          "topTemplates": [
+            [
+              "reverse",
+              37
+            ],
+            [
+              "true_sentence",
+              28
+            ],
+            [
+              "place",
+              27
+            ],
+            [
+              "find_color",
+              24
+            ],
+            [
+              "relation",
+              19
+            ]
+          ],
+          "unique": 113,
+          "modelChecked": 0,
+          "wrongGrammar": 0,
+          "badPunctuation": 0,
+          "choicesChecked": 135,
+          "answerKinds": {
+            "choice": 135
+          },
+          "samples": [
+            {
+              "tpl": "reverse",
+              "text": "С какой стороны от зелёного находится оранжевый кружок?",
+              "ex": "Зелёный сверху от оранжевого, значит оранжевый снизу от зелёного.",
+              "answer": "Снизу",
+              "visual": "g1Spatial"
+            },
+            {
+              "tpl": "place",
+              "text": "Оранжевый кружок сверху от зелёного. С какой стороны от оранжевого должен быть зелёный?",
+              "ex": "Оранжевый сверху от зелёного, значит зелёный снизу от оранжевого.",
+              "answer": "Снизу",
+              "visual": "g1Spatial"
+            },
+            {
+              "tpl": "relation",
+              "text": "С какой стороны от оранжевого находится зелёный кружок?",
+              "ex": "Зелёный кружок находится справа от оранжевого.",
+              "answer": "Справа",
+              "visual": "g1Spatial"
+            },
+            {
+              "tpl": "true_sentence",
+              "text": "Выбери верное предложение.",
+              "ex": "Верно: зелёный кружок слева от оранжевого.",
+              "answer": "Зелёный кружок — слева",
+              "visual": "g1Spatial"
+            },
+            {
+              "tpl": "find_color",
+              "text": "Какой кружок находится справа от оранжевого?",
+              "ex": "Синий кружок находится справа от оранжевого.",
+              "answer": "Синий",
+              "visual": "g1Spatial"
+            }
+          ]
+        }
+      ],
+      "uiStarts": [
+        {
+          "level": 0,
+          "rendered": true,
+          "mode": null
+        },
+        {
+          "level": 1,
+          "rendered": true,
+          "mode": null
+        },
+        {
+          "level": 2,
+          "rendered": true,
+          "mode": null
+        }
+      ]
+    },
+    {
+      "grade": 1,
+      "id": "g1:geometric_figures",
+      "title": "Геометрические фигуры",
+      "levels": [
+        {
+          "d": 0,
+          "attempted": 135,
+          "validated": 135,
+          "templates": 2,
+          "topTemplates": [
+            [
+              "find_gallery",
+              68
+            ],
+            [
+              "identify",
+              67
+            ]
+          ],
+          "unique": 112,
+          "modelChecked": 0,
+          "wrongGrammar": 0,
+          "badPunctuation": 0,
+          "choicesChecked": 135,
+          "answerKinds": {
+            "choice": 135
+          },
+          "samples": [
+            {
+              "tpl": "identify",
+              "text": "Какая фигура показана?",
+              "ex": "Это квадрат.",
+              "answer": "Квадрат",
+              "visual": "g1Shape"
+            },
+            {
+              "tpl": "find_gallery",
+              "text": "Под какой буквой находится треугольник?",
+              "ex": "Треугольник находится под буквой D.",
+              "answer": "D",
+              "visual": "g1Shape"
+            }
+          ]
+        },
+        {
+          "d": 1,
+          "attempted": 135,
+          "validated": 135,
+          "templates": 5,
+          "topTemplates": [
+            [
+              "point_segment",
+              34
+            ],
+            [
+              "count_corners",
+              27
+            ],
+            [
+              "identify",
+              26
+            ],
+            [
+              "count_sides",
+              26
+            ],
+            [
+              "find_gallery",
+              22
+            ]
+          ],
+          "unique": 97,
+          "modelChecked": 0,
+          "wrongGrammar": 0,
+          "badPunctuation": 0,
+          "choicesChecked": 135,
+          "answerKinds": {
+            "choice": 135
+          },
+          "samples": [
+            {
+              "tpl": "point_segment",
+              "text": "Что показано?",
+              "ex": "Это точка — маленькая отметка.",
+              "answer": "Точка",
+              "visual": "g1Shape"
+            },
+            {
+              "tpl": "count_corners",
+              "text": "Сколько углов у этой фигуры?",
+              "ex": "У прямоугольника 4 угла.",
+              "answer": "4",
+              "visual": "g1Shape"
+            },
+            {
+              "tpl": "find_gallery",
+              "text": "Под какой буквой находится круг?",
+              "ex": "Круг находится под буквой B.",
+              "answer": "B",
+              "visual": "g1Shape"
+            },
+            {
+              "tpl": "identify",
+              "text": "Какая фигура показана?",
+              "ex": "Это круг.",
+              "answer": "Круг",
+              "visual": "g1Shape"
+            },
+            {
+              "tpl": "count_sides",
+              "text": "Сколько сторон у этой фигуры?",
+              "ex": "У прямоугольника 4 стороны.",
+              "answer": "4",
+              "visual": "g1Shape"
+            }
+          ]
+        },
+        {
+          "d": 2,
+          "attempted": 135,
+          "validated": 135,
+          "templates": 6,
+          "topTemplates": [
+            [
+              "find_by_sides",
+              31
+            ],
+            [
+              "count_sides",
+              25
+            ],
+            [
+              "find_gallery",
+              22
+            ],
+            [
+              "count_corners",
+              20
+            ],
+            [
+              "point_segment",
+              19
+            ],
+            [
+              "identify",
+              18
+            ]
+          ],
+          "unique": 104,
+          "modelChecked": 0,
+          "wrongGrammar": 0,
+          "badPunctuation": 0,
+          "choicesChecked": 135,
+          "answerKinds": {
+            "choice": 135
+          },
+          "samples": [
+            {
+              "tpl": "count_corners",
+              "text": "Сколько углов у этой фигуры?",
+              "ex": "У треугольника 3 угла.",
+              "answer": "3",
+              "visual": "g1Shape"
+            },
+            {
+              "tpl": "find_by_sides",
+              "text": "У какой фигуры 3 стороны?",
+              "ex": "У треугольника 3 стороны.",
+              "answer": "Треугольник",
+              "visual": "g1Shape"
+            },
+            {
+              "tpl": "identify",
+              "text": "Какая фигура показана?",
+              "ex": "Это круг.",
+              "answer": "Круг",
+              "visual": "g1Shape"
+            },
+            {
+              "tpl": "count_sides",
+              "text": "Сколько сторон у этой фигуры?",
+              "ex": "У прямоугольника 4 стороны.",
+              "answer": "4",
+              "visual": "g1Shape"
+            },
+            {
+              "tpl": "find_gallery",
+              "text": "Под какой буквой находится круг?",
+              "ex": "Круг находится под буквой B.",
+              "answer": "B",
+              "visual": "g1Shape"
+            },
+            {
+              "tpl": "point_segment",
+              "text": "Что показано?",
+              "ex": "Это точка — маленькая отметка.",
+              "answer": "Точка",
+              "visual": "g1Shape"
+            }
+          ]
+        }
+      ],
+      "uiStarts": [
+        {
+          "level": 0,
+          "rendered": true,
+          "mode": null
+        },
+        {
+          "level": 1,
+          "rendered": true,
+          "mode": null
+        },
+        {
+          "level": 2,
+          "rendered": true,
+          "mode": null
+        }
+      ]
+    },
+    {
+      "grade": 1,
+      "id": "g1:object_properties",
+      "title": "Характеристика объекта, группы объектов",
+      "levels": [
+        {
+          "d": 0,
+          "attempted": 135,
+          "validated": 135,
+          "templates": 2,
+          "topTemplates": [
+            [
+              "name_property",
+              76
+            ],
+            [
+              "find_object",
+              59
+            ]
+          ],
+          "unique": 131,
+          "modelChecked": 0,
+          "wrongGrammar": 0,
+          "badPunctuation": 0,
+          "choicesChecked": 135,
+          "answerKinds": {
+            "choice": 135
+          },
+          "samples": [
+            {
+              "tpl": "find_object",
+              "text": "Под какой буквой фигура синего цвета?",
+              "ex": "Под буквой A находится фигура синего цвета.",
+              "answer": "A",
+              "visual": "g1ObjectGroups"
+            },
+            {
+              "tpl": "name_property",
+              "text": "Какого цвета фигура?",
+              "ex": "Фигура зелёного цвета.",
+              "answer": "Зелёный",
+              "visual": "g1ObjectGroups"
+            }
+          ]
+        },
+        {
+          "d": 1,
+          "attempted": 135,
+          "validated": 135,
+          "templates": 5,
+          "topTemplates": [
+            [
+              "compare_size",
+              31
+            ],
+            [
+              "common_property",
+              28
+            ],
+            [
+              "count_property",
+              27
+            ],
+            [
+              "name_property",
+              26
+            ],
+            [
+              "find_object",
+              23
+            ]
+          ],
+          "unique": 123,
+          "modelChecked": 0,
+          "wrongGrammar": 0,
+          "badPunctuation": 0,
+          "choicesChecked": 135,
+          "answerKinds": {
+            "choice": 135
+          },
+          "samples": [
+            {
+              "tpl": "common_property",
+              "text": "Что общего у всех фигур?",
+              "ex": "У всех фигур один цвет — жёлтый.",
+              "answer": "Все жёлтые",
+              "visual": "g1ObjectGroups"
+            },
+            {
+              "tpl": "compare_size",
+              "text": "Какая фигура большая?",
+              "ex": "Фигура A больше.",
+              "answer": "A",
+              "visual": "g1ObjectGroups"
+            },
+            {
+              "tpl": "name_property",
+              "text": "Какого цвета фигура?",
+              "ex": "Фигура жёлтого цвета.",
+              "answer": "Жёлтый",
+              "visual": "g1ObjectGroups"
+            },
+            {
+              "tpl": "find_object",
+              "text": "Под какой буквой фигура красного цвета?",
+              "ex": "Под буквой D находится фигура красного цвета.",
+              "answer": "D",
+              "visual": "g1ObjectGroups"
+            },
+            {
+              "tpl": "count_property",
+              "text": "Сколько фигур красного цвета?",
+              "ex": "Фигур красного цвета — 2.",
+              "answer": "2",
+              "visual": "g1ObjectGroups"
+            }
+          ]
+        },
+        {
+          "d": 2,
+          "attempted": 135,
+          "validated": 135,
+          "templates": 6,
+          "topTemplates": [
+            [
+              "compare_size",
+              31
+            ],
+            [
+              "name_property",
+              25
+            ],
+            [
+              "common_property",
+              22
+            ],
+            [
+              "find_object",
+              21
+            ],
+            [
+              "count_property",
+              18
+            ],
+            [
+              "odd_one_out",
+              18
+            ]
+          ],
+          "unique": 123,
+          "modelChecked": 0,
+          "wrongGrammar": 0,
+          "badPunctuation": 0,
+          "choicesChecked": 135,
+          "answerKinds": {
+            "choice": 135
+          },
+          "samples": [
+            {
+              "tpl": "count_property",
+              "text": "Сколько фигур синего цвета?",
+              "ex": "Фигур синего цвета — 2.",
+              "answer": "2",
+              "visual": "g1ObjectGroups"
+            },
+            {
+              "tpl": "compare_size",
+              "text": "Какая фигура большая?",
+              "ex": "Фигура B больше.",
+              "answer": "B",
+              "visual": "g1ObjectGroups"
+            },
+            {
+              "tpl": "find_object",
+              "text": "Под какой буквой фигура синего цвета?",
+              "ex": "Под буквой B находится фигура синего цвета.",
+              "answer": "B",
+              "visual": "g1ObjectGroups"
+            },
+            {
+              "tpl": "odd_one_out",
+              "text": "Какая фигура не подходит к группе?",
+              "ex": "Фигура B другого цвета. Остальные фигуры синего цвета.",
+              "answer": "B",
+              "visual": "g1ObjectGroups"
+            },
+            {
+              "tpl": "name_property",
+              "text": "Какого цвета фигура?",
+              "ex": "Фигура жёлтого цвета.",
+              "answer": "Жёлтый",
+              "visual": "g1ObjectGroups"
+            },
+            {
+              "tpl": "common_property",
+              "text": "Что общего у всех фигур?",
+              "ex": "У всех фигур один цвет — красный.",
+              "answer": "Все красные",
+              "visual": "g1ObjectGroups"
+            }
+          ]
+        }
+      ],
+      "uiStarts": [
+        {
+          "level": 0,
+          "rendered": true,
+          "mode": null
+        },
+        {
+          "level": 1,
+          "rendered": true,
+          "mode": null
+        },
+        {
+          "level": 2,
+          "rendered": true,
+          "mode": null
+        }
+      ]
+    },
+    {
+      "grade": 1,
+      "id": "g1:tables",
+      "title": "Таблицы",
+      "levels": [
+        {
+          "d": 0,
+          "attempted": 135,
+          "validated": 135,
+          "templates": 2,
+          "topTemplates": [
+            [
+              "lookup_value",
+              78
+            ],
+            [
+              "find_row",
+              57
+            ]
+          ],
+          "unique": 123,
+          "modelChecked": 0,
+          "wrongGrammar": 0,
+          "badPunctuation": 0,
+          "choicesChecked": 135,
+          "answerKinds": {
+            "choice": 135
+          },
+          "samples": [
+            {
+              "tpl": "lookup_value",
+              "text": "Сколько квадратов в таблице?",
+              "ex": "В строке «Квадраты» стоит число 4.",
+              "answer": "4",
+              "visual": "g1SimpleTable"
+            },
+            {
+              "tpl": "find_row",
+              "text": "Каких фигур 4?",
+              "ex": "Число 4 стоит в строке «Треугольники».",
+              "answer": "Треугольники",
+              "visual": "g1SimpleTable"
+            }
+          ]
+        },
+        {
+          "d": 1,
+          "attempted": 135,
+          "validated": 135,
+          "templates": 4,
+          "topTemplates": [
+            [
+              "compare_rows",
+              37
+            ],
+            [
+              "lookup_value",
+              37
+            ],
+            [
+              "find_row",
+              31
+            ],
+            [
+              "correct_statement",
+              30
+            ]
+          ],
+          "unique": 125,
+          "modelChecked": 0,
+          "wrongGrammar": 0,
+          "badPunctuation": 0,
+          "choicesChecked": 135,
+          "answerKinds": {
+            "choice": 135
+          },
+          "samples": [
+            {
+              "tpl": "compare_rows",
+              "text": "Каких фигур больше всего?",
+              "ex": "Треугольники: 6. Это самое большое число в таблице.",
+              "answer": "Треугольники",
+              "visual": "g1SimpleTable"
+            },
+            {
+              "tpl": "correct_statement",
+              "text": "Какая запись верна?",
+              "ex": "В таблице верно: Круги — 2.",
+              "answer": "Круги — 2",
+              "visual": "g1SimpleTable"
+            },
+            {
+              "tpl": "lookup_value",
+              "text": "Сколько треугольников в таблице?",
+              "ex": "В строке «Треугольники» стоит число 6.",
+              "answer": "6",
+              "visual": "g1SimpleTable"
+            },
+            {
+              "tpl": "find_row",
+              "text": "Каких фигур 2?",
+              "ex": "Число 2 стоит в строке «Квадраты».",
+              "answer": "Квадраты",
+              "visual": "g1SimpleTable"
+            }
+          ]
+        },
+        {
+          "d": 2,
+          "attempted": 135,
+          "validated": 135,
+          "templates": 5,
+          "topTemplates": [
+            [
+              "fill_cell",
+              31
+            ],
+            [
+              "find_row",
+              28
+            ],
+            [
+              "correct_statement",
+              26
+            ],
+            [
+              "lookup_value",
+              25
+            ],
+            [
+              "compare_rows",
+              25
+            ]
+          ],
+          "unique": 132,
+          "modelChecked": 0,
+          "wrongGrammar": 0,
+          "badPunctuation": 0,
+          "choicesChecked": 135,
+          "answerKinds": {
+            "choice": 135
+          },
+          "samples": [
+            {
+              "tpl": "lookup_value",
+              "text": "Сколько треугольников в таблице?",
+              "ex": "В строке «Треугольники» стоит число 4.",
+              "answer": "4",
+              "visual": "g1SimpleTable"
+            },
+            {
+              "tpl": "fill_cell",
+              "text": "Какое число нужно поставить вместо ?",
+              "ex": "Посчитай треугольники: их 6. В таблицу нужно поставить 6.",
+              "answer": "6",
+              "visual": "g1SimpleTable"
+            },
+            {
+              "tpl": "correct_statement",
+              "text": "Какая запись верна?",
+              "ex": "В таблице верно: Треугольники — 5.",
+              "answer": "Треугольники — 5",
+              "visual": "g1SimpleTable"
+            },
+            {
+              "tpl": "compare_rows",
+              "text": "Каких фигур больше всего?",
+              "ex": "Треугольники: 5. Это самое большое число в таблице.",
+              "answer": "Треугольники",
+              "visual": "g1SimpleTable"
+            },
+            {
+              "tpl": "find_row",
+              "text": "Каких фигур 3?",
+              "ex": "Число 3 стоит в строке «Квадраты».",
+              "answer": "Квадраты",
+              "visual": "g1SimpleTable"
+            }
+          ]
+        }
+      ],
+      "uiStarts": [
+        {
+          "level": 0,
+          "rendered": true,
+          "mode": null
+        },
+        {
+          "level": 1,
+          "rendered": true,
+          "mode": null
+        },
+        {
+          "level": 2,
+          "rendered": true,
+          "mode": null
+        }
+      ]
+    },
+    {
+      "grade": 2,
+      "id": "g2:numbers_100",
+      "title": "Числа в пределах 100",
+      "levels": [
+        {
+          "d": 0,
+          "attempted": 135,
+          "validated": 135,
+          "templates": 3,
+          "topTemplates": [
+            [
+              "line_read",
+              46
+            ],
+            [
+              "after",
+              46
+            ],
+            [
+              "build_number",
+              43
+            ]
+          ],
+          "unique": 135,
+          "modelChecked": 0,
+          "wrongGrammar": 0,
+          "badPunctuation": 0,
+          "choicesChecked": 135,
+          "answerKinds": {
+            "choice": 135
+          },
+          "samples": [
+            {
+              "tpl": "line_read",
+              "text": "Какое число отмечено на числовом луче?",
+              "ex": "Точка стоит у числа 41.",
+              "answer": "41",
+              "visual": "g2NumberLineRead846"
+            },
+            {
+              "tpl": "after",
+              "text": "Какое число идёт после 24?",
+              "ex": "После 24 идёт 25.",
+              "answer": "25",
+              "visual": null
+            },
+            {
+              "tpl": "build_number",
+              "text": "Какое число показано десятками и единицами?",
+              "ex": "3 десятка — это 30. Ещё 7 единиц. Получаем 37.",
+              "answer": "37",
+              "visual": "g2TensOnes"
+            }
+          ]
+        },
+        {
+          "d": 1,
+          "attempted": 135,
+          "validated": 135,
+          "templates": 7,
+          "topTemplates": [
+            [
+              "ones_count",
+              24
+            ],
+            [
+              "line_read",
+              23
+            ],
+            [
+              "before",
+              19
+            ],
+            [
+              "tens_count",
+              19
+            ],
+            [
+              "missing",
+              18
+            ],
+            [
+              "build_number",
+              17
+            ]
+          ],
+          "unique": 135,
+          "modelChecked": 0,
+          "wrongGrammar": 0,
+          "badPunctuation": 0,
+          "choicesChecked": 135,
+          "answerKinds": {
+            "choice": 135
+          },
+          "samples": [
+            {
+              "tpl": "after",
+              "text": "Какое число идёт после 78?",
+              "ex": "После 78 идёт 79.",
+              "answer": "79",
+              "visual": null
+            },
+            {
+              "tpl": "build_number",
+              "text": "Какое число показано десятками и единицами?",
+              "ex": "7 десятков — это 70. Ещё 0 единиц. Получаем 70.",
+              "answer": "70",
+              "visual": "g2TensOnes"
+            },
+            {
+              "tpl": "before",
+              "text": "Какое число идёт перед 76?",
+              "ex": "Перед 76 стоит 75.",
+              "answer": "75",
+              "visual": null
+            },
+            {
+              "tpl": "ones_count",
+              "text": "Сколько единиц в числе 82?",
+              "ex": "В числе 82 — 8 десятков и 2 единицы.",
+              "answer": "2",
+              "visual": "g2TensOnes"
+            },
+            {
+              "tpl": "missing",
+              "text": "Какого числа не хватает? 70 ? 72",
+              "ex": "Числа идут по порядку: 70, 71, 72.",
+              "answer": "71",
+              "visual": null
+            },
+            {
+              "tpl": "line_read",
+              "text": "Какое число отмечено на числовом луче?",
+              "ex": "Точка стоит у числа 66.",
+              "answer": "66",
+              "visual": "g2NumberLineRead846"
+            },
+            {
+              "tpl": "tens_count",
+              "text": "Сколько десятков в числе 77?",
+              "ex": "В числе 77 — 7 десятков и 7 единиц.",
+              "answer": "7",
+              "visual": "g2TensOnes"
+            }
+          ]
+        },
+        {
+          "d": 2,
+          "attempted": 135,
+          "validated": 135,
+          "templates": 9,
+          "topTemplates": [
+            [
+              "before",
+              20
+            ],
+            [
+              "tens_count",
+              20
+            ],
+            [
+              "missing",
+              19
+            ],
+            [
+              "ones_count",
+              18
+            ],
+            [
+              "build_number",
+              14
+            ],
+            [
+              "write_number",
+              12
+            ]
+          ],
+          "unique": 132,
+          "modelChecked": 0,
+          "wrongGrammar": 0,
+          "badPunctuation": 0,
+          "choicesChecked": 123,
+          "answerKinds": {
+            "choice": 123,
+            "string": 12
+          },
+          "samples": [
+            {
+              "tpl": "before",
+              "text": "Какое число идёт перед 86?",
+              "ex": "Перед 86 стоит 85.",
+              "answer": "85",
+              "visual": null
+            },
+            {
+              "tpl": "write_number",
+              "text": "Запиши число: 2 десятка и 3 единицы .",
+              "ex": "2 десятка — 20. Добавляем 3 единицы и получаем 23.",
+              "answer": "23",
+              "visual": "g2TensOnes"
+            },
+            {
+              "tpl": "after",
+              "text": "Какое число идёт после 64?",
+              "ex": "После 64 идёт 65.",
+              "answer": "65",
+              "visual": null
+            },
+            {
+              "tpl": "line_read",
+              "text": "Какое число отмечено на числовом луче?",
+              "ex": "Точка стоит у числа 89.",
+              "answer": "89",
+              "visual": "g2NumberLineRead846"
+            },
+            {
+              "tpl": "tens_count",
+              "text": "Сколько десятков в числе 97?",
+              "ex": "В числе 97 — 9 десятков и 7 единиц.",
+              "answer": "9",
+              "visual": "g2TensOnes"
+            },
+            {
+              "tpl": "ones_count",
+              "text": "Сколько единиц в числе 84?",
+              "ex": "В числе 84 — 8 десятков и 4 единицы.",
+              "answer": "4",
+              "visual": "g2TensOnes"
+            },
+            {
+              "tpl": "compare",
+              "text": "Какой знак подходит? 73 ? 72",
+              "ex": "Сравниваем 73 и 72. 73 > 72.",
+              "answer": ">",
+              "visual": null
+            },
+            {
+              "tpl": "missing",
+              "text": "Какого числа не хватает? 64 ? 66",
+              "ex": "Числа идут по порядку: 64, 65, 66.",
+              "answer": "65",
+              "visual": null
+            }
+          ]
+        }
+      ],
+      "uiStarts": [
+        {
+          "level": 0,
+          "rendered": true,
+          "mode": null
+        },
+        {
+          "level": 1,
+          "rendered": true,
+          "mode": null
+        },
+        {
+          "level": 2,
+          "rendered": true,
+          "mode": null
+        }
+      ]
+    },
+    {
+      "grade": 2,
+      "id": "g2:quantities",
+      "title": "Величины",
+      "levels": [
+        {
+          "d": 0,
+          "attempted": 135,
+          "validated": 135,
+          "templates": 3,
+          "topTemplates": [
+            [
+              "choose_unit",
+              50
+            ],
+            [
+              "ruler_cm",
+              46
+            ],
+            [
+              "compare_mass",
+              39
+            ]
+          ],
+          "unique": 112,
+          "modelChecked": 0,
+          "wrongGrammar": 0,
+          "badPunctuation": 0,
+          "choicesChecked": 135,
+          "answerKinds": {
+            "choice": 135
+          },
+          "samples": [
+            {
+              "tpl": "ruler_cm",
+              "text": "Какова длина отрезка?",
+              "ex": "Отрезок начинается у 0 и заканчивается у 6. Его длина — 6 см.",
+              "answer": "6",
+              "visual": "g1Length"
+            },
+            {
+              "tpl": "choose_unit",
+              "text": "В каких единицах удобно измерять продолжительность ночного сна?",
+              "ex": "Удобно использовать ч.",
+              "answer": "ч",
+              "visual": null
+            },
+            {
+              "tpl": "compare_mass",
+              "text": "Какая масса больше?",
+              "ex": "Сравниваем 7 кг и 3 кг. Больше 7 кг.",
+              "answer": "7 кг",
+              "visual": "g2MeasureCards"
+            }
+          ]
+        },
+        {
+          "d": 1,
+          "attempted": 135,
+          "validated": 135,
+          "templates": 7,
+          "topTemplates": [
+            [
+              "choose_unit",
+              25
+            ],
+            [
+              "compare_time",
+              20
+            ],
+            [
+              "convert_dm_cm",
+              20
+            ],
+            [
+              "compare_length",
+              20
+            ],
+            [
+              "compare_mass",
+              18
+            ],
+            [
+              "ruler_cm",
+              16
+            ]
+          ],
+          "unique": 105,
+          "modelChecked": 0,
+          "wrongGrammar": 0,
+          "badPunctuation": 0,
+          "choicesChecked": 99,
+          "answerKinds": {
+            "choice": 99,
+            "string": 36
+          },
+          "samples": [
+            {
+              "tpl": "ruler_cm",
+              "text": "Какова длина отрезка?",
+              "ex": "Отрезок начинается у 0 и заканчивается у 3. Его длина — 3 см.",
+              "answer": "3",
+              "visual": "g1Length"
+            },
+            {
+              "tpl": "compare_mass",
+              "text": "Какая масса больше?",
+              "ex": "Сравниваем 6 кг и 7 кг. Больше 7 кг.",
+              "answer": "7 кг",
+              "visual": "g2MeasureCards"
+            },
+            {
+              "tpl": "choose_unit",
+              "text": "В каких единицах удобно измерять продолжительность ночного сна?",
+              "ex": "Удобно использовать ч.",
+              "answer": "ч",
+              "visual": null
+            },
+            {
+              "tpl": "compare_time",
+              "text": "Что длится дольше?",
+              "ex": "1 ч = 60 мин. Сравниваем 60 мин и 57 мин. Дольше 1 ч.",
+              "answer": "1 ч",
+              "visual": "g2MeasureCards"
+            },
+            {
+              "tpl": "convert_dm_cm",
+              "text": "Сколько сантиметров в 2 дм ?",
+              "ex": "1 дм = 10 см. Значит, 2 дм = 20 см.",
+              "answer": "20",
+              "visual": "g2MeasureCards"
+            },
+            {
+              "tpl": "convert_cm_dm",
+              "text": "Сколько дециметров в 60 см ?",
+              "ex": "10 см = 1 дм. Значит, 60 см = 6 дм.",
+              "answer": "6",
+              "visual": "g2MeasureCards"
+            },
+            {
+              "tpl": "compare_length",
+              "text": "Какая длина больше?",
+              "ex": "6 дм = 60 см. Сравниваем 60 см и 50 см. Больше 6 дм.",
+              "answer": "6 дм",
+              "visual": "g2MeasureCards"
+            }
+          ]
+        },
+        {
+          "d": 2,
+          "attempted": 135,
+          "validated": 135,
+          "templates": 8,
+          "topTemplates": [
+            [
+              "choose_unit",
+              20
+            ],
+            [
+              "compare_time",
+              20
+            ],
+            [
+              "convert_dm_cm",
+              19
+            ],
+            [
+              "compare_length",
+              17
+            ],
+            [
+              "unit_relation",
+              17
+            ],
+            [
+              "ruler_cm",
+              15
+            ]
+          ],
+          "unique": 107,
+          "modelChecked": 0,
+          "wrongGrammar": 0,
+          "badPunctuation": 0,
+          "choicesChecked": 102,
+          "answerKinds": {
+            "choice": 102,
+            "string": 33
+          },
+          "samples": [
+            {
+              "tpl": "compare_mass",
+              "text": "Какая масса больше?",
+              "ex": "Сравниваем 2 кг и 3 кг. Больше 3 кг.",
+              "answer": "3 кг",
+              "visual": "g2MeasureCards"
+            },
+            {
+              "tpl": "compare_length",
+              "text": "Какая длина больше?",
+              "ex": "2 дм = 20 см. Сравниваем 20 см и 10 см. Больше 2 дм.",
+              "answer": "2 дм",
+              "visual": "g2MeasureCards"
+            },
+            {
+              "tpl": "convert_dm_cm",
+              "text": "Сколько сантиметров в 2 дм ?",
+              "ex": "1 дм = 10 см. Значит, 2 дм = 20 см.",
+              "answer": "20",
+              "visual": "g2MeasureCards"
+            },
+            {
+              "tpl": "unit_relation",
+              "text": "Какое число пропущено? 1 дм = ? см",
+              "ex": "1 дм = 10 см.",
+              "answer": "10",
+              "visual": null
+            },
+            {
+              "tpl": "ruler_cm",
+              "text": "Какова длина отрезка?",
+              "ex": "Отрезок начинается у 0 и заканчивается у 6. Его длина — 6 см.",
+              "answer": "6",
+              "visual": "g1Length"
+            },
+            {
+              "tpl": "convert_cm_dm",
+              "text": "Сколько дециметров в 90 см ?",
+              "ex": "10 см = 1 дм. Значит, 90 см = 9 дм.",
+              "answer": "9",
+              "visual": "g2MeasureCards"
+            },
+            {
+              "tpl": "choose_unit",
+              "text": "В каких единицах удобно измерять длину карандаша?",
+              "ex": "Удобно использовать см.",
+              "answer": "см",
+              "visual": null
+            },
+            {
+              "tpl": "compare_time",
+              "text": "Что длится дольше?",
+              "ex": "1 ч = 60 мин. Сравниваем 60 мин и 56 мин. Дольше 1 ч.",
+              "answer": "1 ч",
+              "visual": "g2MeasureCards"
+            }
+          ]
+        }
+      ],
+      "uiStarts": [
+        {
+          "level": 0,
+          "rendered": true,
+          "mode": null
+        },
+        {
+          "level": 1,
+          "rendered": true,
+          "mode": null
+        },
+        {
+          "level": 2,
+          "rendered": true,
+          "mode": null
+        }
+      ]
+    },
+    {
+      "grade": 2,
+      "id": "g2:add_sub_100",
+      "title": "Сложение и вычитание",
+      "levels": [
+        {
+          "d": 0,
+          "attempted": 135,
+          "validated": 135,
+          "templates": 4,
+          "topTemplates": [
+            [
+              "add_tens",
+              35
+            ],
+            [
+              "sub_ones",
+              35
+            ],
+            [
+              "sub_tens",
+              33
+            ],
+            [
+              "add_ones",
+              32
+            ]
+          ],
+          "unique": 135,
+          "modelChecked": 0,
+          "wrongGrammar": 0,
+          "badPunctuation": 0,
+          "choicesChecked": 135,
+          "answerKinds": {
+            "choice": 135
+          },
+          "samples": [
+            {
+              "tpl": "sub_tens",
+              "text": "Вычисли: 36 − 10",
+              "ex": "36 − 10. 2 десятка и 6 единиц = 26.",
+              "answer": "26",
+              "visual": "g2ArithmeticSteps"
+            },
+            {
+              "tpl": "add_ones",
+              "text": "Вычисли: 84 + 3",
+              "ex": "Единицы: 4 + 3 = 7. Получаем 87.",
+              "answer": "87",
+              "visual": "g2ArithmeticSteps"
+            },
+            {
+              "tpl": "add_tens",
+              "text": "Вычисли: 85 + 10",
+              "ex": "85 + 10. 9 десятков и 5 единиц = 95.",
+              "answer": "95",
+              "visual": "g2ArithmeticSteps"
+            },
+            {
+              "tpl": "sub_ones",
+              "text": "Вычисли: 96 − 5",
+              "ex": "Единицы: 6 − 5 = 1. Получаем 91.",
+              "answer": "91",
+              "visual": "g2ArithmeticSteps"
+            }
+          ]
+        },
+        {
+          "d": 1,
+          "attempted": 135,
+          "validated": 135,
+          "templates": 7,
+          "topTemplates": [
+            [
+              "sub_tens",
+              26
+            ],
+            [
+              "add_tens",
+              22
+            ],
+            [
+              "compute_input",
+              22
+            ],
+            [
+              "sub_ones",
+              19
+            ],
+            [
+              "add_ones",
+              17
+            ],
+            [
+              "sub_cross",
+              17
+            ]
+          ],
+          "unique": 133,
+          "modelChecked": 0,
+          "wrongGrammar": 0,
+          "badPunctuation": 0,
+          "choicesChecked": 113,
+          "answerKinds": {
+            "choice": 113,
+            "string": 22
+          },
+          "samples": [
+            {
+              "tpl": "add_cross",
+              "text": "Вычисли: 35 + 6",
+              "ex": "35 + 5 = 40. Из 6 уже прибавили 5. Осталось 1. 40 + 1 = 41.",
+              "answer": "41",
+              "visual": "g2ArithmeticSteps"
+            },
+            {
+              "tpl": "add_ones",
+              "text": "Вычисли: 45 + 2",
+              "ex": "Единицы: 5 + 2 = 7. Получаем 47.",
+              "answer": "47",
+              "visual": "g2ArithmeticSteps"
+            },
+            {
+              "tpl": "sub_tens",
+              "text": "Вычисли: 20 − 10",
+              "ex": "20 − 10. 1 десяток и 0 единиц = 10.",
+              "answer": "10",
+              "visual": "g2ArithmeticSteps"
+            },
+            {
+              "tpl": "sub_ones",
+              "text": "Вычисли: 11 − 1",
+              "ex": "Единицы: 1 − 1 = 0. Получаем 10.",
+              "answer": "10",
+              "visual": "g2ArithmeticSteps"
+            },
+            {
+              "tpl": "sub_cross",
+              "text": "Вычисли: 92 − 3",
+              "ex": "92 − 2 = 90. Из 3 уже вычли 2. Осталось вычесть 1. 90 − 1 = 89.",
+              "answer": "89",
+              "visual": "g2ArithmeticSteps"
+            },
+            {
+              "tpl": "add_tens",
+              "text": "Вычисли: 39 + 30",
+              "ex": "39 + 30. 6 десятков и 9 единиц = 69.",
+              "answer": "69",
+              "visual": "g2ArithmeticSteps"
+            },
+            {
+              "tpl": "compute_input",
+              "text": "Вычисли: 91 − 4",
+              "ex": "91 − 1 = 90. Из 4 уже вычли 1. Осталось вычесть 3. 90 − 3 = 87.",
+              "answer": "87",
+              "visual": "g2ArithmeticSteps"
+            }
+          ]
+        },
+        {
+          "d": 2,
+          "attempted": 135,
+          "validated": 135,
+          "templates": 10,
+          "topTemplates": [
+            [
+              "sub_tens",
+              21
+            ],
+            [
+              "add_ones",
+              18
+            ],
+            [
+              "missing_subtrahend",
+              17
+            ],
+            [
+              "missing_addend",
+              15
+            ],
+            [
+              "sub_cross",
+              11
+            ],
+            [
+              "choose_record",
+              11
+            ]
+          ],
+          "unique": 135,
+          "modelChecked": 0,
+          "wrongGrammar": 0,
+          "badPunctuation": 0,
+          "choicesChecked": 93,
+          "answerKinds": {
+            "choice": 93,
+            "string": 42
+          },
+          "samples": [
+            {
+              "tpl": "sub_tens",
+              "text": "Вычисли: 67 − 50",
+              "ex": "67 − 50. 1 десяток и 7 единиц = 17.",
+              "answer": "17",
+              "visual": "g2ArithmeticSteps"
+            },
+            {
+              "tpl": "sub_cross",
+              "text": "Вычисли: 41 − 6",
+              "ex": "41 − 1 = 40. Из 6 уже вычли 1. Осталось вычесть 5. 40 − 5 = 35.",
+              "answer": "35",
+              "visual": "g2ArithmeticSteps"
+            },
+            {
+              "tpl": "missing_subtrahend",
+              "text": "Какое число пропущено? 71 − ? = 70",
+              "ex": "Из 71 вычли 1 и получили 70. Значит, пропущено 1.",
+              "answer": "1",
+              "visual": null
+            },
+            {
+              "tpl": "sub_ones",
+              "text": "Вычисли: 87 − 2",
+              "ex": "Единицы: 7 − 2 = 5. Получаем 85.",
+              "answer": "85",
+              "visual": "g2ArithmeticSteps"
+            },
+            {
+              "tpl": "compute_input",
+              "text": "Вычисли: 62 − 3",
+              "ex": "62 − 2 = 60. Из 3 уже вычли 2. Осталось вычесть 1. 60 − 1 = 59.",
+              "answer": "59",
+              "visual": "g2ArithmeticSteps"
+            },
+            {
+              "tpl": "missing_addend",
+              "text": "Какое число пропущено? 57 + ? = 65",
+              "ex": "От 57 до 65 нужно прибавить 8. Значит, пропущено 8.",
+              "answer": "8",
+              "visual": null
+            },
+            {
+              "tpl": "choose_record",
+              "text": "Выбери верную запись.",
+              "ex": "23 − 5 = 18.",
+              "answer": "23 − 5 = 18",
+              "visual": null
+            },
+            {
+              "tpl": "add_cross",
+              "text": "Вычисли: 36 + 8",
+              "ex": "36 + 4 = 40. Из 8 уже прибавили 4. Осталось 4. 40 + 4 = 44.",
+              "answer": "44",
+              "visual": "g2ArithmeticSteps"
+            }
+          ]
+        }
+      ],
+      "uiStarts": [
+        {
+          "level": 0,
+          "rendered": true,
+          "mode": null
+        },
+        {
+          "level": 1,
+          "rendered": true,
+          "mode": null
+        },
+        {
+          "level": 2,
+          "rendered": true,
+          "mode": null
+        }
+      ]
+    },
+    {
+      "grade": 2,
+      "id": "g2:multiply_divide",
+      "title": "Умножение и деление",
+      "levels": [
+        {
+          "d": 0,
+          "attempted": 135,
+          "validated": 135,
+          "templates": 3,
+          "topTemplates": [
+            [
+              "groups_total",
+              54
+            ],
+            [
+              "share_equal",
+              49
+            ],
+            [
+              "repeated_addition",
+              32
+            ]
+          ],
+          "unique": 128,
+          "modelChecked": 0,
+          "wrongGrammar": 0,
+          "badPunctuation": 0,
+          "choicesChecked": 135,
+          "answerKinds": {
+            "choice": 135
+          },
+          "samples": [
+            {
+              "tpl": "groups_total",
+              "text": "Одинаковых групп: 2. В каждой по 2 предмета. Сколько предметов всего?",
+              "ex": "2 повторяется 2 раза: 2 + 2 = 4.",
+              "answer": "4",
+              "visual": "g2EqualGroups"
+            },
+            {
+              "tpl": "repeated_addition",
+              "text": "Какая запись умножением заменяет сумму 4 + 4 + 4 + 4 + 4 ?",
+              "ex": "4 складываем 5 раза. Это можно записать: 4 × 5 = 20.",
+              "answer": "4 × 5 = 20",
+              "visual": "g2EqualGroups"
+            },
+            {
+              "tpl": "share_equal",
+              "text": "10 предметов разделили поровну на 2 группы. Сколько предметов в каждой группе?",
+              "ex": "10 ÷ 2 = 5. В каждой группе по 5.",
+              "answer": "5",
+              "visual": "g2EqualGroups"
+            }
+          ]
+        },
+        {
+          "d": 1,
+          "attempted": 135,
+          "validated": 135,
+          "templates": 6,
+          "topTemplates": [
+            [
+              "make_groups",
+              26
+            ],
+            [
+              "multiply_fact",
+              24
+            ],
+            [
+              "divide_fact",
+              24
+            ],
+            [
+              "share_equal",
+              24
+            ],
+            [
+              "repeated_addition",
+              20
+            ],
+            [
+              "groups_total",
+              17
+            ]
+          ],
+          "unique": 111,
+          "modelChecked": 0,
+          "wrongGrammar": 0,
+          "badPunctuation": 0,
+          "choicesChecked": 61,
+          "answerKinds": {
+            "string": 74,
+            "choice": 61
+          },
+          "samples": [
+            {
+              "tpl": "make_groups",
+              "text": "12 предметов разложили по 4 в каждую группу. Сколько получилось групп?",
+              "ex": "12 ÷ 4 = 3. Получилось 3 группы.",
+              "answer": "3",
+              "visual": "g2EqualGroups"
+            },
+            {
+              "tpl": "multiply_fact",
+              "text": "Вычисли: 9 × 9",
+              "ex": "9 × 9 = 81.",
+              "answer": "81",
+              "visual": null
+            },
+            {
+              "tpl": "divide_fact",
+              "text": "Вычисли: 100 ÷ 10",
+              "ex": "100 ÷ 10 = 10, потому что 10 × 10 = 100.",
+              "answer": "10",
+              "visual": null
+            },
+            {
+              "tpl": "share_equal",
+              "text": "25 предметов разделили поровну на 5 групп. Сколько предметов в каждой группе?",
+              "ex": "25 ÷ 5 = 5. В каждой группе по 5.",
+              "answer": "5",
+              "visual": "g2EqualGroups"
+            },
+            {
+              "tpl": "groups_total",
+              "text": "Одинаковых групп: 3. В каждой по 5 предметов. Сколько предметов всего?",
+              "ex": "5 повторяется 3 раза: 5 + 5 + 5 = 15.",
+              "answer": "15",
+              "visual": "g2EqualGroups"
+            },
+            {
+              "tpl": "repeated_addition",
+              "text": "Какая запись умножением заменяет сумму 2 + 2 + 2 + 2 + 2 ?",
+              "ex": "2 складываем 5 раза. Это можно записать: 2 × 5 = 10.",
+              "answer": "2 × 5 = 10",
+              "visual": "g2EqualGroups"
+            }
+          ]
+        },
+        {
+          "d": 2,
+          "attempted": 135,
+          "validated": 135,
+          "templates": 9,
+          "topTemplates": [
+            [
+              "make_groups",
+              19
+            ],
+            [
+              "repeated_addition",
+              18
+            ],
+            [
+              "compare_products",
+              17
+            ],
+            [
+              "missing_factor",
+              17
+            ],
+            [
+              "multiply_fact",
+              17
+            ],
+            [
+              "inverse_record",
+              16
+            ]
+          ],
+          "unique": 125,
+          "modelChecked": 0,
+          "wrongGrammar": 0,
+          "badPunctuation": 0,
+          "choicesChecked": 70,
+          "answerKinds": {
+            "string": 65,
+            "choice": 70
+          },
+          "samples": [
+            {
+              "tpl": "make_groups",
+              "text": "12 предметов разложили по 4 в каждую группу. Сколько получилось групп?",
+              "ex": "12 ÷ 4 = 3. Получилось 3 группы.",
+              "answer": "3",
+              "visual": "g2EqualGroups"
+            },
+            {
+              "tpl": "share_equal",
+              "text": "20 предметов разделили поровну на 4 группы. Сколько предметов в каждой группе?",
+              "ex": "20 ÷ 4 = 5. В каждой группе по 5.",
+              "answer": "5",
+              "visual": "g2EqualGroups"
+            },
+            {
+              "tpl": "compare_products",
+              "text": "Какое произведение больше? A: 2 × 4 B: 4 × 4",
+              "ex": "A = 8. B = 16. Больше значение B.",
+              "answer": "B",
+              "visual": null
+            },
+            {
+              "tpl": "groups_total",
+              "text": "Одинаковых групп: 5. В каждой по 3 предмета. Сколько предметов всего?",
+              "ex": "3 повторяется 5 раза: 3 + 3 + 3 + 3 + 3 = 15.",
+              "answer": "15",
+              "visual": "g2EqualGroups"
+            },
+            {
+              "tpl": "repeated_addition",
+              "text": "Какая запись умножением заменяет сумму 4 + 4 + 4 + 4 ?",
+              "ex": "4 складываем 4 раза. Это можно записать: 4 × 4 = 16.",
+              "answer": "4 × 4 = 16",
+              "visual": "g2EqualGroups"
+            },
+            {
+              "tpl": "missing_factor",
+              "text": "Какое число пропущено? 9 × ? = 63",
+              "ex": "63 ÷ 9 = 7. Значит, пропущено 7.",
+              "answer": "7",
+              "visual": null
+            },
+            {
+              "tpl": "inverse_record",
+              "text": "Известно: 2 × 8 = 16 . Какая запись деления верна?",
+              "ex": "Если 2 × 8 = 16, то 16 ÷ 2 = 8.",
+              "answer": "16 ÷ 2 = 8",
+              "visual": null
+            },
+            {
+              "tpl": "divide_fact",
+              "text": "Вычисли: 14 ÷ 7",
+              "ex": "14 ÷ 7 = 2, потому что 2 × 7 = 14.",
+              "answer": "2",
+              "visual": null
+            }
+          ]
+        }
+      ],
+      "uiStarts": [
+        {
+          "level": 0,
+          "rendered": true,
+          "mode": null
+        },
+        {
+          "level": 1,
+          "rendered": true,
+          "mode": null
+        },
+        {
+          "level": 2,
+          "rendered": true,
+          "mode": null
+        }
+      ]
+    },
+    {
+      "grade": 2,
+      "id": "g2:operations_100",
+      "title": "Арифметические действия с числами в пределах 100",
+      "levels": [
+        {
+          "d": 0,
+          "attempted": 135,
+          "validated": 135,
+          "templates": 2,
+          "topTemplates": [
+            [
+              "choose_first",
+              68
+            ],
+            [
+              "two_step_add_sub",
+              67
+            ]
+          ],
+          "unique": 135,
+          "modelChecked": 0,
+          "wrongGrammar": 0,
+          "badPunctuation": 0,
+          "choicesChecked": 135,
+          "answerKinds": {
+            "choice": 135
+          },
+          "samples": [
+            {
+              "tpl": "choose_first",
+              "text": "Какое действие выполнить первым? (15 + 9) ÷ 3",
+              "ex": "Сначала выполняем действие в скобках: 15 + 9.",
+              "answer": "15 + 9",
+              "visual": null
+            },
+            {
+              "tpl": "two_step_add_sub",
+              "text": "Найди значение выражения: 63 + 10 − 15",
+              "ex": "63 + 10 = 73. 73 − 15 = 58.",
+              "answer": "58",
+              "visual": "g2Expression"
+            }
+          ]
+        },
+        {
+          "d": 1,
+          "attempted": 135,
+          "validated": 135,
+          "templates": 5,
+          "topTemplates": [
+            [
+              "compute_input",
+              41
+            ],
+            [
+              "mul_before_add",
+              28
+            ],
+            [
+              "div_before_sub",
+              24
+            ],
+            [
+              "two_step_add_sub",
+              23
+            ],
+            [
+              "choose_first",
+              19
+            ]
+          ],
+          "unique": 133,
+          "modelChecked": 0,
+          "wrongGrammar": 0,
+          "badPunctuation": 0,
+          "choicesChecked": 94,
+          "answerKinds": {
+            "choice": 94,
+            "string": 41
+          },
+          "samples": [
+            {
+              "tpl": "choose_first",
+              "text": "Какое действие выполнить первым? 28 + 4 × 3",
+              "ex": "Умножение выполняем раньше сложения. Сначала 4 × 3.",
+              "answer": "4 × 3",
+              "visual": null
+            },
+            {
+              "tpl": "compute_input",
+              "text": "Вычисли: 25 + 4 × 2",
+              "ex": "4 × 2 = 8. 25 + 8 = 33.",
+              "answer": "33",
+              "visual": "g2Expression"
+            },
+            {
+              "tpl": "div_before_sub",
+              "text": "Найди значение выражения: 53 − 8 ÷ 2",
+              "ex": "Сначала деление: 8 ÷ 2 = 4. Потом вычитание: 53 − 4 = 49.",
+              "answer": "49",
+              "visual": "g2Expression"
+            },
+            {
+              "tpl": "mul_before_add",
+              "text": "Найди значение выражения: 38 + 3 × 2",
+              "ex": "Сначала умножение: 3 × 2 = 6. Потом сложение: 38 + 6 = 44.",
+              "answer": "44",
+              "visual": "g2Expression"
+            },
+            {
+              "tpl": "two_step_add_sub",
+              "text": "Найди значение выражения: 38 + 10 − 12",
+              "ex": "38 + 10 = 48. 48 − 12 = 36.",
+              "answer": "36",
+              "visual": "g2Expression"
+            }
+          ]
+        },
+        {
+          "d": 2,
+          "attempted": 135,
+          "validated": 135,
+          "templates": 8,
+          "topTemplates": [
+            [
+              "find_error",
+              21
+            ],
+            [
+              "div_before_sub",
+              21
+            ],
+            [
+              "parentheses_first",
+              18
+            ],
+            [
+              "restore_step",
+              17
+            ],
+            [
+              "compute_input",
+              16
+            ],
+            [
+              "choose_first",
+              14
+            ]
+          ],
+          "unique": 134,
+          "modelChecked": 0,
+          "wrongGrammar": 0,
+          "badPunctuation": 0,
+          "choicesChecked": 84,
+          "answerKinds": {
+            "choice": 84,
+            "string": 51
+          },
+          "samples": [
+            {
+              "tpl": "choose_first",
+              "text": "Какое действие выполнить первым? 42 + 8 − 13",
+              "ex": "Сложение и вычитание здесь выполняем слева направо. Сначала 42 + 8.",
+              "answer": "42 + 8",
+              "visual": null
+            },
+            {
+              "tpl": "parentheses_first",
+              "text": "Найди значение выражения: (1 + 3) ÷ 2",
+              "ex": "Сначала действие в скобках: 1 + 3 = 4. Потом 4 ÷ 2 = 2.",
+              "answer": "2",
+              "visual": "g2Expression"
+            },
+            {
+              "tpl": "find_error",
+              "text": "Выбери верно вычисленное выражение.",
+              "ex": "3 × 2 = 6. 27 + 6 = 33. Поэтому 27 + 3 × 2 = 33.",
+              "answer": "27 + 3 × 2 = 33",
+              "visual": null
+            },
+            {
+              "tpl": "restore_step",
+              "text": "Какое число должно быть на первом шаге? 5 + 3 × 4 3 × 4 = ?",
+              "ex": "Сначала умножаем: 3 × 4 = 12. После этого можно выполнить сложение.",
+              "answer": "12",
+              "visual": null
+            },
+            {
+              "tpl": "two_step_add_sub",
+              "text": "Найди значение выражения: 41 + 12 − 5",
+              "ex": "41 + 12 = 53. 53 − 5 = 48.",
+              "answer": "48",
+              "visual": "g2Expression"
+            },
+            {
+              "tpl": "div_before_sub",
+              "text": "Найди значение выражения: 24 − 4 ÷ 2",
+              "ex": "Сначала деление: 4 ÷ 2 = 2. Потом вычитание: 24 − 2 = 22.",
+              "answer": "22",
+              "visual": "g2Expression"
+            },
+            {
+              "tpl": "compute_input",
+              "text": "Вычисли: 45 − 15 ÷ 3",
+              "ex": "15 ÷ 3 = 5. 45 − 5 = 40.",
+              "answer": "40",
+              "visual": "g2Expression"
+            },
+            {
+              "tpl": "mul_before_add",
+              "text": "Найди значение выражения: 13 + 5 × 5",
+              "ex": "Сначала умножение: 5 × 5 = 25. Потом сложение: 13 + 25 = 38.",
+              "answer": "38",
+              "visual": "g2Expression"
+            }
+          ]
+        }
+      ],
+      "uiStarts": [
+        {
+          "level": 0,
+          "rendered": true,
+          "mode": null
+        },
+        {
+          "level": 1,
+          "rendered": true,
+          "mode": null
+        },
+        {
+          "level": 2,
+          "rendered": true,
+          "mode": null
+        }
+      ]
+    },
+    {
+      "grade": 2,
+      "id": "g2:word_problems",
+      "title": "Текстовые задачи",
+      "levels": [
+        {
+          "d": 0,
+          "attempted": 1400,
+          "validated": 1400,
+          "templates": 2,
+          "topTemplates": [
+            [
+              "add_result",
+              701
+            ],
+            [
+              "sub_result",
+              699
+            ]
+          ],
+          "unique": 1378,
+          "modelChecked": 1400,
+          "wrongGrammar": 90,
+          "badPunctuation": 0,
+          "choicesChecked": 1400,
+          "answerKinds": {
+            "choice": 1400
+          },
+          "samples": [
+            {
+              "tpl": "add_result",
+              "text": "На полке было 54 книги. Поставили ещё 4 книги. Сколько книг стало?",
+              "ex": "Нужно узнать, сколько стало: 54 + 4 = 58.",
+              "answer": "58",
+              "visual": "g2Story"
+            },
+            {
+              "tpl": "sub_result",
+              "text": "На столе было 46 тетрадей. Убрали 1 тетрадь. Сколько тетрадей осталось?",
+              "ex": "Нужно узнать, сколько осталось: 46 − 1 = 45.",
+              "answer": "45",
+              "visual": "g2Story"
+            }
+          ]
+        },
+        {
+          "d": 1,
+          "attempted": 1400,
+          "validated": 1400,
+          "templates": 6,
+          "topTemplates": [
+            [
+              "multiply_result",
+              249
+            ],
+            [
+              "choose_action",
+              239
+            ],
+            [
+              "divide_result",
+              239
+            ],
+            [
+              "choose_record",
+              235
+            ],
+            [
+              "add_result",
+              224
+            ],
+            [
+              "sub_result",
+              214
+            ]
+          ],
+          "unique": 906,
+          "modelChecked": 1400,
+          "wrongGrammar": 76,
+          "badPunctuation": 0,
+          "choicesChecked": 474,
+          "answerKinds": {
+            "choice": 474,
+            "string": 926
+          },
+          "samples": [
+            {
+              "tpl": "choose_record",
+              "text": "На полке было 91 книга. Сняли 25 книг. Сколько книг осталось? Выбери запись для решения.",
+              "ex": "По условию подходит запись 91 − 25.",
+              "answer": "91 − 25",
+              "visual": "g2Story"
+            },
+            {
+              "tpl": "multiply_result",
+              "text": "Есть 4 группы. В каждой по 2 предмета. Сколько предметов всего?",
+              "ex": "2 повторяется 4 раза: 2 × 4 = 8.",
+              "answer": "8",
+              "visual": "g2EqualGroups"
+            },
+            {
+              "tpl": "choose_action",
+              "text": "В коробке было 57 карандашей. Положили ещё 12 карандашей. Сколько карандашей стало? Какое действие нужно выполнить?",
+              "ex": "Нужно узнать, сколько стало: 57 + 12 = 69. Значит, выбираем действие «сложение».",
+              "answer": "Сложение",
+              "visual": "g2Story"
+            },
+            {
+              "tpl": "add_result",
+              "text": "На полке было 29 книг. Поставили ещё 15 книг. Сколько книг стало?",
+              "ex": "Нужно узнать, сколько стало: 29 + 15 = 44.",
+              "answer": "44",
+              "visual": "g2Story"
+            },
+            {
+              "tpl": "divide_result",
+              "text": "15 предметов разделили поровну на 3 группы. Сколько предметов в каждой группе?",
+              "ex": "Делим поровну: 15 ÷ 3 = 5.",
+              "answer": "5",
+              "visual": "g2EqualGroups"
+            },
+            {
+              "tpl": "sub_result",
+              "text": "На столе было 66 тетрадей. Убрали 17 тетрадей. Сколько тетрадей осталось?",
+              "ex": "Нужно узнать, сколько осталось: 66 − 17 = 49.",
+              "answer": "49",
+              "visual": "g2Story"
+            }
+          ]
+        },
+        {
+          "d": 2,
+          "attempted": 1400,
+          "validated": 1400,
+          "templates": 9,
+          "topTemplates": [
+            [
+              "two_add_sub",
+              168
+            ],
+            [
+              "choose_record",
+              161
+            ],
+            [
+              "two_mul_add",
+              159
+            ],
+            [
+              "divide_result",
+              158
+            ],
+            [
+              "multiply_result",
+              158
+            ],
+            [
+              "sub_result",
+              158
+            ]
+          ],
+          "unique": 1100,
+          "modelChecked": 1400,
+          "wrongGrammar": 78,
+          "badPunctuation": 0,
+          "choicesChecked": 298,
+          "answerKinds": {
+            "string": 1102,
+            "choice": 298
+          },
+          "samples": [
+            {
+              "tpl": "two_sub_add",
+              "text": "На столе было 76 тетрадей. Убрали 17 тетрадей, потом положили 8 тетрадей. Сколько тетрадей стало?",
+              "ex": "Сначала 76 − 17 = 59. Потом 59 + 8 = 67.",
+              "answer": "67",
+              "visual": "g2Story"
+            },
+            {
+              "tpl": "add_result",
+              "text": "На столе было 12 тетрадей. Положили ещё 12 тетрадей. Сколько тетрадей стало?",
+              "ex": "Нужно узнать, сколько стало: 12 + 12 = 24.",
+              "answer": "24",
+              "visual": "g2Story"
+            },
+            {
+              "tpl": "divide_result",
+              "text": "12 предметов разделили поровну на 4 группы. Сколько предметов в каждой группе?",
+              "ex": "Делим поровну: 12 ÷ 4 = 3.",
+              "answer": "3",
+              "visual": "g2EqualGroups"
+            },
+            {
+              "tpl": "choose_record",
+              "text": "В корзине было 60 мячей. Добавили ещё 20 мячей. Сколько мячей стало? Выбери запись для решения.",
+              "ex": "По условию подходит запись 60 + 20.",
+              "answer": "60 + 20",
+              "visual": "g2Story"
+            },
+            {
+              "tpl": "multiply_result",
+              "text": "Есть 2 группы. В каждой по 8 предметов. Сколько предметов всего?",
+              "ex": "8 повторяется 2 раза: 8 × 2 = 16.",
+              "answer": "16",
+              "visual": "g2EqualGroups"
+            },
+            {
+              "tpl": "choose_action",
+              "text": "В корзине было 36 мячей. Взяли 11 мячей. Сколько мячей осталось? Какое действие нужно выполнить?",
+              "ex": "Нужно узнать, сколько осталось: 36 − 11 = 25. Значит, выбираем действие «вычитание».",
+              "answer": "Вычитание",
+              "visual": "g2Story"
+            },
+            {
+              "tpl": "two_add_sub",
+              "text": "В корзине было 22 мяча. Добавили 5 мячей, потом взяли 5 мячей. Сколько мячей осталось?",
+              "ex": "Сначала 22 + 5 = 27. Потом 27 − 5 = 22.",
+              "answer": "22",
+              "visual": "g2Story"
+            },
+            {
+              "tpl": "two_mul_add",
+              "text": "Есть 3 группы. В каждой по 6 предметов. Потом добавили ещё 9 предметов. Сколько предметов стало всего?",
+              "ex": "Сначала узнаём количество в группах: 6 × 3 = 18. Потом 18 + 9 = 27.",
+              "answer": "27",
+              "visual": "g2Story"
+            }
+          ]
+        }
+      ],
+      "uiStarts": [
+        {
+          "level": 0,
+          "rendered": true,
+          "mode": null
+        },
+        {
+          "level": 1,
+          "rendered": true,
+          "mode": null
+        },
+        {
+          "level": 2,
+          "rendered": true,
+          "mode": null
+        }
+      ]
+    },
+    {
+      "grade": 2,
+      "id": "g2:geometric_figures",
+      "title": "Геометрические фигуры",
+      "levels": [
+        {
+          "d": 0,
+          "attempted": 135,
+          "validated": 135,
+          "templates": 3,
+          "topTemplates": [
+            [
+              "find_gallery",
+              50
+            ],
+            [
+              "count_sides",
+              43
+            ],
+            [
+              "identify",
+              42
+            ]
+          ],
+          "unique": 120,
+          "modelChecked": 0,
+          "wrongGrammar": 0,
+          "badPunctuation": 0,
+          "choicesChecked": 135,
+          "answerKinds": {
+            "choice": 135
+          },
+          "samples": [
+            {
+              "tpl": "find_gallery",
+              "text": "Под какой буквой находится круг?",
+              "ex": "Круг находится под буквой B.",
+              "answer": "B",
+              "visual": "g1Shape"
+            },
+            {
+              "tpl": "identify",
+              "text": "Какая фигура показана?",
+              "ex": "Это квадрат.",
+              "answer": "Квадрат",
+              "visual": "g1Shape"
+            },
+            {
+              "tpl": "count_sides",
+              "text": "Сколько сторон у этой фигуры?",
+              "ex": "У квадрата 4 стороны.",
+              "answer": "4",
+              "visual": "g1Shape"
+            }
+          ]
+        },
+        {
+          "d": 1,
+          "attempted": 135,
+          "validated": 135,
+          "templates": 6,
+          "topTemplates": [
+            [
+              "point_segment",
+              32
+            ],
+            [
+              "count_corners",
+              24
+            ],
+            [
+              "find_gallery",
+              21
+            ],
+            [
+              "equal_sides",
+              20
+            ],
+            [
+              "count_sides",
+              19
+            ],
+            [
+              "identify",
+              19
+            ]
+          ],
+          "unique": 98,
+          "modelChecked": 0,
+          "wrongGrammar": 0,
+          "badPunctuation": 0,
+          "choicesChecked": 135,
+          "answerKinds": {
+            "choice": 135
+          },
+          "samples": [
+            {
+              "tpl": "count_sides",
+              "text": "Сколько сторон у этой фигуры?",
+              "ex": "У прямоугольника 4 стороны.",
+              "answer": "4",
+              "visual": "g1Shape"
+            },
+            {
+              "tpl": "identify",
+              "text": "Какая фигура показана?",
+              "ex": "Это квадрат.",
+              "answer": "Квадрат",
+              "visual": "g1Shape"
+            },
+            {
+              "tpl": "equal_sides",
+              "text": "У какой фигуры 4 равные стороны?",
+              "ex": "У квадрата 4 стороны, и все они равны.",
+              "answer": "Квадрат",
+              "visual": "g1Shape"
+            },
+            {
+              "tpl": "count_corners",
+              "text": "Сколько углов у этой фигуры?",
+              "ex": "У треугольника 3 угла.",
+              "answer": "3",
+              "visual": "g1Shape"
+            },
+            {
+              "tpl": "point_segment",
+              "text": "Что показано?",
+              "ex": "Отрезок — прямая линия между двумя отмеченными концами.",
+              "answer": "Отрезок",
+              "visual": "g1Shape"
+            },
+            {
+              "tpl": "find_gallery",
+              "text": "Под какой буквой находится треугольник?",
+              "ex": "Треугольник находится под буквой A.",
+              "answer": "A",
+              "visual": "g1Shape"
+            }
+          ]
+        },
+        {
+          "d": 2,
+          "attempted": 135,
+          "validated": 135,
+          "templates": 7,
+          "topTemplates": [
+            [
+              "count_corners",
+              24
+            ],
+            [
+              "find_gallery",
+              23
+            ],
+            [
+              "equal_sides",
+              23
+            ],
+            [
+              "count_sides",
+              20
+            ],
+            [
+              "identify",
+              18
+            ],
+            [
+              "description_shape",
+              15
+            ]
+          ],
+          "unique": 123,
+          "modelChecked": 0,
+          "wrongGrammar": 0,
+          "badPunctuation": 0,
+          "choicesChecked": 135,
+          "answerKinds": {
+            "choice": 135
+          },
+          "samples": [
+            {
+              "tpl": "count_sides",
+              "text": "Сколько сторон у этой фигуры?",
+              "ex": "У треугольника 3 стороны.",
+              "answer": "3",
+              "visual": "g1Shape"
+            },
+            {
+              "tpl": "point_segment",
+              "text": "Что показано?",
+              "ex": "Точка — это маленькая отметка.",
+              "answer": "Точка",
+              "visual": "g1Shape"
+            },
+            {
+              "tpl": "count_corners",
+              "text": "Сколько углов у этой фигуры?",
+              "ex": "У треугольника 3 угла.",
+              "answer": "3",
+              "visual": "g1Shape"
+            },
+            {
+              "tpl": "description_shape",
+              "text": "Какая фигура имеет 4 стороны и 4 угла, но не все её стороны равны?",
+              "ex": "У прямоугольника 4 стороны и 4 угла. Две длинные стороны равны между собой, и две короткие — между собой.",
+              "answer": "Прямоугольник",
+              "visual": "g1Shape"
+            },
+            {
+              "tpl": "find_gallery",
+              "text": "Под какой буквой находится круг?",
+              "ex": "Круг находится под буквой A.",
+              "answer": "A",
+              "visual": "g1Shape"
+            },
+            {
+              "tpl": "equal_sides",
+              "text": "У какой фигуры 4 равные стороны?",
+              "ex": "У квадрата 4 стороны, и все они равны.",
+              "answer": "Квадрат",
+              "visual": "g1Shape"
+            },
+            {
+              "tpl": "identify",
+              "text": "Какая фигура показана?",
+              "ex": "Это круг.",
+              "answer": "Круг",
+              "visual": "g1Shape"
+            }
+          ]
+        }
+      ],
+      "uiStarts": [
+        {
+          "level": 0,
+          "rendered": true,
+          "mode": null
+        },
+        {
+          "level": 1,
+          "rendered": true,
+          "mode": null
+        },
+        {
+          "level": 2,
+          "rendered": true,
+          "mode": null
+        }
+      ]
+    },
+    {
+      "grade": 2,
+      "id": "g2:geometric_quantities",
+      "title": "Геометрические величины",
+      "levels": [
+        {
+          "d": 0,
+          "attempted": 135,
+          "validated": 135,
+          "templates": 3,
+          "topTemplates": [
+            [
+              "rectangle_perimeter",
+              51
+            ],
+            [
+              "measure_segment",
+              45
+            ],
+            [
+              "square_perimeter",
+              39
+            ]
+          ],
+          "unique": 88,
+          "modelChecked": 90,
+          "wrongGrammar": 0,
+          "badPunctuation": 0,
+          "choicesChecked": 45,
+          "answerKinds": {
+            "choice": 45,
+            "string": 90
+          },
+          "samples": [
+            {
+              "tpl": "measure_segment",
+              "text": "Какова длина отрезка?",
+              "ex": "Отрезок начинается у 0 и заканчивается у 10. Его длина — 10 см.",
+              "answer": "10",
+              "visual": "g1Length"
+            },
+            {
+              "tpl": "square_perimeter",
+              "text": "Сторона квадрата — 7 см . Найди его периметр.",
+              "ex": "Складываем длины четырёх равных сторон: 7 + 7 + 7 + 7 = 28 см.",
+              "answer": "28",
+              "visual": "g2Perimeter"
+            },
+            {
+              "tpl": "rectangle_perimeter",
+              "text": "Стороны прямоугольника — 5 см и 6 см . Найди его периметр.",
+              "ex": "Складываем все стороны: 5 + 6 + 5 + 6 = 22 см.",
+              "answer": "22",
+              "visual": "g2Perimeter"
+            }
+          ]
+        },
+        {
+          "d": 1,
+          "attempted": 135,
+          "validated": 135,
+          "templates": 6,
+          "topTemplates": [
+            [
+              "triangle_perimeter",
+              27
+            ],
+            [
+              "compare_perimeters",
+              27
+            ],
+            [
+              "choose_record",
+              22
+            ],
+            [
+              "square_perimeter",
+              22
+            ],
+            [
+              "measure_segment",
+              20
+            ],
+            [
+              "rectangle_perimeter",
+              17
+            ]
+          ],
+          "unique": 101,
+          "modelChecked": 88,
+          "wrongGrammar": 0,
+          "badPunctuation": 0,
+          "choicesChecked": 69,
+          "answerKinds": {
+            "choice": 69,
+            "string": 66
+          },
+          "samples": [
+            {
+              "tpl": "choose_record",
+              "text": "Какая запись правильно показывает, как найти периметр?",
+              "ex": "У прямоугольника две стороны по 11 см и две по 7 см. Складываем все четыре: 11 + 7 + 11 + 7.",
+              "answer": "11 + 7 + 11 + 7",
+              "visual": "g2Perimeter"
+            },
+            {
+              "tpl": "square_perimeter",
+              "text": "Сторона квадрата — 3 см . Найди его периметр.",
+              "ex": "Складываем длины четырёх равных сторон: 3 + 3 + 3 + 3 = 12 см.",
+              "answer": "12",
+              "visual": "g2Perimeter"
+            },
+            {
+              "tpl": "rectangle_perimeter",
+              "text": "Стороны прямоугольника — 7 см и 5 см . Найди его периметр.",
+              "ex": "Складываем все стороны: 7 + 5 + 7 + 5 = 24 см.",
+              "answer": "24",
+              "visual": "g2Perimeter"
+            },
+            {
+              "tpl": "triangle_perimeter",
+              "text": "Найди периметр треугольника.",
+              "ex": "Складываем три стороны: 3 + 4 + 5 = 12 см.",
+              "answer": "12",
+              "visual": "g2Perimeter"
+            },
+            {
+              "tpl": "compare_perimeters",
+              "text": "У какой фигуры периметр больше?",
+              "ex": "Периметр A — 28 см. Периметр B — 8 см. Больше у фигуры A.",
+              "answer": "A",
+              "visual": "g2Perimeter"
+            },
+            {
+              "tpl": "measure_segment",
+              "text": "Какова длина отрезка?",
+              "ex": "Отрезок начинается у 0 и заканчивается у 8. Его длина — 8 см.",
+              "answer": "8",
+              "visual": "g1Length"
+            }
+          ]
+        },
+        {
+          "d": 2,
+          "attempted": 135,
+          "validated": 135,
+          "templates": 8,
+          "topTemplates": [
+            [
+              "square_perimeter",
+              21
+            ],
+            [
+              "measure_segment",
+              20
+            ],
+            [
+              "missing_triangle_side",
+              18
+            ],
+            [
+              "rectangle_perimeter",
+              17
+            ],
+            [
+              "choose_record",
+              16
+            ],
+            [
+              "triangle_perimeter",
+              16
+            ]
+          ],
+          "unique": 91,
+          "modelChecked": 100,
+          "wrongGrammar": 0,
+          "badPunctuation": 0,
+          "choicesChecked": 51,
+          "answerKinds": {
+            "string": 84,
+            "choice": 51
+          },
+          "samples": [
+            {
+              "tpl": "square_perimeter",
+              "text": "Сторона квадрата — 6 см . Найди его периметр.",
+              "ex": "Складываем длины четырёх равных сторон: 6 + 6 + 6 + 6 = 24 см.",
+              "answer": "24",
+              "visual": "g2Perimeter"
+            },
+            {
+              "tpl": "missing_square_side",
+              "text": "Периметр квадрата — 44 см . Найди длину одной стороны.",
+              "ex": "У квадрата 4 равные стороны. 44 ÷ 4 = 11 см.",
+              "answer": "11",
+              "visual": "g2Perimeter"
+            },
+            {
+              "tpl": "rectangle_perimeter",
+              "text": "Стороны прямоугольника — 8 см и 7 см . Найди его периметр.",
+              "ex": "Складываем все стороны: 8 + 7 + 8 + 7 = 30 см.",
+              "answer": "30",
+              "visual": "g2Perimeter"
+            },
+            {
+              "tpl": "compare_perimeters",
+              "text": "У какой фигуры периметр больше?",
+              "ex": "Периметр A — 42 см. Периметр B — 12 см. Больше у фигуры A.",
+              "answer": "A",
+              "visual": "g2Perimeter"
+            },
+            {
+              "tpl": "choose_record",
+              "text": "Какая запись правильно показывает, как найти периметр?",
+              "ex": "У прямоугольника две стороны по 4 см и две по 2 см. Складываем все четыре: 4 + 2 + 4 + 2.",
+              "answer": "4 + 2 + 4 + 2",
+              "visual": "g2Perimeter"
+            },
+            {
+              "tpl": "missing_triangle_side",
+              "text": "Периметр треугольника — 15 см . Две известные стороны: 5 см и 6 см. Найди третью сторону.",
+              "ex": "Из периметра вычитаем известные стороны: 15 − 5 − 6 = 4 см.",
+              "answer": "4",
+              "visual": "g2Perimeter"
+            },
+            {
+              "tpl": "triangle_perimeter",
+              "text": "Найди периметр треугольника.",
+              "ex": "Складываем три стороны: 6 + 6 + 8 = 20 см.",
+              "answer": "20",
+              "visual": "g2Perimeter"
+            },
+            {
+              "tpl": "measure_segment",
+              "text": "Какова длина отрезка?",
+              "ex": "Отрезок начинается у 0 и заканчивается у 8. Его длина — 8 см.",
+              "answer": "8",
+              "visual": "g1Length"
+            }
+          ]
+        }
+      ],
+      "uiStarts": [
+        {
+          "level": 0,
+          "rendered": true,
+          "mode": null
+        },
+        {
+          "level": 1,
+          "rendered": true,
+          "mode": null
+        },
+        {
+          "level": 2,
+          "rendered": true,
+          "mode": null
+        }
+      ]
+    },
+    {
+      "grade": 2,
+      "id": "g2:math_information",
+      "title": "Математическая информация",
+      "levels": [
+        {
+          "d": 0,
+          "attempted": 135,
+          "validated": 135,
+          "templates": 3,
+          "topTemplates": [
+            [
+              "table_find_category",
+              52
+            ],
+            [
+              "pattern_next",
+              51
+            ],
+            [
+              "table_compare",
+              32
+            ]
+          ],
+          "unique": 135,
+          "modelChecked": 0,
+          "wrongGrammar": 0,
+          "badPunctuation": 0,
+          "choicesChecked": 135,
+          "answerKinds": {
+            "choice": 135
+          },
+          "samples": [
+            {
+              "tpl": "table_compare",
+              "text": "В какой строке самое большое число?",
+              "ex": "Карандаши: 22. Это самое большое число в таблице.",
+              "answer": "Карандаши",
+              "visual": "g2InfoTable"
+            },
+            {
+              "tpl": "table_find_category",
+              "text": "В какой строке таблицы стоит число 13 ?",
+              "ex": "Число 13 стоит в строке «Альбомы».",
+              "answer": "Альбомы",
+              "visual": "g2InfoTable"
+            },
+            {
+              "tpl": "pattern_next",
+              "text": "Какое число продолжит закономерность?",
+              "ex": "Каждый раз нужно прибавлять 10. Следующее число — 66.",
+              "answer": "66",
+              "visual": "g2InfoSequence"
+            }
+          ]
+        },
+        {
+          "d": 1,
+          "attempted": 135,
+          "validated": 135,
+          "templates": 7,
+          "topTemplates": [
+            [
+              "pattern_rule",
+              28
+            ],
+            [
+              "correct_statement",
+              23
+            ],
+            [
+              "table_find_category",
+              21
+            ],
+            [
+              "table_sum",
+              18
+            ],
+            [
+              "pattern_next",
+              17
+            ],
+            [
+              "table_difference",
+              17
+            ]
+          ],
+          "unique": 135,
+          "modelChecked": 0,
+          "wrongGrammar": 0,
+          "badPunctuation": 0,
+          "choicesChecked": 100,
+          "answerKinds": {
+            "choice": 100,
+            "string": 35
+          },
+          "samples": [
+            {
+              "tpl": "table_find_category",
+              "text": "В какой строке таблицы стоит число 25 ?",
+              "ex": "Число 25 стоит в строке «Среда».",
+              "answer": "Среда",
+              "visual": "g2InfoTable"
+            },
+            {
+              "tpl": "correct_statement",
+              "text": "Какая запись соответствует таблице?",
+              "ex": "В таблице в строке «Альбомы» стоит 22.",
+              "answer": "Альбомы: 22",
+              "visual": "g2InfoTable"
+            },
+            {
+              "tpl": "pattern_next",
+              "text": "Какое число продолжит закономерность?",
+              "ex": "Каждый раз нужно прибавлять 10. Следующее число — 82.",
+              "answer": "82",
+              "visual": "g2InfoSequence"
+            },
+            {
+              "tpl": "table_sum",
+              "text": "Сколько всего, если сложить числа в строках «Тетради» и «Альбомы»?",
+              "ex": "16 + 23 = 39.",
+              "answer": "39",
+              "visual": "g2InfoTable"
+            },
+            {
+              "tpl": "pattern_rule",
+              "text": "По какому правилу построена закономерность?",
+              "ex": "От числа к числу нужно прибавлять 10.",
+              "answer": "Прибавлять 10",
+              "visual": "g2InfoSequence"
+            },
+            {
+              "tpl": "table_compare",
+              "text": "В какой строке самое маленькое число?",
+              "ex": "Ручки: 7. Это самое маленькое число в таблице.",
+              "answer": "Ручки",
+              "visual": "g2InfoTable"
+            },
+            {
+              "tpl": "table_difference",
+              "text": "На сколько число в строке «Понедельник» больше, чем в строке «Вторник»?",
+              "ex": "16 − 8 = 8.",
+              "answer": "8",
+              "visual": "g2InfoTable"
+            }
+          ]
+        },
+        {
+          "d": 2,
+          "attempted": 135,
+          "validated": 135,
+          "templates": 8,
+          "topTemplates": [
+            [
+              "algorithm_result",
+              26
+            ],
+            [
+              "table_sum",
+              20
+            ],
+            [
+              "pattern_missing",
+              17
+            ],
+            [
+              "table_difference",
+              17
+            ],
+            [
+              "correct_statement",
+              15
+            ],
+            [
+              "pattern_rule",
+              14
+            ]
+          ],
+          "unique": 135,
+          "modelChecked": 0,
+          "wrongGrammar": 0,
+          "badPunctuation": 0,
+          "choicesChecked": 72,
+          "answerKinds": {
+            "choice": 72,
+            "string": 63
+          },
+          "samples": [
+            {
+              "tpl": "correct_statement",
+              "text": "Какая запись соответствует таблице?",
+              "ex": "В таблице в строке «Вторник» стоит 18.",
+              "answer": "Вторник: 18",
+              "visual": "g2InfoTable"
+            },
+            {
+              "tpl": "table_sum",
+              "text": "Сколько всего, если сложить числа в строках «Груши» и «Сливы»?",
+              "ex": "23 + 22 = 45.",
+              "answer": "45",
+              "visual": "g2InfoTable"
+            },
+            {
+              "tpl": "pattern_missing",
+              "text": "Какое число пропущено?",
+              "ex": "Шаг закономерности — +10. Пропущено число 23.",
+              "answer": "23",
+              "visual": "g2InfoSequence"
+            },
+            {
+              "tpl": "pattern_rule",
+              "text": "По какому правилу построена закономерность?",
+              "ex": "От числа к числу нужно прибавлять 10.",
+              "answer": "Прибавлять 10",
+              "visual": "g2InfoSequence"
+            },
+            {
+              "tpl": "algorithm_result",
+              "text": "Какое число получится после всех шагов?",
+              "ex": "Сначала: 36 − 8 = 28. Потом: 28 + 4 = 32.",
+              "answer": "32",
+              "visual": "g2InfoAlgorithm"
+            },
+            {
+              "tpl": "pattern_next",
+              "text": "Какое число продолжит закономерность?",
+              "ex": "Каждый раз нужно прибавлять 5. Следующее число — 93.",
+              "answer": "93",
+              "visual": "g2InfoSequence"
+            },
+            {
+              "tpl": "table_difference",
+              "text": "На сколько число в строке «Понедельник» больше, чем в строке «Среда»?",
+              "ex": "21 − 7 = 14.",
+              "answer": "14",
+              "visual": "g2InfoTable"
+            },
+            {
+              "tpl": "table_compare",
+              "text": "В какой строке самое маленькое число?",
+              "ex": "Карандаши: 8. Это самое маленькое число в таблице.",
+              "answer": "Карандаши",
+              "visual": "g2InfoTable"
+            }
+          ]
+        }
+      ],
+      "uiStarts": [
+        {
+          "level": 0,
+          "rendered": true,
+          "mode": null
+        },
+        {
+          "level": 1,
+          "rendered": true,
+          "mode": null
+        },
+        {
+          "level": 2,
+          "rendered": true,
+          "mode": null
+        }
+      ]
+    }
+  ],
+  "defects": [
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 книга. Ей дали ещё 2 книги. Сколько книг стало?",
+      "detail": {
+        "fragment": "было 1 книга",
+        "wanted": "была"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 книга. Ей дали ещё 2 книги. Сколько книг стало?",
+      "detail": {
+        "fragment": "было 1 книга",
+        "wanted": "была"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 книга. Ей дали ещё 4 книги. Сколько книг стало?",
+      "detail": {
+        "fragment": "было 1 книга",
+        "wanted": "была"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 мяч. Ей дали ещё 4 мяча. Сколько мячей стало?",
+      "detail": {
+        "fragment": "было 1 мяч",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 карандаш. Ей дали ещё 2 карандаша. Сколько карандашей стало?",
+      "detail": {
+        "fragment": "было 1 карандаш",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 книга. Ей дали ещё 2 книги. Сколько книг стало?",
+      "detail": {
+        "fragment": "было 1 книга",
+        "wanted": "была"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 мяч. Ей дали ещё 5 мячей. Сколько мячей стало?",
+      "detail": {
+        "fragment": "было 1 мяч",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 карандаш. Ей дали ещё 2 карандаша. Сколько карандашей стало?",
+      "detail": {
+        "fragment": "было 1 карандаш",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 мяч. Ей дали ещё 2 мяча. Сколько мячей стало?",
+      "detail": {
+        "fragment": "было 1 мяч",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 кубик. Ей дали ещё 5 кубиков. Сколько кубиков стало?",
+      "detail": {
+        "fragment": "было 1 кубик",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 книга. Ей дали ещё 5 книг. Сколько книг стало?",
+      "detail": {
+        "fragment": "было 1 книга",
+        "wanted": "была"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 кубик. Ей дали ещё 1 кубик. Сколько кубиков стало?",
+      "detail": {
+        "fragment": "было 1 кубик",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 мяч. Ей дали ещё 2 мяча. Сколько мячей стало?",
+      "detail": {
+        "fragment": "было 1 мяч",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 карандаш. Ей дали ещё 1 карандаш. Сколько карандашей стало?",
+      "detail": {
+        "fragment": "было 1 карандаш",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 кубик. Ей дали ещё 5 кубиков. Сколько кубиков стало?",
+      "detail": {
+        "fragment": "было 1 кубик",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 карандаш. Ей дали ещё 3 карандаша. Сколько карандашей стало?",
+      "detail": {
+        "fragment": "было 1 карандаш",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 кубик. Ей дали ещё 5 кубиков. Сколько кубиков стало?",
+      "detail": {
+        "fragment": "было 1 кубик",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 кубик. Ей дали ещё 5 кубиков. Сколько кубиков стало?",
+      "detail": {
+        "fragment": "было 1 кубик",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 книга. Ей дали ещё 1 книгу. Сколько книг стало?",
+      "detail": {
+        "fragment": "было 1 книга",
+        "wanted": "была"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 мяч. Ей дали ещё 5 мячей. Сколько мячей стало?",
+      "detail": {
+        "fragment": "было 1 мяч",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 книга. Ей дали ещё 4 книги. Сколько книг стало?",
+      "detail": {
+        "fragment": "было 1 книга",
+        "wanted": "была"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 мяч. Ей дали ещё 2 мяча. Сколько мячей стало?",
+      "detail": {
+        "fragment": "было 1 мяч",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 книга. Ей дали ещё 1 книгу. Сколько книг стало?",
+      "detail": {
+        "fragment": "было 1 книга",
+        "wanted": "была"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 кубик. Ей дали ещё 4 кубика. Сколько кубиков стало?",
+      "detail": {
+        "fragment": "было 1 кубик",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 карандаш. Ей дали ещё 2 карандаша. Сколько карандашей стало?",
+      "detail": {
+        "fragment": "было 1 карандаш",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 кубик. Ей дали ещё 2 кубика. Сколько кубиков стало?",
+      "detail": {
+        "fragment": "было 1 кубик",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 кубик. Ей дали ещё 1 кубик. Сколько кубиков стало?",
+      "detail": {
+        "fragment": "было 1 кубик",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 мяч. Ей дали ещё 3 мяча. Сколько мячей стало?",
+      "detail": {
+        "fragment": "было 1 мяч",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 книга. Ей дали ещё 2 книги. Сколько книг стало?",
+      "detail": {
+        "fragment": "было 1 книга",
+        "wanted": "была"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 мяч. Ей дали ещё 1 мяч. Сколько мячей стало?",
+      "detail": {
+        "fragment": "было 1 мяч",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 кубик. Ей дали ещё 2 кубика. Сколько кубиков стало?",
+      "detail": {
+        "fragment": "было 1 кубик",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 мяч. Ей дали ещё 3 мяча. Сколько мячей стало?",
+      "detail": {
+        "fragment": "было 1 мяч",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 карандаш. Ей дали ещё 2 карандаша. Сколько карандашей стало?",
+      "detail": {
+        "fragment": "было 1 карандаш",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 книга. Ей дали ещё 4 книги. Сколько книг стало?",
+      "detail": {
+        "fragment": "было 1 книга",
+        "wanted": "была"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 мяч. Ей дали ещё 3 мяча. Сколько мячей стало?",
+      "detail": {
+        "fragment": "было 1 мяч",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 мяч. Ей дали ещё 1 мяч. Сколько мячей стало?",
+      "detail": {
+        "fragment": "было 1 мяч",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 карандаш. Ей дали ещё 5 карандашей. Сколько карандашей стало?",
+      "detail": {
+        "fragment": "было 1 карандаш",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 книга. Ей дали ещё 4 книги. Сколько книг стало?",
+      "detail": {
+        "fragment": "было 1 книга",
+        "wanted": "была"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 кубик. Ей дали ещё 3 кубика. Сколько кубиков стало?",
+      "detail": {
+        "fragment": "было 1 кубик",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 книга. Ей дали ещё 1 книгу. Сколько книг стало?",
+      "detail": {
+        "fragment": "было 1 книга",
+        "wanted": "была"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 книга. Ей дали ещё 1 книгу. Сколько книг стало?",
+      "detail": {
+        "fragment": "было 1 книга",
+        "wanted": "была"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 кубик. Ей дали ещё 1 кубик. Сколько кубиков стало?",
+      "detail": {
+        "fragment": "было 1 кубик",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 кубик. Ей дали ещё 3 кубика. Сколько кубиков стало?",
+      "detail": {
+        "fragment": "было 1 кубик",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 кубик. Ей дали ещё 1 кубик. Сколько кубиков стало?",
+      "detail": {
+        "fragment": "было 1 кубик",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 кубик. Ей дали ещё 4 кубика. Сколько кубиков стало?",
+      "detail": {
+        "fragment": "было 1 кубик",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 книга. Ей дали ещё 4 книги. Сколько книг стало?",
+      "detail": {
+        "fragment": "было 1 книга",
+        "wanted": "была"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 карандаш. Ей дали ещё 5 карандашей. Сколько карандашей стало?",
+      "detail": {
+        "fragment": "было 1 карандаш",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 кубик. Ей дали ещё 3 кубика. Сколько кубиков стало?",
+      "detail": {
+        "fragment": "было 1 кубик",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 кубик. Ей дали ещё 2 кубика. Сколько кубиков стало?",
+      "detail": {
+        "fragment": "было 1 кубик",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 карандаш. Ей дали ещё 3 карандаша. Сколько карандашей стало?",
+      "detail": {
+        "fragment": "было 1 карандаш",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 карандаш. Ей дали ещё 2 карандаша. Сколько карандашей стало?",
+      "detail": {
+        "fragment": "было 1 карандаш",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 кубик. Ей дали ещё 2 кубика. Сколько кубиков стало?",
+      "detail": {
+        "fragment": "было 1 кубик",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 кубик. Ей дали ещё 1 кубик. Сколько кубиков стало?",
+      "detail": {
+        "fragment": "было 1 кубик",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 кубик. Ей дали ещё 3 кубика. Сколько кубиков стало?",
+      "detail": {
+        "fragment": "было 1 кубик",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 кубик. Ей дали ещё 5 кубиков. Сколько кубиков стало?",
+      "detail": {
+        "fragment": "было 1 кубик",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 книга. Ей дали ещё 5 книг. Сколько книг стало?",
+      "detail": {
+        "fragment": "было 1 книга",
+        "wanted": "была"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 книга. Ей дали ещё 1 книгу. Сколько книг стало?",
+      "detail": {
+        "fragment": "было 1 книга",
+        "wanted": "была"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 кубик. Ей дали ещё 4 кубика. Сколько кубиков стало?",
+      "detail": {
+        "fragment": "было 1 кубик",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 карандаш. Ей дали ещё 1 карандаш. Сколько карандашей стало?",
+      "detail": {
+        "fragment": "было 1 карандаш",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 книга. Ей дали ещё 2 книги. Сколько книг стало?",
+      "detail": {
+        "fragment": "было 1 книга",
+        "wanted": "была"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 карандаш. Ей дали ещё 2 карандаша. Сколько карандашей стало?",
+      "detail": {
+        "fragment": "было 1 карандаш",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 книга. Ей дали ещё 2 книги. Сколько книг стало?",
+      "detail": {
+        "fragment": "было 1 книга",
+        "wanted": "была"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 мяч. Ей дали ещё 1 мяч. Сколько мячей стало?",
+      "detail": {
+        "fragment": "было 1 мяч",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 книга. Ей дали ещё 4 книги. Сколько книг стало?",
+      "detail": {
+        "fragment": "было 1 книга",
+        "wanted": "была"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 кубик. Ей дали ещё 1 кубик. Сколько кубиков стало?",
+      "detail": {
+        "fragment": "было 1 кубик",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 кубик. Ей дали ещё 2 кубика. Сколько кубиков стало?",
+      "detail": {
+        "fragment": "было 1 кубик",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 карандаш. Ей дали ещё 1 карандаш. Сколько карандашей стало?",
+      "detail": {
+        "fragment": "было 1 карандаш",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 кубик. Ей дали ещё 5 кубиков. Сколько кубиков стало?",
+      "detail": {
+        "fragment": "было 1 кубик",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 книга. Ей дали ещё 5 книг. Сколько книг стало?",
+      "detail": {
+        "fragment": "было 1 книга",
+        "wanted": "была"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 карандаш. Ей дали ещё 5 карандашей. Сколько карандашей стало?",
+      "detail": {
+        "fragment": "было 1 карандаш",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 книга. Ей дали ещё 2 книги. Сколько книг стало?",
+      "detail": {
+        "fragment": "было 1 книга",
+        "wanted": "была"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 карандаш. Ей дали ещё 3 карандаша. Сколько карандашей стало?",
+      "detail": {
+        "fragment": "было 1 карандаш",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 кубик. Ей дали ещё 5 кубиков. Сколько кубиков стало?",
+      "detail": {
+        "fragment": "было 1 кубик",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 мяч. Ей дали ещё 5 мячей. Сколько мячей стало?",
+      "detail": {
+        "fragment": "было 1 мяч",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 кубик. Ей дали ещё 4 кубика. Сколько кубиков стало?",
+      "detail": {
+        "fragment": "было 1 кубик",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 кубик. Ей дали ещё 3 кубика. Сколько кубиков стало?",
+      "detail": {
+        "fragment": "было 1 кубик",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 карандаш. Ей дали ещё 3 карандаша. Сколько карандашей стало?",
+      "detail": {
+        "fragment": "было 1 карандаш",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 книга. Ей дали ещё 3 книги. Сколько книг стало?",
+      "detail": {
+        "fragment": "было 1 книга",
+        "wanted": "была"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 книга. Ей дали ещё 5 книг. Сколько книг стало?",
+      "detail": {
+        "fragment": "было 1 книга",
+        "wanted": "была"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 карандаш. Ей дали ещё 3 карандаша. Сколько карандашей стало?",
+      "detail": {
+        "fragment": "было 1 карандаш",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 карандаш. Ей дали ещё 2 карандаша. Сколько карандашей стало?",
+      "detail": {
+        "fragment": "было 1 карандаш",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 кубик. Ей дали ещё 2 кубика. Сколько кубиков стало?",
+      "detail": {
+        "fragment": "было 1 кубик",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 мяч. Ей дали ещё 5 мячей. Сколько мячей стало?",
+      "detail": {
+        "fragment": "было 1 мяч",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 карандаш. Ей дали ещё 2 карандаша. Сколько карандашей стало?",
+      "detail": {
+        "fragment": "было 1 карандаш",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 0,
+      "template": "add_result",
+      "prompt": "У Маши было 1 мяч. Ей дали ещё 4 мяча. Сколько мячей стало?",
+      "detail": {
+        "fragment": "было 1 мяч",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 1,
+      "template": "find_added",
+      "prompt": "Было 1 кубик. Стало 4. Сколько кубиков добавили?",
+      "detail": {
+        "fragment": "Было 1 кубик",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 1,
+      "template": "add_result",
+      "prompt": "У Маши было 1 карандаш. Ей дали ещё 2 карандаша. Сколько карандашей стало?",
+      "detail": {
+        "fragment": "было 1 карандаш",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 1,
+      "template": "choose_action",
+      "prompt": "У Маши было 1 книга. Ей дали ещё 6 книг. Сколько книг стало? Какое действие поможет решить задачу?",
+      "detail": {
+        "fragment": "было 1 книга",
+        "wanted": "была"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 1,
+      "template": "choose_action",
+      "prompt": "У Маши было 1 карандаш. Ей дали ещё 3 карандаша. Сколько карандашей стало? Какое действие поможет решить задачу?",
+      "detail": {
+        "fragment": "было 1 карандаш",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 1,
+      "template": "find_added",
+      "prompt": "Было 1 кубик. Стало 3. Сколько кубиков добавили?",
+      "detail": {
+        "fragment": "Было 1 кубик",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 1,
+      "template": "choose_record",
+      "prompt": "У Маши было 1 книга. Ей дали ещё 5 книг. Сколько книг стало? Выбери запись для решения.",
+      "detail": {
+        "fragment": "было 1 книга",
+        "wanted": "была"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 1,
+      "template": "add_result",
+      "prompt": "У Маши было 1 кубик. Ей дали ещё 8 кубиков. Сколько кубиков стало?",
+      "detail": {
+        "fragment": "было 1 кубик",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 1,
+      "template": "find_added",
+      "prompt": "Было 1 мяч. Стало 7. Сколько мячей добавили?",
+      "detail": {
+        "fragment": "Было 1 мяч",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 1,
+      "template": "choose_record",
+      "prompt": "У Маши было 1 мяч. Ей дали ещё 5 мячей. Сколько мячей стало? Выбери запись для решения.",
+      "detail": {
+        "fragment": "было 1 мяч",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 1,
+      "template": "add_result",
+      "prompt": "У Маши было 1 кубик. Ей дали ещё 9 кубиков. Сколько кубиков стало?",
+      "detail": {
+        "fragment": "было 1 кубик",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 1,
+      "template": "choose_record",
+      "prompt": "У Маши было 1 карандаш. Ей дали ещё 1 карандаш. Сколько карандашей стало? Выбери запись для решения.",
+      "detail": {
+        "fragment": "было 1 карандаш",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 1,
+      "template": "find_added",
+      "prompt": "Было 1 книга. Стало 10. Сколько книг добавили?",
+      "detail": {
+        "fragment": "Было 1 книга",
+        "wanted": "была"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 1,
+      "template": "add_result",
+      "prompt": "У Маши было 1 мяч. Ей дали ещё 3 мяча. Сколько мячей стало?",
+      "detail": {
+        "fragment": "было 1 мяч",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 1,
+      "template": "choose_record",
+      "prompt": "У Маши было 1 карандаш. Ей дали ещё 4 карандаша. Сколько карандашей стало? Выбери запись для решения.",
+      "detail": {
+        "fragment": "было 1 карандаш",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 1,
+      "template": "choose_record",
+      "prompt": "У Маши было 1 книга. Ей дали ещё 3 книги. Сколько книг стало? Выбери запись для решения.",
+      "detail": {
+        "fragment": "было 1 книга",
+        "wanted": "была"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 1,
+      "template": "add_result",
+      "prompt": "У Маши было 1 мяч. Ей дали ещё 5 мячей. Сколько мячей стало?",
+      "detail": {
+        "fragment": "было 1 мяч",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 1,
+      "template": "choose_action",
+      "prompt": "У Маши было 1 мяч. Ей дали ещё 9 мячей. Сколько мячей стало? Какое действие поможет решить задачу?",
+      "detail": {
+        "fragment": "было 1 мяч",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 1,
+      "template": "find_added",
+      "prompt": "Было 1 карандаш. Стало 2. Сколько карандашей добавили?",
+      "detail": {
+        "fragment": "Было 1 карандаш",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 1,
+      "template": "add_result",
+      "prompt": "У Маши было 1 карандаш. Ей дали ещё 7 карандашей. Сколько карандашей стало?",
+      "detail": {
+        "fragment": "было 1 карандаш",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 1,
+      "template": "find_added",
+      "prompt": "Было 1 книга. Стало 9. Сколько книг добавили?",
+      "detail": {
+        "fragment": "Было 1 книга",
+        "wanted": "была"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 1,
+      "template": "add_result",
+      "prompt": "У Маши было 1 книга. Ей дали ещё 1 книгу. Сколько книг стало?",
+      "detail": {
+        "fragment": "было 1 книга",
+        "wanted": "была"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 1,
+      "template": "choose_action",
+      "prompt": "У Маши было 1 карандаш. Ей дали ещё 2 карандаша. Сколько карандашей стало? Какое действие поможет решить задачу?",
+      "detail": {
+        "fragment": "было 1 карандаш",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 1,
+      "template": "choose_action",
+      "prompt": "У Маши было 1 мяч. Ей дали ещё 1 мяч. Сколько мячей стало? Какое действие поможет решить задачу?",
+      "detail": {
+        "fragment": "было 1 мяч",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 1,
+      "template": "choose_record",
+      "prompt": "У Маши было 1 кубик. Ей дали ещё 2 кубика. Сколько кубиков стало? Выбери запись для решения.",
+      "detail": {
+        "fragment": "было 1 кубик",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 1,
+      "template": "find_added",
+      "prompt": "Было 1 мяч. Стало 2. Сколько мячей добавили?",
+      "detail": {
+        "fragment": "Было 1 мяч",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 1,
+      "template": "find_added",
+      "prompt": "Было 1 книга. Стало 6. Сколько книг добавили?",
+      "detail": {
+        "fragment": "Было 1 книга",
+        "wanted": "была"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 1,
+      "template": "find_added",
+      "prompt": "Было 1 мяч. Стало 2. Сколько мячей добавили?",
+      "detail": {
+        "fragment": "Было 1 мяч",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 1,
+      "template": "choose_record",
+      "prompt": "У Маши было 1 карандаш. Ей дали ещё 3 карандаша. Сколько карандашей стало? Выбери запись для решения.",
+      "detail": {
+        "fragment": "было 1 карандаш",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 1,
+      "template": "add_result",
+      "prompt": "У Маши было 1 кубик. Ей дали ещё 6 кубиков. Сколько кубиков стало?",
+      "detail": {
+        "fragment": "было 1 кубик",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 1,
+      "template": "add_result",
+      "prompt": "У Маши было 1 кубик. Ей дали ещё 6 кубиков. Сколько кубиков стало?",
+      "detail": {
+        "fragment": "было 1 кубик",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 1,
+      "template": "add_result",
+      "prompt": "У Маши было 1 книга. Ей дали ещё 6 книг. Сколько книг стало?",
+      "detail": {
+        "fragment": "было 1 книга",
+        "wanted": "была"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 1,
+      "template": "find_added",
+      "prompt": "Было 1 книга. Стало 8. Сколько книг добавили?",
+      "detail": {
+        "fragment": "Было 1 книга",
+        "wanted": "была"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 1,
+      "template": "choose_record",
+      "prompt": "У Маши было 1 карандаш. Ей дали ещё 2 карандаша. Сколько карандашей стало? Выбери запись для решения.",
+      "detail": {
+        "fragment": "было 1 карандаш",
+        "wanted": "был"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 1,
+      "template": "add_result",
+      "prompt": "У Маши было 1 книга. Ей дали ещё 5 книг. Сколько книг стало?",
+      "detail": {
+        "fragment": "было 1 книга",
+        "wanted": "была"
+      }
+    },
+    {
+      "severity": "defect",
+      "kind": "singular-gender-agreement",
+      "grade": 1,
+      "topic": "g1:word_problems",
+      "level": 1,
+      "template": "choose_record",
+      "prompt": "У Маши было 1 карандаш. Ей дали ещё 3 карандаша. Сколько карандашей стало? Выбери запись для решения.",
+      "detail": {
+        "fragment": "было 1 карандаш",
+        "wanted": "был"
+      }
+    }
+  ],
+  "observations": [],
+  "pageErrors": [],
+  "summary": {
+    "topics": 20,
+    "generated": 15690,
+    "valid": 15690,
+    "independentModels": 8678,
+    "uiStarts": 60,
+    "uiRendered": 60,
+    "countsByType": {
+      "singular-gender-agreement": 419
+    },
+    "storedDefects": 120,
+    "storedObservations": 0,
+    "pageErrors": 0
+  }
+}
