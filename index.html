@@ -17757,6 +17757,8 @@ const G2_STORY_ITEMS=[
  {one:"тетрадь",few:"тетради",many:"тетрадей",place:"На столе",add:"положили",sub:"убрали"}
 ];
 function g2StoryNoun(n,o){return g1Noun(n,o)}
+function g2StoryAccNoun(n,o){return o.one==="книга"&&n%10===1&&n%100!==11?"книгу":g2StoryNoun(n,o)}
+function g2StoryTimes(n){return n%10>=2&&n%10<=4&&(n%100<12||n%100>14)?"раза":"раз"}
 function g2StoryPickItem(){return G2_STORY_ITEMS[ri(0,G2_STORY_ITEMS.length-1)]}
 function g2StoryVisualHtml(data){
  const showDerived=data?.showDerived===true,steps=(Array.isArray(data?.steps)?data.steps:[]).filter(x=>showDerived||!x?.derived);
@@ -17786,15 +17788,15 @@ function g2StoryDivModel({easy=false}={}){
  return {kind:"div",groups,each,total,result:each,steps:[{label:"Всего",value:`${total}`},{label:"Групп",value:`${groups}`},{label:"В каждой",value:"?",answer:true}]}
 }
 function g2StoryOneText(m){
- if(m.kind==="add")return `${m.obj.place} было ${m.a} ${g2StoryNoun(m.a,m.obj)}. ${m.obj.add[0].toUpperCase()+m.obj.add.slice(1)} ещё ${m.b} ${g2StoryNoun(m.b,m.obj)}. Сколько ${m.obj.many} стало?`;
- if(m.kind==="sub")return `${m.obj.place} было ${m.a} ${g2StoryNoun(m.a,m.obj)}. ${m.obj.sub[0].toUpperCase()+m.obj.sub.slice(1)} ${m.b} ${g2StoryNoun(m.b,m.obj)}. Сколько ${m.obj.many} осталось?`;
+ if(m.kind==="add")return `${m.obj.place} было ${m.a} ${g2StoryNoun(m.a,m.obj)}. ${m.obj.add[0].toUpperCase()+m.obj.add.slice(1)} ещё ${m.b} ${g2StoryAccNoun(m.b,m.obj)}. Сколько ${m.obj.many} стало?`;
+ if(m.kind==="sub")return `${m.obj.place} было ${m.a} ${g2StoryNoun(m.a,m.obj)}. ${m.obj.sub[0].toUpperCase()+m.obj.sub.slice(1)} ${m.b} ${g2StoryAccNoun(m.b,m.obj)}. Сколько ${m.obj.many} осталось?`;
  if(m.kind==="mul")return `Есть ${m.groups} ${g2GroupWord(m.groups)}. В каждой по ${m.each} ${g2ItemWord(m.each)}. Сколько предметов всего?`;
  return `${m.total} предметов разделили поровну на ${m.groups} ${g2GroupWord(m.groups)}. Сколько предметов в каждой группе?`
 }
 function g2StoryOneExplanation(m){
  if(m.kind==="add")return `Нужно узнать, сколько стало: ${m.a} + ${m.b} = ${m.result}.`;
  if(m.kind==="sub")return `Нужно узнать, сколько осталось: ${m.a} − ${m.b} = ${m.result}.`;
- if(m.kind==="mul")return `${m.each} повторяется ${m.groups} раза: ${m.each} · ${m.groups} = ${m.total}.`;
+ if(m.kind==="mul")return `${m.each} повторяется ${m.groups} ${g2StoryTimes(m.groups)}: ${m.each} · ${m.groups} = ${m.total}.`;
  return `Делим поровну: ${m.total} : ${m.groups} = ${m.each}.`
 }
 function g2StoryCorrectAction(m){return m.kind==="add"?"Сложение":m.kind==="sub"?"Вычитание":m.kind==="mul"?"Умножение":"Деление"}
@@ -17833,11 +17835,11 @@ function g2WordProblemsQuestion(d){
   return g2Choice(text,correct,g2StoryRecordDistractors(model),`По условию подходит запись ${correct}.`,`g2:word_problems:${d}:choose_record:${kind}:${model.a??model.total}:${model.b??model.groups}:${model.each??0}`,{model,visual,templateId})
  }
  if(templateId==="two_add_sub"){
-  const model=g2StoryTwoAddSubModel(),o=model.obj,text=`${o.place} было ${model.a} ${g2StoryNoun(model.a,o)}. ${o.add[0].toUpperCase()+o.add.slice(1)} ${model.b} ${g2StoryNoun(model.b,o)}, потом ${o.sub} ${model.c} ${g2StoryNoun(model.c,o)}. Сколько ${o.many} осталось?`,ex=`Сначала ${model.a} + ${model.b} = ${model.mid}. Потом ${model.mid} − ${model.c} = ${model.result}.`;
+  const model=g2StoryTwoAddSubModel(),o=model.obj,text=`${o.place} было ${model.a} ${g2StoryNoun(model.a,o)}. ${o.add[0].toUpperCase()+o.add.slice(1)} ${model.b} ${g2StoryAccNoun(model.b,o)}, потом ${o.sub} ${model.c} ${g2StoryAccNoun(model.c,o)}. Сколько ${o.many} осталось?`,ex=`Сначала ${model.a} + ${model.b} = ${model.mid}. Потом ${model.mid} − ${model.c} = ${model.result}.`;
   return g2NumberInput(text,model.result,ex,`g2:word_problems:${d}:two_add_sub:${model.a}:${model.b}:${model.c}:${o.one}`,{model,visual:{type:"g2Story",data:{steps:model.steps,aria:text}},templateId})
  }
  if(templateId==="two_sub_add"){
-  const model=g2StoryTwoSubAddModel(),o=model.obj,text=`${o.place} было ${model.a} ${g2StoryNoun(model.a,o)}. ${o.sub[0].toUpperCase()+o.sub.slice(1)} ${model.b} ${g2StoryNoun(model.b,o)}, потом ${o.add} ${model.c} ${g2StoryNoun(model.c,o)}. Сколько ${o.many} стало?`,ex=`Сначала ${model.a} − ${model.b} = ${model.mid}. Потом ${model.mid} + ${model.c} = ${model.result}.`;
+  const model=g2StoryTwoSubAddModel(),o=model.obj,text=`${o.place} было ${model.a} ${g2StoryNoun(model.a,o)}. ${o.sub[0].toUpperCase()+o.sub.slice(1)} ${model.b} ${g2StoryAccNoun(model.b,o)}, потом ${o.add} ${model.c} ${g2StoryAccNoun(model.c,o)}. Сколько ${o.many} стало?`,ex=`Сначала ${model.a} − ${model.b} = ${model.mid}. Потом ${model.mid} + ${model.c} = ${model.result}.`;
   return g2NumberInput(text,model.result,ex,`g2:word_problems:${d}:two_sub_add:${model.a}:${model.b}:${model.c}:${o.one}`,{model,visual:{type:"g2Story",data:{steps:model.steps,aria:text}},templateId})
  }
  const model=g2StoryTwoMulAddModel(),text=`Есть ${model.groups} ${g2GroupWord(model.groups)}. В каждой по ${model.each} ${g2ItemWord(model.each)}. Потом добавили ещё ${model.extra} ${g2ItemWord(model.extra)}. Сколько предметов стало всего?`,ex=`Сначала узнаём количество в группах: ${model.each} · ${model.groups} = ${model.product}. Потом ${model.product} + ${model.extra} = ${model.result}.`;
