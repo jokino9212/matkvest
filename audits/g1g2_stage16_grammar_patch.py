@@ -9,8 +9,16 @@ import re
 html=Path('index.html')
 source=html.read_text(encoding='utf-8')
 expected='f188d39a3a16fc54dfb32238fc34d3dfe6cc3c4416cd475579bf3ed65a7e1e36'
-if hashlib.sha256(html.read_bytes()).hexdigest()!=expected:
-    raise SystemExit('REFUSE: input HTML must be exact published stage15 build')
+actual=hashlib.sha256(html.read_bytes()).hexdigest()
+approved_patched='2252fe792fbef2ba6b1a4d0794ae674164f55f3260496af1156660b986b5ae16'
+if actual==approved_patched:
+    worker_source=Path('sw.js').read_text(encoding='utf-8')
+    if 'const APP_BUILD_HASH = "'+actual+'";' not in worker_source:
+        raise SystemExit('REFUSE: patched HTML and SW fingerprint disagree')
+    print('UNCHANGED: approved stage16 grammar candidate already present',actual)
+    raise SystemExit(0)
+if actual!=expected:
+    raise SystemExit('REFUSE: input HTML must be exact stage15 build or verified stage16 candidate')
 
 needle='function g2StoryNoun(n,o){return g1Noun(n,o)}'
 replacement=needle+'\nfunction g2StoryAccNoun(n,o){return o.one==="книга"&&n%10===1&&n%100!==11?"книгу":g2StoryNoun(n,o)}\nfunction g2StoryTimes(n){return n%10>=2&&n%10<=4&&(n%100<12||n%100>14)?"раза":"раз"}'
