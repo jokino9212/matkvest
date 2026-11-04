@@ -6,6 +6,7 @@ on:
       - .github/workflows/g7_stage14.yml
       - audits/g7_stage14_crossgrade_probe.mjs
       - audits/g7_stage14_crossgrade_test.mjs
+      - audits/g7_stage14_grade4_test.mjs
   workflow_dispatch:
 permissions:
   contents: read
@@ -24,6 +25,8 @@ jobs:
       - name: Test cross-grade exercises
         if: hashFiles('audits/g7_stage14_crossgrade_test.mjs') != ''
         run: node audits/g7_stage14_crossgrade_test.mjs
+      - name: Test grade4 calculation and column UI
+        run: node audits/g7_stage14_grade4_test.mjs
       - name: Save test evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -32,5 +35,6 @@ jobs:
           path: |
             audits/g7_stage14_probe_report.json
             audits/g7_stage14_crossgrade_report.json
+            audits/g7_stage14_grade4_report.json
           if-no-files-found: warn
           retention-days: 30
