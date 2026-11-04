@@ -1,0 +1,68 @@
+name: MatKvest stage16D - repair G2 multiplication plural grammar
+on:
+  push:
+    branches: [audit/g1g2-stage16-20261104]
+    paths:
+      - .github/workflows/g1g2_stage16_phaseD_multiply_fix.yml
+      - audits/g1g2_stage16_phaseD_multiply_patch.py
+      - audits/g1g2_stage16_phaseD_multiply_regression.mjs
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: matkvest-stage16-D-multiply-patch
+  cancel-in-progress: false
+jobs:
+  patch-and-validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit/g1g2-stage16-20261104
+          persist-credentials: true
+      - name: Apply exact G2 grammar patch and verify Service Worker
+        run: |
+          python3 audits/g1g2_stage16_phaseD_multiply_patch.py
+          python3 audits/g7_stage12_sync_pwa.py --check
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save --no-package-lock puppeteer-core@24
+      - name: Verify patched source semantics and browser scripts syntax
+        run: |
+          node --check audits/g1g2_stage16_phaseD_multiply_regression.mjs
+          node --check audits/g1g2_stage16_phaseD_regression.mjs
+      - name: Independently check all G1/G2 text, numeral agreement, choices, models and visuals
+        run: node audits/g1g2_stage16_phaseD_multiply_regression.mjs
+      - name: Full G1/G2 and crossgrade regression
+        run: node audits/g1g2_stage16_phaseD_regression.mjs
+      - name: Save and recover unfinished training
+        run: node audits/g7_stage12_e2e.mjs
+      - name: PWA offline update regression
+        run: node audits/g7_stage12_sw_update_test.mjs
+      - name: Preserve evidence including failures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: matkvest-stage16D-multiply-fix
+          path: |
+            index.html
+            sw.js
+            audits/g1g2_stage16_phaseD_multiply_patch_report.json
+            audits/g1g2_stage16_phaseD_multiply_regression_report.json
+            audits/g1g2_stage16_phaseD_regression_report.json
+            audits/g7_stage12_e2e_report.json
+            audits/g7_stage12_sw_update_report.json
+          retention-days: 60
+          if-no-files-found: warn
+      - name: Commit tested candidate only into audit branch
+        if: success()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js audits/g1g2_stage16_phaseD_multiply_patch_report.json audits/g1g2_stage16_phaseD_multiply_regression_report.json audits/g1g2_stage16_phaseD_regression_report.json
+          if ! git diff --cached --quiet; then
+            git commit -m "fix(stage16D): use 5 раз and correct repeated-addition inflections [skip ci]"
+            git push origin HEAD:audit/g1g2-stage16-20261104
+          fi
