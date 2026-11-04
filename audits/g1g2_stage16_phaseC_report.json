@@ -1,7 +1,7 @@
 {
   "phase": "16C",
   "builtFrom": "2252fe792fbef2ba6b1a4d0794ae674164f55f3260496af1156660b986b5ae16",
-  "createdAt": "2026-11-04T18:23:45.347Z",
+  "createdAt": "2026-11-04T18:25:34.066Z",
   "checks": [
     {
       "id": "g2:operations_100",
@@ -11,11 +11,11 @@
           "tested": 650,
           "verified": 650,
           "skipped": 0,
-          "answerVerified": 313,
+          "answerVerified": 333,
           "choiceVerified": 650,
           "templates": {
-            "choose_first": 337,
-            "two_step_add_sub": 313
+            "two_step_add_sub": 333,
+            "choose_first": 317
           }
         },
         {
@@ -23,14 +23,14 @@
           "tested": 650,
           "verified": 650,
           "skipped": 0,
-          "answerVerified": 397,
-          "choiceVerified": 515,
+          "answerVerified": 393,
+          "choiceVerified": 530,
           "templates": {
-            "compute_input": 135,
-            "div_before_sub": 129,
-            "two_step_add_sub": 134,
-            "mul_before_add": 134,
-            "choose_first": 118
+            "two_step_add_sub": 154,
+            "compute_input": 120,
+            "div_before_sub": 120,
+            "mul_before_add": 119,
+            "choose_first": 137
           }
         },
         {
@@ -38,17 +38,17 @@
           "tested": 650,
           "verified": 650,
           "skipped": 0,
-          "answerVerified": 200,
-          "choiceVerified": 368,
+          "answerVerified": 240,
+          "choiceVerified": 411,
           "templates": {
-            "compute_input": 95,
-            "parentheses_first": 99,
-            "choose_first": 84,
-            "find_error": 84,
-            "restore_step": 88,
-            "mul_before_add": 63,
-            "two_step_add_sub": 68,
-            "div_before_sub": 69
+            "two_step_add_sub": 86,
+            "find_error": 94,
+            "mul_before_add": 88,
+            "restore_step": 81,
+            "parentheses_first": 86,
+            "compute_input": 72,
+            "choose_first": 77,
+            "div_before_sub": 66
           }
         }
       ],
@@ -56,14 +56,14 @@
       "verified": 1950,
       "unrecognized": 0,
       "types": {
-        "choose_first": 539,
-        "two_step_add_sub": 515,
-        "compute_input": 230,
-        "div_before_sub": 198,
-        "mul_before_add": 197,
-        "parentheses_first": 99,
-        "find_error": 84,
-        "restore_step": 88
+        "two_step_add_sub": 573,
+        "choose_first": 531,
+        "compute_input": 192,
+        "div_before_sub": 186,
+        "mul_before_add": 207,
+        "find_error": 94,
+        "restore_step": 81,
+        "parentheses_first": 86
       }
     },
     {
@@ -77,8 +77,8 @@
           "answerVerified": 650,
           "choiceVerified": 650,
           "templates": {
-            "add_result": 326,
-            "sub_result": 324
+            "add_result": 322,
+            "sub_result": 328
           }
         },
         {
@@ -87,14 +87,14 @@
           "verified": 650,
           "skipped": 0,
           "answerVerified": 0,
-          "choiceVerified": 199,
+          "choiceVerified": 214,
           "templates": {
-            "multiply_result": 109,
-            "divide_result": 113,
-            "choose_action": 106,
-            "add_result": 111,
-            "choose_record": 93,
-            "sub_result": 118
+            "divide_result": 109,
+            "sub_result": 130,
+            "choose_action": 111,
+            "multiply_result": 99,
+            "choose_record": 103,
+            "add_result": 98
           }
         },
         {
@@ -103,17 +103,17 @@
           "verified": 650,
           "skipped": 0,
           "answerVerified": 0,
-          "choiceVerified": 142,
+          "choiceVerified": 151,
           "templates": {
-            "choose_record": 78,
-            "divide_result": 74,
-            "sub_result": 73,
-            "two_mul_add": 71,
-            "two_add_sub": 81,
-            "two_sub_add": 81,
-            "choose_action": 64,
-            "multiply_result": 71,
-            "add_result": 57
+            "multiply_result": 61,
+            "divide_result": 57,
+            "sub_result": 84,
+            "choose_action": 77,
+            "two_add_sub": 82,
+            "add_result": 65,
+            "choose_record": 74,
+            "two_sub_add": 78,
+            "two_mul_add": 72
           }
         }
       ],
@@ -121,15 +121,15 @@
       "verified": 1950,
       "unrecognized": 0,
       "types": {
-        "add_result": 494,
-        "sub_result": 515,
-        "multiply_result": 180,
-        "divide_result": 187,
-        "choose_action": 170,
-        "choose_record": 171,
-        "two_mul_add": 71,
-        "two_add_sub": 81,
-        "two_sub_add": 81
+        "add_result": 485,
+        "sub_result": 542,
+        "divide_result": 166,
+        "choose_action": 188,
+        "multiply_result": 160,
+        "choose_record": 177,
+        "two_add_sub": 82,
+        "two_sub_add": 78,
+        "two_mul_add": 72
       }
     },
     {
@@ -140,12 +140,12 @@
           "tested": 650,
           "verified": 650,
           "skipped": 0,
-          "answerVerified": 227,
-          "choiceVerified": 227,
+          "answerVerified": 221,
+          "choiceVerified": 221,
           "templates": {
-            "square_perimeter": 235,
-            "measure_segment": 227,
-            "rectangle_perimeter": 188
+            "rectangle_perimeter": 229,
+            "measure_segment": 221,
+            "square_perimeter": 200
           }
         },
         {
@@ -153,15 +153,15 @@
           "tested": 650,
           "verified": 650,
           "skipped": 0,
-          "answerVerified": 114,
+          "answerVerified": 94,
           "choiceVerified": 323,
           "templates": {
-            "compare_perimeters": 107,
-            "triangle_perimeter": 119,
-            "rectangle_perimeter": 112,
-            "square_perimeter": 96,
-            "measure_segment": 114,
-            "choose_record": 102
+            "triangle_perimeter": 102,
+            "square_perimeter": 111,
+            "choose_record": 113,
+            "rectangle_perimeter": 114,
+            "compare_perimeters": 116,
+            "measure_segment": 94
           }
         },
         {
@@ -169,17 +169,17 @@
           "tested": 650,
           "verified": 650,
           "skipped": 0,
-          "answerVerified": 76,
+          "answerVerified": 78,
           "choiceVerified": 235,
           "templates": {
-            "compare_perimeters": 83,
-            "missing_triangle_side": 99,
-            "missing_square_side": 77,
-            "rectangle_perimeter": 73,
-            "square_perimeter": 82,
-            "choose_record": 76,
-            "measure_segment": 76,
-            "triangle_perimeter": 84
+            "measure_segment": 78,
+            "triangle_perimeter": 93,
+            "missing_square_side": 93,
+            "square_perimeter": 71,
+            "missing_triangle_side": 89,
+            "compare_perimeters": 64,
+            "rectangle_perimeter": 69,
+            "choose_record": 93
           }
         }
       ],
@@ -187,1032 +187,386 @@
       "verified": 1950,
       "unrecognized": 0,
       "types": {
-        "square_perimeter": 413,
-        "measure_segment": 417,
-        "rectangle_perimeter": 373,
-        "compare_perimeters": 190,
-        "triangle_perimeter": 203,
-        "choose_record": 178,
-        "missing_triangle_side": 99,
-        "missing_square_side": 77
+        "rectangle_perimeter": 412,
+        "measure_segment": 393,
+        "square_perimeter": 382,
+        "triangle_perimeter": 195,
+        "choose_record": 206,
+        "compare_perimeters": 180,
+        "missing_square_side": 93,
+        "missing_triangle_side": 89
       }
     }
   ],
   "defects": [
     {
-      "where": "g2:geometric_quantities:2",
-      "kind": "incorrect-answer",
-      "text": "Периметр треугольника —  18 см . Две известные стороны: 5 см и 7 см. Найди третью сторону.",
-      "expected": 7,
-      "got": 6,
+      "where": "g1:word_problems:0",
+      "kind": "wrong-accusative",
+      "text": "У Маши было 8 книг. Ей дали ещё 1 книга. Сколько книг стало?",
+      "expected": "1 книгу after an action",
+      "got": "У Маши было 8 книг. Ей дали ещё 1 книга. Сколько книг стало?",
       "model": {
-        "shape": "triangle",
-        "a": 5,
-        "b": 6,
-        "c": 7,
-        "perimeter": 18,
-        "hidden": 1,
-        "answer": 6,
-        "hideB": true
-      }
-    },
-    {
-      "where": "g2:geometric_quantities:2",
-      "kind": "incorrect-answer",
-      "text": "Периметр треугольника —  16 см . Две известные стороны: 5 см и 6 см. Найди третью сторону.",
-      "expected": 6,
-      "got": 5,
-      "model": {
-        "shape": "triangle",
-        "a": 5,
-        "b": 5,
-        "c": 6,
-        "perimeter": 16,
-        "hidden": 1,
-        "answer": 5,
-        "hideB": true
-      }
-    },
-    {
-      "where": "g2:geometric_quantities:2",
-      "kind": "incorrect-answer",
-      "text": "Периметр треугольника —  18 см . Две известные стороны: 5 см и 7 см. Найди третью сторону.",
-      "expected": 7,
-      "got": 6,
-      "model": {
-        "shape": "triangle",
-        "a": 5,
-        "b": 6,
-        "c": 7,
-        "perimeter": 18,
-        "hidden": 1,
-        "answer": 6,
-        "hideB": true
-      }
-    },
-    {
-      "where": "g2:geometric_quantities:2",
-      "kind": "incorrect-answer",
-      "text": "Периметр треугольника —  12 см . Две известные стороны: 4 см и 5 см. Найди третью сторону.",
-      "expected": 5,
-      "got": 3,
-      "model": {
-        "shape": "triangle",
-        "a": 3,
-        "b": 4,
-        "c": 5,
-        "perimeter": 12,
-        "hidden": 0,
-        "answer": 3,
-        "hideA": true
-      }
-    },
-    {
-      "where": "g2:geometric_quantities:2",
-      "kind": "incorrect-answer",
-      "text": "Периметр треугольника —  15 см . Две известные стороны: 5 см и 6 см. Найди третью сторону.",
-      "expected": 6,
-      "got": 4,
-      "model": {
-        "shape": "triangle",
-        "a": 4,
-        "b": 5,
-        "c": 6,
-        "perimeter": 15,
-        "hidden": 0,
-        "answer": 4,
-        "hideA": true
-      }
-    },
-    {
-      "where": "g2:geometric_quantities:2",
-      "kind": "incorrect-answer",
-      "text": "Периметр треугольника —  20 см . Две известные стороны: 6 см и 8 см. Найди третью сторону.",
-      "expected": 8,
-      "got": 6,
-      "model": {
-        "shape": "triangle",
-        "a": 6,
-        "b": 6,
-        "c": 8,
-        "perimeter": 20,
-        "hidden": 1,
-        "answer": 6,
-        "hideB": true
-      }
-    },
-    {
-      "where": "g2:geometric_quantities:2",
-      "kind": "incorrect-answer",
-      "text": "Периметр треугольника —  16 см . Две известные стороны: 5 см и 6 см. Найди третью сторону.",
-      "expected": 6,
-      "got": 5,
-      "model": {
-        "shape": "triangle",
-        "a": 5,
-        "b": 5,
-        "c": 6,
-        "perimeter": 16,
-        "hidden": 1,
-        "answer": 5,
-        "hideB": true
-      }
-    },
-    {
-      "where": "g2:geometric_quantities:2",
-      "kind": "incorrect-answer",
-      "text": "Периметр треугольника —  20 см . Две известные стороны: 6 см и 8 см. Найди третью сторону.",
-      "expected": 8,
-      "got": 6,
-      "model": {
-        "shape": "triangle",
-        "a": 6,
-        "b": 6,
-        "c": 8,
-        "perimeter": 20,
-        "hidden": 1,
-        "answer": 6,
-        "hideB": true
-      }
-    },
-    {
-      "where": "g2:geometric_quantities:2",
-      "kind": "incorrect-answer",
-      "text": "Периметр треугольника —  12 см . Две известные стороны: 3 см и 5 см. Найди третью сторону.",
-      "expected": 5,
-      "got": 4,
-      "model": {
-        "shape": "triangle",
-        "a": 3,
-        "b": 4,
-        "c": 5,
-        "perimeter": 12,
-        "hidden": 1,
-        "answer": 4,
-        "hideB": true
-      }
-    },
-    {
-      "where": "g2:geometric_quantities:2",
-      "kind": "incorrect-answer",
-      "text": "Периметр треугольника —  12 см . Две известные стороны: 3 см и 5 см. Найди третью сторону.",
-      "expected": 5,
-      "got": 4,
-      "model": {
-        "shape": "triangle",
-        "a": 3,
-        "b": 4,
-        "c": 5,
-        "perimeter": 12,
-        "hidden": 1,
-        "answer": 4,
-        "hideB": true
-      }
-    },
-    {
-      "where": "g2:geometric_quantities:2",
-      "kind": "incorrect-answer",
-      "text": "Периметр треугольника —  13 см . Две известные стороны: 4 см и 5 см. Найди третью сторону.",
-      "expected": 5,
-      "got": 4,
-      "model": {
-        "shape": "triangle",
-        "a": 4,
-        "b": 4,
-        "c": 5,
-        "perimeter": 13,
-        "hidden": 0,
-        "answer": 4,
-        "hideA": true
-      }
-    },
-    {
-      "where": "g2:geometric_quantities:2",
-      "kind": "incorrect-answer",
-      "text": "Периметр треугольника —  18 см . Две известные стороны: 6 см и 7 см. Найди третью сторону.",
-      "expected": 7,
-      "got": 5,
-      "model": {
-        "shape": "triangle",
-        "a": 5,
-        "b": 6,
-        "c": 7,
-        "perimeter": 18,
-        "hidden": 0,
-        "answer": 5,
-        "hideA": true
-      }
-    },
-    {
-      "where": "g2:geometric_quantities:2",
-      "kind": "incorrect-answer",
-      "text": "Периметр треугольника —  16 см . Две известные стороны: 5 см и 6 см. Найди третью сторону.",
-      "expected": 6,
-      "got": 5,
-      "model": {
-        "shape": "triangle",
-        "a": 5,
-        "b": 5,
-        "c": 6,
-        "perimeter": 16,
-        "hidden": 1,
-        "answer": 5,
-        "hideB": true
-      }
-    },
-    {
-      "where": "g2:geometric_quantities:2",
-      "kind": "incorrect-answer",
-      "text": "Периметр треугольника —  18 см . Две известные стороны: 5 см и 7 см. Найди третью сторону.",
-      "expected": 7,
-      "got": 6,
-      "model": {
-        "shape": "triangle",
-        "a": 5,
-        "b": 6,
-        "c": 7,
-        "perimeter": 18,
-        "hidden": 1,
-        "answer": 6,
-        "hideB": true
-      }
-    },
-    {
-      "where": "g2:geometric_quantities:2",
-      "kind": "incorrect-answer",
-      "text": "Периметр треугольника —  18 см . Две известные стороны: 5 см и 7 см. Найди третью сторону.",
-      "expected": 7,
-      "got": 6,
-      "model": {
-        "shape": "triangle",
-        "a": 5,
-        "b": 6,
-        "c": 7,
-        "perimeter": 18,
-        "hidden": 1,
-        "answer": 6,
-        "hideB": true
-      }
-    },
-    {
-      "where": "g2:geometric_quantities:2",
-      "kind": "incorrect-answer",
-      "text": "Периметр треугольника —  20 см . Две известные стороны: 6 см и 8 см. Найди третью сторону.",
-      "expected": 8,
-      "got": 6,
-      "model": {
-        "shape": "triangle",
-        "a": 6,
-        "b": 6,
-        "c": 8,
-        "perimeter": 20,
-        "hidden": 0,
-        "answer": 6,
-        "hideA": true
-      }
-    },
-    {
-      "where": "g2:geometric_quantities:2",
-      "kind": "incorrect-answer",
-      "text": "Периметр треугольника —  20 см . Две известные стороны: 6 см и 8 см. Найди третью сторону.",
-      "expected": 8,
-      "got": 6,
-      "model": {
-        "shape": "triangle",
-        "a": 6,
-        "b": 6,
-        "c": 8,
-        "perimeter": 20,
-        "hidden": 0,
-        "answer": 6,
-        "hideA": true
-      }
-    },
-    {
-      "where": "g2:geometric_quantities:2",
-      "kind": "incorrect-answer",
-      "text": "Периметр треугольника —  13 см . Две известные стороны: 4 см и 5 см. Найди третью сторону.",
-      "expected": 5,
-      "got": 4,
-      "model": {
-        "shape": "triangle",
-        "a": 4,
-        "b": 4,
-        "c": 5,
-        "perimeter": 13,
-        "hidden": 1,
-        "answer": 4,
-        "hideB": true
-      }
-    },
-    {
-      "where": "g2:geometric_quantities:2",
-      "kind": "incorrect-answer",
-      "text": "Периметр треугольника —  13 см . Две известные стороны: 4 см и 5 см. Найди третью сторону.",
-      "expected": 5,
-      "got": 4,
-      "model": {
-        "shape": "triangle",
-        "a": 4,
-        "b": 4,
-        "c": 5,
-        "perimeter": 13,
-        "hidden": 1,
-        "answer": 4,
-        "hideB": true
-      }
-    },
-    {
-      "where": "g2:geometric_quantities:2",
-      "kind": "incorrect-answer",
-      "text": "Периметр треугольника —  13 см . Две известные стороны: 4 см и 5 см. Найди третью сторону.",
-      "expected": 5,
-      "got": 4,
-      "model": {
-        "shape": "triangle",
-        "a": 4,
-        "b": 4,
-        "c": 5,
-        "perimeter": 13,
-        "hidden": 1,
-        "answer": 4,
-        "hideB": true
-      }
-    },
-    {
-      "where": "g2:geometric_quantities:2",
-      "kind": "incorrect-answer",
-      "text": "Периметр треугольника —  20 см . Две известные стороны: 6 см и 8 см. Найди третью сторону.",
-      "expected": 8,
-      "got": 6,
-      "model": {
-        "shape": "triangle",
-        "a": 6,
-        "b": 6,
-        "c": 8,
-        "perimeter": 20,
-        "hidden": 1,
-        "answer": 6,
-        "hideB": true
-      }
-    },
-    {
-      "where": "g2:geometric_quantities:2",
-      "kind": "incorrect-answer",
-      "text": "Периметр треугольника —  12 см . Две известные стороны: 3 см и 5 см. Найди третью сторону.",
-      "expected": 5,
-      "got": 4,
-      "model": {
-        "shape": "triangle",
-        "a": 3,
-        "b": 4,
-        "c": 5,
-        "perimeter": 12,
-        "hidden": 1,
-        "answer": 4,
-        "hideB": true
-      }
-    },
-    {
-      "where": "g2:geometric_quantities:2",
-      "kind": "incorrect-answer",
-      "text": "Периметр треугольника —  15 см . Две известные стороны: 4 см и 6 см. Найди третью сторону.",
-      "expected": 6,
-      "got": 5,
-      "model": {
-        "shape": "triangle",
-        "a": 4,
-        "b": 5,
-        "c": 6,
-        "perimeter": 15,
-        "hidden": 1,
-        "answer": 5,
-        "hideB": true
-      }
-    },
-    {
-      "where": "g2:geometric_quantities:2",
-      "kind": "incorrect-answer",
-      "text": "Периметр треугольника —  12 см . Две известные стороны: 4 см и 5 см. Найди третью сторону.",
-      "expected": 5,
-      "got": 3,
-      "model": {
-        "shape": "triangle",
-        "a": 3,
-        "b": 4,
-        "c": 5,
-        "perimeter": 12,
-        "hidden": 0,
-        "answer": 3,
-        "hideA": true
-      }
-    },
-    {
-      "where": "g2:geometric_quantities:2",
-      "kind": "incorrect-answer",
-      "text": "Периметр треугольника —  20 см . Две известные стороны: 6 см и 8 см. Найди третью сторону.",
-      "expected": 8,
-      "got": 6,
-      "model": {
-        "shape": "triangle",
-        "a": 6,
-        "b": 6,
-        "c": 8,
-        "perimeter": 20,
-        "hidden": 0,
-        "answer": 6,
-        "hideA": true
-      }
-    },
-    {
-      "where": "g2:geometric_quantities:2",
-      "kind": "incorrect-answer",
-      "text": "Периметр треугольника —  16 см . Две известные стороны: 5 см и 6 см. Найди третью сторону.",
-      "expected": 6,
-      "got": 5,
-      "model": {
-        "shape": "triangle",
-        "a": 5,
-        "b": 5,
-        "c": 6,
-        "perimeter": 16,
-        "hidden": 1,
-        "answer": 5,
-        "hideB": true
-      }
-    },
-    {
-      "where": "g2:geometric_quantities:2",
-      "kind": "incorrect-answer",
-      "text": "Периметр треугольника —  16 см . Две известные стороны: 5 см и 6 см. Найди третью сторону.",
-      "expected": 6,
-      "got": 5,
-      "model": {
-        "shape": "triangle",
-        "a": 5,
-        "b": 5,
-        "c": 6,
-        "perimeter": 16,
-        "hidden": 1,
-        "answer": 5,
-        "hideB": true
-      }
-    },
-    {
-      "where": "g2:geometric_quantities:2",
-      "kind": "incorrect-answer",
-      "text": "Периметр треугольника —  20 см . Две известные стороны: 6 см и 8 см. Найди третью сторону.",
-      "expected": 8,
-      "got": 6,
-      "model": {
-        "shape": "triangle",
-        "a": 6,
-        "b": 6,
-        "c": 8,
-        "perimeter": 20,
-        "hidden": 1,
-        "answer": 6,
-        "hideB": true
-      }
-    },
-    {
-      "where": "g2:geometric_quantities:2",
-      "kind": "incorrect-answer",
-      "text": "Периметр треугольника —  20 см . Две известные стороны: 6 см и 8 см. Найди третью сторону.",
-      "expected": 8,
-      "got": 6,
-      "model": {
-        "shape": "triangle",
-        "a": 6,
-        "b": 6,
-        "c": 8,
-        "perimeter": 20,
-        "hidden": 0,
-        "answer": 6,
-        "hideA": true
-      }
-    },
-    {
-      "where": "g2:geometric_quantities:2",
-      "kind": "incorrect-answer",
-      "text": "Периметр треугольника —  16 см . Две известные стороны: 5 см и 6 см. Найди третью сторону.",
-      "expected": 6,
-      "got": 5,
-      "model": {
-        "shape": "triangle",
-        "a": 5,
-        "b": 5,
-        "c": 6,
-        "perimeter": 16,
-        "hidden": 0,
-        "answer": 5,
-        "hideA": true
-      }
-    },
-    {
-      "where": "g2:geometric_quantities:2",
-      "kind": "incorrect-answer",
-      "text": "Периметр треугольника —  12 см . Две известные стороны: 4 см и 5 см. Найди третью сторону.",
-      "expected": 5,
-      "got": 3,
-      "model": {
-        "shape": "triangle",
-        "a": 3,
-        "b": 4,
-        "c": 5,
-        "perimeter": 12,
-        "hidden": 0,
-        "answer": 3,
-        "hideA": true
-      }
-    },
-    {
-      "where": "g2:geometric_quantities:2",
-      "kind": "incorrect-answer",
-      "text": "Периметр треугольника —  18 см . Две известные стороны: 5 см и 7 см. Найди третью сторону.",
-      "expected": 7,
-      "got": 6,
-      "model": {
-        "shape": "triangle",
-        "a": 5,
-        "b": 6,
-        "c": 7,
-        "perimeter": 18,
-        "hidden": 1,
-        "answer": 6,
-        "hideB": true
-      }
-    },
-    {
-      "where": "g2:geometric_quantities:2",
-      "kind": "incorrect-answer",
-      "text": "Периметр треугольника —  16 см . Две известные стороны: 5 см и 6 см. Найди третью сторону.",
-      "expected": 6,
-      "got": 5,
-      "model": {
-        "shape": "triangle",
-        "a": 5,
-        "b": 5,
-        "c": 6,
-        "perimeter": 16,
-        "hidden": 1,
-        "answer": 5,
-        "hideB": true
-      }
-    },
-    {
-      "where": "g2:geometric_quantities:2",
-      "kind": "incorrect-answer",
-      "text": "Периметр треугольника —  18 см . Две известные стороны: 6 см и 7 см. Найди третью сторону.",
-      "expected": 7,
-      "got": 5,
-      "model": {
-        "shape": "triangle",
-        "a": 5,
-        "b": 6,
-        "c": 7,
-        "perimeter": 18,
-        "hidden": 0,
-        "answer": 5,
-        "hideA": true
-      }
-    },
-    {
-      "where": "g2:geometric_quantities:2",
-      "kind": "incorrect-answer",
-      "text": "Периметр треугольника —  16 см . Две известные стороны: 5 см и 6 см. Найди третью сторону.",
-      "expected": 6,
-      "got": 5,
-      "model": {
-        "shape": "triangle",
-        "a": 5,
-        "b": 5,
-        "c": 6,
-        "perimeter": 16,
-        "hidden": 0,
-        "answer": 5,
-        "hideA": true
-      }
-    },
-    {
-      "where": "g2:geometric_quantities:2",
-      "kind": "incorrect-answer",
-      "text": "Периметр треугольника —  16 см . Две известные стороны: 5 см и 6 см. Найди третью сторону.",
-      "expected": 6,
-      "got": 5,
-      "model": {
-        "shape": "triangle",
-        "a": 5,
-        "b": 5,
-        "c": 6,
-        "perimeter": 16,
-        "hidden": 1,
-        "answer": 5,
-        "hideB": true
-      }
-    },
-    {
-      "where": "g2:geometric_quantities:2",
-      "kind": "incorrect-answer",
-      "text": "Периметр треугольника —  13 см . Две известные стороны: 4 см и 5 см. Найди третью сторону.",
-      "expected": 5,
-      "got": 4,
-      "model": {
-        "shape": "triangle",
-        "a": 4,
-        "b": 4,
-        "c": 5,
-        "perimeter": 13,
-        "hidden": 1,
-        "answer": 4,
-        "hideB": true
-      }
-    },
-    {
-      "where": "g2:geometric_quantities:2",
-      "kind": "incorrect-answer",
-      "text": "Периметр треугольника —  20 см . Две известные стороны: 6 см и 8 см. Найди третью сторону.",
-      "expected": 8,
-      "got": 6,
-      "model": {
-        "shape": "triangle",
-        "a": 6,
-        "b": 6,
-        "c": 8,
-        "perimeter": 20,
-        "hidden": 1,
-        "answer": 6,
-        "hideB": true
-      }
-    },
-    {
-      "where": "g2:geometric_quantities:2",
-      "kind": "incorrect-answer",
-      "text": "Периметр треугольника —  20 см . Две известные стороны: 6 см и 8 см. Найди третью сторону.",
-      "expected": 8,
-      "got": 6,
-      "model": {
-        "shape": "triangle",
-        "a": 6,
-        "b": 6,
-        "c": 8,
-        "perimeter": 20,
-        "hidden": 0,
-        "answer": 6,
-        "hideA": true
-      }
-    },
-    {
-      "where": "g2:geometric_quantities:2",
-      "kind": "incorrect-answer",
-      "text": "Периметр треугольника —  16 см . Две известные стороны: 5 см и 6 см. Найди третью сторону.",
-      "expected": 6,
-      "got": 5,
-      "model": {
-        "shape": "triangle",
-        "a": 5,
-        "b": 5,
-        "c": 6,
-        "perimeter": 16,
-        "hidden": 0,
-        "answer": 5,
-        "hideA": true
-      }
-    },
-    {
-      "where": "g2:geometric_quantities:2",
-      "kind": "incorrect-answer",
-      "text": "Периметр треугольника —  20 см . Две известные стороны: 6 см и 8 см. Найди третью сторону.",
-      "expected": 8,
-      "got": 6,
-      "model": {
-        "shape": "triangle",
-        "a": 6,
-        "b": 6,
-        "c": 8,
-        "perimeter": 20,
-        "hidden": 0,
-        "answer": 6,
-        "hideA": true
-      }
-    },
-    {
-      "where": "g2:geometric_quantities:2",
-      "kind": "incorrect-answer",
-      "text": "Периметр треугольника —  15 см . Две известные стороны: 5 см и 6 см. Найди третью сторону.",
-      "expected": 6,
-      "got": 4,
-      "model": {
-        "shape": "triangle",
-        "a": 4,
-        "b": 5,
-        "c": 6,
-        "perimeter": 15,
-        "hidden": 0,
-        "answer": 4,
-        "hideA": true
-      }
-    },
-    {
-      "where": "g2:geometric_quantities:2",
-      "kind": "incorrect-answer",
-      "text": "Периметр треугольника —  16 см . Две известные стороны: 5 см и 6 см. Найди третью сторону.",
-      "expected": 6,
-      "got": 5,
-      "model": {
-        "shape": "triangle",
-        "a": 5,
-        "b": 5,
-        "c": 6,
-        "perimeter": 16,
-        "hidden": 1,
-        "answer": 5,
-        "hideB": true
-      }
-    },
-    {
-      "where": "g2:geometric_quantities:2",
-      "kind": "incorrect-answer",
-      "text": "Периметр треугольника —  18 см . Две известные стороны: 6 см и 7 см. Найди третью сторону.",
-      "expected": 7,
-      "got": 5,
-      "model": {
-        "shape": "triangle",
-        "a": 5,
-        "b": 6,
-        "c": 7,
-        "perimeter": 18,
-        "hidden": 0,
-        "answer": 5,
-        "hideA": true
-      }
-    },
-    {
-      "where": "g2:geometric_quantities:2",
-      "kind": "incorrect-answer",
-      "text": "Периметр треугольника —  15 см . Две известные стороны: 4 см и 6 см. Найди третью сторону.",
-      "expected": 6,
-      "got": 5,
-      "model": {
-        "shape": "triangle",
-        "a": 4,
-        "b": 5,
-        "c": 6,
-        "perimeter": 15,
-        "hidden": 1,
-        "answer": 5,
-        "hideB": true
-      }
-    },
-    {
-      "where": "g2:geometric_quantities:2",
-      "kind": "incorrect-answer",
-      "text": "Периметр треугольника —  16 см . Две известные стороны: 5 см и 6 см. Найди третью сторону.",
-      "expected": 6,
-      "got": 5,
-      "model": {
-        "shape": "triangle",
-        "a": 5,
-        "b": 5,
-        "c": 6,
-        "perimeter": 16,
-        "hidden": 0,
-        "answer": 5,
-        "hideA": true
-      }
-    },
-    {
-      "where": "g2:geometric_quantities:2",
-      "kind": "incorrect-answer",
-      "text": "Периметр треугольника —  15 см . Две известные стороны: 4 см и 6 см. Найди третью сторону.",
-      "expected": 6,
-      "got": 5,
-      "model": {
-        "shape": "triangle",
-        "a": 4,
-        "b": 5,
-        "c": 6,
-        "perimeter": 15,
-        "hidden": 1,
-        "answer": 5,
-        "hideB": true
-      }
-    },
-    {
-      "where": "g2:geometric_quantities:2",
-      "kind": "incorrect-answer",
-      "text": "Периметр треугольника —  18 см . Две известные стороны: 5 см и 7 см. Найди третью сторону.",
-      "expected": 7,
-      "got": 6,
-      "model": {
-        "shape": "triangle",
-        "a": 5,
-        "b": 6,
-        "c": 7,
-        "perimeter": 18,
-        "hidden": 1,
-        "answer": 6,
-        "hideB": true
-      }
-    },
-    {
-      "where": "g2:geometric_quantities:2",
-      "kind": "incorrect-answer",
-      "text": "Периметр треугольника —  13 см . Две известные стороны: 4 см и 5 см. Найди третью сторону.",
-      "expected": 5,
-      "got": 4,
-      "model": {
-        "shape": "triangle",
-        "a": 4,
-        "b": 4,
-        "c": 5,
-        "perimeter": 13,
-        "hidden": 0,
-        "answer": 4,
-        "hideA": true
-      }
-    },
-    {
-      "where": "g2:geometric_quantities:2",
-      "kind": "incorrect-answer",
-      "text": "Периметр треугольника —  12 см . Две известные стороны: 3 см и 5 см. Найди третью сторону.",
-      "expected": 5,
-      "got": 4,
-      "model": {
-        "shape": "triangle",
-        "a": 3,
-        "b": 4,
-        "c": 5,
-        "perimeter": 12,
-        "hidden": 1,
-        "answer": 4,
-        "hideB": true
-      }
-    },
-    {
-      "where": "g2:geometric_quantities:2",
-      "kind": "incorrect-answer",
-      "text": "Периметр треугольника —  20 см . Две известные стороны: 6 см и 8 см. Найди третью сторону.",
-      "expected": 8,
-      "got": 6,
-      "model": {
-        "shape": "triangle",
-        "a": 6,
-        "b": 6,
-        "c": 8,
-        "perimeter": 20,
-        "hidden": 1,
-        "answer": 6,
-        "hideB": true
-      }
-    },
-    {
-      "where": "g2:geometric_quantities:2",
-      "kind": "incorrect-answer",
-      "text": "Периметр треугольника —  16 см . Две известные стороны: 5 см и 6 см. Найди третью сторону.",
-      "expected": 6,
-      "got": 5,
-      "model": {
-        "shape": "triangle",
-        "a": 5,
-        "b": 5,
-        "c": 6,
-        "perimeter": 16,
-        "hidden": 1,
-        "answer": 5,
-        "hideB": true
-      }
-    },
-    {
-      "where": "g2:geometric_quantities:2",
-      "kind": "incorrect-answer",
-      "text": "Периметр треугольника —  13 см . Две известные стороны: 4 см и 5 см. Найди третью сторону.",
-      "expected": 5,
-      "got": 4,
-      "model": {
-        "shape": "triangle",
-        "a": 4,
-        "b": 4,
-        "c": 5,
-        "perimeter": 13,
-        "hidden": 0,
-        "answer": 4,
-        "hideA": true
-      }
-    },
-    {
-      "where": "g2:geometric_quantities:2",
-      "kind": "incorrect-answer",
-      "text": "Периметр треугольника —  12 см . Две известные стороны: 3 см и 5 см. Найди третью сторону.",
-      "expected": 5,
-      "got": 4,
-      "model": {
-        "shape": "triangle",
-        "a": 3,
-        "b": 4,
-        "c": 5,
-        "perimeter": 12,
-        "hidden": 1,
-        "answer": 4,
-        "hideB": true
-      }
-    },
-    {
-      "where": "g2:geometric_quantities:2",
-      "kind": "incorrect-answer",
-      "text": "Периметр треугольника —  13 см . Две известные стороны: 4 см и 5 см. Найди третью сторону.",
-      "expected": 5,
-      "got": 4,
-      "model": {
-        "shape": "triangle",
-        "a": 4,
-        "b": 4,
-        "c": 5,
-        "perimeter": 13,
-        "hidden": 1,
-        "answer": 4,
-        "hideB": true
-      }
-    },
-    {
-      "where": "g2:geometric_quantities:2",
-      "kind": "incorrect-answer",
-      "text": "Периметр треугольника —  15 см . Две известные стороны: 5 см и 6 см. Найди третью сторону.",
-      "expected": 6,
-      "got": 4,
-      "model": {
-        "shape": "triangle",
-        "a": 4,
-        "b": 5,
-        "c": 6,
-        "perimeter": 15,
-        "hidden": 0,
-        "answer": 4,
-        "hideA": true
-      }
-    },
-    {
-      "where": "g2:geometric_quantities:2",
-      "kind": "incorrect-answer",
-      "text": "Периметр треугольника —  15 см . Две известные стороны: 4 см и 6 см. Найди третью сторону.",
-      "expected": 6,
-      "got": 5,
-      "model": {
-        "shape": "triangle",
-        "a": 4,
-        "b": 5,
-        "c": 6,
-        "perimeter": 15,
-        "hidden": 1,
-        "answer": 5,
-        "hideB": true
-      }
-    },
-    {
-      "where": "g2:geometric_quantities:2",
-      "kind": "incorrect-answer",
-      "text": "Периметр треугольника —  20 см . Две известные стороны: 6 см и 8 см. Найди третью сторону.",
-      "expected": 8,
-      "got": 6,
-      "model": {
-        "shape": "triangle",
-        "a": 6,
-        "b": 6,
-        "c": 8,
-        "perimeter": 20,
-        "hidden": 0,
-        "answer": 6,
-        "hideA": true
-      }
-    },
-    {
-      "where": "g2:geometric_quantities:2",
-      "kind": "incorrect-answer",
-      "text": "Периметр треугольника —  12 см . Две известные стороны: 3 см и 5 см. Найди третью сторону.",
-      "expected": 5,
-      "got": 4,
-      "model": {
-        "shape": "triangle",
-        "a": 3,
-        "b": 4,
-        "c": 5,
-        "perimeter": 12,
-        "hidden": 1,
-        "answer": 4,
-        "hideB": true
+        "kind": "add",
+        "a": 8,
+        "b": 1,
+        "result": 9,
+        "obj": {
+          "one": "книга",
+          "few": "книги",
+          "many": "книг",
+          "icon": "▤"
+        },
+        "limit": 20,
+        "unknown": "result"
       }
     },
     {
       "where": "g1:word_problems:0",
       "kind": "wrong-accusative",
-      "text": "У Маши было 6 книг. Убрали 1 книга. Сколько книг осталось?",
+      "text": "У Маши было 10 книг. Убрали 1 книга. Сколько книг осталось?",
       "expected": "1 книгу after an action",
-      "got": "У Маши было 6 книг. Убрали 1 книга. Сколько книг осталось?",
+      "got": "У Маши было 10 книг. Убрали 1 книга. Сколько книг осталось?",
       "model": {
         "kind": "sub",
+        "a": 10,
+        "b": 1,
+        "result": 9,
+        "obj": {
+          "one": "книга",
+          "few": "книги",
+          "many": "книг",
+          "icon": "▤"
+        },
+        "limit": 20,
+        "unknown": "result"
+      }
+    },
+    {
+      "where": "g1:word_problems:0",
+      "kind": "wrong-accusative",
+      "text": "У Маши было 6 книг. Ей дали ещё 1 книга. Сколько книг стало?",
+      "expected": "1 книгу after an action",
+      "got": "У Маши было 6 книг. Ей дали ещё 1 книга. Сколько книг стало?",
+      "model": {
+        "kind": "add",
         "a": 6,
         "b": 1,
+        "result": 7,
+        "obj": {
+          "one": "книга",
+          "few": "книги",
+          "many": "книг",
+          "icon": "▤"
+        },
+        "limit": 20,
+        "unknown": "result"
+      }
+    },
+    {
+      "where": "g1:word_problems:0",
+      "kind": "wrong-accusative",
+      "text": "У Маши было 8 книг. Убрали 1 книга. Сколько книг осталось?",
+      "expected": "1 книгу after an action",
+      "got": "У Маши было 8 книг. Убрали 1 книга. Сколько книг осталось?",
+      "model": {
+        "kind": "sub",
+        "a": 8,
+        "b": 1,
+        "result": 7,
+        "obj": {
+          "one": "книга",
+          "few": "книги",
+          "many": "книг",
+          "icon": "▤"
+        },
+        "limit": 20,
+        "unknown": "result"
+      }
+    },
+    {
+      "where": "g1:word_problems:0",
+      "kind": "wrong-accusative",
+      "text": "У Маши было 4 книги. Ей дали ещё 1 книга. Сколько книг стало?",
+      "expected": "1 книгу after an action",
+      "got": "У Маши было 4 книги. Ей дали ещё 1 книга. Сколько книг стало?",
+      "model": {
+        "kind": "add",
+        "a": 4,
+        "b": 1,
         "result": 5,
+        "obj": {
+          "one": "книга",
+          "few": "книги",
+          "many": "книг",
+          "icon": "▤"
+        },
+        "limit": 20,
+        "unknown": "result"
+      }
+    },
+    {
+      "where": "g1:word_problems:0",
+      "kind": "wrong-accusative",
+      "text": "У Маши было 7 книг. Ей дали ещё 1 книга. Сколько книг стало?",
+      "expected": "1 книгу after an action",
+      "got": "У Маши было 7 книг. Ей дали ещё 1 книга. Сколько книг стало?",
+      "model": {
+        "kind": "add",
+        "a": 7,
+        "b": 1,
+        "result": 8,
+        "obj": {
+          "one": "книга",
+          "few": "книги",
+          "many": "книг",
+          "icon": "▤"
+        },
+        "limit": 20,
+        "unknown": "result"
+      }
+    },
+    {
+      "where": "g1:word_problems:0",
+      "kind": "wrong-accusative",
+      "text": "У Маши было 2 книги. Ей дали ещё 1 книга. Сколько книг стало?",
+      "expected": "1 книгу after an action",
+      "got": "У Маши было 2 книги. Ей дали ещё 1 книга. Сколько книг стало?",
+      "model": {
+        "kind": "add",
+        "a": 2,
+        "b": 1,
+        "result": 3,
+        "obj": {
+          "one": "книга",
+          "few": "книги",
+          "many": "книг",
+          "icon": "▤"
+        },
+        "limit": 20,
+        "unknown": "result"
+      }
+    },
+    {
+      "where": "g1:word_problems:0",
+      "kind": "wrong-accusative",
+      "text": "У Маши было 4 книги. Ей дали ещё 1 книга. Сколько книг стало?",
+      "expected": "1 книгу after an action",
+      "got": "У Маши было 4 книги. Ей дали ещё 1 книга. Сколько книг стало?",
+      "model": {
+        "kind": "add",
+        "a": 4,
+        "b": 1,
+        "result": 5,
+        "obj": {
+          "one": "книга",
+          "few": "книги",
+          "many": "книг",
+          "icon": "▤"
+        },
+        "limit": 20,
+        "unknown": "result"
+      }
+    },
+    {
+      "where": "g1:word_problems:0",
+      "kind": "wrong-accusative",
+      "text": "У Маши было 5 книг. Убрали 1 книга. Сколько книг осталось?",
+      "expected": "1 книгу after an action",
+      "got": "У Маши было 5 книг. Убрали 1 книга. Сколько книг осталось?",
+      "model": {
+        "kind": "sub",
+        "a": 5,
+        "b": 1,
+        "result": 4,
+        "obj": {
+          "one": "книга",
+          "few": "книги",
+          "many": "книг",
+          "icon": "▤"
+        },
+        "limit": 20,
+        "unknown": "result"
+      }
+    },
+    {
+      "where": "g1:word_problems:0",
+      "kind": "wrong-accusative",
+      "text": "У Маши было 4 книги. Убрали 1 книга. Сколько книг осталось?",
+      "expected": "1 книгу after an action",
+      "got": "У Маши было 4 книги. Убрали 1 книга. Сколько книг осталось?",
+      "model": {
+        "kind": "sub",
+        "a": 4,
+        "b": 1,
+        "result": 3,
+        "obj": {
+          "one": "книга",
+          "few": "книги",
+          "many": "книг",
+          "icon": "▤"
+        },
+        "limit": 20,
+        "unknown": "result"
+      }
+    },
+    {
+      "where": "g1:word_problems:0",
+      "kind": "wrong-accusative",
+      "text": "У Маши было 5 книг. Ей дали ещё 1 книга. Сколько книг стало?",
+      "expected": "1 книгу after an action",
+      "got": "У Маши было 5 книг. Ей дали ещё 1 книга. Сколько книг стало?",
+      "model": {
+        "kind": "add",
+        "a": 5,
+        "b": 1,
+        "result": 6,
+        "obj": {
+          "one": "книга",
+          "few": "книги",
+          "many": "книг",
+          "icon": "▤"
+        },
+        "limit": 20,
+        "unknown": "result"
+      }
+    },
+    {
+      "where": "g1:word_problems:0",
+      "kind": "wrong-accusative",
+      "text": "У Маши было 5 книг. Ей дали ещё 1 книга. Сколько книг стало?",
+      "expected": "1 книгу after an action",
+      "got": "У Маши было 5 книг. Ей дали ещё 1 книга. Сколько книг стало?",
+      "model": {
+        "kind": "add",
+        "a": 5,
+        "b": 1,
+        "result": 6,
+        "obj": {
+          "one": "книга",
+          "few": "книги",
+          "many": "книг",
+          "icon": "▤"
+        },
+        "limit": 20,
+        "unknown": "result"
+      }
+    },
+    {
+      "where": "g1:word_problems:0",
+      "kind": "wrong-accusative",
+      "text": "У Маши было 4 книги. Убрали 1 книга. Сколько книг осталось?",
+      "expected": "1 книгу after an action",
+      "got": "У Маши было 4 книги. Убрали 1 книга. Сколько книг осталось?",
+      "model": {
+        "kind": "sub",
+        "a": 4,
+        "b": 1,
+        "result": 3,
+        "obj": {
+          "one": "книга",
+          "few": "книги",
+          "many": "книг",
+          "icon": "▤"
+        },
+        "limit": 20,
+        "unknown": "result"
+      }
+    },
+    {
+      "where": "g1:word_problems:0",
+      "kind": "wrong-accusative",
+      "text": "У Маши было 7 книг. Убрали 1 книга. Сколько книг осталось?",
+      "expected": "1 книгу after an action",
+      "got": "У Маши было 7 книг. Убрали 1 книга. Сколько книг осталось?",
+      "model": {
+        "kind": "sub",
+        "a": 7,
+        "b": 1,
+        "result": 6,
+        "obj": {
+          "one": "книга",
+          "few": "книги",
+          "many": "книг",
+          "icon": "▤"
+        },
+        "limit": 20,
+        "unknown": "result"
+      }
+    },
+    {
+      "where": "g1:word_problems:0",
+      "kind": "wrong-accusative",
+      "text": "У Маши было 4 книги. Ей дали ещё 1 книга. Сколько книг стало?",
+      "expected": "1 книгу after an action",
+      "got": "У Маши было 4 книги. Ей дали ещё 1 книга. Сколько книг стало?",
+      "model": {
+        "kind": "add",
+        "a": 4,
+        "b": 1,
+        "result": 5,
+        "obj": {
+          "one": "книга",
+          "few": "книги",
+          "many": "книг",
+          "icon": "▤"
+        },
+        "limit": 20,
+        "unknown": "result"
+      }
+    },
+    {
+      "where": "g1:word_problems:0",
+      "kind": "wrong-accusative",
+      "text": "У Маши было 8 книг. Ей дали ещё 1 книга. Сколько книг стало?",
+      "expected": "1 книгу after an action",
+      "got": "У Маши было 8 книг. Ей дали ещё 1 книга. Сколько книг стало?",
+      "model": {
+        "kind": "add",
+        "a": 8,
+        "b": 1,
+        "result": 9,
+        "obj": {
+          "one": "книга",
+          "few": "книги",
+          "many": "книг",
+          "icon": "▤"
+        },
+        "limit": 20,
+        "unknown": "result"
+      }
+    },
+    {
+      "where": "g1:word_problems:0",
+      "kind": "wrong-accusative",
+      "text": "У Маши было 3 книги. Ей дали ещё 1 книга. Сколько книг стало?",
+      "expected": "1 книгу after an action",
+      "got": "У Маши было 3 книги. Ей дали ещё 1 книга. Сколько книг стало?",
+      "model": {
+        "kind": "add",
+        "a": 3,
+        "b": 1,
+        "result": 4,
+        "obj": {
+          "one": "книга",
+          "few": "книги",
+          "many": "книг",
+          "icon": "▤"
+        },
+        "limit": 20,
+        "unknown": "result"
+      }
+    },
+    {
+      "where": "g1:word_problems:0",
+      "kind": "wrong-accusative",
+      "text": "У Маши было 7 книг. Убрали 1 книга. Сколько книг осталось?",
+      "expected": "1 книгу after an action",
+      "got": "У Маши было 7 книг. Убрали 1 книга. Сколько книг осталось?",
+      "model": {
+        "kind": "sub",
+        "a": 7,
+        "b": 1,
+        "result": 6,
         "obj": {
           "one": "книга",
           "few": "книги",
@@ -1268,35 +622,14 @@
     {
       "where": "g1:word_problems:0",
       "kind": "wrong-accusative",
-      "text": "У Маши было 5 книг. Убрали 1 книга. Сколько книг осталось?",
+      "text": "У Маши было 10 книг. Убрали 1 книга. Сколько книг осталось?",
       "expected": "1 книгу after an action",
-      "got": "У Маши было 5 книг. Убрали 1 книга. Сколько книг осталось?",
+      "got": "У Маши было 10 книг. Убрали 1 книга. Сколько книг осталось?",
       "model": {
         "kind": "sub",
-        "a": 5,
+        "a": 10,
         "b": 1,
-        "result": 4,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 8 книг. Убрали 1 книга. Сколько книг осталось?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 8 книг. Убрали 1 книга. Сколько книг осталось?",
-      "model": {
-        "kind": "sub",
-        "a": 8,
-        "b": 1,
-        "result": 7,
+        "result": 9,
         "obj": {
           "one": "книга",
           "few": "книги",
@@ -1318,6 +651,48 @@
         "a": 5,
         "b": 1,
         "result": 6,
+        "obj": {
+          "one": "книга",
+          "few": "книги",
+          "many": "книг",
+          "icon": "▤"
+        },
+        "limit": 20,
+        "unknown": "result"
+      }
+    },
+    {
+      "where": "g1:word_problems:0",
+      "kind": "wrong-accusative",
+      "text": "У Маши было 6 книг. Убрали 1 книга. Сколько книг осталось?",
+      "expected": "1 книгу after an action",
+      "got": "У Маши было 6 книг. Убрали 1 книга. Сколько книг осталось?",
+      "model": {
+        "kind": "sub",
+        "a": 6,
+        "b": 1,
+        "result": 5,
+        "obj": {
+          "one": "книга",
+          "few": "книги",
+          "many": "книг",
+          "icon": "▤"
+        },
+        "limit": 20,
+        "unknown": "result"
+      }
+    },
+    {
+      "where": "g1:word_problems:0",
+      "kind": "wrong-accusative",
+      "text": "У Маши было 10 книг. Убрали 1 книга. Сколько книг осталось?",
+      "expected": "1 книгу after an action",
+      "got": "У Маши было 10 книг. Убрали 1 книга. Сколько книг осталось?",
+      "model": {
+        "kind": "sub",
+        "a": 10,
+        "b": 1,
+        "result": 9,
         "obj": {
           "one": "книга",
           "few": "книги",
@@ -1373,27 +748,6 @@
     {
       "where": "g1:word_problems:0",
       "kind": "wrong-accusative",
-      "text": "У Маши было 6 книг. Убрали 1 книга. Сколько книг осталось?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 6 книг. Убрали 1 книга. Сколько книг осталось?",
-      "model": {
-        "kind": "sub",
-        "a": 6,
-        "b": 1,
-        "result": 5,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
       "text": "У Маши было 2 книги. Ей дали ещё 1 книга. Сколько книг стало?",
       "expected": "1 книгу after an action",
       "got": "У Маши было 2 книги. Ей дали ещё 1 книга. Сколько книг стало?",
@@ -1415,140 +769,14 @@
     {
       "where": "g1:word_problems:0",
       "kind": "wrong-accusative",
-      "text": "У Маши было 7 книг. Ей дали ещё 1 книга. Сколько книг стало?",
+      "text": "У Маши было 5 книг. Ей дали ещё 1 книга. Сколько книг стало?",
       "expected": "1 книгу after an action",
-      "got": "У Маши было 7 книг. Ей дали ещё 1 книга. Сколько книг стало?",
+      "got": "У Маши было 5 книг. Ей дали ещё 1 книга. Сколько книг стало?",
       "model": {
         "kind": "add",
-        "a": 7,
+        "a": 5,
         "b": 1,
-        "result": 8,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 1 книга. Ей дали ещё 1 книга. Сколько книг стало?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 1 книга. Ей дали ещё 1 книга. Сколько книг стало?",
-      "model": {
-        "kind": "add",
-        "a": 1,
-        "b": 1,
-        "result": 2,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 3 книги. Убрали 1 книга. Сколько книг осталось?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 3 книги. Убрали 1 книга. Сколько книг осталось?",
-      "model": {
-        "kind": "sub",
-        "a": 3,
-        "b": 1,
-        "result": 2,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 3 книги. Убрали 1 книга. Сколько книг осталось?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 3 книги. Убрали 1 книга. Сколько книг осталось?",
-      "model": {
-        "kind": "sub",
-        "a": 3,
-        "b": 1,
-        "result": 2,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 3 книги. Ей дали ещё 1 книга. Сколько книг стало?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 3 книги. Ей дали ещё 1 книга. Сколько книг стало?",
-      "model": {
-        "kind": "add",
-        "a": 3,
-        "b": 1,
-        "result": 4,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 3 книги. Убрали 1 книга. Сколько книг осталось?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 3 книги. Убрали 1 книга. Сколько книг осталось?",
-      "model": {
-        "kind": "sub",
-        "a": 3,
-        "b": 1,
-        "result": 2,
-        "obj": {
-          "one": "книга",
-          "few": "книги",
-          "many": "книг",
-          "icon": "▤"
-        },
-        "limit": 20,
-        "unknown": "result"
-      }
-    },
-    {
-      "where": "g1:word_problems:0",
-      "kind": "wrong-accusative",
-      "text": "У Маши было 6 книг. Убрали 1 книга. Сколько книг осталось?",
-      "expected": "1 книгу after an action",
-      "got": "У Маши было 6 книг. Убрали 1 книга. Сколько книг осталось?",
-      "model": {
-        "kind": "sub",
-        "a": 6,
-        "b": 1,
-        "result": 5,
+        "result": 6,
         "obj": {
           "one": "книга",
           "few": "книги",
@@ -1583,12 +811,558 @@
     {
       "where": "g1:word_problems:0",
       "kind": "wrong-accusative",
+      "text": "У Маши было 7 книг. Ей дали ещё 1 книга. Сколько книг стало?",
+      "expected": "1 книгу after an action",
+      "got": "У Маши было 7 книг. Ей дали ещё 1 книга. Сколько книг стало?",
+      "model": {
+        "kind": "add",
+        "a": 7,
+        "b": 1,
+        "result": 8,
+        "obj": {
+          "one": "книга",
+          "few": "книги",
+          "many": "книг",
+          "icon": "▤"
+        },
+        "limit": 20,
+        "unknown": "result"
+      }
+    },
+    {
+      "where": "g1:word_problems:0",
+      "kind": "wrong-accusative",
+      "text": "У Маши было 5 книг. Убрали 1 книга. Сколько книг осталось?",
+      "expected": "1 книгу after an action",
+      "got": "У Маши было 5 книг. Убрали 1 книга. Сколько книг осталось?",
+      "model": {
+        "kind": "sub",
+        "a": 5,
+        "b": 1,
+        "result": 4,
+        "obj": {
+          "one": "книга",
+          "few": "книги",
+          "many": "книг",
+          "icon": "▤"
+        },
+        "limit": 20,
+        "unknown": "result"
+      }
+    },
+    {
+      "where": "g1:word_problems:0",
+      "kind": "wrong-accusative",
+      "text": "У Маши было 7 книг. Ей дали ещё 1 книга. Сколько книг стало?",
+      "expected": "1 книгу after an action",
+      "got": "У Маши было 7 книг. Ей дали ещё 1 книга. Сколько книг стало?",
+      "model": {
+        "kind": "add",
+        "a": 7,
+        "b": 1,
+        "result": 8,
+        "obj": {
+          "one": "книга",
+          "few": "книги",
+          "many": "книг",
+          "icon": "▤"
+        },
+        "limit": 20,
+        "unknown": "result"
+      }
+    },
+    {
+      "where": "g1:word_problems:0",
+      "kind": "wrong-accusative",
+      "text": "У Маши было 9 книг. Убрали 1 книга. Сколько книг осталось?",
+      "expected": "1 книгу after an action",
+      "got": "У Маши было 9 книг. Убрали 1 книга. Сколько книг осталось?",
+      "model": {
+        "kind": "sub",
+        "a": 9,
+        "b": 1,
+        "result": 8,
+        "obj": {
+          "one": "книга",
+          "few": "книги",
+          "many": "книг",
+          "icon": "▤"
+        },
+        "limit": 20,
+        "unknown": "result"
+      }
+    },
+    {
+      "where": "g1:word_problems:0",
+      "kind": "wrong-accusative",
+      "text": "У Маши было 6 книг. Ей дали ещё 1 книга. Сколько книг стало?",
+      "expected": "1 книгу after an action",
+      "got": "У Маши было 6 книг. Ей дали ещё 1 книга. Сколько книг стало?",
+      "model": {
+        "kind": "add",
+        "a": 6,
+        "b": 1,
+        "result": 7,
+        "obj": {
+          "one": "книга",
+          "few": "книги",
+          "many": "книг",
+          "icon": "▤"
+        },
+        "limit": 20,
+        "unknown": "result"
+      }
+    },
+    {
+      "where": "g1:word_problems:0",
+      "kind": "wrong-accusative",
+      "text": "У Маши было 8 книг. Ей дали ещё 1 книга. Сколько книг стало?",
+      "expected": "1 книгу after an action",
+      "got": "У Маши было 8 книг. Ей дали ещё 1 книга. Сколько книг стало?",
+      "model": {
+        "kind": "add",
+        "a": 8,
+        "b": 1,
+        "result": 9,
+        "obj": {
+          "one": "книга",
+          "few": "книги",
+          "many": "книг",
+          "icon": "▤"
+        },
+        "limit": 20,
+        "unknown": "result"
+      }
+    },
+    {
+      "where": "g1:word_problems:0",
+      "kind": "wrong-accusative",
+      "text": "У Маши было 6 книг. Убрали 1 книга. Сколько книг осталось?",
+      "expected": "1 книгу after an action",
+      "got": "У Маши было 6 книг. Убрали 1 книга. Сколько книг осталось?",
+      "model": {
+        "kind": "sub",
+        "a": 6,
+        "b": 1,
+        "result": 5,
+        "obj": {
+          "one": "книга",
+          "few": "книги",
+          "many": "книг",
+          "icon": "▤"
+        },
+        "limit": 20,
+        "unknown": "result"
+      }
+    },
+    {
+      "where": "g1:word_problems:0",
+      "kind": "wrong-accusative",
+      "text": "У Маши было 8 книг. Убрали 1 книга. Сколько книг осталось?",
+      "expected": "1 книгу after an action",
+      "got": "У Маши было 8 книг. Убрали 1 книга. Сколько книг осталось?",
+      "model": {
+        "kind": "sub",
+        "a": 8,
+        "b": 1,
+        "result": 7,
+        "obj": {
+          "one": "книга",
+          "few": "книги",
+          "many": "книг",
+          "icon": "▤"
+        },
+        "limit": 20,
+        "unknown": "result"
+      }
+    },
+    {
+      "where": "g1:word_problems:0",
+      "kind": "wrong-accusative",
+      "text": "У Маши было 5 книг. Убрали 1 книга. Сколько книг осталось?",
+      "expected": "1 книгу after an action",
+      "got": "У Маши было 5 книг. Убрали 1 книга. Сколько книг осталось?",
+      "model": {
+        "kind": "sub",
+        "a": 5,
+        "b": 1,
+        "result": 4,
+        "obj": {
+          "one": "книга",
+          "few": "книги",
+          "many": "книг",
+          "icon": "▤"
+        },
+        "limit": 20,
+        "unknown": "result"
+      }
+    },
+    {
+      "where": "g1:word_problems:0",
+      "kind": "wrong-accusative",
       "text": "У Маши было 1 книга. Ей дали ещё 1 книга. Сколько книг стало?",
       "expected": "1 книгу after an action",
       "got": "У Маши было 1 книга. Ей дали ещё 1 книга. Сколько книг стало?",
       "model": {
         "kind": "add",
         "a": 1,
+        "b": 1,
+        "result": 2,
+        "obj": {
+          "one": "книга",
+          "few": "книги",
+          "many": "книг",
+          "icon": "▤"
+        },
+        "limit": 20,
+        "unknown": "result"
+      }
+    },
+    {
+      "where": "g1:word_problems:0",
+      "kind": "wrong-accusative",
+      "text": "У Маши было 8 книг. Ей дали ещё 1 книга. Сколько книг стало?",
+      "expected": "1 книгу after an action",
+      "got": "У Маши было 8 книг. Ей дали ещё 1 книга. Сколько книг стало?",
+      "model": {
+        "kind": "add",
+        "a": 8,
+        "b": 1,
+        "result": 9,
+        "obj": {
+          "one": "книга",
+          "few": "книги",
+          "many": "книг",
+          "icon": "▤"
+        },
+        "limit": 20,
+        "unknown": "result"
+      }
+    },
+    {
+      "where": "g1:word_problems:0",
+      "kind": "wrong-accusative",
+      "text": "У Маши было 6 книг. Ей дали ещё 1 книга. Сколько книг стало?",
+      "expected": "1 книгу after an action",
+      "got": "У Маши было 6 книг. Ей дали ещё 1 книга. Сколько книг стало?",
+      "model": {
+        "kind": "add",
+        "a": 6,
+        "b": 1,
+        "result": 7,
+        "obj": {
+          "one": "книга",
+          "few": "книги",
+          "many": "книг",
+          "icon": "▤"
+        },
+        "limit": 20,
+        "unknown": "result"
+      }
+    },
+    {
+      "where": "g1:word_problems:0",
+      "kind": "wrong-accusative",
+      "text": "У Маши было 8 книг. Убрали 1 книга. Сколько книг осталось?",
+      "expected": "1 книгу after an action",
+      "got": "У Маши было 8 книг. Убрали 1 книга. Сколько книг осталось?",
+      "model": {
+        "kind": "sub",
+        "a": 8,
+        "b": 1,
+        "result": 7,
+        "obj": {
+          "one": "книга",
+          "few": "книги",
+          "many": "книг",
+          "icon": "▤"
+        },
+        "limit": 20,
+        "unknown": "result"
+      }
+    },
+    {
+      "where": "g1:word_problems:0",
+      "kind": "wrong-accusative",
+      "text": "У Маши было 3 книги. Убрали 1 книга. Сколько книг осталось?",
+      "expected": "1 книгу after an action",
+      "got": "У Маши было 3 книги. Убрали 1 книга. Сколько книг осталось?",
+      "model": {
+        "kind": "sub",
+        "a": 3,
+        "b": 1,
+        "result": 2,
+        "obj": {
+          "one": "книга",
+          "few": "книги",
+          "many": "книг",
+          "icon": "▤"
+        },
+        "limit": 20,
+        "unknown": "result"
+      }
+    },
+    {
+      "where": "g1:word_problems:0",
+      "kind": "wrong-accusative",
+      "text": "У Маши было 6 книг. Убрали 1 книга. Сколько книг осталось?",
+      "expected": "1 книгу after an action",
+      "got": "У Маши было 6 книг. Убрали 1 книга. Сколько книг осталось?",
+      "model": {
+        "kind": "sub",
+        "a": 6,
+        "b": 1,
+        "result": 5,
+        "obj": {
+          "one": "книга",
+          "few": "книги",
+          "many": "книг",
+          "icon": "▤"
+        },
+        "limit": 20,
+        "unknown": "result"
+      }
+    },
+    {
+      "where": "g1:word_problems:0",
+      "kind": "wrong-accusative",
+      "text": "У Маши было 8 книг. Убрали 1 книга. Сколько книг осталось?",
+      "expected": "1 книгу after an action",
+      "got": "У Маши было 8 книг. Убрали 1 книга. Сколько книг осталось?",
+      "model": {
+        "kind": "sub",
+        "a": 8,
+        "b": 1,
+        "result": 7,
+        "obj": {
+          "one": "книга",
+          "few": "книги",
+          "many": "книг",
+          "icon": "▤"
+        },
+        "limit": 20,
+        "unknown": "result"
+      }
+    },
+    {
+      "where": "g1:word_problems:0",
+      "kind": "wrong-accusative",
+      "text": "У Маши было 2 книги. Ей дали ещё 1 книга. Сколько книг стало?",
+      "expected": "1 книгу after an action",
+      "got": "У Маши было 2 книги. Ей дали ещё 1 книга. Сколько книг стало?",
+      "model": {
+        "kind": "add",
+        "a": 2,
+        "b": 1,
+        "result": 3,
+        "obj": {
+          "one": "книга",
+          "few": "книги",
+          "many": "книг",
+          "icon": "▤"
+        },
+        "limit": 20,
+        "unknown": "result"
+      }
+    },
+    {
+      "where": "g1:word_problems:0",
+      "kind": "wrong-accusative",
+      "text": "У Маши было 6 книг. Убрали 1 книга. Сколько книг осталось?",
+      "expected": "1 книгу after an action",
+      "got": "У Маши было 6 книг. Убрали 1 книга. Сколько книг осталось?",
+      "model": {
+        "kind": "sub",
+        "a": 6,
+        "b": 1,
+        "result": 5,
+        "obj": {
+          "one": "книга",
+          "few": "книги",
+          "many": "книг",
+          "icon": "▤"
+        },
+        "limit": 20,
+        "unknown": "result"
+      }
+    },
+    {
+      "where": "g1:word_problems:0",
+      "kind": "wrong-accusative",
+      "text": "У Маши было 4 книги. Убрали 1 книга. Сколько книг осталось?",
+      "expected": "1 книгу after an action",
+      "got": "У Маши было 4 книги. Убрали 1 книга. Сколько книг осталось?",
+      "model": {
+        "kind": "sub",
+        "a": 4,
+        "b": 1,
+        "result": 3,
+        "obj": {
+          "one": "книга",
+          "few": "книги",
+          "many": "книг",
+          "icon": "▤"
+        },
+        "limit": 20,
+        "unknown": "result"
+      }
+    },
+    {
+      "where": "g1:word_problems:0",
+      "kind": "wrong-accusative",
+      "text": "У Маши было 2 книги. Ей дали ещё 1 книга. Сколько книг стало?",
+      "expected": "1 книгу after an action",
+      "got": "У Маши было 2 книги. Ей дали ещё 1 книга. Сколько книг стало?",
+      "model": {
+        "kind": "add",
+        "a": 2,
+        "b": 1,
+        "result": 3,
+        "obj": {
+          "one": "книга",
+          "few": "книги",
+          "many": "книг",
+          "icon": "▤"
+        },
+        "limit": 20,
+        "unknown": "result"
+      }
+    },
+    {
+      "where": "g1:word_problems:0",
+      "kind": "wrong-accusative",
+      "text": "У Маши было 7 книг. Убрали 1 книга. Сколько книг осталось?",
+      "expected": "1 книгу after an action",
+      "got": "У Маши было 7 книг. Убрали 1 книга. Сколько книг осталось?",
+      "model": {
+        "kind": "sub",
+        "a": 7,
+        "b": 1,
+        "result": 6,
+        "obj": {
+          "one": "книга",
+          "few": "книги",
+          "many": "книг",
+          "icon": "▤"
+        },
+        "limit": 20,
+        "unknown": "result"
+      }
+    },
+    {
+      "where": "g1:word_problems:0",
+      "kind": "wrong-accusative",
+      "text": "У Маши было 1 книга. Ей дали ещё 1 книга. Сколько книг стало?",
+      "expected": "1 книгу after an action",
+      "got": "У Маши было 1 книга. Ей дали ещё 1 книга. Сколько книг стало?",
+      "model": {
+        "kind": "add",
+        "a": 1,
+        "b": 1,
+        "result": 2,
+        "obj": {
+          "one": "книга",
+          "few": "книги",
+          "many": "книг",
+          "icon": "▤"
+        },
+        "limit": 20,
+        "unknown": "result"
+      }
+    },
+    {
+      "where": "g1:word_problems:0",
+      "kind": "wrong-accusative",
+      "text": "У Маши было 5 книг. Ей дали ещё 1 книга. Сколько книг стало?",
+      "expected": "1 книгу after an action",
+      "got": "У Маши было 5 книг. Ей дали ещё 1 книга. Сколько книг стало?",
+      "model": {
+        "kind": "add",
+        "a": 5,
+        "b": 1,
+        "result": 6,
+        "obj": {
+          "one": "книга",
+          "few": "книги",
+          "many": "книг",
+          "icon": "▤"
+        },
+        "limit": 20,
+        "unknown": "result"
+      }
+    },
+    {
+      "where": "g1:word_problems:0",
+      "kind": "wrong-accusative",
+      "text": "У Маши было 7 книг. Ей дали ещё 1 книга. Сколько книг стало?",
+      "expected": "1 книгу after an action",
+      "got": "У Маши было 7 книг. Ей дали ещё 1 книга. Сколько книг стало?",
+      "model": {
+        "kind": "add",
+        "a": 7,
+        "b": 1,
+        "result": 8,
+        "obj": {
+          "one": "книга",
+          "few": "книги",
+          "many": "книг",
+          "icon": "▤"
+        },
+        "limit": 20,
+        "unknown": "result"
+      }
+    },
+    {
+      "where": "g1:word_problems:0",
+      "kind": "wrong-accusative",
+      "text": "У Маши было 10 книг. Убрали 1 книга. Сколько книг осталось?",
+      "expected": "1 книгу after an action",
+      "got": "У Маши было 10 книг. Убрали 1 книга. Сколько книг осталось?",
+      "model": {
+        "kind": "sub",
+        "a": 10,
+        "b": 1,
+        "result": 9,
+        "obj": {
+          "one": "книга",
+          "few": "книги",
+          "many": "книг",
+          "icon": "▤"
+        },
+        "limit": 20,
+        "unknown": "result"
+      }
+    },
+    {
+      "where": "g1:word_problems:0",
+      "kind": "wrong-accusative",
+      "text": "У Маши было 9 книг. Убрали 1 книга. Сколько книг осталось?",
+      "expected": "1 книгу after an action",
+      "got": "У Маши было 9 книг. Убрали 1 книга. Сколько книг осталось?",
+      "model": {
+        "kind": "sub",
+        "a": 9,
+        "b": 1,
+        "result": 8,
+        "obj": {
+          "one": "книга",
+          "few": "книги",
+          "many": "книг",
+          "icon": "▤"
+        },
+        "limit": 20,
+        "unknown": "result"
+      }
+    },
+    {
+      "where": "g1:word_problems:0",
+      "kind": "wrong-accusative",
+      "text": "У Маши было 3 книги. Убрали 1 книга. Сколько книг осталось?",
+      "expected": "1 книгу after an action",
+      "got": "У Маши было 3 книги. Убрали 1 книга. Сколько книг осталось?",
+      "model": {
+        "kind": "sub",
+        "a": 3,
         "b": 1,
         "result": 2,
         "obj": {
@@ -1625,6 +1399,132 @@
     {
       "where": "g1:word_problems:0",
       "kind": "wrong-accusative",
+      "text": "У Маши было 7 книг. Убрали 1 книга. Сколько книг осталось?",
+      "expected": "1 книгу after an action",
+      "got": "У Маши было 7 книг. Убрали 1 книга. Сколько книг осталось?",
+      "model": {
+        "kind": "sub",
+        "a": 7,
+        "b": 1,
+        "result": 6,
+        "obj": {
+          "one": "книга",
+          "few": "книги",
+          "many": "книг",
+          "icon": "▤"
+        },
+        "limit": 20,
+        "unknown": "result"
+      }
+    },
+    {
+      "where": "g1:word_problems:0",
+      "kind": "wrong-accusative",
+      "text": "У Маши было 8 книг. Убрали 1 книга. Сколько книг осталось?",
+      "expected": "1 книгу after an action",
+      "got": "У Маши было 8 книг. Убрали 1 книга. Сколько книг осталось?",
+      "model": {
+        "kind": "sub",
+        "a": 8,
+        "b": 1,
+        "result": 7,
+        "obj": {
+          "one": "книга",
+          "few": "книги",
+          "many": "книг",
+          "icon": "▤"
+        },
+        "limit": 20,
+        "unknown": "result"
+      }
+    },
+    {
+      "where": "g1:word_problems:0",
+      "kind": "wrong-accusative",
+      "text": "У Маши было 4 книги. Ей дали ещё 1 книга. Сколько книг стало?",
+      "expected": "1 книгу after an action",
+      "got": "У Маши было 4 книги. Ей дали ещё 1 книга. Сколько книг стало?",
+      "model": {
+        "kind": "add",
+        "a": 4,
+        "b": 1,
+        "result": 5,
+        "obj": {
+          "one": "книга",
+          "few": "книги",
+          "many": "книг",
+          "icon": "▤"
+        },
+        "limit": 20,
+        "unknown": "result"
+      }
+    },
+    {
+      "where": "g1:word_problems:0",
+      "kind": "wrong-accusative",
+      "text": "У Маши было 10 книг. Убрали 1 книга. Сколько книг осталось?",
+      "expected": "1 книгу after an action",
+      "got": "У Маши было 10 книг. Убрали 1 книга. Сколько книг осталось?",
+      "model": {
+        "kind": "sub",
+        "a": 10,
+        "b": 1,
+        "result": 9,
+        "obj": {
+          "one": "книга",
+          "few": "книги",
+          "many": "книг",
+          "icon": "▤"
+        },
+        "limit": 20,
+        "unknown": "result"
+      }
+    },
+    {
+      "where": "g1:word_problems:0",
+      "kind": "wrong-accusative",
+      "text": "У Маши было 5 книг. Ей дали ещё 1 книга. Сколько книг стало?",
+      "expected": "1 книгу after an action",
+      "got": "У Маши было 5 книг. Ей дали ещё 1 книга. Сколько книг стало?",
+      "model": {
+        "kind": "add",
+        "a": 5,
+        "b": 1,
+        "result": 6,
+        "obj": {
+          "one": "книга",
+          "few": "книги",
+          "many": "книг",
+          "icon": "▤"
+        },
+        "limit": 20,
+        "unknown": "result"
+      }
+    },
+    {
+      "where": "g1:word_problems:0",
+      "kind": "wrong-accusative",
+      "text": "У Маши было 5 книг. Убрали 1 книга. Сколько книг осталось?",
+      "expected": "1 книгу after an action",
+      "got": "У Маши было 5 книг. Убрали 1 книга. Сколько книг осталось?",
+      "model": {
+        "kind": "sub",
+        "a": 5,
+        "b": 1,
+        "result": 4,
+        "obj": {
+          "one": "книга",
+          "few": "книги",
+          "many": "книг",
+          "icon": "▤"
+        },
+        "limit": 20,
+        "unknown": "result"
+      }
+    },
+    {
+      "where": "g1:word_problems:0",
+      "kind": "wrong-accusative",
       "text": "У Маши было 3 книги. Убрали 1 книга. Сколько книг осталось?",
       "expected": "1 книгу after an action",
       "got": "У Маши было 3 книги. Убрали 1 книга. Сколько книг осталось?",
@@ -1642,6 +1542,342 @@
         "limit": 20,
         "unknown": "result"
       }
+    },
+    {
+      "where": "g1:word_problems:0",
+      "kind": "wrong-accusative",
+      "text": "У Маши было 2 книги. Ей дали ещё 1 книга. Сколько книг стало?",
+      "expected": "1 книгу after an action",
+      "got": "У Маши было 2 книги. Ей дали ещё 1 книга. Сколько книг стало?",
+      "model": {
+        "kind": "add",
+        "a": 2,
+        "b": 1,
+        "result": 3,
+        "obj": {
+          "one": "книга",
+          "few": "книги",
+          "many": "книг",
+          "icon": "▤"
+        },
+        "limit": 20,
+        "unknown": "result"
+      }
+    },
+    {
+      "where": "g1:word_problems:0",
+      "kind": "wrong-accusative",
+      "text": "У Маши было 4 книги. Убрали 1 книга. Сколько книг осталось?",
+      "expected": "1 книгу after an action",
+      "got": "У Маши было 4 книги. Убрали 1 книга. Сколько книг осталось?",
+      "model": {
+        "kind": "sub",
+        "a": 4,
+        "b": 1,
+        "result": 3,
+        "obj": {
+          "one": "книга",
+          "few": "книги",
+          "many": "книг",
+          "icon": "▤"
+        },
+        "limit": 20,
+        "unknown": "result"
+      }
+    },
+    {
+      "where": "g1:word_problems:0",
+      "kind": "wrong-accusative",
+      "text": "У Маши было 2 книги. Ей дали ещё 1 книга. Сколько книг стало?",
+      "expected": "1 книгу after an action",
+      "got": "У Маши было 2 книги. Ей дали ещё 1 книга. Сколько книг стало?",
+      "model": {
+        "kind": "add",
+        "a": 2,
+        "b": 1,
+        "result": 3,
+        "obj": {
+          "one": "книга",
+          "few": "книги",
+          "many": "книг",
+          "icon": "▤"
+        },
+        "limit": 20,
+        "unknown": "result"
+      }
+    },
+    {
+      "where": "g1:word_problems:0",
+      "kind": "wrong-accusative",
+      "text": "У Маши было 8 книг. Убрали 1 книга. Сколько книг осталось?",
+      "expected": "1 книгу after an action",
+      "got": "У Маши было 8 книг. Убрали 1 книга. Сколько книг осталось?",
+      "model": {
+        "kind": "sub",
+        "a": 8,
+        "b": 1,
+        "result": 7,
+        "obj": {
+          "one": "книга",
+          "few": "книги",
+          "many": "книг",
+          "icon": "▤"
+        },
+        "limit": 20,
+        "unknown": "result"
+      }
+    },
+    {
+      "where": "g1:word_problems:0",
+      "kind": "wrong-accusative",
+      "text": "У Маши было 1 книга. Ей дали ещё 1 книга. Сколько книг стало?",
+      "expected": "1 книгу after an action",
+      "got": "У Маши было 1 книга. Ей дали ещё 1 книга. Сколько книг стало?",
+      "model": {
+        "kind": "add",
+        "a": 1,
+        "b": 1,
+        "result": 2,
+        "obj": {
+          "one": "книга",
+          "few": "книги",
+          "many": "книг",
+          "icon": "▤"
+        },
+        "limit": 20,
+        "unknown": "result"
+      }
+    },
+    {
+      "where": "g1:word_problems:0",
+      "kind": "wrong-accusative",
+      "text": "У Маши было 4 книги. Ей дали ещё 1 книга. Сколько книг стало?",
+      "expected": "1 книгу after an action",
+      "got": "У Маши было 4 книги. Ей дали ещё 1 книга. Сколько книг стало?",
+      "model": {
+        "kind": "add",
+        "a": 4,
+        "b": 1,
+        "result": 5,
+        "obj": {
+          "one": "книга",
+          "few": "книги",
+          "many": "книг",
+          "icon": "▤"
+        },
+        "limit": 20,
+        "unknown": "result"
+      }
+    },
+    {
+      "where": "g1:word_problems:0",
+      "kind": "wrong-accusative",
+      "text": "У Маши было 1 книга. Ей дали ещё 1 книга. Сколько книг стало?",
+      "expected": "1 книгу after an action",
+      "got": "У Маши было 1 книга. Ей дали ещё 1 книга. Сколько книг стало?",
+      "model": {
+        "kind": "add",
+        "a": 1,
+        "b": 1,
+        "result": 2,
+        "obj": {
+          "one": "книга",
+          "few": "книги",
+          "many": "книг",
+          "icon": "▤"
+        },
+        "limit": 20,
+        "unknown": "result"
+      }
+    },
+    {
+      "where": "g1:word_problems:0",
+      "kind": "wrong-accusative",
+      "text": "У Маши было 2 книги. Ей дали ещё 1 книга. Сколько книг стало?",
+      "expected": "1 книгу after an action",
+      "got": "У Маши было 2 книги. Ей дали ещё 1 книга. Сколько книг стало?",
+      "model": {
+        "kind": "add",
+        "a": 2,
+        "b": 1,
+        "result": 3,
+        "obj": {
+          "one": "книга",
+          "few": "книги",
+          "many": "книг",
+          "icon": "▤"
+        },
+        "limit": 20,
+        "unknown": "result"
+      }
+    },
+    {
+      "where": "g1:word_problems:0",
+      "kind": "wrong-accusative",
+      "text": "У Маши было 8 книг. Убрали 1 книга. Сколько книг осталось?",
+      "expected": "1 книгу after an action",
+      "got": "У Маши было 8 книг. Убрали 1 книга. Сколько книг осталось?",
+      "model": {
+        "kind": "sub",
+        "a": 8,
+        "b": 1,
+        "result": 7,
+        "obj": {
+          "one": "книга",
+          "few": "книги",
+          "many": "книг",
+          "icon": "▤"
+        },
+        "limit": 20,
+        "unknown": "result"
+      }
+    },
+    {
+      "where": "g1:word_problems:0",
+      "kind": "wrong-accusative",
+      "text": "У Маши было 3 книги. Убрали 1 книга. Сколько книг осталось?",
+      "expected": "1 книгу after an action",
+      "got": "У Маши было 3 книги. Убрали 1 книга. Сколько книг осталось?",
+      "model": {
+        "kind": "sub",
+        "a": 3,
+        "b": 1,
+        "result": 2,
+        "obj": {
+          "one": "книга",
+          "few": "книги",
+          "many": "книг",
+          "icon": "▤"
+        },
+        "limit": 20,
+        "unknown": "result"
+      }
+    },
+    {
+      "where": "g1:word_problems:0",
+      "kind": "wrong-accusative",
+      "text": "У Маши было 6 книг. Ей дали ещё 1 книга. Сколько книг стало?",
+      "expected": "1 книгу after an action",
+      "got": "У Маши было 6 книг. Ей дали ещё 1 книга. Сколько книг стало?",
+      "model": {
+        "kind": "add",
+        "a": 6,
+        "b": 1,
+        "result": 7,
+        "obj": {
+          "one": "книга",
+          "few": "книги",
+          "many": "книг",
+          "icon": "▤"
+        },
+        "limit": 20,
+        "unknown": "result"
+      }
+    },
+    {
+      "where": "g1:word_problems:0",
+      "kind": "wrong-accusative",
+      "text": "У Маши было 1 книга. Ей дали ещё 1 книга. Сколько книг стало?",
+      "expected": "1 книгу after an action",
+      "got": "У Маши было 1 книга. Ей дали ещё 1 книга. Сколько книг стало?",
+      "model": {
+        "kind": "add",
+        "a": 1,
+        "b": 1,
+        "result": 2,
+        "obj": {
+          "one": "книга",
+          "few": "книги",
+          "many": "книг",
+          "icon": "▤"
+        },
+        "limit": 20,
+        "unknown": "result"
+      }
+    },
+    {
+      "where": "g1:word_problems:0",
+      "kind": "wrong-accusative",
+      "text": "У Маши было 7 книг. Ей дали ещё 1 книга. Сколько книг стало?",
+      "expected": "1 книгу after an action",
+      "got": "У Маши было 7 книг. Ей дали ещё 1 книга. Сколько книг стало?",
+      "model": {
+        "kind": "add",
+        "a": 7,
+        "b": 1,
+        "result": 8,
+        "obj": {
+          "one": "книга",
+          "few": "книги",
+          "many": "книг",
+          "icon": "▤"
+        },
+        "limit": 20,
+        "unknown": "result"
+      }
+    },
+    {
+      "where": "g1:word_problems:0",
+      "kind": "wrong-accusative",
+      "text": "У Маши было 6 книг. Убрали 1 книга. Сколько книг осталось?",
+      "expected": "1 книгу after an action",
+      "got": "У Маши было 6 книг. Убрали 1 книга. Сколько книг осталось?",
+      "model": {
+        "kind": "sub",
+        "a": 6,
+        "b": 1,
+        "result": 5,
+        "obj": {
+          "one": "книга",
+          "few": "книги",
+          "many": "книг",
+          "icon": "▤"
+        },
+        "limit": 20,
+        "unknown": "result"
+      }
+    },
+    {
+      "where": "g1:word_problems:0",
+      "kind": "wrong-accusative",
+      "text": "У Маши было 5 книг. Убрали 1 книга. Сколько книг осталось?",
+      "expected": "1 книгу after an action",
+      "got": "У Маши было 5 книг. Убрали 1 книга. Сколько книг осталось?",
+      "model": {
+        "kind": "sub",
+        "a": 5,
+        "b": 1,
+        "result": 4,
+        "obj": {
+          "one": "книга",
+          "few": "книги",
+          "many": "книг",
+          "icon": "▤"
+        },
+        "limit": 20,
+        "unknown": "result"
+      }
+    },
+    {
+      "where": "g1:word_problems:0",
+      "kind": "wrong-accusative",
+      "text": "У Маши было 7 книг. Убрали 1 книга. Сколько книг осталось?",
+      "expected": "1 книгу after an action",
+      "got": "У Маши было 7 книг. Убрали 1 книга. Сколько книг осталось?",
+      "model": {
+        "kind": "sub",
+        "a": 7,
+        "b": 1,
+        "result": 6,
+        "obj": {
+          "one": "книга",
+          "few": "книги",
+          "many": "книг",
+          "icon": "▤"
+        },
+        "limit": 20,
+        "unknown": "result"
+      }
     }
   ],
   "browserErrors": [],
@@ -1650,29 +1886,29 @@
     "mathModelsVerified": 5850,
     "mathModelsUnrecognized": 0,
     "grammarG1Checked": 5400,
-    "grammarWrong": 189,
+    "grammarWrong": 213,
     "defectSamples": 80,
     "browserErrors": 0
   },
   "grammar": {
     "id": "g1:word_problems",
     "total": 5400,
-    "patterns": 189,
+    "patterns": 213,
     "casesByLevel": [
       {
         "level": 0,
         "tested": 1800,
-        "wrongCase": 97
+        "wrongCase": 107
       },
       {
         "level": 1,
         "tested": 1800,
-        "wrongCase": 46
+        "wrongCase": 66
       },
       {
         "level": 2,
         "tested": 1800,
-        "wrongCase": 46
+        "wrongCase": 40
       }
     ]
   }
