@@ -1,0 +1,63 @@
+name: MatKvest stage16 D - isolate agreement patch and regression
+on:
+  push:
+    branches: [audit/g1g2-stage16-20261104]
+    paths:
+      - .github/workflows/g1g2_stage16_phaseD_fix.yml
+      - audits/g1g2_stage16_phaseD_agreement_patch.py
+      - audits/g1g2_stage16_phaseD_regression.mjs
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: matkvest-stage16-D-fix
+  cancel-in-progress: false
+jobs:
+  patch-and-verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit/g1g2-stage16-20261104
+          persist-credentials: true
+      - name: Apply patch only to verified stage16 candidate
+        run: |
+          python3 audits/g1g2_stage16_phaseD_agreement_patch.py
+          python3 audits/g7_stage12_sync_pwa.py --check
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save --no-package-lock puppeteer-core@24
+      - name: Check source and syntax
+        run: node --check audits/g1g2_stage16_phaseD_regression.mjs
+      - name: Full G1 G2 agreement, independent models, wrong-input UI and crossgrade
+        run: node audits/g1g2_stage16_phaseD_regression.mjs
+      - name: Training recovery regression
+        run: node audits/g7_stage12_e2e.mjs
+      - name: PWA and offline regression
+        run: node audits/g7_stage12_sw_update_test.mjs
+      - name: Upload patched candidate and evidence including failures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: matkvest-stage16D-agreement-regression
+          path: |
+            index.html
+            sw.js
+            audits/g1g2_stage16_phaseD_agreement_patch_report.json
+            audits/g1g2_stage16_phaseD_regression_report.json
+            audits/g7_stage12_e2e_report.json
+            audits/g7_stage12_sw_update_report.json
+          if-no-files-found: warn
+          retention-days: 60
+      - name: Commit only if ALL gates passed; NEVER modify main
+        if: success()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js audits/g1g2_stage16_phaseD_agreement_patch_report.json audits/g1g2_stage16_phaseD_regression_report.json
+          if ! git diff --cached --quiet; then
+            git commit -m "fix(stage16D): correct singular counted-noun agreement in G1 and G2 [skip ci]"
+            git push origin HEAD:audit/g1g2-stage16-20261104
+          fi
