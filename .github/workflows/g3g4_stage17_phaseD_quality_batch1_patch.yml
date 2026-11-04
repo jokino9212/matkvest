@@ -1,0 +1,91 @@
+name: MatKvest stage17D - quality batch1 gated patch
+on:
+  push:
+    branches: [audit/g3g4-stage17-20261104]
+    paths:
+      - audits/g3g4_stage17_phaseD_quality_batch1_patch.py
+      - audits/g3g4_stage17_phaseD_quality_batch1_test.mjs
+      - .github/workflows/g3g4_stage17_phaseD_quality_batch1_patch.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: matkvest-stage17D-quality-batch1-patch
+  cancel-in-progress: false
+jobs:
+  patch-and-verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit/g3g4-stage17-20261104
+          persist-credentials: true
+      - name: Verify immutable input and PWA v43
+        run: |
+          echo 'fa4db04c3a53351ed672b12daa577a2ea3bb1376932f13b821e50db95436cd9a  index.html' | sha256sum --check
+          python3 audits/g7_stage12_sync_pwa.py --check
+      - name: Apply isolated quality fix for three 3rd-grade topics
+        run: |
+          python3 audits/g3g4_stage17_phaseD_quality_batch1_patch.py
+          python3 audits/g7_stage12_sync_pwa.py --check
+          grep -F 'matkvest-iphone-v44' sw.js
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save --no-package-lock puppeteer-core@24
+      - name: Verify independent mathematical models and training UI
+        run: node audits/g3g4_stage17_phaseD_quality_batch1_test.mjs
+      - name: Prepare isolated baseline regression scripts for new HTML fingerprint
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib
+          new=hashlib.sha256(Path('index.html').read_bytes()).hexdigest()
+          old='fa4db04c3a53351ed672b12daa577a2ea3bb1376932f13b821e50db95436cd9a'
+          for stem in ('g3g4_stage17_phaseD_semantics','g3g4_stage17_phaseD_recovery_theory'):
+              source=Path('audits/'+stem+'.mjs').read_text(encoding='utf8')
+              if source.count(old)!=1:raise SystemExit('Unexpected old candidate pin in '+stem)
+              Path('audits/_batch1_'+stem+'.mjs').write_text(source.replace(old,new),encoding='utf8')
+          source=Path('audits/g1g2_stage16_phaseD_regression.mjs').read_text(encoding='utf8')
+          source=source.replace('g1g2_stage16_phaseD_regression_report.json','g3g4_stage17_phaseD_quality_batch1_crossgrade_report.json')
+          Path('audits/_batch1_crossgrade.mjs').write_text(source,encoding='utf8')
+          PY
+      - name: Full G3/G4 semantic regression
+        run: |
+          node audits/_batch1_g3g4_stage17_phaseD_semantics.mjs
+          cp audits/g3g4_stage17_phaseD_semantics_report.json audits/g3g4_stage17_phaseD_quality_batch1_semantics_report.json
+      - name: Real reload, resume and theory UI regression
+        run: |
+          node audits/_batch1_g3g4_stage17_phaseD_recovery_theory.mjs
+          cp audits/g3g4_stage17_phaseD_recovery_theory_report.json audits/g3g4_stage17_phaseD_quality_batch1_recovery_report.json
+      - name: Independent crossgrade regression 1-2 and 3/5/7/8
+        run: node audits/_batch1_crossgrade.mjs
+      - name: Preserve full results even if a gate fails
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: matkvest-stage17D-quality-batch1-evidence
+          path: |
+            audits/g3g4_stage17_phaseD_quality_batch1_patch_report.json
+            audits/g3g4_stage17_phaseD_quality_batch1_test_report.json
+            audits/g3g4_stage17_phaseD_quality_batch1_semantics_report.json
+            audits/g3g4_stage17_phaseD_quality_batch1_recovery_report.json
+            audits/g3g4_stage17_phaseD_quality_batch1_crossgrade_report.json
+          if-no-files-found: warn
+      - name: Commit validated v44 quality patch to audit branch only
+        if: success()
+        run: |
+          set -eu
+          python3 audits/g7_stage12_sync_pwa.py --check
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js audits/g7_stage12_sync_pwa.py
+          git add audits/g3g4_stage17_phaseD_quality_batch1_patch_report.json
+          git add audits/g3g4_stage17_phaseD_quality_batch1_test_report.json
+          git add audits/g3g4_stage17_phaseD_quality_batch1_semantics_report.json
+          git add audits/g3g4_stage17_phaseD_quality_batch1_recovery_report.json
+          git add audits/g3g4_stage17_phaseD_quality_batch1_crossgrade_report.json
+          git commit -m "fix(stage17D): diversify G3 off-table arithmetic and reasoning with v44 gated regression"
+          git pull --rebase origin audit/g3g4-stage17-20261104
+          git push origin HEAD:audit/g3g4-stage17-20261104
