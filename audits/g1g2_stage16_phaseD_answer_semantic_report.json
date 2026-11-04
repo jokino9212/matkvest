@@ -1,0 +1,2440 @@
+{
+  "stage": "16D-semantic-answer-gate",
+  "htmlSha256": "b953b710a471210fe0f8247b55e879cedf4d7e11c6f369d551040a9f5d46c7d3",
+  "checkedAt": "2026-11-04T19:05:01.692Z",
+  "topics": [
+    {
+      "grade": 1,
+      "id": "g1:numbers_1_9",
+      "levels": [
+        {
+          "d": 0,
+          "generated": 310,
+          "uniquePrompts": 17,
+          "templates": 2,
+          "templateFrequency": {
+            "next": 157,
+            "count": 153
+          },
+          "numericChoiceGroups": 0,
+          "allOptionsSemanticsKnown": 0,
+          "independentExplanationSteps": 0,
+          "visualMath": 0
+        },
+        {
+          "d": 1,
+          "generated": 310,
+          "uniquePrompts": 68,
+          "templates": 4,
+          "templateFrequency": {
+            "compare": 77,
+            "next": 75,
+            "count": 89,
+            "missing": 69
+          },
+          "numericChoiceGroups": 0,
+          "allOptionsSemanticsKnown": 0,
+          "independentExplanationSteps": 0,
+          "visualMath": 0
+        },
+        {
+          "d": 2,
+          "generated": 310,
+          "uniquePrompts": 74,
+          "templates": 4,
+          "templateFrequency": {
+            "next": 77,
+            "count": 92,
+            "compare": 70,
+            "missing": 71
+          },
+          "numericChoiceGroups": 0,
+          "allOptionsSemanticsKnown": 0,
+          "independentExplanationSteps": 0,
+          "visualMath": 0
+        }
+      ],
+      "questionExamples": []
+    },
+    {
+      "grade": 1,
+      "id": "g1:numbers_0_10",
+      "levels": [
+        {
+          "d": 0,
+          "generated": 310,
+          "uniquePrompts": 22,
+          "templates": 2,
+          "templateFrequency": {
+            "count": 149,
+            "line": 161
+          },
+          "numericChoiceGroups": 0,
+          "allOptionsSemanticsKnown": 0,
+          "independentExplanationSteps": 0,
+          "visualMath": 0
+        },
+        {
+          "d": 1,
+          "generated": 310,
+          "uniquePrompts": 89,
+          "templates": 4,
+          "templateFrequency": {
+            "compare": 83,
+            "count": 87,
+            "line": 77,
+            "missing": 63
+          },
+          "numericChoiceGroups": 0,
+          "allOptionsSemanticsKnown": 0,
+          "independentExplanationSteps": 0,
+          "visualMath": 0
+        },
+        {
+          "d": 2,
+          "generated": 310,
+          "uniquePrompts": 92,
+          "templates": 5,
+          "templateFrequency": {
+            "before": 56,
+            "compare": 64,
+            "missing": 54,
+            "count": 62,
+            "line": 74
+          },
+          "numericChoiceGroups": 0,
+          "allOptionsSemanticsKnown": 0,
+          "independentExplanationSteps": 0,
+          "visualMath": 0
+        }
+      ],
+      "questionExamples": []
+    },
+    {
+      "grade": 1,
+      "id": "g1:numbers_11_20",
+      "levels": [
+        {
+          "d": 0,
+          "generated": 310,
+          "uniquePrompts": 20,
+          "templates": 2,
+          "templateFrequency": {
+            "line": 163,
+            "count": 147
+          },
+          "numericChoiceGroups": 0,
+          "allOptionsSemanticsKnown": 0,
+          "independentExplanationSteps": 0,
+          "visualMath": 0
+        },
+        {
+          "d": 1,
+          "generated": 310,
+          "uniquePrompts": 82,
+          "templates": 4,
+          "templateFrequency": {
+            "compare": 91,
+            "missing": 62,
+            "count": 81,
+            "line": 76
+          },
+          "numericChoiceGroups": 0,
+          "allOptionsSemanticsKnown": 0,
+          "independentExplanationSteps": 0,
+          "visualMath": 0
+        },
+        {
+          "d": 2,
+          "generated": 310,
+          "uniquePrompts": 84,
+          "templates": 5,
+          "templateFrequency": {
+            "compare": 58,
+            "ones": 60,
+            "missing": 66,
+            "line": 66,
+            "count": 60
+          },
+          "numericChoiceGroups": 0,
+          "allOptionsSemanticsKnown": 0,
+          "independentExplanationSteps": 0,
+          "visualMath": 0
+        }
+      ],
+      "questionExamples": []
+    },
+    {
+      "grade": 1,
+      "id": "g1:length_measurement",
+      "levels": [
+        {
+          "d": 0,
+          "generated": 310,
+          "uniquePrompts": 69,
+          "templates": 2,
+          "templateFrequency": {
+            "measure": 177,
+            "compare": 133
+          },
+          "numericChoiceGroups": 0,
+          "allOptionsSemanticsKnown": 0,
+          "independentExplanationSteps": 0,
+          "visualMath": 0
+        },
+        {
+          "d": 1,
+          "generated": 310,
+          "uniquePrompts": 150,
+          "templates": 3,
+          "templateFrequency": {
+            "measure": 102,
+            "match": 114,
+            "compare": 94
+          },
+          "numericChoiceGroups": 0,
+          "allOptionsSemanticsKnown": 0,
+          "independentExplanationSteps": 0,
+          "visualMath": 0
+        },
+        {
+          "d": 2,
+          "generated": 310,
+          "uniquePrompts": 176,
+          "templates": 4,
+          "templateFrequency": {
+            "compare": 78,
+            "measure": 65,
+            "match": 92,
+            "shorter": 75
+          },
+          "numericChoiceGroups": 0,
+          "allOptionsSemanticsKnown": 0,
+          "independentExplanationSteps": 0,
+          "visualMath": 0
+        }
+      ],
+      "questionExamples": []
+    },
+    {
+      "grade": 1,
+      "id": "g1:add_sub_10",
+      "levels": [
+        {
+          "d": 0,
+          "generated": 310,
+          "uniquePrompts": 71,
+          "templates": 2,
+          "templateFrequency": {
+            "add_counters": 157,
+            "sub_counters": 153
+          },
+          "numericChoiceGroups": 0,
+          "allOptionsSemanticsKnown": 0,
+          "independentExplanationSteps": 0,
+          "visualMath": 0
+        },
+        {
+          "d": 1,
+          "generated": 310,
+          "uniquePrompts": 177,
+          "templates": 6,
+          "templateFrequency": {
+            "sub_counters": 43,
+            "complete_sub": 57,
+            "add_counters": 53,
+            "add_line": 50,
+            "complete_add": 53,
+            "sub_line": 54
+          },
+          "numericChoiceGroups": 0,
+          "allOptionsSemanticsKnown": 0,
+          "independentExplanationSteps": 0,
+          "visualMath": 0
+        },
+        {
+          "d": 2,
+          "generated": 310,
+          "uniquePrompts": 195,
+          "templates": 8,
+          "templateFrequency": {
+            "add_line": 35,
+            "complete_add": 46,
+            "choose_record": 36,
+            "complete_sub": 48,
+            "sub_counters": 38,
+            "compare_results": 35,
+            "add_counters": 29,
+            "sub_line": 43
+          },
+          "numericChoiceGroups": 36,
+          "allOptionsSemanticsKnown": 36,
+          "independentExplanationSteps": 0,
+          "visualMath": 0
+        }
+      ],
+      "questionExamples": []
+    },
+    {
+      "grade": 1,
+      "id": "g1:add_sub_20",
+      "levels": [
+        {
+          "d": 0,
+          "generated": 310,
+          "uniquePrompts": 142,
+          "templates": 2,
+          "templateFrequency": {
+            "add_line": 170,
+            "sub_line": 140
+          },
+          "numericChoiceGroups": 0,
+          "allOptionsSemanticsKnown": 0,
+          "independentExplanationSteps": 0,
+          "visualMath": 0
+        },
+        {
+          "d": 1,
+          "generated": 310,
+          "uniquePrompts": 245,
+          "templates": 6,
+          "templateFrequency": {
+            "add_input": 65,
+            "sub_input": 44,
+            "complete_sub": 48,
+            "complete_add": 54,
+            "sub_line": 48,
+            "add_line": 51
+          },
+          "numericChoiceGroups": 0,
+          "allOptionsSemanticsKnown": 0,
+          "independentExplanationSteps": 0,
+          "visualMath": 0
+        },
+        {
+          "d": 2,
+          "generated": 310,
+          "uniquePrompts": 281,
+          "templates": 9,
+          "templateFrequency": {
+            "sub_line": 33,
+            "choose_record": 34,
+            "complete_sub": 38,
+            "compare_results": 35,
+            "add_line": 34,
+            "complete_add": 37,
+            "add_input": 34,
+            "sub_input": 32,
+            "restore_start": 33
+          },
+          "numericChoiceGroups": 34,
+          "allOptionsSemanticsKnown": 34,
+          "independentExplanationSteps": 0,
+          "visualMath": 0
+        }
+      ],
+      "questionExamples": []
+    },
+    {
+      "grade": 1,
+      "id": "g1:word_problems",
+      "levels": [
+        {
+          "d": 0,
+          "generated": 310,
+          "uniquePrompts": 195,
+          "templates": 2,
+          "templateFrequency": {
+            "sub_result": 160,
+            "add_result": 150
+          },
+          "numericChoiceGroups": 0,
+          "allOptionsSemanticsKnown": 0,
+          "independentExplanationSteps": 0,
+          "visualMath": 0
+        },
+        {
+          "d": 1,
+          "generated": 310,
+          "uniquePrompts": 291,
+          "templates": 5,
+          "templateFrequency": {
+            "choose_record": 58,
+            "choose_action": 66,
+            "add_result": 65,
+            "find_added": 57,
+            "sub_result": 64
+          },
+          "numericChoiceGroups": 0,
+          "allOptionsSemanticsKnown": 0,
+          "independentExplanationSteps": 0,
+          "visualMath": 0
+        },
+        {
+          "d": 2,
+          "generated": 310,
+          "uniquePrompts": 296,
+          "templates": 8,
+          "templateFrequency": {
+            "sub_result": 44,
+            "find_start_sub": 39,
+            "choose_record": 44,
+            "find_added": 53,
+            "add_result": 33,
+            "find_removed": 31,
+            "choose_action": 32,
+            "find_start_add": 34
+          },
+          "numericChoiceGroups": 0,
+          "allOptionsSemanticsKnown": 0,
+          "independentExplanationSteps": 0,
+          "visualMath": 0
+        }
+      ],
+      "questionExamples": []
+    },
+    {
+      "grade": 1,
+      "id": "g1:spatial_relations",
+      "levels": [
+        {
+          "d": 0,
+          "generated": 310,
+          "uniquePrompts": 8,
+          "templates": 2,
+          "templateFrequency": {
+            "relation": 167,
+            "place": 143
+          },
+          "numericChoiceGroups": 0,
+          "allOptionsSemanticsKnown": 0,
+          "independentExplanationSteps": 0,
+          "visualMath": 0
+        },
+        {
+          "d": 1,
+          "generated": 310,
+          "uniquePrompts": 30,
+          "templates": 5,
+          "templateFrequency": {
+            "relation": 72,
+            "true_sentence": 68,
+            "reverse": 58,
+            "place": 67,
+            "find_color": 45
+          },
+          "numericChoiceGroups": 0,
+          "allOptionsSemanticsKnown": 0,
+          "independentExplanationSteps": 0,
+          "visualMath": 0
+        },
+        {
+          "d": 2,
+          "generated": 310,
+          "uniquePrompts": 32,
+          "templates": 5,
+          "templateFrequency": {
+            "find_color": 51,
+            "place": 74,
+            "reverse": 55,
+            "true_sentence": 67,
+            "relation": 63
+          },
+          "numericChoiceGroups": 0,
+          "allOptionsSemanticsKnown": 0,
+          "independentExplanationSteps": 0,
+          "visualMath": 0
+        }
+      ],
+      "questionExamples": []
+    },
+    {
+      "grade": 1,
+      "id": "g1:geometric_figures",
+      "levels": [
+        {
+          "d": 0,
+          "generated": 310,
+          "uniquePrompts": 20,
+          "templates": 2,
+          "templateFrequency": {
+            "find_gallery": 158,
+            "identify": 152
+          },
+          "numericChoiceGroups": 0,
+          "allOptionsSemanticsKnown": 0,
+          "independentExplanationSteps": 0,
+          "visualMath": 0
+        },
+        {
+          "d": 1,
+          "generated": 310,
+          "uniquePrompts": 28,
+          "templates": 5,
+          "templateFrequency": {
+            "count_corners": 56,
+            "point_segment": 66,
+            "identify": 64,
+            "count_sides": 56,
+            "find_gallery": 68
+          },
+          "numericChoiceGroups": 0,
+          "allOptionsSemanticsKnown": 0,
+          "independentExplanationSteps": 0,
+          "visualMath": 0
+        },
+        {
+          "d": 2,
+          "generated": 310,
+          "uniquePrompts": 32,
+          "templates": 6,
+          "templateFrequency": {
+            "identify": 48,
+            "find_by_sides": 57,
+            "count_corners": 47,
+            "find_gallery": 51,
+            "point_segment": 50,
+            "count_sides": 57
+          },
+          "numericChoiceGroups": 0,
+          "allOptionsSemanticsKnown": 0,
+          "independentExplanationSteps": 0,
+          "visualMath": 0
+        }
+      ],
+      "questionExamples": []
+    },
+    {
+      "grade": 1,
+      "id": "g1:object_properties",
+      "levels": [
+        {
+          "d": 0,
+          "generated": 310,
+          "uniquePrompts": 175,
+          "templates": 2,
+          "templateFrequency": {
+            "find_object": 145,
+            "name_property": 165
+          },
+          "numericChoiceGroups": 0,
+          "allOptionsSemanticsKnown": 0,
+          "independentExplanationSteps": 0,
+          "visualMath": 0
+        },
+        {
+          "d": 1,
+          "generated": 310,
+          "uniquePrompts": 174,
+          "templates": 5,
+          "templateFrequency": {
+            "find_object": 65,
+            "compare_size": 72,
+            "count_property": 55,
+            "name_property": 68,
+            "common_property": 50
+          },
+          "numericChoiceGroups": 0,
+          "allOptionsSemanticsKnown": 0,
+          "independentExplanationSteps": 0,
+          "visualMath": 0
+        },
+        {
+          "d": 2,
+          "generated": 310,
+          "uniquePrompts": 172,
+          "templates": 6,
+          "templateFrequency": {
+            "count_property": 51,
+            "odd_one_out": 48,
+            "common_property": 60,
+            "name_property": 50,
+            "find_object": 59,
+            "compare_size": 42
+          },
+          "numericChoiceGroups": 0,
+          "allOptionsSemanticsKnown": 0,
+          "independentExplanationSteps": 0,
+          "visualMath": 0
+        }
+      ],
+      "questionExamples": []
+    },
+    {
+      "grade": 1,
+      "id": "g1:tables",
+      "levels": [
+        {
+          "d": 0,
+          "generated": 310,
+          "uniquePrompts": 60,
+          "templates": 2,
+          "templateFrequency": {
+            "find_row": 153,
+            "lookup_value": 157
+          },
+          "numericChoiceGroups": 0,
+          "allOptionsSemanticsKnown": 0,
+          "independentExplanationSteps": 0,
+          "visualMath": 0
+        },
+        {
+          "d": 1,
+          "generated": 310,
+          "uniquePrompts": 106,
+          "templates": 4,
+          "templateFrequency": {
+            "find_row": 68,
+            "compare_rows": 69,
+            "correct_statement": 94,
+            "lookup_value": 79
+          },
+          "numericChoiceGroups": 0,
+          "allOptionsSemanticsKnown": 0,
+          "independentExplanationSteps": 0,
+          "visualMath": 0
+        },
+        {
+          "d": 2,
+          "generated": 310,
+          "uniquePrompts": 130,
+          "templates": 5,
+          "templateFrequency": {
+            "compare_rows": 44,
+            "find_row": 68,
+            "lookup_value": 65,
+            "correct_statement": 65,
+            "fill_cell": 68
+          },
+          "numericChoiceGroups": 0,
+          "allOptionsSemanticsKnown": 0,
+          "independentExplanationSteps": 0,
+          "visualMath": 0
+        }
+      ],
+      "questionExamples": []
+    },
+    {
+      "grade": 2,
+      "id": "g2:numbers_100",
+      "levels": [
+        {
+          "d": 0,
+          "generated": 310,
+          "uniquePrompts": 189,
+          "templates": 3,
+          "templateFrequency": {
+            "after": 103,
+            "build_number": 105,
+            "line_read": 102
+          },
+          "numericChoiceGroups": 0,
+          "allOptionsSemanticsKnown": 0,
+          "independentExplanationSteps": 0,
+          "visualMath": 0
+        },
+        {
+          "d": 1,
+          "generated": 310,
+          "uniquePrompts": 244,
+          "templates": 7,
+          "templateFrequency": {
+            "tens_count": 51,
+            "line_read": 34,
+            "ones_count": 41,
+            "after": 46,
+            "missing": 48,
+            "before": 45,
+            "build_number": 45
+          },
+          "numericChoiceGroups": 0,
+          "allOptionsSemanticsKnown": 0,
+          "independentExplanationSteps": 0,
+          "visualMath": 0
+        },
+        {
+          "d": 2,
+          "generated": 310,
+          "uniquePrompts": 261,
+          "templates": 9,
+          "templateFrequency": {
+            "line_read": 35,
+            "compare": 27,
+            "write_number": 34,
+            "ones_count": 39,
+            "tens_count": 29,
+            "build_number": 44,
+            "missing": 45,
+            "before": 32,
+            "after": 25
+          },
+          "numericChoiceGroups": 0,
+          "allOptionsSemanticsKnown": 0,
+          "independentExplanationSteps": 0,
+          "visualMath": 0
+        }
+      ],
+      "questionExamples": []
+    },
+    {
+      "grade": 2,
+      "id": "g2:quantities",
+      "levels": [
+        {
+          "d": 0,
+          "generated": 310,
+          "uniquePrompts": 66,
+          "templates": 3,
+          "templateFrequency": {
+            "compare_mass": 93,
+            "ruler_cm": 104,
+            "choose_unit": 113
+          },
+          "numericChoiceGroups": 0,
+          "allOptionsSemanticsKnown": 0,
+          "independentExplanationSteps": 0,
+          "visualMath": 0
+        },
+        {
+          "d": 1,
+          "generated": 310,
+          "uniquePrompts": 102,
+          "templates": 7,
+          "templateFrequency": {
+            "convert_dm_cm": 52,
+            "ruler_cm": 50,
+            "compare_length": 43,
+            "convert_cm_dm": 45,
+            "choose_unit": 42,
+            "compare_mass": 38,
+            "compare_time": 40
+          },
+          "numericChoiceGroups": 0,
+          "allOptionsSemanticsKnown": 0,
+          "independentExplanationSteps": 0,
+          "visualMath": 0
+        },
+        {
+          "d": 2,
+          "generated": 310,
+          "uniquePrompts": 109,
+          "templates": 8,
+          "templateFrequency": {
+            "ruler_cm": 40,
+            "compare_time": 40,
+            "unit_relation": 33,
+            "convert_cm_dm": 43,
+            "compare_length": 36,
+            "choose_unit": 35,
+            "convert_dm_cm": 41,
+            "compare_mass": 42
+          },
+          "numericChoiceGroups": 0,
+          "allOptionsSemanticsKnown": 0,
+          "independentExplanationSteps": 0,
+          "visualMath": 0
+        }
+      ],
+      "questionExamples": []
+    },
+    {
+      "grade": 2,
+      "id": "g2:add_sub_100",
+      "levels": [
+        {
+          "d": 0,
+          "generated": 310,
+          "uniquePrompts": 257,
+          "templates": 4,
+          "templateFrequency": {
+            "add_tens": 72,
+            "sub_tens": 74,
+            "add_ones": 99,
+            "sub_ones": 65
+          },
+          "numericChoiceGroups": 0,
+          "allOptionsSemanticsKnown": 0,
+          "independentExplanationSteps": 0,
+          "visualMath": 0
+        },
+        {
+          "d": 1,
+          "generated": 310,
+          "uniquePrompts": 281,
+          "templates": 7,
+          "templateFrequency": {
+            "sub_ones": 39,
+            "sub_tens": 41,
+            "add_cross": 45,
+            "compute_input": 45,
+            "add_tens": 42,
+            "add_ones": 53,
+            "sub_cross": 45
+          },
+          "numericChoiceGroups": 0,
+          "allOptionsSemanticsKnown": 0,
+          "independentExplanationSteps": 270,
+          "visualMath": 0
+        },
+        {
+          "d": 2,
+          "generated": 310,
+          "uniquePrompts": 272,
+          "templates": 10,
+          "templateFrequency": {
+            "add_cross": 40,
+            "missing_addend": 30,
+            "choose_record": 26,
+            "sub_ones": 37,
+            "sub_tens": 36,
+            "add_ones": 27,
+            "missing_subtrahend": 24,
+            "compute_input": 29,
+            "add_tens": 35,
+            "sub_cross": 26
+          },
+          "numericChoiceGroups": 26,
+          "allOptionsSemanticsKnown": 26,
+          "independentExplanationSteps": 242,
+          "visualMath": 0
+        }
+      ],
+      "questionExamples": []
+    },
+    {
+      "grade": 2,
+      "id": "g2:multiply_divide",
+      "levels": [
+        {
+          "d": 0,
+          "generated": 310,
+          "uniquePrompts": 48,
+          "templates": 3,
+          "templateFrequency": {
+            "repeated_addition": 108,
+            "share_equal": 113,
+            "groups_total": 89
+          },
+          "numericChoiceGroups": 108,
+          "allOptionsSemanticsKnown": 108,
+          "independentExplanationSteps": 0,
+          "visualMath": 0
+        },
+        {
+          "d": 1,
+          "generated": 310,
+          "uniquePrompts": 140,
+          "templates": 6,
+          "templateFrequency": {
+            "share_equal": 46,
+            "make_groups": 60,
+            "groups_total": 58,
+            "repeated_addition": 48,
+            "multiply_fact": 52,
+            "divide_fact": 46
+          },
+          "numericChoiceGroups": 48,
+          "allOptionsSemanticsKnown": 48,
+          "independentExplanationSteps": 0,
+          "visualMath": 0
+        },
+        {
+          "d": 2,
+          "generated": 310,
+          "uniquePrompts": 204,
+          "templates": 9,
+          "templateFrequency": {
+            "groups_total": 37,
+            "multiply_fact": 36,
+            "inverse_record": 28,
+            "compare_products": 37,
+            "repeated_addition": 40,
+            "missing_factor": 33,
+            "divide_fact": 30,
+            "share_equal": 31,
+            "make_groups": 38
+          },
+          "numericChoiceGroups": 68,
+          "allOptionsSemanticsKnown": 68,
+          "independentExplanationSteps": 0,
+          "visualMath": 0
+        }
+      ],
+      "questionExamples": []
+    },
+    {
+      "grade": 2,
+      "id": "g2:operations_100",
+      "levels": [
+        {
+          "d": 0,
+          "generated": 310,
+          "uniquePrompts": 304,
+          "templates": 2,
+          "templateFrequency": {
+            "choose_first": 143,
+            "two_step_add_sub": 167
+          },
+          "numericChoiceGroups": 0,
+          "allOptionsSemanticsKnown": 0,
+          "independentExplanationSteps": 620,
+          "visualMath": 0
+        },
+        {
+          "d": 1,
+          "generated": 310,
+          "uniquePrompts": 304,
+          "templates": 5,
+          "templateFrequency": {
+            "choose_first": 62,
+            "two_step_add_sub": 64,
+            "mul_before_add": 63,
+            "compute_input": 54,
+            "div_before_sub": 67
+          },
+          "numericChoiceGroups": 0,
+          "allOptionsSemanticsKnown": 0,
+          "independentExplanationSteps": 620,
+          "visualMath": 0
+        },
+        {
+          "d": 2,
+          "generated": 310,
+          "uniquePrompts": 263,
+          "templates": 8,
+          "templateFrequency": {
+            "find_error": 42,
+            "restore_step": 36,
+            "compute_input": 42,
+            "div_before_sub": 33,
+            "two_step_add_sub": 27,
+            "parentheses_first": 48,
+            "choose_first": 41,
+            "mul_before_add": 41
+          },
+          "numericChoiceGroups": 42,
+          "allOptionsSemanticsKnown": 42,
+          "independentExplanationSteps": 620,
+          "visualMath": 0
+        }
+      ],
+      "questionExamples": []
+    },
+    {
+      "grade": 2,
+      "id": "g2:word_problems",
+      "levels": [
+        {
+          "d": 0,
+          "generated": 310,
+          "uniquePrompts": 279,
+          "templates": 2,
+          "templateFrequency": {
+            "add_result": 152,
+            "sub_result": 158
+          },
+          "numericChoiceGroups": 310,
+          "allOptionsSemanticsKnown": 310,
+          "independentExplanationSteps": 0,
+          "visualMath": 0
+        },
+        {
+          "d": 1,
+          "generated": 310,
+          "uniquePrompts": 221,
+          "templates": 6,
+          "templateFrequency": {
+            "divide_result": 64,
+            "choose_record": 46,
+            "sub_result": 56,
+            "add_result": 53,
+            "choose_action": 50,
+            "multiply_result": 41
+          },
+          "numericChoiceGroups": 46,
+          "allOptionsSemanticsKnown": 46,
+          "independentExplanationSteps": 0,
+          "visualMath": 0
+        },
+        {
+          "d": 2,
+          "generated": 310,
+          "uniquePrompts": 283,
+          "templates": 9,
+          "templateFrequency": {
+            "add_result": 32,
+            "multiply_result": 34,
+            "divide_result": 35,
+            "two_add_sub": 39,
+            "two_mul_add": 37,
+            "sub_result": 33,
+            "choose_record": 46,
+            "two_sub_add": 34,
+            "choose_action": 20
+          },
+          "numericChoiceGroups": 46,
+          "allOptionsSemanticsKnown": 46,
+          "independentExplanationSteps": 0,
+          "visualMath": 0
+        }
+      ],
+      "questionExamples": []
+    },
+    {
+      "grade": 2,
+      "id": "g2:geometric_figures",
+      "levels": [
+        {
+          "d": 0,
+          "generated": 310,
+          "uniquePrompts": 65,
+          "templates": 3,
+          "templateFrequency": {
+            "count_sides": 107,
+            "identify": 116,
+            "find_gallery": 87
+          },
+          "numericChoiceGroups": 0,
+          "allOptionsSemanticsKnown": 0,
+          "independentExplanationSteps": 0,
+          "visualMath": 0
+        },
+        {
+          "d": 1,
+          "generated": 310,
+          "uniquePrompts": 71,
+          "templates": 6,
+          "templateFrequency": {
+            "identify": 49,
+            "count_corners": 58,
+            "point_segment": 50,
+            "find_gallery": 52,
+            "equal_sides": 51,
+            "count_sides": 50
+          },
+          "numericChoiceGroups": 0,
+          "allOptionsSemanticsKnown": 0,
+          "independentExplanationSteps": 0,
+          "visualMath": 0
+        },
+        {
+          "d": 2,
+          "generated": 310,
+          "uniquePrompts": 88,
+          "templates": 7,
+          "templateFrequency": {
+            "count_corners": 38,
+            "identify": 39,
+            "count_sides": 50,
+            "point_segment": 44,
+            "find_gallery": 43,
+            "description_shape": 42,
+            "equal_sides": 54
+          },
+          "numericChoiceGroups": 0,
+          "allOptionsSemanticsKnown": 0,
+          "independentExplanationSteps": 0,
+          "visualMath": 0
+        }
+      ],
+      "questionExamples": []
+    },
+    {
+      "grade": 2,
+      "id": "g2:geometric_quantities",
+      "levels": [
+        {
+          "d": 0,
+          "generated": 310,
+          "uniquePrompts": 76,
+          "templates": 3,
+          "templateFrequency": {
+            "measure_segment": 112,
+            "square_perimeter": 88,
+            "rectangle_perimeter": 110
+          },
+          "numericChoiceGroups": 0,
+          "allOptionsSemanticsKnown": 0,
+          "independentExplanationSteps": 0,
+          "visualMath": 0
+        },
+        {
+          "d": 1,
+          "generated": 310,
+          "uniquePrompts": 156,
+          "templates": 6,
+          "templateFrequency": {
+            "square_perimeter": 40,
+            "compare_perimeters": 58,
+            "triangle_perimeter": 63,
+            "choose_record": 56,
+            "rectangle_perimeter": 56,
+            "measure_segment": 37
+          },
+          "numericChoiceGroups": 56,
+          "allOptionsSemanticsKnown": 56,
+          "independentExplanationSteps": 0,
+          "visualMath": 0
+        },
+        {
+          "d": 2,
+          "generated": 310,
+          "uniquePrompts": 148,
+          "templates": 8,
+          "templateFrequency": {
+            "triangle_perimeter": 40,
+            "missing_triangle_side": 39,
+            "choose_record": 41,
+            "square_perimeter": 33,
+            "compare_perimeters": 41,
+            "rectangle_perimeter": 40,
+            "missing_square_side": 37,
+            "measure_segment": 39
+          },
+          "numericChoiceGroups": 41,
+          "allOptionsSemanticsKnown": 41,
+          "independentExplanationSteps": 0,
+          "visualMath": 0
+        }
+      ],
+      "questionExamples": []
+    },
+    {
+      "grade": 2,
+      "id": "g2:math_information",
+      "levels": [
+        {
+          "d": 0,
+          "generated": 310,
+          "uniquePrompts": 291,
+          "templates": 3,
+          "templateFrequency": {
+            "pattern_next": 102,
+            "table_compare": 102,
+            "table_find_category": 106
+          },
+          "numericChoiceGroups": 0,
+          "allOptionsSemanticsKnown": 0,
+          "independentExplanationSteps": 0,
+          "visualMath": 0
+        },
+        {
+          "d": 1,
+          "generated": 310,
+          "uniquePrompts": 305,
+          "templates": 7,
+          "templateFrequency": {
+            "table_find_category": 34,
+            "correct_statement": 47,
+            "table_compare": 52,
+            "table_difference": 48,
+            "table_sum": 42,
+            "pattern_rule": 41,
+            "pattern_next": 46
+          },
+          "numericChoiceGroups": 0,
+          "allOptionsSemanticsKnown": 0,
+          "independentExplanationSteps": 0,
+          "visualMath": 0
+        },
+        {
+          "d": 2,
+          "generated": 310,
+          "uniquePrompts": 302,
+          "templates": 8,
+          "templateFrequency": {
+            "table_difference": 35,
+            "table_sum": 43,
+            "table_compare": 31,
+            "correct_statement": 33,
+            "pattern_rule": 44,
+            "algorithm_result": 47,
+            "pattern_next": 41,
+            "pattern_missing": 36
+          },
+          "numericChoiceGroups": 0,
+          "allOptionsSemanticsKnown": 0,
+          "independentExplanationSteps": 0,
+          "visualMath": 0
+        }
+      ],
+      "questionExamples": []
+    }
+  ],
+  "errors": [
+    {
+      "kind": "mathematically-ambiguous-distractors",
+      "id": "g1:add_sub_10",
+      "d": 2,
+      "prompt": "Выбери правильную запись.",
+      "labels": [
+        "4 − 2 = 3",
+        "4 − 2 = 2",
+        "2 − 2 = 4",
+        "4 + 2 = 6"
+      ],
+      "answer": "4 − 2 = 2",
+      "validity": [
+        false,
+        true,
+        false,
+        true
+      ],
+      "model": {
+        "op": "sub",
+        "a": 4,
+        "b": 2,
+        "result": 2,
+        "limit": 10
+      }
+    },
+    {
+      "kind": "mathematically-ambiguous-distractors",
+      "id": "g1:add_sub_10",
+      "d": 2,
+      "prompt": "Выбери правильную запись.",
+      "labels": [
+        "6 + 3 = 10",
+        "6 + 3 = 9",
+        "6 − 3 = 3",
+        "9 + 3 = 6"
+      ],
+      "answer": "6 + 3 = 9",
+      "validity": [
+        false,
+        true,
+        true,
+        false
+      ],
+      "model": {
+        "op": "add",
+        "a": 6,
+        "b": 3,
+        "result": 9,
+        "limit": 10
+      }
+    },
+    {
+      "kind": "mathematically-ambiguous-distractors",
+      "id": "g1:add_sub_10",
+      "d": 2,
+      "prompt": "Выбери правильную запись.",
+      "labels": [
+        "4 + 2 = 7",
+        "4 + 2 = 6",
+        "6 + 2 = 4",
+        "4 − 2 = 2"
+      ],
+      "answer": "4 + 2 = 6",
+      "validity": [
+        false,
+        true,
+        false,
+        true
+      ],
+      "model": {
+        "op": "add",
+        "a": 4,
+        "b": 2,
+        "result": 6,
+        "limit": 10
+      }
+    },
+    {
+      "kind": "mathematically-ambiguous-distractors",
+      "id": "g1:add_sub_10",
+      "d": 2,
+      "prompt": "Выбери правильную запись.",
+      "labels": [
+        "4 − 1 = 3",
+        "4 + 1 = 5",
+        "4 + 1 = 6",
+        "5 + 1 = 4"
+      ],
+      "answer": "4 + 1 = 5",
+      "validity": [
+        true,
+        true,
+        false,
+        false
+      ],
+      "model": {
+        "op": "add",
+        "a": 4,
+        "b": 1,
+        "result": 5,
+        "limit": 10
+      }
+    },
+    {
+      "kind": "mathematically-ambiguous-distractors",
+      "id": "g1:add_sub_10",
+      "d": 2,
+      "prompt": "Выбери правильную запись.",
+      "labels": [
+        "1 − 2 = 3",
+        "3 + 2 = 5",
+        "3 − 2 = 2",
+        "3 − 2 = 1"
+      ],
+      "answer": "3 − 2 = 1",
+      "validity": [
+        false,
+        true,
+        false,
+        true
+      ],
+      "model": {
+        "op": "sub",
+        "a": 3,
+        "b": 2,
+        "result": 1,
+        "limit": 10
+      }
+    },
+    {
+      "kind": "mathematically-ambiguous-distractors",
+      "id": "g1:add_sub_10",
+      "d": 2,
+      "prompt": "Выбери правильную запись.",
+      "labels": [
+        "6 + 2 = 8",
+        "6 + 2 = 9",
+        "6 − 2 = 4",
+        "8 + 2 = 6"
+      ],
+      "answer": "6 + 2 = 8",
+      "validity": [
+        true,
+        false,
+        true,
+        false
+      ],
+      "model": {
+        "op": "add",
+        "a": 6,
+        "b": 2,
+        "result": 8,
+        "limit": 10
+      }
+    },
+    {
+      "kind": "mathematically-ambiguous-distractors",
+      "id": "g1:add_sub_10",
+      "d": 2,
+      "prompt": "Выбери правильную запись.",
+      "labels": [
+        "2 − 1 = 2",
+        "2 + 1 = 3",
+        "2 − 1 = 1",
+        "1 − 1 = 2"
+      ],
+      "answer": "2 − 1 = 1",
+      "validity": [
+        false,
+        true,
+        true,
+        false
+      ],
+      "model": {
+        "op": "sub",
+        "a": 2,
+        "b": 1,
+        "result": 1,
+        "limit": 10
+      }
+    },
+    {
+      "kind": "mathematically-ambiguous-distractors",
+      "id": "g1:add_sub_10",
+      "d": 2,
+      "prompt": "Выбери правильную запись.",
+      "labels": [
+        "9 + 1 = 10",
+        "10 + 1 = 9",
+        "9 − 1 = 8"
+      ],
+      "answer": "9 + 1 = 10",
+      "validity": [
+        true,
+        false,
+        true
+      ],
+      "model": {
+        "op": "add",
+        "a": 9,
+        "b": 1,
+        "result": 10,
+        "limit": 10
+      }
+    },
+    {
+      "kind": "mathematically-ambiguous-distractors",
+      "id": "g1:add_sub_10",
+      "d": 2,
+      "prompt": "Выбери правильную запись.",
+      "labels": [
+        "7 − 2 = 5",
+        "7 + 2 = 10",
+        "9 + 2 = 7",
+        "7 + 2 = 9"
+      ],
+      "answer": "7 + 2 = 9",
+      "validity": [
+        true,
+        false,
+        false,
+        true
+      ],
+      "model": {
+        "op": "add",
+        "a": 7,
+        "b": 2,
+        "result": 9,
+        "limit": 10
+      }
+    },
+    {
+      "kind": "mathematically-ambiguous-distractors",
+      "id": "g1:add_sub_10",
+      "d": 2,
+      "prompt": "Выбери правильную запись.",
+      "labels": [
+        "7 − 1 = 6",
+        "8 + 1 = 7",
+        "7 + 1 = 9",
+        "7 + 1 = 8"
+      ],
+      "answer": "7 + 1 = 8",
+      "validity": [
+        true,
+        false,
+        false,
+        true
+      ],
+      "model": {
+        "op": "add",
+        "a": 7,
+        "b": 1,
+        "result": 8,
+        "limit": 10
+      }
+    },
+    {
+      "kind": "mathematically-ambiguous-distractors",
+      "id": "g1:add_sub_10",
+      "d": 2,
+      "prompt": "Выбери правильную запись.",
+      "labels": [
+        "8 + 2 = 10",
+        "10 + 2 = 8",
+        "8 − 2 = 6"
+      ],
+      "answer": "8 + 2 = 10",
+      "validity": [
+        true,
+        false,
+        true
+      ],
+      "model": {
+        "op": "add",
+        "a": 8,
+        "b": 2,
+        "result": 10,
+        "limit": 10
+      }
+    },
+    {
+      "kind": "mathematically-ambiguous-distractors",
+      "id": "g1:add_sub_10",
+      "d": 2,
+      "prompt": "Выбери правильную запись.",
+      "labels": [
+        "2 + 1 = 3",
+        "2 + 1 = 4",
+        "3 + 1 = 2",
+        "2 − 1 = 1"
+      ],
+      "answer": "2 + 1 = 3",
+      "validity": [
+        true,
+        false,
+        false,
+        true
+      ],
+      "model": {
+        "op": "add",
+        "a": 2,
+        "b": 1,
+        "result": 3,
+        "limit": 10
+      }
+    },
+    {
+      "kind": "mathematically-ambiguous-distractors",
+      "id": "g1:add_sub_10",
+      "d": 2,
+      "prompt": "Выбери правильную запись.",
+      "labels": [
+        "10 + 1 = 9",
+        "9 + 1 = 10",
+        "9 − 1 = 8"
+      ],
+      "answer": "9 + 1 = 10",
+      "validity": [
+        false,
+        true,
+        true
+      ],
+      "model": {
+        "op": "add",
+        "a": 9,
+        "b": 1,
+        "result": 10,
+        "limit": 10
+      }
+    },
+    {
+      "kind": "mathematically-ambiguous-distractors",
+      "id": "g1:add_sub_10",
+      "d": 2,
+      "prompt": "Выбери правильную запись.",
+      "labels": [
+        "3 + 2 = 6",
+        "5 + 2 = 3",
+        "3 − 2 = 1",
+        "3 + 2 = 5"
+      ],
+      "answer": "3 + 2 = 5",
+      "validity": [
+        false,
+        false,
+        true,
+        true
+      ],
+      "model": {
+        "op": "add",
+        "a": 3,
+        "b": 2,
+        "result": 5,
+        "limit": 10
+      }
+    },
+    {
+      "kind": "mathematically-ambiguous-distractors",
+      "id": "g1:add_sub_10",
+      "d": 2,
+      "prompt": "Выбери правильную запись.",
+      "labels": [
+        "3 + 1 = 4",
+        "3 − 1 = 2",
+        "2 − 1 = 3",
+        "3 − 1 = 3"
+      ],
+      "answer": "3 − 1 = 2",
+      "validity": [
+        true,
+        true,
+        false,
+        false
+      ],
+      "model": {
+        "op": "sub",
+        "a": 3,
+        "b": 1,
+        "result": 2,
+        "limit": 10
+      }
+    },
+    {
+      "kind": "mathematically-ambiguous-distractors",
+      "id": "g1:add_sub_10",
+      "d": 2,
+      "prompt": "Выбери правильную запись.",
+      "labels": [
+        "3 − 2 = 1",
+        "1 − 2 = 3",
+        "3 + 2 = 5",
+        "3 − 2 = 2"
+      ],
+      "answer": "3 − 2 = 1",
+      "validity": [
+        true,
+        false,
+        true,
+        false
+      ],
+      "model": {
+        "op": "sub",
+        "a": 3,
+        "b": 2,
+        "result": 1,
+        "limit": 10
+      }
+    },
+    {
+      "kind": "mathematically-ambiguous-distractors",
+      "id": "g1:add_sub_10",
+      "d": 2,
+      "prompt": "Выбери правильную запись.",
+      "labels": [
+        "5 + 1 = 4",
+        "4 − 1 = 3",
+        "4 + 1 = 5",
+        "4 + 1 = 6"
+      ],
+      "answer": "4 + 1 = 5",
+      "validity": [
+        false,
+        true,
+        true,
+        false
+      ],
+      "model": {
+        "op": "add",
+        "a": 4,
+        "b": 1,
+        "result": 5,
+        "limit": 10
+      }
+    },
+    {
+      "kind": "mathematically-ambiguous-distractors",
+      "id": "g1:add_sub_10",
+      "d": 2,
+      "prompt": "Выбери правильную запись.",
+      "labels": [
+        "7 − 1 = 7",
+        "7 + 1 = 8",
+        "7 − 1 = 6",
+        "6 − 1 = 7"
+      ],
+      "answer": "7 − 1 = 6",
+      "validity": [
+        false,
+        true,
+        true,
+        false
+      ],
+      "model": {
+        "op": "sub",
+        "a": 7,
+        "b": 1,
+        "result": 6,
+        "limit": 10
+      }
+    },
+    {
+      "kind": "mathematically-ambiguous-distractors",
+      "id": "g1:add_sub_10",
+      "d": 2,
+      "prompt": "Выбери правильную запись.",
+      "labels": [
+        "2 − 1 = 1",
+        "2 + 1 = 3",
+        "1 − 1 = 2",
+        "2 − 1 = 2"
+      ],
+      "answer": "2 − 1 = 1",
+      "validity": [
+        true,
+        true,
+        false,
+        false
+      ],
+      "model": {
+        "op": "sub",
+        "a": 2,
+        "b": 1,
+        "result": 1,
+        "limit": 10
+      }
+    },
+    {
+      "kind": "mathematically-ambiguous-distractors",
+      "id": "g1:add_sub_10",
+      "d": 2,
+      "prompt": "Выбери правильную запись.",
+      "labels": [
+        "1 − 3 = 4",
+        "4 + 3 = 7",
+        "4 − 3 = 1",
+        "4 − 3 = 2"
+      ],
+      "answer": "4 − 3 = 1",
+      "validity": [
+        false,
+        true,
+        true,
+        false
+      ],
+      "model": {
+        "op": "sub",
+        "a": 4,
+        "b": 3,
+        "result": 1,
+        "limit": 10
+      }
+    },
+    {
+      "kind": "mathematically-ambiguous-distractors",
+      "id": "g1:add_sub_10",
+      "d": 2,
+      "prompt": "Выбери правильную запись.",
+      "labels": [
+        "3 + 3 = 6",
+        "3 − 3 = 0",
+        "3 − 3 = 1",
+        "0 − 3 = 3"
+      ],
+      "answer": "3 − 3 = 0",
+      "validity": [
+        true,
+        true,
+        false,
+        false
+      ],
+      "model": {
+        "op": "sub",
+        "a": 3,
+        "b": 3,
+        "result": 0,
+        "limit": 10
+      }
+    },
+    {
+      "kind": "mathematically-ambiguous-distractors",
+      "id": "g1:add_sub_10",
+      "d": 2,
+      "prompt": "Выбери правильную запись.",
+      "labels": [
+        "5 − 3 = 2",
+        "5 − 3 = 3",
+        "2 − 3 = 5",
+        "5 + 3 = 8"
+      ],
+      "answer": "5 − 3 = 2",
+      "validity": [
+        true,
+        false,
+        false,
+        true
+      ],
+      "model": {
+        "op": "sub",
+        "a": 5,
+        "b": 3,
+        "result": 2,
+        "limit": 10
+      }
+    },
+    {
+      "kind": "mathematically-ambiguous-distractors",
+      "id": "g1:add_sub_10",
+      "d": 2,
+      "prompt": "Выбери правильную запись.",
+      "labels": [
+        "8 + 1 = 7",
+        "7 + 1 = 9",
+        "7 − 1 = 6",
+        "7 + 1 = 8"
+      ],
+      "answer": "7 + 1 = 8",
+      "validity": [
+        false,
+        false,
+        true,
+        true
+      ],
+      "model": {
+        "op": "add",
+        "a": 7,
+        "b": 1,
+        "result": 8,
+        "limit": 10
+      }
+    },
+    {
+      "kind": "mathematically-ambiguous-distractors",
+      "id": "g1:add_sub_10",
+      "d": 2,
+      "prompt": "Выбери правильную запись.",
+      "labels": [
+        "4 − 1 = 3",
+        "4 + 1 = 5",
+        "5 + 1 = 4",
+        "4 + 1 = 6"
+      ],
+      "answer": "4 + 1 = 5",
+      "validity": [
+        true,
+        true,
+        false,
+        false
+      ],
+      "model": {
+        "op": "add",
+        "a": 4,
+        "b": 1,
+        "result": 5,
+        "limit": 10
+      }
+    },
+    {
+      "kind": "mathematically-ambiguous-distractors",
+      "id": "g1:add_sub_10",
+      "d": 2,
+      "prompt": "Выбери правильную запись.",
+      "labels": [
+        "7 + 1 = 8",
+        "7 − 1 = 7",
+        "6 − 1 = 7",
+        "7 − 1 = 6"
+      ],
+      "answer": "7 − 1 = 6",
+      "validity": [
+        true,
+        false,
+        false,
+        true
+      ],
+      "model": {
+        "op": "sub",
+        "a": 7,
+        "b": 1,
+        "result": 6,
+        "limit": 10
+      }
+    },
+    {
+      "kind": "mathematically-ambiguous-distractors",
+      "id": "g1:add_sub_10",
+      "d": 2,
+      "prompt": "Выбери правильную запись.",
+      "labels": [
+        "7 + 2 = 9",
+        "7 + 2 = 10",
+        "9 + 2 = 7",
+        "7 − 2 = 5"
+      ],
+      "answer": "7 + 2 = 9",
+      "validity": [
+        true,
+        false,
+        false,
+        true
+      ],
+      "model": {
+        "op": "add",
+        "a": 7,
+        "b": 2,
+        "result": 9,
+        "limit": 10
+      }
+    },
+    {
+      "kind": "mathematically-ambiguous-distractors",
+      "id": "g1:add_sub_10",
+      "d": 2,
+      "prompt": "Выбери правильную запись.",
+      "labels": [
+        "8 − 2 = 6",
+        "8 − 2 = 7",
+        "6 − 2 = 8",
+        "8 + 2 = 10"
+      ],
+      "answer": "8 − 2 = 6",
+      "validity": [
+        true,
+        false,
+        false,
+        true
+      ],
+      "model": {
+        "op": "sub",
+        "a": 8,
+        "b": 2,
+        "result": 6,
+        "limit": 10
+      }
+    },
+    {
+      "kind": "mathematically-ambiguous-distractors",
+      "id": "g1:add_sub_20",
+      "d": 2,
+      "prompt": "Выбери правильную запись.",
+      "labels": [
+        "3 − 6 = 9",
+        "9 − 6 = 3",
+        "9 + 6 = 15",
+        "9 − 6 = 4"
+      ],
+      "answer": "9 − 6 = 3",
+      "validity": [
+        false,
+        true,
+        true,
+        false
+      ],
+      "model": {
+        "op": "sub",
+        "a": 9,
+        "b": 6,
+        "result": 3,
+        "limit": 20
+      }
+    },
+    {
+      "kind": "mathematically-ambiguous-distractors",
+      "id": "g1:add_sub_20",
+      "d": 2,
+      "prompt": "Выбери правильную запись.",
+      "labels": [
+        "17 − 1 = 16",
+        "17 − 1 = 17",
+        "16 − 1 = 17",
+        "17 + 1 = 18"
+      ],
+      "answer": "17 − 1 = 16",
+      "validity": [
+        true,
+        false,
+        false,
+        true
+      ],
+      "model": {
+        "op": "sub",
+        "a": 17,
+        "b": 1,
+        "result": 16,
+        "limit": 20
+      }
+    },
+    {
+      "kind": "mathematically-ambiguous-distractors",
+      "id": "g1:add_sub_20",
+      "d": 2,
+      "prompt": "Выбери правильную запись.",
+      "labels": [
+        "20 + 7 = 13",
+        "13 + 7 = 20",
+        "13 − 7 = 6"
+      ],
+      "answer": "13 + 7 = 20",
+      "validity": [
+        false,
+        true,
+        true
+      ],
+      "model": {
+        "op": "add",
+        "a": 13,
+        "b": 7,
+        "result": 20,
+        "limit": 20
+      }
+    },
+    {
+      "kind": "mathematically-ambiguous-distractors",
+      "id": "g1:add_sub_20",
+      "d": 2,
+      "prompt": "Выбери правильную запись.",
+      "labels": [
+        "4 + 1 = 5",
+        "4 − 1 = 3",
+        "4 + 1 = 6",
+        "5 + 1 = 4"
+      ],
+      "answer": "4 + 1 = 5",
+      "validity": [
+        true,
+        true,
+        false,
+        false
+      ],
+      "model": {
+        "op": "add",
+        "a": 4,
+        "b": 1,
+        "result": 5,
+        "limit": 20
+      }
+    },
+    {
+      "kind": "mathematically-ambiguous-distractors",
+      "id": "g1:add_sub_20",
+      "d": 2,
+      "prompt": "Выбери правильную запись.",
+      "labels": [
+        "4 + 4 = 8",
+        "4 − 4 = 0",
+        "0 − 4 = 4",
+        "4 − 4 = 1"
+      ],
+      "answer": "4 − 4 = 0",
+      "validity": [
+        true,
+        true,
+        false,
+        false
+      ],
+      "model": {
+        "op": "sub",
+        "a": 4,
+        "b": 4,
+        "result": 0,
+        "limit": 20
+      }
+    },
+    {
+      "kind": "mathematically-ambiguous-distractors",
+      "id": "g1:add_sub_20",
+      "d": 2,
+      "prompt": "Выбери правильную запись.",
+      "labels": [
+        "14 + 2 = 17",
+        "14 + 2 = 16",
+        "16 + 2 = 14",
+        "14 − 2 = 12"
+      ],
+      "answer": "14 + 2 = 16",
+      "validity": [
+        false,
+        true,
+        false,
+        true
+      ],
+      "model": {
+        "op": "add",
+        "a": 14,
+        "b": 2,
+        "result": 16,
+        "limit": 20
+      }
+    },
+    {
+      "kind": "mathematically-ambiguous-distractors",
+      "id": "g1:add_sub_20",
+      "d": 2,
+      "prompt": "Выбери правильную запись.",
+      "labels": [
+        "9 − 9 = 0",
+        "0 − 9 = 9",
+        "9 − 9 = 1",
+        "9 + 9 = 18"
+      ],
+      "answer": "9 − 9 = 0",
+      "validity": [
+        true,
+        false,
+        false,
+        true
+      ],
+      "model": {
+        "op": "sub",
+        "a": 9,
+        "b": 9,
+        "result": 0,
+        "limit": 20
+      }
+    },
+    {
+      "kind": "mathematically-ambiguous-distractors",
+      "id": "g1:add_sub_20",
+      "d": 2,
+      "prompt": "Выбери правильную запись.",
+      "labels": [
+        "19 + 1 = 18",
+        "18 + 1 = 19",
+        "18 − 1 = 17",
+        "18 + 1 = 20"
+      ],
+      "answer": "18 + 1 = 19",
+      "validity": [
+        false,
+        true,
+        true,
+        false
+      ],
+      "model": {
+        "op": "add",
+        "a": 18,
+        "b": 1,
+        "result": 19,
+        "limit": 20
+      }
+    },
+    {
+      "kind": "mathematically-ambiguous-distractors",
+      "id": "g1:add_sub_20",
+      "d": 2,
+      "prompt": "Выбери правильную запись.",
+      "labels": [
+        "3 − 2 = 2",
+        "3 + 2 = 5",
+        "3 − 2 = 1",
+        "1 − 2 = 3"
+      ],
+      "answer": "3 − 2 = 1",
+      "validity": [
+        false,
+        true,
+        true,
+        false
+      ],
+      "model": {
+        "op": "sub",
+        "a": 3,
+        "b": 2,
+        "result": 1,
+        "limit": 20
+      }
+    },
+    {
+      "kind": "mathematically-ambiguous-distractors",
+      "id": "g1:add_sub_20",
+      "d": 2,
+      "prompt": "Выбери правильную запись.",
+      "labels": [
+        "16 − 2 = 14",
+        "16 + 2 = 18",
+        "18 + 2 = 16",
+        "16 + 2 = 19"
+      ],
+      "answer": "16 + 2 = 18",
+      "validity": [
+        true,
+        true,
+        false,
+        false
+      ],
+      "model": {
+        "op": "add",
+        "a": 16,
+        "b": 2,
+        "result": 18,
+        "limit": 20
+      }
+    },
+    {
+      "kind": "mathematically-ambiguous-distractors",
+      "id": "g1:add_sub_20",
+      "d": 2,
+      "prompt": "Выбери правильную запись.",
+      "labels": [
+        "14 + 5 = 20",
+        "14 − 5 = 9",
+        "19 + 5 = 14",
+        "14 + 5 = 19"
+      ],
+      "answer": "14 + 5 = 19",
+      "validity": [
+        false,
+        true,
+        false,
+        true
+      ],
+      "model": {
+        "op": "add",
+        "a": 14,
+        "b": 5,
+        "result": 19,
+        "limit": 20
+      }
+    },
+    {
+      "kind": "mathematically-ambiguous-distractors",
+      "id": "g1:add_sub_20",
+      "d": 2,
+      "prompt": "Выбери правильную запись.",
+      "labels": [
+        "17 + 3 = 20",
+        "20 + 3 = 17",
+        "17 − 3 = 14"
+      ],
+      "answer": "17 + 3 = 20",
+      "validity": [
+        true,
+        false,
+        true
+      ],
+      "model": {
+        "op": "add",
+        "a": 17,
+        "b": 3,
+        "result": 20,
+        "limit": 20
+      }
+    },
+    {
+      "kind": "mathematically-ambiguous-distractors",
+      "id": "g1:add_sub_20",
+      "d": 2,
+      "prompt": "Выбери правильную запись.",
+      "labels": [
+        "2 − 1 = 2",
+        "1 − 1 = 2",
+        "2 + 1 = 3",
+        "2 − 1 = 1"
+      ],
+      "answer": "2 − 1 = 1",
+      "validity": [
+        false,
+        false,
+        true,
+        true
+      ],
+      "model": {
+        "op": "sub",
+        "a": 2,
+        "b": 1,
+        "result": 1,
+        "limit": 20
+      }
+    },
+    {
+      "kind": "mathematically-ambiguous-distractors",
+      "id": "g1:add_sub_20",
+      "d": 2,
+      "prompt": "Выбери правильную запись.",
+      "labels": [
+        "12 − 2 = 10",
+        "10 − 2 = 12",
+        "12 + 2 = 14",
+        "12 − 2 = 11"
+      ],
+      "answer": "12 − 2 = 10",
+      "validity": [
+        true,
+        false,
+        true,
+        false
+      ],
+      "model": {
+        "op": "sub",
+        "a": 12,
+        "b": 2,
+        "result": 10,
+        "limit": 20
+      }
+    },
+    {
+      "kind": "mathematically-ambiguous-distractors",
+      "id": "g1:add_sub_20",
+      "d": 2,
+      "prompt": "Выбери правильную запись.",
+      "labels": [
+        "19 + 1 = 18",
+        "18 − 1 = 17",
+        "18 + 1 = 20",
+        "18 + 1 = 19"
+      ],
+      "answer": "18 + 1 = 19",
+      "validity": [
+        false,
+        true,
+        false,
+        true
+      ],
+      "model": {
+        "op": "add",
+        "a": 18,
+        "b": 1,
+        "result": 19,
+        "limit": 20
+      }
+    },
+    {
+      "kind": "mathematically-ambiguous-distractors",
+      "id": "g1:add_sub_20",
+      "d": 2,
+      "prompt": "Выбери правильную запись.",
+      "labels": [
+        "18 + 2 = 20",
+        "20 + 2 = 18",
+        "18 − 2 = 16"
+      ],
+      "answer": "18 + 2 = 20",
+      "validity": [
+        true,
+        false,
+        true
+      ],
+      "model": {
+        "op": "add",
+        "a": 18,
+        "b": 2,
+        "result": 20,
+        "limit": 20
+      }
+    },
+    {
+      "kind": "mathematically-ambiguous-distractors",
+      "id": "g1:add_sub_20",
+      "d": 2,
+      "prompt": "Выбери правильную запись.",
+      "labels": [
+        "7 − 4 = 3",
+        "11 + 4 = 7",
+        "7 + 4 = 12",
+        "7 + 4 = 11"
+      ],
+      "answer": "7 + 4 = 11",
+      "validity": [
+        true,
+        false,
+        false,
+        true
+      ],
+      "model": {
+        "op": "add",
+        "a": 7,
+        "b": 4,
+        "result": 11,
+        "limit": 20
+      }
+    },
+    {
+      "kind": "mathematically-ambiguous-distractors",
+      "id": "g1:add_sub_20",
+      "d": 2,
+      "prompt": "Выбери правильную запись.",
+      "labels": [
+        "12 + 3 = 9",
+        "9 − 3 = 6",
+        "9 + 3 = 12",
+        "9 + 3 = 13"
+      ],
+      "answer": "9 + 3 = 12",
+      "validity": [
+        false,
+        true,
+        true,
+        false
+      ],
+      "model": {
+        "op": "add",
+        "a": 9,
+        "b": 3,
+        "result": 12,
+        "limit": 20
+      }
+    },
+    {
+      "kind": "mathematically-ambiguous-distractors",
+      "id": "g1:add_sub_20",
+      "d": 2,
+      "prompt": "Выбери правильную запись.",
+      "labels": [
+        "10 − 2 = 8",
+        "12 + 2 = 10",
+        "10 + 2 = 13",
+        "10 + 2 = 12"
+      ],
+      "answer": "10 + 2 = 12",
+      "validity": [
+        true,
+        false,
+        false,
+        true
+      ],
+      "model": {
+        "op": "add",
+        "a": 10,
+        "b": 2,
+        "result": 12,
+        "limit": 20
+      }
+    },
+    {
+      "kind": "mathematically-ambiguous-distractors",
+      "id": "g1:add_sub_20",
+      "d": 2,
+      "prompt": "Выбери правильную запись.",
+      "labels": [
+        "4 + 1 = 5",
+        "3 − 1 = 4",
+        "4 − 1 = 3",
+        "4 − 1 = 4"
+      ],
+      "answer": "4 − 1 = 3",
+      "validity": [
+        true,
+        false,
+        true,
+        false
+      ],
+      "model": {
+        "op": "sub",
+        "a": 4,
+        "b": 1,
+        "result": 3,
+        "limit": 20
+      }
+    },
+    {
+      "kind": "mathematically-ambiguous-distractors",
+      "id": "g1:add_sub_20",
+      "d": 2,
+      "prompt": "Выбери правильную запись.",
+      "labels": [
+        "6 − 1 = 5",
+        "6 + 1 = 7",
+        "6 + 1 = 8",
+        "7 + 1 = 6"
+      ],
+      "answer": "6 + 1 = 7",
+      "validity": [
+        true,
+        true,
+        false,
+        false
+      ],
+      "model": {
+        "op": "add",
+        "a": 6,
+        "b": 1,
+        "result": 7,
+        "limit": 20
+      }
+    },
+    {
+      "kind": "correct-input-scenario-unavailable",
+      "id": "g1:word_problems",
+      "d": 1
+    },
+    {
+      "kind": "correct-input-scenario-unavailable",
+      "id": "g1:word_problems",
+      "d": 2
+    },
+    {
+      "kind": "correct-input-scenario-unavailable",
+      "id": "g2:word_problems",
+      "d": 1
+    },
+    {
+      "kind": "correct-input-scenario-unavailable",
+      "id": "g2:word_problems",
+      "d": 2
+    }
+  ],
+  "notes": [],
+  "jsErrors": [],
+  "ui": [],
+  "summary": {
+    "topicCount": 20,
+    "generated": 18600,
+    "choices": 15554,
+    "mathChoices": 861,
+    "wrongOptionsSemanticallyVerified": 2442,
+    "visualGeometry": 742,
+    "triangles": 142,
+    "explanations": 18600,
+    "templateCount": 297,
+    "correctInputCases": 0,
+    "correctInputsCredited": 0,
+    "errors": 52,
+    "jsErrors": 0
+  }
+}
