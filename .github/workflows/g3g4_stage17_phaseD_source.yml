@@ -22,7 +22,7 @@ jobs:
           persist-credentials: true
       - name: Check working HTML and SW integrity
         run: |
-          echo 'b953b710a471210fe0f8247b55e879cedf4d7e11c6f369d551040a9f5d46c7d3  index.html' | sha256sum --check
+          echo '8bd7ccd047368b8754299e7c1bd5995229f789b040a9ca8478d1ecb4b521da5a  index.html' | sha256sum --check
           python3 audits/g7_stage12_sync_pwa.py --check
       - name: Extract focused read-only generator contexts
         run: python3 audits/g3g4_stage17_phaseD_source_inspect.py
