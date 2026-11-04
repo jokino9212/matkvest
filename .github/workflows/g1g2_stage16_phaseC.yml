@@ -25,7 +25,7 @@ jobs:
           persist-credentials: true
       - name: Check approved isolated frontend SHA
         run: |
-          echo '2252fe792fbef2ba6b1a4d0794ae674164f55f3260496af1156660b986b5ae16  index.html' | sha256sum --check
+          echo '2be11af0d9ca5db18d45bc10011388f502803a12b0f92ca474ee11ba97939d03  index.html' | sha256sum --check
           python3 audits/g7_stage12_sync_pwa.py --check
       - uses: actions/setup-node@v4
         with:
