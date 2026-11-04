@@ -1,0 +1,26 @@
+name: G7 stage 12 - PWA fingerprint sync dry-run
+on:
+  push:
+    branches: [audit/g7-stage12-20261104]
+    paths:
+      - .github/workflows/g7_stage12_sync_test.yml
+      - audits/g7_stage12_sync_pwa.py
+      - .github/workflows/matkvest_pwa_sync.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  dry-run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check exact SHA256 linkage in audited build
+        run: python3 audits/g7_stage12_sync_pwa.py --check
+      - name: Simulate a future frontend deployment without touching origin
+        run: |
+          cp sw.js /tmp/sw-original.js
+          printf '\n<!-- CI-only simulated future frontend edit -->\n' >> index.html
+          python3 audits/g7_stage12_sync_pwa.py
+          python3 audits/g7_stage12_sync_pwa.py --check
+          ! cmp -s sw.js /tmp/sw-original.js
+          echo "PASS: new HTML changes SW fingerprint; CI did not modify repository"
