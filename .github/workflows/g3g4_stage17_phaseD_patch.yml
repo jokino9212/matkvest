@@ -1,0 +1,74 @@
+name: MatKvest stage17D - patch and verification
+on:
+  push:
+    branches: [audit/g3g4-stage17-20261104]
+    paths:
+      - audits/g3g4_stage17_phaseD_patch.py
+      - .github/workflows/g3g4_stage17_phaseD_patch.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: matkvest-stage17D-patch
+  cancel-in-progress: false
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit/g3g4-stage17-20261104
+          persist-credentials: true
+      - name: Guard candidate and preserve pre-fix audit
+        run: |
+          echo 'b953b710a471210fe0f8247b55e879cedf4d7e11c6f369d551040a9f5d46c7d3  index.html' | sha256sum --check
+          python3 audits/g7_stage12_sync_pwa.py --check
+          cp audits/g3g4_stage17_phaseD_semantics_report.json audits/g3g4_stage17_phaseD_before_fix_report.json
+      - name: Apply minimal source edits with PWA v41 sync
+        run: |
+          python3 audits/g3g4_stage17_phaseD_patch.py
+          python3 audits/g7_stage12_sync_pwa.py --check
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save --no-package-lock puppeteer-core@24
+      - name: Verify G3 and G4 content on patched HTML
+        run: node audits/g3g4_stage17_phaseD_semantics.mjs
+      - name: Prepare unmodified historical regressions against new hash
+        run: |
+          python3 - <<'PY'
+          import pathlib,json
+          d=json.loads(pathlib.Path('audits/g3g4_stage17_phaseD_patch_report.json').read_text())
+          for a,b,old,new in [
+            ('audits/g3g4_stage17_phaseC_column_input.mjs','audits/_stage17D_column_regression.mjs','g3g4_stage17_phaseC_column_input_report.json','g3g4_stage17_phaseD_column_regression_report.json'),
+            ('audits/g1g2_stage16_phaseD_regression.mjs','audits/_stage17D_crossgrade_regression.mjs','g1g2_stage16_phaseD_regression_report.json','g3g4_stage17_phaseD_crossgrade_regression_report.json')]:
+            s=pathlib.Path(a).read_text(encoding='utf8').replace(d['oldSha256'],d['newSha256']).replace(old,new)
+            pathlib.Path(b).write_text(s,encoding='utf8')
+          PY
+      - name: Validate written input and rejection after patch
+        run: node audits/_stage17D_column_regression.mjs
+      - name: Verify independent grades 1-2 regression
+        run: node audits/_stage17D_crossgrade_regression.mjs
+      - name: Upload QA evidence even on failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: matkvest-stage17D-patch-evidence
+          path: |
+            audits/g3g4_stage17_phaseD_patch_report.json
+            audits/g3g4_stage17_phaseD_semantics_report.json
+            audits/g3g4_stage17_phaseD_column_regression_report.json
+            audits/g3g4_stage17_phaseD_crossgrade_regression_report.json
+          if-no-files-found: warn
+      - name: Commit only if all checks succeed
+        if: success()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js audits/g7_stage12_sync_pwa.py
+          git add audits/g3g4_stage17_phaseD_semantics.mjs .github/workflows/g3g4_stage17_phaseD_semantics.yml
+          git add audits/g3g4_stage17_phaseD_patch_report.json audits/g3g4_stage17_phaseD_before_fix_report.json
+          git add audits/g3g4_stage17_phaseD_semantics_report.json audits/g3g4_stage17_phaseD_column_regression_report.json audits/g3g4_stage17_phaseD_crossgrade_regression_report.json
+          git commit -m "fix(stage17D): correct G3 grammar and PWA v41; regression verified"
+          git push origin HEAD:audit/g3g4-stage17-20261104
