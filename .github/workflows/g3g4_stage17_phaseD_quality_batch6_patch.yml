@@ -1,0 +1,122 @@
+name: MatKvest stage17D - quality batch6 gated patch
+on:
+  push:
+    branches: [audit/g3g4-stage17-20261104]
+    paths:
+      - audits/g3g4_stage17_phaseD_quality_batch6_patch.py
+      - audits/g3g4_stage17_phaseD_quality_batch6_test.mjs
+      - .github/workflows/g3g4_stage17_phaseD_quality_batch6_patch.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: matkvest-stage17D-quality-batch6-patch
+  cancel-in-progress: false
+jobs:
+  patch-and-verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit/g3g4-stage17-20261104
+          persist-credentials: true
+      - name: Check immutable v47 source and PWA
+        run: |
+          echo '5c079a595763241ee1a816f029543b2383980e9770e27317c5a712260fcad069  index.html' | sha256sum --check
+          python3 audits/g7_stage12_sync_pwa.py --check
+      - name: Patch area units, tables and charts without changing production
+        run: |
+          python3 audits/g3g4_stage17_phaseD_quality_batch6_patch.py
+          python3 audits/g7_stage12_sync_pwa.py --check
+          grep -F 'matkvest-iphone-v49' sw.js
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Chrome test harness
+        run: npm install --no-save --no-package-lock puppeteer-core@24
+      - name: Verify 4500 area, table and chart models with visual UI
+        run: node audits/g3g4_stage17_phaseD_quality_batch6_test.mjs
+      - name: Prepare isolated historical and whole-grade tests
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib
+          sha=hashlib.sha256(Path('index.html').read_bytes()).hexdigest()
+          base='fa4db04c3a53351ed672b12daa577a2ea3bb1376932f13b821e50db95436cd9a'
+          for stem in ('g3g4_stage17_phaseD_semantics','g3g4_stage17_phaseD_recovery_theory'):
+              s=Path('audits/'+stem+'.mjs').read_text('utf8')
+              if s.count(base)!=1:raise SystemExit('Unexpected baseline SHA '+stem)
+              Path('audits/_batch6_'+stem+'.mjs').write_text(s.replace(base,sha),'utf8')
+          for n,old_version in ((1,44),(2,45),(3,46),(4,47),(5,48)):
+              s=Path('audits/g3g4_stage17_phaseD_quality_batch'+str(n)+'_test.mjs').read_text('utf8')
+              cache='matkvest-iphone-v'+str(old_version)
+              if s.count(cache)!=1:raise SystemExit('Unexpected v'+str(old_version)+' PWA pin')
+              s=s.replace(cache,'matkvest-iphone-v49')
+              prev='g3g4_stage17_phaseD_quality_batch'+str(n)+'_test_report.json'
+              next='g3g4_stage17_phaseD_quality_batch6_previous_batch'+str(n)+'_report.json'
+              if s.count(prev)!=1:raise SystemExit('Unexpected old report '+prev)
+              Path('audits/_batch6_previous_batch'+str(n)+'.mjs').write_text(s.replace(prev,next),'utf8')
+          s=Path('audits/g1g2_stage16_phaseD_regression.mjs').read_text('utf8')
+          s=s.replace('g1g2_stage16_phaseD_regression_report.json','g3g4_stage17_phaseD_quality_batch6_crossgrade_report.json')
+          Path('audits/_batch6_crossgrade.mjs').write_text(s,'utf8')
+          PY
+      - name: Prior validated quality batch1
+        run: node audits/_batch6_previous_batch1.mjs
+      - name: Prior validated quality batch2
+        run: node audits/_batch6_previous_batch2.mjs
+      - name: Prior validated quality batch3
+        run: node audits/_batch6_previous_batch3.mjs
+      - name: Prior validated quality batch4
+        run: node audits/_batch6_previous_batch4.mjs
+      - name: Prior validated quality batch5
+        run: node audits/_batch6_previous_batch5.mjs
+      - name: Whole grade 3 and 4 semantic audit
+        run: |
+          node audits/_batch6_g3g4_stage17_phaseD_semantics.mjs
+          cp audits/g3g4_stage17_phaseD_semantics_report.json audits/g3g4_stage17_phaseD_quality_batch6_semantics_report.json
+      - name: Restore, theory and mobile layout regression
+        run: |
+          node audits/_batch6_g3g4_stage17_phaseD_recovery_theory.mjs
+          cp audits/g3g4_stage17_phaseD_recovery_theory_report.json audits/g3g4_stage17_phaseD_quality_batch6_recovery_report.json
+      - name: Cross-grade regression
+        run: node audits/_batch6_crossgrade.mjs
+      - name: Upload reproducible evidence even on failed gate
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: matkvest-stage17D-quality-batch6-evidence
+          path: |
+            audits/g3g4_stage17_phaseD_quality_batch6_patch_report.json
+            audits/g3g4_stage17_phaseD_quality_batch6_test_report.json
+            audits/g3g4_stage17_phaseD_quality_batch6_previous_batch1_report.json
+            audits/g3g4_stage17_phaseD_quality_batch6_previous_batch2_report.json
+            audits/g3g4_stage17_phaseD_quality_batch6_previous_batch3_report.json
+            audits/g3g4_stage17_phaseD_quality_batch6_previous_batch4_report.json
+            audits/g3g4_stage17_phaseD_quality_batch6_previous_batch5_report.json
+            audits/g3g4_stage17_phaseD_quality_batch6_semantics_report.json
+            audits/g3g4_stage17_phaseD_quality_batch6_recovery_report.json
+            audits/g3g4_stage17_phaseD_quality_batch6_crossgrade_report.json
+          if-no-files-found: warn
+      - name: Commit all-Gate-pass v48 to working branch only
+        if: success()
+        run: |
+          set -eu
+          python3 audits/g7_stage12_sync_pwa.py --check
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js audits/g7_stage12_sync_pwa.py
+          git add audits/g3g4_stage17_phaseD_quality_batch6_patch_report.json
+          git add audits/g3g4_stage17_phaseD_quality_batch6_test_report.json
+          git add audits/g3g4_stage17_phaseD_quality_batch6_previous_batch1_report.json
+          git add audits/g3g4_stage17_phaseD_quality_batch6_previous_batch2_report.json
+          git add audits/g3g4_stage17_phaseD_quality_batch6_previous_batch3_report.json
+          git add audits/g3g4_stage17_phaseD_quality_batch6_previous_batch4_report.json
+          git add audits/g3g4_stage17_phaseD_quality_batch6_previous_batch5_report.json
+          git add audits/g3g4_stage17_phaseD_quality_batch6_semantics_report.json
+          git add audits/g3g4_stage17_phaseD_quality_batch6_recovery_report.json
+          git add audits/g3g4_stage17_phaseD_quality_batch6_crossgrade_report.json
+          git commit -m "fix(stage17D): area units, tables and bar charts progression with PWA v49"
+          git restore -- audits/g3g4_stage17_phaseD_semantics_report.json audits/g3g4_stage17_phaseD_recovery_theory_report.json
+          git pull --rebase origin audit/g3g4-stage17-20261104
+          git push origin HEAD:audit/g3g4-stage17-20261104
