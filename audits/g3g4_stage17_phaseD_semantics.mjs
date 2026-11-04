@@ -56,7 +56,8 @@ try{
     const eq=/(-?\d{1,8}(?:\s*[+−\-×·:÷]\s*-?\d{1,8})+)\s*=\s*(-?\d{1,10})(?![\d.,])/gu;
     let match;
     while((match=eq.exec(ex))!==null){
-      const expression=match[1].replace(/^\s*1\s*:\s*(?=\d+\s*[+−\-×·])/u,''), output=Number(match[2]);
+      const prefix=ex.slice(Math.max(0,match.index-55),match.index).trim();
+      const expression=/(?:по|прибавляем|вычитаем)$/u.test(prefix)?match[1].replace(/^\s*\d+\s*:\s*(?=\d+\s*[+−\-×·])/u,''):match[1], output=Number(match[2]);
       if(/[:÷]/.test(expression)&&/ост(?:ат|\.|\s)/i.test(ex))continue;
       const value=evalExpr(expression);
       if(value===null)continue;
