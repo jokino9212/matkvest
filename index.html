@@ -16814,9 +16814,10 @@ function g1StoryBase(op,{small=true}={}){
  if(op==="add"){const a=ri(1,small?8:15),maxB=Math.min(small?5:9,limit-a),b=ri(1,Math.max(1,maxB)),result=a+b;return {kind:"add",a,b,result,obj,limit}}
  const a=ri(small?3:5,small?10:limit),maxB=Math.min(small?5:9,a),b=ri(1,Math.max(1,maxB)),result=a-b;return {kind:"sub",a,b,result,obj,limit}
 }
+function g1ActionNoun(n,o){return o.one==="книга"&&n%10===1&&n%100!==11?"книгу":g1Noun(n,o)}
 function g1StorySentence(m,{name="У Маши"}={}){
- const o=m.obj;if(m.kind==="add")return `${name} было ${m.a} ${g1Noun(m.a,o)}. Ей дали ещё ${m.b} ${g1Noun(m.b,o)}. Сколько ${o.many} стало?`;
- return `${name} было ${m.a} ${g1Noun(m.a,o)}. Убрали ${m.b} ${g1Noun(m.b,o)}. Сколько ${o.many} осталось?`
+ const o=m.obj;if(m.kind==="add")return `${name} было ${m.a} ${g1Noun(m.a,o)}. Ей дали ещё ${m.b} ${g1ActionNoun(m.b,o)}. Сколько ${o.many} стало?`;
+ return `${name} было ${m.a} ${g1Noun(m.a,o)}. Убрали ${m.b} ${g1ActionNoun(m.b,o)}. Сколько ${o.many} осталось?`
 }
 function g1StoryQuestion(d){
  const warm=["add_result","sub_result"];
@@ -16844,10 +16845,10 @@ function g1StoryQuestion(d){
   return g1NumberInput(text,m.b,ex,`g1:word_problems:${d}:find_removed:${m.a}:${m.result}:${m.obj.one}`,{model,visual:{type:"g1Story",data:model},templateId})
  }
  if(templateId==="find_start_add"){
-  const m=g1StoryBase("add",{small:false}),model={...m,unknown:"a"},text=`Добавили ${m.b} ${g1Noun(m.b,m.obj)}, и стало ${m.result}. Сколько ${m.obj.many} было сначала?`,ex=`Сначала было ${m.a}. Добавили ${m.b}. Стало ${m.result}.`;
+  const m=g1StoryBase("add",{small:false}),model={...m,unknown:"a"},text=`Добавили ${m.b} ${g1ActionNoun(m.b,m.obj)}, и стало ${m.result}. Сколько ${m.obj.many} было сначала?`,ex=`Сначала было ${m.a}. Добавили ${m.b}. Стало ${m.result}.`;
   return g1NumberInput(text,m.a,ex,`g1:word_problems:${d}:find_start_add:${m.b}:${m.result}:${m.obj.one}`,{model,visual:{type:"g1Story",data:model},templateId})
  }
- const m=g1StoryBase("sub",{small:false}),model={...m,unknown:"a"},text=`Убрали ${m.b} ${g1Noun(m.b,m.obj)}, и осталось ${m.result}. Сколько ${m.obj.many} было сначала?`,ex=`Сначала было ${m.a}. Убрали ${m.b}. Осталось ${m.result}.`;
+ const m=g1StoryBase("sub",{small:false}),model={...m,unknown:"a"},text=`Убрали ${m.b} ${g1ActionNoun(m.b,m.obj)}, и осталось ${m.result}. Сколько ${m.obj.many} было сначала?`,ex=`Сначала было ${m.a}. Убрали ${m.b}. Осталось ${m.result}.`;
  return g1NumberInput(text,m.a,ex,`g1:word_problems:${d}:find_start_sub:${m.b}:${m.result}:${m.obj.one}`,{model,visual:{type:"g1Story",data:model},templateId:"find_start_sub"})
 }
 
