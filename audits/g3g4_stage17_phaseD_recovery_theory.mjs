@@ -70,6 +70,18 @@ try{
   }catch(e){fail(trial.name,e)}
   finally{if(ctx)await ctx.close()}
  }
+ let rapidCtx,rapidPage;
+ try{
+   ({ctx:rapidCtx,page:rapidPage}=await fresh());
+   rapidPage.__auditContext='G4 quick switch after table';
+   const startErrors=report.pageErrors.length;
+   await rapidPage.evaluate(()=>{openGrade(4);startTableStage(0);startQuizStage('numbers',0)});
+   await delay(180);
+   const visible=await rapidPage.evaluate(()=>({question:!!document.querySelector('#qstage .quizq'),activeKind:blockSession?.kind}));
+   report.quickSwitch={from:'table',to:'numbers',noErrors:report.pageErrors.length===startErrors,...visible};
+   if(!visible.question||!report.quickSwitch.noErrors)throw Error('G4 rapid switch failure '+JSON.stringify(report.quickSwitch));
+ }catch(e){fail('G4 immediate switch from multiplication table',e)}
+ finally{if(rapidCtx)await rapidCtx.close()}
  // Theory and lesson UI for all ordinary themes at 390px viewport.
  let ctx,page;try{
   ({ctx,page}=await fresh());page.__auditContext='G3/G4 theory sweep';
