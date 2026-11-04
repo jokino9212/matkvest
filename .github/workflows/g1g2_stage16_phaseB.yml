@@ -1,0 +1,53 @@
+name: MatKvest stage16 phase B - semantic G1 G2 audit
+on:
+  push:
+    branches: [audit/g1g2-stage16-20261104]
+    paths:
+      - audits/g1g2_stage16_phaseB_probe.mjs
+      - .github/workflows/g1g2_stage16_phaseB.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: matkvest-stage16-phaseB
+  cancel-in-progress: false
+
+jobs:
+  semantic-grade-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit/g1g2-stage16-20261104
+          persist-credentials: true
+      - name: Verify Stage 16 isolated HTML + linked SW
+        run: |
+          echo '2252fe792fbef2ba6b1a4d0794ae674164f55f3260496af1156660b986b5ae16  index.html' | sha256sum --check
+          python3 audits/g7_stage12_sync_pwa.py --check
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save --no-package-lock puppeteer-core@24
+      - name: Deep sample all 20 topics, inspect templates and levels, render affected UI
+        run: node audits/g1g2_stage16_phaseB_probe.mjs
+      - name: Save complete report even on probe failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: matkvest-stage16-phaseB-semantic
+          path: audits/g1g2_stage16_phaseB_report.json
+          if-no-files-found: warn
+          retention-days: 60
+      - name: Commit audit evidence to isolated branch (no site changes)
+        if: success()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add audits/g1g2_stage16_phaseB_report.json
+          if ! git diff --cached --quiet; then
+            git commit -m "audit(stage16): record semantic G1-G2 question samples [skip ci]"
+            git push origin HEAD:audit/g1g2-stage16-20261104
+          fi
