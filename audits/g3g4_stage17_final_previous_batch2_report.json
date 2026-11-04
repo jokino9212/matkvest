@@ -1,0 +1,223 @@
+{
+  "stage": "17D-grade3-quality-batch2",
+  "sha256": "0b64dc42f34e375fedce727720bb6475fcca63b2429c0d9fa8fd6539012e761d",
+  "at": "2026-11-04T21:47:35.927Z",
+  "results": [
+    {
+      "id": "parts_compare",
+      "d": 0,
+      "generated": 500,
+      "verified": 500,
+      "variants": {
+        "symbolic": 500
+      },
+      "uniquePromptTexts": 20,
+      "structuralShapes": 1,
+      "distinctVisualModels": 0
+    },
+    {
+      "id": "parts_compare",
+      "d": 1,
+      "generated": 500,
+      "verified": 500,
+      "variants": {
+        "fractionWords": 247,
+        "diagram": 253
+      },
+      "uniquePromptTexts": 26,
+      "structuralShapes": 26,
+      "distinctVisualModels": 25
+    },
+    {
+      "id": "parts_compare",
+      "d": 2,
+      "generated": 500,
+      "verified": 500,
+      "variants": {
+        "ropes": 251,
+        "ribbons": 249
+      },
+      "uniquePromptTexts": 375,
+      "structuralShapes": 2,
+      "distinctVisualModels": 0
+    },
+    {
+      "id": "broken_line_length",
+      "d": 0,
+      "generated": 500,
+      "verified": 500,
+      "variants": {
+        "sum": 500
+      },
+      "uniquePromptTexts": 1,
+      "structuralShapes": 1,
+      "distinctVisualModels": 36
+    },
+    {
+      "id": "broken_line_length",
+      "d": 1,
+      "generated": 500,
+      "verified": 500,
+      "variants": {
+        "missing": 500
+      },
+      "uniquePromptTexts": 10,
+      "structuralShapes": 1,
+      "distinctVisualModels": 247
+    },
+    {
+      "id": "broken_line_length",
+      "d": 2,
+      "generated": 500,
+      "verified": 500,
+      "variants": {
+        "extend": 245,
+        "compare": 255
+      },
+      "uniquePromptTexts": 17,
+      "structuralShapes": 2,
+      "distinctVisualModels": 214
+    },
+    {
+      "id": "parts_intro",
+      "d": 0,
+      "generated": 500,
+      "verified": 500,
+      "variants": {
+        "name": 500
+      },
+      "uniquePromptTexts": 5,
+      "structuralShapes": 2,
+      "distinctVisualModels": 0
+    },
+    {
+      "id": "parts_intro",
+      "d": 1,
+      "generated": 500,
+      "verified": 500,
+      "variants": {
+        "wordToFraction": 251,
+        "fractionToWord": 249
+      },
+      "uniquePromptTexts": 10,
+      "structuralShapes": 6,
+      "distinctVisualModels": 0
+    },
+    {
+      "id": "parts_intro",
+      "d": 2,
+      "generated": 500,
+      "verified": 500,
+      "variants": {
+        "visualName": 169,
+        "visualCount": 182,
+        "visualFraction": 149
+      },
+      "uniquePromptTexts": 3,
+      "structuralShapes": 3,
+      "distinctVisualModels": 5
+    }
+  ],
+  "failures": [],
+  "ui": [
+    {
+      "id": "parts_compare",
+      "d": 0,
+      "success": true,
+      "rendered": true,
+      "visualParts": 0,
+      "visualSvg": false,
+      "input": false,
+      "widthOverflow": 0
+    },
+    {
+      "id": "parts_compare",
+      "d": 1,
+      "success": true,
+      "rendered": true,
+      "visualParts": 5,
+      "visualSvg": false,
+      "input": false,
+      "widthOverflow": 0
+    },
+    {
+      "id": "parts_compare",
+      "d": 2,
+      "success": true,
+      "rendered": true,
+      "visualParts": 0,
+      "visualSvg": false,
+      "input": false,
+      "widthOverflow": 0
+    },
+    {
+      "id": "broken_line_length",
+      "d": 0,
+      "success": true,
+      "rendered": true,
+      "visualParts": 0,
+      "visualSvg": true,
+      "input": true,
+      "widthOverflow": 0
+    },
+    {
+      "id": "broken_line_length",
+      "d": 1,
+      "success": true,
+      "rendered": true,
+      "visualParts": 0,
+      "visualSvg": true,
+      "input": true,
+      "widthOverflow": 0
+    },
+    {
+      "id": "broken_line_length",
+      "d": 2,
+      "success": true,
+      "rendered": true,
+      "visualParts": 0,
+      "visualSvg": true,
+      "input": true,
+      "widthOverflow": 0
+    },
+    {
+      "id": "parts_intro",
+      "d": 0,
+      "success": true,
+      "rendered": true,
+      "visualParts": 0,
+      "visualSvg": false,
+      "input": false,
+      "widthOverflow": 0
+    },
+    {
+      "id": "parts_intro",
+      "d": 1,
+      "success": true,
+      "rendered": true,
+      "visualParts": 0,
+      "visualSvg": false,
+      "input": false,
+      "widthOverflow": 0
+    },
+    {
+      "id": "parts_intro",
+      "d": 2,
+      "success": true,
+      "rendered": true,
+      "visualParts": 4,
+      "visualSvg": false,
+      "input": false,
+      "widthOverflow": 0
+    }
+  ],
+  "jsErrors": [],
+  "summary": {
+    "generated": 4500,
+    "independentMath": 4500,
+    "ui": 9,
+    "uiReady": 9,
+    "defects": 0,
+    "jsErrors": 0
+  }
+}

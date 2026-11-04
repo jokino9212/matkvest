@@ -5261,10 +5261,36 @@ function generateG3ColumnTask(topicId,stageIndex){
   let a=0,b=0,ans=0,borrows=0,guard=0;if(d===2&&Math.random()<.55){const pool=[[500,247],[600,358],[702,368],[800,456],[905,478],[700,286]];[a,b]=g6RandomFrom(pool)}else do{guard++;a=ri(d===0?200:300,999);b=ri(20,a-1);borrows=g3BorrowCount(a,b)}while(((d===0&&borrows!==0)||(d===1&&borrows<1)||(d===2&&borrows<2))&&guard<900);ans=a-b;if(!a||ans<0){[a,b]=d===0?[786,243]:d===1?[452,178]:[702,368];ans=a-b}const cols=Math.max(String(a).length,String(b).length,String(ans).length),bm=calcBorrows(a,b,cols);return {a,b,ans,op:"−",marks:bm.receive,dotMarks:bm.donor,g3Topic:raw,audit:{type:"g3WrittenSub",a,b,answer:ans,borrows:g3BorrowCount(a,b),throughZero:g3BorrowThroughZero(a,b)}};
  }
  if(raw==="written_multiply"){
-  let a=0,b=0,ans=0,guard=0,carry=0;do{guard++;a=ri(d===0?11:20,d===0?33:d===1?39:49);b=ri(d===0?2:2,d===0?3:d===1?5:9);ans=a*b;carry=Math.floor((a%10)*b/10)}while(((d===0&&carry>0)||(d===1&&carry===0)||(ans>200))&&guard<600);if(!a||ans>250){a=d===0?23:d===1?27:38;b=d===0?3:d===1?3:2;ans=a*b}const cols=Math.max(String(a).length,String(ans).length);return {a,b,ans,op:"×",units:b,tens:0,cols,carry1:calcMulCarries(a,b,cols),singleDigitMultiplier:true,g3Topic:raw,audit:{type:"g3WrittenMul",a,b,answer:ans,carry:Math.floor((a%10)*b/10)>0}};
+  let a=0,b=0,ans=0,carryCount=0,guard=0;
+  const limit=d===0?99:d===1?299:999;
+  do{
+   a=ri(d===0?11:20,d===0?33:d===1?69:89);
+   b=ri(d===2?3:2,d===0?4:d===1?7:9);
+   ans=a*b;
+   const unitCarry=Math.floor((a%10)*b/10);
+   const tensCarry=Math.floor((Math.floor(a/10)*b+unitCarry)/10);
+   carryCount=Number(unitCarry>0)+Number(tensCarry>0);
+  }while((carryCount!==d||ans>limit)&&guard++<900);
+  if(carryCount!==d||ans>limit){
+   [a,b]=d===0?[12,3]:d===1?[27,3]:[47,8];
+   ans=a*b;
+   carryCount=d;
+  }
+  const cols=Math.max(String(a).length,String(ans).length);
+  return {a,b,ans,op:"×",units:b,tens:0,cols,carry1:calcMulCarries(a,b,cols),singleDigitMultiplier:true,g3Topic:raw,
+   audit:{type:"g3WrittenMul",a,b,answer:ans,carry:carryCount>0,carryCount}};
  }
  if(raw==="written_divide"){
-  const divisor=ri(2,d===0?5:9),qMin=d===0?11:12,qMax=d===0?24:d===1?49:99;let q=ri(qMin,qMax),dividend=q*divisor,guard=0;while((dividend>999||dividend<20)&&guard++<100){q=ri(qMin,qMax);dividend=q*divisor}const steps=divisionSteps(dividend,divisor);return {a:dividend,b:divisor,ans:q,op:"÷",steps,quotient:steps.map(x=>x.qd).join(""),g3Topic:raw,audit:{type:"g3WrittenDiv",dividend,divisor,quotient:q,remainder:dividend%divisor}};
+  const divisor=ri(2,d===0?5:9);
+  const maximum=Math.floor(999/divisor);
+  let q;
+  if(d===0)q=ri(11,24);
+  else if(d===1)q=ri(25,Math.min(99,maximum));
+  else if(Math.random()<.35)q=100+ri(1,Math.min(9,maximum-100));
+  else q=ri(100,maximum);
+  const dividend=q*divisor,steps=divisionSteps(dividend,divisor);
+  return {a:dividend,b:divisor,ans:q,op:"÷",steps,quotient:steps.map(x=>x.qd).join(""),
+   g3Topic:raw,audit:{type:"g3WrittenDiv",dividend,divisor,quotient:q,remainder:dividend%divisor,quotientDigits:String(q).length}};
  }
  return null;
 }

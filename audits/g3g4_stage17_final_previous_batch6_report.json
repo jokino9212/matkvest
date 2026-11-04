@@ -1,0 +1,241 @@
+{
+  "stage": "17D-quality-batch6",
+  "sha256": "0b64dc42f34e375fedce727720bb6475fcca63b2429c0d9fa8fd6539012e761d",
+  "at": "2026-11-04T21:47:42.899Z",
+  "rows": [
+    {
+      "id": "area_units",
+      "d": 0,
+      "attempted": 500,
+      "valid": 500,
+      "mathChecks": 500,
+      "variants": {
+        "dm2cm2": 236,
+        "m2dm2": 264
+      },
+      "visualModels": 0,
+      "chartScaleChecks": 0,
+      "exactPrompts": 18,
+      "uniqueDataModels": 0
+    },
+    {
+      "id": "area_units",
+      "d": 1,
+      "attempted": 500,
+      "valid": 500,
+      "mathChecks": 500,
+      "variants": {
+        "cm2dm2": 230,
+        "mixedDmCm": 270
+      },
+      "visualModels": 0,
+      "chartScaleChecks": 0,
+      "exactPrompts": 70,
+      "uniqueDataModels": 0
+    },
+    {
+      "id": "area_units",
+      "d": 2,
+      "attempted": 500,
+      "valid": 500,
+      "mathChecks": 500,
+      "variants": {
+        "mixedCompare": 165,
+        "m2cm2": 169,
+        "difference": 166
+      },
+      "visualModels": 0,
+      "chartScaleChecks": 0,
+      "exactPrompts": 333,
+      "uniqueDataModels": 0
+    },
+    {
+      "id": "tables",
+      "d": 0,
+      "attempted": 500,
+      "valid": 500,
+      "mathChecks": 500,
+      "variants": {
+        "min": 177,
+        "lookup": 173,
+        "max": 150
+      },
+      "visualModels": 0,
+      "chartScaleChecks": 0,
+      "exactPrompts": 6,
+      "uniqueDataModels": 500
+    },
+    {
+      "id": "tables",
+      "d": 1,
+      "attempted": 500,
+      "valid": 500,
+      "mathChecks": 500,
+      "variants": {
+        "sum": 114,
+        "min": 102,
+        "difference": 113,
+        "max": 90,
+        "lookup": 81
+      },
+      "visualModels": 0,
+      "chartScaleChecks": 0,
+      "exactPrompts": 30,
+      "uniqueDataModels": 500
+    },
+    {
+      "id": "tables",
+      "d": 2,
+      "attempted": 500,
+      "valid": 500,
+      "mathChecks": 500,
+      "variants": {
+        "total": 109,
+        "range": 105,
+        "difference": 103,
+        "missing": 98,
+        "sum": 85
+      },
+      "visualModels": 0,
+      "chartScaleChecks": 0,
+      "exactPrompts": 29,
+      "uniqueDataModels": 500
+    },
+    {
+      "id": "bar_charts",
+      "d": 0,
+      "attempted": 500,
+      "valid": 500,
+      "mathChecks": 500,
+      "variants": {
+        "max": 182,
+        "min": 155,
+        "lookup": 163
+      },
+      "visualModels": 0,
+      "chartScaleChecks": 500,
+      "exactPrompts": 6,
+      "uniqueDataModels": 500
+    },
+    {
+      "id": "bar_charts",
+      "d": 1,
+      "attempted": 500,
+      "valid": 500,
+      "mathChecks": 500,
+      "variants": {
+        "lookup": 105,
+        "max": 96,
+        "sum": 99,
+        "min": 104,
+        "difference": 96
+      },
+      "visualModels": 0,
+      "chartScaleChecks": 500,
+      "exactPrompts": 30,
+      "uniqueDataModels": 500
+    },
+    {
+      "id": "bar_charts",
+      "d": 2,
+      "attempted": 500,
+      "valid": 500,
+      "mathChecks": 500,
+      "variants": {
+        "equal": 128,
+        "range": 125,
+        "total": 107,
+        "topTwo": 140
+      },
+      "visualModels": 0,
+      "chartScaleChecks": 500,
+      "exactPrompts": 4,
+      "uniqueDataModels": 500
+    }
+  ],
+  "ui": [
+    {
+      "id": "area_units",
+      "d": 0,
+      "quiz": true,
+      "table": false,
+      "chart": false,
+      "overflow": 0
+    },
+    {
+      "id": "area_units",
+      "d": 1,
+      "quiz": true,
+      "table": false,
+      "chart": false,
+      "overflow": 0
+    },
+    {
+      "id": "area_units",
+      "d": 2,
+      "quiz": true,
+      "table": false,
+      "chart": false,
+      "overflow": 0
+    },
+    {
+      "id": "tables",
+      "d": 0,
+      "quiz": true,
+      "table": true,
+      "chart": false,
+      "overflow": 0
+    },
+    {
+      "id": "tables",
+      "d": 1,
+      "quiz": true,
+      "table": true,
+      "chart": false,
+      "overflow": 0
+    },
+    {
+      "id": "tables",
+      "d": 2,
+      "quiz": true,
+      "table": true,
+      "chart": false,
+      "overflow": 0
+    },
+    {
+      "id": "bar_charts",
+      "d": 0,
+      "quiz": true,
+      "table": false,
+      "chart": true,
+      "overflow": 0
+    },
+    {
+      "id": "bar_charts",
+      "d": 1,
+      "quiz": true,
+      "table": false,
+      "chart": true,
+      "overflow": 0
+    },
+    {
+      "id": "bar_charts",
+      "d": 2,
+      "quiz": true,
+      "table": false,
+      "chart": true,
+      "overflow": 0
+    }
+  ],
+  "errors": [],
+  "pageErrors": [],
+  "summary": {
+    "generated": 4500,
+    "independentMath": 4500,
+    "chartScaleChecks": 1500,
+    "ui": 9,
+    "uiReady": 9,
+    "errors": 0,
+    "jsErrors": 0
+  }
+}

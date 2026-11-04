@@ -1,0 +1,186 @@
+{
+  "stage": "17D-grade3-quality-batch1",
+  "sha256": "0b64dc42f34e375fedce727720bb6475fcca63b2429c0d9fa8fd6539012e761d",
+  "at": "2026-11-04T21:47:34.183Z",
+  "results": [
+    {
+      "id": "offtable_multiply",
+      "d": 0,
+      "count": 480,
+      "variants": {
+        "tens": 480
+      },
+      "uniquePrompts": 13,
+      "shapes": 1,
+      "independentChecks": 480,
+      "numericExplanations": 0
+    },
+    {
+      "id": "offtable_multiply",
+      "d": 1,
+      "count": 480,
+      "variants": {
+        "decomp": 276,
+        "equalGroups": 204
+      },
+      "uniquePrompts": 114,
+      "shapes": 4,
+      "independentChecks": 480,
+      "numericExplanations": 0
+    },
+    {
+      "id": "offtable_multiply",
+      "d": 2,
+      "count": 480,
+      "variants": {
+        "multiplyThenSubtract": 217,
+        "multiplyThenAdd": 263
+      },
+      "uniquePrompts": 431,
+      "shapes": 12,
+      "independentChecks": 480,
+      "numericExplanations": 0
+    },
+    {
+      "id": "offtable_divide",
+      "d": 0,
+      "count": 480,
+      "variants": {
+        "tens": 480
+      },
+      "uniquePrompts": 10,
+      "shapes": 1,
+      "independentChecks": 480,
+      "numericExplanations": 0
+    },
+    {
+      "id": "offtable_divide",
+      "d": 1,
+      "count": 480,
+      "variants": {
+        "equalSharing": 205,
+        "decomp": 275
+      },
+      "uniquePrompts": 102,
+      "shapes": 3,
+      "independentChecks": 480,
+      "numericExplanations": 0
+    },
+    {
+      "id": "offtable_divide",
+      "d": 2,
+      "count": 480,
+      "variants": {
+        "divideThenSubtract": 242,
+        "divideThenAdd": 238
+      },
+      "uniquePrompts": 313,
+      "shapes": 12,
+      "independentChecks": 480,
+      "numericExplanations": 0
+    },
+    {
+      "id": "division_remainder",
+      "d": 0,
+      "count": 480,
+      "variants": {
+        "numeric": 480
+      },
+      "uniquePrompts": 213,
+      "shapes": 1,
+      "independentChecks": 480,
+      "numericExplanations": 0
+    },
+    {
+      "id": "division_remainder",
+      "d": 1,
+      "count": 480,
+      "variants": {
+        "packApples": 240,
+        "packPencils": 240
+      },
+      "uniquePrompts": 353,
+      "shapes": 12,
+      "independentChecks": 480,
+      "numericExplanations": 0
+    },
+    {
+      "id": "division_remainder",
+      "d": 2,
+      "count": 480,
+      "variants": {
+        "subtractThenDivide": 480
+      },
+      "uniquePrompts": 449,
+      "shapes": 12,
+      "independentChecks": 480,
+      "numericExplanations": 0
+    }
+  ],
+  "failures": [],
+  "ui": [
+    {
+      "id": "offtable_multiply",
+      "d": 0,
+      "rendered": true,
+      "hasInput": true
+    },
+    {
+      "id": "offtable_multiply",
+      "d": 1,
+      "rendered": true,
+      "hasInput": true
+    },
+    {
+      "id": "offtable_multiply",
+      "d": 2,
+      "rendered": true,
+      "hasInput": true
+    },
+    {
+      "id": "offtable_divide",
+      "d": 0,
+      "rendered": true,
+      "hasInput": true
+    },
+    {
+      "id": "offtable_divide",
+      "d": 1,
+      "rendered": true,
+      "hasInput": true
+    },
+    {
+      "id": "offtable_divide",
+      "d": 2,
+      "rendered": true,
+      "hasInput": true
+    },
+    {
+      "id": "division_remainder",
+      "d": 0,
+      "rendered": true,
+      "hasInput": true
+    },
+    {
+      "id": "division_remainder",
+      "d": 1,
+      "rendered": true,
+      "hasInput": true
+    },
+    {
+      "id": "division_remainder",
+      "d": 2,
+      "rendered": true,
+      "hasInput": true
+    }
+  ],
+  "jsErrors": [],
+  "summary": {
+    "generated": 4320,
+    "independentlyVerified": 4320,
+    "ui": 9,
+    "uiReady": 9,
+    "failures": 0,
+    "jsErrors": 0
+  }
+}
