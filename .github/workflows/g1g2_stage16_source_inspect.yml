@@ -1,0 +1,33 @@
+name: MatKvest stage16 G1 noun source inspection
+on:
+  push:
+    branches: [audit/g1g2-stage16-20261104]
+    paths:
+      - audits/g1g2_stage16_g1_source_inspect.py
+      - .github/workflows/g1g2_stage16_source_inspect.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit/g1g2-stage16-20261104
+          persist-credentials: true
+      - run: python3 audits/g1g2_stage16_g1_source_inspect.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: matkvest-stage16-g1-source-inspect
+          path: audits/g1g2_stage16_g1_source_inspect.json
+      - name: Commit source excerpts to audit branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add audits/g1g2_stage16_g1_source_inspect.json
+          if ! git diff --cached --quiet; then
+            git commit -m "audit(stage16): record G1 noun source locations [skip ci]"
+            git push origin HEAD:audit/g1g2-stage16-20261104
+          fi
