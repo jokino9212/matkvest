@@ -28,6 +28,14 @@ try{
        if(g2StoryAccNoun(n,other)!==g2StoryNoun(n,other))throw Error('Another noun changed: '+other.one+n);
      return expected;
    });
+   check('Two-to-six repetitions use correct «раза/раз» in explanation',()=>{
+      for(const n of [1,2,3,4,5,6,11,12,21,22]){
+        const word=g2StoryTimes(n),expected=[2,3,4,22].includes(n)?'раза':'раз';
+        if(word!==expected)throw Error(n+' repetitions should be '+expected+', got '+word);
+        const explanation=g2StoryOneExplanation({kind:'mul',each:3,groups:n,total:3*n});
+        if(!explanation.includes(n+' '+expected+':'))throw Error('Wrong number of times '+explanation);
+      }return true;
+   });
    check('First-grade noun inflection unaffected',()=>{
       if(g1Noun(1,book)!=='книга'||g1Noun(21,book)!=='книга')throw Error('g1Noun unexpectedly changed');
       return true;
