@@ -1,0 +1,503 @@
+{
+  "htmlSha256": "0954820458a758c8208eb3bea7b220abb40d712de428d1ed742fc5339ebe54ea",
+  "interpolatedRaza": [
+    {
+      "offset": 480909,
+      "variable": "k",
+      "context": "cn}, ${d}×${k}=${cd}. Поэтому ${frac(n,d)} = ${frac(cn,cd)}.`,\"choose_equal\");\n   return g5q(`${frac(n,d)} = ${frac(\"?\",cd)}. Какое число должно стоять вместо ?`,g5nums(cn,[n+k,k,cd]),String(cn),`Знаменатель увеличили в ${k} раза: ${d}×${k}=${cd}. Значит числитель тоже умножаем на ${k}: ${n}×${k}=${cn}.`,\"missing_numerator\");\n }\n if(id===\"frac_reduce\"){\n   let bn=ri(1,6),bd=ri(bn+1,9),k=ri(2,6),n=bn*k,d=bd*k,[sn,sd]=simp(n,d),g=gcd(n,d),v=ri(0,1);\n   if(v===0)retur"
+    },
+    {
+      "offset": 3149004,
+      "variable": "model.groups",
+      "context": "psModel(),answer=model.total;return g2Choice(`Одинаковых групп: ${model.groups}. В каждой по ${model.each} ${g2ItemWord(model.each)}. Сколько предметов всего?`,answer,g2UniqueNums(answer,1,30),`${model.each} повторяется ${model.groups} раза: ${Array.from({length:model.groups},()=>model.each).join(\" + \")} = ${answer}.`,`g2:multiply_divide:${d}:groups_total:${model.groups}:${model.each}`,{model,visual:{type:\"g2EqualGroups\",data:model},templateId})\n }\n if(templateId===\"repeated_"
+    },
+    {
+      "offset": 3149722,
+      "variable": "model.groups",
+      "context": "{model.each} + ${model.groups} = ${model.total}`,`${model.total} : ${model.groups} = ${model.total}`],answer=correct;\n  return g2Choice(`Какая запись заменяет сумму <b>${sum}</b>?`,answer,wrong,`${model.each} складываем ${model.groups} раза. Это можно записать: ${answer}.`,`g2:multiply_divide:${d}:repeated_addition:${model.groups}:${model.each}`,{model,visual:{type:\"g2EqualGroups\",data:model},templateId})\n }\n if(templateId===\"share_equal\"){\n  const model=g2GroupsModel(),answe"
+    },
+    {
+      "offset": 3205633,
+      "variable": "m.groups",
+      "context": "{m.groups} = ${m.total}`;\n  const wrong=g2UniqueNums(m.total,1,100).map(v=>`${m.each} · ${m.groups} = ${v}`);\n  return g2Choice(`Какая запись умножением заменяет сумму <b>${sum}</b>?`,correct,wrong,`${m.each} складываем ${m.groups} раза. Это можно записать: ${correct}.`,q.sig,{model:m,visual:{type:\"g2EqualGroups\",data:m},templateId:q.templateId})\n }\n if(q?.templateId===\"inverse_record\"){\n  const correct=`${m.result} : ${m.a} = ${m.b}`,wrong=g2UniqueNums(m.b,0,100).map(v=>"
+    },
+    {
+      "offset": 5103218,
+      "variable": "k",
+      "context": "} см.`)}\n if(v==='combined'){let a=randint(4,10),b=randint(4,10),c=randint(Math.abs(a-b)+1,a+b-1),k=randint(2,4);return number(S,d,v,`Стороны треугольника равны ${a}, ${b}, ${c} см. Периметр подобного ему треугольника в ${k} раза больше. Найди сумму соответствующих сторон второго треугольника.`,(a+b+c)*k,`P₁=${a+b+c}; P₂=${k}·${a+b+c}=${(a+b+c)*k} см.`)}\n return multiple(S,d,v,'Два треугольника имеют соответственно пропорциональные три пары сторон. Что следует?','о"
+    },
+    {
+      "offset": 5113521,
+      "variable": "k",
+      "context": "ание.`,2*a,`a=2S/h=2·${a*h}/${h}=${2*a} см.`)}\n if(v==='compare'){const a=rand(5,18),h=rand(3,14),k=rand(2,5);return num(id,d,v,`Два треугольника имеют одинаковое основание ${a} см. Высота первого ${2*h} см, второго — в ${k} раза больше. На сколько см² площадь второго больше первой?`,a*h*(k-1),`S₁=${a*h}; S₂=${a*h*k}; разность ${a*h*(k-1)} см².`,'см²')}\n const a=rand(4,15),h=rand(3,13),k=rand(2,5);return num(id,d,v,`Площадь треугольника с основанием ${a} см и высот"
+    },
+    {
+      "offset": 5113795,
+      "variable": "k",
+      "context": "е первой?`,a*h*(k-1),`S₁=${a*h}; S₂=${a*h*k}; разность ${a*h*(k-1)} см².`,'см²')}\n const a=rand(4,15),h=rand(3,13),k=rand(2,5);return num(id,d,v,`Площадь треугольника с основанием ${a} см и высотой ${2*h} см увеличили в ${k} раза, не меняя основание. Найди новую высоту.`,2*h*k,`При постоянном основании площадь пропорциональна высоте. h₂=${2*h}·${k}=${2*h*k} см.`)\n}\n// fix map branch to use a single stable question parameter\nconst old=makeG8Question;\nmakeG8Question="
+    },
+    {
+      "offset": 5116516,
+      "variable": "k",
+      "context": "1),`Разность площадей (${a*k}−${a})·${h}=${a*h*(k-1)} см².`)}\n if(v==='combined'){const a=rand(5,16),h=rand(3,12),k=rand(2,4);return num(id,d,v,`Площадь параллелограмма с основанием ${a} см и высотой ${h} см увеличили в ${k} раза, не меняя основание. Какой стала высота?`,h*k,`При постоянном основании h₂=${k}·${h}=${h*k} см.`,'см')}\n if(v==='rh_side'){const n=rand(3,12),h=rand(2,n),per=4*n;return num(id,d,v,`Периметр ромба ${per} см, его высота к стороне ${h} см. Вы"
+    },
+    {
+      "offset": 5117013,
+      "variable": "k",
+      "context": "торона ${per}/4=${n} см; S=ah=${n}·${h}=${n*h} см².`)}\n if(v==='ratio'){const a=rand(4,10),h=rand(3,9),k=rand(2,4);return num(id,d,v,`Первый параллелограмм имеет основание ${a} см и высоту ${h} см. У второго основание в ${k} раза больше, а высота в 2 раза меньше. Найди площадь второго.`,a*h*k/2,`S₂=(${a}·${k})·(${h}/2)=${a*h*k/2} см².`)}\n if(v==='units')return choice(id,d,v,'Что необходимо знать для вычисления площади параллелограмма по формуле S=ah?','основание и "
+    },
+    {
+      "offset": 5119027,
+      "variable": "k",
+      "context": "`,m*h,`S=mh=${m}·${h}=${m*h} см².`)}\n if(v==='compare'){const a=rand(3,9),b=a+rand(2,9),h=rand(3,10),k=rand(2,4);return num(id,d,v,`У двух трапеций основания одинаковые: ${a} и ${b} см. Высота первой ${2*h} см, второй в ${k} раза больше. На сколько см² площадь второй больше?`,(a+b)*h*(k-1),`S₁=(${a}+${b})·${h}=${(a+b)*h}; разность (${k}−1)S₁=${(a+b)*h*(k-1)} см².`)}\n if(v==='combined'){const a=rand(3,10),b=a+2*rand(2,8),h=2*rand(2,9),s=(a+b)*h/2;return num(id,d,v,`"
+    },
+    {
+      "offset": 5119642,
+      "variable": "k",
+      "context": ". Меньшее основание (${a+b}−${b-a})/2=${a} см.`,'см')}\n if(v==='ratio'){const a=rand(4,10),b=a+rand(2,8),h=rand(4,12),k=rand(2,4);return num(id,d,v,`Основания трапеции ${a} и ${b} см. При увеличении высоты с ${2*h} см в ${k} раза как изменится площадь (во сколько раз)?`,k,`При неизменных основаниях S прямо пропорциональна высоте, значит увеличится в ${k} раза.`,'раз')}\n return choice(id,d,v,'Какая формула площади трапеции верна для оснований a, b и высоты h?','(a+b"
+    },
+    {
+      "offset": 5119774,
+      "variable": "k",
+      "context": "turn num(id,d,v,`Основания трапеции ${a} и ${b} см. При увеличении высоты с ${2*h} см в ${k} раза как изменится площадь (во сколько раз)?`,k,`При неизменных основаниях S прямо пропорциональна высоте, значит увеличится в ${k} раза.`,'раз')}\n return choice(id,d,v,'Какая формула площади трапеции верна для оснований a, b и высоты h?','(a+b)h/2',['(a−b)h/2','(a+b)h','abh'],'Площадь трапеции равна произведению полусуммы оснований на высоту.');}\nfunction grid(d){const id="
+    },
+    {
+      "offset": 5167236,
+      "variable": "k",
+      "context": "ется':'не выполняется'}.`,diagram([{name:'AB',length:A},{name:'CD',length:B},{name:'EF',length:C},{name:'GH',length:D}]));}\n   if(v==='scale'){let k=rnd(2,5);return num(P,d,v,`Отрезки AB=${A} см и CD=${B} см увеличили в ${k} раза. Найди длину нового CD.`,B*k,`Новая длина CD равна ${B}·${k}=${B*k}.`,diagram([{name:'AB',length:A},{name:'CD',length:B},{name:'EF',length:B*k}]));}\n   if(v==='sum_parts'){return num(P,d,v,`AB:CD=${n}:${h}; AB=${A} см. Найди сумму AB+CD.`,"
+    },
+    {
+      "offset": 5169006,
+      "variable": "r",
+      "context": "[{name:'AB',length:x*y},{name:'CD',length:x*z},{name:'EF',length:y*4},{name:'GH',length:z*4}]));}\n   if(v==='two_steps'){let k=rnd(2,5),r=rnd(2,5),x=rnd(2,7);return num(P,d,v,`AB:CD=${k}:${r}, CD=${r*x} см. Отрезок EF в ${r} раза длиннее AB. Найди EF.`,k*x*r,`AB=${k*x} см, EF=${k*x}·${r}=${k*x*r}.`,diagram([{name:'AB',length:k*x},{name:'CD',length:r*x},{name:'EF',length:k*x*r}]));}\n   if(v==='largest'){let x=rnd(2,7),n=rnd(2,5),h=n+rnd(1,4);return num(P,d,v,`AB:CD="
+    },
+    {
+      "offset": 5169600,
+      "variable": "k",
+      "context": ":'AB',length:n*x},{name:'CD',length:h*x}]));}\n   if(v==='perimeter_ratio'){let x=rnd(2,7),n=rnd(2,4),h=rnd(3,6),k=rnd(2,4);return num(P,d,v,`AB:CD=${n}:${h}; AB+CD=${(n+h)*x} см. Вторую пару EF,GH получили увеличением в ${k} раза. Найди EF+GH.`,(n+h)*x*k,`(EF+GH)=${k}·(AB+CD)=${k}·${(n+h)*x}=${(n+h)*x*k}.`,diagram([{name:'AB',length:n*x},{name:'CD',length:h*x},{name:'EF',length:n*x*k},{name:'GH',length:h*x*k}]));}\n   return ch(P,d,v,`Даны отрезки AB=${A}, CD=${B} ("
+    },
+    {
+      "offset": 5172138,
+      "variable": "k",
+      "context": "b*k}.`,shape(S,v,a,b,c,k,{AB:a,DE:a*k,AC:b}));\n   if(v==='perimeter'){let p=a+b+c;return num(S,d,v,`Периметр ΔABC равен ${p} см. ΔDEF подобен ему с коэффициентом ${k}. Найди периметр ΔDEF.`,p*k,`Периметр увеличивается в ${k} раза: ${p}·${k}=${p*k}.`,m)}\n   if(v==='inverse')return num(S,d,v,`ΔABC∼ΔDEF, DE=${a*k} см и k=${k}. Найди AB.`,a,`AB=DE/k=${a*k}/${k}=${a}.`,shape(S,v,a,b,c,k,{DE:a*k}));\n   if(v==='missing')return num(S,d,v,`ΔABC∼ΔDEF, AB=${a} см, DE=${a*k} с"
+    },
+    {
+      "offset": 5178324,
+      "variable": "k",
+      "context": "добии ΔABC и ΔDEF известны AB=${a} см, DE=${a*k} см, AC=${b} см. Найди DF.`,b*k,`DE/AB=${k}, DF=${b}·${k}=${b*k}.`,shape(T,v,a,b,c,k,{AB:a,DE:a*k,AC:b}));\n   if(v==='find_side')return num(T,d,v,`Стороны подобного ΔDEF в ${k} раза больше сторон ΔABC. Если AB=${a} см, BC=${c} см, найди DE+EF.`,k*(a+c),`DE=${k*a}, EF=${k*c}; сумма ${k*(a+c)}.`,shape(T,v,a,b,c,k,{AB:a,BC:c}));\n   if(v==='scale_unknown')return num(T,d,v,`Стороны двух подобных треугольников: AB=${a} см, "
+    },
+    {
+      "offset": 5184999,
+      "variable": "k",
+      "context": "t=v.startsWith('map')?'м':'см',M=model(raw,d,v,'bars',{small:a,big:b,unitSmall:'см',unitBig:unit,find:v==='inverse_model'?'small':'big'});\n  if(v==='model')return number(raw,d,v,`Длина модели ${a} см. Настоящий объект в ${k} раза длиннее модели. Найди длину объекта в сантиметрах.`,b,`${a}·${k}=${b} см.`,M,'см');\n  if(v==='inverse_model')return number(raw,d,v,`Длина настоящего объекта ${b} см, он в ${k} раза длиннее модели. Найди длину модели.`,a,`${b}/${k}=${a} см."
+    },
+    {
+      "offset": 5185180,
+      "variable": "k",
+      "context": "ина модели ${a} см. Настоящий объект в ${k} раза длиннее модели. Найди длину объекта в сантиметрах.`,b,`${a}·${k}=${b} см.`,M,'см');\n  if(v==='inverse_model')return number(raw,d,v,`Длина настоящего объекта ${b} см, он в ${k} раза длиннее модели. Найди длину модели.`,a,`${b}/${k}=${a} см.`,M,'см');\n  if(v==='map_multistep')return number(raw,d,v,`На плане  ${a} см соответствуют ${b} м. Маршрут состоит из двух участков длиной ${2*a} см и ${3*a} см на плане. Найди длин"
+    },
+    {
+      "offset": 5186887,
+      "variable": "k",
+      "context": "),s=R(4,16),M=model(raw,d,v,'pairedRightTriangles',{base:s/2,height:4,k,find:'area2',sourceArea:s});return number(raw,d,v,`Площадь меньшего треугольника ${s} см². Подобный треугольник имеет все соответствующие стороны в ${k} раза длиннее. Найди его площадь.`,s*k*k,`S₂=S₁·k²=${s}·${k*k}=${s*k*k} см².`,M,'см²');}\n // Ratio of perimeters requires the same k as geometric model.\n const p=R(12,42),k=R(2,5),M=model(raw,d,v,'perimeterPair',{perimeter:p,k,find:'large'});\n i"
+    },
+    {
+      "offset": 5187256,
+      "variable": "k",
+      "context": " model.\n const p=R(12,42),k=R(2,5),M=model(raw,d,v,'perimeterPair',{perimeter:p,k,find:'large'});\n if(v==='perimeter')return number(raw,d,v,`Периметр одного треугольника ${p} см. Все стороны подобного ему треугольника в ${k} раза больше. Найди периметр второго.`,p*k,`P₂=k·P₁=${k}·${p}=${p*k} см.`,M,'см');\n if(v==='reverse_perimeter')return number(raw,d,v,`Периметр большего треугольника ${p*k} см, а коэффициент подобия большего к меньшему ${k}. Найди периметр меньше"
+    },
+    {
+      "offset": 5187651,
+      "variable": "k",
+      "context": " см, а коэффициент подобия большего к меньшему ${k}. Найди периметр меньшего.`,p,`P₁=P₂/k=${p*k}/${k}=${p} см.`,{...M,find:'small'},'см');\n const difference=p*(k-1);return number(raw,d,v,`Периметр второго треугольника в ${k} раза больше периметра первого и на ${difference} см превышает его. Найди периметр первого.`,p,`(k−1)P₁=${difference}, P₁=${difference}/(${k}−1)=${p} см.`,{...M,find:'small'},'см');\n}\nfunction area(d){const raw=AREA,v=P([['rectangle','units','su"
+    },
+    {
+      "offset": 5194604,
+      "variable": "k",
+      "context": "см. Найди сумму их площадей.`,a*h*(k+1),`S₁=${a*h}, S₂=${a*h*k}, вместе ${a*h*(k+1)} см².`,M,'см²');\n  return number(raw,d,v,`У двух треугольников одинаковые основания ${a} см. Высота первого ${2*h} см, высота второго в ${k} раза больше. На сколько площадь второго больше первой?`,a*h*(k-1),`ΔS=${a}·(${2*h*k}−${2*h})/2=${a*h*(k-1)} см².`,M,'см²');\n }\n if(v==='scale'||v==='reverse'){\n const a=R(4,14),h=R(3,10),k=R(2,5),M=model(raw,d,v,'triangle',{a,h,k,find:'newHeigh"
+    },
+    {
+      "offset": 5194965,
+      "variable": "k",
+      "context": "scale'||v==='reverse'){\n const a=R(4,14),h=R(3,10),k=R(2,5),M=model(raw,d,v,'triangle',{a,h,k,find:'newHeight'});\n return v==='scale'?number(raw,d,v,`У треугольника основание ${a} см, высота ${h} см. Площадь увеличили в ${k} раза, оставив основание прежним. Какой должна стать высота?`,h*k,`При постоянном основании высота растёт в ${k} раза: ${h*k} см.`,M,'см'):\n number(raw,d,v,`Треугольник имеет площадь ${a*h/2} см² и высоту ${h} см. Его площадь увеличили в ${k} ра"
+    },
+    {
+      "offset": 5195077,
+      "variable": "k",
+      "context": ";\n return v==='scale'?number(raw,d,v,`У треугольника основание ${a} см, высота ${h} см. Площадь увеличили в ${k} раза, оставив основание прежним. Какой должна стать высота?`,h*k,`При постоянном основании высота растёт в ${k} раза: ${h*k} см.`,M,'см'):\n number(raw,d,v,`Треугольник имеет площадь ${a*h/2} см² и высоту ${h} см. Его площадь увеличили в ${k} раза, не меняя основание. Найди новую высоту.`,h*k,`Новая высота ${h}·${k}=${h*k} см.`,M,'см');\n }\n const a=R(4,17"
+    },
+    {
+      "offset": 5195207,
+      "variable": "k",
+      "context": "ование прежним. Какой должна стать высота?`,h*k,`При постоянном основании высота растёт в ${k} раза: ${h*k} см.`,M,'см'):\n number(raw,d,v,`Треугольник имеет площадь ${a*h/2} см² и высоту ${h} см. Его площадь увеличили в ${k} раза, не меняя основание. Найди новую высоту.`,h*k,`Новая высота ${h}·${k}=${h*k} см.`,M,'см');\n }\n const a=R(4,17),h=2*R(2,7),M=model(raw,d,v,'triangle',{a,h,find:v==='height'?'h':v==='base'||v==='base_basic'?'a':'area'});\n if(v==='height')ret"
+    },
+    {
+      "offset": 5212019,
+      "variable": "k",
+      "context": "}−${a})·${h}=${a*h*(k-1)} см².`,parModel(`${a} см`,`${h} см`,{topic:raw}),'см²');}\n  if(v==='scaled_height'){const a=pick([6,8,10]),h=pick([3,4,6]),k=pick([2,3,4]);return num(raw,d,v,`Площадь параллелограмма увеличили в ${k} раза, не меняя основание ${a} см. Высота была ${h} см. Какой стала высота?`,h*k,`При неизменном основании площадь пропорциональна высоте, поэтому h₂=${h}·${k}=${h*k} см.`,parModel(`${a} см`,`? см`,{topic:raw}),'см');}\n  if(v==='compare_diff'){c"
+    },
+    {
+      "offset": 5212423,
+      "variable": "k",
+      "context": "(`${a} см`,`? см`,{topic:raw}),'см');}\n  if(v==='compare_diff'){const a=pick([5,7,9]),h=pick([4,6]),k=pick([2,3]);return num(raw,d,v,`Первый параллелограмм имеет основание ${a} см и высоту ${h} см. У второго основание в ${k} раза больше, а высота такая же. На сколько см² площадь второго больше?`,a*h*(k-1),`S₁=${a}·${h}=${a*h}, S₂=${a*k}·${h}=${a*h*k}. Разность ${a*h*(k-1)} см².`,parModel(`${a} см`,`${h} см`,{topic:raw}),'см²');}\n  if(v==='choose_formula'){return ch"
+    },
+    {
+      "offset": 5215167,
+      "variable": "k",
+      "context": "'a','b',`${h} см`,`${m} см`),'см²');}\n  if(v==='compare'){const a=pick([4,6,8]),b=a+pick([4,6,8]),h=pick([3,5,7]),k=pick([2,3]);return num(raw,d,v,`У двух трапеций одинаковые основания ${a} см и ${b} см. Высота второй в ${k} раза больше высоты первой ${h} см. На сколько см² площадь второй больше?`,(a+b)*h*(k-1)/2,`S₁=(${a}+${b})·${h}/2=${(a+b)*h/2}, разность площадей ${(a+b)*h*(k-1)/2} см².`,trapModel(`${a} см`,`${b} см`,`${h} см`),'см²');}\n  if(v==='scale_height')"
+    },
+    {
+      "offset": 5215562,
+      "variable": "k",
+      "context": "trapModel(`${a} см`,`${b} см`,`${h} см`),'см²');}\n  if(v==='scale_height'){const a=pick([6,8]),b=pick([10,14]),h=pick([4,5,6]),k=pick([2,3,4]);return num(raw,d,v,`Основания трапеции ${a} см и ${b} см. Высоту увеличили в ${k} раза. Во сколько раз увеличится площадь?`,k,`При неизменных основаниях площадь прямо пропорциональна высоте, значит увеличится в ${k} раза.`,trapModel(`${a} см`,`${b} см`,`${h} см`),'раз');}\n  if(v==='identify'){return choice(raw,d,v,'Какие сто"
+    },
+    {
+      "offset": 5215696,
+      "variable": "k",
+      "context": "[2,3,4]);return num(raw,d,v,`Основания трапеции ${a} см и ${b} см. Высоту увеличили в ${k} раза. Во сколько раз увеличится площадь?`,k,`При неизменных основаниях площадь прямо пропорциональна высоте, значит увеличится в ${k} раза.`,trapModel(`${a} см`,`${b} см`,`${h} см`),'раз');}\n  if(v==='identify'){return choice(raw,d,v,'Какие стороны трапеции являются основаниями?','параллельные стороны',['боковые стороны','диагонали','любые равные стороны'],'Основания трапеции"
+    },
+    {
+      "offset": 5225505,
+      "variable": "k",
+      "context": "`Отношение площадей равно квадрату линейного коэффициента: ${k}²=${k*k}.`,model(),'раз');\n if(v==='direct')return number(raw,d,v,`Площадь меньшего прямоугольника ${s} см². Все стороны подобного большего прямоугольника в ${k} раза больше. Найди его площадь.`,large,`S₂=S₁·k²=${s}·${k*k}=${large} см².`,model({largeW:'?',largeH:'?'}),'см²');\n if(v==='reverse'||v==='inverse')return number(raw,d,v,`Площадь большего прямоугольника ${large} см². Его стороны в ${k} раза бол"
+    },
+    {
+      "offset": 5225741,
+      "variable": "k",
+      "context": ". Найди его площадь.`,large,`S₂=S₁·k²=${s}·${k*k}=${large} см².`,model({largeW:'?',largeH:'?'}),'см²');\n if(v==='reverse'||v==='inverse')return number(raw,d,v,`Площадь большего прямоугольника ${large} см². Его стороны в ${k} раза больше соответствующих сторон меньшего. Найди площадь меньшего.`,s,`S₁=S₂/k²=${large}/${k*k}=${s} см².`,model({smallW:'a',smallH:'b'}),'см²');\n if(v==='k_from_ratio')return number(raw,d,v,`Площадь большего из двух подобных прямоугольников "
+    },
+    {
+      "offset": 5226285,
+      "variable": "k",
+      "context": " сторона?`,k,`Коэффициент подобия k=√${k*k}=${k}.`,model({largeW:'?',largeH:'?'}),'раз');\n if(v==='perimeter')return number(raw,d,v,`Периметр меньшего прямоугольника ${2*(w+h)} см. Все стороны подобного прямоугольника в ${k} раза больше. Найди его периметр.`,2*(w+h)*k,`Периметр меняется в k раз: P₂=${2*(w+h)}·${k}=${2*(w+h)*k} см.`,model(),'см');\n if(v==='difference')return number(raw,d,v,`Площади двух подобных прямоугольников относятся как 1:${k*k}, площадь меньше"
+    },
+    {
+      "offset": 5226799,
+      "variable": "k",
+      "context": "больше?`,large-s,`S₂=${s}·${k*k}=${large}; S₂−S₁=${large}-${s}=${large-s} см².`,model(),'см²');\n if(v==='two_steps')return number(raw,d,v,`Стороны меньшего прямоугольника ${w} см и ${h} см. Стороны подобного увеличены в ${k} раза. На сколько см² увеличилась площадь?`,large-s,`S₁=${w}·${h}=${s}; S₂=${s}·${k*k}=${large}; разница ${large-s} см².`,model(),'см²');\n if(v==='area_from_perimeter')return number(raw,d,v,`Меньший прямоугольник имеет стороны ${w} см и ${h} см."
+    },
+    {
+      "offset": 5227416,
+      "variable": "k",
+      "context": ")}=${k}; S₂=${w}·${h}·${k*k}=${large} см².`,model(),'см²');\n if(v==='perimeter_then_area')return number(raw,d,v,`Периметр меньшего прямоугольника ${2*(w+h)} см, одна его сторона ${w} см. Все стороны подобного большего в ${k} раза больше. Найди площадь большего.`,large,`Вторая сторона меньшего ${2*(w+h)}/2−${w}=${h} см; S₁=${s}; S₂=${s}·${k*k}=${large} см².`,model({smallH:'? см',largeW:'?',largeH:'?'}),'см²');\n if(v==='difference_reverse')return number(raw,d,v,`Площ"
+    },
+    {
+      "offset": 5228018,
+      "variable": "k",
+      "context": "го.`,s,`S₂=k²·S₁, поэтому (${k*k}−1)S₁=${large-s}; S₁=${large-s}/${k*k-1}=${s} см².`,model({smallW:'a',smallH:'b',largeW:'?',largeH:'?'}),'см²');\n if(v==='compare')return choice(raw,d,v,`Стороны второго прямоугольника в ${k} раза больше соответствующих сторон первого. Найди отношения периметров P₂:P₁ и площадей S₂:S₁.`,`${k}:1 и ${k*k}:1`,[`${k*k}:1 и ${k}:1`,`${k}:1 и ${k}:1`,'оба отношения 1:1'],`P₂:P₁=${k}:1, поскольку все стороны второго прямоугольника в ${k} р"
+    },
+    {
+      "offset": 5228261,
+      "variable": "k",
+      "context": "тствующих сторон первого. Найди отношения периметров P₂:P₁ и площадей S₂:S₁.`,`${k}:1 и ${k*k}:1`,[`${k*k}:1 и ${k}:1`,`${k}:1 и ${k}:1`,'оба отношения 1:1'],`P₂:P₁=${k}:1, поскольку все стороны второго прямоугольника в ${k} раза больше. S₂:S₁=${k*k}:1, поскольку площади подобных фигур изменяются в квадрат коэффициента подобия.`,model());\n return choice(raw,d,v,'Что верно для площадей подобных фигур с коэффициентом подобия k?','S₂/S₁=k²',['S₂/S₁=k','S₂/S₁=2k','S₂/S"
+    },
+    {
+      "offset": 5244751,
+      "variable": "f",
+      "context": "асстояние AB.`,c,`AB=√((${a})²+(${b})²)=${c}.`,triangle({a:`${a}`,b:`${b}`,c:'?'}));\n if(v==='two_steps'){const f=P([2,3]);return num(id,d,v,`Лестница длиной ${c} м стояла на расстоянии ${a} м от стены. Новая лестница в ${f} раза длиннее и её нижний конец находится в ${a*f} м от стены. На сколько метров выше достигает новая лестница?`,b*(f-1),`Первая высота ${b} м, вторая подобной конструкции ${b*f} м. Разница ${b*(f-1)} м.`,Object.assign(mRight(b,a,c,{a:`${a} м`,b"
+    },
+    {
+      "offset": 5579896,
+      "variable": "factor",
+      "context": "0),fm(k,1),fm(k+1,0)],`k=y/x=${S(k)}.`,{...model,x,y,kind:'direct-formula',expected:fm(k,0)});}\n else if(v==='proportional_change'){x=pick([2,3,4]);const factor=pick([2,3,4]);q=N(raw,d,v,`Для y=kx значение x увеличили в ${factor} раза (с ${x} до ${x*factor}). Во сколько раз изменился модуль y?`,factor,`При неизменном ненулевом k модуль y увеличивается во столько же раз.`,{...model,kind:'factor',x,factor,expected:factor});}\n else if(v==='compare_rates'){const kk=k+pick(["
+    },
+    {
+      "offset": 5591698,
+      "variable": "factor",
+      "context": "or=pick([2,3,4]),xx=pick([2,3]);m={kind:v,factor,xx};q=fnum(raw,d,v,`Для обратной пропорциональности y=k/x аргумент x увеличился с ${xx} до ${xx*factor}. Во сколько раз уменьшился модуль y?`,factor,`При увеличении |x| в ${factor} раза |y| уменьшается в ${factor} раза.`,m);}\n else if(v==='compare_values'){const u=pick([1,2,3]),kk=2*u*pick([2,3,4]);m={kind:v,k:kk,u};q=fnum(raw,d,v,`Для y=${frac(kk,'x')} найди разность y(${u})−y(${2*u}).`,kk/(2*u),`k/${u} − k/${2*u}=k/${2*"
+    },
+    {
+      "offset": 5591731,
+      "variable": "factor",
+      "context": "={kind:v,factor,xx};q=fnum(raw,d,v,`Для обратной пропорциональности y=k/x аргумент x увеличился с ${xx} до ${xx*factor}. Во сколько раз уменьшился модуль y?`,factor,`При увеличении |x| в ${factor} раза |y| уменьшается в ${factor} раза.`,m);}\n else if(v==='compare_values'){const u=pick([1,2,3]),kk=2*u*pick([2,3,4]);m={kind:v,k:kk,u};q=fnum(raw,d,v,`Для y=${frac(kk,'x')} найди разность y(${u})−y(${2*u}).`,kk/(2*u),`k/${u} − k/${2*u}=k/${2*u}=${kk/(2*u)}.`,m);}\n else if(v="
+    },
+    {
+      "offset": 5632199,
+      "variable": "k",
+      "context": "вадратов отклонений от среднего?`,sum,`D=σ²=${s*s}; сумма = 4·D = ${sum}.`,{...m,sumSquares:sum});\n }\n if(v==='reverseScale'){\n  const k=rnd(2,5),after=s*k;return numeric(raw,d,v,`После увеличения всех значений набора в ${k} раза стандартное отклонение стало ${after}. Найди исходное стандартное отклонение.`,s,`σ₀=${after}/${k}=${s}.`,{...m,scale:k,after});\n }\n if(v==='allEqual'){\n  const k=rnd(4,19),spread=rnd(2,8),values=[k,k,k,k+2*spread,k+2*spread,k+2*spread];re"
+    },
+    {
+      "offset": 5755552,
+      "variable": "n",
+      "context": "(A)=${fmt(rat(a,n))}, P(B|A)=${fmt(rat(b,n))}. Найди P(A∩B).`,rat(a*b,n*n),`P(A∩B)=P(A)·P(B|A)=${fmt(rat(a*b,n*n))}.`,{n,a,b});}\n if(v==='at_least_one'){const n=pick([2,3,4]);return num(id,d,v,`Правильную монету бросают ${n} раза независимо. Найди вероятность хотя бы одного орла.`,rat(2**n-1,2**n),`Противоположное событие — все решки, вероятность 1/${2**n}. Значит P=${fmt(rat(2**n-1,2**n))}.`,{n});}\n if(v==='two_colors'){const r=rand(3,6),b=rand(2,5),total=r+b;retu"
+    },
+    {
+      "offset": 5784125,
+      "variable": "k",
+      "context": "O=${2*bo} см. Их сумма ${2*(ao+bo)} см.`,{...m,diagonals:true},'см')}\n   if(v==='perimeter_ratio'){const k=pick([2,3,4]),a=ri(3,10),b=a*k,p=2*(a+b);return number(raw,d,v,`Периметр параллелограмма ${p} см, одна сторона в ${k} раза длиннее другой. Найди меньшую сторону.`,a,`Полупериметр ${p}/2=${a+b} см. Меньшая сторона (${a+b})/(${k}+1)=${a} см.`,m,'см')}\n   const x=pick([40,50,60,70,80]);return number(raw,d,v,`Сумма двух противоположных углов параллелограмма равна "
+    },
+    {
+      "offset": 5786961,
+      "variable": "k",
+      "context": "${w*h*cell} см².`,{...m,w,h},'см²')}\n  if(v==='enlarge_both'){const w=ri(3,7),h=ri(2,6),k=pick([2,3]);return number(raw,d,v,`Прямоугольник на клетчатой бумаге имеет стороны ${w} и ${h} клеток. Каждую сторону увеличили в ${k} раза. Найди площадь полученного прямоугольника в клетках.`,w*h*k*k,`Новые стороны ${w*k} и ${h*k} клеток; S=${w*h*k*k} кв. ед.`,{...m,w,h},'кв. ед.')}\n  if(v==='triangle_from_rect'){const w=2*ri(2,4),h=ri(3,6);return number(raw,d,v,`Диагональ п"
+    },
+    {
+      "offset": 5787952,
+      "variable": "k",
+      "context": "*(h2-h1)} кв. ед.`,{...m,shape:'split',w,h1,h2},'кв. ед.')}\n  if(v==='area_ratio'){const w=ri(3,6),h=ri(2,5),k=pick([2,3]);return number(raw,d,v,`Прямоугольник на сетке занимает ${w}×${h} клеток. Если ширину увеличить в ${k} раза, а высоту оставить прежней, во сколько раз увеличится площадь?`,k,`S=wh, новая площадь ${k}wh, значит она увеличится в ${k} раза.`,{...m,w,h},'раз')}\n  if(v==='l_fraction'){const w=ri(7,10),h=ri(6,8),cw=pick([2,3,4]),ch=pick([2,3]),area=w*"
+    },
+    {
+      "offset": 5788081,
+      "variable": "k",
+      "context": " number(raw,d,v,`Прямоугольник на сетке занимает ${w}×${h} клеток. Если ширину увеличить в ${k} раза, а высоту оставить прежней, во сколько раз увеличится площадь?`,k,`S=wh, новая площадь ${k}wh, значит она увеличится в ${k} раза.`,{...m,w,h},'раз')}\n  if(v==='l_fraction'){const w=ri(7,10),h=ri(6,8),cw=pick([2,3,4]),ch=pick([2,3]),area=w*h-cw*ch;return number(raw,d,v,`Из прямоугольника ${w}×${h} клеток вырезали угол ${cw}×${ch} клеток. Сколько клеток осталось?`,are"
+    },
+    {
+      "offset": 5796585,
+      "variable": "x",
+      "context": "{diag*diag}, значит d=${diag}.`,rect(a,b,{a:`${a} см`,b:`${b} см`},{diagonals:true}),{a,b,diag});\n case 'rect_perimeter_ratio':x=pick([2,3,4]);a=r(4,10);b=a*x;p=2*(a+b);return N(`Периметр прямоугольника ${p} см, длина в ${x} раза больше ширины. Найди ширину.`,a,`P/2=${a+b}=(1+${x})·a, значит a=${a}.`,rect(b,a,{a:`?`,b:`?`}),{a,b,p,ratio:x});\n case 'rect_perimeter_from_area':a=r(4,12);b=r(4,11);s=a*b;return N(`Площадь прямоугольника ${s} см², ширина ${b} см. Вычисли"
+    },
+    {
+      "offset": 5798405,
+      "variable": "x",
+      "context": "айди его площадь.`,a*b,`a+b=${a+b}, b−a=${b-a}, откуда a=${a}, b=${b}; S=${a*b}.`,rect(b,a),{a,b,p},'см²');\n case 'rect_ratio_and_area':x=pick([2,3,4]);a=r(3,9);b=x*a;return N(`Ширина прямоугольника ${a} см, его длина в ${x} раза больше. Найди площадь, если обе стороны увеличили ещё в 2 раза.`,4*a*b,`Исходная площадь ${a}·${b}=${a*b}; при удвоении обеих сторон площадь увеличивается в 4 раза: ${4*a*b}.`,rect(b,a,{a:`${b} см`,b:`${a} см`}),{a,b,scale:2},'см²');\n case"
+    },
+    {
+      "offset": 5798765,
+      "variable": "x",
+      "context": "он площадь увеличивается в 4 раза: ${4*a*b}.`,rect(b,a,{a:`${b} см`,b:`${a} см`}),{a,b,scale:2},'см²');\n case 'rect_scale_area':a=r(5,14);b=r(4,12);x=pick([2,3,4]);return N(`Прямоугольник ${a}×${b} см увеличили: длину в ${x} раза, ширину вдвое. Найди площадь нового прямоугольника.`,2*x*a*b,`S=${a}·${b}·${x}·2=${2*x*a*b} см².`,rect(a,b,{a:`${a} см`,b:`${b} см`}),{a,b,k:x},'см²');\n case 'rect_diag_circumradius':[a,b,diag]=triple();return N(`Прямоугольник со сторонами"
+    },
+    {
+      "offset": 5799617,
+      "variable": "x",
+      "context": "). Найди площадь ABCD.`,a*b,`Стороны AB=${a}, BC=${b}, площадь ${a*b}.`,rect(a,b),{a,b},'кв. ед.');\n case 'rect_compare_areas':a=r(4,10);b=r(4,9);x=pick([4,6,8]);return N(`У прямоугольника ${a}×${b} см длину увеличили в ${x} раза, а ширину уменьшили в 2 раза. Во сколько раз увеличилась площадь?`,x/2,`S₂/S₁=${x}/2=${x/2}.`,rect(a,b,{a:`${a} см`,b:`${b} см`}),{a,b,k:x},'раз');\n case 'rect_perimeter_and_diag':[a,b,diag]=triple();return N(`Прямоугольник имеет диагональ"
+    },
+    {
+      "offset": 5802202,
+      "variable": "k",
+      "context": "${d1}=${d2}.`,rhd(d1,d2,{d1:`${d1} см`}),{d1,d2,s},'см');\n case 'par_compare_area':a=r(5,11);h=r(3,9);k=pick([2,3,4]);return N(`Два параллелограмма имеют одинаковую высоту ${h} см. Основание первого ${a} см, второго — в ${k} раза больше. На сколько см² площадь второго больше?`,a*h*(k-1),`Разность S₂−S₁=(${k}−1)·${a}·${h}=${a*h*(k-1)}.`,par(a,h,{a:`${a} см`,h:`${h} см`},{caption:'Изображён первый параллелограмм; размеры второго заданы в условии.'}),{a,h,k});\n case '"
+    },
+    {
+      "offset": 5802588,
+      "variable": "k",
+      "context": "ражён первый параллелограмм; размеры второго заданы в условии.'}),{a,h,k});\n case 'par_height_change':a=r(6,14);h=r(3,9);k=pick([2,3,4]);return N(`У параллелограмма основание ${a} см и высота ${h} см. Высоту увеличили в ${k} раза, основание не меняли. Найди новую площадь.`,a*h*k,`S₂=${a}·${h}·${k}=${a*h*k}.`,par(a,h,{a:`${a} см`,h:`${h} см`}),{a,h,k});\n case 'par_area_from_base_ratio':a=r(4,12);h=r(3,8);k=pick([2,3,4]);return N(`Основания двух параллелограммов отно"
+    },
+    {
+      "offset": 5804797,
+      "variable": "k",
+      "context": "а P/2−${b}=${a}. Высота ${a*h}/${a}=${h}.`,par(a,h,{}, {side:b}),{a,b,h,p},'см');\n case 'par_area_ratio_heights':a=r(5,12);h=r(3,8);k=pick([2,3,4]);return N(`Два параллелограмма имеют основание ${a} см. Высота второго в ${k} раза больше высоты первого ${h} см. Найди отношение площадей второго к первому.`,k,`S₂/S₁=h₂/h₁=${k}.`,par(a,h,{a:`${a} см`,h:`${h} см`},{caption:'Изображён первый параллелограмм.'}),{a,h,k},'раз');\n case 'par_area_diff':a=r(6,15);h=r(3,8);k=pi"
+    },
+    {
+      "offset": 5805143,
+      "variable": "k",
+      "context": "м`,h:`${h} см`},{caption:'Изображён первый параллелограмм.'}),{a,h,k},'раз');\n case 'par_area_diff':a=r(6,15);h=r(3,8);k=pick([2,3,4]);return N(`Площадь параллелограмма с основанием ${a} см и высотой ${h} см увеличили в ${k} раза, увеличивая только основание. На сколько см² выросла площадь?`,a*h*(k-1),`S₂−S₁=(${k}−1)·${a}·${h}=${a*h*(k-1)}.`,par(a,h,{a:`${a} см`,h:`${h} см`}),{a,h,k});\n case 'rh_area_compare_scaled':d1=2*r(3,9);d2=2*r(4,10);k=pick([2,3]);return N(`"
+    },
+    {
+      "offset": 5805452,
+      "variable": "k",
+      "context": "=(${k}−1)·${a}·${h}=${a*h*(k-1)}.`,par(a,h,{a:`${a} см`,h:`${h} см`}),{a,h,k});\n case 'rh_area_compare_scaled':d1=2*r(3,9);d2=2*r(4,10);k=pick([2,3]);return N(`Диагонали ромба ${d1} и ${d2} см. Обе диагонали увеличили в ${k} раза. Найди новую площадь.`,d1*d2*k*k/2,`S₂=(${d1}·${k})·(${d2}·${k})/2=${d1*d2*k*k/2}.`,rhd(d1,d2,{d1:`${d1} см`,d2:`${d2} см`}),{d1,d2,k});\n case 'par_area_then_height':a=r(6,12);h=r(3,8);k=pick([2,3]);return N(`Площадь параллелограмма равна "
+    },
+    {
+      "offset": 5808928,
+      "variable": "k",
+      "context": "м`,h:`${h} см`},{midline:true}),{a,b,h,m});\n case 'trap_compare_heights':a=2*r(3,6);b=a+2*r(2,6);h=r(3,8);k=pick([2,3]);return N(`Две трапеции имеют одинаковые основания ${a} и ${b} см. Высота первой ${h} см, второй — в ${k} раза больше. На сколько см² площадь второй больше?`,(a+b)*h*(k-1)/2,`Разность площадей (a+b)(h₂−h₁)/2=${(a+b)*h*(k-1)/2}.`,trap(a,b,h,{a:`${a} см`,b:`${b} см`,h:`${h} см`},{caption:'Изображена первая трапеция.'}),{a,b,h,k});\n case 'trap_ratio_a"
+    },
+    {
+      "offset": 5809333,
+      "variable": "k",
+      "context": ":'Изображена первая трапеция.'}),{a,b,h,k});\n case 'trap_ratio_area':a=2*r(3,6);b=a+2*r(2,6);h=r(4,9);k=pick([2,3]);return N(`Трапецию с основаниями ${a} и ${b} см и высотой ${h} см увеличили по всем линейным размерам в ${k} раза. Во сколько раз выросла площадь?`,k*k,`Площадь подобных фигур увеличивается в ${k}²=${k*k} раз.`,trap(a,b,h,{a:`${a} см`,b:`${b} см`,h:`${h} см`}),{a,b,h,k},'раз');\n case 'trap_from_perimeter_legs':[d,h,leg]=triple();a=2*r(4,7);b=a+2*d;p=a"
+    },
+    {
+      "offset": 5812226,
+      "variable": "k",
+      "context": "на первая трапеция.'}),{a,b,h,k});\n case 'trap_scale_area':a=2*r(4,7);b=a+2*r(2,6);h=r(4,9);k=pick([2,3]);return N(`У трапеции с основаниями ${a}, ${b} см и высотой ${h} см каждое основание удвоили, а высоту увеличили в ${k} раза. Найди новую площадь.`,(a+b)*h*k,`S₂=2·(a+b)·${k}h/2=${(a+b)*h*k}.`,trap(a,b,h,{a:`${a} см`,b:`${b} см`,h:`${h} см`}),{a,b,h,k});\n case 'trap_midline_from_area_height':a=2*r(4,7);b=a+2*r(2,6);h=r(4,9);s=(a+b)*h/2;return N(`Площадь трапеции"
+    },
+    {
+      "offset": 5827320,
+      "variable": "k",
+      "context": "; разность с A равна ${2*x-a}°.`,{angles:[a,b,x,x]});\n case 'perimeter_scale':a=ri(5,11);b=ri(6,12);c=ri(7,13);d=ri(8,14);k=pk([2,3]);return n(`Стороны четырёхугольника ${a}, ${b}, ${c}, ${d} см. Все стороны увеличили в ${k} раза. На сколько сантиметров увеличился периметр?`,(k-1)*(a+b+c+d),`Исходный периметр ${a+b+c+d}, новый в ${k} раза больше, разность ${(k-1)*(a+b+c+d)}.`,{sides:[a,b,c,d],scale:k},'см');\n case 'angles_from_two_exteriors':a=pk([60,70,80,90]);b=p"
+    },
+    {
+      "offset": 5827431,
+      "variable": "k",
+      "context": "d=ri(8,14);k=pk([2,3]);return n(`Стороны четырёхугольника ${a}, ${b}, ${c}, ${d} см. Все стороны увеличили в ${k} раза. На сколько сантиметров увеличился периметр?`,(k-1)*(a+b+c+d),`Исходный периметр ${a+b+c+d}, новый в ${k} раза больше, разность ${(k-1)*(a+b+c+d)}.`,{sides:[a,b,c,d],scale:k},'см');\n case 'angles_from_two_exteriors':a=pk([60,70,80,90]);b=pk([60,80,100]);x=180-a;y=180-b;return n(`У выпуклого четырёхугольника внешние углы при A и B равны ${a}° и ${b}"
+    },
+    {
+      "offset": 5833906,
+      "variable": "k",
+      "context": "e_two_perimeters':a=ri(4,9);b=ri(5,10);k=pk([2,3]);return n(`У двух параллелограммов соответствующие стороны равны (${a},${b}) см и (${k*a},${k*b}) см. Во сколько раз периметр второго больше?`,k,`Обе стороны увеличены в ${k} раза, периметр также в ${k} раза.`,parModel(70,a,b),{a,b,k},'раз');\n case 'two_step_angles':{let r=pk([[1,2],[2,3],[3,2],[4,5]]);ang=180*r[0]/(r[0]+r[1]);return n(`Соседние углы параллелограмма ABCD относятся как ${r[0]}:${r[1]}. Найди сумму пр"
+    },
+    {
+      "offset": 5833934,
+      "variable": "k",
+      "context": "b=ri(5,10);k=pk([2,3]);return n(`У двух параллелограммов соответствующие стороны равны (${a},${b}) см и (${k*a},${k*b}) см. Во сколько раз периметр второго больше?`,k,`Обе стороны увеличены в ${k} раза, периметр также в ${k} раза.`,parModel(70,a,b),{a,b,k},'раз');\n case 'two_step_angles':{let r=pk([[1,2],[2,3],[3,2],[4,5]]);ang=180*r[0]/(r[0]+r[1]);return n(`Соседние углы параллелограмма ABCD относятся как ${r[0]}:${r[1]}. Найди сумму противоположных углов A и C.`,"
+    },
+    {
+      "offset": 5855760,
+      "variable": "k",
+      "context": ");\n case 'side_difference':return N(`A₁B₁−AB=${A-a} см, k=${k}. Найди AB.`,a,`(k−1)AB=${A-a}; AB=${A-a}/${k-1}=${a}.`,{},'см');\n case 'scale_two_steps':{const m=pick([2,3]);return N(`Из ABC получили A₁B₁C₁ увеличением в ${k} раза, а затем ещё увеличили его в ${m} раза. Исходная сторона BC=${c} см. Найди итоговую соответствующую сторону.`,c*k*m,`${c}·${k}·${m}=${c*k*m}.`,{BC:c},'см');}\n case 'matching_perimeter':return N(`AB=${a}, AC=${b}, BC=${c} см. У большего под"
+    },
+    {
+      "offset": 5855799,
+      "variable": "m",
+      "context": "B₁−AB=${A-a} см, k=${k}. Найди AB.`,a,`(k−1)AB=${A-a}; AB=${A-a}/${k-1}=${a}.`,{},'см');\n case 'scale_two_steps':{const m=pick([2,3]);return N(`Из ABC получили A₁B₁C₁ увеличением в ${k} раза, а затем ещё увеличили его в ${m} раза. Исходная сторона BC=${c} см. Найди итоговую соответствующую сторону.`,c*k*m,`${c}·${k}·${m}=${c*k*m}.`,{BC:c},'см');}\n case 'matching_perimeter':return N(`AB=${a}, AC=${b}, BC=${c} см. У большего подобного треугольника сторона B₁C₁=${C} с"
+    },
+    {
+      "offset": 5856556,
+      "variable": "k*k",
+      "context": "оответствующие стороны.',{AC:b,'A₁C₁':B});\n case 'combined_area':return N(`Периметр ABC=${ps} см, большего — ${pl} см. Площадь ABC равна ${ps} см². Найди площадь A₁B₁C₁.`,ps*k*k,`k=${pl}/${ps}=${k}; площадь увеличится в ${k*k} раза: ${ps*k*k}.`,{},'см²',false);\n case 'inverse_side_sum':return N(`Сумма AB+A₁B₁ равна ${a+A} см, а коэффициент подобия k=${k}. Найди меньшую сторону AB.`,a,`AB(1+k)=${a+A}; AB=${a+A}/${k+1}=${a}.`,{},'см');\n }throw Error('QA4 similar '+v);\n"
+    },
+    {
+      "offset": 5874947,
+      "variable": "k",
+      "context": ".u+z.v,z.v),frac(z.u,z.u+z.v)],`AC:BD=${ac}:${bd}=${frac(z.u,z.v)}.`,{diagonals:true},{ac,bd});\n    case 'comparison_areas':{const k=pick([2,3]),S0=ac*bd/2;return N(`Диагонали ромба AC=${ac} см и BD=${bd} см увеличили в ${k} раза. Найди площадь нового ромба.`,S0*k*k,`Исходная площадь ${S0} см². При увеличении обеих диагоналей в ${k} раза площадь растёт в ${k*k} раз: ${S0*k*k} см².`,{diagonals:true},{ac,bd,k},'см²');}\n    case 'perimeter_after_scaling':{const k=pick"
+    },
+    {
+      "offset": 5875057,
+      "variable": "k",
+      "context": "arison_areas':{const k=pick([2,3]),S0=ac*bd/2;return N(`Диагонали ромба AC=${ac} см и BD=${bd} см увеличили в ${k} раза. Найди площадь нового ромба.`,S0*k*k,`Исходная площадь ${S0} см². При увеличении обеих диагоналей в ${k} раза площадь растёт в ${k*k} раз: ${S0*k*k} см².`,{diagonals:true},{ac,bd,k},'см²');}\n    case 'perimeter_after_scaling':{const k=pick([2,3,4]);return N(`В ромбе диагонали пересекаются под прямым углом, AO=${z.u} см, BO=${z.v} см. Все стороны у"
+    },
+    {
+      "offset": 5875317,
+      "variable": "k",
+      "context": "{S0*k*k} см².`,{diagonals:true},{ac,bd,k},'см²');}\n    case 'perimeter_after_scaling':{const k=pick([2,3,4]);return N(`В ромбе диагонали пересекаются под прямым углом, AO=${z.u} см, BO=${z.v} см. Все стороны увеличили в ${k} раза. Найди новый периметр.`,4*a*k,`Начальная сторона √(${z.u}²+${z.v}²)=${a}; новый периметр 4·${a}·${k}=${4*a*k} см.`,{diagonals:true},{...z,k},'см');}\n   }throw Error('QA5 unknown rhombus '+v);\n }\n function square(d,v){const id='square_prope"
+    },
+    {
+      "offset": 5880018,
+      "variable": "k",
+      "context": "см`,`${4*a} см`],`Треугольник имеет катеты по ${a} см и гипотенузу ${a}√2 см. Сумма ${2*a}+${a}√2 см.`,{a});\n    case 'diagonal_scale':{const k=pick([2,3,4]);return Q(`Сторона квадрата была ${a} см, затем её увеличили в ${k} раза. Какова новая диагональ?`,`${a*k}√2 см`,[`${a}√2 см`,`${a*k*k}√2 см`,`${2*a*k} см`],`Новая сторона ${a*k} см, диагональ ${a*k}√2 см.`,{a,k});}\n    case 'area_gain':{const step=pick([2,3,5]);return number(id,d,v,`Сторону квадрата увеличили "
+    },
+    {
+      "offset": 5885542,
+      "variable": "k",
+      "context": "{I.bottom}+${I.top}+2·${I.leg}=${I.bottom+I.top+2*I.leg} см.`,I,{...I},'см');\n    case 'area_ratio':{const k=pick([2,3]);return N(`У трапеции основания ${L} и ${l} см, высота ${h} см. Все её линейные размеры увеличили в ${k} раза. Найди новую площадь.`,(L+l)*h/2*k*k,`Исходная площадь ${(L+l)*h/2} см²; при подобном увеличении в ${k} раза площадь растёт в ${k*k} раз: ${(L+l)*h/2*k*k} см².`,t,{L,l,h,k},'см²');}\n    case 'angle_isosc_top':{const A=pick([55,65,70,75,80]"
+    },
+    {
+      "offset": 5885651,
+      "variable": "k",
+      "context": "pick([2,3]);return N(`У трапеции основания ${L} и ${l} см, высота ${h} см. Все её линейные размеры увеличили в ${k} раза. Найди новую площадь.`,(L+l)*h/2*k*k,`Исходная площадь ${(L+l)*h/2} см²; при подобном увеличении в ${k} раза площадь растёт в ${k*k} раз: ${(L+l)*h/2*k*k} см².`,t,{L,l,h,k},'см²');}\n    case 'angle_isosc_top':{const A=pick([55,65,70,75,80]);return N(`В равнобокой трапеции ABCD BC ∥ AD, ∠A=${A}°. Найди ∠C.`,180-A,`∠B=180°−${A}°=${180-A}°, а верхни"
+    },
+    {
+      "offset": 5903148,
+      "variable": "k",
+      "context": "реднюю линию, параллельную AB.`,side1/2,`Длина средней линии равна половине стороны: ${side1}/2=${side1/2} см.`,MED(),{side1});\n  case 'ratio_perimeters':{const k=rand(2,5);return n(`Стороны треугольника ABC увеличили в ${k} раза. Во сколько раз периметр нового треугольника больше периметра срединного треугольника исходного ABC?`,2*k,`Срединный треугольник имеет периметр P/2, новый — ${k}P; отношение (${k}P)/(P/2)=${2*k}.`,MED(),{k},'раз');}\n  case 'perimeter_from_"
+    },
+    {
+      "offset": 5921743,
+      "variable": "k",
+      "context": "nce':return N(`На плане ${a} см соответствуют ${a*k} м. Какому расстоянию соответствует ${b} см?`,b*k,`Масштаб одинаковый: ${a*k}:${a}=${k} м на 1 см; ${b}·${k}=${b*k} м.`,'м');\n   case 'model_length':return N(`Модель в ${k} раза меньше настоящего предмета. Длина модели ${a} см. Найди длину предмета.`,a*k,`Длина настоящего предмета ${a}·${k}=${a*k} см.`);\n   case 'corresponding_side':return N(`Сторона меньшего из двух подобных треугольников ${a} см, коэффициент уве"
+    },
+    {
+      "offset": 5922967,
+      "variable": "k",
+      "context": "етствует ${k} км. Длина маршрута (${b}+${h})·${k}=${(b+h)*k} км.`,'км');\n   case 'ratio_perimeter':{const p=3*rnd(8,24);return N(`Периметр треугольника ${p} см. Соответствующие стороны подобного треугольника увеличены в ${k} раза. Найди новый периметр.`,p*k,`Периметр изменяется в ${k} раза: ${p}·${k}=${p*k} см.`);}\n   case 'triangle_sides':{const s=[3,4,5].map(x=>x*a);return N(`Первый прямоугольный треугольник имеет стороны ${s.join(', ')} см. Соответствующий меньш"
+    },
+    {
+      "offset": 5923028,
+      "variable": "k",
+      "context": "км.`,'км');\n   case 'ratio_perimeter':{const p=3*rnd(8,24);return N(`Периметр треугольника ${p} см. Соответствующие стороны подобного треугольника увеличены в ${k} раза. Найди новый периметр.`,p*k,`Периметр изменяется в ${k} раза: ${p}·${k}=${p*k} см.`);}\n   case 'triangle_sides':{const s=[3,4,5].map(x=>x*a);return N(`Первый прямоугольный треугольник имеет стороны ${s.join(', ')} см. Соответствующий меньший катет второго равен ${3*a*k} см. Найди гипотенузу второго."
+    },
+    {
+      "offset": 5924589,
+      "variable": "k",
+      "context": ".`,null,'м');}\n   case 'nested_similarity':{const x=rnd(3,10),mult=rnd(2,4);return N(`В треугольнике ABC отрезок DE∥BC, AD:AB=1:${mult}. Если BC=${x*mult} см, а второй такой же масштабный переход увеличивает результат в ${k} раза, чему равна последняя длина?`,x*k,`DE=BC/${mult}=${x} см; после увеличения DE·${k}=${x*k} см.`);}\n   case 'perimeter_difference':{const p=rnd(12,35);return N(`Периметры двух подобных треугольников относятся как 1:${k}, их разность ${p*(k-1"
+    },
+    {
+      "offset": 5925949,
+      "variable": "m1",
+      "context": "ево выше рейки?`,h1*(k-1),`Тень дерева ${shadow*k} м, коэффициент высот ${k}. Разница высот ${h1*k}−${h1}=${h1*(k-1)} м.`,'м');}\n   case 'two_model_ratio':{const x=rnd(6,12),m1=rnd(2,5),m2=rnd(2,5);return N(`Модель №1 в ${m1} раза меньше настоящего объекта и имеет длину ${x*m2} см. Модель №2 в ${m2} раза меньше того же объекта. Найди длину модели №2.`,x*m1,`Длина объекта ${x*m2}·${m1}=${x*m2*m1}; модель №2: ${x*m2*m1}:${m2}=${x*m1} см.`);}\n   case 'scale_then_area':"
+    },
+    {
+      "offset": 5926024,
+      "variable": "m2",
+      "context": "}. Разница высот ${h1*k}−${h1}=${h1*(k-1)} м.`,'м');}\n   case 'two_model_ratio':{const x=rnd(6,12),m1=rnd(2,5),m2=rnd(2,5);return N(`Модель №1 в ${m1} раза меньше настоящего объекта и имеет длину ${x*m2} см. Модель №2 в ${m2} раза меньше того же объекта. Найди длину модели №2.`,x*m1,`Длина объекта ${x*m2}·${m1}=${x*m2*m1}; модель №2: ${x*m2*m1}:${m2}=${x*m1} см.`);}\n   case 'scale_then_area':{const width=rnd(3,9),len=rnd(4,10);return N(`У прямоугольной модели сторон"
+    },
+    {
+      "offset": 5926331,
+      "variable": "k",
+      "context": "${m1}=${x*m2*m1}; модель №2: ${x*m2*m1}:${m2}=${x*m1} см.`);}\n   case 'scale_then_area':{const width=rnd(3,9),len=rnd(4,10);return N(`У прямоугольной модели стороны ${width} и ${len} см. Увеличили все линейные размеры в ${k} раза. Найди площадь увеличенного прямоугольника.`,width*len*k*k,`Изначальная площадь ${width*len} см²; площади увеличиваются в ${k*k} раз: ${width*len*k*k} см².`,'см²');}\n   case 'similar_area_difference':{const S=rnd(6,22);return N(`Площади дв"
+    },
+    {
+      "offset": 5935228,
+      "variable": "k",
+      "context": "ые основания на одной стороне и общая высота, значит площадь каждой ${full}/2=${S} см².`);}\n  case 'reverse_area':{const k=rnd(2,5);return N(`Площадь треугольника ${S} см² при основании ${base} см. Основание увеличили в ${k} раза, не меняя высоту. Найди новую площадь.`,S*k,`Площадь пропорциональна основанию: ${S}·${k}=${S*k} см².`);}\n  case 'two_triangle_sum':{const b=2*rnd(5,12),h1=rnd(3,11),h2=rnd(4,13);return N(`У двух неперекрывающихся треугольников основания п"
+    },
+    {
+      "offset": 5936045,
+      "variable": "k",
+      "context": "произведение основания на высоту одинаково. Высота второго =${hh}/2=${hh/2} см.`,null,'см');}\n  case 'area_increase':{const k=rnd(2,4);return N(`У треугольника основание ${base} см, высота ${h} см. Основание увеличили в ${k} раза, а высоту — в 2 раза. Найди новую площадь.`,2*k*S,`Площадь увеличилась в ${k}·2=${2*k} раз: ${S}·${2*k}=${2*k*S} см².`);}\n  case 'area_difference':{const b=2*rnd(6,17),h1=rnd(3,10),delta=rnd(2,9);return N(`Треугольники имеют общее основани"
+    },
+    {
+      "offset": 5936593,
+      "variable": "m",
+      "context": "ше?`,b*delta/2,`ΔS=${b}·(${h1+delta}−${h1})/2=${b*delta/2} см².`);}\n  case 'area_ratio':{const b=rnd(4,14),h=rnd(3,12),m=rnd(2,5);return N(`У первого треугольника основание ${b} см, высота ${h} см. У второго основание в ${m} раза длиннее, высота в ${m+1} раза выше. Во сколько раз его площадь больше?`,m*(m+1),`S₂/S₁=${m}·${m+1}=${m*(m+1)}.`,null,'раз');}\n  case 'two_components':{const b=2*rnd(8,16),h1=rnd(4,11),h2=rnd(3,10);return N(`Диагональ разделила четырёхуголь"
+    },
+    {
+      "offset": 5936621,
+      "variable": "m+1",
+      "context": "1+delta}−${h1})/2=${b*delta/2} см².`);}\n  case 'area_ratio':{const b=rnd(4,14),h=rnd(3,12),m=rnd(2,5);return N(`У первого треугольника основание ${b} см, высота ${h} см. У второго основание в ${m} раза длиннее, высота в ${m+1} раза выше. Во сколько раз его площадь больше?`,m*(m+1),`S₂/S₁=${m}·${m+1}=${m*(m+1)}.`,null,'раз');}\n  case 'two_components':{const b=2*rnd(8,16),h1=rnd(4,11),h2=rnd(3,10);return N(`Диагональ разделила четырёхугольник на два треугольника с общи"
+    },
+    {
+      "offset": 5938174,
+      "variable": "k",
+      "context": "н ABC в масштабе 1:2 и занимает 1/4 площади; трапеция — 3/4: ${whole}·3/4=${3*whole/4} см².`);}\n  case 'equal_area_height':{const k=rnd(2,5),H=k*rnd(4,12);return N(`Треугольники имеют равные площади. Основание второго в ${k} раза больше основания первого, высота первого ${H} см. Найди высоту второго.`,H/k,`Для равенства площадей высота должна уменьшиться в ${k} раза: ${H}:${k}=${H/k} см.`,null,'см');}\n  case 'composite_triangle':{const b=2*rnd(6,14),h1=rnd(3,9),h2="
+    },
+    {
+      "offset": 5938313,
+      "variable": "k",
+      "context": "),H=k*rnd(4,12);return N(`Треугольники имеют равные площади. Основание второго в ${k} раза больше основания первого, высота первого ${H} см. Найди высоту второго.`,H/k,`Для равенства площадей высота должна уменьшиться в ${k} раза: ${H}:${k}=${H/k} см.`,null,'см');}\n  case 'composite_triangle':{const b=2*rnd(6,14),h1=rnd(3,9),h2=rnd(4,10),cut=rnd(3,13);return N(`Два треугольника с общим основанием ${b} см имеют высоты ${h1} и ${h2} см по разные стороны основания. Из"
+    },
+    {
+      "offset": 6158897,
+      "variable": "scale",
+      "context": "выросла на ${delta} см, значит новый периметр ${p}+3·${delta}=${newP} см.`,[t.a,t.b,t.c,delta],data,'см');\n   }\n   const scale=ri(2,4);\n   return mkN(raw,d,v,`Стороны △ABC равны ${t.a}, ${t.b}, ${t.c} см. Стороны △DEF в ${scale} раза больше соответствующих сторон △ABC. Найди периметр △DEF.`,p*scale,`P(ABC)=${p} см. При увеличении всех сторон в ${scale} раза периметр увеличится в ${scale} раза: ${p}·${scale}=${p*scale} см.`,[t.a,t.b,t.c,scale],null,'см');\n  }\n  // #61. "
+    },
+    {
+      "offset": 6159023,
+      "variable": "scale",
+      "context": "=ri(2,4);\n   return mkN(raw,d,v,`Стороны △ABC равны ${t.a}, ${t.b}, ${t.c} см. Стороны △DEF в ${scale} раза больше соответствующих сторон △ABC. Найди периметр △DEF.`,p*scale,`P(ABC)=${p} см. При увеличении всех сторон в ${scale} раза периметр увеличится в ${scale} раза: ${p}·${scale}=${p*scale} см.`,[t.a,t.b,t.c,scale],null,'см');\n  }\n  // #61. Расширяем задачи на основание, боковые стороны, углы, периметр.\n  if(raw==='geo_isosceles_equilateral'){\n   const v=pick(d===0"
+    },
+    {
+      "offset": 6159059,
+      "variable": "scale",
+      "context": "роны △ABC равны ${t.a}, ${t.b}, ${t.c} см. Стороны △DEF в ${scale} раза больше соответствующих сторон △ABC. Найди периметр △DEF.`,p*scale,`P(ABC)=${p} см. При увеличении всех сторон в ${scale} раза периметр увеличится в ${scale} раза: ${p}·${scale}=${p*scale} см.`,[t.a,t.b,t.c,scale],null,'см');\n  }\n  // #61. Расширяем задачи на основание, боковые стороны, углы, периметр.\n  if(raw==='geo_isosceles_equilateral'){\n   const v=pick(d===0?['equal','eq_perimeter','base']:\n  "
+    }
+  ],
+  "nearRaza": [
+    {
+      "offset": 3149020,
+      "context": "odel.each} ${g2ItemWord(model.each)}. Сколько предметов всего?`,answer,g2UniqueNums(answer,1,30),`${model.each} повторяется ${model.groups} раза: ${Array.from({length:model.groups},()=>model.each).join(\" + \")} = ${answer}.`,`g2:multiply_divide:${d}:groups_total:${model.groups}:${mode"
+    },
+    {
+      "offset": 3149738,
+      "context": "al}`],answer=correct;\n  return g2Choice(`Какая запись заменяет сумму <b>${sum}</b>?`,answer,wrong,`${model.each} складываем ${model.groups} раза. Это можно записать: ${answer}.`,`g2:multiply_divide:${d}:repeated_addition:${model.groups}:${model.each}`,{model,visual:{type:\"g2EqualGrou"
+    },
+    {
+      "offset": 3162900,
+      "context": "urn o.one===\"книга\"&&n%10===1&&n%100!==11?\"книгу\":g2StoryNoun(n,o)}\nfunction g2StoryTimes(n){return n%10>=2&&n%10<=4&&(n%100<12||n%100>14)?\"раза\":\"раз\"}\nfunction g2StoryPickItem(){return G2_STORY_ITEMS[ri(0,G2_STORY_ITEMS.length-1)]}\nfunction g2StoryVisualHtml(data){\n const showDeriv"
+    },
+    {
+      "offset": 3205645,
+      "context": "groups} = ${v}`);\n  return g2Choice(`Какая запись умножением заменяет сумму <b>${sum}</b>?`,correct,wrong,`${m.each} складываем ${m.groups} раза. Это можно записать: ${correct}.`,q.sig,{model:m,visual:{type:\"g2EqualGroups\",data:m},templateId:q.templateId})\n }\n if(q?.templateId===\"inv"
+    }
+  ],
+  "functionHeaders": [
+    {
+      "name": "g2EqualGroupsVisualHtml",
+      "context": "function g2EqualGroupsVisualHtml(data){\n const mode=data?.mode||\"groups\";\n if(mode===\"share\"){\n  const total=Math.max(1,Math.min(100,Math.trunc(Number(data?.total||1)))),groups=Math.max(1,Math.min(10,Math.trunc(Number(data?.groups"
+    },
+    {
+      "name": "g2GroupsModel",
+      "context": "function g2GroupsModel({maxFactor=5}={}){const groups=ri(2,maxFactor),each=ri(2,maxFactor),total=groups*each;return {groups,each,total}}\nfunction g2FactModel(){const a=ri(2,10),b=ri(2,10);return {a,b,result:a*b}}\nfunction g2Multip"
+    },
+    {
+      "name": "g2MultiplyDivideQuestion",
+      "context": "function g2MultiplyDivideQuestion(d){\n const warm=[\"groups_total\",\"repeated_addition\",\"share_equal\"],train=[...warm,\"make_groups\",\"multiply_fact\",\"divide_fact\"],master=[...train,\"missing_factor\",\"inverse_record\",\"compare_products\""
+    },
+    {
+      "name": "g2OpExprMulAddModel",
+      "context": "function g2OpExprMulAddModel(){\n const a=ri(5,40),m1=ri(2,5),m2=ri(2,5),product=m1*m2,result=a+product;if(result>100)return g2OpExprMulAddModel();\n return {expression:`${a} + ${m1} · ${m2}`,a,m1,m2,product,result,first:`${m1} · ${"
+    },
+    {
+      "name": "g2StoryTimes",
+      "context": "function g2StoryTimes(n){return n%10>=2&&n%10<=4&&(n%100<12||n%100>14)?\"раза\":\"раз\"}\nfunction g2StoryPickItem(){return G2_STORY_ITEMS[ri(0,G2_STORY_ITEMS.length-1)]}\nfunction g2StoryVisualHtml(data){\n const showDerived=data?.showD"
+    },
+    {
+      "name": "g2StoryMulModel",
+      "context": "function g2StoryMulModel({easy=false}={}){\n const groups=ri(2,easy?4:6),each=ri(2,easy?5:8),total=groups*each;\n return {kind:\"mul\",groups,each,total,result:total,steps:[{label:\"Групп\",value:`${groups}`},{label:\"В каждой\",value:`${"
+    },
+    {
+      "name": "g2StoryTwoMulAddModel",
+      "context": "function g2StoryTwoMulAddModel(){\n const groups=ri(2,5),each=ri(2,8),product=groups*each,extra=ri(3,Math.min(15,100-product)),result=product+extra;\n return {kind:\"two_mul_add\",groups,each,product,extra,result,steps:[{label:\"Групп\""
+    }
+  ]
+}
