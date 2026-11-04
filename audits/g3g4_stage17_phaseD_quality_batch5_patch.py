@@ -79,7 +79,7 @@ div=cut(' if(raw==="division_table"){',' if(raw==="offtable_multiply"){',"""
   if(Math.random()<.53){
    const variant=Math.random()<.5?"unknownDividend":"unknownDivisor";
    if(variant==="unknownDividend")return g6NumberInputQuestion(@B@<b>? : @V@divisor} = @V@quotient}</b>@B@,product,
-     @B@Делитель @V@divisor} умножаем на частное @V@quotient}: @V@divisor} · @V@quotient} = <b>@V@product}</b>.@B@,
+     @B@Чтобы найти делимое, умножаем делитель на частное.<br>@V@divisor} · @V@quotient} = <b>@V@product}</b>.@B@,
      @B@g3:@V@raw}:@V@d}:unknownDividend:@V@product}:@V@divisor}@B@,
      {audit:{type:"g3DivTable",variant,product,divisor,quotient,answer:rational(product,1)}});
    return g6NumberInputQuestion(@B@<b>@V@product} : ? = @V@quotient}</b>@B@,divisor,
