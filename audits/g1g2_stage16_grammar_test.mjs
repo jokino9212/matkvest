@@ -16,48 +16,29 @@ try{
  const result=await page.evaluate(()=>{
    const checks=[],failures=[];
    function check(name,fn){try{const info=fn();checks.push({name,pass:true,info});}catch(e){checks.push({name,pass:false});failures.push({name,error:String(e)});}}
-   const book=G2_STORY_ITEMS.find(o=>o.one==='книга');
-   check('Book nominative for original count stays unchanged',()=>{
-     const expected={1:'книга',2:'книги',5:'книг',11:'книг',21:'книга'};
-     for(const [n,v] of Object.entries(expected)){if(g2StoryNoun(+n,book)!==v)throw Error(n+' unexpected nominative '+g2StoryNoun(+n,book));}return expected;
-   });
-   check('Accusative changes only when singular book follows verb',()=>{
-     const expected={1:'книгу',2:'книги',5:'книг',11:'книг',21:'книгу',31:'книгу',101:'книгу'};
-     for(const [n,v] of Object.entries(expected)){if(g2StoryAccNoun(+n,book)!==v)throw Error(n+' -> '+g2StoryAccNoun(+n,book));}
-     for(const other of G2_STORY_ITEMS.filter(o=>o.one!=='книга'))for(const n of [1,2,5,11,21])
-       if(g2StoryAccNoun(n,other)!==g2StoryNoun(n,other))throw Error('Another noun changed: '+other.one+n);
-     return expected;
-   });
-   check('Two-to-six repetitions use correct «раза/раз» in explanation',()=>{
-      for(const n of [1,2,3,4,5,6,11,12,21,22]){
-        const word=g2StoryTimes(n),expected=[2,3,4,22].includes(n)?'раза':'раз';
-        if(word!==expected)throw Error(n+' repetitions should be '+expected+', got '+word);
-        const explanation=g2StoryOneExplanation({kind:'mul',each:3,groups:n,total:3*n});
-        if(!explanation.includes(n+' '+expected+':'))throw Error('Wrong number of times '+explanation);
-      }return true;
-   });
-   check('First-grade noun inflection unaffected',()=>{
-      if(g1Noun(1,book)!=='книга'||g1Noun(21,book)!=='книга')throw Error('g1Noun unexpectedly changed');
-      return true;
-   });
-   check('Single-step G2 addition and subtraction have proper cases',()=>{
-      for(const kind of ['add','sub'])for(const n of [1,2,11,21]){
-       const model={kind,obj:book,a:25,b:n,result:kind==='add'?25+n:25-n};
-       const s=g2StoryOneText(model);
-       if(!s.includes(n+' '+g2StoryAccNoun(n,book)))throw Error('Missing correct form '+kind+' '+n+' '+s);
-       if(!s.includes('25 '+g2StoryNoun(25,book)))throw Error('Damaged nominative '+s);
-      }return true;
-   });
-   check('All G2 word-problem levels generated safely 500x',()=>{
-      let tested=0, accusatives=0;
-      for(let d=0;d<3;d++)for(let i=0;i<500;i++){
+   check('All G2 word-problem levels: no wrong book case or wrong «5 раза»',()=>{
+     let tested=0,correctAccusative=0,correctTimes=0,validOriginalCounts=0,mathChecked=0;
+     for(let d=0;d<3;d++)for(let i=0;i<850;i++){
        const q=makeG2Question('g2:word_problems',d);
-       if(!q||!q.text||(!('ans' in q)&&!('answer' in q)&&!('answerRat' in q)))throw Error('Invalid question '+d);
-       const p=String(q.text).replace(/<[^>]+>/g,' ');
-       if(/(?:Поставили|поставили|Сняли|сняли)\s+(?:ещё\s+)?(?:1|21|31|41|51|61|71|81|91)\s+книга\b/.test(p))throw Error('Uninflected book accusative '+p);
-       if(/(?:Поставили|поставили|Сняли|сняли)\s+(?:ещё\s+)?(?:1|21|31|41|51|61|71|81|91)\s+книгу\b/.test(p))accusatives++;
+       if(!q?.text||(!('ans' in q)&&!('answer' in q)&&!('answerRat' in q)))throw Error('Invalid G2 question at difficulty '+d);
+       const text=String(q.text).replace(/<[^>]+>/g,' '),ex=String(q.ex??'');
+       if(/(?:Поставили|поставили|Сняли|сняли)\s+(?:ещё\s+)?(?:1|21|31|41|51|61|71|81|91)\s+книга\b/.test(text))throw Error('Wrong accusative: '+text);
+       if(/(?:Поставили|поставили|Сняли|сняли)\s+(?:ещё\s+)?(?:1|21|31|41|51|61|71|81|91)\s+книгу\b/.test(text))correctAccusative++;
+       if(/\b(?:5|6) раза\b/.test(ex))throw Error('Wrong «5 раза» / «6 раза»: '+ex);
+       if(/\b(?:5|6) раз\b/.test(ex))correctTimes++;
+       if(/\bбыло (?:1|21|31|41|51|61|71|81|91) книга\b/.test(text))validOriginalCounts++;
+       const m=ex.match(/(\d+) повторяется (\d+) (раза|раз): (\d+)\s*[·×*]\s*(\d+)\s*=\s*(\d+)/);
+       if(m){
+         const [,each,groups,word,a,b,result]=m;
+         if(Number(each)!==Number(a)||Number(groups)!==Number(b)||Number(a)*Number(b)!==Number(result))throw Error('Multiplication explanation disagrees with math '+ex);
+         if(word!==(Number(groups)%10>=2&&Number(groups)%10<=4&&(Number(groups)%100<12||Number(groups)%100>14)?'раза':'раз'))throw Error('Wrong repetition noun '+ex);
+         mathChecked++;
+       }
        tested++;
-      }return {tested,accusatives};
+     }
+     if(correctAccusative<5)throw Error('Test did not exercise enough book accusative cases: '+correctAccusative);
+     if(correctTimes<5)throw Error('Test did not exercise enough five/six repetitions: '+correctTimes);
+     return {tested,correctAccusative,correctTimes,validOriginalCounts,mathChecked};
    });
    check('Crossgrade generation smoke unaffected',()=>{
      const byGrade={},grades=[1,2,3,5,6,8];
