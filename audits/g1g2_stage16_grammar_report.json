@@ -1,52 +1,16 @@
 {
-  "testedAt": "2026-11-04T18:07:45.640Z",
+  "testedAt": "2026-11-04T18:12:50.255Z",
   "sha256": "2252fe792fbef2ba6b1a4d0794ae674164f55f3260496af1156660b986b5ae16",
   "checks": [
     {
-      "name": "Book nominative for original count stays unchanged",
+      "name": "All G2 word-problem levels: no wrong book case or wrong «5 раза»",
       "pass": true,
       "info": {
-        "1": "книга",
-        "2": "книги",
-        "5": "книг",
-        "11": "книг",
-        "21": "книга"
-      }
-    },
-    {
-      "name": "Accusative changes only when singular book follows verb",
-      "pass": true,
-      "info": {
-        "1": "книгу",
-        "2": "книги",
-        "5": "книг",
-        "11": "книг",
-        "21": "книгу",
-        "31": "книгу",
-        "101": "книгу"
-      }
-    },
-    {
-      "name": "Two-to-six repetitions use correct «раза/раз» in explanation",
-      "pass": true,
-      "info": true
-    },
-    {
-      "name": "First-grade noun inflection unaffected",
-      "pass": true,
-      "info": true
-    },
-    {
-      "name": "Single-step G2 addition and subtraction have proper cases",
-      "pass": true,
-      "info": true
-    },
-    {
-      "name": "All G2 word-problem levels generated safely 500x",
-      "pass": true,
-      "info": {
-        "tested": 1500,
-        "accusatives": 0
+        "tested": 2550,
+        "correctAccusative": 45,
+        "correctTimes": 40,
+        "validOriginalCounts": 35,
+        "mathChecked": 227
       }
     },
     {
