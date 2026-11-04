@@ -1,0 +1,36 @@
+name: MatKvest stage 14 - cross-grade release readiness
+on:
+  push:
+    branches: [audit/g7-stage14-20261104]
+    paths:
+      - .github/workflows/g7_stage14.yml
+      - audits/g7_stage14_crossgrade_probe.mjs
+      - audits/g7_stage14_crossgrade_test.mjs
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  crossgrade:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save --no-package-lock puppeteer-core@24
+      - name: Inventory all eight grade generators and hotfixes
+        run: node audits/g7_stage14_crossgrade_probe.mjs
+      - name: Test cross-grade exercises
+        if: hashFiles('audits/g7_stage14_crossgrade_test.mjs') != ''
+        run: node audits/g7_stage14_crossgrade_test.mjs
+      - name: Save test evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: g7-stage14-crossgrade
+          path: |
+            audits/g7_stage14_probe_report.json
+            audits/g7_stage14_crossgrade_report.json
+          if-no-files-found: warn
+          retention-days: 30
