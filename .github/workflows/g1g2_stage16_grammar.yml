@@ -1,0 +1,67 @@
+name: MatKvest stage16 - isolated G2 Russian grammar fix
+on:
+  push:
+    branches: [audit/g1g2-stage16-20261104]
+    paths:
+      - .github/workflows/g1g2_stage16_grammar.yml
+      - audits/g1g2_stage16_grammar_patch.py
+      - audits/g1g2_stage16_grammar_test.mjs
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: matkvest-stage16-g1g2-grammar
+  cancel-in-progress: false
+
+jobs:
+  validate-and-commit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit/g1g2-stage16-20261104
+          persist-credentials: true
+      - name: Apply exact-book-case patch to audited HTML only
+        run: |
+          python3 audits/g1g2_stage16_grammar_patch.py
+          python3 audits/g7_stage12_sync_pwa.py --check
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save --no-package-lock puppeteer-core@24
+      - name: Independently check nominative/accusative, 1500 G2 prompts, cross-grade generation
+        run: node audits/g1g2_stage16_grammar_test.mjs
+      - name: Exact draft recovery must survive scoped grammar patch
+        run: node audits/g7_stage12_e2e.mjs
+      - name: SW auto-update and offline recovery still pass
+        run: node audits/g7_stage12_sw_update_test.mjs
+      - name: Save patched candidate and reports, including failures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: matkvest-stage16-g2-grammar-tested
+          path: |
+            index.html
+            sw.js
+            audits/g1g2_stage16_grammar_report.json
+            audits/g7_stage12_e2e_report.json
+            audits/g7_stage12_sw_update_report.json
+          if-no-files-found: warn
+          retention-days: 60
+      - name: Commit only verified candidate to isolated audit branch
+        if: success()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js audits/g1g2_stage16_grammar_report.json audits/g7_stage12_e2e_report.json audits/g7_stage12_sw_update_report.json
+          if ! git diff --cached --quiet; then
+            git commit -m "fix(g2): correctly inflect singular book after action verbs [skip ci]"
+            for attempt in 1 2 3; do
+              if git push origin HEAD:audit/g1g2-stage16-20261104; then exit 0; fi
+              sleep 4
+            done
+            exit 1
+          fi
