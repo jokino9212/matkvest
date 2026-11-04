@@ -1,0 +1,41 @@
+name: G7 stage 10 - answer semantics and SVG probe
+on:
+  push:
+    branches:
+      - audit/g7-stage10-20261104
+    paths:
+      - .github/workflows/g7_stage10.yml
+      - audits/g7_stage10_probe.mjs
+      - audits/g7_stage10_deep_test.mjs
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save --no-package-lock puppeteer-core@24
+      - name: Run stage 10 probe
+        run: node audits/g7_stage10_probe.mjs
+      - name: Run deep math and UI tests
+        if: hashFiles('audits/g7_stage10_deep_test.mjs') != ''
+        run: node audits/g7_stage10_deep_test.mjs
+      - name: Save diagnostic reports
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          for file in audits/g7_stage10_probe.json audits/g7_stage10_deep_report.json; do
+            if test -f "$file"; then git add "$file"; fi
+          done
+          if ! git diff --cached --quiet; then
+            git commit -m "test(G7): save stage10 probe and deep QA results [skip ci]"
+            git push origin HEAD:audit/g7-stage10-20261104
+          fi
