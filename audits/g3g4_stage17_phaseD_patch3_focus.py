@@ -27,7 +27,8 @@ old_intro="function openTable(){"
 new_intro=theory+old_intro
 for name,old in [("deferred fin focus",old_focus),("checkTable missing guard",old_guard),("old G4 table lesson",old_theory),("openTable location",old_intro)]:
  count=s.count(old)
- if count!=1:raise SystemExit(f"ABORT: {name} match count {count}")
+ expected_count=2 if name=="deferred fin focus" else 1
+ if count!=expected_count:raise SystemExit(f"ABORT: {name} match count {count}; expected {expected_count}")
 new=s.replace(old_focus,new_focus).replace(old_guard,new_guard).replace(old_theory,new_theory).replace(old_intro,new_intro)
 nb=new.encode("utf8")
 NEW=hashlib.sha256(nb).hexdigest()
