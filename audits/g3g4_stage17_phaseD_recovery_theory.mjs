@@ -18,7 +18,7 @@ async function ready(){
 }
 async function fresh(){
  const ctx=await browser.createBrowserContext(),page=await ctx.newPage();
- page.on('pageerror',e=>report.pageErrors.push(String(e)));
+ page.on('pageerror',e=>report.pageErrors.push({context:page.__auditContext||'unknown',message:String(e),stack:String(e.stack).slice(0,2500)}));
  await page.setViewport({width:390,height:844,isMobile:true,deviceScaleFactor:2,hasTouch:true});
  await page.goto(origin+'/index.html',{waitUntil:'domcontentloaded',timeout:120000});
  return {ctx,page};
@@ -36,7 +36,7 @@ try{
  for(const trial of scenarios){
   let ctx,page;
   try{
-   ({ctx,page}=await fresh());
+   ({ctx,page}=await fresh());page.__auditContext=trial.name;
    const before=await page.evaluate(({kind,id,op,d})=>{
     if(kind==='g3quiz')startG3QuizStage(id,d);
     else if(kind==='g3column')startG3WrittenStage(id,d);
@@ -72,7 +72,7 @@ try{
  }
  // Theory and lesson UI for all ordinary themes at 390px viewport.
  let ctx,page;try{
-  ({ctx,page}=await fresh());
+  ({ctx,page}=await fresh());page.__auditContext='G3/G4 theory sweep';
   const evaluation=await page.evaluate(()=>{
    const rows=[],flags=[],errors=[],clean=x=>String(x??'').replace(/\s+/g,' ').trim();
    for(const t of g3AllTopics()){
