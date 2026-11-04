@@ -1,0 +1,55 @@
+name: MatKvest stage16 phase C - independent arithmetic and grammar
+on:
+  push:
+    branches: [audit/g1g2-stage16-20261104]
+    paths:
+      - audits/g1g2_stage16_phaseC_model_test.mjs
+      - .github/workflows/g1g2_stage16_phaseC.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: matkvest-stage16-phaseC
+  cancel-in-progress: false
+
+jobs:
+  model-and-case-verification:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit/g1g2-stage16-20261104
+          persist-credentials: true
+      - name: Check approved isolated frontend SHA
+        run: |
+          echo '2252fe792fbef2ba6b1a4d0794ae674164f55f3260496af1156660b986b5ae16  index.html' | sha256sum --check
+          python3 audits/g7_stage12_sync_pwa.py --check
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save --no-package-lock puppeteer-core@24
+      - name: Independent arithmetic-model and G1 grammar checks
+        run: node audits/g1g2_stage16_phaseC_model_test.mjs
+      - name: Upload details including failures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: matkvest-stage16-phaseC-verification
+          path: audits/g1g2_stage16_phaseC_report.json
+          if-no-files-found: warn
+          retention-days: 60
+      - name: Preserve exact evidence in isolated branch, including defects
+        if: always()
+        run: |
+          if [ -f audits/g1g2_stage16_phaseC_report.json ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add audits/g1g2_stage16_phaseC_report.json
+            if ! git diff --cached --quiet; then
+              git commit -m "audit(stage16): save independent arithmetic and grammar evidence [skip ci]"
+              git push origin HEAD:audit/g1g2-stage16-20261104
+            fi
+          fi
