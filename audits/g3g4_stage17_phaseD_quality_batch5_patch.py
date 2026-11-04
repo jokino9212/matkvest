@@ -56,9 +56,8 @@ mul=cut(' if(raw==="multiplication_table"){',' if(raw==="division_table"){',"""
     {type:"g3MulTable",variant,a,b,product,change,answer:rational(answer,1)});
  }
 """,["multiplicationFactCandidate","unknownA","unknownB"])
-div=cut(' if(raw==="division_table"){',' if(raw==="',"""__PLACEHOLDER__""",["multiplicationFactCandidate"]) if False else 0
 # Explicit second marker avoids accidentally consuming any unrelated topic.
-div=cut(' if(raw==="division_table"){',' if(raw==="round_numbers"){',"""
+div=cut(' if(raw==="division_table"){',' if(raw==="offtable_multiply"){',"""
  if(raw==="division_table"){
   const max=d===0?6:9,fact=multiplicationFactCandidate(2,max),a=fact.a,b=fact.b,product=a*b,
    byA=Math.random()<.5,divisor=byA?a:b,quotient=byA?b:a;
