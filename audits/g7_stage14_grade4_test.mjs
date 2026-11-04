@@ -17,7 +17,7 @@ try{
   test('Grade4 opens with available topic cards',()=>{
    openGrade(4);
    if(!mainView.textContent.includes('Математика 4 класса'))throw Error('Wrong grade view');
-   if(document.querySelectorAll('#topics .topic').length<10)throw Error('Topic cards missing');
+   if(document.querySelectorAll('#topics .topic').length!==TOPICS.length||TOPICS.length!==8)throw Error('Grade4 topic cards missing or duplicated');
   });
   test('Ordinary grade4 quiz opens and renders prompt',()=>{
    const first=TOPICS.find(x=>x.id!=='column'&&x.id!=='table');
