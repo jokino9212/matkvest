@@ -25,6 +25,7 @@ try{
         for(const raw of topics){
           const d=(run+topics.indexOf(raw))%3;
           try{
+            startG7QuizStage('g7:'+raw,d);
             modal.scrollTop=99999;
             const before=modal.scrollTop;
             startG7QuizStage('g7:'+raw,d);
