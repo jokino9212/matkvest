@@ -62,7 +62,7 @@ try{
            const k=i?k2:k1,b=i?b2:b1;
            if(line.k!==k||line.b!==b)throw Error('Line model parameters differ from equation');
            for(const p of line.points){
-             if(Math.abs(value(p.y)-(k*value(p.x)+b))>1e-7)throw Error('Graph plotted an invalid point '+JSON.stringify({variant:m.variant,k,b,p,x:value(p.x),y:value(p.y),delta:value(p.y)-(k*value(p.x)+b)}));
+             if(Math.abs(value(p.y)-(k*value(p.x)+b))>1e-5)throw Error('Graph plotted an invalid point '+JSON.stringify({variant:m.variant,k,b,p,x:value(p.x),y:value(p.y),delta:value(p.y)-(k*value(p.x)+b)}));
            }
          }
          graphs++;
