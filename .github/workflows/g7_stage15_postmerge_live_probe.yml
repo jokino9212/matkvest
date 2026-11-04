@@ -1,0 +1,40 @@
+name: MatKvest stage15 - independent live Pages validation
+on:
+  push:
+    branches: [release/stage15-20261104]
+    paths:
+      - .github/workflows/g7_stage15_postmerge_live_probe.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  published-pages:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify exact approved HTML and paired SW before live probe
+        run: |
+          echo 'f188d39a3a16fc54dfb32238fc34d3dfe6cc3c4416cd475579bf3ed65a7e1e36  index.html' | sha256sum --check
+          python3 audits/g7_stage12_sync_pwa.py --check
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save --no-package-lock puppeteer-core@24
+      - name: Verify real public GitHub Pages bytes, PWA cache, and browser recovery
+        env:
+          MATKVEST_PAGES_URL: https://jokino9212.github.io/matkvest/
+        run: node audits/g7_stage15_production_check.mjs
+      - name: Archive production verification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: matkvest-stage15-verified-live-site
+          path: |
+            audits/g7_stage15_production_report.json
+            audits/g7_stage15_prod_desktop.png
+            audits/g7_stage15_prod_mobile.png
+          if-no-files-found: warn
+          retention-days: 60
