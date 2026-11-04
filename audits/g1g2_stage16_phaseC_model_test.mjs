@@ -3,7 +3,7 @@ import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {pathToFileURL} from 'node:url';
 import puppeteer from 'puppeteer-core';
-const expected='2252fe792fbef2ba6b1a4d0794ae674164f55f3260496af1156660b986b5ae16';
+const expected='2be11af0d9ca5db18d45bc10011388f502803a12b0f92ca474ee11ba97939d03';
 const sha=createHash('sha256').update(fs.readFileSync('index.html')).digest('hex');
 if(sha!==expected)throw Error('Unexpected HTML version '+sha);
 if(!fs.readFileSync('sw.js','utf8').includes('const APP_BUILD_HASH = "'+sha+'"'))throw Error('SW SHA mismatch');
