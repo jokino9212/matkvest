@@ -1,0 +1,71 @@
+name: MatKvest stage17D - G4 table runtime and theory repair
+on:
+  push:
+    branches: [audit/g3g4-stage17-20261104]
+    paths:
+      - audits/g3g4_stage17_phaseD_patch3_focus.py
+      - .github/workflows/g3g4_stage17_phaseD_patch3_focus.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: matkvest-stage17D-G4-table
+  cancel-in-progress: false
+jobs:
+  patch-and-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit/g3g4-stage17-20261104
+          persist-credentials: true
+      - name: Source and SW guard
+        run: |
+          echo '5c1532d17ff98b5f4cf7c2155233a6bfd1560c8688679bab0d906d6afa49d41f  index.html' | sha256sum --check
+          python3 audits/g7_stage12_sync_pwa.py --check
+      - name: Apply guarded table fix and synchronize PWA
+        run: |
+          python3 audits/g3g4_stage17_phaseD_patch3_focus.py
+          python3 audits/g7_stage12_sync_pwa.py --check
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save --no-package-lock puppeteer-core@24
+      - name: Test six live session recovery routes, theory and rapid screen switch
+        run: node audits/g3g4_stage17_phaseD_recovery_theory.mjs
+      - name: Recheck G3 and G4 semantic content and independent arithmetic
+        run: node audits/g3g4_stage17_phaseD_semantics.mjs
+      - name: Recheck written answer inputs
+        run: |
+          python3 - <<'PY'
+          import pathlib,json
+          d=json.loads(pathlib.Path('audits/g3g4_stage17_phaseD_patch3_report.json').read_text())
+          s=pathlib.Path('audits/g3g4_stage17_phaseC_column_input.mjs').read_text(encoding='utf8')
+          s=s.replace('b953b710a471210fe0f8247b55e879cedf4d7e11c6f369d551040a9f5d46c7d3',d['newSha256'])
+          s=s.replace('g3g4_stage17_phaseC_column_input_report.json','g3g4_stage17_phaseD_patch3_column_report.json')
+          pathlib.Path('audits/_stage17D_patch3_column.mjs').write_text(s,encoding='utf8')
+          PY
+          node audits/_stage17D_patch3_column.mjs
+      - name: Save all evidence regardless of test outcome
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: matkvest-stage17D-G4-runtime-repair
+          path: |
+            audits/g3g4_stage17_phaseD_patch3_report.json
+            audits/g3g4_stage17_phaseD_recovery_theory_report.json
+            audits/g3g4_stage17_phaseD_semantics_report.json
+            audits/g3g4_stage17_phaseD_patch3_column_report.json
+          if-no-files-found: warn
+      - name: Save verified code and audit reports only on working branch
+        if: success()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js audits/g7_stage12_sync_pwa.py
+          git add audits/g3g4_stage17_phaseD_semantics.mjs audits/g3g4_stage17_phaseD_recovery_theory.mjs
+          git add audits/g3g4_stage17_phaseD_patch3_report.json audits/g3g4_stage17_phaseD_recovery_theory_report.json
+          git add audits/g3g4_stage17_phaseD_semantics_report.json audits/g3g4_stage17_phaseD_patch3_column_report.json
+          git commit -m "fix(stage17D): prevent G4 async table focus exception and teach multiplication"
+          git push origin HEAD:audit/g3g4-stage17-20261104
