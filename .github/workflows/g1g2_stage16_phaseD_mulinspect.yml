@@ -1,0 +1,34 @@
+name: MatKvest stage16D - inspect G2 multiplication grammar
+on:
+  push:
+    branches: [audit/g1g2-stage16-20261104]
+    paths:
+      - .github/workflows/g1g2_stage16_phaseD_mulinspect.yml
+      - audits/g1g2_stage16_phaseD_multiply_source.py
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit/g1g2-stage16-20261104
+          persist-credentials: true
+      - name: Inspect exact source without touching candidate
+        run: python3 audits/g1g2_stage16_phaseD_multiply_source.py
+      - name: Upload content audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: matkvest-stage16D-multiplication-linguistics
+          path: audits/g1g2_stage16_phaseD_multiply_source_report.json
+      - name: Preserve report in isolated branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add audits/g1g2_stage16_phaseD_multiply_source_report.json
+          if ! git diff --cached --quiet; then
+            git commit -m "audit(stage16D): record G2 multiplication wording source [skip ci]"
+            git push origin HEAD:audit/g1g2-stage16-20261104
+          fi
