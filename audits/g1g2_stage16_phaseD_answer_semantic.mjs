@@ -37,7 +37,16 @@ try{
     if(s.includes('=')){
       const parts=s.split('=').map(x=>x.trim());if(parts.length!==2)return null;
       const a=evalExpression(parts[0]),b=evalExpression(parts[1]);
-      return a===null||b===null?null:Math.abs(a-b)<1e-8;
+      if(a===null||b===null)return null;
+      // In G1 arithmetic the question's diagram fixes a, operation and b.
+      // Another true equation with a different operation is not the intended answer.
+      if(topicId.startsWith('g1:add_sub_')&&m?.op){
+        const lhs=parts[0].replace(/−/g,'-').match(/^(\d+)\s*([+-])\s*(\d+)$/);
+        if(!lhs)return null;
+        const op=m.op==='sub'?'-':'+';
+        return +lhs[1]===m.a&&lhs[2]===op&&+lhs[3]===m.b&&Math.abs(b-m.result)<1e-8&&Math.abs(a-b)<1e-8;
+      }
+      return Math.abs(a-b)<1e-8;
     }
     if(topicId==='g2:geometric_quantities'&&m?.perimeter!=null){
       const value=evalExpression(s);return value===null?null:Math.abs(value-m.perimeter)<1e-8;
@@ -130,8 +139,9 @@ try{
       window['startG'+grade+'QuizStage']('g'+grade+':word_problems',d);
       const input=document.getElementById('quizInput'),check=document.getElementById('quizCheck');
       if(!input||!check)continue;
-      const q=window.q;
-      const variants=[q?.ans,q?.answer,q?.answerRat].filter(x=>typeof x==='string'||typeof x==='number');
+      // The live quiz question is a global lexical binding, not necessarily window.q.
+      const current=typeof q==='undefined'?window.q:q;
+      const variants=[current?.ans,current?.answer,current?.answerRat].filter(x=>typeof x==='string'||typeof x==='number');
       const answer=variants.find(x=>/^-?\d+(?:[,.]\d+)?$/.test(String(x)));
       if(answer===undefined)continue;
       const initial=blockSession?.correct??0;
