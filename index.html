@@ -20019,12 +20019,46 @@ function mk872CleanLegacy(){
 }
 </script>
 
-<script>
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./sw.js").catch(() => {});
-  });
-}
+<script id="mk-stage12-pwa-refresh">
+/* МатКвест 8.72: безопасное обновление открытой вкладки при смене Service Worker. */
+(function mkStage12PwaRefresh(){
+ 'use strict';
+ if(!('serviceWorker' in navigator))return;
+ let hadController=!!navigator.serviceWorker.controller;
+ let reloading=false,reg=null,inFlight=false,lastCheck=0;
+ function reportFailure(err){console.warn('МатКвест: обновление PWA',err)}
+ function reloadOnUpdate(){
+  if(!hadController){hadController=true;return}
+  if(reloading)return;
+  try{
+   if(typeof mk872HasActiveLearning==='function'&&mk872HasActiveLearning()){
+    if(typeof mk872PersistDraft!=='function'||!mk872PersistDraft()){
+     reportFailure('Черновик не сохранён. Автообновление отложено, чтобы не потерять решение.');
+     return;
+    }
+   }
+   reloading=true;
+   window.location.reload();
+  }catch(err){reloading=false;reportFailure(err)}
+ }
+ navigator.serviceWorker.addEventListener('controllerchange',reloadOnUpdate);
+ function checkForUpdate(){
+  if(!reg||inFlight||document.visibilityState==='hidden')return;
+  const now=Date.now();
+  if(now-lastCheck<60000)return;
+  lastCheck=now;inFlight=true;
+  reg.update().catch(reportFailure).finally(()=>{inFlight=false});
+ }
+ window.addEventListener('load',()=>{
+  navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(value=>{
+   reg=value;
+   document.addEventListener('visibilitychange',checkForUpdate);
+   window.addEventListener('focus',checkForUpdate);
+   window.setInterval(checkForUpdate,300000);
+   checkForUpdate();
+  }).catch(reportFailure);
+ });
+})();
 </script>
 
 <!-- Этап 8.72: только крупный просмотр существующих аватаров; без изменения данных профилей. -->
