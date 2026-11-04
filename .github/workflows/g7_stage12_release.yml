@@ -10,7 +10,7 @@ on:
       - audits/g7_stage12_e2e.mjs
   workflow_dispatch:
 permissions:
-  contents: read
+  contents: write
 jobs:
   validate:
     runs-on: ubuntu-latest
@@ -27,6 +27,10 @@ jobs:
         run: node audits/g7_stage12_e2e.mjs
       - name: Verify forced SW update, safe reload, offline fallback
         run: node audits/g7_stage12_sw_update_test.mjs
+      - name: Full G7 321-stage UI regression
+        run: node audits/g7_stage8_ui_test.mjs
+      - name: Stage9 semantic uniqueness regression
+        run: node audits/g7_stage9_ui_test.mjs
       - name: Preserve reports and patched artifacts
         if: always()
         uses: actions/upload-artifact@v4
@@ -37,5 +41,22 @@ jobs:
             sw.js
             audits/g7_stage12_e2e_report.json
             audits/g7_stage12_sw_update_report.json
+            audits/g7_stage8_ui_report.json
+            audits/g7_stage9_ui_report.json
           if-no-files-found: warn
           retention-days: 30
+
+      - name: Commit verified HTML, SW and QA report ONLY to audit branch
+        if: success()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js audits/g7_stage12_e2e_report.json audits/g7_stage12_sw_update_report.json audits/g7_stage8_ui_report.json audits/g7_stage9_ui_report.json
+          if ! git diff --cached --quiet; then
+            git commit -m "fix(G7): stage12 verified auto-update and attempt preservation [skip ci]"
+            for attempt in 1 2 3; do
+              if git push origin HEAD:audit/g7-stage12-20261104; then exit 0; fi
+              sleep 3
+            done
+            exit 1
+          fi
