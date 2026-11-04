@@ -7,7 +7,7 @@ import re
 from datetime import datetime, timezone
 
 src = pathlib.Path("index.html").read_bytes()
-expected = "8bd7ccd047368b8754299e7c1bd5995229f789b040a9ca8478d1ecb4b521da5a"
+expected = "5c1532d17ff98b5f4cf7c2155233a6bfd1560c8688679bab0d906d6afa49d41f"
 actual = hashlib.sha256(src).hexdigest()
 if actual != expected:
     raise SystemExit(f"BLOCKED: unexpected HTML SHA-256 {actual}")
@@ -24,6 +24,7 @@ markers = {
     "error_feedback": ["function checkColumn", "function pick(", "quizQuestions"],
     "g3_target_grammar": ["function g3UnitExplanation847", "function g3ImproveExplanation847", "function g3MulTableQuestion", "function g3UnitQuestion", "g3UnitExplanation847(a)"],
     "g4_quiz_engine": ["function quizObject(", "function nextQ(", "function pick(", "function genQuestion(", "function g4TheoryHtml(", "function makeQuizQuestion("],
+    "runtime_fin_error": ["fin()", "fin(", " fin ", "function fin", "const fin", "fin =", "fin;"],
     "g3_new_findings": ["function g3TableQuestion", "function g3BarChartsQuestion", "function g3RectangleSquareAreaQuestion", "function g3RectAreaQuestion", "Сколько книг прочитал", "Прочитано книг", "function g3Table", "function g3StoryName"],
 }
 out = {"stage": "17D-source-read-only", "sha256": actual, "bytes": len(src),
