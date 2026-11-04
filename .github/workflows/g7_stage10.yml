@@ -8,6 +8,7 @@ on:
       - audits/g7_stage10_probe.mjs
       - audits/g7_stage10_input_probe.mjs
       - audits/g7_stage10_deep_test.mjs
+      - audits/g7_stage10_input_test.mjs
   workflow_dispatch:
 permissions:
   contents: write
@@ -30,6 +31,8 @@ jobs:
       - name: Run deep math and UI tests
         if: hashFiles('audits/g7_stage10_deep_test.mjs') != ''
         run: node audits/g7_stage10_deep_test.mjs
+      - name: Test correct and incorrect typed answers
+        run: node audits/g7_stage10_input_test.mjs
       - name: Upload full diagnostic reports even on test failure
         if: always()
         uses: actions/upload-artifact@v4
@@ -39,5 +42,6 @@ jobs:
             audits/g7_stage10_probe.json
             audits/g7_stage10_input_probe.json
             audits/g7_stage10_deep_report.json
+            audits/g7_stage10_input_report.json
           if-no-files-found: warn
           retention-days: 30
