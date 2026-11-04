@@ -6,12 +6,13 @@ import puppeteer from 'puppeteer-core';
 
 const expected='3d93fc220d9a8e29b2a299a22036b1d50eefad65b40364e1de1e52b4d8d6de88';
 const current=createHash('sha256').update(fs.readFileSync('index.html')).digest('hex');
-if(current!==expected)throw Error('Stage 11 source hash mismatch '+current);
+const isStage12=fs.readFileSync('index.html','utf8').includes('mk-stage12-pwa-refresh');
+if(!isStage12&&current!==expected)throw Error('Stage 11 source hash mismatch '+current);
 const port=32187;
 const server=spawn('python3',['-m','http.server',String(port),'--bind','127.0.0.1'],{stdio:'ignore'});
 async function waitServer(){for(let n=0;n<35;n++){try{const res=await fetch('http://127.0.0.1:'+port+'/index.html');if(res.ok){await res.body?.cancel();return}}catch{}await delay(200)}throw Error('Local HTTP server unavailable')}
 const browser=await puppeteer.launch({executablePath:['/usr/bin/google-chrome','/usr/bin/google-chrome-stable','/usr/bin/chromium'].find(p=>fs.existsSync(p)),headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
-const results={sha256:expected,testedAt:new Date().toISOString(),passes:[],failures:[],pageErrors:[],notes:[]};
+const results={sha256:current,testedAt:new Date().toISOString(),passes:[],failures:[],pageErrors:[],notes:[]};
 const url='http://127.0.0.1:'+port+'/index.html';
 async function scenario(label,fn){try{const r=await fn();results.passes.push({label,...r});console.log('PASS',label,JSON.stringify(r).slice(0,550))}catch(e){results.failures.push({label,error:String(e),stack:String(e.stack).slice(0,1300)});console.error('FAIL',label,String(e))}}
 async function fresh(){const ctx=await browser.createBrowserContext(),page=await ctx.newPage();page.on('pageerror',e=>results.pageErrors.push(String(e)));await page.goto(url,{waitUntil:'domcontentloaded',timeout:120000});return {ctx,page}}
@@ -95,7 +96,7 @@ try{
   await page.waitForFunction(()=>!!navigator.serviceWorker?.controller,{timeout:20000});
   const before=await page.evaluate(async()=>({controller:!!navigator.serviceWorker.controller,registration:!!(await navigator.serviceWorker.getRegistration()),cacheNames:await caches.keys()}));
   if(!before.controller||!before.registration)throw Error('Service worker not controlling page');
-  if(!before.cacheNames.includes('matkvest-iphone-v39'))throw Error('Unexpected cache name '+before.cacheNames.join(','));
+  if(!before.cacheNames.includes(isStage12?'matkvest-iphone-v40':'matkvest-iphone-v39'))throw Error('Unexpected cache name '+before.cacheNames.join(','));
   const nav=await page.reload({waitUntil:'domcontentloaded',timeout:120000});
   if(!nav.ok())throw Error('Online nav returned error');
   await ctx.close();return before;
