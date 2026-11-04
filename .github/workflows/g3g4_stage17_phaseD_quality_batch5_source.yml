@@ -1,0 +1,40 @@
+name: MatKvest stage17D - quality batch5 source inspection
+on:
+  push:
+    branches: [audit/g3g4-stage17-20261104]
+    paths:
+      - audits/g3g4_stage17_phaseD_quality_batch5_source.py
+      - .github/workflows/g3g4_stage17_phaseD_quality_batch5_source.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit/g3g4-stage17-20261104
+          persist-credentials: true
+      - name: Check approved v47 input
+        run: |
+          echo 'fcbfe6dc439330704e8865930d1dbf9962fda48039e59b6e467e7fc07bfae55b  index.html' | sha256sum --check
+          python3 audits/g7_stage12_sync_pwa.py --check
+      - name: Extract read-only generator source
+        run: python3 audits/g3g4_stage17_phaseD_quality_batch5_source.py
+      - name: Upload extraction
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: matkvest-stage17D-quality-batch5-source
+          path: audits/g3g4_stage17_phaseD_quality_batch5_source.json
+      - name: Commit extraction evidence
+        if: success()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add audits/g3g4_stage17_phaseD_quality_batch5_source.json
+          git commit -m "audit(stage17D): keep exact multiplication division and area source evidence [skip ci]"
+          git pull --rebase origin audit/g3g4-stage17-20261104
+          git push origin HEAD:audit/g3g4-stage17-20261104
