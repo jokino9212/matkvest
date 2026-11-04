@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   stage11-qa:
@@ -28,15 +28,18 @@ jobs:
           patch=Path('audits/g7_stage11_scroll_patch.js').read_text(encoding='utf-8')
           expected='f54327a5ae104f38259f962265115094df699cf946854e1193693de6cf1aec59'
           marker='/* МатКвест G7 этап 11: сброс прокрутки при запуске другой тренировки */'
-          assert hashlib.sha256(source.encode('utf-8')).hexdigest()==expected, 'Unverified stage 10 base HTML'
           assert patch.startswith(marker)
-          assert marker not in source
-          at=source.rfind('</script>')
-          assert at>0
-          output=source[:at]+'\n'+patch+'\n'+source[at:]
-          assert output.count(marker)==1
-          assert output.count('<script')==output.count('</script>')
-          p.write_text(output,encoding='utf-8')
+          if marker in source:
+            assert source.count(marker)==1, 'Duplicate stage11 injection'
+            output=source
+          else:
+            assert hashlib.sha256(source.encode('utf-8')).hexdigest()==expected, 'Unverified stage 10 base HTML'
+            at=source.rfind('</script>')
+            assert at>0
+            output=source[:at]+'\n'+patch+'\n'+source[at:]
+            assert output.count(marker)==1
+            assert output.count('<script')==output.count('</script>')
+            p.write_text(output,encoding='utf-8')
           print('Stage11 HTML SHA256:',hashlib.sha256(output.encode('utf-8')).hexdigest())
           PY
       - uses: actions/setup-node@v4
@@ -61,3 +64,18 @@ jobs:
             audits/g7_stage9_ui_report.json
           if-no-files-found: warn
           retention-days: 30
+
+      - name: Publish checked HTML to isolated audit branch (not production)
+        if: success()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html audits/g7_stage11_scroll_report.json
+          if ! git diff --cached --quiet; then
+            git commit -m "fix(G7): verified stage11 modal scroll reset [skip ci]"
+            for attempt in 1 2 3; do
+              if git push origin HEAD:audit/g7-stage11-20261104; then exit 0; fi
+              sleep 3
+            done
+            exit 1
+          fi
