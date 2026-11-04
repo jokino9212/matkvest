@@ -29,7 +29,7 @@ try{
      const q=make('g'+grade+':word_problems',d),t=clean(q?.text);
      total++;tested++;
      if(!t)fail('missing-text',{grade,d,run:i});
-     const nounMatches=[...t.matchAll(/\b(было|был|была)\s+(\d+)\s+(карандаш|кубик|мяч|книга|тетрадь)(?=[\s.,!?;:]|$)/giu)];
+     const nounMatches=[...t.matchAll(/(было|был|была)\s+(\d+)\s+(карандаш|кубик|мяч|книга|тетрадь)(?=[\s.,!?;:]|$)/giu)];
      for(const m of nounMatches){
       const num=Number(m[2]),noun=m[3].toLowerCase(),verb=m[1].toLowerCase();
       if(singular(num)){
@@ -62,8 +62,8 @@ try{
       const k=q.choices.map(x=>String(x.key??x.value??x.label));
       if(k.filter(x=>x===String(a)).length!==1||new Set(k).size!==k.length)fail('choice-answer',{grade,d,t,a,keys:k});
      }
-     if(/(?:дали|сняли|убрали|поставили|взяли|положили)\s+(?:ещё\s+)?(?:1|21|31|41|51|61|71|81|91)\s+книга\b/iu.test(t))fail('accusative',{grade,d,t});
-     if(/(?:дали|сняли|убрали|поставили|взяли|положили)\s+(?:ещё\s+)?(?:1|21|31|41|51|61|71|81|91)\s+книгу\b/iu.test(t))actionAccusative++;
+     if(/(?:дали|сняли|убрали|поставили|взяли|положили)\s+(?:ещё\s+)?(?:1|21|31|41|51|61|71|81|91)\s+книга(?=[\s.,!?;:]|$)/iu.test(t))fail('accusative',{grade,d,t});
+     if(/(?:дали|сняли|убрали|поставили|взяли|положили)\s+(?:ещё\s+)?(?:1|21|31|41|51|61|71|81|91)\s+книгу(?=[\s.,!?;:]|$)/iu.test(t))actionAccusative++;
     }
     rows.push({grade,level:d,tested,singularAgreementCases:seen});
    }
