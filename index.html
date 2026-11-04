@@ -5706,19 +5706,40 @@ function g3TrueFalseProof847(m,truth){
 function g3TrueFalseLogicQuestion(d){const truth=Math.random()<.5,model=g3BuildTrueFalseModel(d,truth),statement=g3TrueFalseText(model),answer=truth?"Истина":"Ложь",rows=[{key:"Истина",label:"Истина"},{key:"Ложь",label:"Ложь"}],ex=g3TrueFalseProof847(model,truth);return g3ChoiceQuestion(statement,answer,rows,ex,`g3:true_false_logic:${d}:${model.type}:${JSON.stringify(model)}`,{variant:"trueFalse",truth,model,independentCheck:g3EvaluateTrueFalseModel(model)},true)}
 function g3TableBaseData(){const names=sh(["Аня","Миша","Оля","Дима"]).slice(0,4),values=names.map(()=>ri(3,20));return {headers:["Ученик","Количество"],rows:names.map((name,i)=>[name,values[i]]),names,values}}
 function g3TableQuestion(d){
- const variants=d===0?["lookup","max","min"]:d===1?["lookup","max","min","sum","difference"]:["lookup","max","min","sum","difference","missing"],variant=g6RandomFrom(variants);
+ const variants=d===0?["lookup","max","min"]:d===1?["lookup","max","min","sum","difference"]:["missing","total","range","sum","difference"],variant=g6RandomFrom(variants);
  if(variant==="missing"){
   const goods=["Тетрадь","Ручка","Альбом"],full=goods.map(name=>{const price=ri(5,20),qty=ri(2,6);return [name,price,qty,price*qty]}),target=ri(0,2),answer=full[target][3],shown=full.map((r,i)=>i===target?[r[0],r[1],r[2],"□"]:[...r]),data={headers:["Товар","Цена, руб.","Количество","Стоимость, руб."],rows:shown},model={headers:data.headers,rows:full,target:{row:target,column:3},questionType:"missing"},q=g3StoryNumberQuestion(`Какое число должно стоять в пустой ячейке строки <b>«${goods[target]}»</b>?`,answer,`${full[target][1]} · ${full[target][2]} = <b>${answer}</b>.`,`g3:tables:${d}:missing:${full.map(r=>r.join(",")).join("|")}:r${target}`,{variant,tableModel:model,answer},"руб.");return g6AttachTable(q,data);
  }
  const base=g3TableBaseData(),{names,values}=base,data={headers:["Ученик","Прочитано книг"],rows:names.map((n,i)=>[n,values[i]])},model={headers:data.headers,rows:data.rows.map(r=>[...r]),questionType:variant,target:null};
  if(variant==="lookup"){const i=ri(0,3),answer=values[i];model.target={row:i,column:1};const q=g3StoryNumberQuestion(`Сколько книг ${["Аня","Оля"].includes(names[i])?"прочитала":"прочитал"} <b>${names[i]}</b>?`,answer,`На пересечении строки «${names[i]}» и столбца «Прочитано книг» стоит <b>${answer}</b>.`,`g3:tables:${d}:lookup:${values.join(",")}:i${i}`,{variant,tableModel:model,answer});return g6AttachTable(q,data)}
  if(variant==="max"||variant==="min"){let vals=g3DistinctNumbers(4,3,20);for(let i=0;i<4;i++)values[i]=vals[i],data.rows[i][1]=vals[i],model.rows[i][1]=vals[i];const targetValue=variant==="max"?Math.max(...values):Math.min(...values),idx=values.indexOf(targetValue),answer=names[idx];model.target={row:idx,column:1};const q=g3ChoiceQuestion(`Кто прочитал <b>${variant==="max"?"больше всего":"меньше всего"}</b> книг?`,answer,names.map(n=>({key:n,label:n})),`Нужное значение — ${targetValue}. Оно стоит в строке «${answer}».`,`g3:tables:${d}:${variant}:${names.join(",")}:${values.join(",")}`,{variant,tableModel:model,answer});return g6AttachTable(q,data)}
+
+ if(variant==="total"){
+  const answer=values.reduce((sum,n)=>sum+n,0);
+  model.target={rows:[0,1,2,3],column:1};
+  return g6AttachTable(g3StoryNumberQuestion("Сколько всего книг прочитали четыре ученика?",answer,
+    `Складываем значения всех строк: ${values.join(" + ")} = <b>${answer}</b>.`,
+    `g3:tables:${d}:total:${values.join(",")}`,{variant,tableModel:model,answer}),data);
+ }
+ if(variant==="range"){
+  const distinct=g3DistinctNumbers(4,3,20);
+  for(let i=0;i<4;i++){values[i]=distinct[i];data.rows[i][1]=distinct[i];model.rows[i][1]=distinct[i]}
+  const highest=Math.max(...values),lowest=Math.min(...values),answer=highest-lowest;
+  model.target={rows:[values.indexOf(highest),values.indexOf(lowest)],column:1};
+  return g6AttachTable(g3StoryNumberQuestion("На сколько книг наибольшее значение в таблице больше наименьшего?",answer,
+    `Самое большое значение — ${highest}, самое маленькое — ${lowest}. Разность: ${highest} − ${lowest} = <b>${answer}</b>.`,
+    `g3:tables:${d}:range:${values.join(",")}`,{variant,tableModel:model,answer}),data);
+ }
+ if(variant==="difference"){
+  const distinct=g3DistinctNumbers(4,3,20);
+  for(let i=0;i<4;i++){values[i]=distinct[i];data.rows[i][1]=distinct[i];model.rows[i][1]=distinct[i]}
+ }
  const a=ri(0,2),b=ri(a+1,3);model.target={rows:[a,b],column:1};if(variant==="sum"){const answer=values[a]+values[b],q=g3StoryNumberQuestion(`Сколько книг прочитали <b>${names[a]} и ${names[b]}</b> вместе?`,answer,`${values[a]} + ${values[b]} = <b>${answer}</b>.`,`g3:tables:${d}:sum:${values.join(",")}:${a}:${b}`,{variant,tableModel:model,answer});return g6AttachTable(q,data)}
  const hi=values[a]>=values[b]?a:b,lo=hi===a?b:a,answer=values[hi]-values[lo];model.target={rows:[hi,lo],column:1};const q=g3StoryNumberQuestion(`На сколько книг <b>${names[hi]}</b> ${["Аня","Оля"].includes(names[hi])?"прочитала":"прочитал"} больше, чем <b>${names[lo]}</b>?`,answer,`${values[hi]} − ${values[lo]} = <b>${answer}</b>.`,`g3:tables:${d}:difference:${values.join(",")}:${hi}:${lo}`,{variant,tableModel:model,answer});return g6AttachTable(q,data);
 }
 function g3UniqueChartValues(){return g3DistinctNumbers(4,2,20)}
 function g3BarChartsQuestion(d){
- const labels=sh(["Аня","Миша","Оля","Дима"]),variants=d===0?["lookup","max","min"]:d===1?["lookup","max","min","difference","sum"]:["lookup","difference","sum","total","equal","max","min"],variant=g6RandomFrom(variants);let values=variant==="max"||variant==="min"?g3UniqueChartValues():labels.map(()=>ri(2,20));let audit={variant,chartModel:{categories:[...labels],values:[...values],scale:null,questionType:variant,target:null,baseline:0}};
+ const labels=sh(["Аня","Миша","Оля","Дима"]),variants=d===0?["lookup","max","min"]:d===1?["lookup","max","min","difference","sum"]:["total","equal","range","topTwo"],variant=g6RandomFrom(variants);let values=["max","min","range","topTwo"].includes(variant)?g3UniqueChartValues():labels.map(()=>ri(2,20));let audit={variant,chartModel:{categories:[...labels],values:[...values],scale:null,questionType:variant,target:null,baseline:0}};
  if(variant==="equal"){
   const pair=sh([0,1,2,3]).slice(0,2),same=ri(4,16),others=[0,1,2,3].filter(i=>!pair.includes(i)),used=new Set([same]);values=Array(4);values[pair[0]]=same;values[pair[1]]=same;for(const i of others){let v;do{v=ri(2,20)}while(used.has(v));used.add(v);values[i]=v}audit.chartModel.values=[...values];audit.chartModel.target={pair:[...pair]};
  }
@@ -5727,6 +5748,23 @@ function g3BarChartsQuestion(d){
  if(variant==="max"||variant==="min"){const v=variant==="max"?Math.max(...values):Math.min(...values),i=values.indexOf(v),answer=labels[i];audit.chartModel.target={index:i};audit.answer=answer;return g6AttachBarChart(g3ChoiceQuestion(`У кого значение <b>${variant==="max"?"наибольшее":"наименьшее"}</b>?`,answer,labels.map(x=>({key:x,label:x})),`${variant==="max"?"Самый высокий":"Самый низкий"} столбец — «${answer}», его значение ${v}.`,`g3:bar_charts:${d}:${variant}:${labels.join(",")}:${values.join(",")}`,audit),data)}
  if(variant==="equal"){const pair=audit.chartModel.target.pair,answer=[labels[pair[0]],labels[pair[1]]].sort().join(" и "),pairs=[];for(let i=0;i<4;i++)for(let j=i+1;j<4;j++)pairs.push([labels[i],labels[j]].sort().join(" и "));audit.answer=answer;return g6AttachBarChart(g3ChoiceQuestion("У каких двух учеников значения <b>одинаковые</b>?",answer,pairs.map(x=>({key:x,label:x})),`Одинаковая высота у столбцов «${labels[pair[0]]}» и «${labels[pair[1]]}»: оба значения равны ${values[pair[0]]}.`,`g3:bar_charts:${d}:equal:${labels.join(",")}:${values.join(",")}`,audit),data)}
  if(variant==="total"){const answer=values.reduce((a,b)=>a+b,0);audit.chartModel.target={indices:[0,1,2,3]};audit.answer=answer;return g6AttachBarChart(g3StoryNumberQuestion("Сколько всего показано на диаграмме?",answer,`${values.join(" + ")} = <b>${answer}</b>.`,`g3:bar_charts:${d}:total:${labels.join(",")}:${values.join(",")}`,audit),data)}
+
+ if(variant==="range"){
+  const max=Math.max(...values),min=Math.min(...values),answer=max-min;
+  audit.chartModel.target={indices:[values.indexOf(max),values.indexOf(min)]};
+  audit.answer=answer;
+  return g6AttachBarChart(g3StoryNumberQuestion("На сколько наибольший столбец выше наименьшего?",answer,
+    `Самое большое значение — ${max}, самое маленькое — ${min}. Находим разницу: ${max} − ${min} = <b>${answer}</b>.`,
+    `g3:bar_charts:${d}:range:${labels.join(",")}:${values.join(",")}`,audit),data);
+ }
+ if(variant==="topTwo"){
+  const indices=[0,1,2,3].sort((a,b)=>values[b]-values[a]).slice(0,2),answer=values[indices[0]]+values[indices[1]];
+  audit.chartModel.target={indices:[...indices]};
+  audit.answer=answer;
+  return g6AttachBarChart(g3StoryNumberQuestion("Найди сумму двух самых высоких столбцов диаграммы.",answer,
+    `Два наибольших значения: ${values[indices[0]]} и ${values[indices[1]]}. Сумма: ${values[indices[0]]} + ${values[indices[1]]} = <b>${answer}</b>.`,
+    `g3:bar_charts:${d}:topTwo:${labels.join(",")}:${values.join(",")}`,audit),data);
+ }
  const a=ri(0,2),b=ri(a+1,3);audit.chartModel.target={indices:[a,b]};if(variant==="sum"){const answer=values[a]+values[b];audit.answer=answer;return g6AttachBarChart(g3StoryNumberQuestion(`Найди сумму значений столбцов <b>${labels[a]}</b> и <b>${labels[b]}</b>.`,answer,`${values[a]} + ${values[b]} = <b>${answer}</b>.`,`g3:bar_charts:${d}:sum:${labels.join(",")}:${values.join(",")}:${a}:${b}`,audit),data)}
  const answer=Math.abs(values[a]-values[b]);audit.answer=answer;return g6AttachBarChart(g3StoryNumberQuestion(`На сколько отличаются значения столбцов <b>${labels[a]}</b> и <b>${labels[b]}</b>?`,answer,`${Math.max(values[a],values[b])} − ${Math.min(values[a],values[b])} = <b>${answer}</b>.`,`g3:bar_charts:${d}:difference:${labels.join(",")}:${values.join(",")}:${a}:${b}`,audit),data);
 }
@@ -6065,10 +6103,47 @@ function makeG3Question(id,stageOverride=null){
   if(Math.random()<.7){const km=Math.random()<.4;if(km){const a=ri(1,4),b=ri(1,9)*100,answer=a*1000+b;return g6NumberInputQuestion(`<b>${a} км ${b} м</b> = ? м`,answer,`${a} км = ${a*1000} м.<br>${a*1000} + ${b} = <b>${answer} м</b>.`,`g3:${raw}:${d}:mixedKm:${a}:${b}`,{unitSuffix:"м",audit:{type:"g3UnitMixed",dimension:"length",km:a,m:b,answer:rational(answer,1)}})}const m=ri(1,8),cm=ri(1,9)*10,answer=m*100+cm;return g6NumberInputQuestion(`<b>${m} м ${cm} см</b> = ? см`,answer,`${m} м = ${m*100} см.<br>${m*100} + ${cm} = <b>${answer} см</b>.`,`g3:${raw}:${d}:mixedM:${m}:${cm}`,{unitSuffix:"см",audit:{type:"g3UnitMixed",dimension:"length",m,cm,answer:rational(answer,1)}})}
   const m=ri(1,9),cm=ri(80,950),left=m*100,right=cm,correct=left<right?"<":left>right?">":"=";return g3CompareQuestion(`<b>${m} м</b> ? <b>${cm} см</b>`,left,right,`${m} м = ${left} см.<br>${left} см ${correct} ${right} см.`,`g3:${raw}:${d}:compare:${m}:${cm}`,{dimension:"length",m,cm});
  }
+
  if(raw==="area_units"){
-  if(d===0){const value=ri(1,9),answer=value*100;return g3UnitNumberQuestion("area",`<b>${value} дм²</b> = ? см²`,value,"дм²","см²",`1 дм² = 100 см².<br>${value} · 100 = <b>${answer} см²</b>.`,`g3:${raw}:${d}:dm2cm2:${value}`)}
-  if(d===1){const m=Math.random()<.35;if(m){const value=ri(1,6),answer=value*100;return g3UnitNumberQuestion("area",`<b>${value} м²</b> = ? дм²`,value,"м²","дм²",`1 м² = 100 дм².<br>${value} · 100 = <b>${answer} дм²</b>.`,`g3:${raw}:${d}:m2dm2:${value}`)}const answer=ri(1,9),value=answer*100;return g3UnitNumberQuestion("area",`<b>${value} см²</b> = ? дм²`,value,"см²","дм²",`1 дм² = 100 см².<br>${value} см² = <b>${answer} дм²</b>.`,`g3:${raw}:${d}:cm2dm2:${value}`)}
-  if(Math.random()<.55){const dm=ri(1,8),cm=ri(50,900),left=dm*100,right=cm,correct=left<right?"<":left>right?">":"=";return g3CompareQuestion(`<b>${dm} дм²</b> ? <b>${cm} см²</b>`,left,right,`1 дм² = 100 см².<br>${dm} дм² = ${left} см², поэтому ${left} см² ${correct} ${right} см².`,`g3:${raw}:${d}:compare:${dm}:${cm}`,{dimension:"area",dm,cm})}const value=ri(1,5),answer=value*10000;return g3UnitNumberQuestion("area",`<b>${value} м²</b> = ? см²`,value,"м²","см²",`1 м² = 10 000 см².<br>${value} · 10 000 = <b>${answer} см²</b>.`,`g3:${raw}:${d}:m2cm2:${value}`);
+  if(d===0){
+   const variant=Math.random()<.5?"dm2cm2":"m2dm2",value=ri(1,9),
+    from=variant==="dm2cm2"?"дм²":"м²",to=variant==="dm2cm2"?"см²":"дм²",answer=value*100;
+   return g3UnitNumberQuestion("area",`<b>${value} ${from}</b> = ? ${to}`,value,from,to,
+     `В одном ${from} — 100 ${to}. Поэтому ${value} · 100 = <b>${answer} ${to}</b>.`,
+     `g3:${raw}:${d}:${variant}:${value}`,{variant});
+  }
+  if(d===1){
+   if(Math.random()<.55){
+    const dm=ri(1,7),cm=ri(1,9)*10,answer=dm*100+cm;
+    return g6NumberInputQuestion(`<b>${dm} дм² ${cm} см²</b> = ? см²`,answer,
+      `${dm} дм² = ${dm*100} см². Складываем: ${dm*100} + ${cm} = <b>${answer} см²</b>.`,
+      `g3:${raw}:${d}:mixedDmCm:${dm}:${cm}`,
+      {unitSuffix:"см²",audit:{type:"g3UnitMixed",variant:"mixedDmCm",dimension:"area",dm,cm,answer:rational(answer,1)}});
+   }
+   const answer=ri(1,9),value=answer*100;
+   return g3UnitNumberQuestion("area",`<b>${value} см²</b> = ? дм²`,value,"см²","дм²",
+     `1 дм² = 100 см². ${value} : 100 = <b>${answer} дм²</b>.`,
+     `g3:${raw}:${d}:cm2dm2:${value}`,{variant:"cm2dm2"});
+  }
+  const variant=g6RandomFrom(["mixedCompare","difference","m2cm2"]);
+  if(variant==="mixedCompare"){
+   const dm=ri(1,7),cm=ri(1,9)*10,right=ri(120,850),left=dm*100+cm,op=left<right?"<":left>right?">":"=";
+   return g3CompareQuestion(`<b>${dm} дм² ${cm} см²</b> ? <b>${right} см²</b>`,left,right,
+     `Первая площадь: ${dm} · 100 + ${cm} = ${left} см². Сравниваем: ${left} ${op} ${right}.`,
+     `g3:${raw}:${d}:mixedCompare:${dm}:${cm}:${right}`,
+     {variant,dimension:"area",dm,cm,right,left});
+  }
+  if(variant==="difference"){
+   const dm=ri(2,8),cm=ri(50,dm*100-10),left=dm*100,answer=left-cm;
+   return g3StoryNumberQuestion(`Площадь первого участка <b>${dm} дм²</b>, а второго — <b>${cm} см²</b>. На сколько квадратных сантиметров площадь первого больше?`,
+     answer,`${dm} дм² = ${left} см². Вычисляем разность: ${left} − ${cm} = <b>${answer} см²</b>.`,
+     `g3:${raw}:${d}:difference:${dm}:${cm}`,
+     {variant,dimension:"area",dm,cm,left,answer},"см²");
+  }
+  const value=ri(1,5),answer=value*10000;
+  return g3UnitNumberQuestion("area",`<b>${value} м²</b> = ? см²`,value,"м²","см²",
+    `1 м² = 10 000 см². ${value} · 10 000 = <b>${answer} см²</b>.`,
+    `g3:${raw}:${d}:m2cm2:${value}`,{variant});
  }
  return null;
 }

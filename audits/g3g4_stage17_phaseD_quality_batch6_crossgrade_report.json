@@ -1,0 +1,131 @@
+{
+  "stage": "16D-post-patch-regression",
+  "sha256": "04a719fe8c292d8fe42b9762fdca5b8b48c316042cbdb1709ac18fe5290eff21",
+  "at": "2026-11-04T21:28:20.414Z",
+  "failures": [],
+  "jsErrors": [],
+  "results": {
+    "rows": [
+      {
+        "grade": 1,
+        "level": 0,
+        "tested": 2400,
+        "singularAgreementCases": 143
+      },
+      {
+        "grade": 1,
+        "level": 1,
+        "tested": 2400,
+        "singularAgreementCases": 114
+      },
+      {
+        "grade": 1,
+        "level": 2,
+        "tested": 2400,
+        "singularAgreementCases": 55
+      },
+      {
+        "grade": 2,
+        "level": 0,
+        "tested": 2400,
+        "singularAgreementCases": 153
+      },
+      {
+        "grade": 2,
+        "level": 1,
+        "tested": 2400,
+        "singularAgreementCases": 144
+      },
+      {
+        "grade": 2,
+        "level": 2,
+        "tested": 2400,
+        "singularAgreementCases": 144
+      }
+    ],
+    "cross": [
+      {
+        "grade": 3,
+        "available": true,
+        "verified": 396,
+        "columnSkipped": 4
+      },
+      {
+        "grade": 4,
+        "available": false
+      },
+      {
+        "grade": 5,
+        "available": true,
+        "verified": 477,
+        "columnSkipped": 0
+      },
+      {
+        "grade": 7,
+        "available": true,
+        "verified": 963,
+        "columnSkipped": 0
+      },
+      {
+        "grade": 8,
+        "available": true,
+        "verified": 990,
+        "columnSkipped": 0
+      }
+    ],
+    "input": [
+      {
+        "grade": 1,
+        "d": 1,
+        "credited": 0,
+        "feedback": "🟡 Пока неверно. Попробуй ещё раз или пропусти задание."
+      },
+      {
+        "grade": 1,
+        "d": 2,
+        "credited": 0,
+        "feedback": "🟡 Пока неверно. Попробуй ещё раз или пропусти задание."
+      },
+      {
+        "grade": 2,
+        "d": 1,
+        "credited": 0,
+        "feedback": "🟡 Пока неверно. Попробуй ещё раз или пропусти задание."
+      },
+      {
+        "grade": 2,
+        "d": 2,
+        "credited": 0,
+        "feedback": "🟡 Пока неверно. Попробуй ещё раз или пропусти задание."
+      }
+    ],
+    "ui": 60,
+    "totals": {
+      "generated": 17100,
+      "agreeChecks": 753,
+      "correctedFeminine": 291,
+      "correctedMasculine": 462,
+      "pluralVerified": 0,
+      "actionAccusative": 400,
+      "mathChecks": 14400,
+      "choicesChecked": 10003
+    }
+  },
+  "summary": {
+    "generated": 17100,
+    "agreeChecks": 753,
+    "correctedFeminine": 291,
+    "correctedMasculine": 462,
+    "pluralVerified": 0,
+    "actionAccusative": 400,
+    "mathChecks": 14400,
+    "choicesChecked": 10003,
+    "uiStarted": 60,
+    "uiRendered": 60,
+    "wrongInputScenarios": 4,
+    "wrongInputsRejected": 4,
+    "crossgradeVerified": 2826,
+    "errors": 0,
+    "jsErrors": 0
+  }
+}

@@ -1,0 +1,220 @@
+{
+  "phase": "17D-quality-batch5",
+  "sha256": "04a719fe8c292d8fe42b9762fdca5b8b48c316042cbdb1709ac18fe5290eff21",
+  "at": "2026-11-04T21:27:59.177Z",
+  "rows": [
+    {
+      "id": "multiplication_table",
+      "d": 0,
+      "generated": 500,
+      "verified": 500,
+      "variants": {
+        "product": 500
+      },
+      "mathChecks": 500,
+      "uniquePrompts": 16,
+      "structuralShapes": 1,
+      "visualModels": 0
+    },
+    {
+      "id": "multiplication_table",
+      "d": 1,
+      "generated": 500,
+      "verified": 500,
+      "variants": {
+        "books": 132,
+        "product": 254,
+        "pencils": 114
+      },
+      "mathChecks": 500,
+      "uniquePrompts": 171,
+      "structuralShapes": 3,
+      "visualModels": 0
+    },
+    {
+      "id": "multiplication_table",
+      "d": 2,
+      "generated": 500,
+      "verified": 500,
+      "variants": {
+        "taken": 107,
+        "unknownB": 151,
+        "extra": 109,
+        "unknownA": 133
+      },
+      "mathChecks": 500,
+      "uniquePrompts": 304,
+      "structuralShapes": 4,
+      "visualModels": 0
+    },
+    {
+      "id": "division_table",
+      "d": 0,
+      "generated": 500,
+      "verified": 500,
+      "variants": {
+        "quotient": 500
+      },
+      "mathChecks": 500,
+      "uniquePrompts": 25,
+      "structuralShapes": 1,
+      "visualModels": 0
+    },
+    {
+      "id": "division_table",
+      "d": 1,
+      "generated": 500,
+      "verified": 500,
+      "variants": {
+        "equalBoxes": 124,
+        "equalGroups": 138,
+        "quotient": 238
+      },
+      "mathChecks": 500,
+      "uniquePrompts": 176,
+      "structuralShapes": 3,
+      "visualModels": 0
+    },
+    {
+      "id": "division_table",
+      "d": 2,
+      "generated": 500,
+      "verified": 500,
+      "variants": {
+        "takeEach": 114,
+        "moreEach": 124,
+        "unknownDivisor": 146,
+        "unknownDividend": 116
+      },
+      "mathChecks": 500,
+      "uniquePrompts": 293,
+      "structuralShapes": 4,
+      "visualModels": 0
+    },
+    {
+      "id": "rectangle_square_area",
+      "d": 0,
+      "generated": 500,
+      "verified": 500,
+      "variants": {
+        "gridRect": 500
+      },
+      "mathChecks": 500,
+      "uniquePrompts": 1,
+      "structuralShapes": 1,
+      "visualModels": 25
+    },
+    {
+      "id": "rectangle_square_area",
+      "d": 1,
+      "generated": 500,
+      "verified": 500,
+      "variants": {
+        "square": 251,
+        "rect": 249
+      },
+      "mathChecks": 500,
+      "uniquePrompts": 86,
+      "structuralShapes": 6,
+      "visualModels": 86
+    },
+    {
+      "id": "rectangle_square_area",
+      "d": 2,
+      "generated": 500,
+      "verified": 500,
+      "variants": {
+        "missingSide": 244,
+        "extendedSide": 256
+      },
+      "mathChecks": 500,
+      "uniquePrompts": 220,
+      "structuralShapes": 6,
+      "visualModels": 220
+    }
+  ],
+  "ui": [
+    {
+      "id": "multiplication_table",
+      "d": 0,
+      "shown": true,
+      "input": true,
+      "svg": false,
+      "overflow": 0
+    },
+    {
+      "id": "multiplication_table",
+      "d": 1,
+      "shown": true,
+      "input": true,
+      "svg": false,
+      "overflow": 0
+    },
+    {
+      "id": "multiplication_table",
+      "d": 2,
+      "shown": true,
+      "input": true,
+      "svg": false,
+      "overflow": 0
+    },
+    {
+      "id": "division_table",
+      "d": 0,
+      "shown": true,
+      "input": true,
+      "svg": false,
+      "overflow": 0
+    },
+    {
+      "id": "division_table",
+      "d": 1,
+      "shown": true,
+      "input": true,
+      "svg": false,
+      "overflow": 0
+    },
+    {
+      "id": "division_table",
+      "d": 2,
+      "shown": true,
+      "input": true,
+      "svg": false,
+      "overflow": 0
+    },
+    {
+      "id": "rectangle_square_area",
+      "d": 0,
+      "shown": true,
+      "input": true,
+      "svg": true,
+      "overflow": 0
+    },
+    {
+      "id": "rectangle_square_area",
+      "d": 1,
+      "shown": true,
+      "input": true,
+      "svg": true,
+      "overflow": 0
+    },
+    {
+      "id": "rectangle_square_area",
+      "d": 2,
+      "shown": true,
+      "input": true,
+      "svg": true,
+      "overflow": 0
+    }
+  ],
+  "errors": [],
+  "jsErrors": [],
+  "summary": {
+    "generated": 4500,
+    "independentMath": 4500,
+    "ui": 9,
+    "uiReady": 9,
+    "errors": 0,
+    "jsErrors": 0
+  }
+}
