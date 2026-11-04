@@ -8,7 +8,7 @@ const sw=fs.readFileSync('sw.js','utf8');
 if(!sw.includes('matkvest-iphone-v46')||!sw.includes('const APP_BUILD_HASH = "'+sha+'"'))throw Error('G3 geometry HTML/PWA v46 disagree');
 const chrome=[process.env.CHROME_BIN,'/usr/bin/google-chrome','/usr/bin/google-chrome-stable','/usr/bin/chromium'].find(x=>x&&fs.existsSync(x));
 if(!chrome)throw Error('Chromium unavailable');
-const browser=await puppeteer.launch({executablePath:chrome,headless:true,args:['--no-sandbox','--disable-dev-shm-usage','--allow-file-access-from-files']});
+const browser=await puppeteer.launch({executablePath:chrome,headless:true,timeout:90000,args:['--no-sandbox','--disable-dev-shm-usage','--allow-file-access-from-files']});
 const page=await browser.newPage(),pageErrors=[];
 page.on('pageerror',e=>pageErrors.push(String(e)));
 const report={stage:'17D-quality-batch3',sha256:sha,createdAt:new Date().toISOString(),rows:[],ui:[],errors:[],pageErrors,summary:{}};
@@ -93,7 +93,6 @@ try{
      }
      row.promptVariety=prompts.size;row.visualVariety=visuals.size;
      if(row.verified!==N)fail('generation-coverage',{id,d,verified:row.verified,N});
-     if(row.visualVariety<d===0?1:1){} // diagnostic only; visual variety checked below
      if(id==='geometry_figures'&&d===0&&row.visualVariety<18)fail('basic-visual-variety',{id,d,visuals:row.visualVariety});
      if(id==='geometry_figures'&&d===2&&(!variantCounts.features||variantCounts.features<65))fail('advanced-feature-coverage',{id,d,variants:variantCounts});
      if(id==='geometry_construction'&&d===2&&(!variantCounts.squareExtension||variantCounts.squareExtension<70))fail('square-extension-coverage',{id,d,variants:variantCounts});
