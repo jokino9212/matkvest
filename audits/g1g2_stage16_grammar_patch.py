@@ -13,7 +13,7 @@ if hashlib.sha256(html.read_bytes()).hexdigest()!=expected:
     raise SystemExit('REFUSE: input HTML must be exact published stage15 build')
 
 needle='function g2StoryNoun(n,o){return g1Noun(n,o)}'
-replacement=needle+'\nfunction g2StoryAccNoun(n,o){return o.one==="книга"&&n%10===1&&n%100!==11?"книгу":g2StoryNoun(n,o)}\\nfunction g2StoryTimes(n){return n%10>=2&&n%10<=4&&(n%100<12||n%100>14)?"раза":"раз"}'
+replacement=needle+'\nfunction g2StoryAccNoun(n,o){return o.one==="книга"&&n%10===1&&n%100!==11?"книгу":g2StoryNoun(n,o)}\nfunction g2StoryTimes(n){return n%10>=2&&n%10<=4&&(n%100<12||n%100>14)?"раза":"раз"}'
 if source.count(needle)!=1:
     raise SystemExit('REFUSE: g2StoryNoun definition unexpected')
 source=source.replace(needle,replacement,1)
@@ -26,10 +26,10 @@ for item,count in needles.items():
     if source.count(item)!=count:
         raise SystemExit('REFUSE: expected exactly %s appearances of %s'%(count,item))
     source=source.replace(item,item.replace('g2StoryNoun','g2StoryAccNoun'))
-extra='\u0024{m.each} повторяется \u0024{m.groups} раза:'
+extra='${m.each} повторяется ${m.groups} раза:'
 if source.count(extra)!=1:
     raise SystemExit('REFUSE: expected one wrong раза explanation')
-source=source.replace(extra,'\u0024{m.each} повторяется \u0024{m.groups} \u0024{g2StoryTimes(m.groups)}:')
+source=source.replace(extra,'${m.each} повторяется ${m.groups} ${g2StoryTimes(m.groups)}:')
 if source.count('function g2StoryAccNoun')!=1:
     raise SystemExit('REFUSE: bad patch')
 html.write_text(source,encoding='utf-8')
