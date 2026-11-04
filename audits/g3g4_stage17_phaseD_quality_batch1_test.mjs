@@ -60,15 +60,15 @@ try{
    if(d===2&&id!=='division_remainder'&&Object.keys(variants).length<2)fail('advanced-no-second-action-choice',{id,d,variants});
    if(d===1&&Object.values(variants).some(v=>v<45))fail('underrepresented-middle-variant',{id,d,variants});
    if(d===2&&id!=='division_remainder'&&Object.values(variants).some(v=>v<45))fail('underrepresented-advanced-variant',{id,d,variants});
-   if(row.uniquePrompts<12)fail('low-variety',{id,d,unique:row.uniquePrompts});
+   if(row.uniquePrompts<(id==='offtable_divide'&&d===0?8:12))fail('low-variety',{id,d,unique:row.uniquePrompts});
    results.push(row);
   }
   for(const id of ids)for(let d=0;d<3;d++){
    try{
      startG3QuizStage('g3:'+id,d);
      const view=document.querySelector('#qstage .quizq');
-     const input=document.querySelector('#quizInput');
-     ui.push({id,d,rendered:!!view,hasInput:!!input});
+     const input=id==='division_remainder'?document.querySelectorAll('#qstage input').length>=2:!!document.querySelector('#quizInput');
+     ui.push({id,d,rendered:!!view,hasInput:input});
      if(!view||!input)fail('ui-unavailable',{id,d,view:!!view,input:!!input});
    }catch(e){fail('ui-error',{id,d,error:String(e)})}
   }

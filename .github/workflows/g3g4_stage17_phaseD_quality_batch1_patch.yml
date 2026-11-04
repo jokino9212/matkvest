@@ -87,5 +87,6 @@ jobs:
           git add audits/g3g4_stage17_phaseD_quality_batch1_recovery_report.json
           git add audits/g3g4_stage17_phaseD_quality_batch1_crossgrade_report.json
           git commit -m "fix(stage17D): diversify G3 off-table arithmetic and reasoning with v44 gated regression"
+          git restore -- audits/g3g4_stage17_phaseD_semantics_report.json audits/g3g4_stage17_phaseD_recovery_theory_report.json
           git pull --rebase origin audit/g3g4-stage17-20261104
           git push origin HEAD:audit/g3g4-stage17-20261104
