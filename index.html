@@ -17648,11 +17648,11 @@ function g2FactModel(){const a=ri(2,10),b=ri(2,10);return {a,b,result:a*b}}
 function g2MultiplyDivideQuestion(d){
  const warm=["groups_total","repeated_addition","share_equal"],train=[...warm,"make_groups","multiply_fact","divide_fact"],master=[...train,"missing_factor","inverse_record","compare_products"],templateId=g2PickTemplate(d===0?warm:d===1?train:master);
  if(templateId==="groups_total"){
-  const model=g2GroupsModel(),answer=model.total;return g2Choice(`Одинаковых групп: ${model.groups}. В каждой по ${model.each} ${g2ItemWord(model.each)}. Сколько предметов всего?`,answer,g2UniqueNums(answer,1,30),`${model.each} повторяется ${model.groups} раза: ${Array.from({length:model.groups},()=>model.each).join(" + ")} = ${answer}.`,`g2:multiply_divide:${d}:groups_total:${model.groups}:${model.each}`,{model,visual:{type:"g2EqualGroups",data:model},templateId})
+  const model=g2GroupsModel(),answer=model.total;return g2Choice(`Одинаковых групп: ${model.groups}. В каждой по ${model.each} ${g2ItemWord(model.each)}. Сколько предметов всего?`,answer,g2UniqueNums(answer,1,30),`${model.each} повторяется ${model.groups} ${g2StoryTimes(model.groups)}: ${Array.from({length:model.groups},()=>model.each).join(" + ")} = ${answer}.`,`g2:multiply_divide:${d}:groups_total:${model.groups}:${model.each}`,{model,visual:{type:"g2EqualGroups",data:model},templateId})
  }
  if(templateId==="repeated_addition"){
   const model=g2GroupsModel(),sum=Array.from({length:model.groups},()=>model.each).join(" + "),correct=`${model.each} · ${model.groups} = ${model.total}`,wrong=[`${model.groups} · ${model.each} = ${model.groups+model.each}`,`${model.each} + ${model.groups} = ${model.total}`,`${model.total} : ${model.groups} = ${model.total}`],answer=correct;
-  return g2Choice(`Какая запись заменяет сумму <b>${sum}</b>?`,answer,wrong,`${model.each} складываем ${model.groups} раза. Это можно записать: ${answer}.`,`g2:multiply_divide:${d}:repeated_addition:${model.groups}:${model.each}`,{model,visual:{type:"g2EqualGroups",data:model},templateId})
+  return g2Choice(`Какая запись заменяет сумму <b>${sum}</b>?`,answer,wrong,`${model.each} складываем ${model.groups} ${g2StoryTimes(model.groups)}. Это можно записать: ${answer}.`,`g2:multiply_divide:${d}:repeated_addition:${model.groups}:${model.each}`,{model,visual:{type:"g2EqualGroups",data:model},templateId})
  }
  if(templateId==="share_equal"){
   const model=g2GroupsModel(),answer=model.each;return g2Choice(`${model.total} предметов разделили поровну на ${model.groups} ${g2GroupWord(model.groups)}. Сколько предметов в каждой группе?`,answer,g2UniqueNums(answer,1,10),`${model.total} : ${model.groups} = ${answer}. В каждой группе по ${answer}.`,`g2:multiply_divide:${d}:share_equal:${model.total}:${model.groups}`,{model,visual:{type:"g2EqualGroups",data:{mode:"share",total:model.total,groups:model.groups}},templateId})
@@ -18158,7 +18158,7 @@ g2MultiplyDivideQuestion=function(d){
  if(q?.templateId==="repeated_addition"){
   const sum=Array.from({length:m.groups},()=>m.each).join(" + "),correct=`${m.each} · ${m.groups} = ${m.total}`;
   const wrong=g2UniqueNums(m.total,1,100).map(v=>`${m.each} · ${m.groups} = ${v}`);
-  return g2Choice(`Какая запись умножением заменяет сумму <b>${sum}</b>?`,correct,wrong,`${m.each} складываем ${m.groups} раза. Это можно записать: ${correct}.`,q.sig,{model:m,visual:{type:"g2EqualGroups",data:m},templateId:q.templateId})
+  return g2Choice(`Какая запись умножением заменяет сумму <b>${sum}</b>?`,correct,wrong,`${m.each} складываем ${m.groups} ${g2StoryTimes(m.groups)}. Это можно записать: ${correct}.`,q.sig,{model:m,visual:{type:"g2EqualGroups",data:m},templateId:q.templateId})
  }
  if(q?.templateId==="inverse_record"){
   const correct=`${m.result} : ${m.a} = ${m.b}`,wrong=g2UniqueNums(m.b,0,100).map(v=>`${m.result} : ${m.a} = ${v}`);
