@@ -5416,8 +5416,22 @@ function g3GeoChoice(text,correct,options,ex,sig,audit,data,journalText=""){cons
 function g3GeoNumber(text,answer,ex,sig,audit,data,unit=""){const q=g6NumberInputQuestion(text,answer,ex,sig,{unitSuffix:unit,audit});return g3AttachGeometry(q,data,audit.journalText||"")}
 function g3GeometryFiguresQuestion(d){
  if(d===0){
-  const kinds=["point","line","segment","broken","polygon"],kind=g6RandomFrom(kinds),labels={point:"точка",line:"прямая",segment:"отрезок",broken:"ломаная",polygon:"многоугольник"},pts=kind==="point"?[{x:6,y:4}]:kind==="line"?[{x:3,y:5},{x:10,y:3}]:kind==="segment"?[{x:3,y:4},{x:9,y:4}]:kind==="broken"?[{x:2,y:5},{x:5,y:2},{x:8,y:5},{x:11,y:3}]:[{x:3,y:2},{x:9,y:2},{x:10,y:6},{x:5,y:7},{x:2,y:5}],data={kind,points:pts,labels:kind==="point"?["A"]:kind==="segment"?["A","B"]:[],aria:"Геометрический рисунок"};
-  return g3GeoChoice("Что изображено?",labels[kind],["точка","прямая","отрезок","ломаная","многоугольник"],`Это <b>${labels[kind]}</b>.`,`g3:geometry_figures:${d}:identify:${kind}`,{type:"g3GeoFigures",variant:"identify",kind},data,`Изображена фигура: ${labels[kind]}.`)
+  const kinds=["point","line","segment","broken","polygon"],kind=g6RandomFrom(kinds),labels={point:"точка",line:"прямая",segment:"отрезок",broken:"ломаная",polygon:"многоугольник"},
+    variation=ri(0,2),polygons=[
+      [{x:4,y:6},{x:6,y:2},{x:10,y:6}],
+      [{x:3,y:2},{x:9,y:2},{x:9,y:6},{x:3,y:6}],
+      [{x:6,y:1},{x:10,y:3},{x:9,y:6},{x:4,y:7},{x:2,y:4}]
+    ],broken=[
+      [{x:2,y:5},{x:5,y:2},{x:8,y:5},{x:11,y:3}],
+      [{x:2,y:2},{x:5,y:6},{x:8,y:3},{x:11,y:5}],
+      [{x:2,y:6},{x:5,y:3},{x:8,y:6},{x:11,y:2}]
+    ],
+    pts=kind==="point"?[{x:ri(3,10),y:ri(2,6)}]:
+      kind==="line"?[variation===0?{x:3,y:4}:variation===1?{x:3,y:6}:{x:4,y:2},variation===0?{x:10,y:4}:variation===1?{x:10,y:2}:{x:9,y:6}]:
+      kind==="segment"?[variation===0?{x:3,y:3}:variation===1?{x:6,y:2}:{x:3,y:5},variation===0?{x:10,y:3}:variation===1?{x:6,y:7}:{x:10,y:3}]:
+      kind==="broken"?broken[variation]:polygons[variation],
+    data={kind,points:pts,labels:kind==="point"?["A"]:kind==="segment"?["A","B"]:[],aria:"Геометрический рисунок"};
+  return g3GeoChoice("Что изображено?",labels[kind],["точка","прямая","отрезок","ломаная","многоугольник"],`Это <b>${labels[kind]}</b>.`,`g3:geometry_figures:${d}:identify:${kind}:${pts.map(p=>p.x+"-"+p.y).join("_")}`,{type:"g3GeoFigures",variant:"identify",kind},data,`Изображена фигура: ${labels[kind]}.`)
  }
  const rightModel=()=>{const right=Math.random()<.5,ori=ri(0,3),dirs=[{x:1,y:0},{x:0,y:-1},{x:-1,y:0},{x:0,y:1}],u=dirs[ori],perp=dirs[(ori+1)%4],diag=[{x:1,y:-1},{x:-1,y:-1},{x:-1,y:1},{x:1,y:1}][ori],v=right?perp:diag,o={x:6,y:4},pts=[o,{x:o.x+u.x*3,y:o.y+u.y*3},{x:o.x+v.x*3,y:o.y+v.y*3}],dot=u.x*v.x+u.y*v.y;return {right,ori,u,v,o,pts,dot}};
  if(d===1){
@@ -5429,7 +5443,20 @@ function g3GeometryFiguresQuestion(d){
   const m=rightModel(),data={kind:"angle",points:m.pts,right:m.right,u:m.u,v:m.v,labels:["O"],aria:"Угол на клетчатой сетке"};
   return g3GeoChoice("Прямой ли угол изображён?",m.right?"ДА":"НЕТ",["ДА","НЕТ"],m.right?"Стороны угла перпендикулярны, угол прямой.":"Стороны угла не перпендикулярны, угол не прямой.",`g3:geometry_figures:${d}:right:${m.right?1:0}:o${m.ori}`,{type:"g3GeoFigures",variant:"right",right:m.right,dot:m.dot,u:m.u,v:m.v,orientation:m.ori},data,`Угол ${m.right?"прямой":"не прямой"}.`)
  }
- const variant=g6RandomFrom(["links","vertices","right"]);
+ const variant=g6RandomFrom(["links","vertices","right","features"]);
+ if(variant==="features"){
+  const shapes=[
+    [{x:4,y:6},{x:6,y:2},{x:10,y:6}],
+    [{x:3,y:2},{x:9,y:2},{x:9,y:6},{x:3,y:6}],
+    [{x:6,y:1},{x:10,y:3},{x:9,y:6},{x:4,y:7},{x:2,y:4}],
+    [{x:4,y:1},{x:9,y:1},{x:11,y:4},{x:9,y:7},{x:4,y:7},{x:2,y:4}]
+  ],pts=g6RandomFrom(shapes),vertices=pts.length,sides=pts.length,answer=vertices+sides;
+  return g3GeoNumber("Сколько всего сторон и вершин у изображённого многоугольника?",answer,
+    `У многоугольника ${vertices} вершин и ${sides} сторон. Всего: ${vertices} + ${sides} = <b>${answer}</b>.`,
+    `g3:geometry_figures:${d}:features:${vertices}`,
+    {type:"g3GeoFigures",variant:"features",count:answer,vertices,sides,points:pts},
+    {kind:"polygon",points:pts,aria:"Многоугольник с вершинами и сторонами"});
+ }
  if(variant==="links"){
   const n=ri(3,5),shape=ri(0,2),patterns=[[2,6,2,6,2,6],[6,3,6,3,6,3],[4,1,5,2,6,3]],ys=patterns[shape],pts=[{x:2,y:ys[0]}];for(let i=1;i<=n;i++)pts.push({x:2+i*2,y:ys[i]});
   return g3GeoNumber("Сколько звеньев у ломаной?",n,`У ломаной <b>${n}</b> ${ruCount(n,"звено","звена","звеньев")}.`,`g3:geometry_figures:${d}:links:${n}:shape${shape}`,{type:"g3GeoFigures",variant:"links",count:n,shape,points:pts},{kind:"broken",points:pts,aria:"Ломаная на клетчатой сетке"})
@@ -5441,10 +5468,18 @@ function g3GeometryFiguresQuestion(d){
  const m=rightModel();return g3GeoChoice("Какой угол изображён?",m.right?"прямой":"не прямой",["прямой","не прямой"],m.right?"Стороны образуют точный угол 90°.":"Этот угол заметно отличается от прямого.",`g3:geometry_figures:${d}:rightName:${m.right?1:0}:o${m.ori}`,{type:"g3GeoFigures",variant:"right",right:m.right,dot:m.dot,u:m.u,v:m.v,orientation:m.ori},{kind:"angle",points:m.pts,right:m.right,u:m.u,v:m.v,labels:["O"],aria:"Угол"})
 }
 function g3GeometryConstructionQuestion(d){
- const variant=d===0?"segment":d===1?g6RandomFrom(["rectangle","square"]):g6RandomFrom(["segment","rectangle","square"]);
+ const variant=d===0?"segment":d===1?g6RandomFrom(["rectangle","square"]):g6RandomFrom(["rectangle","square","squareExtension"]);
  if(variant==="segment"){
   const len=ri(2,d===0?6:8),horizontal=Math.random()<.5,start=horizontal?{x:ri(2,4),y:ri(2,6)}:{x:ri(2,10),y:ri(len+1,7)},end=horizontal?{x:start.x+len,y:start.y}:{x:start.x,y:start.y-len},actual=len,data={kind:"segment",points:[start,end],labels:["A","B"],aria:"Отрезок AB на клетчатой сетке"};
   return g3GeoNumber("Сколько клеток составляет длина отрезка AB?",actual,`Считаем промежутки между соседними линиями сетки: <b>${actual}</b>.`,`g3:geometry_construction:${d}:segment:${start.x}:${start.y}:${end.x}:${end.y}`,{type:"g3Construction",variant:"segment",start,end,length:actual,horizontal},data,"клеток")
+ }
+ if(variant==="squareExtension"){
+  const w=ri(3,7),h=g6RandomFrom([2,3,4,5,6].filter(v=>v!==w)),x=3,y=2,pts=[{x,y},{x:x+w,y},{x:x+w,y:y+h},{x,y:y+h}],answer=Math.abs(w-h),
+    data={kind:"polygon",points:pts,labels:["A","B","C","D"],aria:"Прямоугольник на клетчатой бумаге"};
+  return g3GeoNumber("Сколько клеток нужно добавить к короткой стороне прямоугольника, чтобы его можно было достроить до квадрата?",answer,
+    `Стороны имеют длины ${w} и ${h} клеток. У квадрата они равны, значит короткую сторону нужно увеличить на ${Math.max(w,h)} − ${Math.min(w,h)} = <b>${answer}</b>.`,
+    `g3:geometry_construction:${d}:squareExtension:${w}:${h}`,
+    {type:"g3Construction",variant:"squareExtension",w,h,answer,isSquare:false,points:pts},data,"клеток");
  }
  const w=ri(2,6),h=variant==="square"?w:g6RandomFrom([2,3,4,5].filter(v=>v!==w)),x=3,y=2,pts=[{x,y},{x:x+w,y},{x:x+w,y:y+h},{x,y:y+h}],data={kind:"polygon",points:pts,labels:["A","B","C","D"],aria:"Четырёхугольник на клетчатой бумаге"},correct=variant==="square"?"квадрат":"прямоугольник";
  if(d===1)return g3GeoChoice("Какая фигура построена по клеткам?",correct,["квадрат","прямоугольник","ломаная"],variant==="square"?`Все стороны равны: длина каждой — ${w} ${ruCount(w,"клетка","клетки","клеток")}. Это квадрат.`:`Длины сторон: ${w} ${ruCount(w,"клетка","клетки","клеток")} и ${h} ${ruCount(h,"клетка","клетки","клеток")}. Это прямоугольник.`,`g3:geometry_construction:${d}:${variant}:${w}:${h}`,{type:"g3Construction",variant,w,h,isSquare:w===h,points:pts},data);
@@ -5506,8 +5541,29 @@ function g3PerimeterQuestion(d){
  const measures=sides.map((v,i)=>({a:i,b:(i+1)%pts.length,text:`${v} ${unit}`,offset:i%2?18:-18})),data={kind:"polygon",points:pts,measures,aria:"Многоугольник с подписанными длинами сторон"};
  return g3GeoNumber(text,answer,ex,`g3:perimeter:${d}:${variant}:${sides.join("-")}:${unit}`,{type:"g3Perimeter",variant,sides,answer,unit,points:pts,journalText:`Стороны: ${sides.join(", ")} ${unit}.`},data,unit)
 }
-function g3AreaCellsShape(d){if(d===0||Math.random()<.55){const w=ri(2,d===0?5:7),h=ri(2,d===0?4:6),cells=[];for(let y=0;y<h;y++)for(let x=0;x<w;x++)cells.push({x:3+x,y:2+y});return {variant:"rectangle",cells,area:w*h,w,h}}const w=ri(3,6),h=ri(3,5),cutW=ri(1,w-1),cutH=ri(1,h-1),cells=[];for(let y=0;y<h;y++)for(let x=0;x<w;x++)if(!(x>=w-cutW&&y<cutH))cells.push({x:3+x,y:2+y});return {variant:"L",cells,area:cells.length,w,h,cutW,cutH}}
+function g3AreaCellsShape(d,forceL=false){if(!forceL&&(d===0||Math.random()<.55)){const w=ri(2,d===0?5:7),h=ri(2,d===0?4:6),cells=[];for(let y=0;y<h;y++)for(let x=0;x<w;x++)cells.push({x:3+x,y:2+y});return {variant:"rectangle",cells,area:w*h,w,h}}const w=ri(3,6),h=ri(3,5),cutW=ri(1,w-1),cutH=ri(1,h-1),cells=[];for(let y=0;y<h;y++)for(let x=0;x<w;x++)if(!(x>=w-cutW&&y<cutH))cells.push({x:3+x,y:2+y});return {variant:"L",cells,area:cells.length,w,h,cutW,cutH}}
 function g3AreaMeasureQuestion(d){
+ if(d===2){
+  const variant=Math.random()<.5?"complete":"difference";
+  if(variant==="complete"){
+   const m=g3AreaCellsShape(2,true),outer=m.w*m.h,answer=outer-m.area,data={kind:"cells",cells:m.cells,aria:"Фигура из клеток с пустым прямоугольным углом"};
+   return g3GeoNumber("Сколько квадратных единиц нужно добавить в пустом углу, чтобы получился полный прямоугольник?",answer,
+      `Внешний прямоугольник: ${m.w} · ${m.h} = ${outer} клеток. Сейчас заполнено ${m.area}. Нужно добавить ${outer} − ${m.area} = <b>${answer}</b>.`,
+      `g3:area_measure:${d}:complete:${m.w}:${m.h}:${m.cutW}:${m.cutH}`,
+      {type:"g3AreaMeasure",variant:"complete",w:m.w,h:m.h,cutW:m.cutW,cutH:m.cutH,area:m.area,outer,answer,cells:m.cells,journalText:`Дополните фигуру до прямоугольника ${m.w} × ${m.h}.`},
+      data,"кв. ед.");
+  }
+  let wA,hA,wB,hB,areaA,areaB;
+  do{wA=ri(2,4);hA=ri(2,5);wB=ri(2,4);hB=ri(2,5);areaA=wA*hA;areaB=wB*hB}while(areaA===areaB);
+  const cellsA=[],cellsB=[];
+  for(let y=0;y<hA;y++)for(let x=0;x<wA;x++)cellsA.push({x:1+x,y:2+y});
+  for(let y=0;y<hB;y++)for(let x=0;x<wB;x++)cellsB.push({x:8+x,y:2+y,alt:true});
+  const answer=Math.abs(areaA-areaB),data={kind:"cells",cells:[...cellsA,...cellsB],aria:"Две фигуры из одинаковых клеток"};
+  return g3GeoNumber("На сколько квадратных единиц площадь большей фигуры больше площади меньшей?",answer,
+    `Площади: ${wA} · ${hA} = ${areaA}; ${wB} · ${hB} = ${areaB}. Разность: ${Math.max(areaA,areaB)} − ${Math.min(areaA,areaB)} = <b>${answer}</b>.`,
+    `g3:area_measure:${d}:difference:${wA}:${hA}:${wB}:${hB}`,
+    {type:"g3AreaMeasure",variant:"difference",wA,hA,wB,hB,areaA,areaB,answer,cellsA,cellsB},data,"кв. ед.");
+ }
  if(d>0&&Math.random()<.28){
   const wA=ri(2,4),hA=ri(2,4),wB=ri(2,4),hB=ri(2,4),cellsA=[],cellsB=[];for(let y=0;y<hA;y++)for(let x=0;x<wA;x++)cellsA.push({x:1+x,y:2+y});for(let y=0;y<hB;y++)for(let x=0;x<wB;x++)cellsB.push({x:8+x,y:2+y,alt:true});const areaA=wA*hA,areaB=wB*hB,rel=areaA===areaB?"=":areaA>areaB?">":"<",data={kind:"cells",cells:[...cellsA,...cellsB],aria:"Две фигуры на одинаковой клетчатой сетке"};
   return g3GeoChoice("Сравните площади фигур A и B по одинаковым клеткам.",rel,["<","=",">"],`Площадь A: ${areaA} ${ruCount(areaA,"клетка","клетки","клеток")}. Площадь B: ${areaB} ${ruCount(areaB,"клетка","клетки","клеток")}. Поэтому A <b>${rel}</b> B.`,`g3:area_measure:${d}:compare:${wA}:${hA}:${wB}:${hB}`,{type:"g3AreaMeasure",variant:"compare",areaA,areaB,relation:rel,sameScale:true,cellsA,cellsB},data)
