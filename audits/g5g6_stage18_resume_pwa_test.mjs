@@ -110,12 +110,23 @@ try{
      await page.waitForFunction(()=>!!document.getElementById('matkvest-stage18d-grammar'),{timeout:20000});
      await page.evaluate(async()=>{const r=await navigator.serviceWorker.getRegistration();if(r)await r.update()}).catch(()=>{});
      await page.waitForFunction(async()=>{const cachesNow=await caches.keys();return cachesNow.includes('matkvest-iphone-v54')&&!cachesNow.includes('matkvest-iphone-v50')},{timeout:60000});
-     const newer=await page.evaluate(async()=>({
-       sentinel:localStorage.getItem('stage18-old-profile'),
-       hasForm:!!document.getElementById('matkvest-stage18d-grammar'),
-       caches:await caches.keys(),
-       controller:!!navigator.serviceWorker.controller
-     }));
+     // The PWA intentionally reloads on controllerchange: do not read DOM during navigation.
+     let newer=null;
+     for(let retry=0;retry<12;retry++){
+       try{
+         await delay(450);
+         newer=await page.evaluate(async()=>({
+           sentinel:localStorage.getItem('stage18-old-profile'),
+           hasForm:!!document.getElementById('matkvest-stage18d-grammar'),
+           caches:await caches.keys(),
+           controller:!!navigator.serviceWorker.controller
+         }));
+         if(newer.hasForm&&newer.controller)break;
+       }catch(e){
+         if(!/Execution context was destroyed|navigation|Cannot find context/i.test(String(e)))throw e;
+       }
+     }
+     if(!newer)throw Error('Cannot inspect stable page after service-worker update');
      if(data.value!==newer.sentinel||!newer.hasForm||!newer.controller)throw Error('Legacy data or current application lost '+JSON.stringify(newer));
      return {profileRetained:true,staleSWDeleted:true,caches:newer.caches};
    }finally{await ctx.close()}
