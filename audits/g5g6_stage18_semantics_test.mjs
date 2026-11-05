@@ -18,10 +18,10 @@ try{
    const stats={checks:[],details:[],unhandled:[]};
    function check(name,value,extra=null){stats.checks.push({name,pass:!!value,extra});}
    function evalForm(q,form){
-     const prev=globalThis.qid;
-     globalThis.qid='g5:'+q.sourceTopicId;
+     const prev=qid;
+     qid='g5:'+q.sourceTopicId;
      const v=quizInputEvaluation(q,{stage18Fraction:true,whole:form[0],numerator:form[1],denominator:form[2]});
-     globalThis.qid=prev;
+     qid=prev;
      return v;
    }
    function gen(topic,stage,attempts=140){
@@ -87,7 +87,7 @@ try{
    check('Fraction reading-to-words remains multiple choice',untouched6.every(x=>x.answerMode!=='fraction'));
    // Grade6 and higher remain untouched in generator architecture.
    check('G6 generator still callable',typeof makeG6Question==='function');
-   check('G7 fraction input check remains unchanged',(()=>{globalThis.qid='g7:rational_numbers_forms';return !stage18UsesFractionBoxes({answerMode:'fraction'})})());
+   check('G7 fraction input check remains unchanged',(()=>{qid='g7:rational_numbers_forms';return !stage18UsesFractionBoxes({answerMode:'fraction'})})());
    return stats;
  });
  const fails=outcome.checks.filter(x=>!x.pass);
