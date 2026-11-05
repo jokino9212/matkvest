@@ -32420,4 +32420,26 @@ window.G8_QA8_AUDIT={targets:RAW.slice(),levels:LENGTH.slice(),pools:Object.from
 })();
 </script>
 
+
+<script id="matkvest-stage18g-sectors">
+/* "2 равных сектора", "5 равных секторов", "21 равный сектор". */
+(function(){
+ function sectorPhrase(number){
+   const n=Math.abs(Number(number)),t=n%10,h=n%100;
+   if(h>=11&&h<=14)return 'равных секторов';
+   if(t===1)return 'равный сектор';
+   if(t>=2&&t<=4)return 'равных сектора';
+   return 'равных секторов';
+ }
+ const original=makeG5Question;
+ makeG5Question=function(id){
+   const question=original.apply(this,arguments);
+   if(id!=='charts'||typeof question?.text!=='string')return question;
+   const text=question.text.replace(/(\d+)\s+равных\s+секторов/gi,(_,n)=>n+' '+sectorPhrase(n));
+   return text===question.text?question:{...question,text,
+     sig:String(question.sig||'')+':s18g-sector-copy'};
+ };
+})();
+</script>
+
 </body></html>
