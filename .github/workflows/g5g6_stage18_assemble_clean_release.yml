@@ -1,0 +1,59 @@
+name: MatKvest stage18 - assemble minimal v55 release branch
+on:
+  push:
+    branches: [audit/g5g6-stage18-20261105]
+    paths:
+      - .github/workflows/g5g6_stage18_assemble_clean_release.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: matkvest-stage18-v55-minimal-release
+  cancel-in-progress: false
+jobs:
+  assemble-no-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit/g5g6-stage18-20261105
+          fetch-depth: 0
+          persist-credentials: true
+      - name: Verify source v55 passed all original stage18 and PWA gates
+        run: |
+          set -euo pipefail
+          test "$(sha256sum index.html | cut -d' ' -f1)" = "12e52584246cf5763dc378052b7e134dda3b4d7639576296f3448ab97d638e0d"
+          grep -F 'matkvest-iphone-v55' sw.js
+          grep -F '12e52584246cf5763dc378052b7e134dda3b4d7639576296f3448ab97d638e0d' sw.js
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(Path("audits/g5g6_stage18_v55_final_gate.json").read_text())
+          assert d["version"]=="v55" and d["browser_regression"]=="PASS"
+          assert d["pwa_upgrade_v50_to_v55"]=="PASS" and d["generated"]==11988
+          assert d["tested_topic_count"]==111 and not d["released"]
+          PY
+      - name: Assemble only index.html plus sw.js atop vetted v50 release
+        run: |
+          set -euo pipefail
+          SOURCE_SHA=$(git rev-parse HEAD)
+          git fetch origin release/stage17-v50-20261105 release/stage18-v55-20261106
+          test "$(git rev-parse origin/release/stage17-v50-20261105)" = "10ae70be6d2a54528274ddc4f5678c9971b536c8"
+          test "$(git rev-parse origin/release/stage18-v55-20261106)" = "10ae70be6d2a54528274ddc4f5678c9971b536c8" || { echo 'Release branch no longer at expected base, refusing overwrite'; exit 1; }
+          git switch -C release/stage18-v55-20261106 origin/release/stage17-v50-20261105
+          git show "$SOURCE_SHA:index.html" > index.html
+          git show "$SOURCE_SHA:sw.js" > sw.js
+          test "$(sha256sum index.html | cut -d' ' -f1)" = "12e52584246cf5763dc378052b7e134dda3b4d7639576296f3448ab97d638e0d"
+          git add index.html sw.js
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "release(stage18): vetted minimal frontend v55 (G5-G6 fractions and variety)"
+          FILES=$(git diff --name-only origin/release/stage17-v50-20261105 HEAD)
+          printf '%s\n' "$FILES"
+          test "$FILES" = "$(printf 'index.html\nsw.js')"
+          test "$(git rev-list --count origin/release/stage17-v50-20261105..HEAD)" = 1
+          test "$(git merge-base HEAD origin/release/stage17-v50-20261105)" = "$(git rev-parse origin/release/stage17-v50-20261105)"
+          git push origin HEAD:refs/heads/release/stage18-v55-20261106
+      - name: Release branch remains unmerged, untagged and not deployed
+        run: echo "Created clean v55 release candidate. No merge, no deployment."
