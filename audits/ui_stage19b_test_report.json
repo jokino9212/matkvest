@@ -1,0 +1,463 @@
+{
+  "sha": "2728993b13c043cc1f5d3fbdc8df38d387c172578208893b3455a124f8bfaad5",
+  "tests": [
+    {
+      "name": "All 4 original navigation actions preserve role and keyboard semantics at 390",
+      "pass": true,
+      "detail": {
+        "height": 114,
+        "width": 370,
+        "menuVisible": true,
+        "navDisplay": "none",
+        "menuExpanded": "false",
+        "navLabels": [
+          "Магазин",
+          "Данные",
+          "Журнал",
+          "Лидеры"
+        ],
+        "controlRoles": [
+          [
+            "button",
+            0
+          ],
+          [
+            "button",
+            0
+          ],
+          [
+            "button",
+            0
+          ],
+          [
+            "button",
+            0
+          ]
+        ],
+        "secondaryCurrency": 1,
+        "menuCount": 4,
+        "hasGradeCards": true
+      }
+    },
+    {
+      "name": "Mobile uses one compact menu and hides actions at 390",
+      "pass": true,
+      "detail": {
+        "height": 114,
+        "width": 370,
+        "menuVisible": true,
+        "navDisplay": "none",
+        "menuExpanded": "false",
+        "navLabels": [
+          "Магазин",
+          "Данные",
+          "Журнал",
+          "Лидеры"
+        ],
+        "controlRoles": [
+          [
+            "button",
+            0
+          ],
+          [
+            "button",
+            0
+          ],
+          [
+            "button",
+            0
+          ],
+          [
+            "button",
+            0
+          ]
+        ],
+        "secondaryCurrency": 1,
+        "menuCount": 4,
+        "hasGradeCards": true
+      }
+    },
+    {
+      "name": "Mobile header no longer spans six rows at 390",
+      "pass": true,
+      "detail": {
+        "height": 114
+      }
+    },
+    {
+      "name": "Menu opens as 2-column overlay, never horizontally overflows at 390",
+      "pass": true,
+      "detail": {
+        "attr": "true",
+        "display": "grid",
+        "rect": {
+          "left": 11,
+          "right": 379,
+          "top": 130.5,
+          "width": 368,
+          "height": 180
+        },
+        "windowWidth": 390,
+        "items": [
+          "flex",
+          "flex",
+          "flex",
+          "flex"
+        ]
+      }
+    },
+    {
+      "name": "Escape closes menu and restores focus at 390",
+      "pass": true,
+      "detail": {
+        "expanded": "false",
+        "focus": true,
+        "nav": "none"
+      }
+    },
+    {
+      "name": "All 4 original navigation actions preserve role and keyboard semantics at 600",
+      "pass": true,
+      "detail": {
+        "height": 114,
+        "width": 564,
+        "menuVisible": true,
+        "navDisplay": "none",
+        "menuExpanded": "false",
+        "navLabels": [
+          "Магазин",
+          "Данные",
+          "Журнал",
+          "Лидеры"
+        ],
+        "controlRoles": [
+          [
+            "button",
+            0
+          ],
+          [
+            "button",
+            0
+          ],
+          [
+            "button",
+            0
+          ],
+          [
+            "button",
+            0
+          ]
+        ],
+        "secondaryCurrency": 1,
+        "menuCount": 4,
+        "hasGradeCards": true
+      }
+    },
+    {
+      "name": "Mobile uses one compact menu and hides actions at 600",
+      "pass": true,
+      "detail": {
+        "height": 114,
+        "width": 564,
+        "menuVisible": true,
+        "navDisplay": "none",
+        "menuExpanded": "false",
+        "navLabels": [
+          "Магазин",
+          "Данные",
+          "Журнал",
+          "Лидеры"
+        ],
+        "controlRoles": [
+          [
+            "button",
+            0
+          ],
+          [
+            "button",
+            0
+          ],
+          [
+            "button",
+            0
+          ],
+          [
+            "button",
+            0
+          ]
+        ],
+        "secondaryCurrency": 1,
+        "menuCount": 4,
+        "hasGradeCards": true
+      }
+    },
+    {
+      "name": "Mobile header no longer spans six rows at 600",
+      "pass": true,
+      "detail": {
+        "height": 114
+      }
+    },
+    {
+      "name": "Menu opens as 2-column overlay, never horizontally overflows at 600",
+      "pass": true,
+      "detail": {
+        "attr": "true",
+        "display": "grid",
+        "rect": {
+          "left": 19,
+          "right": 581,
+          "top": 138.5,
+          "width": 562,
+          "height": 180
+        },
+        "windowWidth": 600,
+        "items": [
+          "flex",
+          "flex",
+          "flex",
+          "flex"
+        ]
+      }
+    },
+    {
+      "name": "Escape closes menu and restores focus at 600",
+      "pass": true,
+      "detail": {
+        "expanded": "false",
+        "focus": true,
+        "nav": "none"
+      }
+    },
+    {
+      "name": "All 4 original navigation actions preserve role and keyboard semantics at 768",
+      "pass": true,
+      "detail": {
+        "height": 122,
+        "width": 732,
+        "menuVisible": false,
+        "navDisplay": "flex",
+        "menuExpanded": "false",
+        "navLabels": [
+          "Магазин",
+          "Данные",
+          "Журнал",
+          "Лидеры"
+        ],
+        "controlRoles": [
+          [
+            "button",
+            0
+          ],
+          [
+            "button",
+            0
+          ],
+          [
+            "button",
+            0
+          ],
+          [
+            "button",
+            0
+          ]
+        ],
+        "secondaryCurrency": 1,
+        "menuCount": 4,
+        "hasGradeCards": true
+      }
+    },
+    {
+      "name": "Desktop/tablet destinations visible and toggle hidden at 768",
+      "pass": true,
+      "detail": {
+        "height": 122,
+        "width": 732,
+        "menuVisible": false,
+        "navDisplay": "flex",
+        "menuExpanded": "false",
+        "navLabels": [
+          "Магазин",
+          "Данные",
+          "Журнал",
+          "Лидеры"
+        ],
+        "controlRoles": [
+          [
+            "button",
+            0
+          ],
+          [
+            "button",
+            0
+          ],
+          [
+            "button",
+            0
+          ],
+          [
+            "button",
+            0
+          ]
+        ],
+        "secondaryCurrency": 1,
+        "menuCount": 4,
+        "hasGradeCards": true
+      }
+    },
+    {
+      "name": "All 4 original navigation actions preserve role and keyboard semantics at 1280",
+      "pass": true,
+      "detail": {
+        "height": 122,
+        "width": 1144,
+        "menuVisible": false,
+        "navDisplay": "flex",
+        "menuExpanded": "false",
+        "navLabels": [
+          "Магазин",
+          "Данные",
+          "Журнал",
+          "Лидеры"
+        ],
+        "controlRoles": [
+          [
+            "button",
+            0
+          ],
+          [
+            "button",
+            0
+          ],
+          [
+            "button",
+            0
+          ],
+          [
+            "button",
+            0
+          ]
+        ],
+        "secondaryCurrency": 1,
+        "menuCount": 4,
+        "hasGradeCards": true
+      }
+    },
+    {
+      "name": "Desktop/tablet destinations visible and toggle hidden at 1280",
+      "pass": true,
+      "detail": {
+        "height": 122,
+        "width": 1144,
+        "menuVisible": false,
+        "navDisplay": "flex",
+        "menuExpanded": "false",
+        "navLabels": [
+          "Магазин",
+          "Данные",
+          "Журнал",
+          "Лидеры"
+        ],
+        "controlRoles": [
+          [
+            "button",
+            0
+          ],
+          [
+            "button",
+            0
+          ],
+          [
+            "button",
+            0
+          ],
+          [
+            "button",
+            0
+          ]
+        ],
+        "secondaryCurrency": 1,
+        "menuCount": 4,
+        "hasGradeCards": true
+      }
+    },
+    {
+      "name": "Mobile Магазин action works once via mouse",
+      "pass": true,
+      "detail": {
+        "fired": 1,
+        "closed": true,
+        "exists": true
+      }
+    },
+    {
+      "name": "Mobile Данные action works once via mouse",
+      "pass": true,
+      "detail": {
+        "fired": 1,
+        "closed": true,
+        "exists": true
+      }
+    },
+    {
+      "name": "Mobile Журнал action works once via mouse",
+      "pass": true,
+      "detail": {
+        "fired": 1,
+        "closed": true,
+        "exists": true
+      }
+    },
+    {
+      "name": "Mobile Лидеры action works once via mouse",
+      "pass": true,
+      "detail": {
+        "fired": 1,
+        "closed": true,
+        "exists": true
+      }
+    },
+    {
+      "name": "Mobile Магазин action works once via keyboard",
+      "pass": true,
+      "detail": {
+        "fired": 1,
+        "closed": true,
+        "exists": true
+      }
+    },
+    {
+      "name": "Mobile Данные action works once via keyboard",
+      "pass": true,
+      "detail": {
+        "fired": 1,
+        "closed": true,
+        "exists": true
+      }
+    },
+    {
+      "name": "Mobile Журнал action works once via keyboard",
+      "pass": true,
+      "detail": {
+        "fired": 1,
+        "closed": true,
+        "exists": true
+      }
+    },
+    {
+      "name": "Mobile Лидеры action works once via keyboard",
+      "pass": true,
+      "detail": {
+        "fired": 1,
+        "closed": true,
+        "exists": true
+      }
+    },
+    {
+      "name": "Mobile whole-card grade navigation preserved",
+      "pass": true,
+      "detail": null
+    }
+  ],
+  "pageErrors": []
+}
