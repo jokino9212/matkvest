@@ -1,0 +1,47 @@
+{
+  "sha": "29e750205c4549e2c9d6105b49002ba1c505876518a2139e3da0ce5644e15859",
+  "checkedAt": "2026-11-05T22:03:08.453Z",
+  "pass": [
+    {
+      "name": "g5 mixed/ordinary fraction form persists across refresh",
+      "attemptIdStable": true,
+      "questionStable": true,
+      "fractionFieldsRestored": true,
+      "fields": [
+        "",
+        "4",
+        "8"
+      ]
+    },
+    {
+      "name": "g6 mixed/ordinary fraction form persists across refresh",
+      "attemptIdStable": true,
+      "questionStable": true,
+      "fractionFieldsRestored": true,
+      "fields": [
+        "2",
+        "1",
+        "3"
+      ]
+    },
+    {
+      "name": "Cross-grade G7 unfinished item resume unaffected",
+      "g7Stable": true
+    },
+    {
+      "name": "Old v50 upgrade to v54 retains local profile and removes stale cache",
+      "profileRetained": true,
+      "staleSWDeleted": true,
+      "caches": [
+        "matkvest-iphone-v54"
+      ]
+    },
+    {
+      "name": "v54 offline boot and cached local data",
+      "offline": true,
+      "dataRetained": true
+    }
+  ],
+  "fail": [],
+  "pageErrors": []
+}
