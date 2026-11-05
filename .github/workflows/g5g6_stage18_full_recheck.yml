@@ -1,0 +1,77 @@
+name: MatKvest stage18 - complete G5/G6 v54 recheck
+on:
+  push:
+    branches: [audit/g5g6-stage18-20261105]
+    paths:
+      - .github/workflows/g5g6_stage18_full_recheck.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: matkvest-stage18-v54-full-recheck
+  cancel-in-progress: false
+jobs:
+  all-111-topics:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit/g5g6-stage18-20261105
+          persist-credentials: true
+      - name: Verify expected tested v54 and correct service worker build
+        run: |
+          echo '29e750205c4549e2c9d6105b49002ba1c505876518a2139e3da0ce5644e15859  index.html' | sha256sum --check
+          grep -F 'matkvest-iphone-v54' sw.js
+          grep -F '29e750205c4549e2c9d6105b49002ba1c505876518a2139e3da0ce5644e15859' sw.js
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Chromium harness
+        run: npm install --no-save --no-package-lock puppeteer-core@24
+      - name: Recheck every topic / stage / response mode after v54
+        run: node audits/g5g6_stage18_quality_deep.mjs
+      - name: Verify exact G5 answer formats from final candidate
+        run: node audits/g5g6_stage18_answers_probe.mjs
+      - name: Enforce generation invariants and write full checkpoint
+        run: |
+          python3 - <<'PY'
+          import json,hashlib,datetime
+          from pathlib import Path
+          p=Path("audits/g5g6_stage18_quality_deep_report.json")
+          d=json.loads(p.read_text(encoding="utf8"))
+          rows=d["topics"]
+          expected={"g5":53,"g6":58}
+          by_grade={g:len({x["id"] for x in rows if x["id"].startswith(g+":")}) for g in expected}
+          errors={**d["quality"],"exceptions":len(d["exceptions"]),"pageErrors":len(d["pageErrors"])}
+          seen=len(rows)
+          if by_grade!=expected or seen!=333 or any(errors.values()) or len(d["inventory"]["grade6Pending"])!=0:
+              raise SystemExit("FAIL: full G5/G6 post-v54 inventory "+repr({"grades":by_grade,"rows":seen,"errors":errors}))
+          weaknesses=[dict(id=x["id"],stage=x["stage"],visible=x["uniqueVisible"],normalized=x["uniqueNormalized"]) for x in rows if x["uniqueVisible"]<=8]
+          out={"audit":"Stage18 complete v54 generator regression","sha256":hashlib.sha256(Path("index.html").read_bytes()).hexdigest(),"grades":by_grade,"topic_stage_pairs":seen,"generated":d["sampleCount"],"errors":errors,"grade6_unavailable":d["inventory"]["grade6Pending"],"weak_text_only_samples":weaknesses,"note":"Low text uniqueness alone is not a failure for graph/diagram questions; images and generated numerical values must be considered.","release":"candidate only, not deployed"}
+          Path("audits/g5g6_stage18_post_v54_report.json").write_text(json.dumps(out,ensure_ascii=False,indent=2)+"\n",encoding="utf8")
+          print(json.dumps({"grades":by_grade,"rows":seen,"generated":d["sampleCount"],"errors":errors,"weaknesses":weaknesses},ensure_ascii=False,indent=2))
+          PY
+      - name: Persist reproducible evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: matkvest-stage18-full-111-topic-v54
+          path: |
+            audits/g5g6_stage18_quality_deep_report.json
+            audits/g5g6_stage18_answers_probe.json
+            audits/g5g6_stage18_post_v54_report.json
+          if-no-files-found: warn
+      - name: Save audit checkpoint only
+        if: success()
+        run: |
+          set -eu
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add audits/g5g6_stage18_post_v54_report.json
+          if ! git diff --cached --quiet; then
+            git commit -m "audit(stage18): 111-topic generation and answer-format recheck on v54"
+            git restore -- audits/g5g6_stage18_quality_deep_report.json audits/g5g6_stage18_answers_probe.json
+            git pull --rebase origin audit/g5g6-stage18-20261105
+            git push origin HEAD:audit/g5g6-stage18-20261105
+          fi
