@@ -129,6 +129,19 @@ edit_function("makeG5Question",
  '\n };\n}',
  '\n };\n return stage18ConvertG5Fraction(result,qq);\n}')
 
+# Several later quality layers wrap makeG5Question; install the converter after all scripts.
+last_adapter="""<script id="stage18-g5-final-adapter">
+(function(){
+ const previous=makeG5Question;
+ makeG5Question=function(id){
+   const generated=previous.apply(this,arguments);
+   return stage18ConvertG5Fraction(generated,{correct:generated?.ans});
+ };
+})();
+</script>"""
+assert s.count("</body>")==1
+s=s.replace("</body>",last_adapter+"\\n</body>",1)
+
 updated_hash=hashlib.sha256(s.encode("utf8")).hexdigest()
 assert updated_hash!=base_hash
 sw=sw.replace("matkvest-iphone-v50","matkvest-iphone-v51").replace(base_hash,updated_hash)
