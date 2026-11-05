@@ -1,0 +1,63 @@
+name: MatKvest stage18C - grade5-6 variation and grammar gate
+on:
+  push:
+    branches: [audit/g5g6-stage18-20261105]
+    paths:
+      - .github/workflows/g5g6_stage18_variety_gate.yml
+      - audits/g5g6_stage18_variety_patch.py
+      - audits/g5g6_stage18_variety_test.mjs
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: matkvest-stage18c-variety-gate
+  cancel-in-progress: false
+jobs:
+  patch-and-verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit/g5g6-stage18-20261105
+          persist-credentials: true
+      - name: Patch limited generators on v52
+        run: python3 audits/g5g6_stage18_variety_patch.py
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install browser test harness
+        run: npm install --no-save --no-package-lock puppeteer-core@24
+      - name: Verify new varied grade5-6 generators and exact arithmetic
+        run: node audits/g5g6_stage18_variety_test.mjs
+      - name: Regress stage18B exact fractions/mixed numbers/powers
+        run: |
+          sed "s/matkvest-iphone-v52/matkvest-iphone-v53/g" audits/g5g6_stage18_semantics_test.mjs > audits/_stage18c_semantic_regression.mjs
+          node audits/_stage18c_semantic_regression.mjs
+          rm audits/_stage18c_semantic_regression.mjs
+      - name: Regress stage18A fraction input
+        run: |
+          sed "s/matkvest-iphone-v51/matkvest-iphone-v53/g" audits/g5g6_stage18_fraction_test.mjs > audits/_stage18c_fraction_regression.mjs
+          node audits/_stage18c_fraction_regression.mjs
+          rm audits/_stage18c_fraction_regression.mjs
+      - name: Collect artifacts even on failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: matkvest-stage18c-variety-evidence
+          path: |
+            audits/g5g6_stage18_variety_patch_report.json
+            audits/g5g6_stage18_variety_test_report.json
+          if-no-files-found: warn
+      - name: Persist verified v53 in audit branch only
+        if: success()
+        run: |
+          set -eu
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js audits/g5g6_stage18_variety_patch_report.json audits/g5g6_stage18_variety_test_report.json
+          if ! git diff --cached --quiet; then
+            git commit -m "feat(stage18C): diversify g5 fractions and g6 circle areas v53"
+            git pull --rebase origin audit/g5g6-stage18-20261105
+            git push origin HEAD:audit/g5g6-stage18-20261105
+          fi
