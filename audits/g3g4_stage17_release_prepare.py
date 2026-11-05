@@ -32,11 +32,9 @@ s=exact(s,OLD_SHA,NEW_SHA,"candidate SHA")
 s=exact(s,"matkvest-iphone-v39","matkvest-iphone-v40","old live PWA fixture")
 # Previous operation created v40 for old fixture. Replace current target v40 references selectively.
 s=exact(s,"keys.includes('matkvest-iphone-v40') &&","keys.includes('matkvest-iphone-v50') &&","new cache wait") if "keys.includes('matkvest-iphone-v40') &&" in s else s
-s=exact(s,"keys.includes('matkvest-iphone-v40') &&","keys.includes('matkvest-iphone-v50') &&","new cache wait repeated") if "keys.includes('matkvest-iphone-v40') &&" in s else s
 s=exact(s,"if(!newer.caches.includes('matkvest-iphone-v40'))","if(!newer.caches.includes('matkvest-iphone-v50'))","new cache result")
-s=exact(s,"'g7_stage15_legacy_upgrade_report.json'","'g3g4_stage17_release_real_v40_v50_report.json'","upgrade report")
+s=exact(s,"'audits/g7_stage15_legacy_upgrade_report.json'","'audits/g3g4_stage17_release_real_v40_v50_report.json'","upgrade report")
 # Fix exact wait: original v40 needs an active worker v40, new version must be v50.
-s=exact(s,"return keys.includes('matkvest-iphone-v40') &&","return keys.includes('matkvest-iphone-v50') &&","candidate wait")
 # First old assertion is still v40. Old cache removal must be v40.
 # Add an explicit source main baseline check, before starting the browser.
 needle="if(!oldSw.toString('utf8').includes('matkvest-iphone-v40'))"
@@ -58,6 +56,7 @@ s=version(source("g7_stage12_sw_update_test"))
 s=exact(s,"'audits/g7_stage12_sw_update_report.json'","'audits/g3g4_stage17_release_sw_update_report.json'","SW upgrade report")
 write("sw_update",s,"g7_stage12_sw_update_test.mjs")
 s=source("g7_stage12_e2e")
+s=exact(s,"matkvest-iphone-v40","matkvest-iphone-v50","E2E current PWA cache")
 s=exact(s,"'audits/g7_stage12_e2e_report.json'","'audits/g3g4_stage17_release_e2e_report.json'","E2E report")
 write("e2e",s,"g7_stage12_e2e.mjs")
 s=exact(source("g7_stage14_grade4_test"),OLD_SHA,NEW_SHA,"G4 SHA")
