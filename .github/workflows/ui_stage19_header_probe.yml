@@ -1,0 +1,27 @@
+name: MatKvest UI Stage19 - header diagnostics
+on:
+  push:
+    branches: [audit/ui-stage19-20261106]
+    paths:
+      - .github/workflows/ui_stage19_header_probe.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit/ui-stage19-20261106
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save --no-package-lock puppeteer-core@24
+      - run: node audits/ui_stage19_header_probe.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: matkvest-stage19-header-structure
+          path: audits/ui_stage19_header_report.json
