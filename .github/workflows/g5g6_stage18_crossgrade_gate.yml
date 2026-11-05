@@ -1,9 +1,5 @@
 name: MatKvest stage18H - cross-grade regression for v55
 on:
-  push:
-    branches: [audit/g5g6-stage18-20261105]
-    paths:
-      - .github/workflows/g5g6_stage18_crossgrade_gate.yml
   workflow_dispatch:
 permissions:
   contents: write
@@ -75,7 +71,10 @@ jobs:
           git add audits/g5g6_stage18_crossgrade_v55_checkpoint.json
           if ! git diff --cached --quiet; then
             git commit -m "audit(stage18): verify G1-G8 and full G7 regression with v55"
-            git restore -- audits/g7_stage13_strict_report.json audits/g7_stage14_crossgrade_report.json audits/g7_stage14_grade4_report.json
+            # Restore tracked reports and delete generated untracked reports safely.
+            for f in audits/g7_stage13_strict_report.json audits/g7_stage14_crossgrade_report.json audits/g7_stage14_grade4_report.json; do
+              if git ls-files --error-unmatch "$f" >/dev/null 2>&1; then git restore -- "$f"; else rm -f "$f"; fi
+            done
             git pull --rebase origin audit/g5g6-stage18-20261105
             git push origin HEAD:audit/g5g6-stage18-20261105
           fi
