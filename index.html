@@ -1572,6 +1572,22 @@ body:has(.mk872-help-layer){overflow:hidden}
 .shop-icon:has(>.mk-golden-pig-img){overflow:hidden;}
 .pet-mini>.mk-golden-pig-img,.study-pet>.mk-golden-pig-img{width:100%;height:100%;object-fit:contain;}
 </style>
+<style id="matkvest-stage18-fraction-input">
+.stage18-frac-wrap{text-align:center}
+.stage18-frac-entry{display:flex;justify-content:center;align-items:flex-end;gap:18px;flex-wrap:wrap;margin:13px auto 10px;max-width:100%}
+.stage18-frac-part{display:flex;flex-direction:column;align-items:center;gap:7px;color:var(--ink);font-weight:800;font-size:13px}
+.stage18-frac-stack{display:flex;flex-direction:column;align-items:center;gap:4px}
+.stage18-frac-cell{width:64px;height:56px;box-sizing:border-box;text-align:center;border:2px solid #93a8bd;border-radius:9px;background:#fff;font-weight:850;font-size:27px;color:var(--ink);padding:3px;box-shadow:0 1px 4px #19354914}
+.stage18-frac-cell:focus{border-color:#2770da;outline:3px solid #7eb2ff66;outline-offset:1px}
+.stage18-frac-cell.bad{border-color:#cf3838;background:#fff0f0}
+.stage18-frac-cell.good{border-color:#39a56e;background:#e8f7ef}
+.stage18-frac-entry>.stage18-frac-part:first-child{padding-bottom:33px}
+.stage18-frac-bar{height:3px;width:72px;background:var(--ink);border-radius:5px;margin:0 auto}
+.stage18-frac-title{font-weight:800;font-size:14px;margin:2px 0 0}
+.stage18-frac-label{font-size:12px;line-height:1.35;max-width:115px;color:var(--muted);text-align:center;min-height:32px}
+.stage18-frac-note{color:var(--muted);font-size:12px;line-height:1.45;margin:4px auto 8px}
+@media(max-width:480px){.stage18-frac-entry{gap:10px}.stage18-frac-cell{width:55px;height:52px;font-size:23px}.stage18-frac-bar{width:63px}.stage18-frac-label{font-size:11px;max-width:98px}}
+</style>
 </head>
 <body>
 <div class="shell">
@@ -2397,7 +2413,7 @@ function makeG5Question(id){
  const qq=g5DonorQuestion(sourceTopicId);
  const correctChoice=qq.choices.find(c=>String(c.key)===String(qq.correct));
  const correctLabel=correctChoice?.label??qq.correctLabel??qq.correct;
- return {
+ const result={
    text:qq.text,
    ans:String(qq.correct),
    choices:qq.choices.map(c=>({label:c.label,key:String(c.key)})),
@@ -2410,6 +2426,7 @@ function makeG5Question(id){
    // Это позволяет anti-repeat различать, например, разные пары сравниваемых дробей.
    sig:`g5:${requestedId}:${sourceTopicId}:${qq.templateId||"base"}:${activeDifficulty()}:${stripHtmlText(qq.text)}:${String(qq.correct)}:${qq.choices.map(c=>academicHtmlPlain(c.label)).sort().join("~")}`
  };
+ return stage18ConvertG5Fraction(result,qq);
 }
 
 
@@ -5261,10 +5278,36 @@ function generateG3ColumnTask(topicId,stageIndex){
   let a=0,b=0,ans=0,borrows=0,guard=0;if(d===2&&Math.random()<.55){const pool=[[500,247],[600,358],[702,368],[800,456],[905,478],[700,286]];[a,b]=g6RandomFrom(pool)}else do{guard++;a=ri(d===0?200:300,999);b=ri(20,a-1);borrows=g3BorrowCount(a,b)}while(((d===0&&borrows!==0)||(d===1&&borrows<1)||(d===2&&borrows<2))&&guard<900);ans=a-b;if(!a||ans<0){[a,b]=d===0?[786,243]:d===1?[452,178]:[702,368];ans=a-b}const cols=Math.max(String(a).length,String(b).length,String(ans).length),bm=calcBorrows(a,b,cols);return {a,b,ans,op:"−",marks:bm.receive,dotMarks:bm.donor,g3Topic:raw,audit:{type:"g3WrittenSub",a,b,answer:ans,borrows:g3BorrowCount(a,b),throughZero:g3BorrowThroughZero(a,b)}};
  }
  if(raw==="written_multiply"){
-  let a=0,b=0,ans=0,guard=0,carry=0;do{guard++;a=ri(d===0?11:20,d===0?33:d===1?39:49);b=ri(d===0?2:2,d===0?3:d===1?5:9);ans=a*b;carry=Math.floor((a%10)*b/10)}while(((d===0&&carry>0)||(d===1&&carry===0)||(ans>200))&&guard<600);if(!a||ans>250){a=d===0?23:d===1?27:38;b=d===0?3:d===1?3:2;ans=a*b}const cols=Math.max(String(a).length,String(ans).length);return {a,b,ans,op:"×",units:b,tens:0,cols,carry1:calcMulCarries(a,b,cols),singleDigitMultiplier:true,g3Topic:raw,audit:{type:"g3WrittenMul",a,b,answer:ans,carry:Math.floor((a%10)*b/10)>0}};
+  let a=0,b=0,ans=0,carryCount=0,guard=0;
+  const limit=d===0?99:d===1?299:999;
+  do{
+   a=ri(d===0?11:20,d===0?33:d===1?69:89);
+   b=ri(d===2?3:2,d===0?4:d===1?7:9);
+   ans=a*b;
+   const unitCarry=Math.floor((a%10)*b/10);
+   const tensCarry=Math.floor((Math.floor(a/10)*b+unitCarry)/10);
+   carryCount=Number(unitCarry>0)+Number(tensCarry>0);
+  }while((carryCount!==d||ans>limit)&&guard++<900);
+  if(carryCount!==d||ans>limit){
+   [a,b]=d===0?[12,3]:d===1?[27,3]:[47,8];
+   ans=a*b;
+   carryCount=d;
+  }
+  const cols=Math.max(String(a).length,String(ans).length);
+  return {a,b,ans,op:"×",units:b,tens:0,cols,carry1:calcMulCarries(a,b,cols),singleDigitMultiplier:true,g3Topic:raw,
+   audit:{type:"g3WrittenMul",a,b,answer:ans,carry:carryCount>0,carryCount}};
  }
  if(raw==="written_divide"){
-  const divisor=ri(2,d===0?5:9),qMin=d===0?11:12,qMax=d===0?24:d===1?49:99;let q=ri(qMin,qMax),dividend=q*divisor,guard=0;while((dividend>999||dividend<20)&&guard++<100){q=ri(qMin,qMax);dividend=q*divisor}const steps=divisionSteps(dividend,divisor);return {a:dividend,b:divisor,ans:q,op:"÷",steps,quotient:steps.map(x=>x.qd).join(""),g3Topic:raw,audit:{type:"g3WrittenDiv",dividend,divisor,quotient:q,remainder:dividend%divisor}};
+  const divisor=ri(2,d===0?5:9);
+  const maximum=Math.floor(999/divisor);
+  let q;
+  if(d===0)q=ri(11,24);
+  else if(d===1)q=ri(25,Math.min(99,maximum));
+  else if(Math.random()<.35)q=100+ri(1,Math.min(9,maximum-100));
+  else q=ri(100,maximum);
+  const dividend=q*divisor,steps=divisionSteps(dividend,divisor);
+  return {a:dividend,b:divisor,ans:q,op:"÷",steps,quotient:steps.map(x=>x.qd).join(""),
+   g3Topic:raw,audit:{type:"g3WrittenDiv",dividend,divisor,quotient:q,remainder:dividend%divisor,quotientDigits:String(q).length}};
  }
  return null;
 }
@@ -5355,6 +5398,7 @@ function g3DurationExplain847(start,end,duration){const sh=Math.floor(start/60),
 function g3TimeStoryQuestion(d){const variant=g6RandomFrom(d===0?["end","duration"]:["end","duration","start"]),duration=g6RandomFrom([20,25,30,35,40,45,50,60,70,80]),start=ri(8*60,18*60),safeStart=Math.min(start,21*60-duration),end=safeStart+duration;if(variant==="duration")return g3StoryNumberQuestion(`Занятие началось в ${g3TimeText(safeStart)} и закончилось в ${g3TimeText(end)}. Сколько минут оно длилось?`,duration,g3DurationExplain847(safeStart,end,duration),`g3:time_tasks:${d}:duration:${safeStart}:${end}`,{variant,start:safeStart,end,duration},"мин");if(variant==="start")return g3TimeInputQuestion(`Занятие закончилось в ${g3TimeText(end)} и длилось ${duration} мин. Когда оно началось?`,safeStart,`${g3TimeText(end)} − ${duration} мин = <b>${g3TimeText(safeStart)}</b>.`,`g3:time_tasks:${d}:start:${end}:${duration}`,{variant,start:safeStart,end,duration});return g3TimeInputQuestion(`Урок начался в ${g3TimeText(safeStart)} и длился ${duration} мин. Когда он закончился?`,end,`${g3TimeText(safeStart)} + ${duration} мин = <b>${g3TimeText(end)}</b>.`,`g3:time_tasks:${d}:end:${safeStart}:${duration}`,{variant,start:safeStart,end,duration})}
 function g3RemainderTaskQuestion(d){const divisor=ri(2,9),qv=ri(2,d===0?6:12),rem=ri(1,divisor-1),total=divisor*qv+rem;if(d===2&&Math.random()<.28){const need=qv+1,text=`Нужно перевезти ${g3Qty(total,"student")}. В одну машину помещается ${g3Qty(divisor,"person")}. Сколько машин нужно, чтобы перевезти всех?`;return g3StoryNumberQuestion(text,need,`${total} : ${divisor} = ${qv} (ост. ${rem}). Остались ещё ${rem}, значит нужна ещё одна машина: <b>${need}</b>.`,`g3:remainder_tasks:${d}:ceil:${total}:${divisor}`,{variant:"ceil",total,divisor,quotient:qv,remainder:rem,answer:need})}const text=`${g3Qty(total,"apple")} раскладывают в пакеты по ${g3Qty(divisor,"apple")}. Сколько полных пакетов получится и сколько яблок останется?`;return g3StoryRemainderQuestion(text,total,divisor,qv,rem,`${divisor} · ${qv} = ${divisor*qv}.<br>${total} − ${divisor*qv} = ${rem}.<br>Ответ: <b>${qv} (ост. ${rem})</b>.`,`g3:remainder_tasks:${d}:floor:${total}:${divisor}`,{variant:"floor",total})}
 function g3TwoStepQuestion(d){const variant=g6RandomFrom(d===0?["addSub","mulAdd"]:["addSub","mulAdd","mulSub","divAdd","divSub"]);let a,b,c,step1,answer,text,ex;if(variant==="addSub"){a=ri(8,30);b=ri(5,25);c=ri(2,a+b-1);step1=a+b;answer=step1-c;text=`В первой коробке ${g3Qty(a,"pencil")}, во второй ${g3Qty(b,"pencil")}. ${g3Qty(c,"pencil")} отдали. Сколько осталось?`;ex=`1) ${a}+${b}=${step1}.<br>2) ${step1}−${c}=<b>${answer}</b>.`}else if(variant==="mulAdd"){a=ri(2,6);b=ri(2,8);c=ri(2,15);step1=a*b;answer=step1+c;text=`В ${a} коробках по ${g3Qty(b,"candy")}. Потом добавили ещё ${g3Qty(c,"candy")}. Сколько стало?`;ex=`1) ${a}·${b}=${step1}.<br>2) ${step1}+${c}=<b>${answer}</b>.`}else if(variant==="mulSub"){a=ri(2,7);b=ri(2,8);step1=a*b;c=ri(1,step1-1);answer=step1-c;text=`В ${a} коробках по ${g3Qty(b,"toy")}. ${g3Qty(c,"toy")} убрали. Сколько осталось?`;ex=`1) ${a}·${b}=${step1}.<br>2) ${step1}−${c}=<b>${answer}</b>.`}else{const divisor=ri(2,6),qv=ri(3,10);a=divisor*qv;b=divisor;step1=qv;c=ri(1,variant==="divSub"?qv-1:12);answer=variant==="divSub"?step1-c:step1+c;text=variant==="divSub"?`${g3Qty(a,"apple")} разложили поровну в ${g3Qty(b,"box")}. Из одной коробки взяли ${g3Qty(c,"apple")}. Сколько яблок осталось в этой коробке?`:`${g3Qty(a,"apple")} разложили поровну в ${g3Qty(b,"box")}. Потом в одну коробку добавили ещё ${g3Qty(c,"apple")}. Сколько яблок стало в этой коробке?`;ex=`1) ${a}:${b}=${step1}.<br>2) ${step1}${variant==="divSub"?"−":"+"}${c}=<b>${answer}</b>.`}return g3StoryNumberQuestion(text,answer,ex,`g3:two_step_tasks:${d}:${variant}:${a}:${b}:${c}`,{variant,a,b,c,step1,answer})}
+
 function g3PartsIntroQuestion(d){
  const denoms=[2,3,4,5,10],n=g6RandomFrom(denoms),name=g3UnitFractionName(n),other=shuffleOptions(denoms.filter(x=>x!==n)).slice(0,3);let q;
  if(d===0){
@@ -5364,14 +5408,38 @@ function g3PartsIntroQuestion(d){
    if(variant==="wordToFraction")q=g3ChoiceQuestion(`Какая запись означает «<b>${name}</b>»?`,String(n),[{key:String(n),label:g3UnitFractionHtml(n)},...other.map(x=>({key:String(x),label:g3UnitFractionHtml(x)}))],`${name[0].toUpperCase()+name.slice(1)} записывается как ${g3UnitFractionHtml(n)}.`,`g3:parts_intro:${d}:${variant}:${n}`,{variant,denom:n},true);
    else q=g3ChoiceQuestion(`Как называется доля ${g3UnitFractionHtml(n)}?`,String(n),[{key:String(n),label:name},...other.map(x=>({key:String(x),label:g3UnitFractionName(x)}))],`${g3UnitFractionHtml(n)} — это <b>${name}</b>.`,`g3:parts_intro:${d}:${variant}:${n}`,{variant,denom:n},true);
  }else{
-   const variant=Math.random()<.5?"visualFraction":"visualName";
-   if(variant==="visualFraction")q=g3ChoiceQuestion(`Какая доля выделена на рисунке?`,String(n),[{key:String(n),label:g3UnitFractionHtml(n)},...other.map(x=>({key:String(x),label:g3UnitFractionHtml(x)}))],`Целое разделено на ${g3EqualPartsPhrase(n)} и выделена одна: ${g3UnitFractionHtml(n)}.`,`g3:parts_intro:${d}:${variant}:${n}`,{variant,denom:n},true);
-   else q=g3ChoiceQuestion(`Как называется выделенная на рисунке доля?`,String(n),[{key:String(n),label:name},...other.map(x=>({key:String(x),label:g3UnitFractionName(x)}))],`Выделена одна из ${n} равных частей — <b>${name}</b>.`,`g3:parts_intro:${d}:${variant}:${n}`,{variant,denom:n},true);
-   g3AttachPartsVisual(q,[n],["Одна часть выделена"]);
+   const variant=g6RandomFrom(["visualFraction","visualName","visualCount"]);
+   if(variant==="visualFraction")q=g3ChoiceQuestion("Какая доля выделена на рисунке?",String(n),[{key:String(n),label:g3UnitFractionHtml(n)},...other.map(x=>({key:String(x),label:g3UnitFractionHtml(x)}))],`Целое разделено на ${g3EqualPartsPhrase(n)} и выделена одна: ${g3UnitFractionHtml(n)}.`,`g3:parts_intro:${d}:${variant}:${n}`,{variant,denom:n},true);
+   else if(variant==="visualName")q=g3ChoiceQuestion("Как называется выделенная на рисунке доля?",String(n),[{key:String(n),label:name},...other.map(x=>({key:String(x),label:g3UnitFractionName(x)}))],`Выделена одна из ${n} равных частей — <b>${name}</b>.`,`g3:parts_intro:${d}:${variant}:${n}`,{variant,denom:n},true);
+   else q=g3ChoiceQuestion("Сколько частей размером с выделенную нужно, чтобы составить всё целое?",String(n),[{key:String(n),label:String(n)},...other.map(x=>({key:String(x),label:String(x)}))],`Целое разделено на ${n} равных частей. Одна уже выделена: потребуется ${n} таких частей, чтобы собрать целое.`,`g3:parts_intro:${d}:${variant}:${n}`,{variant,denom:n},true);
+   g3AttachPartsVisual(q,[n],["Выделенная часть"]);
  }
- return q
+ return q;
 }
-function g3PartsCompareQuestion(d){const denoms=[2,3,4,5,10],equal=d>0&&Math.random()<.16,a=g6RandomFrom(denoms),b=equal?a:g6RandomFrom(denoms.filter(x=>x!==a)),correct=a===b?"=":a<b?">":"<",text=`Что верно для долей одного и того же целого: ${g3UnitFractionHtml(a)} ? ${g3UnitFractionHtml(b)}.`;const q=g3ChoiceQuestion(text,correct,[{key:"<",label:"<"},{key:"=",label:"="},{key:">",label:">"}],a===b?`Это одинаковые доли равных целых, поэтому они равны.`:`У единичных долей одного целого меньше знаменатель — больше доля. Поэтому ${g3UnitFractionHtml(a)} <b>${correct}</b> ${g3UnitFractionHtml(b)}.`,`g3:parts_compare:${d}:${a}:${b}`,{a,b,relation:correct,equalWhole:true});if(d===2)g3AttachPartsVisual(q,[a,b],[`1 из ${a}`,`1 из ${b}`]);return q}
+function g3PartsCompareQuestion(d){
+ const denoms=[2,3,4,5,10],a=g6RandomFrom(denoms),equal=d>0&&Math.random()<.14,b=equal?a:g6RandomFrom(denoms.filter(x=>x!==a)),correct=a===b?"=":a<b?">":"<",other=[{key:"<",label:"<"},{key:"=",label:"="},{key:">",label:">"}];
+ const symbolic=`${g3UnitFractionHtml(a)} <b>?</b> ${g3UnitFractionHtml(b)}`;
+ let text,ex,variant,whole=null,first=null,second=null;
+ if(d===0){
+  variant="symbolic";
+  text=`Сравните доли одного и того же целого: ${symbolic}.`;
+  ex=`У частей одного целого меньший знаменатель означает большую долю. Поэтому ${g3UnitFractionHtml(a)} <b>${correct}</b> ${g3UnitFractionHtml(b)}.`;
+ }else if(d===1){
+  variant=Math.random()<.55?"diagram":"fractionWords";
+  text=variant==="diagram"?"Сравните выделенные части двух одинаковых целых. Выберите знак: первая ? вторая.":`Два одинаковых целых разделили на равные части. Сравните: ${g3UnitFractionName(a)} <b>?</b> ${g3UnitFractionName(b)}.`;
+  ex=a===b?`В обеих одинаковых полосках выделена ${g3UnitFractionHtml(a)} — части равны.`:`Сравниваем доли одинаковых целых: у ${g3UnitFractionHtml(a)} и ${g3UnitFractionHtml(b)} меньший знаменатель даёт большую часть. Знак <b>${correct}</b>.`;
+ }else{
+  variant=Math.random()<.5?"ribbons":"ropes";
+  const gcd=(x,y)=>y?gcd(y,x%y):x,base=a*b/gcd(a,b);
+  whole=base*ri(1,Math.max(1,Math.floor(180/base)));
+  first=whole/a;second=whole/b;
+  text=variant==="ribbons"?`Две ленты одинаковой длины, по <b>${whole} см</b> каждая. От первой отрезали ${g3UnitFractionHtml(a)}, от второй — ${g3UnitFractionHtml(b)}. Сравните длины отрезанных частей: первая <b>?</b> вторая.`:`Два одинаковых шнура длиной по <b>${whole} см</b>. От первого взяли ${g3UnitFractionHtml(a)}, от второго — ${g3UnitFractionHtml(b)}. Сравните полученные куски: первый <b>?</b> второй.`;
+  ex=`Найдём длины: ${whole} : ${a} = ${first} см; ${whole} : ${b} = ${second} см.<br>Сравним: ${first} <b>${correct}</b> ${second}. Ленты одинаковые, поэтому сравнение долей корректно.`;
+ }
+ const q=g3ChoiceQuestion(text,correct,other,ex,`g3:parts_compare:${d}:${variant}:${a}:${b}:${whole??0}`,{variant,a,b,relation:correct,equalWhole:true,whole,first,second});
+ if(variant==="diagram")g3AttachPartsVisual(q,[a,b],["Первая доля","Вторая доля"]);
+ return q;
+}
 function g3PartOfQuantityQuestion(d){const denoms=[2,3,4,5,10],n=g6RandomFrom(d===0?[2,3,4]:denoms),result=ri(2,d===0?9:d===1?12:20),quantity=result*n,name=g3UnitFractionName(n),askName=g3UnitFractionAccName(n);if(d===2&&Math.random()<.55){const unit=g6RandomFrom(["см","м","кг","г","руб.","мин"]),end=unit.endsWith(".")?"":".";return g3StoryNumberQuestion(`Найдите ${askName} от <b>${quantity} ${unit}</b>${end}`,result,`${name[0].toUpperCase()+name.slice(1)} — это одна из ${n} равных частей.<br>${quantity} : ${n} = <b>${result} ${unit}</b>${end}`,`g3:part_of_quantity:${d}:unit:${n}:${quantity}:${unit}`,{denominator:n,quantity,result,unit,variant:"unit"},unit)}return g3StoryNumberQuestion(`Найдите ${askName} числа <b>${quantity}</b>.`,result,`${name[0].toUpperCase()+name.slice(1)} — это одна из ${n} равных частей.<br>${quantity} : ${n} = <b>${result}</b>.`,`g3:part_of_quantity:${d}:number:${n}:${quantity}`,{denominator:n,quantity,result,variant:"number"})}
 
 
@@ -5391,8 +5459,22 @@ function g3GeoChoice(text,correct,options,ex,sig,audit,data,journalText=""){cons
 function g3GeoNumber(text,answer,ex,sig,audit,data,unit=""){const q=g6NumberInputQuestion(text,answer,ex,sig,{unitSuffix:unit,audit});return g3AttachGeometry(q,data,audit.journalText||"")}
 function g3GeometryFiguresQuestion(d){
  if(d===0){
-  const kinds=["point","line","segment","broken","polygon"],kind=g6RandomFrom(kinds),labels={point:"точка",line:"прямая",segment:"отрезок",broken:"ломаная",polygon:"многоугольник"},pts=kind==="point"?[{x:6,y:4}]:kind==="line"?[{x:3,y:5},{x:10,y:3}]:kind==="segment"?[{x:3,y:4},{x:9,y:4}]:kind==="broken"?[{x:2,y:5},{x:5,y:2},{x:8,y:5},{x:11,y:3}]:[{x:3,y:2},{x:9,y:2},{x:10,y:6},{x:5,y:7},{x:2,y:5}],data={kind,points:pts,labels:kind==="point"?["A"]:kind==="segment"?["A","B"]:[],aria:"Геометрический рисунок"};
-  return g3GeoChoice("Что изображено?",labels[kind],["точка","прямая","отрезок","ломаная","многоугольник"],`Это <b>${labels[kind]}</b>.`,`g3:geometry_figures:${d}:identify:${kind}`,{type:"g3GeoFigures",variant:"identify",kind},data,`Изображена фигура: ${labels[kind]}.`)
+  const kinds=["point","line","segment","broken","polygon"],kind=g6RandomFrom(kinds),labels={point:"точка",line:"прямая",segment:"отрезок",broken:"ломаная",polygon:"многоугольник"},
+    variation=ri(0,2),polygons=[
+      [{x:4,y:6},{x:6,y:2},{x:10,y:6}],
+      [{x:3,y:2},{x:9,y:2},{x:9,y:6},{x:3,y:6}],
+      [{x:6,y:1},{x:10,y:3},{x:9,y:6},{x:4,y:7},{x:2,y:4}]
+    ],broken=[
+      [{x:2,y:5},{x:5,y:2},{x:8,y:5},{x:11,y:3}],
+      [{x:2,y:2},{x:5,y:6},{x:8,y:3},{x:11,y:5}],
+      [{x:2,y:6},{x:5,y:3},{x:8,y:6},{x:11,y:2}]
+    ],
+    pts=kind==="point"?[{x:ri(3,10),y:ri(2,6)}]:
+      kind==="line"?[variation===0?{x:3,y:4}:variation===1?{x:3,y:6}:{x:4,y:2},variation===0?{x:10,y:4}:variation===1?{x:10,y:2}:{x:9,y:6}]:
+      kind==="segment"?[variation===0?{x:3,y:3}:variation===1?{x:6,y:2}:{x:3,y:5},variation===0?{x:10,y:3}:variation===1?{x:6,y:7}:{x:10,y:3}]:
+      kind==="broken"?broken[variation]:polygons[variation],
+    data={kind,points:pts,labels:kind==="point"?["A"]:kind==="segment"?["A","B"]:[],aria:"Геометрический рисунок"};
+  return g3GeoChoice("Что изображено?",labels[kind],["точка","прямая","отрезок","ломаная","многоугольник"],`Это <b>${labels[kind]}</b>.`,`g3:geometry_figures:${d}:identify:${kind}:${pts.map(p=>p.x+"-"+p.y).join("_")}`,{type:"g3GeoFigures",variant:"identify",kind},data,`Изображена фигура: ${labels[kind]}.`)
  }
  const rightModel=()=>{const right=Math.random()<.5,ori=ri(0,3),dirs=[{x:1,y:0},{x:0,y:-1},{x:-1,y:0},{x:0,y:1}],u=dirs[ori],perp=dirs[(ori+1)%4],diag=[{x:1,y:-1},{x:-1,y:-1},{x:-1,y:1},{x:1,y:1}][ori],v=right?perp:diag,o={x:6,y:4},pts=[o,{x:o.x+u.x*3,y:o.y+u.y*3},{x:o.x+v.x*3,y:o.y+v.y*3}],dot=u.x*v.x+u.y*v.y;return {right,ori,u,v,o,pts,dot}};
  if(d===1){
@@ -5404,7 +5486,20 @@ function g3GeometryFiguresQuestion(d){
   const m=rightModel(),data={kind:"angle",points:m.pts,right:m.right,u:m.u,v:m.v,labels:["O"],aria:"Угол на клетчатой сетке"};
   return g3GeoChoice("Прямой ли угол изображён?",m.right?"ДА":"НЕТ",["ДА","НЕТ"],m.right?"Стороны угла перпендикулярны, угол прямой.":"Стороны угла не перпендикулярны, угол не прямой.",`g3:geometry_figures:${d}:right:${m.right?1:0}:o${m.ori}`,{type:"g3GeoFigures",variant:"right",right:m.right,dot:m.dot,u:m.u,v:m.v,orientation:m.ori},data,`Угол ${m.right?"прямой":"не прямой"}.`)
  }
- const variant=g6RandomFrom(["links","vertices","right"]);
+ const variant=g6RandomFrom(["links","vertices","right","features"]);
+ if(variant==="features"){
+  const shapes=[
+    [{x:4,y:6},{x:6,y:2},{x:10,y:6}],
+    [{x:3,y:2},{x:9,y:2},{x:9,y:6},{x:3,y:6}],
+    [{x:6,y:1},{x:10,y:3},{x:9,y:6},{x:4,y:7},{x:2,y:4}],
+    [{x:4,y:1},{x:9,y:1},{x:11,y:4},{x:9,y:7},{x:4,y:7},{x:2,y:4}]
+  ],pts=g6RandomFrom(shapes),vertices=pts.length,sides=pts.length,answer=vertices+sides;
+  return g3GeoNumber("Сколько всего сторон и вершин у изображённого многоугольника?",answer,
+    `У многоугольника ${vertices} вершин и ${sides} сторон. Всего: ${vertices} + ${sides} = <b>${answer}</b>.`,
+    `g3:geometry_figures:${d}:features:${vertices}`,
+    {type:"g3GeoFigures",variant:"features",count:answer,vertices,sides,points:pts},
+    {kind:"polygon",points:pts,aria:"Многоугольник с вершинами и сторонами"});
+ }
  if(variant==="links"){
   const n=ri(3,5),shape=ri(0,2),patterns=[[2,6,2,6,2,6],[6,3,6,3,6,3],[4,1,5,2,6,3]],ys=patterns[shape],pts=[{x:2,y:ys[0]}];for(let i=1;i<=n;i++)pts.push({x:2+i*2,y:ys[i]});
   return g3GeoNumber("Сколько звеньев у ломаной?",n,`У ломаной <b>${n}</b> ${ruCount(n,"звено","звена","звеньев")}.`,`g3:geometry_figures:${d}:links:${n}:shape${shape}`,{type:"g3GeoFigures",variant:"links",count:n,shape,points:pts},{kind:"broken",points:pts,aria:"Ломаная на клетчатой сетке"})
@@ -5416,25 +5511,64 @@ function g3GeometryFiguresQuestion(d){
  const m=rightModel();return g3GeoChoice("Какой угол изображён?",m.right?"прямой":"не прямой",["прямой","не прямой"],m.right?"Стороны образуют точный угол 90°.":"Этот угол заметно отличается от прямого.",`g3:geometry_figures:${d}:rightName:${m.right?1:0}:o${m.ori}`,{type:"g3GeoFigures",variant:"right",right:m.right,dot:m.dot,u:m.u,v:m.v,orientation:m.ori},{kind:"angle",points:m.pts,right:m.right,u:m.u,v:m.v,labels:["O"],aria:"Угол"})
 }
 function g3GeometryConstructionQuestion(d){
- const variant=d===0?"segment":d===1?g6RandomFrom(["rectangle","square"]):g6RandomFrom(["segment","rectangle","square"]);
+ const variant=d===0?"segment":d===1?g6RandomFrom(["rectangle","square"]):g6RandomFrom(["rectangle","square","squareExtension"]);
  if(variant==="segment"){
   const len=ri(2,d===0?6:8),horizontal=Math.random()<.5,start=horizontal?{x:ri(2,4),y:ri(2,6)}:{x:ri(2,10),y:ri(len+1,7)},end=horizontal?{x:start.x+len,y:start.y}:{x:start.x,y:start.y-len},actual=len,data={kind:"segment",points:[start,end],labels:["A","B"],aria:"Отрезок AB на клетчатой сетке"};
   return g3GeoNumber("Сколько клеток составляет длина отрезка AB?",actual,`Считаем промежутки между соседними линиями сетки: <b>${actual}</b>.`,`g3:geometry_construction:${d}:segment:${start.x}:${start.y}:${end.x}:${end.y}`,{type:"g3Construction",variant:"segment",start,end,length:actual,horizontal},data,"клеток")
+ }
+ if(variant==="squareExtension"){
+  const w=ri(3,7),h=g6RandomFrom([2,3,4,5,6].filter(v=>v!==w)),x=3,y=2,pts=[{x,y},{x:x+w,y},{x:x+w,y:y+h},{x,y:y+h}],answer=Math.abs(w-h),
+    data={kind:"polygon",points:pts,labels:["A","B","C","D"],aria:"Прямоугольник на клетчатой бумаге"};
+  return g3GeoNumber("Сколько клеток нужно добавить к короткой стороне прямоугольника, чтобы его можно было достроить до квадрата?",answer,
+    `Стороны имеют длины ${w} и ${h} клеток. У квадрата они равны, значит короткую сторону нужно увеличить на ${Math.max(w,h)} − ${Math.min(w,h)} = <b>${answer}</b>.`,
+    `g3:geometry_construction:${d}:squareExtension:${w}:${h}`,
+    {type:"g3Construction",variant:"squareExtension",w,h,answer,isSquare:false,points:pts},data,"клеток");
  }
  const w=ri(2,6),h=variant==="square"?w:g6RandomFrom([2,3,4,5].filter(v=>v!==w)),x=3,y=2,pts=[{x,y},{x:x+w,y},{x:x+w,y:y+h},{x,y:y+h}],data={kind:"polygon",points:pts,labels:["A","B","C","D"],aria:"Четырёхугольник на клетчатой бумаге"},correct=variant==="square"?"квадрат":"прямоугольник";
  if(d===1)return g3GeoChoice("Какая фигура построена по клеткам?",correct,["квадрат","прямоугольник","ломаная"],variant==="square"?`Все стороны равны: длина каждой — ${w} ${ruCount(w,"клетка","клетки","клеток")}. Это квадрат.`:`Длины сторон: ${w} ${ruCount(w,"клетка","клетки","клеток")} и ${h} ${ruCount(h,"клетка","клетки","клеток")}. Это прямоугольник.`,`g3:geometry_construction:${d}:${variant}:${w}:${h}`,{type:"g3Construction",variant,w,h,isSquare:w===h,points:pts},data);
  return g3GeoChoice(`Какие размеры у ${variant==="square"?"квадрата":"прямоугольника"}?`,`${w}×${h}`,[`${w}×${h}`,`${h}×${Math.max(1,w-1)}`,`${w+1}×${h}`,`${Math.max(1,w-1)}×${h+1}`],`По сетке получаем ${w} ${ruCount(w,"клетку","клетки","клеток")} по горизонтали и ${h} ${ruCount(h,"клетку","клетки","клеток")} по вертикали.`,`g3:geometry_construction:${d}:dims:${variant}:${w}:${h}`,{type:"g3Construction",variant:"dimensions",shape:variant,w,h,isSquare:w===h,points:pts},data)
 }
+
 function g3BrokenLineQuestion(d){
  const count=d===0?ri(2,3):d===1?ri(3,4):ri(4,5),lengths=[],pts=[{x:2,y:6}];let x=2,y=6;
  for(let i=0;i<count;i++){
   let len;
   if(i%2===0){len=ri(1,Math.min(3,11-x));x+=len}
-  else{const goUp=(i%4===1),room=goUp?y-1:7-y;len=ri(1,Math.max(1,Math.min(3,room)));y+=goUp?-len:len}
-  lengths.push(len);pts.push({x,y})
+  else{const goUp=i%4===1,room=goUp?y-1:7-y;len=ri(1,Math.max(1,Math.min(3,room)));y+=goUp?-len:len}
+  lengths.push(len);pts.push({x,y});
  }
- const answer=lengths.reduce((a,b)=>a+b,0),measures=lengths.map((v,i)=>({a:i,b:i+1,text:`${v} см`,offset:i%2?18:-18})),data={kind:"broken",points:pts,measures,aria:"Ломаная с подписанными длинами звеньев"};
- return g3GeoNumber("Найдите длину ломаной.",answer,`Складываем длины всех звеньев:<br>${lengths.join(" + ")} = <b>${answer} см</b>.`,`g3:broken_line_length:${d}:${lengths.join("-")}`,{type:"g3BrokenLength",lengths,answer,points:pts,journalText:`Звенья: ${lengths.join(", ")} см.`},data,"см")
+ const total=lengths.reduce((a,b)=>a+b,0);
+ let variant,text,answer,ex,unknownIndex=null,delta=null,otherLength=null;
+ if(d===0){
+  variant="sum";
+  answer=total;text="Найдите длину ломаной.";
+  ex=`Складываем длины всех звеньев:<br>${lengths.join(" + ")} = <b>${answer} см</b>.`;
+ }else if(d===1){
+  variant="missing";
+  unknownIndex=ri(0,count-1);
+  const known=lengths.filter((_,i)=>i!==unknownIndex),knownSum=known.reduce((a,b)=>a+b,0);
+  answer=lengths[unknownIndex];
+  text=`Вся ломаная имеет длину <b>${total} см</b>. Найдите длину звена, отмеченного знаком «?».`;
+  ex=`Длина всей ломаной ${total} см. Известные звенья: ${known.join(" + ")} = ${knownSum} см.<br>Неизвестное звено: ${total} − ${knownSum} = <b>${answer} см</b>.`;
+ }else{
+  delta=ri(2,6);
+  const extend=Math.random()<.5;
+  variant=extend?"extend":"compare";
+  if(extend){
+   answer=total+delta;
+   text=`Найдите длину ломаной, если одно из её звеньев удлинить ещё на <b>${delta} см</b>. На рисунке показаны исходные длины.`;
+   ex=`Сначала исходная длина: ${lengths.join(" + ")} = ${total} см.<br>Удлиняем одно звено: ${total} + ${delta} = <b>${answer} см</b>.`;
+  }else{
+   otherLength=Math.max(1,total-delta);
+   answer=total-otherLength;
+   text=`На сколько длина показанной ломаной больше длины отрезка <b>${otherLength} см</b>?`;
+   ex=`Сначала считаем длину ломаной: ${lengths.join(" + ")} = ${total} см.<br>Сравниваем с отрезком: ${total} − ${otherLength} = <b>${answer} см</b>.`;
+  }
+ }
+ const measures=lengths.map((v,i)=>({a:i,b:i+1,text:d===1&&i===unknownIndex?"? см":`${v} см`,offset:i%2?18:-18}));
+ const data={kind:"broken",points:pts,measures,aria:d===1?"Ломаная с одним неизвестным звеном":"Ломаная с подписанными длинами звеньев"};
+ const audit={type:"g3BrokenLength",variant,lengths,total,answer,points:pts,unknownIndex,delta,otherLength,journalText:d===1?`Известные звенья: ${measures.filter(m=>!m.text.startsWith("?")).map(m=>m.text).join(", ")}; общая длина: ${total} см.`:`Звенья: ${lengths.join(", ")} см.`};
+ return g3GeoNumber(text,answer,ex,`g3:broken_line_length:${d}:${variant}:${lengths.join("-")}:${unknownIndex??"x"}:${delta??0}`,audit,data,"см");
 }
 function g3PerimeterQuestion(d){
  const units=["см","дм","м"],unit=g6RandomFrom(units),variant=d===0?g6RandomFrom(["rectangle","triangle"]):d===1?g6RandomFrom(["rectangle","square","triangle"]):g6RandomFrom(["rectangle","square","polygon"]);let pts,sides,answer,text,ex;
@@ -5450,8 +5584,29 @@ function g3PerimeterQuestion(d){
  const measures=sides.map((v,i)=>({a:i,b:(i+1)%pts.length,text:`${v} ${unit}`,offset:i%2?18:-18})),data={kind:"polygon",points:pts,measures,aria:"Многоугольник с подписанными длинами сторон"};
  return g3GeoNumber(text,answer,ex,`g3:perimeter:${d}:${variant}:${sides.join("-")}:${unit}`,{type:"g3Perimeter",variant,sides,answer,unit,points:pts,journalText:`Стороны: ${sides.join(", ")} ${unit}.`},data,unit)
 }
-function g3AreaCellsShape(d){if(d===0||Math.random()<.55){const w=ri(2,d===0?5:7),h=ri(2,d===0?4:6),cells=[];for(let y=0;y<h;y++)for(let x=0;x<w;x++)cells.push({x:3+x,y:2+y});return {variant:"rectangle",cells,area:w*h,w,h}}const w=ri(3,6),h=ri(3,5),cutW=ri(1,w-1),cutH=ri(1,h-1),cells=[];for(let y=0;y<h;y++)for(let x=0;x<w;x++)if(!(x>=w-cutW&&y<cutH))cells.push({x:3+x,y:2+y});return {variant:"L",cells,area:cells.length,w,h,cutW,cutH}}
+function g3AreaCellsShape(d,forceL=false){if(!forceL&&(d===0||Math.random()<.55)){const w=ri(2,d===0?5:7),h=ri(2,d===0?4:6),cells=[];for(let y=0;y<h;y++)for(let x=0;x<w;x++)cells.push({x:3+x,y:2+y});return {variant:"rectangle",cells,area:w*h,w,h}}const w=ri(3,6),h=ri(3,5),cutW=ri(1,w-1),cutH=ri(1,h-1),cells=[];for(let y=0;y<h;y++)for(let x=0;x<w;x++)if(!(x>=w-cutW&&y<cutH))cells.push({x:3+x,y:2+y});return {variant:"L",cells,area:cells.length,w,h,cutW,cutH}}
 function g3AreaMeasureQuestion(d){
+ if(d===2){
+  const variant=Math.random()<.5?"complete":"difference";
+  if(variant==="complete"){
+   const m=g3AreaCellsShape(2,true),outer=m.w*m.h,answer=outer-m.area,data={kind:"cells",cells:m.cells,aria:"Фигура из клеток с пустым прямоугольным углом"};
+   return g3GeoNumber("Сколько квадратных единиц нужно добавить в пустом углу, чтобы получился полный прямоугольник?",answer,
+      `Внешний прямоугольник: ${m.w} · ${m.h} = ${outer} клеток. Сейчас заполнено ${m.area}. Нужно добавить ${outer} − ${m.area} = <b>${answer}</b>.`,
+      `g3:area_measure:${d}:complete:${m.w}:${m.h}:${m.cutW}:${m.cutH}`,
+      {type:"g3AreaMeasure",variant:"complete",w:m.w,h:m.h,cutW:m.cutW,cutH:m.cutH,area:m.area,outer,answer,cells:m.cells,journalText:`Дополните фигуру до прямоугольника ${m.w} × ${m.h}.`},
+      data,"кв. ед.");
+  }
+  let wA,hA,wB,hB,areaA,areaB;
+  do{wA=ri(2,4);hA=ri(2,5);wB=ri(2,4);hB=ri(2,5);areaA=wA*hA;areaB=wB*hB}while(areaA===areaB);
+  const cellsA=[],cellsB=[];
+  for(let y=0;y<hA;y++)for(let x=0;x<wA;x++)cellsA.push({x:1+x,y:2+y});
+  for(let y=0;y<hB;y++)for(let x=0;x<wB;x++)cellsB.push({x:8+x,y:2+y,alt:true});
+  const answer=Math.abs(areaA-areaB),data={kind:"cells",cells:[...cellsA,...cellsB],aria:"Две фигуры из одинаковых клеток"};
+  return g3GeoNumber("На сколько квадратных единиц площадь большей фигуры больше площади меньшей?",answer,
+    `Площади: ${wA} · ${hA} = ${areaA}; ${wB} · ${hB} = ${areaB}. Разность: ${Math.max(areaA,areaB)} − ${Math.min(areaA,areaB)} = <b>${answer}</b>.`,
+    `g3:area_measure:${d}:difference:${wA}:${hA}:${wB}:${hB}`,
+    {type:"g3AreaMeasure",variant:"difference",wA,hA,wB,hB,areaA,areaB,answer,cellsA,cellsB},data,"кв. ед.");
+ }
  if(d>0&&Math.random()<.28){
   const wA=ri(2,4),hA=ri(2,4),wB=ri(2,4),hB=ri(2,4),cellsA=[],cellsB=[];for(let y=0;y<hA;y++)for(let x=0;x<wA;x++)cellsA.push({x:1+x,y:2+y});for(let y=0;y<hB;y++)for(let x=0;x<wB;x++)cellsB.push({x:8+x,y:2+y,alt:true});const areaA=wA*hA,areaB=wB*hB,rel=areaA===areaB?"=":areaA>areaB?">":"<",data={kind:"cells",cells:[...cellsA,...cellsB],aria:"Две фигуры на одинаковой клетчатой сетке"};
   return g3GeoChoice("Сравните площади фигур A и B по одинаковым клеткам.",rel,["<","=",">"],`Площадь A: ${areaA} ${ruCount(areaA,"клетка","клетки","клеток")}. Площадь B: ${areaB} ${ruCount(areaB,"клетка","клетки","клеток")}. Поэтому A <b>${rel}</b> B.`,`g3:area_measure:${d}:compare:${wA}:${hA}:${wB}:${hB}`,{type:"g3AreaMeasure",variant:"compare",areaA,areaB,relation:rel,sameScale:true,cellsA,cellsB},data)
@@ -5459,7 +5614,48 @@ function g3AreaMeasureQuestion(d){
  const m=g3AreaCellsShape(d),data={kind:"cells",cells:m.cells,aria:"Фигура на квадратной сетке"};
  return g3GeoNumber("Сколько квадратных единиц занимает фигура?",m.area,`Считаем занятые клетки: <b>${m.area}</b>.`,`g3:area_measure:${d}:${m.variant}:${m.w}:${m.h}:${m.cutW||0}:${m.cutH||0}`,{type:"g3AreaMeasure",variant:m.variant,area:m.area,cells:m.cells,w:m.w,h:m.h,cutW:m.cutW||0,cutH:m.cutH||0,journalText:`Фигура занимает ${m.area} ${ruCount(m.area,"клетку","клетки","клеток")}.`},data,"кв. ед.")
 }
-function g3RectangleSquareAreaQuestion(d){const variant=d===0?"gridRect":d===1?g6RandomFrom(["rect","square"]):g6RandomFrom(["gridRect","rect","square"]),unit=g6RandomFrom(["см²","дм²","м²"]);let a,b,answer,text,ex,pts,data;if(variant==="square"){a=ri(2,5);b=a;answer=a*a;text=`Найдите площадь квадрата со стороной <b>${a} ${unit.replace("²","")}</b>.`;ex=`Площадь квадрата: S = a · a = ${a} · ${a} = <b>${answer} ${unit}</b>.`}else{a=ri(2,8);b=g6RandomFrom([2,3,4,5,6].filter(v=>v!==a));answer=a*b;text=variant==="gridRect"?"Найдите площадь прямоугольника по клетчатому рисунку.":`Найдите площадь прямоугольника со сторонами <b>${a} ${unit.replace("²","")}</b> и <b>${b} ${unit.replace("²","")}</b>.`;ex=variant==="gridRect"?`По рисунку: в каждом ряду ${a} ${ruCount(a,"клетка","клетки","клеток")}, рядов ${b}.<br>S = ${a} · ${b} = <b>${answer} ${unit}</b>.`:`Площадь прямоугольника равна длине, умноженной на ширину:<br>S = ${a} · ${b} = <b>${answer} ${unit}</b>.`}pts=[{x:3,y:2},{x:3+a,y:2},{x:3+a,y:2+b},{x:3,y:2+b}];data={kind:"polygon",points:pts,aria:variant==="square"?"Квадрат":"Прямоугольник"};return g3GeoNumber(text,answer,ex,`g3:rectangle_square_area:${d}:${variant}:${a}:${b}:${unit}`,{type:"g3RectArea",variant,a,b,answer,unit,isSquare:a===b,points:pts,journalText:`Стороны: ${a} и ${b} ${unit.replace("²","")}.`},data,unit)}
+
+function g3RectangleSquareAreaQuestion(d){
+ const variant=d===0?"gridRect":d===1?g6RandomFrom(["rect","square"]):g6RandomFrom(["missingSide","extendedSide"]),
+   unit=variant==="gridRect"?"кв. ед.":g6RandomFrom(["см²","дм²","м²"]),
+   baseUnit=unit.replace("²",""),u=(x)=>`${x} ${unit}`;
+ let a,b,answer,text,ex,pts,data,details={};
+ if(variant==="square"){
+  a=ri(2,5);b=a;answer=a*a;
+  text=`Найдите площадь квадрата со стороной <b>${a} ${baseUnit}</b>.`;
+  ex=`Площадь квадрата: S = a · a = ${a} · ${a} = <b>${answer} ${unit}</b>.`;
+ }else{
+  a=ri(2,7);
+  b=g6RandomFrom([2,3,4,5,6].filter(v=>v!==a));
+  answer=a*b;
+  if(variant==="gridRect"){
+   text="Найдите площадь прямоугольника по клетчатому рисунку.";
+   ex=`На рисунке ${a} клеток в каждом ряду и ${b} рядов. S = ${a} · ${b} = <b>${answer} ${unit}</b>.`;
+  }else if(variant==="missingSide"){
+   const originalArea=answer,knownSide=a;answer=b;
+   text=`Площадь прямоугольника <b>${originalArea} ${unit}</b>, одна сторона — <b>${knownSide} ${baseUnit}</b>. Найдите длину другой стороны.`;
+   ex=`Площадь прямоугольника S = a · b. Поэтому неизвестная сторона: ${originalArea} : ${knownSide} = <b>${answer} ${baseUnit}</b>.`;
+   details={originalArea,knownSide};
+  }else if(variant==="extendedSide"){
+   const delta=ri(1,3),newSide=a+delta;answer=newSide*b;
+   text=`Прямоугольник имеет стороны <b>${a} ${baseUnit}</b> и <b>${b} ${baseUnit}</b>. Первую сторону увеличили на <b>${delta} ${baseUnit}</b>. Найдите новую площадь.`;
+   ex=`Новая сторона: ${a} + ${delta} = ${newSide} ${baseUnit}. Новая площадь: ${newSide} · ${b} = <b>${answer} ${unit}</b>.`;
+   details={delta,newSide,originalArea:a*b};
+  }else{
+   text=`Найдите площадь прямоугольника со сторонами <b>${a} ${baseUnit}</b> и <b>${b} ${baseUnit}</b>.`;
+   ex=`Площадь прямоугольника S = a · b = ${a} · ${b} = <b>${answer} ${unit}</b>.`;
+  }
+ }
+ pts=[{x:3,y:2},{x:3+a,y:2},{x:3+a,y:2+b},{x:3,y:2+b}];
+ data={kind:"polygon",points:pts,aria:variant==="square"?"Квадрат":"Прямоугольник на клетчатой сетке"};
+ const audit={type:"g3RectArea",variant,a,b,answer,unit,isSquare:a===b,points:pts,...details,
+   journalText:variant==="missingSide"?`Площадь: ${details.originalArea} ${unit}, известная сторона: ${a} ${baseUnit}.`:
+    variant==="extendedSide"?`Начальные стороны: ${a} и ${b} ${baseUnit}; увеличить первую на ${details.delta} ${baseUnit}.`:
+    variant==="gridRect"?`По клеткам: ${a} × ${b}.`:`Стороны: ${a} и ${b} ${baseUnit}.`};
+ return g3GeoNumber(text,answer,ex,
+  `g3:rectangle_square_area:${d}:${variant}:${a}:${b}:${details.delta??0}:${unit}`,
+  audit,data,variant==="missingSide"?baseUnit:unit);
+}
 
 /* =========================================================
    ЭТАП 3.7 — математическая информация, таблицы, диаграммы и логика.
@@ -5553,19 +5749,40 @@ function g3TrueFalseProof847(m,truth){
 function g3TrueFalseLogicQuestion(d){const truth=Math.random()<.5,model=g3BuildTrueFalseModel(d,truth),statement=g3TrueFalseText(model),answer=truth?"Истина":"Ложь",rows=[{key:"Истина",label:"Истина"},{key:"Ложь",label:"Ложь"}],ex=g3TrueFalseProof847(model,truth);return g3ChoiceQuestion(statement,answer,rows,ex,`g3:true_false_logic:${d}:${model.type}:${JSON.stringify(model)}`,{variant:"trueFalse",truth,model,independentCheck:g3EvaluateTrueFalseModel(model)},true)}
 function g3TableBaseData(){const names=sh(["Аня","Миша","Оля","Дима"]).slice(0,4),values=names.map(()=>ri(3,20));return {headers:["Ученик","Количество"],rows:names.map((name,i)=>[name,values[i]]),names,values}}
 function g3TableQuestion(d){
- const variants=d===0?["lookup","max","min"]:d===1?["lookup","max","min","sum","difference"]:["lookup","max","min","sum","difference","missing"],variant=g6RandomFrom(variants);
+ const variants=d===0?["lookup","max","min"]:d===1?["lookup","max","min","sum","difference"]:["missing","total","range","sum","difference"],variant=g6RandomFrom(variants);
  if(variant==="missing"){
   const goods=["Тетрадь","Ручка","Альбом"],full=goods.map(name=>{const price=ri(5,20),qty=ri(2,6);return [name,price,qty,price*qty]}),target=ri(0,2),answer=full[target][3],shown=full.map((r,i)=>i===target?[r[0],r[1],r[2],"□"]:[...r]),data={headers:["Товар","Цена, руб.","Количество","Стоимость, руб."],rows:shown},model={headers:data.headers,rows:full,target:{row:target,column:3},questionType:"missing"},q=g3StoryNumberQuestion(`Какое число должно стоять в пустой ячейке строки <b>«${goods[target]}»</b>?`,answer,`${full[target][1]} · ${full[target][2]} = <b>${answer}</b>.`,`g3:tables:${d}:missing:${full.map(r=>r.join(",")).join("|")}:r${target}`,{variant,tableModel:model,answer},"руб.");return g6AttachTable(q,data);
  }
  const base=g3TableBaseData(),{names,values}=base,data={headers:["Ученик","Прочитано книг"],rows:names.map((n,i)=>[n,values[i]])},model={headers:data.headers,rows:data.rows.map(r=>[...r]),questionType:variant,target:null};
- if(variant==="lookup"){const i=ri(0,3),answer=values[i];model.target={row:i,column:1};const q=g3StoryNumberQuestion(`Сколько книг прочитал <b>${names[i]}</b>?`,answer,`На пересечении строки «${names[i]}» и столбца «Прочитано книг» стоит <b>${answer}</b>.`,`g3:tables:${d}:lookup:${values.join(",")}:i${i}`,{variant,tableModel:model,answer});return g6AttachTable(q,data)}
+ if(variant==="lookup"){const i=ri(0,3),answer=values[i];model.target={row:i,column:1};const q=g3StoryNumberQuestion(`Сколько книг ${["Аня","Оля"].includes(names[i])?"прочитала":"прочитал"} <b>${names[i]}</b>?`,answer,`На пересечении строки «${names[i]}» и столбца «Прочитано книг» стоит <b>${answer}</b>.`,`g3:tables:${d}:lookup:${values.join(",")}:i${i}`,{variant,tableModel:model,answer});return g6AttachTable(q,data)}
  if(variant==="max"||variant==="min"){let vals=g3DistinctNumbers(4,3,20);for(let i=0;i<4;i++)values[i]=vals[i],data.rows[i][1]=vals[i],model.rows[i][1]=vals[i];const targetValue=variant==="max"?Math.max(...values):Math.min(...values),idx=values.indexOf(targetValue),answer=names[idx];model.target={row:idx,column:1};const q=g3ChoiceQuestion(`Кто прочитал <b>${variant==="max"?"больше всего":"меньше всего"}</b> книг?`,answer,names.map(n=>({key:n,label:n})),`Нужное значение — ${targetValue}. Оно стоит в строке «${answer}».`,`g3:tables:${d}:${variant}:${names.join(",")}:${values.join(",")}`,{variant,tableModel:model,answer});return g6AttachTable(q,data)}
+
+ if(variant==="total"){
+  const answer=values.reduce((sum,n)=>sum+n,0);
+  model.target={rows:[0,1,2,3],column:1};
+  return g6AttachTable(g3StoryNumberQuestion("Сколько всего книг прочитали четыре ученика?",answer,
+    `Складываем значения всех строк: ${values.join(" + ")} = <b>${answer}</b>.`,
+    `g3:tables:${d}:total:${values.join(",")}`,{variant,tableModel:model,answer}),data);
+ }
+ if(variant==="range"){
+  const distinct=g3DistinctNumbers(4,3,20);
+  for(let i=0;i<4;i++){values[i]=distinct[i];data.rows[i][1]=distinct[i];model.rows[i][1]=distinct[i]}
+  const highest=Math.max(...values),lowest=Math.min(...values),answer=highest-lowest;
+  model.target={rows:[values.indexOf(highest),values.indexOf(lowest)],column:1};
+  return g6AttachTable(g3StoryNumberQuestion("На сколько книг наибольшее значение в таблице больше наименьшего?",answer,
+    `Самое большое значение — ${highest}, самое маленькое — ${lowest}. Разность: ${highest} − ${lowest} = <b>${answer}</b>.`,
+    `g3:tables:${d}:range:${values.join(",")}`,{variant,tableModel:model,answer}),data);
+ }
+ if(variant==="difference"){
+  const distinct=g3DistinctNumbers(4,3,20);
+  for(let i=0;i<4;i++){values[i]=distinct[i];data.rows[i][1]=distinct[i];model.rows[i][1]=distinct[i]}
+ }
  const a=ri(0,2),b=ri(a+1,3);model.target={rows:[a,b],column:1};if(variant==="sum"){const answer=values[a]+values[b],q=g3StoryNumberQuestion(`Сколько книг прочитали <b>${names[a]} и ${names[b]}</b> вместе?`,answer,`${values[a]} + ${values[b]} = <b>${answer}</b>.`,`g3:tables:${d}:sum:${values.join(",")}:${a}:${b}`,{variant,tableModel:model,answer});return g6AttachTable(q,data)}
  const hi=values[a]>=values[b]?a:b,lo=hi===a?b:a,answer=values[hi]-values[lo];model.target={rows:[hi,lo],column:1};const q=g3StoryNumberQuestion(`На сколько книг <b>${names[hi]}</b> ${["Аня","Оля"].includes(names[hi])?"прочитала":"прочитал"} больше, чем <b>${names[lo]}</b>?`,answer,`${values[hi]} − ${values[lo]} = <b>${answer}</b>.`,`g3:tables:${d}:difference:${values.join(",")}:${hi}:${lo}`,{variant,tableModel:model,answer});return g6AttachTable(q,data);
 }
 function g3UniqueChartValues(){return g3DistinctNumbers(4,2,20)}
 function g3BarChartsQuestion(d){
- const labels=sh(["Аня","Миша","Оля","Дима"]),variants=d===0?["lookup","max","min"]:d===1?["lookup","max","min","difference","sum"]:["lookup","difference","sum","total","equal","max","min"],variant=g6RandomFrom(variants);let values=variant==="max"||variant==="min"?g3UniqueChartValues():labels.map(()=>ri(2,20));let audit={variant,chartModel:{categories:[...labels],values:[...values],scale:null,questionType:variant,target:null,baseline:0}};
+ const labels=sh(["Аня","Миша","Оля","Дима"]),variants=d===0?["lookup","max","min"]:d===1?["lookup","max","min","difference","sum"]:["total","equal","range","topTwo"],variant=g6RandomFrom(variants);let values=["max","min","range","topTwo"].includes(variant)?g3UniqueChartValues():labels.map(()=>ri(2,20));let audit={variant,chartModel:{categories:[...labels],values:[...values],scale:null,questionType:variant,target:null,baseline:0}};
  if(variant==="equal"){
   const pair=sh([0,1,2,3]).slice(0,2),same=ri(4,16),others=[0,1,2,3].filter(i=>!pair.includes(i)),used=new Set([same]);values=Array(4);values[pair[0]]=same;values[pair[1]]=same;for(const i of others){let v;do{v=ri(2,20)}while(used.has(v));used.add(v);values[i]=v}audit.chartModel.values=[...values];audit.chartModel.target={pair:[...pair]};
  }
@@ -5574,6 +5791,23 @@ function g3BarChartsQuestion(d){
  if(variant==="max"||variant==="min"){const v=variant==="max"?Math.max(...values):Math.min(...values),i=values.indexOf(v),answer=labels[i];audit.chartModel.target={index:i};audit.answer=answer;return g6AttachBarChart(g3ChoiceQuestion(`У кого значение <b>${variant==="max"?"наибольшее":"наименьшее"}</b>?`,answer,labels.map(x=>({key:x,label:x})),`${variant==="max"?"Самый высокий":"Самый низкий"} столбец — «${answer}», его значение ${v}.`,`g3:bar_charts:${d}:${variant}:${labels.join(",")}:${values.join(",")}`,audit),data)}
  if(variant==="equal"){const pair=audit.chartModel.target.pair,answer=[labels[pair[0]],labels[pair[1]]].sort().join(" и "),pairs=[];for(let i=0;i<4;i++)for(let j=i+1;j<4;j++)pairs.push([labels[i],labels[j]].sort().join(" и "));audit.answer=answer;return g6AttachBarChart(g3ChoiceQuestion("У каких двух учеников значения <b>одинаковые</b>?",answer,pairs.map(x=>({key:x,label:x})),`Одинаковая высота у столбцов «${labels[pair[0]]}» и «${labels[pair[1]]}»: оба значения равны ${values[pair[0]]}.`,`g3:bar_charts:${d}:equal:${labels.join(",")}:${values.join(",")}`,audit),data)}
  if(variant==="total"){const answer=values.reduce((a,b)=>a+b,0);audit.chartModel.target={indices:[0,1,2,3]};audit.answer=answer;return g6AttachBarChart(g3StoryNumberQuestion("Сколько всего показано на диаграмме?",answer,`${values.join(" + ")} = <b>${answer}</b>.`,`g3:bar_charts:${d}:total:${labels.join(",")}:${values.join(",")}`,audit),data)}
+
+ if(variant==="range"){
+  const max=Math.max(...values),min=Math.min(...values),answer=max-min;
+  audit.chartModel.target={indices:[values.indexOf(max),values.indexOf(min)]};
+  audit.answer=answer;
+  return g6AttachBarChart(g3StoryNumberQuestion("На сколько наибольший столбец выше наименьшего?",answer,
+    `Самое большое значение — ${max}, самое маленькое — ${min}. Находим разницу: ${max} − ${min} = <b>${answer}</b>.`,
+    `g3:bar_charts:${d}:range:${labels.join(",")}:${values.join(",")}`,audit),data);
+ }
+ if(variant==="topTwo"){
+  const indices=[0,1,2,3].sort((a,b)=>values[b]-values[a]).slice(0,2),answer=values[indices[0]]+values[indices[1]];
+  audit.chartModel.target={indices:[...indices]};
+  audit.answer=answer;
+  return g6AttachBarChart(g3StoryNumberQuestion("Найди сумму двух самых высоких столбцов диаграммы.",answer,
+    `Два наибольших значения: ${values[indices[0]]} и ${values[indices[1]]}. Сумма: ${values[indices[0]]} + ${values[indices[1]]} = <b>${answer}</b>.`,
+    `g3:bar_charts:${d}:topTwo:${labels.join(",")}:${values.join(",")}`,audit),data);
+ }
  const a=ri(0,2),b=ri(a+1,3);audit.chartModel.target={indices:[a,b]};if(variant==="sum"){const answer=values[a]+values[b];audit.answer=answer;return g6AttachBarChart(g3StoryNumberQuestion(`Найди сумму значений столбцов <b>${labels[a]}</b> и <b>${labels[b]}</b>.`,answer,`${values[a]} + ${values[b]} = <b>${answer}</b>.`,`g3:bar_charts:${d}:sum:${labels.join(",")}:${values.join(",")}:${a}:${b}`,audit),data)}
  const answer=Math.abs(values[a]-values[b]);audit.answer=answer;return g6AttachBarChart(g3StoryNumberQuestion(`На сколько отличаются значения столбцов <b>${labels[a]}</b> и <b>${labels[b]}</b>?`,answer,`${Math.max(values[a],values[b])} − ${Math.min(values[a],values[b])} = <b>${answer}</b>.`,`g3:bar_charts:${d}:difference:${labels.join(",")}:${values.join(",")}:${a}:${b}`,audit),data);
 }
@@ -5625,33 +5859,136 @@ function makeG3Question(id,stageOverride=null){
  if(raw==="parts_intro")return g3PartsIntroQuestion(d);
  if(raw==="parts_compare")return g3PartsCompareQuestion(d);
  if(raw==="part_of_quantity")return g3PartOfQuantityQuestion(d);
- if(raw==="division_remainder"){let divisor=ri(2,9),qv=ri(d===0?2:3,d===0?9:d===1?15:25),rem=ri(1,divisor-1),dividend=divisor*qv+rem;const ex=`${divisor} · ${qv} = ${divisor*qv}.<br>${dividend} − ${divisor*qv} = ${rem}.<br>${dividend} = ${divisor} · ${qv} + ${rem}. Ответ: <b>${qv} (ост. ${rem})</b>.`;return g3RemainderInputQuestion(dividend,divisor,qv,rem,ex,`g3:${raw}:${d}:${dividend}:${divisor}`,{stage:d})}
+
+ if(raw==="division_remainder"){
+  const divisor=ri(2,9),qv=ri(d===0?2:3,d===0?9:d===1?15:25),rem=ri(1,divisor-1),dividend=divisor*qv+rem;
+  const base=`${divisor} · ${qv} = ${divisor*qv}.<br>${dividend} − ${divisor*qv} = ${rem}.<br>Проверка: ${dividend} = ${divisor} · ${qv} + ${rem}, причём ${rem} меньше ${divisor}.`;
+  if(d===0)return g3RemainderInputQuestion(dividend,divisor,qv,rem,`${base}<br>Ответ: <b>${qv} (ост. ${rem})</b>.`,`g3:${raw}:${d}:numeric:${dividend}:${divisor}`,{stage:d,variant:"numeric"});
+  if(d===1){
+   const apples=Math.random()<.5,variant=apples?"packApples":"packPencils";
+   const question=g3RemainderInputQuestion(dividend,divisor,qv,rem,`${base}<br>Получилось <b>${qv} полных упаковок</b>, осталось <b>${rem}</b>.`,`g3:${raw}:${d}:${variant}:${dividend}:${divisor}`,{stage:d,variant});
+   question.text=apples?`${g3Qty(dividend,"apple")} раскладывают по ${g3Qty(divisor,"apple")} в пакет. Сколько полных пакетов получится и сколько яблок останется?`:`${g3Qty(dividend,"pencil")} раскладывают по ${g3Qty(divisor,"pencil")} в коробку. Сколько полных коробок получится и сколько карандашей останется?`;
+   return question;
+  }
+  const taken=ri(3,12),total=dividend+taken,variant="subtractThenDivide";
+  const question=g3RemainderInputQuestion(dividend,divisor,qv,rem,`Сначала найдём, сколько осталось после выдачи: ${total} − ${taken} = ${dividend}.<br>Делим оставшиеся по ${divisor}.<br>${base}<br>Ответ: <b>${qv} полных коробок, ${rem} карандашей осталось</b>.`,`g3:${raw}:${d}:${variant}:${total}:${taken}:${divisor}`,{stage:d,variant,total,taken});
+  question.text=`Было ${g3Qty(total,"pencil")}. ${g3Qty(taken,"pencil")} отдали. Остальные раскладывают по ${g3Qty(divisor,"pencil")} в коробку. Сколько полных коробок получится и сколько карандашей останется?`;
+  return question;
+ }
  if(raw==="properties"){const variants=d===0?["commAdd","commMul"]:d===1?["commAdd","commMul","assocAdd","assocMul"]:["assocAdd","assocMul","convenientAdd","convenientMul"],v=g6RandomFrom(variants);let text,answer,ex,audit={type:"g3Properties",variant:v};if(v==="commAdd"){const a=ri(10,80),b=ri(2,40);answer=a;text=`${a} + ${b} = ${b} + □`;ex=`При перестановке слагаемых сумма не меняется. Значит □ = <b>${a}</b>.`;audit={...audit,a,b,answer}}else if(v==="commMul"){const a=ri(2,9),b=ri(2,9);answer=a;text=`${a} · ${b} = ${b} · □`;ex=`При перестановке множителей произведение не меняется. Значит □ = <b>${a}</b>.`;audit={...audit,a,b,answer}}else if(v==="assocAdd"){const a=ri(10,40),b=ri(10,40),c=100-b;answer=a+b+c;text=`(${a} + ${b}) + ${c}`;ex=`Можно перегруппировать: ${a} + (${b} + ${c}) = ${a} + 100 = <b>${answer}</b>.`;audit={...audit,a,b,c,answer}}else if(v==="assocMul"){const a=g6RandomFrom([2,5]),b=ri(2,9),c=a===2?5:2;answer=a*b*c;text=`${a} · ${b} · ${c}`;ex=`Удобно сначала ${a} · ${c} = 10, затем 10 · ${b} = <b>${answer}</b>.`;audit={...audit,a,b,c,answer}}else if(v==="convenientAdd"){const a=g6RandomFrom([25,35,45,55,65,75]),c=100-a,b=ri(10,89);answer=a+b+c;text=`${a} + ${b} + ${c}`;ex=`Удобно сложить ${a} + ${c} = 100, затем 100 + ${b} = <b>${answer}</b>.`;audit={...audit,a,b,c,answer}}else{const a=g6RandomFrom([2,5]),c=a===2?5:2,b=ri(2,9);answer=a*b*c;text=`${a} · ${b} · ${c}`;ex=`Удобно сгруппировать ${a} · ${c} = 10, затем 10 · ${b} = <b>${answer}</b>.`;audit={...audit,a,b,c,answer}}return g6NumberInputQuestion(`Вычислите удобным способом: <b>${text}</b>.`,answer,ex,`g3:${raw}:${d}:${v}:${Object.values(audit).slice(2).join(":")}`,{audit})}
  if(raw==="unknown_component")return g3UnknownQuestion(d);
  if(raw==="order_operations")return g3OrderQuestion(d);
  if(raw==="quantity_operations")return g3QuantityQuestion(d);
+
  if(raw==="multiplication_table"){
-  const max=d===0?5:9,fact=multiplicationFactCandidate(2,max),a=fact.a,b=fact.b,product=a*b,variant=d===2&&Math.random()<.38?g6RandomFrom(["unknownA","unknownB"]):"product";
-  if(variant==="unknownA")return g6NumberInputQuestion(`<b>? · ${b} = ${product}</b>`,a,`${a} · ${b} = ${product}. Значит, неизвестный множитель — <b>${a}</b>.`,`g3:${raw}:${d}:unknownA:${a}:${b}`,{audit:{type:"g3MulTable",variant,a,b,product,answer:rational(a,1)}});
-  if(variant==="unknownB")return g6NumberInputQuestion(`<b>${a} · ? = ${product}</b>`,b,`${a} · ${b} = ${product}. Значит, неизвестный множитель — <b>${b}</b>.`,`g3:${raw}:${d}:unknownB:${a}:${b}`,{audit:{type:"g3MulTable",variant,a,b,product,answer:rational(b,1)}});
-  const pair=[Math.min(a,b),Math.max(a,b)];return g6NumberInputQuestion(`<b>${a} · ${b}</b> = ?`,product,`${a} · ${b} = <b>${product}</b>.`,`g3:${raw}:${d}:product:${pair[0]}:${pair[1]}`,{audit:{type:"g3MulTable",variant,a,b,product,answer:rational(product,1)}});
+  const max=d===0?5:9,fact=multiplicationFactCandidate(2,max),a=fact.a,b=fact.b,product=a*b;
+  if(d===0){
+   return g6NumberInputQuestion(`<b>${a} · ${b}</b> = ?`,product,
+     `По таблице умножения: ${a} · ${b} = <b>${product}</b>.`,
+     `g3:${raw}:${d}:product:${a}:${b}`,{audit:{type:"g3MulTable",variant:"product",a,b,product,answer:rational(product,1)}});
+  }
+  if(d===1){
+   if(Math.random()<.48)return g6NumberInputQuestion(`<b>${a} · ${b}</b> = ?`,product,
+     `Табличное умножение: ${a} · ${b} = <b>${product}</b>.`,
+     `g3:${raw}:${d}:product:${a}:${b}`,{audit:{type:"g3MulTable",variant:"product",a,b,product,answer:rational(product,1)}});
+   const variant=Math.random()<.5?"pencils":"books";
+   const text=variant==="pencils"?`В ${a} коробках лежит по ${b} карандашей. Сколько карандашей всего?`:`На ${a} полках стоит по ${b} книг. Сколько книг всего?`;
+   return g3StoryNumberQuestion(text,product,
+     `Есть ${a} одинаковых групп по ${b} предметов. Значит, ${a} · ${b} = <b>${product}</b>.`,
+     `g3:${raw}:${d}:${variant}:${a}:${b}`,
+     {type:"g3MulTable",variant,a,b,product,answer:rational(product,1)});
+  }
+  if(Math.random()<.54){
+   const variant=Math.random()<.5?"unknownA":"unknownB";
+   if(variant==="unknownA")return g6NumberInputQuestion(`<b>? · ${b} = ${product}</b>`,a,
+     `Так как ${product} : ${b} = ${a}, неизвестный множитель — <b>${a}</b>.`,
+     `g3:${raw}:${d}:unknownA:${a}:${b}`,{audit:{type:"g3MulTable",variant,a,b,product,answer:rational(a,1)}});
+   return g6NumberInputQuestion(`<b>${a} · ? = ${product}</b>`,b,
+     `Так как ${product} : ${a} = ${b}, неизвестный множитель — <b>${b}</b>.`,
+     `g3:${raw}:${d}:unknownB:${a}:${b}`,{audit:{type:"g3MulTable",variant,a,b,product,answer:rational(b,1)}});
+  }
+  const variant=Math.random()<.5?"extra":"taken",change=ri(2,Math.min(9,product-1)),
+   answer=variant==="extra"?product+change:product-change,
+   text=variant==="extra"?`В ${a} коробках по ${b} карандашей. Положили ещё ${change} карандашей. Сколько карандашей теперь?`:`На ${a} полках стояло по ${b} книг. ${change} книг взяли. Сколько книг осталось?`;
+  return g3StoryNumberQuestion(text,answer,
+    `Сначала ${a} · ${b} = ${product}. Затем ${product} ${variant==="extra"?"+":"−"} ${change} = <b>${answer}</b>.`,
+    `g3:${raw}:${d}:${variant}:${a}:${b}:${change}`,
+    {type:"g3MulTable",variant,a,b,product,change,answer:rational(answer,1)});
  }
+
  if(raw==="division_table"){
-  const max=d===0?6:9,fact=multiplicationFactCandidate(2,max),a=fact.a,b=fact.b,product=a*b,byA=Math.random()<.5,divisor=byA?a:b,quotient=byA?b:a,variant=d===2&&Math.random()<.38?g6RandomFrom(["unknownDividend","unknownDivisor"]):"quotient";
-  if(variant==="unknownDividend")return g6NumberInputQuestion(`<b>? : ${divisor} = ${quotient}</b>`,product,`${quotient} · ${divisor} = ${product}, поэтому <b>${product} : ${divisor} = ${quotient}</b>.`,`g3:${raw}:${d}:unknownDividend:${product}:${divisor}:${quotient}`,{audit:{type:"g3DivTable",variant,product,divisor,quotient,answer:rational(product,1)}});
-  if(variant==="unknownDivisor")return g6NumberInputQuestion(`<b>${product} : ? = ${quotient}</b>`,divisor,`${quotient} · ${divisor} = ${product}, поэтому неизвестный делитель — <b>${divisor}</b>.`,`g3:${raw}:${d}:unknownDivisor:${product}:${divisor}:${quotient}`,{audit:{type:"g3DivTable",variant,product,divisor,quotient,answer:rational(divisor,1)}});
-  return g6NumberInputQuestion(`<b>${product} : ${divisor}</b> = ?`,quotient,`${product} : ${divisor} = <b>${quotient}</b>, потому что ${divisor} · ${quotient} = ${product}.`,`g3:${raw}:${d}:quotient:${product}:${divisor}`,{audit:{type:"g3DivTable",variant,product,divisor,quotient,answer:rational(quotient,1)}});
+  const max=d===0?6:9,fact=multiplicationFactCandidate(2,max),a=fact.a,b=fact.b,product=a*b,
+   byA=Math.random()<.5,divisor=byA?a:b,quotient=byA?b:a;
+  if(d===0||d===1&&Math.random()<.5){
+   return g6NumberInputQuestion(`<b>${product} : ${divisor}</b> = ?`,quotient,
+     `${product} : ${divisor} = <b>${quotient}</b>, ведь ${quotient} · ${divisor} = ${product}.`,
+     `g3:${raw}:${d}:quotient:${product}:${divisor}`,
+     {audit:{type:"g3DivTable",variant:"quotient",product,divisor,quotient,answer:rational(quotient,1)}});
+  }
+  if(d===1){
+   const variant=Math.random()<.5?"equalBoxes":"equalGroups",
+    text=variant==="equalBoxes"?`${product} карандашей разложили поровну в ${divisor} коробок. Сколько карандашей в каждой коробке?`:`${product} тетрадей разложили по ${divisor} в стопку. Сколько стопок получилось?`,
+    answer=variant==="equalBoxes"?quotient:product/divisor;
+   return g3StoryNumberQuestion(text,answer,
+     `Делим поровну: ${product} : ${divisor} = <b>${answer}</b>. Проверка: ${divisor} · ${answer} = ${product}.`,
+     `g3:${raw}:${d}:${variant}:${product}:${divisor}`,
+     {type:"g3DivTable",variant,product,divisor,quotient,answer:rational(answer,1)});
+  }
+  if(Math.random()<.53){
+   const variant=Math.random()<.5?"unknownDividend":"unknownDivisor";
+   if(variant==="unknownDividend")return g6NumberInputQuestion(`<b>? : ${divisor} = ${quotient}</b>`,product,
+     `Чтобы найти делимое, умножаем делитель на частное.<br>${divisor} · ${quotient} = <b>${product}</b>.`,
+     `g3:${raw}:${d}:unknownDividend:${product}:${divisor}`,
+     {audit:{type:"g3DivTable",variant,product,divisor,quotient,answer:rational(product,1)}});
+   return g6NumberInputQuestion(`<b>${product} : ? = ${quotient}</b>`,divisor,
+     `Неизвестный делитель: ${product} : ${quotient} = <b>${divisor}</b>.`,
+     `g3:${raw}:${d}:unknownDivisor:${product}:${quotient}`,
+     {audit:{type:"g3DivTable",variant,product,divisor,quotient,answer:rational(divisor,1)}});
+  }
+  const variant=Math.random()<.5?"moreEach":"takeEach",change=ri(1,Math.max(1,Math.min(4,quotient-1))),
+   answer=variant==="moreEach"?quotient+change:quotient-change,
+   text=variant==="moreEach"?`${product} яблок разложили поровну в ${divisor} корзин, затем в каждую добавили по ${change} яблок. Сколько яблок стало в одной корзине?`:`${product} карандашей разложили поровну в ${divisor} пеналов, затем из каждого взяли по ${change} карандашей. Сколько карандашей осталось в одном пенале?`;
+  return g3StoryNumberQuestion(text,answer,
+    `Сначала в одной группе ${product} : ${divisor} = ${quotient}. Затем ${quotient} ${variant==="moreEach"?"+":"−"} ${change} = <b>${answer}</b>.`,
+    `g3:${raw}:${d}:${variant}:${product}:${divisor}:${change}`,
+    {type:"g3DivTable",variant,product,divisor,quotient,change,answer:rational(answer,1)});
  }
  if(raw==="offtable_multiply"){
-  if(d===0){const tens=ri(1,4)*10,k=ri(2,Math.min(7,Math.floor(100/tens))),answer=tens*k;return g6NumberInputQuestion(`<b>${tens} · ${k}</b> = ?`,answer,`${tens/10} дес. · ${k} = ${(tens/10)*k} дес. = <b>${answer}</b>.`,`g3:${raw}:${d}:tens:${tens}:${k}`,{audit:{type:"g3OffMul",variant:"tens",n:tens,k,tens,ones:0,answer:rational(answer,1)}})}
-  let n,k,answer,tens,ones,guard=0;do{guard++;n=ri(11,d===1?32:39);ones=n%10;if(ones===0){answer=101;continue}k=ri(2,d===1?4:5);answer=n*k;tens=Math.floor(n/10)*10}while((answer>100||ones===0)&&guard<300);
-  if(answer>100||ones===0){n=23;k=3;answer=69;tens=20;ones=3}
-  return g6NumberInputQuestion(`<b>${n} · ${k}</b> = ?`,answer,`${n} = ${tens} + ${ones}.<br>${tens} · ${k} = ${tens*k}; ${ones} · ${k} = ${ones*k}.<br>${tens*k} + ${ones*k} = <b>${answer}</b>.`,`g3:${raw}:${d}:decomp:${n}:${k}`,{audit:{type:"g3OffMul",variant:"decomp",n,k,tens,ones,answer:rational(answer,1)}});
+  if(d===0){
+   const tens=ri(1,4)*10,k=ri(2,Math.min(7,Math.floor(100/tens))),answer=tens*k;
+   return g6NumberInputQuestion(`<b>${tens} · ${k}</b> = ?`,answer,`${tens/10} дес. · ${k} = ${(tens/10)*k} дес. = <b>${answer}</b>.`,`g3:${raw}:${d}:tens:${tens}:${k}`,{audit:{type:"g3OffMul",variant:"tens",n:tens,k,tens,ones:0,answer:rational(answer,1)}});
+  }
+  if(d===1){
+   let n=0,k=0,answer=0,guard=0;
+   do{guard++;n=ri(11,32);k=ri(2,4);answer=n*k}while(answer>100&&guard<300);
+   if(answer>100){n=23;k=3;answer=69}
+   const tens=Math.floor(n/10)*10,ones=n%10,story=Math.random()<.45,variant=story?"equalGroups":"decomp";
+   const text=story?`В ${k} коробках по ${g3Qty(n,"pencil")}. Сколько карандашей во всех коробках?`:`<b>${n} · ${k}</b> = ?`;
+   const ex=`В каждой группе ${n}, групп ${k}. Раскладываем ${n} = ${tens} + ${ones}.<br>${tens} · ${k} = ${tens*k}; ${ones} · ${k} = ${ones*k}.<br>${tens*k} + ${ones*k} = <b>${answer}</b>.`;
+   return g6NumberInputQuestion(text,answer,ex,`g3:${raw}:${d}:${variant}:${n}:${k}`,{audit:{type:"g3OffMul",variant,n,k,tens,ones,answer:rational(answer,1)}});
+  }
+  const n=ri(21,45),k=ri(2,4),product=n*k,delta=ri(3,Math.min(18,product-1)),plus=Math.random()<.5,variant=plus?"multiplyThenAdd":"multiplyThenSubtract",answer=product+(plus?delta:-delta);
+  const text=plus?`На ${k} полках по ${g3Qty(n,"book")}. Принесли ещё ${g3Qty(delta,"book")}. Сколько книг стало всего?`:`На ${k} полках по ${g3Qty(n,"book")}. С полок забрали ${g3Qty(delta,"book")}. Сколько книг осталось?`;
+  const tens=Math.floor(n/10)*10,ones=n%10;
+  const ex=`Сначала находим количество на полках: ${n} = ${tens} + ${ones}; ${tens} · ${k} = ${tens*k}; ${ones} · ${k} = ${ones*k}.<br>${tens*k} + ${ones*k} = ${product}.<br>Затем ${plus?"прибавляем":"вычитаем"}: ${product} ${plus?"+":"−"} ${delta} = <b>${answer}</b>.`;
+  return g6NumberInputQuestion(text,answer,ex,`g3:${raw}:${d}:${variant}:${n}:${k}:${delta}`,{audit:{type:"g3OffMul",variant,n,k,tens,ones,product,delta,answer:rational(answer,1)}});
  }
  if(raw==="offtable_divide"){
-  if(d===0){const divisor=g6RandomFrom([2,3,4,5]),unit=ri(1,Math.max(1,Math.floor(9/divisor))),quotient=unit*10,dividend=quotient*divisor;return g6NumberInputQuestion(`<b>${dividend} : ${divisor}</b> = ?`,quotient,`${dividend/10} дес. : ${divisor} = ${quotient/10} дес. = <b>${quotient}</b>.`,`g3:${raw}:${d}:tens:${dividend}:${divisor}`,{audit:{type:"g3OffDiv",variant:"tens",dividend,divisor,quotient,tens:dividend,ones:0,answer:rational(quotient,1)}})}
+  if(d===0){
+   const divisor=g6RandomFrom([2,3,4,5]),unit=ri(1,Math.max(1,Math.floor(9/divisor))),quotient=unit*10,dividend=quotient*divisor;
+   return g6NumberInputQuestion(`<b>${dividend} : ${divisor}</b> = ?`,quotient,`${dividend/10} дес. : ${divisor} = ${quotient/10} дес. = <b>${quotient}</b>.`,`g3:${raw}:${d}:tens:${dividend}:${divisor}`,{audit:{type:"g3OffDiv",variant:"tens",dividend,divisor,quotient,tens:dividend,ones:0,answer:rational(quotient,1)}});
+  }
   const divisor=g6RandomFrom(d===1?[2,3,4]:[2,3,4,5,6]),parts=g3OfftableDivisionParts(divisor,d)||g3OfftableDivisionParts(2,d),{tens,ones,dividend,quotient}=parts;
-  return g6NumberInputQuestion(`<b>${dividend} : ${divisor}</b> = ?`,quotient,`${dividend} = ${tens} + ${ones}.<br>${tens} : ${divisor} = ${tens/divisor}; ${ones} : ${divisor} = ${ones/divisor}.<br>${tens/divisor} + ${ones/divisor} = <b>${quotient}</b>.`,`g3:${raw}:${d}:decomp:${dividend}:${divisor}:${tens}:${ones}`,{audit:{type:"g3OffDiv",variant:"decomp",dividend,divisor,quotient,tens,ones,answer:rational(quotient,1)}});
+  const baseEx=`Разложим ${dividend} = ${tens} + ${ones}.<br>${tens} : ${divisor} = ${tens/divisor}; ${ones} : ${divisor} = ${ones/divisor}.<br>${tens/divisor} + ${ones/divisor} = ${quotient}.`;
+  if(d===1){
+   const story=Math.random()<.45,variant=story?"equalSharing":"decomp";
+   const text=story?`${g3Qty(dividend,"pencil")} разложили поровну в ${g3Qty(divisor,"box")}. Сколько карандашей в каждой коробке?`:`<b>${dividend} : ${divisor}</b> = ?`;
+   return g6NumberInputQuestion(text,quotient,`${baseEx}<br>Ответ: <b>${quotient}</b>.`,`g3:${raw}:${d}:${variant}:${dividend}:${divisor}`,{audit:{type:"g3OffDiv",variant,dividend,divisor,quotient,tens,ones,answer:rational(quotient,1)}});
+  }
+  const delta=ri(2,Math.min(8,quotient-1)),plus=Math.random()<.5,variant=plus?"divideThenAdd":"divideThenSubtract",answer=quotient+(plus?delta:-delta);
+  const text=plus?`${g3Qty(dividend,"pencil")} разложили поровну в ${g3Qty(divisor,"box")}. В каждую коробку добавили ещё ${g3Qty(delta,"pencil")}. Сколько карандашей теперь в одной коробке?`:`${g3Qty(dividend,"pencil")} разложили поровну в ${g3Qty(divisor,"box")}. Из каждой коробки взяли ${g3Qty(delta,"pencil")}. Сколько карандашей осталось в одной коробке?`;
+  const ex=`${baseEx}<br>Затем ${plus?"прибавляем":"вычитаем"} ${delta}: ${quotient} ${plus?"+":"−"} ${delta} = <b>${answer}</b>.`;
+  return g6NumberInputQuestion(text,answer,ex,`g3:${raw}:${d}:${variant}:${dividend}:${divisor}:${delta}`,{audit:{type:"g3OffDiv",variant,dividend,divisor,quotient,tens,ones,delta,answer:rational(answer,1)}});
  }
  if(raw==="round_numbers"){
   const data=g3RoundNumberQuestionData(d);return g6NumberInputQuestion(data.text,data.answer,data.ex,`g3:${raw}:${d}:${data.audit.variant}:${Object.values(data.audit).slice(1,-1).join(":")}`,{audit:{...data.audit,answer:rational(data.answer,1)}});
@@ -5686,9 +6023,39 @@ function makeG3Question(id,stageOverride=null){
   if(variant==="decompose"){const parts=[];if(h)parts.push(h*100);if(t)parts.push(t*10);if(o)parts.push(o);const correct=parts.join(" + ")||"0",wrong=g3DecomposeDistractors(n,h,t,o);return g6ChoiceQuestion(`Как верно разложить число <b>${n}</b> на разрядные слагаемые?`,correct,wrong,`${n} = <b>${correct}</b>. Нулевой разряд можно не записывать.`,`g3:${raw}:${d}:${variant}:${n}`,{type:"placeValueDecompose",n,parts,answer:correct})}
   const digit=variant==="digitH"?h:variant==="digitT"?t:o,name=variant==="digitH"?"сотен":variant==="digitT"?"десятков":"единиц";return g6NumberInputQuestion(`Сколько ${name} в разрядной записи числа <b>${n}</b>?`,digit,`Число ${n}: ${h} сот., ${t} дес., ${o} ед. Ответ: <b>${digit}</b>.`,`g3:${raw}:${d}:${variant}:${n}`,{audit:{type:"placeValue",variant,n,h,t,o,answer:rational(digit,1)}});
  }
+
  if(raw==="compare_order"){
-  if(d===2&&Math.random()<.65){const set=new Set();while(set.size<4)set.add(ri(100,999));const values=shuffleOptions([...set]),ascending=Math.random()<.5;return g3OrderChoiceQuestion(values,ascending,`g3:${raw}:${d}:order:${ascending?"asc":"desc"}:${[...set].sort((a,b)=>a-b).join(":")}`)}
-  let a,b;if(d===0){a=ri(10,99);b=Math.random()<.18?a:ri(10,99)}else{const h=ri(1,9);a=h*100+ri(0,99);b=Math.random()<.18?a:h*100+ri(0,99);if(a===b&&Math.random()>.5)b=Math.min(999,a+1)}const correct=a<b?"<":a>b?">":"=";return g3CompareQuestion(`<b>${a}</b> ? <b>${b}</b>`,a,b,`Сравниваем числа по разрядам: <b>${a} ${correct} ${b}</b>.`,`g3:${raw}:${d}:compare:${a}:${b}`,{a,b});
+  if(d===2){
+   if(Math.random()<.65){
+    const set=new Set();while(set.size<4)set.add(ri(100,999));
+    const values=shuffleOptions([...set]),ascending=Math.random()<.5;
+    return g3OrderChoiceQuestion(values,ascending,`g3:${raw}:${d}:order:${ascending?"asc":"desc"}:${[...set].sort((a,b)=>a-b).join(":")}`);
+   }
+   const a=ri(120,800),b=ri(180,900),plus=ri(1,7)*10,minus=ri(1,6)*10,
+     leftBase=a+plus,rightBase=b-minus;
+   return g3CompareQuestion(`Сравните результаты: <b>${a} + ${plus}</b> ? <b>${b} − ${minus}</b>.`,
+     leftBase,rightBase,
+     `Вычисляем оба выражения: ${a} + ${plus} = ${leftBase}; ${b} − ${minus} = ${rightBase}.<br>Сравниваем: <b>${leftBase} ${leftBase<rightBase?"<":leftBase>rightBase?">":"="} ${rightBase}</b>.`,
+     `g3:${raw}:${d}:expressions:${a}:${plus}:${b}:${minus}`,
+     {variant:"expressions",a,b,plus,minus,leftBase,rightBase});
+  }
+  if(d===1&&Math.random()<.45){
+   const a=ri(130,820),delta=ri(1,7)*10,add=Math.random()<.5,
+     leftBase=add?a+delta:a-delta,b=ri(100,899),rightBase=b;
+   return g3CompareQuestion(`Сравните: <b>${a} ${add?"+":"−"} ${delta}</b> ? <b>${b}</b>.`,
+     leftBase,rightBase,
+     `Сначала вычислим: ${a} ${add?"+":"−"} ${delta} = ${leftBase}.<br>Затем сравним ${leftBase} ${leftBase<rightBase?"<":leftBase>rightBase?">":"="} ${rightBase}.`,
+     `g3:${raw}:${d}:changeTens:${a}:${add?1:0}:${delta}:${b}`,
+     {variant:"changeTens",a,b,delta,add,leftBase,rightBase});
+  }
+  let a,b;
+  if(d===0){a=ri(10,99);b=Math.random()<.18?a:ri(10,99)}
+  else{const h=ri(1,9);a=h*100+ri(0,99);b=Math.random()<.18?a:h*100+ri(0,99);if(a===b&&Math.random()>.5)b=Math.min(999,a+1)}
+  const correct=a<b?"<":a>b?">":"=";
+  return g3CompareQuestion(`<b>${a}</b> ? <b>${b}</b>`,a,b,
+    `Сравниваем числа по разрядам: <b>${a} ${correct} ${b}</b>.`,
+    `g3:${raw}:${d}:direct:${a}:${b}`,
+    {variant:"direct",a,b});
  }
  if(raw==="increase_decrease_times"){
   const inc=Math.random()<.5,k=ri(2,d===0?6:9),base=ri(2,d===0?9:d===1?12:15);let source,answer,text,ex;if(inc){source=base;answer=base*k;text=d===2?`Число <b>${source}</b> увеличили в <b>${k}</b> ${ruTimes(k)}. Какое число получили?`:`Увеличьте <b>${source}</b> в <b>${k}</b> ${ruTimes(k)}.`;ex=`Увеличить в ${k} ${ruTimes(k)} — значит умножить на ${k}.<br>${source} · ${k} = <b>${answer}</b>.`}else{answer=base;source=base*k;text=d===2?`Какое число получится, если <b>${source}</b> уменьшить в <b>${k}</b> ${ruTimes(k)}?`:`Уменьшите <b>${source}</b> в <b>${k}</b> ${ruTimes(k)}.`;ex=`Уменьшить в ${k} ${ruTimes(k)} — значит разделить на ${k}.<br>${source} : ${k} = <b>${answer}</b>.`}return g6NumberInputQuestion(text,answer,ex,`g3:${raw}:${d}:${inc?"inc":"dec"}:${source}:${k}`,{audit:{type:"times",increase:inc,source,k,answer:rational(answer,1)}});
@@ -5696,15 +6063,77 @@ function makeG3Question(id,stageOverride=null){
  if(raw==="multiplicative_compare"){
   const small=ri(2,d===0?9:d===1?12:15),k=ri(2,d===0?6:9),large=small*k,larger=Math.random()<.5,text=d===2?(larger?`У Маши <b>${small}</b> ${ruCount(small,"карандаш","карандаша","карандашей")}, а у Пети <b>${large}</b>. Во сколько раз у Пети карандашей больше?`:`У Пети <b>${large}</b> ${ruCount(large,"карандаш","карандаша","карандашей")}, а у Маши <b>${small}</b>. Во сколько раз у Маши карандашей меньше?`):(larger?`Во сколько раз <b>${large}</b> больше <b>${small}</b>?`:`Во сколько раз <b>${small}</b> меньше <b>${large}</b>?`),ex=`Делим большее число на меньшее: ${large} : ${small} = <b>${k}</b>.`;return g6NumberInputQuestion(text,k,ex,`g3:${raw}:${d}:${larger?"larger":"smaller"}:${small}:${large}`,{audit:{type:"multiplicativeCompare",small,large,k,answer:rational(k,1)}});
  }
+
  if(raw==="mass"){
-  if(d===0){const kg=Math.random()<.5,amount=kg?ri(1,8):ri(1,8)*1000,from=kg?"кг":"г",to=kg?"г":"кг",answer=g3UnitInteger("mass",amount,from,to);return g3UnitNumberQuestion("mass",`<b>${amount} ${from}</b> = ? ${to}`,amount,from,to,`1 кг = 1000 г. Получаем <b>${answer} ${to}</b>.`,`g3:${raw}:${d}:convert:${amount}:${from}:${to}`)}
-  if(d===1){const kg=ri(1,6),g=ri(5,65)*100,left=kg*1000,right=g,correct=left<right?"<":left>right?">":"=";return g3CompareQuestion(`<b>${kg} кг</b> ? <b>${g} г</b>`,left,right,`${kg} кг = ${left} г.<br>${left} г ${correct} ${right} г.`,`g3:${raw}:${d}:compare:${kg}:${g}`,{dimension:"mass",kg,g})}
-  const kg=ri(1,5),g=ri(1,9)*100,answer=kg*1000+g;return g6NumberInputQuestion(`<b>${kg} кг ${g} г</b> = ? г`,answer,`1 кг = 1000 г.<br>${kg} кг = ${kg*1000} г; ${kg*1000} + ${g} = <b>${answer} г</b>.`,`g3:${raw}:${d}:mixed:${kg}:${g}`,{unitSuffix:"г",audit:{type:"g3UnitMixed",dimension:"mass",kg,g,answer:rational(answer,1)}});
+  if(d===0){
+   const kg=Math.random()<.5,amount=kg?ri(1,8):ri(1,8)*1000,from=kg?"кг":"г",to=kg?"г":"кг",answer=g3UnitInteger("mass",amount,from,to);
+   return g3UnitNumberQuestion("mass",`<b>${amount} ${from}</b> = ? ${to}`,amount,from,to,
+     `1 кг = 1000 г. Получаем <b>${answer} ${to}</b>.`,
+     `g3:${raw}:${d}:convert:${amount}:${from}:${to}`);
+  }
+  if(d===1){
+   if(Math.random()<.55){
+    const kg=ri(1,6),g=ri(5,65)*100,left=kg*1000,right=g;
+    return g3CompareQuestion(`<b>${kg} кг</b> ? <b>${g} г</b>`,left,right,
+      `${kg} кг = ${left} г.<br>${left} г ${left<right?"<":left>right?">":"="} ${right} г.`,
+      `g3:${raw}:${d}:compare:${kg}:${g}`,{variant:"compare",dimension:"mass",kg,g,left,right});
+   }
+   const kg=ri(1,5),g=ri(1,9)*100,answer=kg*1000+g;
+   return g6NumberInputQuestion(`<b>${kg} кг ${g} г</b> = ? г`,answer,
+     `1 кг = 1000 г.<br>${kg} кг = ${kg*1000} г; ${kg*1000} + ${g} = <b>${answer} г</b>.`,
+     `g3:${raw}:${d}:mixed:${kg}:${g}`,
+     {unitSuffix:"г",audit:{type:"g3UnitMixed",variant:"mixed",dimension:"mass",kg,g,answer:rational(answer,1)}});
+  }
+  if(Math.random()<.5){
+   const kg=ri(2,6),g=ri(1,8)*100,taken=ri(1,15)*100,starting=kg*1000+g,answer=starting-taken;
+   return g3StoryNumberQuestion(`В мешке было <b>${kg} кг ${g} г</b> крупы. Отсыпали <b>${taken} г</b>. Сколько граммов осталось?`,
+     answer,`Переведём массу в граммы: ${kg} · 1000 + ${g} = ${starting} г.<br>Вычтем отсыпанное: ${starting} − ${taken} = <b>${answer} г</b>.`,
+     `g3:${raw}:${d}:afterTaking:${kg}:${g}:${taken}`,
+     {variant:"afterTaking",dimension:"mass",kg,g,taken,starting,answer},"г");
+  }
+  const kgA=ri(2,6),gA=ri(1,8)*100,kgB=ri(1,kgA-1),gB=ri(1,8)*100,
+    gramsA=kgA*1000+gA,gramsB=kgB*1000+gB,answer=gramsA-gramsB;
+  return g3StoryNumberQuestion(`Первый мешок весит <b>${kgA} кг ${gA} г</b>, а второй — <b>${kgB} кг ${gB} г</b>. На сколько граммов первый мешок тяжелее второго?`,
+    answer,`Первый: ${kgA} · 1000 + ${gA} = ${gramsA} г.<br>Второй: ${kgB} · 1000 + ${gB} = ${gramsB} г.<br>Разница: ${gramsA} − ${gramsB} = <b>${answer} г</b>.`,
+    `g3:${raw}:${d}:twoBags:${kgA}:${gA}:${kgB}:${gB}`,
+    {variant:"twoBags",dimension:"mass",kgA,gA,kgB,gB,gramsA,gramsB,answer},"г");
  }
+
  if(raw==="money"){
-  if(d===0){const rub=Math.random()<.5,amount=rub?ri(1,20):ri(1,20)*100,from=rub?"руб.":"коп.",to=rub?"коп.":"руб.",answer=g3UnitInteger("money",amount,from,to);return g3UnitNumberQuestion("money",`<b>${amount} ${from}</b> = ? ${to}`,amount,from,to,`1 руб. = 100 коп. Получаем <b>${answer} ${to}</b>.`,`g3:${raw}:${d}:convert:${amount}:${from}:${to}`)}
-  if(d===1){const rub=ri(1,20),kop=ri(1,99),answer=rub*100+kop;return g6NumberInputQuestion(`<b>${rub} руб. ${kop} коп.</b> = ? коп.`,answer,`${rub} руб. = ${rub*100} коп.<br>${rub*100} + ${kop} = <b>${answer} коп.</b>.`,`g3:${raw}:${d}:mixed:${rub}:${kop}`,{unitSuffix:"коп.",audit:{type:"g3UnitMixed",dimension:"money",rub,kop,answer:rational(answer,1)}})}
-  const rub=ri(1,15),kop=ri(100,1700),left=rub*100,right=kop,correct=left<right?"<":left>right?">":"=";return g3CompareQuestion(`<b>${rub} руб.</b> ? <b>${kop} коп.</b>`,left,right,`${rub} руб. = ${left} коп.<br>${left} коп. ${correct} ${right} коп.`,`g3:${raw}:${d}:compare:${rub}:${kop}`,{dimension:"money",rub,kop});
+  if(d===0){
+   const rub=Math.random()<.5,amount=rub?ri(1,20):ri(1,20)*100,from=rub?"руб.":"коп.",to=rub?"коп.":"руб.",answer=g3UnitInteger("money",amount,from,to);
+   return g3UnitNumberQuestion("money",`<b>${amount} ${from}</b> = ? ${to}`,amount,from,to,
+     `1 руб. = 100 коп. Получаем <b>${answer} ${to}</b>.`,
+     `g3:${raw}:${d}:convert:${amount}:${from}:${to}`);
+  }
+  if(d===1){
+   if(Math.random()<.55){
+    const rub=ri(1,20),kop=ri(1,99),answer=rub*100+kop;
+    return g6NumberInputQuestion(`<b>${rub} руб. ${kop} коп.</b> = ? коп.`,answer,
+      `${rub} руб. = ${rub*100} коп.<br>${rub*100} + ${kop} = <b>${answer} коп.</b>.`,
+      `g3:${raw}:${d}:mixed:${rub}:${kop}`,
+      {unitSuffix:"коп.",audit:{type:"g3UnitMixed",variant:"mixed",dimension:"money",rub,kop,answer:rational(answer,1)}});
+   }
+   const rub=ri(1,15),kop=ri(100,1700),left=rub*100,right=kop;
+   return g3CompareQuestion(`<b>${rub} руб.</b> ? <b>${kop} коп.</b>`,left,right,
+     `${rub} руб. = ${left} коп.<br>${left} коп. ${left<right?"<":left>right?">":"="} ${right} коп.`,
+     `g3:${raw}:${d}:compare:${rub}:${kop}`,
+     {variant:"compare",dimension:"money",rub,kop,left,right});
+  }
+  if(Math.random()<.5){
+   const costRub=ri(2,18),costKop=ri(1,99),paidRub=costRub+ri(1,5),
+     cost=costRub*100+costKop,paid=paidRub*100,answer=paid-cost;
+   return g3StoryNumberQuestion(`Покупка стоит <b>${costRub} руб. ${costKop} коп.</b>. Заплатили <b>${paidRub} руб.</b> Сколько копеек сдачи должны дать?`,
+     answer,`Стоимость: ${costRub} · 100 + ${costKop} = ${cost} коп.<br>Оплата: ${paidRub} · 100 = ${paid} коп.<br>Сдача: ${paid} − ${cost} = <b>${answer} коп.</b>.`,
+     `g3:${raw}:${d}:change:${costRub}:${costKop}:${paidRub}`,
+     {variant:"change",dimension:"money",costRub,costKop,paidRub,cost,paid,answer},"коп.");
+  }
+  const balanceRub=ri(3,15),balanceKop=ri(10,95),spentRub=ri(1,Math.min(5,balanceRub-1)),
+    spentKop=ri(1,90),balance=balanceRub*100+balanceKop,spent=spentRub*100+spentKop,answer=balance-spent;
+  return g3StoryNumberQuestion(`В кошельке было <b>${balanceRub} руб. ${balanceKop} коп.</b>. Купили карандаш за <b>${spentRub} руб. ${spentKop} коп.</b> Сколько копеек осталось?`,
+    answer,`Было: ${balanceRub} · 100 + ${balanceKop} = ${balance} коп.<br>Потратили: ${spentRub} · 100 + ${spentKop} = ${spent} коп.<br>Осталось: ${balance} − ${spent} = <b>${answer} коп.</b>.`,
+    `g3:${raw}:${d}:wallet:${balanceRub}:${balanceKop}:${spentRub}:${spentKop}`,
+    {variant:"wallet",dimension:"money",balanceRub,balanceKop,spentRub,spentKop,balance,spent,answer},"коп.");
  }
  if(raw==="time"){
   if(d===0){const v=g6RandomFrom(["minSec","secMin","hMin","minH"]);let value,from,to;if(v==="minSec"){value=ri(1,8);from="мин";to="с"}else if(v==="secMin"){value=ri(1,8)*60;from="с";to="мин"}else if(v==="hMin"){value=ri(1,6);from="ч";to="мин"}else{value=ri(1,6)*60;from="мин";to="ч"}const answer=g3UnitInteger("time",value,from,to),relation=(from==="ч"||to==="ч")?"1 ч = 60 мин":"1 мин = 60 с";return g3UnitNumberQuestion("time",`<b>${value} ${from}</b> = ? ${to}`,value,from,to,`${relation}. Получаем <b>${answer} ${to}</b>.`,`g3:${raw}:${d}:${v}:${value}`)}
@@ -5717,10 +6146,47 @@ function makeG3Question(id,stageOverride=null){
   if(Math.random()<.7){const km=Math.random()<.4;if(km){const a=ri(1,4),b=ri(1,9)*100,answer=a*1000+b;return g6NumberInputQuestion(`<b>${a} км ${b} м</b> = ? м`,answer,`${a} км = ${a*1000} м.<br>${a*1000} + ${b} = <b>${answer} м</b>.`,`g3:${raw}:${d}:mixedKm:${a}:${b}`,{unitSuffix:"м",audit:{type:"g3UnitMixed",dimension:"length",km:a,m:b,answer:rational(answer,1)}})}const m=ri(1,8),cm=ri(1,9)*10,answer=m*100+cm;return g6NumberInputQuestion(`<b>${m} м ${cm} см</b> = ? см`,answer,`${m} м = ${m*100} см.<br>${m*100} + ${cm} = <b>${answer} см</b>.`,`g3:${raw}:${d}:mixedM:${m}:${cm}`,{unitSuffix:"см",audit:{type:"g3UnitMixed",dimension:"length",m,cm,answer:rational(answer,1)}})}
   const m=ri(1,9),cm=ri(80,950),left=m*100,right=cm,correct=left<right?"<":left>right?">":"=";return g3CompareQuestion(`<b>${m} м</b> ? <b>${cm} см</b>`,left,right,`${m} м = ${left} см.<br>${left} см ${correct} ${right} см.`,`g3:${raw}:${d}:compare:${m}:${cm}`,{dimension:"length",m,cm});
  }
+
  if(raw==="area_units"){
-  if(d===0){const value=ri(1,9),answer=value*100;return g3UnitNumberQuestion("area",`<b>${value} дм²</b> = ? см²`,value,"дм²","см²",`1 дм² = 100 см².<br>${value} · 100 = <b>${answer} см²</b>.`,`g3:${raw}:${d}:dm2cm2:${value}`)}
-  if(d===1){const m=Math.random()<.35;if(m){const value=ri(1,6),answer=value*100;return g3UnitNumberQuestion("area",`<b>${value} м²</b> = ? дм²`,value,"м²","дм²",`1 м² = 100 дм².<br>${value} · 100 = <b>${answer} дм²</b>.`,`g3:${raw}:${d}:m2dm2:${value}`)}const answer=ri(1,9),value=answer*100;return g3UnitNumberQuestion("area",`<b>${value} см²</b> = ? дм²`,value,"см²","дм²",`1 дм² = 100 см².<br>${value} см² = <b>${answer} дм²</b>.`,`g3:${raw}:${d}:cm2dm2:${value}`)}
-  if(Math.random()<.55){const dm=ri(1,8),cm=ri(50,900),left=dm*100,right=cm,correct=left<right?"<":left>right?">":"=";return g3CompareQuestion(`<b>${dm} дм²</b> ? <b>${cm} см²</b>`,left,right,`1 дм² = 100 см².<br>${dm} дм² = ${left} см², поэтому ${left} см² ${correct} ${right} см².`,`g3:${raw}:${d}:compare:${dm}:${cm}`,{dimension:"area",dm,cm})}const value=ri(1,5),answer=value*10000;return g3UnitNumberQuestion("area",`<b>${value} м²</b> = ? см²`,value,"м²","см²",`1 м² = 10 000 см².<br>${value} · 10 000 = <b>${answer} см²</b>.`,`g3:${raw}:${d}:m2cm2:${value}`);
+  if(d===0){
+   const variant=Math.random()<.5?"dm2cm2":"m2dm2",value=ri(1,9),
+    from=variant==="dm2cm2"?"дм²":"м²",to=variant==="dm2cm2"?"см²":"дм²",answer=value*100;
+   return g3UnitNumberQuestion("area",`<b>${value} ${from}</b> = ? ${to}`,value,from,to,
+     `В одном ${from} — 100 ${to}. Поэтому ${value} · 100 = <b>${answer} ${to}</b>.`,
+     `g3:${raw}:${d}:${variant}:${value}`,{variant});
+  }
+  if(d===1){
+   if(Math.random()<.55){
+    const dm=ri(1,7),cm=ri(1,9)*10,answer=dm*100+cm;
+    return g6NumberInputQuestion(`<b>${dm} дм² ${cm} см²</b> = ? см²`,answer,
+      `${dm} дм² = ${dm*100} см². Складываем: ${dm*100} + ${cm} = <b>${answer} см²</b>.`,
+      `g3:${raw}:${d}:mixedDmCm:${dm}:${cm}`,
+      {unitSuffix:"см²",audit:{type:"g3UnitMixed",variant:"mixedDmCm",dimension:"area",dm,cm,answer:rational(answer,1)}});
+   }
+   const answer=ri(1,9),value=answer*100;
+   return g3UnitNumberQuestion("area",`<b>${value} см²</b> = ? дм²`,value,"см²","дм²",
+     `1 дм² = 100 см². ${value} : 100 = <b>${answer} дм²</b>.`,
+     `g3:${raw}:${d}:cm2dm2:${value}`,{variant:"cm2dm2"});
+  }
+  const variant=g6RandomFrom(["mixedCompare","difference","m2cm2"]);
+  if(variant==="mixedCompare"){
+   const dm=ri(1,7),cm=ri(1,9)*10,right=ri(120,850),left=dm*100+cm,op=left<right?"<":left>right?">":"=";
+   return g3CompareQuestion(`<b>${dm} дм² ${cm} см²</b> ? <b>${right} см²</b>`,left,right,
+     `Первая площадь: ${dm} · 100 + ${cm} = ${left} см². Сравниваем: ${left} ${op} ${right}.`,
+     `g3:${raw}:${d}:mixedCompare:${dm}:${cm}:${right}`,
+     {variant,dimension:"area",dm,cm,right,left});
+  }
+  if(variant==="difference"){
+   const dm=ri(2,8),cm=ri(50,dm*100-10),left=dm*100,answer=left-cm;
+   return g3StoryNumberQuestion(`Площадь первого участка <b>${dm} дм²</b>, а второго — <b>${cm} см²</b>. На сколько квадратных сантиметров площадь первого больше?`,
+     answer,`${dm} дм² = ${left} см². Вычисляем разность: ${left} − ${cm} = <b>${answer} см²</b>.`,
+     `g3:${raw}:${d}:difference:${dm}:${cm}`,
+     {variant,dimension:"area",dm,cm,left,answer},"см²");
+  }
+  const value=ri(1,5),answer=value*10000;
+  return g3UnitNumberQuestion("area",`<b>${value} м²</b> = ? см²`,value,"м²","см²",
+    `1 м² = 10 000 см². ${value} · 10 000 = <b>${answer} см²</b>.`,
+    `g3:${raw}:${d}:m2cm2:${value}`,{variant});
  }
  return null;
 }
@@ -8406,7 +8872,7 @@ function startNextErrorWorkTask(){
  beginAttemptItem(remediationItemMeta(source,{kind:"quiz",label:quizTitleForId(qid),prompt:quizAttemptPrompt(q),correctAnswer:correctChoicePlain(q),correctAnswerHtml:q.correctHtml||null,answerMode:q.answerMode||"choice",explanation:q.ex,grade:source.grade,topicId:source.topicId,sourceTopicId:q.sourceTopicId||source.topicId,questionSignature:q._signature||q.sig||""}));renderErrorWorkQuiz();
 }
 function renderErrorWorkTable(){
- tstage.innerHTML=`<div class="card"><div class="flash">${ta} × ${tb} = ?</div><input id="fin" class="fin" inputmode="numeric" maxlength="3" onkeydown="tableKey(event)"><div class="actions"><button id="tablePrimary" class="btn primary" onclick="checkTable()">Проверить</button><button class="btn soft" onclick="practice()">⏭ Пропустить задание</button></div><div class="feedback" id="tfb"></div></div>`;setTimeout(()=>fin.focus(),0);
+ tstage.innerHTML=`<div class="card"><div class="flash">${ta} × ${tb} = ?</div><input id="fin" class="fin" inputmode="numeric" maxlength="3" onkeydown="tableKey(event)"><div class="actions"><button id="tablePrimary" class="btn primary" onclick="checkTable()">Проверить</button><button class="btn soft" onclick="practice()">⏭ Пропустить задание</button></div><div class="feedback" id="tfb"></div></div>`;setTimeout(()=>document.getElementById("fin")?.focus(),0);
 }
 function renderErrorWorkQuiz(){qstage.innerHTML=`${quizPromptHtml(q)}${quizAnswerMarkup("startNextErrorWorkTask","skipErrorWorkQuiz")}`;bindQuizKeyboard();if(q?.answerMode&&q.answerMode!=="choice")setTimeout(focusQuizInput,0)}
 function findSourceError(source){
@@ -9627,8 +10093,13 @@ function checkColumn(){
 /* ТАБЛИЦА УМНОЖЕНИЯ */
 let ta=2,tb=2;
 function startTableStage(stageIndex){beginBlock("table",stageIndex,"table");openTable()}
+function g4TableTheory17D(){
+ const d=activeDifficulty();
+ const level=d===0?"Разминка: множители от 2 до 5.":d===1?"Тренировка: множители от 2 до 7.":"Мастер: вся таблица от 2 до 9.";
+ return `<p><b>${level}</b></p><p><b>Смысл умножения:</b> число 4 · 3 означает четыре одинаковых группы по 3. Складываем: 3 + 3 + 3 + 3 = 12.</p><p><b>Как проверить:</b> используем обратное действие. 12 : 3 = 4 и 12 : 4 = 3.</p><p><b>Если забыл ответ:</b> посчитай одинаковые группы по порядку или опирайся на соседний известный пример. Вводи в поле только число.</p>`;
+}
 function openTable(){
- show(`<div class="mtop"><h2>✖️ Таблица умножения</h2><button class="x" onclick="closeModal()">×</button></div>${blockHead()}<div class="lesson">${activeDifficulty()===0?'Разминка: множители от 2 до 5.':activeDifficulty()===1?'Тренировка: множители от 2 до 7.':'Мастер: вся таблица от 2 до 9.'}</div><div id="tstage"></div>`);
+ show(`<div class="mtop"><h2>✖️ Таблица умножения</h2><button class="x" onclick="closeModal()">×</button></div>${blockHead()}<div class="lesson">${g4TableTheory17D()}</div><div id="tstage"></div>`);
  practice();
 }
 let tableSolved=false,tablePenalty=false;
@@ -9668,9 +10139,10 @@ function practice(){
  const fact=freshCandidate(tableCandidate,tableSignature,160);ta=fact.a;tb=fact.b;
  beginAttemptItem({kind:"table",label:"Таблица умножения",prompt:`${ta} × ${tb} = ?`,correctAnswer:String(ta*tb),explanation:`${ta} × ${tb} = ${ta*tb}. Проверка делением: ${ta*tb} ÷ ${tb} = ${ta}.`});
  tstage.innerHTML=`<div class="card"><div class="flash">${ta} × ${tb} = ?</div><input id="fin" class="fin" inputmode="numeric" maxlength="3" onkeydown="tableKey(event)"><div class="actions"><button id="tablePrimary" class="btn primary" onclick="checkTable()">Проверить</button><button class="btn soft" onclick="practice()">${blockSession?"⏭ Пропустить задание":"Другой пример"}</button></div><div class="feedback" id="tfb"></div></div>`;
- setTimeout(()=>fin.focus(),0);
+ setTimeout(()=>document.getElementById("fin")?.focus(),0);
 }
 function checkTable(){
+ const fin=document.getElementById("fin");if(!fin)return;
  if(tableSolved){practice();return}
  const raw=String(fin.value||"").trim();
  if(raw===""){
@@ -10029,9 +10501,56 @@ function correctChoicePlain(question){
  const c=question?.choices?.find(x=>String(x.key)===String(question.ans));
  return c?choicePlain(c):String(question?.correctText||question?.ans||"");
 }
+/* STAGE18 - pedagogical field-based fraction input for grades 5 and 6 only. */
+function stage18UsesFractionBoxes(question=q){
+ return question?.answerMode==="fraction"&&(keyGrade(qid)===5||keyGrade(qid)===6);
+}
+function stage18FractionMarkup(nextHandler,skipHandler,hint){
+ const whole='<label class="stage18-frac-part"><span class="stage18-frac-label">Целая часть<br>(если есть)</span><input id="quizFracWhole" class="stage18-frac-cell" autocomplete="off" inputmode="text" aria-label="Целая часть, если есть" placeholder="—"></label>';
+ const frac='<div class="stage18-frac-part"><div class="stage18-frac-label">Дробная часть</div><div class="stage18-frac-stack"><input id="quizFracNum" class="stage18-frac-cell" autocomplete="off" inputmode="text" aria-label="Числитель" placeholder="числ."><div class="stage18-frac-bar" role="presentation"></div><input id="quizFracDen" class="stage18-frac-cell" autocomplete="off" inputmode="numeric" aria-label="Знаменатель" placeholder="знам."></div></div>';
+ return '<div class="quiz-input-wrap stage18-frac-wrap"><div class="quiz-input-label stage18-frac-title">Запиши ответ в клеточках</div><div class="stage18-frac-entry">'+whole+frac+'</div><div class="stage18-frac-note">Сверху — числитель, снизу — знаменатель. Целую часть заполняй только при необходимости.</div></div><div class="feedback" id="qfb"></div><div class="actions"><button id="quizCheck" class="btn primary" onclick="checkQuizInput()">Проверить</button><button id="quizNext" class="btn primary" style="display:none" onclick="'+nextHandler+'()">Следующий пример →</button><button id="quizSkip" class="btn soft" onclick="'+skipHandler+'()">⏭ Пропустить задание</button></div>';
+}
+function stage18FractionFields(){
+ return {stage18Fraction:true,whole:String(document.getElementById("quizFracWhole")?.value||"").trim(),numerator:String(document.getElementById("quizFracNum")?.value||"").trim(),denominator:String(document.getElementById("quizFracDen")?.value||"").trim()};
+}
+function stage18FractionStudentText(raw){
+ const w=String(raw?.whole||"").trim(),n=String(raw?.numerator||"").trim(),d=String(raw?.denominator||"").trim();
+ return n&&d?(w?w+" ":"")+n+"/"+d:w||[n,d].filter(Boolean).join("/");
+}
+function stage18ParseFractionFields(raw){
+ const w=String(raw?.whole||"").trim(),n=String(raw?.numerator||"").trim(),d=String(raw?.denominator||"").trim();
+ if(!w&&!n&&!d)return {ok:false,empty:true,error:"empty"};
+ if(w&&!n&&!d)return parseRationalInput(w);
+ if(!n||!d)return {ok:false,error:"missing-part"};
+ if(!/^[+-]?\d+$/.test(n)||!/^[+-]?\d+$/.test(d))return {ok:false,error:"invalid"};
+ if(!w)return parseRationalInput(n+"/"+d);
+ if(!/^[+-]?\d+$/.test(w)||!/^\d+$/.test(n)||!/^\d+$/.test(d))return {ok:false,error:"invalid"};
+ return parseRationalInput(w+" "+n+"/"+d);
+}
+function stage18FocusFractionMissing(raw){
+ const f=raw?.stage18Fraction?raw:stage18FractionFields();
+ const id=!f.numerator&&(!f.whole||f.denominator)?"quizFracNum":f.numerator&&!f.denominator?"quizFracDen":!f.whole&&!f.numerator?"quizFracNum":"quizFracWhole";
+ document.getElementById(id)?.focus();
+}
+function stage18ConvertG5Fraction(result,source){
+ const k=String(source?.correct??""),label=String(result.correctLabel||"");
+ if(!/class="(?:frac|mixed)"/.test(label))return result;
+ const simple=k.match(/^([+-]?\d+)\/([1-9]\d*)$/),mix=k.match(/^([+-]?\d+)_([0-9]+)_([1-9]\d*)$/);
+ let a=null;
+ if(simple)a=rational(Number(simple[1]),Number(simple[2]));
+ else if(mix){
+   const w=Number(mix[1]),n=Number(mix[2]),d=Number(mix[3]);
+   if(!Number.isSafeInteger(w)||!Number.isSafeInteger(n)||!Number.isSafeInteger(d)||n>=d)return result;
+   a=rational((w<0?-1:1)*(Math.abs(w)*d+n),d);
+ }
+ if(!a)return result;
+ return {...result,answerMode:"fraction",answerRat:a,preferMixed:!!mix,requireReduced:/сократ|несократ/i.test(String(result.text||"")),correctHtml:label,correctText:result.correctText};
+}
+
 function quizAnswerMarkup(nextHandler,skipHandler){
  if(q?.answerMode&&q.answerMode!=="choice"){
    const mode=q.answerMode,hint=q.inputHint||(mode==="fraction"?"Можно ввести обыкновенную дробь, смешанное число или целое.":mode==="ratio"?"Введите отношение, например: 2 : 3":mode==="multi"?"Введите числа по порядку через пробел, запятую или точку с запятой.":mode==="coordinate"?"Введите отдельно x и y.":"Введите ответ.");
+   if(stage18UsesFractionBoxes(q))return stage18FractionMarkup(nextHandler,skipHandler,hint);
    if(mode==="coordinate"){
      return `<div class="quiz-input-wrap"><div class="quiz-input-label">${esc(q.inputLabel||"Введите координаты")}</div><div class="coordinate-input-grid"><label class="coordinate-input-field"><span>x =</span><input id="quizInputX" class="coordinate-input" autocomplete="off" inputmode="decimal" aria-label="Абсцисса x"></label><label class="coordinate-input-field"><span>y =</span><input id="quizInputY" class="coordinate-input" autocomplete="off" inputmode="decimal" aria-label="Ордината y"></label></div><small class="quiz-input-hint">${esc(hint)}</small></div><div class="feedback" id="qfb"></div><div class="actions"><button id="quizCheck" class="btn primary" onclick="checkQuizInput()">Проверить</button><button id="quizNext" class="btn primary" style="display:none" onclick="${nextHandler}()">Следующий пример →</button><button id="quizSkip" class="btn soft" onclick="${skipHandler}()">⏭ Пропустить задание</button></div>`;
    }
@@ -10071,8 +10590,8 @@ function quizInputEvaluation(question,raw){
    return {valid:true,ok,studentHtml,studentText:raw,correctText,correctHtml,detail,retryMessage:equivalent&&!formOk?"🟡 Значение выражения верное, но ответ нужно <b>полностью упростить</b>. Попробуйте ещё раз.":"🟡 Пока неверно. Проверьте коэффициент при x и свободное число.",finalWrongMessage:equivalent&&!formOk?`🟡 Выражение равносильно правильному, но требуется упрощённая запись: <b>${correctHtml}</b>. ${question.ex}`:`💡 Правильный ответ: <b>${correctHtml}</b>. ${question.ex}`};
  }
  if(mode==="fraction"){
-   const parsed=parseRationalInput(raw);if(!parsed.ok)return {valid:false,message:parsed.error==="zero-denominator"?"Знаменатель не может быть равен нулю.":"Не удалось распознать ответ. Введите дробь, смешанное число или целое."};
-   const equivalent=rationalEq(parsed.rat,question.answerRat),formOk=!question.requireReduced||parsed.wasReduced,ok=equivalent&&formOk;return {valid:true,ok,studentHtml:quizFractionAnswerHtml(parsed),studentText:raw,correctText,correctHtml,detail:equivalent&&!formOk?"Значение верное, но дробь нужно сократить полностью.":`Правильный ответ: ${correctText}`,retryMessage:equivalent&&!formOk?"🟡 Значение верное, но дробь нужно <b>сократить полностью</b>. Попробуй ещё раз.":"🟡 Пока неверно. Попробуй ещё раз или пропусти задание.",finalWrongMessage:equivalent&&!formOk?`🟡 Значение дроби верное, но по условию её нужно <b>сократить полностью</b>. Правильный ответ: <b>${correctHtml}</b>. ${question.ex}`:`💡 Правильный ответ: <b>${correctHtml}</b>. ${question.ex}`};
+   const parsed=stage18UsesFractionBoxes(question)?stage18ParseFractionFields(raw):parseRationalInput(raw);if(!parsed.ok)return {valid:false,message:parsed.error==="zero-denominator"?"Знаменатель не может быть равен нулю.":parsed.error==="missing-part"?"Заполни числитель и знаменатель. Если ответ целый, заполни только целую часть.":"Проверь числа в клеточках."};
+   const equivalent=rationalEq(parsed.rat,question.answerRat),formOk=!question.requireReduced||parsed.wasReduced,ok=equivalent&&formOk;return {valid:true,ok,studentHtml:quizFractionAnswerHtml(parsed),studentText:stage18UsesFractionBoxes(question)?stage18FractionStudentText(raw):raw,correctText,correctHtml,detail:equivalent&&!formOk?"Значение верное, но дробь нужно сократить полностью.":`Правильный ответ: ${correctText}`,retryMessage:equivalent&&!formOk?"🟡 Значение верное, но дробь нужно <b>сократить полностью</b>. Попробуй ещё раз.":"🟡 Пока неверно. Попробуй ещё раз или пропусти задание.",finalWrongMessage:equivalent&&!formOk?`🟡 Значение дроби верное, но по условию её нужно <b>сократить полностью</b>. Правильный ответ: <b>${correctHtml}</b>. ${question.ex}`:`💡 Правильный ответ: <b>${correctHtml}</b>. ${question.ex}`};
  }
  if(mode==="number"){
    const parsed=parseExactNumberInput(raw,{allowPercent:!!question.allowPercent});if(!parsed.ok)return {valid:false,message:parsed.error==="percent-not-allowed"?"Знак % здесь вводить не нужно.":parsed.error==="too-many-decimals"?"Слишком много знаков после запятой.":"Не удалось распознать число. Можно использовать запятую или точку для десятичной дроби."};
@@ -10089,21 +10608,24 @@ function quizInputEvaluation(question,raw){
  return {valid:false,message:"Для этого задания не найден способ проверки ответа."};
 }
 function quizInputElements(question=q){
+ if(stage18UsesFractionBoxes(question))return ["quizFracWhole","quizFracNum","quizFracDen"].map(id=>document.getElementById(id)).filter(Boolean);
  if(question?.answerMode==="coordinate")return [document.getElementById("quizInputX"),document.getElementById("quizInputY")].filter(Boolean);
  if(question?.answerMode==="remainder")return [document.getElementById("quizInputQ"),document.getElementById("quizInputR")].filter(Boolean);
  const el=document.getElementById("quizInput");return el?[el]:[];
 }
 function quizInputRaw(question=q){
+ if(stage18UsesFractionBoxes(question))return stage18FractionFields();
  if(question?.answerMode==="coordinate")return {x:String(document.getElementById("quizInputX")?.value||"").trim(),y:String(document.getElementById("quizInputY")?.value||"").trim()};
  if(question?.answerMode==="remainder")return {q:String(document.getElementById("quizInputQ")?.value||"").trim(),r:String(document.getElementById("quizInputR")?.value||"").trim()};
  return String(document.getElementById("quizInput")?.value||"").trim();
 }
 function quizInputEmpty(question,raw){
+ if(stage18UsesFractionBoxes(question))return !raw?.whole&&!raw?.numerator&&!raw?.denominator;
  if(question?.answerMode==="coordinate")return !raw?.x||!raw?.y;
  if(question?.answerMode==="remainder")return !raw?.q||!raw?.r;
  return !String(raw||"").trim();
 }
-function focusQuizInput(){const el=q?.answerMode==="coordinate"?document.getElementById("quizInputX"):q?.answerMode==="remainder"?document.getElementById("quizInputQ"):document.getElementById("quizInput");el?.focus()}
+function focusQuizInput(){if(stage18UsesFractionBoxes(q)){const mixedExpected=q.preferMixed&&q.answerRat&&Math.abs(q.answerRat.n)>=q.answerRat.d;document.getElementById(mixedExpected?"quizFracWhole":"quizFracNum")?.focus();return}const el=q?.answerMode==="coordinate"?document.getElementById("quizInputX"):q?.answerMode==="remainder"?document.getElementById("quizInputQ"):document.getElementById("quizInput");el?.focus()}
 function quizAdvanceResolved(){
  if(!answered)return false;
  if(blockSession?.finished){finishBlock();return true}
@@ -10132,6 +10654,7 @@ function quizKeyboard(e){
    if(!String(qq?.value||"").trim()){if(fb)fb.textContent="Введите частное.";qq?.focus();return}
    if(!String(rr?.value||"").trim()){if(fb)fb.textContent="Введите остаток.";rr?.focus();return}
  }
+ if(stage18UsesFractionBoxes(q)){const raw=stage18FractionFields();if(!raw.whole&&!raw.numerator&&!raw.denominator){document.getElementById("quizFracNum")?.focus();return}if((raw.numerator||raw.denominator)&&!raw.numerator){document.getElementById("quizFracNum")?.focus();return}if((raw.numerator||raw.denominator)&&!raw.denominator){document.getElementById("quizFracDen")?.focus();return}}
  checkQuizInput();
 }
 function bindQuizKeyboard(){const stage=document.getElementById("qstage");if(stage)stage.onkeydown=quizKeyboard}
@@ -10173,10 +10696,10 @@ function checkQuizInput(){
    }else if(q.answerMode==="remainder"){
      const qq=document.getElementById("quizInputQ"),rr=document.getElementById("quizInputR");
      (!String(qq?.value||"").trim()?qq:rr)?.focus();
-   }else inputs[0]?.focus();
+   }else if(stage18UsesFractionBoxes(q))document.getElementById("quizFracNum")?.focus();else inputs[0]?.focus();
    return;
  }
- const ev=quizInputEvaluation(q,raw);if(!ev.valid){fb.textContent=ev.message;inputs.find(x=>!String(x.value||"").trim())?.focus();return}
+ const ev=quizInputEvaluation(q,raw);if(!ev.valid){fb.textContent=ev.message;if(stage18UsesFractionBoxes(q))stage18FocusFractionMissing(raw);else inputs.find(x=>!String(x.value||"").trim())?.focus();return}
  const ok=!!ev.ok,correctText=ev.correctText,correctHtml=ev.correctHtml;
  addAttemptCheck({answer:ev.studentText,correct:ok,details:ok?[]:[ev.detail]});
  if(!ok){
@@ -10185,7 +10708,7 @@ function checkQuizInput(){
    inputs.forEach(input=>input.classList.add("bad"));
    const retryText=String(qid||"").startsWith("g3:")?`🟡 Пока неверно. ${g3WrongHint847(q)}`:keyGrade(qid)===4?`🟡 Пока неверно. ${g4WrongHint(qid)}`:keyGrade(qid)===5?`🟡 Пока неверно. ${g5WrongHint(qid)}`:keyGrade(qid)===6?`🟡 Пока неверно. ${g6WrongHint(qid)}`:keyGrade(qid)===7?`🟡 Пока неверно. ${g7WrongHint851(q,qid)}`:keyGrade(qid)===8?`🟡 Пока неверно. ${g8WrongHint852(q,qid)}`:ev.retryMessage;
    fb.innerHTML=isErrorWork()?`${retryText} Даже после исправления эта старая ошибка останется на повторение.`:retryText;
-   inputs[0]?.focus();inputs[0]?.select?.();
+   if(stage18UsesFractionBoxes(q))stage18FocusFractionMissing(raw);else{inputs[0]?.focus();inputs[0]?.select?.()}
    return;
  }
  answered=true;
@@ -11322,8 +11845,9 @@ const G3_PRE847_MAKE=makeG3Question;
 function g3UnitExplanation847(a){
  const bases={mass:{"г":1,"кг":1000},money:{"коп.":1,"руб.":100},time:{"с":1,"мин":60,"ч":3600},length:{"мм":1,"см":10,"дм":100,"м":1000,"км":1000000},area:{"см²":1,"дм²":100,"м²":10000}};
  const map=bases[a.dimension];if(!map||!map[a.from]||!map[a.to])return null;const ratio=map[a.from]/map[a.to],ans=a.answer?.n??a.answer;
- if(ratio>=1)return `1 ${a.from} = ${ratio} ${a.to}.<br>${a.value} · ${ratio} = <b>${ans} ${a.to}</b>.`;
- const k=1/ratio;return `1 ${a.to} = ${k} ${a.from}.<br>${a.value} : ${k} = <b>${ans} ${a.to}</b>.`;
+ const punct=u=>String(u).endsWith(".")?"":".";
+ if(ratio>=1)return `1 ${a.from} = ${ratio} ${a.to}${punct(a.to)}<br>${a.value} · ${ratio} = <b>${ans} ${a.to}</b>${punct(a.to)}`;
+ const k=1/ratio;return `1 ${a.to} = ${k} ${a.from}${punct(a.from)}<br>${a.value} : ${k} = <b>${ans} ${a.to}</b>${punct(a.to)}`;
 }
 function g3ImproveExplanation847(q,id){
  if(!q)return q;const raw=rawCourseId(id),a=q.audit||{},v=a.variant;
@@ -11335,14 +11859,15 @@ function g3ImproveExplanation847(q,id){
   else if(v==="missing")q.ex=`Числа увеличиваются на 1: ${a.start}, ${a.start+1}, <b>${a.start+2}</b>, ${a.start+3}.`;
  }
  if(raw==="multiplication_table"&&a.type==="g3MulTable"&&v==="product"){
-  const add=Array.from({length:a.a},()=>a.b).join(" + ");q.ex=`${a.a} одинаковые группы по ${a.b}: ${add} = <b>${a.product}</b>. Поэтому ${a.a} · ${a.b} = ${a.product}.`;
+  const n=a.a,form=n%100>=11&&n%100<=14?"одинаковых групп":n%10===1?"одинаковая группа":n%10>=2&&n%10<=4?"одинаковые группы":"одинаковых групп";
+  const add=Array.from({length:a.a},()=>a.b).join(" + ");q.ex=`${a.a} ${form} по ${a.b}: ${add} = <b>${a.product}</b>. Поэтому ${a.a} · ${a.b} = ${a.product}.`;
  }
  if(raw==="zero_one"&&a.type==="g3ZeroOne"){
   const ans=a.answer?.n??q.ans,rule=v.includes("Zero")?"При умножении на 0 получается 0.":v==="divOne"?"При делении на 1 число не меняется.":v==="selfDiv"?"Ненулевое число, делённое само на себя, равно 1.":v==="zeroDiv"?"Ноль, разделённый на ненулевое число, равен 0.":v.includes("One")?"При умножении на 1 число не меняется.":null;
   if(rule&&!v.startsWith("expr"))q.ex=`${rule}<br>${stripHtmlText(q.text).replace(/\s*=\s*\?/,'')} = <b>${ans}</b>.`;
  }
  if(raw==="geometry_figures"&&a.type==="g3GeoFigures"&&v==="identify"){
-  const why={point:"На рисунке отмечено одно положение без длины — это точка.",line:"Линия продолжается в обе стороны — это прямая.",segment:"У линии два отмеченных конца — это отрезок.",broken:"Несколько отрезков соединены последовательно — это ломаная.",polygon:"Ломаная замкнута и образует границу фигуры — это многоугольник."};q.ex=`${why[a.kind]} <b>${String(q.ans)}</b>.`;
+  const why={point:"На рисунке отмечено одно положение без длины — это точка.",line:"Линия продолжается в обе стороны — это прямая.",segment:"У линии два отмеченных конца — это отрезок.",broken:"Несколько отрезков соединены последовательно — это ломаная.",polygon:"Ломаная замкнута и образует границу фигуры — это многоугольник."};q.ex=why[a.kind];
  }
  if(raw==="tables"&&(v==="sum"||v==="difference")){
   const m=a.tableModel,rs=m?.target?.rows||[];if(rs.length===2){const x=m.rows[rs[0]][1],y=m.rows[rs[1]][1],n1=m.rows[rs[0]][0],n2=m.rows[rs[1]][0];q.ex=v==="sum"?`Из таблицы: ${n1} — ${x}, ${n2} — ${y}. Складываем: ${x} + ${y} = <b>${a.answer}</b>.`:`Из таблицы: ${n1} — ${x}, ${n2} — ${y}. Находим разницу: ${Math.max(x,y)} − ${Math.min(x,y)} = <b>${a.answer}</b>.`;}
@@ -16814,9 +17339,11 @@ function g1StoryBase(op,{small=true}={}){
  if(op==="add"){const a=ri(1,small?8:15),maxB=Math.min(small?5:9,limit-a),b=ri(1,Math.max(1,maxB)),result=a+b;return {kind:"add",a,b,result,obj,limit}}
  const a=ri(small?3:5,small?10:limit),maxB=Math.min(small?5:9,a),b=ri(1,Math.max(1,maxB)),result=a-b;return {kind:"sub",a,b,result,obj,limit}
 }
+function g1ActionNoun(n,o){return o.one==="книга"&&n%10===1&&n%100!==11?"книгу":g1Noun(n,o)}
+function g1ExistVerb(n,o,upper=false){const v=n%10===1&&n%100!==11?(o.one==="книга"||o.one==="тетрадь"?"была":"был"):"было";return upper?v[0].toUpperCase()+v.slice(1):v}
 function g1StorySentence(m,{name="У Маши"}={}){
- const o=m.obj;if(m.kind==="add")return `${name} было ${m.a} ${g1Noun(m.a,o)}. Ей дали ещё ${m.b} ${g1Noun(m.b,o)}. Сколько ${o.many} стало?`;
- return `${name} было ${m.a} ${g1Noun(m.a,o)}. Убрали ${m.b} ${g1Noun(m.b,o)}. Сколько ${o.many} осталось?`
+ const o=m.obj;if(m.kind==="add")return `${name} ${g1ExistVerb(m.a,o)} ${m.a} ${g1Noun(m.a,o)}. Ей дали ещё ${m.b} ${g1ActionNoun(m.b,o)}. Сколько ${o.many} стало?`;
+ return `${name} ${g1ExistVerb(m.a,o)} ${m.a} ${g1Noun(m.a,o)}. Убрали ${m.b} ${g1ActionNoun(m.b,o)}. Сколько ${o.many} осталось?`
 }
 function g1StoryQuestion(d){
  const warm=["add_result","sub_result"];
@@ -16836,18 +17363,18 @@ function g1StoryQuestion(d){
   return g1Choice(text,correct,wrong,ex,`g1:word_problems:${d}:choose_record:${m.kind}:${m.a}:${m.b}:${m.obj.one}`,{model,visual:{type:"g1Story",data:model},templateId})
  }
  if(templateId==="find_added"){
-  const m=g1StoryBase("add",{small:false}),model={...m,unknown:"b"},text=`Было ${m.a} ${g1Noun(m.a,m.obj)}. Стало ${m.result}. Сколько ${m.obj.many} добавили?`,ex=`От ${m.a} до ${m.result} нужно добавить ${m.b}.`;
+  const m=g1StoryBase("add",{small:false}),model={...m,unknown:"b"},text=`${g1ExistVerb(m.a,m.obj,true)} ${m.a} ${g1Noun(m.a,m.obj)}. Стало ${m.result}. Сколько ${m.obj.many} добавили?`,ex=`От ${m.a} до ${m.result} нужно добавить ${m.b}.`;
   return g1NumberInput(text,m.b,ex,`g1:word_problems:${d}:find_added:${m.a}:${m.result}:${m.obj.one}`,{model,visual:{type:"g1Story",data:model},templateId})
  }
  if(templateId==="find_removed"){
-  const m=g1StoryBase("sub",{small:false}),model={...m,unknown:"b"},text=`Было ${m.a} ${g1Noun(m.a,m.obj)}. Осталось ${m.result}. Сколько ${m.obj.many} убрали?`,ex=`Из ${m.a} убрали ${m.b}, осталось ${m.result}.`;
+  const m=g1StoryBase("sub",{small:false}),model={...m,unknown:"b"},text=`${g1ExistVerb(m.a,m.obj,true)} ${m.a} ${g1Noun(m.a,m.obj)}. Осталось ${m.result}. Сколько ${m.obj.many} убрали?`,ex=`Из ${m.a} убрали ${m.b}, осталось ${m.result}.`;
   return g1NumberInput(text,m.b,ex,`g1:word_problems:${d}:find_removed:${m.a}:${m.result}:${m.obj.one}`,{model,visual:{type:"g1Story",data:model},templateId})
  }
  if(templateId==="find_start_add"){
-  const m=g1StoryBase("add",{small:false}),model={...m,unknown:"a"},text=`Добавили ${m.b} ${g1Noun(m.b,m.obj)}, и стало ${m.result}. Сколько ${m.obj.many} было сначала?`,ex=`Сначала было ${m.a}. Добавили ${m.b}. Стало ${m.result}.`;
+  const m=g1StoryBase("add",{small:false}),model={...m,unknown:"a"},text=`Добавили ${m.b} ${g1ActionNoun(m.b,m.obj)}, и стало ${m.result}. Сколько ${m.obj.many} было сначала?`,ex=`Сначала было ${m.a}. Добавили ${m.b}. Стало ${m.result}.`;
   return g1NumberInput(text,m.a,ex,`g1:word_problems:${d}:find_start_add:${m.b}:${m.result}:${m.obj.one}`,{model,visual:{type:"g1Story",data:model},templateId})
  }
- const m=g1StoryBase("sub",{small:false}),model={...m,unknown:"a"},text=`Убрали ${m.b} ${g1Noun(m.b,m.obj)}, и осталось ${m.result}. Сколько ${m.obj.many} было сначала?`,ex=`Сначала было ${m.a}. Убрали ${m.b}. Осталось ${m.result}.`;
+ const m=g1StoryBase("sub",{small:false}),model={...m,unknown:"a"},text=`Убрали ${m.b} ${g1ActionNoun(m.b,m.obj)}, и осталось ${m.result}. Сколько ${m.obj.many} было сначала?`,ex=`Сначала было ${m.a}. Убрали ${m.b}. Осталось ${m.result}.`;
  return g1NumberInput(text,m.a,ex,`g1:word_problems:${d}:find_start_sub:${m.b}:${m.result}:${m.obj.one}`,{model,visual:{type:"g1Story",data:model},templateId:"find_start_sub"})
 }
 
@@ -17646,11 +18173,11 @@ function g2FactModel(){const a=ri(2,10),b=ri(2,10);return {a,b,result:a*b}}
 function g2MultiplyDivideQuestion(d){
  const warm=["groups_total","repeated_addition","share_equal"],train=[...warm,"make_groups","multiply_fact","divide_fact"],master=[...train,"missing_factor","inverse_record","compare_products"],templateId=g2PickTemplate(d===0?warm:d===1?train:master);
  if(templateId==="groups_total"){
-  const model=g2GroupsModel(),answer=model.total;return g2Choice(`Одинаковых групп: ${model.groups}. В каждой по ${model.each} ${g2ItemWord(model.each)}. Сколько предметов всего?`,answer,g2UniqueNums(answer,1,30),`${model.each} повторяется ${model.groups} раза: ${Array.from({length:model.groups},()=>model.each).join(" + ")} = ${answer}.`,`g2:multiply_divide:${d}:groups_total:${model.groups}:${model.each}`,{model,visual:{type:"g2EqualGroups",data:model},templateId})
+  const model=g2GroupsModel(),answer=model.total;return g2Choice(`Одинаковых групп: ${model.groups}. В каждой по ${model.each} ${g2ItemWord(model.each)}. Сколько предметов всего?`,answer,g2UniqueNums(answer,1,30),`${model.each} повторяется ${model.groups} ${g2StoryTimes(model.groups)}: ${Array.from({length:model.groups},()=>model.each).join(" + ")} = ${answer}.`,`g2:multiply_divide:${d}:groups_total:${model.groups}:${model.each}`,{model,visual:{type:"g2EqualGroups",data:model},templateId})
  }
  if(templateId==="repeated_addition"){
   const model=g2GroupsModel(),sum=Array.from({length:model.groups},()=>model.each).join(" + "),correct=`${model.each} · ${model.groups} = ${model.total}`,wrong=[`${model.groups} · ${model.each} = ${model.groups+model.each}`,`${model.each} + ${model.groups} = ${model.total}`,`${model.total} : ${model.groups} = ${model.total}`],answer=correct;
-  return g2Choice(`Какая запись заменяет сумму <b>${sum}</b>?`,answer,wrong,`${model.each} складываем ${model.groups} раза. Это можно записать: ${answer}.`,`g2:multiply_divide:${d}:repeated_addition:${model.groups}:${model.each}`,{model,visual:{type:"g2EqualGroups",data:model},templateId})
+  return g2Choice(`Какая запись заменяет сумму <b>${sum}</b>?`,answer,wrong,`${model.each} складываем ${model.groups} ${g2StoryTimes(model.groups)}. Это можно записать: ${answer}.`,`g2:multiply_divide:${d}:repeated_addition:${model.groups}:${model.each}`,{model,visual:{type:"g2EqualGroups",data:model},templateId})
  }
  if(templateId==="share_equal"){
   const model=g2GroupsModel(),answer=model.each;return g2Choice(`${model.total} предметов разделили поровну на ${model.groups} ${g2GroupWord(model.groups)}. Сколько предметов в каждой группе?`,answer,g2UniqueNums(answer,1,10),`${model.total} : ${model.groups} = ${answer}. В каждой группе по ${answer}.`,`g2:multiply_divide:${d}:share_equal:${model.total}:${model.groups}`,{model,visual:{type:"g2EqualGroups",data:{mode:"share",total:model.total,groups:model.groups}},templateId})
@@ -17757,6 +18284,8 @@ const G2_STORY_ITEMS=[
  {one:"тетрадь",few:"тетради",many:"тетрадей",place:"На столе",add:"положили",sub:"убрали"}
 ];
 function g2StoryNoun(n,o){return g1Noun(n,o)}
+function g2StoryAccNoun(n,o){return o.one==="книга"&&n%10===1&&n%100!==11?"книгу":g2StoryNoun(n,o)}
+function g2StoryTimes(n){return n%10>=2&&n%10<=4&&(n%100<12||n%100>14)?"раза":"раз"}
 function g2StoryPickItem(){return G2_STORY_ITEMS[ri(0,G2_STORY_ITEMS.length-1)]}
 function g2StoryVisualHtml(data){
  const showDerived=data?.showDerived===true,steps=(Array.isArray(data?.steps)?data.steps:[]).filter(x=>showDerived||!x?.derived);
@@ -17786,15 +18315,15 @@ function g2StoryDivModel({easy=false}={}){
  return {kind:"div",groups,each,total,result:each,steps:[{label:"Всего",value:`${total}`},{label:"Групп",value:`${groups}`},{label:"В каждой",value:"?",answer:true}]}
 }
 function g2StoryOneText(m){
- if(m.kind==="add")return `${m.obj.place} было ${m.a} ${g2StoryNoun(m.a,m.obj)}. ${m.obj.add[0].toUpperCase()+m.obj.add.slice(1)} ещё ${m.b} ${g2StoryNoun(m.b,m.obj)}. Сколько ${m.obj.many} стало?`;
- if(m.kind==="sub")return `${m.obj.place} было ${m.a} ${g2StoryNoun(m.a,m.obj)}. ${m.obj.sub[0].toUpperCase()+m.obj.sub.slice(1)} ${m.b} ${g2StoryNoun(m.b,m.obj)}. Сколько ${m.obj.many} осталось?`;
+ if(m.kind==="add")return `${m.obj.place} ${g1ExistVerb(m.a,m.obj)} ${m.a} ${g2StoryNoun(m.a,m.obj)}. ${m.obj.add[0].toUpperCase()+m.obj.add.slice(1)} ещё ${m.b} ${g2StoryAccNoun(m.b,m.obj)}. Сколько ${m.obj.many} стало?`;
+ if(m.kind==="sub")return `${m.obj.place} ${g1ExistVerb(m.a,m.obj)} ${m.a} ${g2StoryNoun(m.a,m.obj)}. ${m.obj.sub[0].toUpperCase()+m.obj.sub.slice(1)} ${m.b} ${g2StoryAccNoun(m.b,m.obj)}. Сколько ${m.obj.many} осталось?`;
  if(m.kind==="mul")return `Есть ${m.groups} ${g2GroupWord(m.groups)}. В каждой по ${m.each} ${g2ItemWord(m.each)}. Сколько предметов всего?`;
  return `${m.total} предметов разделили поровну на ${m.groups} ${g2GroupWord(m.groups)}. Сколько предметов в каждой группе?`
 }
 function g2StoryOneExplanation(m){
  if(m.kind==="add")return `Нужно узнать, сколько стало: ${m.a} + ${m.b} = ${m.result}.`;
  if(m.kind==="sub")return `Нужно узнать, сколько осталось: ${m.a} − ${m.b} = ${m.result}.`;
- if(m.kind==="mul")return `${m.each} повторяется ${m.groups} раза: ${m.each} · ${m.groups} = ${m.total}.`;
+ if(m.kind==="mul")return `${m.each} повторяется ${m.groups} ${g2StoryTimes(m.groups)}: ${m.each} · ${m.groups} = ${m.total}.`;
  return `Делим поровну: ${m.total} : ${m.groups} = ${m.each}.`
 }
 function g2StoryCorrectAction(m){return m.kind==="add"?"Сложение":m.kind==="sub"?"Вычитание":m.kind==="mul"?"Умножение":"Деление"}
@@ -17833,11 +18362,11 @@ function g2WordProblemsQuestion(d){
   return g2Choice(text,correct,g2StoryRecordDistractors(model),`По условию подходит запись ${correct}.`,`g2:word_problems:${d}:choose_record:${kind}:${model.a??model.total}:${model.b??model.groups}:${model.each??0}`,{model,visual,templateId})
  }
  if(templateId==="two_add_sub"){
-  const model=g2StoryTwoAddSubModel(),o=model.obj,text=`${o.place} было ${model.a} ${g2StoryNoun(model.a,o)}. ${o.add[0].toUpperCase()+o.add.slice(1)} ${model.b} ${g2StoryNoun(model.b,o)}, потом ${o.sub} ${model.c} ${g2StoryNoun(model.c,o)}. Сколько ${o.many} осталось?`,ex=`Сначала ${model.a} + ${model.b} = ${model.mid}. Потом ${model.mid} − ${model.c} = ${model.result}.`;
+  const model=g2StoryTwoAddSubModel(),o=model.obj,text=`${o.place} ${g1ExistVerb(model.a,o)} ${model.a} ${g2StoryNoun(model.a,o)}. ${o.add[0].toUpperCase()+o.add.slice(1)} ${model.b} ${g2StoryAccNoun(model.b,o)}, потом ${o.sub} ${model.c} ${g2StoryAccNoun(model.c,o)}. Сколько ${o.many} осталось?`,ex=`Сначала ${model.a} + ${model.b} = ${model.mid}. Потом ${model.mid} − ${model.c} = ${model.result}.`;
   return g2NumberInput(text,model.result,ex,`g2:word_problems:${d}:two_add_sub:${model.a}:${model.b}:${model.c}:${o.one}`,{model,visual:{type:"g2Story",data:{steps:model.steps,aria:text}},templateId})
  }
  if(templateId==="two_sub_add"){
-  const model=g2StoryTwoSubAddModel(),o=model.obj,text=`${o.place} было ${model.a} ${g2StoryNoun(model.a,o)}. ${o.sub[0].toUpperCase()+o.sub.slice(1)} ${model.b} ${g2StoryNoun(model.b,o)}, потом ${o.add} ${model.c} ${g2StoryNoun(model.c,o)}. Сколько ${o.many} стало?`,ex=`Сначала ${model.a} − ${model.b} = ${model.mid}. Потом ${model.mid} + ${model.c} = ${model.result}.`;
+  const model=g2StoryTwoSubAddModel(),o=model.obj,text=`${o.place} ${g1ExistVerb(model.a,o)} ${model.a} ${g2StoryNoun(model.a,o)}. ${o.sub[0].toUpperCase()+o.sub.slice(1)} ${model.b} ${g2StoryAccNoun(model.b,o)}, потом ${o.add} ${model.c} ${g2StoryAccNoun(model.c,o)}. Сколько ${o.many} стало?`,ex=`Сначала ${model.a} − ${model.b} = ${model.mid}. Потом ${model.mid} + ${model.c} = ${model.result}.`;
   return g2NumberInput(text,model.result,ex,`g2:word_problems:${d}:two_sub_add:${model.a}:${model.b}:${model.c}:${o.one}`,{model,visual:{type:"g2Story",data:{steps:model.steps,aria:text}},templateId})
  }
  const model=g2StoryTwoMulAddModel(),text=`Есть ${model.groups} ${g2GroupWord(model.groups)}. В каждой по ${model.each} ${g2ItemWord(model.each)}. Потом добавили ещё ${model.extra} ${g2ItemWord(model.extra)}. Сколько предметов стало всего?`,ex=`Сначала узнаём количество в группах: ${model.each} · ${model.groups} = ${model.product}. Потом ${model.product} + ${model.extra} = ${model.result}.`;
@@ -18154,7 +18683,7 @@ g2MultiplyDivideQuestion=function(d){
  if(q?.templateId==="repeated_addition"){
   const sum=Array.from({length:m.groups},()=>m.each).join(" + "),correct=`${m.each} · ${m.groups} = ${m.total}`;
   const wrong=g2UniqueNums(m.total,1,100).map(v=>`${m.each} · ${m.groups} = ${v}`);
-  return g2Choice(`Какая запись умножением заменяет сумму <b>${sum}</b>?`,correct,wrong,`${m.each} складываем ${m.groups} раза. Это можно записать: ${correct}.`,q.sig,{model:m,visual:{type:"g2EqualGroups",data:m},templateId:q.templateId})
+  return g2Choice(`Какая запись умножением заменяет сумму <b>${sum}</b>?`,correct,wrong,`${m.each} складываем ${m.groups} ${g2StoryTimes(m.groups)}. Это можно записать: ${correct}.`,q.sig,{model:m,visual:{type:"g2EqualGroups",data:m},templateId:q.templateId})
  }
  if(q?.templateId==="inverse_record"){
   const correct=`${m.result} : ${m.a} = ${m.b}`,wrong=g2UniqueNums(m.b,0,100).map(v=>`${m.result} : ${m.a} = ${v}`);
@@ -31591,4 +32120,326 @@ window.G8_QA8_AUDIT={targets:RAW.slice(),levels:LENGTH.slice(),pools:Object.from
 })();
 
 </script>
+<script id="stage18-g5-final-adapter">
+(function(){
+ const previous=makeG5Question;
+ makeG5Question=function(id){
+   const generated=previous.apply(this,arguments);
+   return stage18ConvertG5Fraction(generated,{correct:generated?.ans});
+ };
+})();
+</script>\n
+<script id="matkvest-stage18b-form-and-powers">
+/* Grade 5 semantic answers: correct mathematical VALUE plus requested FORM. */
+(function(){
+ const numerals={одна:1,одну:1,один:1,два:2,две:2,три:3,четыре:4,пять:5,шесть:6,семь:7,восемь:8,девять:9,десять:10,одиннадцать:11,двенадцать:12};
+ const denominators={вторая:2,вторых:2,третья:3,третьих:3,четвертая:4,четвёртая:4,четвертых:4,четвёртых:4,пятая:5,пятых:5,шестая:6,шестых:6,седьмая:7,седьмых:7,восьмая:8,восьмых:8,девятая:9,девятых:9,десятая:10,десятых:10,одиннадцатых:11,двенадцатых:12};
+ function partsFromHtml(html){
+   const node=document.createElement('div');
+   node.innerHTML=String(html||'');
+   if(node.querySelectorAll('.frac').length!==1)return null;
+   const ff=node.querySelector('.frac'),n=Number(ff.querySelector('.num')?.textContent),d=Number(ff.querySelector('.den')?.textContent);
+   if(!Number.isSafeInteger(n)||!Number.isSafeInteger(d)||d<=0)return null;
+   const wholeNode=node.querySelector('.mixed .whole'),w=wholeNode?Number(wholeNode.textContent):null;
+   if(wholeNode&&!Number.isSafeInteger(w))return null;
+   return {n,d,whole:w};
+ }
+ function exactFromQuestion(topic,question){
+   const html=String(question.text||'');
+   let plain=String(question.text||'').replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim();
+   if(topic==='frac_read'){
+     const m=plain.match(/Запиши дробью:\s*«\s*([а-яё]+)\s+([а-яё]+)\s*»/i);
+     if(m){
+       const n=numerals[m[1].toLowerCase()],d=denominators[m[2].toLowerCase()];
+       if(n!=null&&d!=null)return {kind:'exact',n,d};
+     }
+   }
+   if(topic==='frac_ray' && /неправильной дробью/i.test(plain)){
+     const division=plain.match(/разделили\s+на\s+(\d+)\s+част/i),mark=plain.match(/на\s+(\d+)-й\s+отметке/i);
+     if(division&&mark)return {kind:'exact',n:Number(mark[1]),d:Number(division[1])};
+   }
+   if(topic==='mixed_to_frac'&&/неправильную дробь/i.test(plain)){
+     const p=partsFromHtml(html);
+     if(p&&p.whole!==null)return {kind:'exact',n:p.whole*p.d+p.n,d:p.d};
+   }
+   return null;
+ }
+ function numberRatFromCorrect(result){
+   const shown=String(result.correctLabel||result.correctHtml||'');
+   const p=partsFromHtml(shown);
+   if(p)return {rat:rational((p.whole===null?0:p.whole*p.d)+p.n,p.d),mixed:p.whole!==null};
+   const v=shown.trim().replace(/<[^>]*>/g,'');
+   if(/^[+-]?\d+$/.test(v))return {rat:rational(Number(v),1),mixed:false};
+   return null;
+ }
+ function prepareFraction(result,topic){
+   if(!result||!result.text)return result;
+   let r=result;
+   const form=exactFromQuestion(topic,r);
+   if(form){
+     if(!Number.isSafeInteger(form.n)||!Number.isSafeInteger(form.d)||form.d<1)return r;
+     r={...r,answerMode:'fraction',answerRat:rational(form.n,form.d),preferMixed:false,
+       requireReduced:false,correctText:String(form.n)+'/'+String(form.d),
+       correctHtml:frac(form.n,form.d),stage18AnswerForm:form};
+   } else if(topic==='frac_to_mixed'||topic==='mixed_add'||topic==='mixed_sub'||topic==='mixed_to_frac'){
+     const parsed=numberRatFromCorrect(r);
+     if(parsed){
+       const expectMixed=topic==='frac_to_mixed'||topic==='mixed_add'||topic==='mixed_sub';
+       r={...r,answerMode:'fraction',answerRat:parsed.rat,preferMixed:expectMixed,
+         correctText:expectMixed?rationalPlain(parsed.rat,true):rationalPlain(parsed.rat,false),
+         correctHtml:rationalHtml(parsed.rat,expectMixed),
+         stage18AnswerForm:{kind:expectMixed?'mixed':'improper'}};
+     }
+   }
+   return r;
+ }
+ function generatePowers(result,id){
+   if(id!=='powers')return result;
+   const difficulty=activeDifficulty();
+   if(difficulty>1)return result;
+   const n=difficulty===0?ri(2,14):ri(2,8);
+   const family=ri(0,5),value=difficulty===0?n*n:n*n*n,reverse=family===5;
+   const answer=reverse?n:value;
+   let prompt,why;
+   if(difficulty===0){
+     const arr=[
+       ['Найди квадрат числа '+n+'.','Квадрат числа '+n+' равен '+n+' · '+n+' = '+value+'.'],
+       ['Сторона квадрата '+n+' см. Найди его площадь (см²).','Площадь квадрата равна '+n+'² = '+value+' см².'],
+       ['В квадрате '+n+' рядов по '+n+' клеток. Сколько всего клеток?','Умножаем число рядов на число клеток: '+n+' · '+n+' = '+value+'.'],
+       ['Сколько будет '+n+' · '+n+'?','Это квадрат числа '+n+': '+value+'.'],
+       ['Сколько единичных квадратов поместится в квадрате со стороной '+n+' единиц?','Площадь в единичных квадратах равна '+n+' · '+n+' = '+value+'.'],
+       ['Квадрат какого натурального числа равен '+value+'?','Так как '+n+' · '+n+' = '+value+', искомое число '+n+'.']
+     ];
+     [prompt,why]=arr[family];
+   }else{
+     const arr=[
+       ['Найди куб числа '+n+'.','Куб числа '+n+' равен '+n+' · '+n+' · '+n+' = '+value+'.'],
+       ['Ребро куба '+n+' см. Найди его объём (см³).','Объём куба равен '+n+'³ = '+value+' см³.'],
+       ['Куб сложили из '+n+' слоёв по '+n*n+' маленьких кубиков. Сколько их всего?','Умножаем '+n+' на '+n*n+' и получаем '+value+'.'],
+       ['Найди произведение '+n+' · '+n+' · '+n+'.','Это куб числа '+n+': '+value+'.'],
+       ['В одном ряду '+n+' кубиков, таких рядов '+n+' в слое и всего '+n+' слоёв. Сколько кубиков?','Перемножаем '+n+' · '+n+' · '+n+' = '+value+'.'],
+       ['Куб какого натурального числа равен '+value+'?','Так как '+n+'³ = '+value+', ответ '+n+'.']
+     ];
+     [prompt,why]=arr[family];
+   }
+   const ch=g5nums(answer,[Math.max(0,answer+1),Math.max(0,answer-1),value+n,n*n,Math.max(0,n-1)]);
+   const answerString=String(answer);
+   return {...result,text:prompt,ans:answerString,choices:ch,
+     correctLabel:answerString,correctText:answerString,answerMode:'choice',ex:why,
+     templateId:'s18b_power_'+difficulty+'_'+family,
+     sig:'g5:powers:s18b:'+difficulty+':'+family+':'+n+':'+answerString};
+ }
+ const earlierMakeG5=makeG5Question;
+ makeG5Question=function(id){
+   const q=earlierMakeG5.apply(this,arguments);
+   const topic=String(q?.sourceTopicId||id||'');
+   return topic==='powers'?generatePowers(q,topic):prepareFraction(q,topic);
+ };
+ const earlierEvaluation=quizInputEvaluation;
+ quizInputEvaluation=function(question,raw){
+   const evaluation=earlierEvaluation.apply(this,arguments);
+   const required=question?.stage18AnswerForm;
+   if(!required||!stage18UsesFractionBoxes(question)||!evaluation?.valid||!evaluation.ok)return evaluation;
+   const w=String(raw?.whole||'').trim(),n=String(raw?.numerator||'').trim(),d=String(raw?.denominator||'').trim();
+   let accepts=true;
+   if(required.kind==='exact'){
+     accepts=!w&&Number(n)===required.n&&Number(d)===required.d;
+   }else if(required.kind==='improper'){
+     accepts=!w&&n!==''&&d!==''&&Number(n)>=Number(d);
+   }else if(required.kind==='mixed'){
+     const expect=question.answerRat,integer=!!expect&&expect.d===1;
+     accepts=integer?!!w&&!n&&!d:!!w&&n!==''&&d!==''&&Number(n)>0&&Number(n)<Number(d);
+   }
+   if(!accepts){
+     return {...evaluation,ok:false,detail:'Значение верное, но форма записи не соответствует условию.',
+       retryMessage:'🟡 Значение верное. Запиши ответ в той форме, которую требует задание.',
+       finalWrongMessage:'Запиши ответ в нужной форме: '+evaluation.correctHtml};
+   }
+   return evaluation;
+ };
+})();
+</script>
+
+
+<script id="matkvest-stage18c-grade56-variety">
+/* Stage18C: structural variety for two verified weak topics only. */
+(function(){
+ function choiceQuestion(base,text,options,correctKey,ex,variant,seedParts){
+   const choices=shuffleOptions(options.map(c=>({label:String(c.label),key:String(c.key)})));
+   const k=String(correctKey),target=choices.find(c=>c.key===k);
+   if(!target||new Set(choices.map(c=>c.key)).size!==choices.length)throw Error('Invalid grade5 fractions classification options');
+   return {...base,text,choices,ans:k,ex,answerMode:'choice',correctLabel:target.label,
+     correctText:choicePlain(target),templateId:'s18c_types_'+variant,
+     sig:'g5:frac_types:s18c:'+activeDifficulty()+':'+variant+':'+seedParts.join(':'),
+     audit:{type:'s18cFractionTypes',variant,seedParts}};
+ }
+ function numberChoice(base,text,answer,ex,variant,parts){
+   const choices=g5nums(answer,[answer+1,Math.max(0,answer-1),answer+2,Math.max(0,answer-2)]);
+   const a=String(answer),correct=choices.find(x=>String(x.key)===a);
+   if(!correct)throw Error('Fraction type target number not present');
+   return choiceQuestion(base,text,choices,a,ex,variant,parts);
+ }
+ function grade5FractionTypes(base){
+   const d=activeDifficulty();
+   if(d===0)return base;
+   const den=ri(4,d===1?12:18),v=ri(0,d===1?4:5);
+   if(d===1){
+     if(v===0){
+       const n=ri(1,den-1),items=[
+         {label:frac(n,den),key:'p'},
+         {label:frac(den,den),key:'a'},
+         {label:frac(den+ri(1,3),den),key:'b'},
+         {label:frac(den+ri(4,6),den),key:'c'}
+       ];
+       return choiceQuestion(base,'Из дробей со знаменателем '+den+' выбери правильную (меньше единицы).',items,'p',
+         'У правильной дроби числитель меньше знаменателя.',v,[den,n]);
+     }
+     if(v===1){
+       const n=den+ri(1,5),items=[
+         {label:frac(n,den),key:'imp'},
+         {label:frac(1,den),key:'a'},
+         {label:frac(den-1,den),key:'b'},
+         {label:frac(den,den),key:'c'}
+       ];
+       return choiceQuestion(base,'Из дробей со знаменателем '+den+' найди ту, которая больше единицы.',items,'imp',
+         'Дробь больше 1, если числитель больше знаменателя.',v,[den,n]);
+     }
+     if(v===2){
+       const items=[
+         {label:frac(den,den),key:'eq'},
+         {label:frac(den-1,den),key:'a'},
+         {label:frac(den+1,den),key:'b'},
+         {label:frac(1,den),key:'c'}
+       ];
+       return choiceQuestion(base,'Из дробей со знаменателем '+den+' выбери ту, которая равна единице.',items,'eq',
+         'Дробь равна 1, когда числитель равен знаменателю.',v,[den]);
+     }
+     if(v===3)return numberChoice(base,'При знаменателе '+den+' найди наибольший натуральный числитель правильной дроби.',den-1,
+       'Числитель должен быть меньше '+den+'. Наибольшее значение: '+(den-1)+'.',v,[den]);
+     const n=ri(1,den-2),add=den-n;
+     return numberChoice(base,'Дробь '+frac(n,den)+' правильная. На сколько минимум нужно увеличить числитель, чтобы она стала неправильной?',add,
+       'Неправильная дробь начинается с числителя '+den+'. Нужно прибавить '+den+' − '+n+' = '+add+'.',v,[den,n]);
+   }
+   if(v===0||v===1){
+     const k=ri(1,3),target=v===0?'правильных':'неправильных',isProper=(i)=>i<k;
+     const parts=[];
+     for(let i=0;i<4;i++){const b=den+i,n=isProper(i)?ri(1,b-1):b+ri(0,4);parts.push([n,b])}
+     const expected=v===0?k:4-k;
+     return numberChoice(base,'Сколько '+target+' дробей среди '+parts.map(p=>frac(p[0],p[1])).join(', ')+'?',expected,
+       'У правильной дроби числитель меньше знаменателя; у неправильной — не меньше.',v,parts.flat());
+   }
+   if(v===2){const n=ri(1,den-1),add=den-n;
+     return numberChoice(base,'Числитель дроби '+frac(n,den)+' увеличивают на натуральное число. На сколько минимум его нужно увеличить, чтобы дробь стала неправильной?',add,
+       'Прибавь '+add+', тогда числитель станет равен знаменателю '+den+'.',v,[den,n]);
+   }
+   if(v===3)return numberChoice(base,'Если знаменатель дроби равен '+den+', сколько существует правильных дробей с натуральным числителем?',den-1,
+     'Числитель можно выбрать от 1 до '+(den-1)+'. Таких чисел '+(den-1)+'.',v,[den]);
+   if(v===4){
+     const wrongPairs=[
+       {label:frac(den-1,den)+' и '+frac(den,den),key:'a'},
+       {label:frac(den,den)+' и '+frac(den-1,den),key:'b'},
+       {label:frac(1,den)+' и '+frac(den-2,den),key:'c'}
+     ];
+     const ans={label:frac(den,den)+' и '+frac(den+1,den),key:'both'};
+     return choiceQuestion(base,'В какой паре обе дроби неправильные?', [ans,...wrongPairs],'both',
+       'Для неправильной дроби числитель больше либо равен знаменателю.',v,[den]);
+   }
+   const n=ri(den+1,den+5);
+   return numberChoice(base,'У неправильной дроби числитель '+n+'. Какой наибольший натуральный знаменатель можно поставить, чтобы дробь осталась неправильной?',n,
+     'Дробь неправильная, если знаменатель не больше числителя.',v,[den,n]);
+ }
+ const make5=makeG5Question;
+ makeG5Question=function(id){
+   const q=make5.apply(this,arguments);
+   return id==='frac_types'?grade5FractionTypes(q):q;
+ };
+ function countNoun(n){
+   const v=Math.abs(Number(n)),t=v%10,h=v%100;
+   if(h>=11&&h<=14)return 'деталей';
+   if(t===1)return 'деталь';
+   if(t>=2&&t<=4)return 'детали';
+   return 'деталей';
+ }
+ function grade6CircleArea(base,id,stage){
+   if(String(id).replace(/^g6:/,'')!=='circle_area'||stage>1)return base;
+   // Half of generation uses the existing generator to preserve proven visual variants.
+   if(Math.random()<0.35)return base;
+   const r=ri(2,stage===0?10:12),family=stage===0?ri(0,3):ri(0,4);
+   const full=314*r*r; // exact integer in hundredths
+   let scaled=full,divisor=100,prompt,reason,tag;
+   if(stage===0){
+     if(family===0){prompt='Круглая клумба радиуса '+r+' м. Найди её площадь (м²), считая π ≈ 3,14.';tag='flowerbed'}
+     else if(family===1){prompt='Диаметр круга равен '+(2*r)+' см. Найди площадь (см²), считая π ≈ 3,14.';tag='diameter'}
+     else if(family===2){prompt='Круг вырезан из бумаги, его радиус '+r+' см. Сколько квадратных сантиметров занимает круг при π ≈ 3,14?';tag='paper'}
+     else {prompt='Найди площадь круга с радиусом '+r+' см по формуле S = πr². Считай π ≈ 3,14.';tag='formula'}
+     reason='Площадь круга S = πr² = 3,14 · '+r+'² = '+(full/100).toFixed(2).replace('.',',')+'.';
+   }else{
+     if(family===0){divisor=200;prompt='Радиус круглого листа '+r+' см. От него отрезали половину. Найди площадь полукруга (см²) при π ≈ 3,14.';tag='half'}
+     else if(family===1){divisor=400;prompt='Радиус круглого сектора, составляющего четверть круга, '+r+' см. Найди площадь сектора (см²) при π ≈ 3,14.';tag='quarter'}
+     else if(family===2){prompt='Диаметр круглой площадки '+(2*r)+' м. Найди её площадь (м²), считая π ≈ 3,14.';tag='diameter'}
+     else if(family===3){scaled=full*2;prompt='Два одинаковых круглых коврика имеют радиус '+r+' см каждый. Какова их общая площадь (см²) при π ≈ 3,14?';tag='two_discs'}
+     else {prompt='Круг имеет радиус '+r+' см. Найди площадь круга (см²), считая π ≈ 3,14.';tag='circle'}
+     reason='Один круг: S = 3,14 · '+r+'² = '+(full/100).toFixed(2).replace('.',',')+'. '+(tag==='half'?'Для полукруга делим на 2.':tag==='quarter'?'Для четверти круга делим на 4.':tag==='two_discs'?'Для двух кругов умножаем на 2.':'');
+   }
+   const ans=rational(scaled,divisor);
+   // Keep integer numerator and denominator for half/quarter circle areas.
+   const sig='g6:circle_area:s18c:'+stage+':'+tag+':'+r;
+   const q=g6NumberInputQuestion(prompt,ans,reason,sig,{audit:{type:'s18cCircleArea',variant:tag,radius:r,stage,areaNumerator:scaled,areaDenominator:divisor}});
+   return {...q,sourceTopicId:'g6:circle_area'};
+ }
+ const make6=makeG6Question;
+ makeG6Question=function(id,stage){
+   const generated=make6.apply(this,arguments),topic=String(id||'').replace(/^g6:/,'');
+   if(topic==='circle_area')return grade6CircleArea(generated,id,Number(stage??activeDifficulty()));
+   if(topic==='ratio_value'&&typeof generated?.text==='string'){
+     const text=generated.text.replace(/В одной коробке (\d+) одинаковых деталей/g,
+       (_match,count)=>'В одной коробке '+count+' '+countNoun(count));
+     return text===generated.text?generated:{...generated,text};
+   }
+   return generated;
+ };
+})();
+</script>
+
+
+<script id="matkvest-stage18d-grammar">
+/* HTML formatting of numerals is preserved while correcting Russian agreement. */
+(function(){
+ function russianDetails(n){
+   const u=Math.abs(n),ten=u%10,teens=u%100;
+   return teens>=11&&teens<=14?'деталей':ten===1?'деталь':ten>=2&&ten<=4?'детали':'деталей';
+ }
+ const before=makeG6Question;
+ makeG6Question=function(id){
+   const q=before.apply(this,arguments);
+   if(String(id||'').replace(/^g6:/,'')!=='ratio_value'||typeof q?.text!=='string')return q;
+   const text=q.text.replace(/В одной коробке\s+((?:<b>\s*)?\d+(?:\s*<\/b>)?)\s+одинаковых деталей/g,
+     (_all,countText)=>'В одной коробке '+countText+' '+russianDetails(Number(countText.replace(/<[^>]*>/g,''))));
+   return text===q.text?q:{...q,text};
+ };
+})();
+</script>
+
+
+<script id="matkvest-stage18g-sectors">
+/* "2 равных сектора", "5 равных секторов", "21 равный сектор". */
+(function(){
+ function sectorPhrase(number){
+   const n=Math.abs(Number(number)),t=n%10,h=n%100;
+   if(h>=11&&h<=14)return 'равных секторов';
+   if(t===1)return 'равный сектор';
+   if(t>=2&&t<=4)return 'равных сектора';
+   return 'равных секторов';
+ }
+ const original=makeG5Question;
+ makeG5Question=function(id){
+   const question=original.apply(this,arguments);
+   if(id!=='charts'||typeof question?.text!=='string')return question;
+   const text=question.text.replace(/(\d+)\s+равных\s+секторов/gi,(_,n)=>n+' '+sectorPhrase(n));
+   return text===question.text?question:{...question,text,
+     sig:String(question.sig||'')+':s18g-sector-copy'};
+ };
+})();
+</script>
+
 </body></html>
