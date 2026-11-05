@@ -16,7 +16,7 @@ css=r"""
 /* Mobile first: place secondary destinations in a disclosure menu instead of six wrap rows. */
 .top { position:relative; }
 .stats .mk-ui19-nav-toggle {display:none;align-items:center;justify-content:center;gap:7px;white-space:nowrap;
-  border:1px solid #c9ddd3;border-radius:12px;background:#f2f8f5;color:#164c39;font:700 13px/1.2 inherit;
+  border:1px solid #c9ddd3;border-radius:12px;background:#f2f8f5;color:#164c39;font-weight:700;font-size:13px;line-height:1.2;font-family:inherit;
   min-height:44px;min-width:72px;padding:8px 11px;cursor:pointer}
 .stats .mk-ui19-nav-toggle:hover{background:#e7f4ed;border-color:#8dbca5}
 .stats .mk-ui19-hamburger{display:flex;flex-direction:column;gap:3px}
