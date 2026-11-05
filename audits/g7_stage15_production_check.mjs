@@ -3,12 +3,17 @@ import {createHash} from 'node:crypto';
 import {setTimeout as delay} from 'node:timers/promises';
 import puppeteer from 'puppeteer-core';
 
-const expected='f188d39a3a16fc54dfb32238fc34d3dfe6cc3c4416cd475579bf3ed65a7e1e36';
+// Match whichever fully audited HTML + PWA build is deployed from this commit.
+const expected=createHash('sha256').update(fs.readFileSync('index.html')).digest('hex');
+const localWorker=fs.readFileSync('sw.js','utf8');
+const cacheMatch=localWorker.match(/^const CACHE_NAME = "(matkvest-iphone-v[0-9]+)";/m);
+if(!cacheMatch || !localWorker.includes('const APP_BUILD_HASH = "'+expected+'"'))throw Error('Local release HTML and SW fingerprint are inconsistent');
+const expectedCache=cacheMatch[1];
 const pages=process.env.MATKVEST_PAGES_URL||process.argv[2];
 if(!pages||!/^https:\/\//.test(pages))throw Error('Official GitHub Pages URL required; no guessing production hostname');
 const base=pages.endsWith('/')?pages:pages+'/';
 const url=new URL('index.html',base).href,swUrl=new URL('sw.js',base).href;
-const report={checkedAt:new Date().toISOString(),pages:base,expected,attempts:[],browser:[],pageErrors:[],status:'FAIL'};
+const report={checkedAt:new Date().toISOString(),pages:base,expected,expectedCache,attempts:[],browser:[],pageErrors:[],status:'FAIL'};
 function hash(buffer){return createHash('sha256').update(buffer).digest('hex')}
 async function getBytes(u){const res=await fetch(u,{headers:{'Cache-Control':'no-cache','Pragma':'no-cache'},signal:AbortSignal.timeout(25000),cache:'no-store'});const arr=Buffer.from(await res.arrayBuffer());return {status:res.status,bytes:arr,cacheControl:res.headers.get('cache-control'),type:res.headers.get('content-type')};}
 let ready=false;
@@ -17,8 +22,8 @@ try{
     try {
       const [html,sw]=await Promise.all([getBytes(url),getBytes(swUrl)]);
       const real=hash(html.bytes),source=sw.bytes.toString('utf8');
-      const ok=html.status===200&&sw.status===200&&real===expected&&source.includes('matkvest-iphone-v40')&&source.includes('const APP_BUILD_HASH = "'+expected+'"');
-      report.attempts.push({attempt:i+1,htmlStatus:html.status,swStatus:sw.status,htmlSha256:real,pwaV40:source.includes('matkvest-iphone-v40'),cacheControlHtml:html.cacheControl,cacheControlSW:sw.cacheControl,pass:ok});
+      const ok=html.status===200&&sw.status===200&&real===expected&&source.includes('const CACHE_NAME = "'+expectedCache+'"')&&source.includes('const APP_BUILD_HASH = "'+expected+'"');
+      report.attempts.push({attempt:i+1,htmlStatus:html.status,swStatus:sw.status,htmlSha256:real,pwaVersion:expectedCache,cacheControlHtml:html.cacheControl,cacheControlSW:sw.cacheControl,pass:ok});
       console.log('PRODUCTION CHECK',JSON.stringify(report.attempts.at(-1)));
       if(ok){ready=true;break;}
     }catch(err){report.attempts.push({attempt:i+1,error:String(err)});console.warn('Pages propagation',String(err));}
@@ -44,13 +49,13 @@ try{
           const a={id:blockSession.attemptId,sig:q.sig};
           return {title:document.title,cachesNow,original:a};
         });
-        if(!state.cachesNow.includes('matkvest-iphone-v40'))throw Error('Real page not using v40 cache '+JSON.stringify(state.cachesNow));
+        if(!state.cachesNow.includes(expectedCache))throw Error('Real page not using '+expectedCache+' cache '+JSON.stringify(state.cachesNow));
         await page.reload({waitUntil:'domcontentloaded',timeout:120000});
         await page.waitForSelector('.mk872-training-dialog',{timeout:15000});
         const resumed=await page.evaluate(()=>{const b=[...document.querySelectorAll('.mk872-training-dialog button')].find(x=>x.textContent.trim()==='Продолжить');if(!b)throw Error('Resume unavailable on Pages');b.click();return {id:blockSession?.attemptId,sig:q?.sig}});
         if(resumed.id!==state.original.id||resumed.sig!==state.original.sig)throw Error('Production attempted recovery changed G7 state');
         await page.screenshot({path:'audits/g7_stage15_prod_'+mode.name+'.png',fullPage:false});
-        report.browser.push({mode:mode.name,result:'PASS',title:state.title,swV40:true,exactResume:true});
+        report.browser.push({mode:mode.name,result:'PASS',title:state.title,swCache:expectedCache,exactResume:true});
         console.log('PASS PRODUCTION BROWSER',mode.name);
       }catch(err){report.browser.push({mode:mode.name,result:'FAIL',error:String(err)});throw err;}
       finally{await ctx.close();}
