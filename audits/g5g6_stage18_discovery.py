@@ -56,3 +56,16 @@ for needle in ["answerMode===\"fraction\"","answerMode === \"fraction\"","q.answ
         focus.append(f"- line {s.count(chr(10),0,pos)+1}\n~~~javascript\n{s[max(0,pos-700):pos+950]}\n~~~")
 Path("audits/g5g6_stage18_focus_report.md").write_text("\n".join(focus),"utf8")
 print("Stage18 focus saved",len(focus),"blocks")
+
+pipe=["# Grade5 quiz pipeline and conversion sites",""]
+for m in functions:
+    name=m.group(1)
+    if name.lower().startswith("g5") and any(x in name.lower() for x in ("quiz","question","start","train","practice","generate","make","adapt","q")):
+        pos=m.start()
+        pipe.append(f"- {name} line {s.count(chr(10),0,pos)+1}, preview: {s[pos:pos+500].replace(chr(10),' ')}")
+for needle in ["g5q(","g5Generate","g5Question","g5q","g5q5","g5Topic","g5Build","g5Practice","g5Answer","g5Training","genG5","generate5"]:
+    locs=[m.start() for m in re.finditer(re.escape(needle),s)]
+    pipe.append("## "+needle+" count "+str(len(locs)))
+    for pos in locs[:20]:
+        pipe.append("~~~javascript\n"+s[max(0,pos-330):pos+700]+"\n~~~")
+Path("audits/g5g6_stage18_g5_pipeline_report.md").write_text("\n".join(pipe),"utf8")
