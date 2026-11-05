@@ -32,7 +32,6 @@ s=exact(s,OLD_SHA,NEW_SHA,"candidate SHA")
 s=exact(s,"matkvest-iphone-v39","matkvest-iphone-v40","old live PWA fixture")
 # Previous operation created v40 for old fixture. Replace current target v40 references selectively.
 s=exact(s,"keys.includes('matkvest-iphone-v40') &&","keys.includes('matkvest-iphone-v50') &&","new cache wait") if "keys.includes('matkvest-iphone-v40') &&" in s else s
-s=exact(s,"if(!newer.caches.includes('matkvest-iphone-v40'))","if(!newer.caches.includes('matkvest-iphone-v50'))","new cache result")
 s=exact(s,"'audits/g7_stage15_legacy_upgrade_report.json'","'audits/g3g4_stage17_release_real_v40_v50_report.json'","upgrade report")
 # Fix exact wait: original v40 needs an active worker v40, new version must be v50.
 # First old assertion is still v40. Old cache removal must be v40.
