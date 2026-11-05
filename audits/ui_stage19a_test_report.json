@@ -1,0 +1,2067 @@
+{
+  "version": "v56",
+  "sha": "a0d5dd6cf22d3f6d4514a2f558b463c139e05600782b99ce0858f161bc15f949",
+  "tests": [
+    {
+      "name": "All 8 grade cards and 4 home quick cards at 390",
+      "pass": true,
+      "detail": {
+        "grades": 8,
+        "gradeSingles": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "quicks": 4,
+        "style": true,
+        "script": true
+      }
+    },
+    {
+      "name": "Only one native action in each 1-6 grade card at 390",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Stage19A style and behavior loaded at 390",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Click grade 1 background transitions exactly once at 390",
+      "pass": true,
+      "detail": {
+        "grade": 1,
+        "activations": 1,
+        "gradeGridGone": true,
+        "mainText": "← Главный экранМатематика 1 классаСчёт, первые действия, задачи, величины и наглядная геометрия.1 1 классЧисла и величиныСчёт, числа до 20 и первые измерения.4 тем1–9Числа от 1 до 9Числа 1–90/3 этапа0–10Числа от 0 до 10Числа 0–100",
+        "topicCards": [
+          {
+            "className": "topic elementary-topic ready",
+            "text": "1–9Числа от 1 до 9Числа 1–90/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic elementary-topic ready",
+            "text": "0–10Числа от 0 до 10Числа 0–100/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic elementary-topic ready",
+            "text": "11–20Числа от 11 до 20Числа 11–200/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic elementary-topic ready",
+            "text": "смДлина. Измерение длиныДлина0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic elementary-topic ready",
+            "text": "±10Сложение и вычитание в пределах 10Сложение и вычитание до 100/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic elementary-topic ready",
+            "text": "±20Сложение и вычитание в пределах 20Сложение и вычитание до 200/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic elementary-topic ready",
+            "text": "?Текстовые задачиЗадачи в одно действие0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic elementary-topic ready",
+            "text": "↔Пространственные отношенияСлева, справа, сверху, снизу0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic elementary-topic ready",
+            "text": "△○Геометрические фигурыФигуры0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic elementary-topic ready",
+            "text": "≡Характеристика объекта, группы объектовПризнаки и группы0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          }
+        ],
+        "parentText": "1 КЛАСС",
+        "beforeMain": 17228,
+        "afterMain": 14212
+      }
+    },
+    {
+      "name": "Click grade 2 background transitions exactly once at 390",
+      "pass": true,
+      "detail": {
+        "grade": 2,
+        "activations": 1,
+        "gradeGridGone": true,
+        "mainText": "← Главный экранМатематика 2 классаЧисла до 100, четыре действия, задачи, величины, геометрия и математическая информация.2 2 классЧисла и величиныЧисла до 100 и основные величины.2 тем100Числа в пределах 100Числа до 1000/3 этапакг",
+        "topicCards": [
+          {
+            "className": "topic elementary-topic ready",
+            "text": "100Числа в пределах 100Числа до 1000/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic elementary-topic ready",
+            "text": "кг·мВеличиныДлина, масса и время0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic elementary-topic ready",
+            "text": "±100Сложение и вычитаниеСложение и вычитание до 1000/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic elementary-topic ready",
+            "text": "×÷Умножение и делениеУмножение и деление0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic elementary-topic ready",
+            "text": "()Арифметические действия с числами в пределах 100Выражения и порядок действий0/3 эта",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic elementary-topic ready",
+            "text": "?→Текстовые задачиЗадачи0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic elementary-topic ready",
+            "text": "◇△Геометрические фигурыФигуры и построения0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic elementary-topic ready",
+            "text": "PГеометрические величиныДлина и периметр0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic elementary-topic ready",
+            "text": "✓Математическая информацияИнформация и закономерности0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          }
+        ],
+        "parentText": "2 КЛАСС",
+        "beforeMain": 17228,
+        "afterMain": 12242
+      }
+    },
+    {
+      "name": "Click grade 3 background transitions exactly once at 390",
+      "pass": true,
+      "detail": {
+        "grade": 3,
+        "activations": 1,
+        "gradeGridGone": true,
+        "mainText": "← Главный экранМатематика 3 классаЧисла до 1000, арифметические действия, задачи, доли, геометрия и работа с данными.3 3 классЧисла и величиныЧисла до 1000, сравнение, величины, деньги, время, длина и площадь.10 тем1000Числа от 1 ",
+        "topicCards": [
+          {
+            "className": "topic g6-card g3-card",
+            "text": "1000Числа от 1 до 1000Числа от 1 до 10000/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g6-card g3-card",
+            "text": "С-Д-ЕРазрядный состав трёхзначного числаРазрядный состав0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g6-card g3-card",
+            "text": "< >Сравнение и упорядочивание чиселСравнение чисел0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g6-card g3-card",
+            "text": "×nУвеличение и уменьшение числа в несколько разУвеличение и уменьшение0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g6-card g3-card",
+            "text": "во×Кратное сравнение чиселКратное сравнение0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g6-card g3-card",
+            "text": "г/кгМасса: грамм и килограммМасса0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g6-card g3-card",
+            "text": "₽Рубли и копейкиРубли и копейки0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g6-card g3-card",
+            "text": "ч:мВремя: час, минута, секундаВремя0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g6-card g3-card",
+            "text": "ммДлина: мм, см, дм, м, кмЕдиницы длины0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g6-card g3-card",
+            "text": "см²Единицы площадиЕдиницы площади0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          }
+        ],
+        "parentText": "3 КЛАСС",
+        "beforeMain": 17228,
+        "afterMain": 52731
+      }
+    },
+    {
+      "name": "Click grade 4 background transitions exactly once at 390",
+      "pass": true,
+      "detail": {
+        "grade": 4,
+        "activations": 1,
+        "gradeGridGone": true,
+        "mainText": "← Главный экранМатематика 4 классаОсновные темы года. Отдельно — письменные вычисления в клеточках и тренажёр таблицы умножения.4 4 класс Основные темыВычисления, величины, геометрия и текстовые задачи.🧮Счёт столбикомсложение, вы",
+        "topicCards": [
+          {
+            "className": "topic",
+            "text": "🧮Счёт столбикомсложение, вычитание, умножение, деление0/12 этапов",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic",
+            "text": "✖️Таблица умножения2–9, тренировка и полная таблица0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic",
+            "text": "🔢Многозначные числаразряды, сравнение, округление0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic",
+            "text": "🧠Порядок действийскобки и порядок вычислений0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic",
+            "text": "🔎Уравнениянеизвестные компоненты0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic",
+            "text": "📏Величиныдлина, масса, время0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic",
+            "text": "📐Периметр и площадьпрямоугольник и квадрат0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic",
+            "text": "🚲Текстовые задачицена, количество, движение0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          }
+        ],
+        "parentText": "4 КЛАСС",
+        "beforeMain": 17228,
+        "afterMain": 2343
+      }
+    },
+    {
+      "name": "Click grade 5 background transitions exactly once at 390",
+      "pass": true,
+      "detail": {
+        "grade": 5,
+        "activations": 1,
+        "gradeGridGone": true,
+        "mainText": "← Главный экранМатематика 5 классаНатуральные числа, обыкновенные и десятичные дроби, проценты, уравнения, задачи и геометрия.5 5 классОсновы 5 классаЧисла, вычисления, уравнения, геометрия и задачи.12 тем🔢Натуральные числасравне",
+        "topicCards": [
+          {
+            "className": "topic g5-card",
+            "text": "🔢Натуральные числасравнение, округление, разряды0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g5-card",
+            "text": "📍Координатный лучкоординаты точек и расстояние0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g5-card",
+            "text": "🧮Действия с натуральнымисложение, вычитание, умножение, деление0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g5-card",
+            "text": "🧠Порядок действийскобки и несколько операций0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g5-card",
+            "text": "²Степень числаквадрат и куб числа0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g5-card",
+            "text": "🔎Уравнениянеизвестные компоненты0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g5-card",
+            "text": "📐Периметр и площадьпрямоугольник и квадрат0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g5-card",
+            "text": "📦Объёмпрямоугольный параллелепипед0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g5-card",
+            "text": "📐Углы и транспортирвиды углов и градусная мера0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g5-card",
+            "text": "◔Круг и диаграммыдоли круга и круговые диаграммы0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          }
+        ],
+        "parentText": "5 КЛАСС",
+        "beforeMain": 17228,
+        "afterMain": 13424
+      }
+    },
+    {
+      "name": "Click grade 6 background transitions exactly once at 390",
+      "pass": true,
+      "detail": {
+        "grade": 6,
+        "activations": 1,
+        "gradeGridGone": true,
+        "mainText": "← Главный экранМатематика 6 классаДелимость, дроби, пропорции, рациональные числа, уравнения, координаты, данные и геометрия.6 6 классНатуральные числа и делимостьДелители, признаки делимости, простые числа, НОД и НОК.8 темa⋮bДели",
+        "topicCards": [
+          {
+            "className": "topic g6-card",
+            "text": "a⋮bДелители и кратныеНатуральные числа и делимость0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g6-card",
+            "text": "2·5·10Признаки делимости на 2, 5 и 10Натуральные числа и делимость0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g6-card",
+            "text": "3·9Признаки делимости на 3 и 9Натуральные числа и делимость0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g6-card",
+            "text": "P/CПростые и составные числаНатуральные числа и делимость0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g6-card",
+            "text": "p₁·p₂Разложение на простые множителиНатуральные числа и делимость0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g6-card",
+            "text": "НОДНаибольший общий делительНатуральные числа и делимость0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g6-card",
+            "text": "НОКНаименьшее общее кратноеНатуральные числа и делимость0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g6-card",
+            "text": "1Взаимно простые числаНатуральные числа и делимость0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g6-card",
+            "text": "a/bОсновное свойство дробиОбыкновенные дроби0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g6-card",
+            "text": "÷kСокращение дробейОбыкновенные дроби0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          }
+        ],
+        "parentText": "6 КЛАСС",
+        "beforeMain": 17228,
+        "afterMain": 63787
+      }
+    },
+    {
+      "name": "Click grade 7 background transitions exactly once at 390",
+      "pass": true,
+      "detail": {
+        "grade": 7,
+        "activations": 1,
+        "gradeGridGone": true,
+        "mainText": "← Главный экранМатематика 7 классаАлгебра • Геометрия • Вероятность и статистика.7 7 классАлгебраЧисла и вычисления, выражения и уравнения, функции, степени, многочлены и системы.50 темЧисла и вычисленияРациональные числа, степени",
+        "topicCards": [
+          {
+            "className": "topic g7-card",
+            "text": "ℚРациональные числа и формы их записиРациональные числаАлгебра0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g7-card",
+            "text": "ℚ≤Сравнение и упорядочивание рациональных чиселСравнение рациональныхАлгебра0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g7-card",
+            "text": "ℚ±Арифметические действия с рациональными числамиДействия с рациональнымиАлгебра0/3 э",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g7-card",
+            "text": "a/bЗадачи на части и дробиЗадачи на дробиАлгебра0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g7-card",
+            "text": "aⁿСтепень с натуральным показателем: определениеОпределение степениАлгебра0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g7-card",
+            "text": "%↔Проценты, дроби и формы записиПроценты и дробиАлгебра0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g7-card",
+            "text": "%?Основные задачи на процентыЗадачи на процентыАлгебра0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g7-card",
+            "text": "p·qДелимость и разложение натуральных чисел на множителиДелимость и множителиАлгебра0",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g7-card",
+            "text": "k/xПрямая и обратная пропорциональностьПропорциональностьАлгебра0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g7-card",
+            "text": "x→?Переменные и значение выраженияЗначение выраженияАлгебра0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          }
+        ],
+        "parentText": "7 КЛАСС",
+        "beforeMain": 17228,
+        "afterMain": 126967
+      }
+    },
+    {
+      "name": "Click grade 8 background transitions exactly once at 390",
+      "pass": true,
+      "detail": {
+        "grade": 8,
+        "activations": 1,
+        "gradeGridGone": true,
+        "mainText": "← Главный экранМатематика 8 классаАлгебра • Геометрия • Вероятность и статистика. Доступность тем определяется фактически подключёнными тренажёрами.8 8 классАлгебраЧисла и вычисления, выражения, уравнения, неравенства и функции 8 ",
+        "topicCards": [
+          {
+            "className": "topic g7-card",
+            "text": "√aКвадратный корень и арифметический квадратный кореньКвадратный кореньАлгебра0/3 эта",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g7-card",
+            "text": "√2≈Иррациональные числа и их десятичные приближенияИррациональные числаАлгебра0/3 эта",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g7-card",
+            "text": "ℝДействительные числа: сравнение и расположениеДействительные числаАлгебра0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g7-card",
+            "text": "x²=aУравнение x² = a и квадратный кореньx² = aАлгебра0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g7-card",
+            "text": "√abСвойства арифметического квадратного корняСвойства корнейАлгебра0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g7-card",
+            "text": "√→Преобразования выражений с квадратными корнямиПреобразования с корнямиАлгебра0/3 эт",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g7-card",
+            "text": "√?Вычисления и задачи с квадратными корнямиЗадачи с корнямиАлгебра0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g7-card",
+            "text": "a⁻ⁿСтепень с целым показателемЦелый показательАлгебра0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g7-card",
+            "text": "aᵐ·aⁿСвойства степени с целым показателемСвойства степенейАлгебра0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g7-card",
+            "text": "10ⁿСтандартная запись числаСтандартная записьАлгебра0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          }
+        ],
+        "parentText": "8 КЛАСС",
+        "beforeMain": 17228,
+        "afterMain": 135249
+      }
+    },
+    {
+      "name": "Four home quick practice cards activate native CTA once at 390",
+      "pass": true,
+      "detail": [
+        {
+          "i": 0,
+          "clicks": 1,
+          "text": "Таблица умножения"
+        },
+        {
+          "i": 1,
+          "clicks": 1,
+          "text": "Таблица сложения"
+        },
+        {
+          "i": 2,
+          "clicks": 1,
+          "text": "Квадраты чисел"
+        },
+        {
+          "i": 3,
+          "clicks": 1,
+          "text": "Кубы чисел"
+        }
+      ]
+    },
+    {
+      "name": "Multi-action card background never triggers primary at 390",
+      "pass": true,
+      "detail": {
+        "withTwo": 0,
+        "afterNative": 1
+      }
+    },
+    {
+      "name": "Keyboard CTA has focus-visible card ring and no duplicate tab stop at 390",
+      "pass": true,
+      "detail": {
+        "outline": "solid",
+        "outlineWidth": "3px",
+        "focus": true,
+        "cardTabindex": false,
+        "cursor": "pointer"
+      }
+    },
+    {
+      "name": "Enter on original class CTA works at 390",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "All 8 grade cards and 4 home quick cards at 1280",
+      "pass": true,
+      "detail": {
+        "grades": 8,
+        "gradeSingles": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "quicks": 4,
+        "style": true,
+        "script": true
+      }
+    },
+    {
+      "name": "Only one native action in each 1-6 grade card at 1280",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Stage19A style and behavior loaded at 1280",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Click grade 1 background transitions exactly once at 1280",
+      "pass": true,
+      "detail": {
+        "grade": 1,
+        "activations": 1,
+        "gradeGridGone": true,
+        "mainText": "← Главный экранМатематика 1 классаСчёт, первые действия, задачи, величины и наглядная геометрия.1 1 классЧисла и величиныСчёт, числа до 20 и первые измерения.4 тем1–9Числа от 1 до 9Числа 1–90/3 этапа0–10Числа от 0 до 10Числа 0–100",
+        "topicCards": [
+          {
+            "className": "topic elementary-topic ready",
+            "text": "1–9Числа от 1 до 9Числа 1–90/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic elementary-topic ready",
+            "text": "0–10Числа от 0 до 10Числа 0–100/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic elementary-topic ready",
+            "text": "11–20Числа от 11 до 20Числа 11–200/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic elementary-topic ready",
+            "text": "смДлина. Измерение длиныДлина0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic elementary-topic ready",
+            "text": "±10Сложение и вычитание в пределах 10Сложение и вычитание до 100/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic elementary-topic ready",
+            "text": "±20Сложение и вычитание в пределах 20Сложение и вычитание до 200/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic elementary-topic ready",
+            "text": "?Текстовые задачиЗадачи в одно действие0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic elementary-topic ready",
+            "text": "↔Пространственные отношенияСлева, справа, сверху, снизу0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic elementary-topic ready",
+            "text": "△○Геометрические фигурыФигуры0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic elementary-topic ready",
+            "text": "≡Характеристика объекта, группы объектовПризнаки и группы0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          }
+        ],
+        "parentText": "1 КЛАСС",
+        "beforeMain": 17228,
+        "afterMain": 14212
+      }
+    },
+    {
+      "name": "Click grade 2 background transitions exactly once at 1280",
+      "pass": true,
+      "detail": {
+        "grade": 2,
+        "activations": 1,
+        "gradeGridGone": true,
+        "mainText": "← Главный экранМатематика 2 классаЧисла до 100, четыре действия, задачи, величины, геометрия и математическая информация.2 2 классЧисла и величиныЧисла до 100 и основные величины.2 тем100Числа в пределах 100Числа до 1000/3 этапакг",
+        "topicCards": [
+          {
+            "className": "topic elementary-topic ready",
+            "text": "100Числа в пределах 100Числа до 1000/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic elementary-topic ready",
+            "text": "кг·мВеличиныДлина, масса и время0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic elementary-topic ready",
+            "text": "±100Сложение и вычитаниеСложение и вычитание до 1000/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic elementary-topic ready",
+            "text": "×÷Умножение и делениеУмножение и деление0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic elementary-topic ready",
+            "text": "()Арифметические действия с числами в пределах 100Выражения и порядок действий0/3 эта",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic elementary-topic ready",
+            "text": "?→Текстовые задачиЗадачи0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic elementary-topic ready",
+            "text": "◇△Геометрические фигурыФигуры и построения0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic elementary-topic ready",
+            "text": "PГеометрические величиныДлина и периметр0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic elementary-topic ready",
+            "text": "✓Математическая информацияИнформация и закономерности0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          }
+        ],
+        "parentText": "2 КЛАСС",
+        "beforeMain": 17228,
+        "afterMain": 12242
+      }
+    },
+    {
+      "name": "Click grade 3 background transitions exactly once at 1280",
+      "pass": true,
+      "detail": {
+        "grade": 3,
+        "activations": 1,
+        "gradeGridGone": true,
+        "mainText": "← Главный экранМатематика 3 классаЧисла до 1000, арифметические действия, задачи, доли, геометрия и работа с данными.3 3 классЧисла и величиныЧисла до 1000, сравнение, величины, деньги, время, длина и площадь.10 тем1000Числа от 1 ",
+        "topicCards": [
+          {
+            "className": "topic g6-card g3-card",
+            "text": "1000Числа от 1 до 1000Числа от 1 до 10000/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g6-card g3-card",
+            "text": "С-Д-ЕРазрядный состав трёхзначного числаРазрядный состав0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g6-card g3-card",
+            "text": "< >Сравнение и упорядочивание чиселСравнение чисел0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g6-card g3-card",
+            "text": "×nУвеличение и уменьшение числа в несколько разУвеличение и уменьшение0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g6-card g3-card",
+            "text": "во×Кратное сравнение чиселКратное сравнение0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g6-card g3-card",
+            "text": "г/кгМасса: грамм и килограммМасса0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g6-card g3-card",
+            "text": "₽Рубли и копейкиРубли и копейки0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g6-card g3-card",
+            "text": "ч:мВремя: час, минута, секундаВремя0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g6-card g3-card",
+            "text": "ммДлина: мм, см, дм, м, кмЕдиницы длины0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g6-card g3-card",
+            "text": "см²Единицы площадиЕдиницы площади0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          }
+        ],
+        "parentText": "3 КЛАСС",
+        "beforeMain": 17228,
+        "afterMain": 52731
+      }
+    },
+    {
+      "name": "Click grade 4 background transitions exactly once at 1280",
+      "pass": true,
+      "detail": {
+        "grade": 4,
+        "activations": 1,
+        "gradeGridGone": true,
+        "mainText": "← Главный экранМатематика 4 классаОсновные темы года. Отдельно — письменные вычисления в клеточках и тренажёр таблицы умножения.4 4 класс Основные темыВычисления, величины, геометрия и текстовые задачи.🧮Счёт столбикомсложение, вы",
+        "topicCards": [
+          {
+            "className": "topic",
+            "text": "🧮Счёт столбикомсложение, вычитание, умножение, деление0/12 этапов",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic",
+            "text": "✖️Таблица умножения2–9, тренировка и полная таблица0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic",
+            "text": "🔢Многозначные числаразряды, сравнение, округление0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic",
+            "text": "🧠Порядок действийскобки и порядок вычислений0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic",
+            "text": "🔎Уравнениянеизвестные компоненты0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic",
+            "text": "📏Величиныдлина, масса, время0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic",
+            "text": "📐Периметр и площадьпрямоугольник и квадрат0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic",
+            "text": "🚲Текстовые задачицена, количество, движение0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          }
+        ],
+        "parentText": "4 КЛАСС",
+        "beforeMain": 17228,
+        "afterMain": 2343
+      }
+    },
+    {
+      "name": "Click grade 5 background transitions exactly once at 1280",
+      "pass": true,
+      "detail": {
+        "grade": 5,
+        "activations": 1,
+        "gradeGridGone": true,
+        "mainText": "← Главный экранМатематика 5 классаНатуральные числа, обыкновенные и десятичные дроби, проценты, уравнения, задачи и геометрия.5 5 классОсновы 5 классаЧисла, вычисления, уравнения, геометрия и задачи.12 тем🔢Натуральные числасравне",
+        "topicCards": [
+          {
+            "className": "topic g5-card",
+            "text": "🔢Натуральные числасравнение, округление, разряды0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g5-card",
+            "text": "📍Координатный лучкоординаты точек и расстояние0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g5-card",
+            "text": "🧮Действия с натуральнымисложение, вычитание, умножение, деление0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g5-card",
+            "text": "🧠Порядок действийскобки и несколько операций0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g5-card",
+            "text": "²Степень числаквадрат и куб числа0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g5-card",
+            "text": "🔎Уравнениянеизвестные компоненты0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g5-card",
+            "text": "📐Периметр и площадьпрямоугольник и квадрат0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g5-card",
+            "text": "📦Объёмпрямоугольный параллелепипед0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g5-card",
+            "text": "📐Углы и транспортирвиды углов и градусная мера0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g5-card",
+            "text": "◔Круг и диаграммыдоли круга и круговые диаграммы0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          }
+        ],
+        "parentText": "5 КЛАСС",
+        "beforeMain": 17228,
+        "afterMain": 13424
+      }
+    },
+    {
+      "name": "Click grade 6 background transitions exactly once at 1280",
+      "pass": true,
+      "detail": {
+        "grade": 6,
+        "activations": 1,
+        "gradeGridGone": true,
+        "mainText": "← Главный экранМатематика 6 классаДелимость, дроби, пропорции, рациональные числа, уравнения, координаты, данные и геометрия.6 6 классНатуральные числа и делимостьДелители, признаки делимости, простые числа, НОД и НОК.8 темa⋮bДели",
+        "topicCards": [
+          {
+            "className": "topic g6-card",
+            "text": "a⋮bДелители и кратныеНатуральные числа и делимость0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g6-card",
+            "text": "2·5·10Признаки делимости на 2, 5 и 10Натуральные числа и делимость0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g6-card",
+            "text": "3·9Признаки делимости на 3 и 9Натуральные числа и делимость0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g6-card",
+            "text": "P/CПростые и составные числаНатуральные числа и делимость0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g6-card",
+            "text": "p₁·p₂Разложение на простые множителиНатуральные числа и делимость0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g6-card",
+            "text": "НОДНаибольший общий делительНатуральные числа и делимость0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g6-card",
+            "text": "НОКНаименьшее общее кратноеНатуральные числа и делимость0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g6-card",
+            "text": "1Взаимно простые числаНатуральные числа и делимость0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g6-card",
+            "text": "a/bОсновное свойство дробиОбыкновенные дроби0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g6-card",
+            "text": "÷kСокращение дробейОбыкновенные дроби0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          }
+        ],
+        "parentText": "6 КЛАСС",
+        "beforeMain": 17228,
+        "afterMain": 63787
+      }
+    },
+    {
+      "name": "Click grade 7 background transitions exactly once at 1280",
+      "pass": true,
+      "detail": {
+        "grade": 7,
+        "activations": 1,
+        "gradeGridGone": true,
+        "mainText": "← Главный экранМатематика 7 классаАлгебра • Геометрия • Вероятность и статистика.7 7 классАлгебраЧисла и вычисления, выражения и уравнения, функции, степени, многочлены и системы.50 темЧисла и вычисленияРациональные числа, степени",
+        "topicCards": [
+          {
+            "className": "topic g7-card",
+            "text": "ℚРациональные числа и формы их записиРациональные числаАлгебра0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g7-card",
+            "text": "ℚ≤Сравнение и упорядочивание рациональных чиселСравнение рациональныхАлгебра0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g7-card",
+            "text": "ℚ±Арифметические действия с рациональными числамиДействия с рациональнымиАлгебра0/3 э",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g7-card",
+            "text": "a/bЗадачи на части и дробиЗадачи на дробиАлгебра0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g7-card",
+            "text": "aⁿСтепень с натуральным показателем: определениеОпределение степениАлгебра0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g7-card",
+            "text": "%↔Проценты, дроби и формы записиПроценты и дробиАлгебра0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g7-card",
+            "text": "%?Основные задачи на процентыЗадачи на процентыАлгебра0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g7-card",
+            "text": "p·qДелимость и разложение натуральных чисел на множителиДелимость и множителиАлгебра0",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g7-card",
+            "text": "k/xПрямая и обратная пропорциональностьПропорциональностьАлгебра0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g7-card",
+            "text": "x→?Переменные и значение выраженияЗначение выраженияАлгебра0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          }
+        ],
+        "parentText": "7 КЛАСС",
+        "beforeMain": 17228,
+        "afterMain": 126967
+      }
+    },
+    {
+      "name": "Click grade 8 background transitions exactly once at 1280",
+      "pass": true,
+      "detail": {
+        "grade": 8,
+        "activations": 1,
+        "gradeGridGone": true,
+        "mainText": "← Главный экранМатематика 8 классаАлгебра • Геометрия • Вероятность и статистика. Доступность тем определяется фактически подключёнными тренажёрами.8 8 классАлгебраЧисла и вычисления, выражения, уравнения, неравенства и функции 8 ",
+        "topicCards": [
+          {
+            "className": "topic g7-card",
+            "text": "√aКвадратный корень и арифметический квадратный кореньКвадратный кореньАлгебра0/3 эта",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g7-card",
+            "text": "√2≈Иррациональные числа и их десятичные приближенияИррациональные числаАлгебра0/3 эта",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g7-card",
+            "text": "ℝДействительные числа: сравнение и расположениеДействительные числаАлгебра0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g7-card",
+            "text": "x²=aУравнение x² = a и квадратный кореньx² = aАлгебра0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g7-card",
+            "text": "√abСвойства арифметического квадратного корняСвойства корнейАлгебра0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g7-card",
+            "text": "√→Преобразования выражений с квадратными корнямиПреобразования с корнямиАлгебра0/3 эт",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g7-card",
+            "text": "√?Вычисления и задачи с квадратными корнямиЗадачи с корнямиАлгебра0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g7-card",
+            "text": "a⁻ⁿСтепень с целым показателемЦелый показательАлгебра0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g7-card",
+            "text": "aᵐ·aⁿСвойства степени с целым показателемСвойства степенейАлгебра0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          },
+          {
+            "className": "topic g7-card",
+            "text": "10ⁿСтандартная запись числаСтандартная записьАлгебра0/3 этапа",
+            "actions": 0,
+            "role": null,
+            "cursor": "pointer"
+          }
+        ],
+        "parentText": "8 КЛАСС",
+        "beforeMain": 17228,
+        "afterMain": 135249
+      }
+    },
+    {
+      "name": "Four home quick practice cards activate native CTA once at 1280",
+      "pass": true,
+      "detail": [
+        {
+          "i": 0,
+          "clicks": 1,
+          "text": "Таблица умножения"
+        },
+        {
+          "i": 1,
+          "clicks": 1,
+          "text": "Таблица сложения"
+        },
+        {
+          "i": 2,
+          "clicks": 1,
+          "text": "Квадраты чисел"
+        },
+        {
+          "i": 3,
+          "clicks": 1,
+          "text": "Кубы чисел"
+        }
+      ]
+    },
+    {
+      "name": "Multi-action card background never triggers primary at 1280",
+      "pass": true,
+      "detail": {
+        "withTwo": 0,
+        "afterNative": 1
+      }
+    },
+    {
+      "name": "Keyboard CTA has focus-visible card ring and no duplicate tab stop at 1280",
+      "pass": true,
+      "detail": {
+        "outline": "solid",
+        "outlineWidth": "3px",
+        "focus": true,
+        "cardTabindex": false,
+        "cursor": "pointer"
+      }
+    },
+    {
+      "name": "Enter on original class CTA works at 1280",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Reduced-motion cards have no animation",
+      "pass": true,
+      "detail": "0s"
+    }
+  ],
+  "pageErrors": [],
+  "deeperNavigation": [
+    {
+      "grade": 1,
+      "topics": [
+        {
+          "className": "topic elementary-topic ready",
+          "text": "1–9Числа от 1 до 9Числа 1–90/3 этапа",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        },
+        {
+          "className": "topic elementary-topic ready",
+          "text": "0–10Числа от 0 до 10Числа 0–100/3 этапа",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        },
+        {
+          "className": "topic elementary-topic ready",
+          "text": "11–20Числа от 11 до 20Числа 11–200/3 этапа",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        },
+        {
+          "className": "topic elementary-topic ready",
+          "text": "смДлина. Измерение длиныДлина0/3 этапа",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        },
+        {
+          "className": "topic elementary-topic ready",
+          "text": "±10Сложение и вычитание в пределах 10Сложение и вычитание до 100/3 этапа",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        },
+        {
+          "className": "topic elementary-topic ready",
+          "text": "±20Сложение и вычитание в пределах 20Сложение и вычитание до 200/3 этапа",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        },
+        {
+          "className": "topic elementary-topic ready",
+          "text": "?Текстовые задачиЗадачи в одно действие0/3 этапа",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        },
+        {
+          "className": "topic elementary-topic ready",
+          "text": "↔Пространственные отношенияСлева, справа, сверху, снизу0/3 этапа",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        },
+        {
+          "className": "topic elementary-topic ready",
+          "text": "△○Геометрические фигурыФигуры0/3 этапа",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        },
+        {
+          "className": "topic elementary-topic ready",
+          "text": "≡Характеристика объекта, группы объектовПризнаки и группы0/3 этапа",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        }
+      ]
+    },
+    {
+      "grade": 2,
+      "topics": [
+        {
+          "className": "topic elementary-topic ready",
+          "text": "100Числа в пределах 100Числа до 1000/3 этапа",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        },
+        {
+          "className": "topic elementary-topic ready",
+          "text": "кг·мВеличиныДлина, масса и время0/3 этапа",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        },
+        {
+          "className": "topic elementary-topic ready",
+          "text": "±100Сложение и вычитаниеСложение и вычитание до 1000/3 этапа",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        },
+        {
+          "className": "topic elementary-topic ready",
+          "text": "×÷Умножение и делениеУмножение и деление0/3 этапа",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        },
+        {
+          "className": "topic elementary-topic ready",
+          "text": "()Арифметические действия с числами в пределах 100Выражения и порядок действий0/3 эта",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        },
+        {
+          "className": "topic elementary-topic ready",
+          "text": "?→Текстовые задачиЗадачи0/3 этапа",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        },
+        {
+          "className": "topic elementary-topic ready",
+          "text": "◇△Геометрические фигурыФигуры и построения0/3 этапа",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        },
+        {
+          "className": "topic elementary-topic ready",
+          "text": "PГеометрические величиныДлина и периметр0/3 этапа",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        },
+        {
+          "className": "topic elementary-topic ready",
+          "text": "✓Математическая информацияИнформация и закономерности0/3 этапа",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        }
+      ]
+    },
+    {
+      "grade": 3,
+      "topics": [
+        {
+          "className": "topic g6-card g3-card",
+          "text": "1000Числа от 1 до 1000Числа от 1 до 10000/3 этапа",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        },
+        {
+          "className": "topic g6-card g3-card",
+          "text": "С-Д-ЕРазрядный состав трёхзначного числаРазрядный состав0/3 этапа",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        },
+        {
+          "className": "topic g6-card g3-card",
+          "text": "< >Сравнение и упорядочивание чиселСравнение чисел0/3 этапа",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        },
+        {
+          "className": "topic g6-card g3-card",
+          "text": "×nУвеличение и уменьшение числа в несколько разУвеличение и уменьшение0/3 этапа",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        },
+        {
+          "className": "topic g6-card g3-card",
+          "text": "во×Кратное сравнение чиселКратное сравнение0/3 этапа",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        },
+        {
+          "className": "topic g6-card g3-card",
+          "text": "г/кгМасса: грамм и килограммМасса0/3 этапа",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        },
+        {
+          "className": "topic g6-card g3-card",
+          "text": "₽Рубли и копейкиРубли и копейки0/3 этапа",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        },
+        {
+          "className": "topic g6-card g3-card",
+          "text": "ч:мВремя: час, минута, секундаВремя0/3 этапа",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        },
+        {
+          "className": "topic g6-card g3-card",
+          "text": "ммДлина: мм, см, дм, м, кмЕдиницы длины0/3 этапа",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        },
+        {
+          "className": "topic g6-card g3-card",
+          "text": "см²Единицы площадиЕдиницы площади0/3 этапа",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        }
+      ]
+    },
+    {
+      "grade": 4,
+      "topics": [
+        {
+          "className": "topic",
+          "text": "🧮Счёт столбикомсложение, вычитание, умножение, деление0/12 этапов",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        },
+        {
+          "className": "topic",
+          "text": "✖️Таблица умножения2–9, тренировка и полная таблица0/3 этапа",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        },
+        {
+          "className": "topic",
+          "text": "🔢Многозначные числаразряды, сравнение, округление0/3 этапа",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        },
+        {
+          "className": "topic",
+          "text": "🧠Порядок действийскобки и порядок вычислений0/3 этапа",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        },
+        {
+          "className": "topic",
+          "text": "🔎Уравнениянеизвестные компоненты0/3 этапа",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        },
+        {
+          "className": "topic",
+          "text": "📏Величиныдлина, масса, время0/3 этапа",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        },
+        {
+          "className": "topic",
+          "text": "📐Периметр и площадьпрямоугольник и квадрат0/3 этапа",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        },
+        {
+          "className": "topic",
+          "text": "🚲Текстовые задачицена, количество, движение0/3 этапа",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        }
+      ]
+    },
+    {
+      "grade": 5,
+      "topics": [
+        {
+          "className": "topic g5-card",
+          "text": "🔢Натуральные числасравнение, округление, разряды0/3 этапа",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        },
+        {
+          "className": "topic g5-card",
+          "text": "📍Координатный лучкоординаты точек и расстояние0/3 этапа",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        },
+        {
+          "className": "topic g5-card",
+          "text": "🧮Действия с натуральнымисложение, вычитание, умножение, деление0/3 этапа",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        },
+        {
+          "className": "topic g5-card",
+          "text": "🧠Порядок действийскобки и несколько операций0/3 этапа",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        },
+        {
+          "className": "topic g5-card",
+          "text": "²Степень числаквадрат и куб числа0/3 этапа",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        },
+        {
+          "className": "topic g5-card",
+          "text": "🔎Уравнениянеизвестные компоненты0/3 этапа",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        },
+        {
+          "className": "topic g5-card",
+          "text": "📐Периметр и площадьпрямоугольник и квадрат0/3 этапа",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        },
+        {
+          "className": "topic g5-card",
+          "text": "📦Объёмпрямоугольный параллелепипед0/3 этапа",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        },
+        {
+          "className": "topic g5-card",
+          "text": "📐Углы и транспортирвиды углов и градусная мера0/3 этапа",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        },
+        {
+          "className": "topic g5-card",
+          "text": "◔Круг и диаграммыдоли круга и круговые диаграммы0/3 этапа",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        }
+      ]
+    },
+    {
+      "grade": 6,
+      "topics": [
+        {
+          "className": "topic g6-card",
+          "text": "a⋮bДелители и кратныеНатуральные числа и делимость0/3 этапа",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        },
+        {
+          "className": "topic g6-card",
+          "text": "2·5·10Признаки делимости на 2, 5 и 10Натуральные числа и делимость0/3 этапа",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        },
+        {
+          "className": "topic g6-card",
+          "text": "3·9Признаки делимости на 3 и 9Натуральные числа и делимость0/3 этапа",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        },
+        {
+          "className": "topic g6-card",
+          "text": "P/CПростые и составные числаНатуральные числа и делимость0/3 этапа",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        },
+        {
+          "className": "topic g6-card",
+          "text": "p₁·p₂Разложение на простые множителиНатуральные числа и делимость0/3 этапа",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        },
+        {
+          "className": "topic g6-card",
+          "text": "НОДНаибольший общий делительНатуральные числа и делимость0/3 этапа",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        },
+        {
+          "className": "topic g6-card",
+          "text": "НОКНаименьшее общее кратноеНатуральные числа и делимость0/3 этапа",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        },
+        {
+          "className": "topic g6-card",
+          "text": "1Взаимно простые числаНатуральные числа и делимость0/3 этапа",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        },
+        {
+          "className": "topic g6-card",
+          "text": "a/bОсновное свойство дробиОбыкновенные дроби0/3 этапа",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        },
+        {
+          "className": "topic g6-card",
+          "text": "÷kСокращение дробейОбыкновенные дроби0/3 этапа",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        }
+      ]
+    },
+    {
+      "grade": 7,
+      "topics": [
+        {
+          "className": "topic g7-card",
+          "text": "ℚРациональные числа и формы их записиРациональные числаАлгебра0/3 этапа",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        },
+        {
+          "className": "topic g7-card",
+          "text": "ℚ≤Сравнение и упорядочивание рациональных чиселСравнение рациональныхАлгебра0/3 этапа",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        },
+        {
+          "className": "topic g7-card",
+          "text": "ℚ±Арифметические действия с рациональными числамиДействия с рациональнымиАлгебра0/3 э",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        },
+        {
+          "className": "topic g7-card",
+          "text": "a/bЗадачи на части и дробиЗадачи на дробиАлгебра0/3 этапа",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        },
+        {
+          "className": "topic g7-card",
+          "text": "aⁿСтепень с натуральным показателем: определениеОпределение степениАлгебра0/3 этапа",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        },
+        {
+          "className": "topic g7-card",
+          "text": "%↔Проценты, дроби и формы записиПроценты и дробиАлгебра0/3 этапа",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        },
+        {
+          "className": "topic g7-card",
+          "text": "%?Основные задачи на процентыЗадачи на процентыАлгебра0/3 этапа",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        },
+        {
+          "className": "topic g7-card",
+          "text": "p·qДелимость и разложение натуральных чисел на множителиДелимость и множителиАлгебра0",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        },
+        {
+          "className": "topic g7-card",
+          "text": "k/xПрямая и обратная пропорциональностьПропорциональностьАлгебра0/3 этапа",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        },
+        {
+          "className": "topic g7-card",
+          "text": "x→?Переменные и значение выраженияЗначение выраженияАлгебра0/3 этапа",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        }
+      ]
+    },
+    {
+      "grade": 8,
+      "topics": [
+        {
+          "className": "topic g7-card",
+          "text": "√aКвадратный корень и арифметический квадратный кореньКвадратный кореньАлгебра0/3 эта",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        },
+        {
+          "className": "topic g7-card",
+          "text": "√2≈Иррациональные числа и их десятичные приближенияИррациональные числаАлгебра0/3 эта",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        },
+        {
+          "className": "topic g7-card",
+          "text": "ℝДействительные числа: сравнение и расположениеДействительные числаАлгебра0/3 этапа",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        },
+        {
+          "className": "topic g7-card",
+          "text": "x²=aУравнение x² = a и квадратный кореньx² = aАлгебра0/3 этапа",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        },
+        {
+          "className": "topic g7-card",
+          "text": "√abСвойства арифметического квадратного корняСвойства корнейАлгебра0/3 этапа",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        },
+        {
+          "className": "topic g7-card",
+          "text": "√→Преобразования выражений с квадратными корнямиПреобразования с корнямиАлгебра0/3 эт",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        },
+        {
+          "className": "topic g7-card",
+          "text": "√?Вычисления и задачи с квадратными корнямиЗадачи с корнямиАлгебра0/3 этапа",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        },
+        {
+          "className": "topic g7-card",
+          "text": "a⁻ⁿСтепень с целым показателемЦелый показательАлгебра0/3 этапа",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        },
+        {
+          "className": "topic g7-card",
+          "text": "aᵐ·aⁿСвойства степени с целым показателемСвойства степенейАлгебра0/3 этапа",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        },
+        {
+          "className": "topic g7-card",
+          "text": "10ⁿСтандартная запись числаСтандартная записьАлгебра0/3 этапа",
+          "actions": 0,
+          "role": null,
+          "cursor": "pointer"
+        }
+      ]
+    }
+  ]
+}
