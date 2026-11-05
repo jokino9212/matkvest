@@ -1,0 +1,113 @@
+name: MatKvest stage17D - Release Gate v40 to v50 (read-only)
+on:
+  push:
+    branches: [audit/g3g4-stage17-20261104]
+    paths:
+      - audits/g3g4_stage17_release_preflight.py
+      - audits/g3g4_stage17_release_prepare.py
+      - .github/workflows/g3g4_stage17_release_gate.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: matkvest-stage17D-release-gate-v50
+  cancel-in-progress: false
+jobs:
+  release-preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit/g3g4-stage17-20261104
+          fetch-depth: 0
+          persist-credentials: true
+      - name: Verify production ref without modifying it
+        run: |
+          git fetch origin main:refs/heads/main
+          test "$(git rev-parse main)" = "e58d84f15eaeb71a3e4d904cfb316724b2fd678d"
+          echo '0b64dc42f34e375fedce727720bb6475fcca63b2429c0d9fa8fd6539012e761d  index.html' | sha256sum --check
+          python3 audits/g7_stage12_sync_pwa.py --check
+      - name: Audit release asset boundary and immutable service worker behavior
+        run: python3 audits/g3g4_stage17_release_preflight.py
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Chrome browser-test harness
+        run: npm install --no-save --no-package-lock puppeteer-core@24
+      - name: Source-lock six historical release tests to reviewed v50
+        run: python3 audits/g3g4_stage17_release_prepare.py
+      - name: Test exact actual production v40 HTML to v50 without hard refresh
+        run: node audits/_release50_real_v40_v50.mjs
+      - name: Test automatic v49 to v50 update with exact unfinished attempt restoration
+        run: node audits/_release50_auto_resume.mjs
+      - name: Test SW idle auto reload, unfinished attempt recovery and offline cache
+        run: node audits/_release50_sw_update.mjs
+      - name: Test full G7 draft, profile and persistent state recovery
+        run: node audits/_release50_e2e.mjs
+      - name: Test grade4 complete interactive entrypoints and special math training
+        run: node audits/_release50_grade4.mjs
+      - name: Test cross-grade G1 G2 G3 G5 G6 G8 legacy math generators
+        run: node audits/_release50_crossgrade.mjs
+      - name: Assert release QA JSON results and v50 source are unchanged
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import json,hashlib
+          base=Path('audits')
+          specs={
+            'release_real_v40_v50_report.json':lambda r:r.get('status')=='PASS' and not r.get('pageErrors') and len(r.get('steps',[]))>=2,
+            'release_auto_resume_report.json':lambda r:len(r.get('failures',[]))==0 and len(r.get('pageErrors',[]))==0 and r.get('metrics',{}).get('fail')==0,
+            'release_sw_update_report.json':lambda r:len(r.get('errors',[]))==0 and len(r.get('pageErrors',[]))==0 and len(r.get('tests',[]))==3,
+            'release_e2e_report.json':lambda r:len(r.get('failures',[]))==0 and len(r.get('pageErrors',[]))==0 and len(r.get('passes',[]))>=5,
+            'release_grade4_report.json':lambda r:len(r.get('grade4',{}).get('errors',[]))==0 and len(r.get('pageErrors',[]))==0 and r.get('grade4',{}).get('passed',0)>=16,
+            'release_crossgrade_report.json':lambda r:len(r.get('errors',[]))==0 and len(r.get('pageErrors',[]))==0 and len(r.get('columnSessions',[]))==12,
+          }
+          state={}
+          for file,predicate in specs.items():
+            key='g3g4_stage17_'+file
+            p=base/key
+            data=json.loads(p.read_text(encoding='utf8'))
+            ok=bool(predicate(data))
+            state[file]={'pass':ok,'size':p.stat().st_size}
+            if not ok:raise SystemExit('Release regression failed: '+file)
+          sha=hashlib.sha256(Path('index.html').read_bytes()).hexdigest()
+          if sha!='0b64dc42f34e375fedce727720bb6475fcca63b2429c0d9fa8fd6539012e761d':
+            raise SystemExit('HTML changed during Release Gate')
+          preflight=json.loads((base/'g3g4_stage17_release_preflight_report.json').read_text('utf8'))
+          if preflight.get('status')!='PASS':raise SystemExit('Static gate did not pass')
+          status={'stage':'17D Release Gate v50','overall':'PASS','candidateSha256':sha,'mainCommit':preflight['mainSha'],'preflight':preflight['status'],'sixBrowserRegressions':state,'deployment':False,'backendCompatibility':preflight['backendCompatibility']}
+          (base/'g3g4_stage17_release_gate_summary.json').write_text(json.dumps(status,ensure_ascii=False,indent=2)+'\n','utf8')
+          print(json.dumps(status,ensure_ascii=False,indent=2))
+          PY
+      - name: Archive machine-readable evidence even on failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: matkvest-stage17D-release-v50-evidence
+          retention-days: 60
+          if-no-files-found: warn
+          path: |
+            audits/g3g4_stage17_release_preflight_report.json
+            audits/g3g4_stage17_release_adapted_test_manifest.json
+            audits/g3g4_stage17_release_real_v40_v50_report.json
+            audits/g3g4_stage17_release_auto_resume_report.json
+            audits/g3g4_stage17_release_sw_update_report.json
+            audits/g3g4_stage17_release_e2e_report.json
+            audits/g3g4_stage17_release_grade4_report.json
+            audits/g3g4_stage17_release_crossgrade_report.json
+            audits/g3g4_stage17_release_gate_summary.json
+      - name: Commit PASS evidence to audit branch only
+        if: success()
+        run: |
+          set -eu
+          python3 audits/g7_stage12_sync_pwa.py --check
+          test "$(git rev-parse main)" = "e58d84f15eaeb71a3e4d904cfb316724b2fd678d"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add audits/g3g4_stage17_release_*_report.json
+          git add audits/g3g4_stage17_release_adapted_test_manifest.json
+          git add audits/g3g4_stage17_release_gate_summary.json
+          git commit -m "release(stage17D): record v40-to-v50 PWA and persistence preflight PASS"
+          git pull --rebase origin audit/g3g4-stage17-20261104
+          git push origin HEAD:audit/g3g4-stage17-20261104
