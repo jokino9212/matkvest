@@ -1,0 +1,75 @@
+name: MatKvest v55 - direct production v40 upgrade preflight
+on:
+  push:
+    branches: [audit/g5g6-stage18-20261105]
+    paths:
+      - .github/workflows/g5g6_stage18_prod_v40_to_v55.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  production-to-candidate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit/g5g6-stage18-20261105
+          fetch-depth: 0
+      - name: Verify production is still v40 and v55 release contains only two files
+        run: |
+          set -eu
+          git fetch origin main release/stage17-v50-20261105 release/stage18-v55-20261106
+          test "$(git rev-parse origin/main)" = "e58d84f15eaeb71a3e4d904cfb316724b2fd678d"
+          test "$(git rev-parse origin/release/stage18-v55-20261106)" = "074154775f45573804bdf30e4c821d654c707023"
+          test "$(git rev-list --count origin/release/stage17-v50-20261105..origin/release/stage18-v55-20261106)" = 1
+          test "$(git diff --name-only origin/main origin/release/stage18-v55-20261106)" = "$(printf 'index.html\nsw.js')"
+          git show origin/release/stage18-v55-20261106:index.html > index.html
+          git show origin/release/stage18-v55-20261106:sw.js > sw.js
+          echo '12e52584246cf5763dc378052b7e134dda3b4d7639576296f3448ab97d638e0d  index.html' | sha256sum -c
+          grep -F 'matkvest-iphone-v55' sw.js
+          grep -F '12e52584246cf5763dc378052b7e134dda3b4d7639576296f3448ab97d638e0d' sw.js
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install browser harness
+        run: npm install --no-save --no-package-lock puppeteer-core@24
+      - name: Prepare exact v40 production to v55 browser test
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          src=Path('audits/g5g6_stage18_resume_pwa_test.mjs').read_text()
+          transforms={
+            '29e750205c4549e2c9d6105b49002ba1c505876518a2139e3da0ce5644e15859':'12e52584246cf5763dc378052b7e134dda3b4d7639576296f3448ab97d638e0d',
+            '10ae70be6d2a54528274ddc4f5678c9971b536c8':'e58d84f15eaeb71a3e4d904cfb316724b2fd678d',
+            'v54':'v55',
+            'v50':'v40'
+          }
+          for old,new in transforms.items():
+              if old not in src: raise SystemExit('Fixture changed unexpectedly: '+old)
+              src=src.replace(old,new)
+          src=src.replace('audits/g5g6_stage18_resume_pwa_report.json','audits/g5g6_stage18_prod_v40_to_v55_report.json')
+          assert 'matkvest-iphone-v40' in src and 'matkvest-iphone-v55' in src
+          Path('audits/_v40_to_v55_release_test.mjs').write_text(src)
+          PY
+      - name: Test old production v40 to candidate v55 with real old SW and HTML
+        run: node audits/_v40_to_v55_release_test.mjs
+      - name: Assert 5 scenario passes and zero browser exceptions
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('audits/g5g6_stage18_prod_v40_to_v55_report.json')
+          d=json.loads(p.read_text())
+          assert len(d['pass'])==5 and not d['fail'] and not d['pageErrors'], d
+          assert any('v40 upgrade to v55' in q['name'] for q in d['pass'])
+          assert any('offline boot' in q['name'] for q in d['pass'])
+          print('PASS real production upgrade v40->v55, exact G5/G6/G7 restore and offline')
+          PY
+      - name: Upload direct production upgrade evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: matkvest-release-v55-v40-direct-upgrade
+          path: audits/g5g6_stage18_prod_v40_to_v55_report.json
+          if-no-files-found: warn
