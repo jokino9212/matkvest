@@ -1,0 +1,66 @@
+name: MatKvest UI stage19B - responsive navigation gate
+on:
+  push:
+    branches: [audit/ui-stage19-20261106]
+    paths:
+      - .github/workflows/ui_stage19b_gate.yml
+      - audits/ui_stage19b_patch.py
+      - audits/ui_stage19b_test.mjs
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: matkvest-ui-stage19b
+  cancel-in-progress: false
+jobs:
+  nav-and-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit/ui-stage19-20261106
+          persist-credentials: true
+          fetch-depth: 0
+      - name: Apply header disclosure changes only on the exact v56 gate
+        run: python3 audits/ui_stage19b_patch.py
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install headless browser test dependency
+        run: npm install --no-save --no-package-lock puppeteer-core@24
+      - name: Test compact menu at 390/600/768/1280, all original actions and keyboard
+        run: node audits/ui_stage19b_test.mjs
+      - name: Regress grade 1–8 clickable cards, quick trainers and keyboard navigation
+        run: |
+          sed 's/matkvest-iphone-v56/matkvest-iphone-v57/g' audits/ui_stage19a_test.mjs > audits/_ui19b_regress.mjs
+          node audits/_ui19b_regress.mjs
+          rm audits/_ui19b_regress.mjs
+      - name: Verify PWA integrity
+        run: python3 audits/g7_stage12_sync_pwa.py --check
+      - name: Preserve screenshots and JSON evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: matkvest-ui19b-responsive-header-navigation
+          path: |
+            audits/ui_stage19b_patch_report.json
+            audits/ui_stage19b_test_report.json
+            audits/ui_stage19b_home_390.png
+            audits/ui_stage19b_menu_390.png
+            audits/ui_stage19b_home_600.png
+            audits/ui_stage19b_menu_600.png
+            audits/ui_stage19b_home_768.png
+            audits/ui_stage19b_home_1280.png
+          if-no-files-found: warn
+      - name: Save only tested v57 in audit branch
+        if: success()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js audits/ui_stage19b_patch_report.json audits/ui_stage19b_test_report.json
+          if ! git diff --cached --quiet; then
+            git commit -m "feat(ui19B): compact accessible mobile nav and responsive desktop header v57"
+            git pull --rebase origin audit/ui-stage19-20261106
+            git push origin HEAD:audit/ui-stage19-20261106
+          fi
