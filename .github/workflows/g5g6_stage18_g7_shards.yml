@@ -1,0 +1,101 @@
+name: MatKvest stage18 - sharded strict G7 gate v55
+on:
+  push:
+    branches: [audit/g5g6-stage18-20261105]
+    paths:
+      - .github/workflows/g5g6_stage18_g7_shards.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  g7-shard:
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5]
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit/g5g6-stage18-20261105
+      - run: echo '12e52584246cf5763dc378052b7e134dda3b4d7639576296f3448ab97d638e0d  index.html' | sha256sum -c
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save --no-package-lock puppeteer-core@24
+      - name: Adapt unmodified 107-topic strict test for an exact shard
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          s=Path("audits/g7_stage13_strict_test.mjs").read_text()
+          old1="const ids=await page.evaluate(()=>g7AllTopics().map(x=>x.id));"
+          old2="fs.writeFileSync('audits/g7_stage13_strict_report.json',JSON.stringify(report,null,2)+'\\n');"
+          old3="if(report.catalog!==107||report.sessions!==963||report.questions!==7062||"
+          assert all(s.count(x)==1 for x in [old1,old2,old3])
+          new1="""const allIds=await page.evaluate(()=>g7AllTopics().map(x=>x.id));
+          if(allIds.length!==107)throw Error('G7 topics changed');
+          const shardIndex=Number(process.env.SHARD_INDEX),shardCount=6;
+          if(!Number.isInteger(shardIndex)||shardIndex<0||shardIndex>=6)throw Error('Invalid shard');
+          const ids=allIds.filter((_,i)=>i%shardCount===shardIndex);
+          report.shardIndex=shardIndex;report.shardCount=6;report.fullCatalog=107;"""
+          s=s.replace(old1,new1)
+          s=s.replace(old2,"fs.writeFileSync('audits/g5g6_stage18_g7_shard_'+shardIndex+'.json',JSON.stringify(report,null,2)+'\\n');")
+          s=s.replace(old3,"if(report.catalog!==ids.length||report.sessions!==ids.length*9||report.questions!==ids.length*66||")
+          Path("audits/_stage18_shard.mjs").write_text(s)
+          PY
+      - name: Validate each real G7 training stage and signatures
+        env:
+          SHARD_INDEX: ${{ matrix.shard }}
+        run: node audits/_stage18_shard.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: g7-shard-${{ matrix.shard }}
+          path: audits/g5g6_stage18_g7_shard_${{ matrix.shard }}.json
+          if-no-files-found: warn
+  aggregate:
+    needs: g7-shard
+    if: success()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit/g5g6-stage18-20261105
+          persist-credentials: true
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: g7-shard-*
+          path: audits/g7-shards
+          merge-multiple: true
+      - name: Validate complete 107-topic 7062-question coverage
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          paths=sorted(Path("audits/g7-shards").glob("g5g6_stage18_g7_shard_*.json"))
+          assert len(paths)==6,paths
+          shards=[json.loads(x.read_text()) for x in paths]
+          assert {s["shardIndex"] for s in shards}==set(range(6))
+          assert all(s["fullCatalog"]==107 and s["shardCount"]==6 for s in shards)
+          assert all(s["sessions"]==s["catalog"]*9 and s["questions"]==s["catalog"]*66 for s in shards)
+          assert all(not s[k] for s in shards for k in ["errors","duplicates","exhaustions","pageErrors"])
+          names=[t["topic"] for s in shards for t in s["byTopic"]]
+          assert len(names)==len(set(names))==107,names
+          assert sum(s["sessions"] for s in shards)==963
+          assert sum(s["questions"] for s in shards)==7062
+          report={"status":"PASS","version":"v55","sha256":"12e52584246cf5763dc378052b7e134dda3b4d7639576296f3448ab97d638e0d","topics":107,"sessions":963,"questions":7062,"failures":0,"production_unmodified":True}
+          Path("audits/g5g6_stage18_g7_sharded_checkpoint.json").write_text(json.dumps(report,indent=2)+"\n")
+          print(report)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: g7-sharded-gate-summary-v55
+          path: audits/g5g6_stage18_g7_sharded_checkpoint.json
+      - name: Save audited G7 proof without touching release/main
+        run: |
+          set -eu
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add audits/g5g6_stage18_g7_sharded_checkpoint.json
+          git diff --cached --quiet || (git commit -m "audit(stage18): all 107 G7 topics strict PASS on v55" && git pull --rebase origin audit/g5g6-stage18-20261105 && git push origin HEAD:audit/g5g6-stage18-20261105)
