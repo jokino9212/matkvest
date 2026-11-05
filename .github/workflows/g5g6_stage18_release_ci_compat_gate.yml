@@ -1,0 +1,82 @@
+name: MatKvest stage18 - CI compatibility v40 and v55 preflight
+on:
+  push:
+    branches: [audit/g5g6-stage18-20261105]
+    paths:
+      - .github/workflows/g5g6_stage18_release_ci_compat_gate.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test-both-builds:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: release/stage18-v55-ci-compat-20261106
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Chromium harness
+        run: npm install --no-save --no-package-lock puppeteer-core@24
+      - name: Prepare read-only production smoke fixture for localhost
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          s=Path('audits/g7_stage15_production_check.mjs').read_text('utf-8')
+          old='if(!pages||!/^https:\\/\\//.test(pages))'
+          new='if(!pages||!/^https?:\\/\\//.test(pages))'
+          assert old in s,(old,s[:900])
+          s=s.replace(old,new)
+          s=s.replace('i<42','i<3').replace('i<41','i<2').replace('delay(10000)','delay(300)')
+          Path('audits/_stage18_pages_local.mjs').write_text(s,'utf-8')
+          PY
+          python3 -m http.server 32191 --bind 127.0.0.1 >/tmp/matkvest_stage18_http.log 2>&1 &
+          echo $! > /tmp/matkvest_stage18_server.pid
+      - name: Test original production v40 with new dynamic checkers
+        env:
+          MATKVEST_PAGES_URL: http://127.0.0.1:32191/
+        run: |
+          echo 'f188d39a3a16fc54dfb32238fc34d3dfe6cc3c4416cd475579bf3ed65a7e1e36  index.html' | sha256sum -c
+          python3 audits/g7_stage12_sync_pwa.py --check
+          node --check audits/g7_stage15_production_check.mjs
+          node audits/_stage18_pages_local.mjs
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('audits/g7_stage15_production_report.json')
+          d=json.loads(p.read_text())
+          assert d['status']=='PASS' and d['expectedCache']=='matkvest-iphone-v40' and len(d['browser'])==2 and all(x['result']=='PASS' for x in d['browser']),d
+          p.rename('audits/g5g6_stage18_ci_compat_v40_test.json')
+          print('PASS: old production v40 dynamic check')
+          PY
+      - name: Test exact v55 release against same dynamic checkers
+        env:
+          MATKVEST_PAGES_URL: http://127.0.0.1:32191/
+        run: |
+          git fetch origin release/stage18-v55-20261106
+          git show origin/release/stage18-v55-20261106:index.html > index.html
+          git show origin/release/stage18-v55-20261106:sw.js > sw.js
+          echo '12e52584246cf5763dc378052b7e134dda3b4d7639576296f3448ab97d638e0d  index.html' | sha256sum -c
+          python3 audits/g7_stage12_sync_pwa.py --check
+          node audits/_stage18_pages_local.mjs
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('audits/g7_stage15_production_report.json')
+          d=json.loads(p.read_text())
+          assert d['status']=='PASS' and d['expectedCache']=='matkvest-iphone-v55' and len(d['browser'])==2 and all(x['result']=='PASS' for x in d['browser']),d
+          p.rename('audits/g5g6_stage18_ci_compat_v55_test.json')
+          print('PASS: new release v55 dynamic check')
+          PY
+      - name: Save evidence from both live-browser fixtures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: matkvest-stage18-dynamic-checkers-v40-v55
+          path: |
+            audits/g5g6_stage18_ci_compat_v40_test.json
+            audits/g5g6_stage18_ci_compat_v55_test.json
+          if-no-files-found: warn
