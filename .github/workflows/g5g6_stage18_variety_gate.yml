@@ -58,6 +58,7 @@ jobs:
           git add index.html sw.js audits/g5g6_stage18_variety_patch_report.json audits/g5g6_stage18_variety_test_report.json
           if ! git diff --cached --quiet; then
             git commit -m "feat(stage18C): diversify g5 fractions and g6 circle areas v53"
+            git restore -- audits/g5g6_stage18_semantics_test_report.json audits/g5g6_stage18_fraction_test_report.json
             git pull --rebase origin audit/g5g6-stage18-20261105
             git push origin HEAD:audit/g5g6-stage18-20261105
           fi
