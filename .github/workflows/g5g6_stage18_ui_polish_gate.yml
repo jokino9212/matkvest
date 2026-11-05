@@ -1,0 +1,69 @@
+name: MatKvest stage18D - fraction UI and wording gate
+on:
+  push:
+    branches: [audit/g5g6-stage18-20261105]
+    paths:
+      - .github/workflows/g5g6_stage18_ui_polish_gate.yml
+      - audits/g5g6_stage18_ui_polish_patch.py
+      - audits/g5g6_stage18_ui_polish_test.mjs
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: matkvest-stage18d-ui-polish-gate
+  cancel-in-progress: false
+jobs:
+  patch-and-verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit/g5g6-stage18-20261105
+          persist-credentials: true
+      - name: Apply and verify v54 source patch
+        run: python3 audits/g5g6_stage18_ui_polish_patch.py
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Chromium test harness
+        run: npm install --no-save --no-package-lock puppeteer-core@24
+      - name: Verify grammar and fraction UI at mobile, tablet, desktop sizes
+        run: node audits/g5g6_stage18_ui_polish_test.mjs
+      - name: Regress stage18C grade5 and grade6 generators
+        run: |
+          sed "s/matkvest-iphone-v53/matkvest-iphone-v54/g" audits/g5g6_stage18_variety_test.mjs > audits/_stage18d_variety_regression.mjs
+          node audits/_stage18d_variety_regression.mjs
+          rm audits/_stage18d_variety_regression.mjs
+      - name: Regress stage18B exact fractions/mixed numbers/powers
+        run: |
+          sed "s/matkvest-iphone-v52/matkvest-iphone-v54/g" audits/g5g6_stage18_semantics_test.mjs > audits/_stage18d_semantics_regression.mjs
+          node audits/_stage18d_semantics_regression.mjs
+          rm audits/_stage18d_semantics_regression.mjs
+      - name: Regress original grade5-6 fraction input
+        run: |
+          sed "s/matkvest-iphone-v51/matkvest-iphone-v54/g" audits/g5g6_stage18_fraction_test.mjs > audits/_stage18d_fraction_regression.mjs
+          node audits/_stage18d_fraction_regression.mjs
+          rm audits/_stage18d_fraction_regression.mjs
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: matkvest-stage18d-ui-polish-evidence
+          path: |
+            audits/g5g6_stage18_ui_polish_patch_report.json
+            audits/g5g6_stage18_ui_polish_test_report.json
+          if-no-files-found: warn
+      - name: Save tested v54 in audit branch only
+        if: success()
+        run: |
+          set -eu
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js audits/g5g6_stage18_ui_polish_patch_report.json audits/g5g6_stage18_ui_polish_test_report.json
+          if ! git diff --cached --quiet; then
+            git commit -m "fix(stage18D): ratio grammar and vertically aligned fraction boxes v54"
+            git restore -- audits/g5g6_stage18_variety_test_report.json audits/g5g6_stage18_semantics_test_report.json audits/g5g6_stage18_fraction_test_report.json
+            git pull --rebase origin audit/g5g6-stage18-20261105
+            git push origin HEAD:audit/g5g6-stage18-20261105
+          fi
