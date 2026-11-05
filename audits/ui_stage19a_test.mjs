@@ -52,19 +52,21 @@ try{
    if(grade===1||grade===6)await page.screenshot({path:'audits/ui_stage19a_grade'+grade+'_'+width+'.png'});
    await page.close();
   }
-  page=await pageFor(width);
-  const quicks=await page.evaluate(()=>{
-   const cards=[...document.querySelectorAll('.quick-home .quick-card')];let res=[];
-   cards.forEach((card,i)=>{
-     const btn=card.querySelector('button');const title=card.querySelector('h2,h3,strong');
-     let n=0;btn?.addEventListener('click',()=>n++,{capture:true});
-     (title||card.firstElementChild||card).click();
-     res.push({i,clicks:n,text:(title||card).textContent.slice(0,80)});
-   });
-   return res;
-  });
+  const quicks=[];
+  for(let i=0;i<4;i++){
+    page=await pageFor(width);
+    const result=await page.evaluate(i=>{
+      const card=[...document.querySelectorAll('.quick-home .quick-card')][i];
+      if(!card)throw Error('Missing quick trainer '+i);
+      const btn=card.querySelector('button'),title=card.querySelector('h2,h3,strong');
+      let clicks=0;btn?.addEventListener('click',()=>clicks++,{capture:true});
+      (title||card.firstElementChild||card).click();
+      return {i,clicks,text:(title||card).textContent.slice(0,80)};
+    },i);
+    quicks.push(result);
+    await page.close();
+  }
   check('Four home quick practice cards activate native CTA once at '+width,quicks.length===4&&quicks.every(q=>q.clicks===1),quicks);
-  await page.close();
   page=await pageFor(width);
   const safety=await page.evaluate(()=>{
     const card=document.querySelector('.grade-grid > .grade-card:not(.g7-card)');
