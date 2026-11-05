@@ -62,7 +62,7 @@ script=r"""
  * surface only when there is EXACTLY one valid action. Dynamic re-renders work
  * without listeners attached to individual cards. */
 (function(){
-  const cardSelector='.grade-grid > .grade-card:not(.g7-card):not(.soon), .quick-home .quick-card';
+  const cardSelector='.grade-grid > .grade-card:not(.soon), .quick-home .quick-card';
   const interactive='button,a[href],input,select,textarea,[role="button"],[role="link"],[contenteditable="true"]';
   function onlyAction(card){
     if(!card||card.matches('[aria-disabled="true"],.disabled,.locked,.soon'))return null;
@@ -94,7 +94,7 @@ sw=sw.replace('matkvest-iphone-v55','matkvest-iphone-v56').replace(before,after)
 assert 'matkvest-iphone-v56' in sw and after in sw
 idx.write_text(html,encoding='utf-8');swp.write_text(sw,encoding='utf-8')
 report={"old_html_sha256":before,"new_html_sha256":after,"sw_cache":"matkvest-iphone-v56",
-"scope":["1-6 grade cards entire surface","home quick-trainer cards entire surface","consistent hover focus and pressed states","touch and reduced-motion responsive safeguards"],
-"excluded":["g7/g8 already-clickable cards","multiple-action cards","shop buying/deleting interactions"]}
+"scope":["1-8 grade cards entire surface","home quick-trainer cards entire surface","consistent hover focus and pressed states","touch and reduced-motion responsive safeguards"],
+"excluded":["multiple-action cards","shop buying/deleting interactions"]}
 Path('audits/ui_stage19a_patch_report.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
 print(json.dumps(report,ensure_ascii=False))
