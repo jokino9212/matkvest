@@ -1,0 +1,43 @@
+name: MatKvest stage18 - legacy G5-G6 draft migration probe
+on:
+  push:
+    branches: [audit/g5g6-stage18-20261105]
+    paths:
+      - .github/workflows/g5g6_stage18_legacy_draft_probe.yml
+      - audits/g5g6_stage18_legacy_draft_probe.mjs
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  draft-compatibility:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit/g5g6-stage18-20261105
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save --no-package-lock puppeteer-core@24
+      - name: Reproduce real production v40 unfinished G5/G6 draft migration to v55
+        run: node audits/g5g6_stage18_legacy_draft_probe.mjs
+      - name: Preserve evidence including detected incompatibilities
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: matkvest-stage18-legacy-draft-migration
+          path: audits/g5g6_stage18_legacy_draft_probe.json
+          if-no-files-found: warn
+      - name: Gate correct restoration of old answer text or boxes
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          data=json.loads(Path('audits/g5g6_stage18_legacy_draft_probe.json').read_text())
+          for x in data['cases']:
+              print(x['name'],x['status'],x.get('error'),x.get('after'))
+          assert len(data['cases'])==2 and not data.get('pageErrors')
+          assert all(x['status']=='PASS' for x in data['cases'])
+          PY
