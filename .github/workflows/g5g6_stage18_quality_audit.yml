@@ -5,6 +5,7 @@ on:
     paths:
       - .github/workflows/g5g6_stage18_quality_audit.yml
       - audits/g5g6_stage18_quality_inventory.mjs
+      - audits/g5g6_stage18_quality_deep.mjs
   workflow_dispatch:
 permissions:
   contents: write
@@ -24,12 +25,16 @@ jobs:
         run: npm install --no-save --no-package-lock puppeteer-core@24
       - name: Inventory grade5-6 generators in browser
         run: node audits/g5g6_stage18_quality_inventory.mjs
+      - name: Multi-seed grade5 and grade6 actual generator audit
+        run: node audits/g5g6_stage18_quality_deep.mjs
       - name: Publish isolated audit evidence only
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: matkvest-stage18-grade56-generator-inventory
-          path: audits/g5g6_stage18_quality_inventory.json
+          path: |
+            audits/g5g6_stage18_quality_inventory.json
+            audits/g5g6_stage18_quality_deep_report.json
           if-no-files-found: warn
       - name: Save inventory without touching release or main
         if: success()
@@ -37,5 +42,5 @@ jobs:
           set -eu
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add audits/g5g6_stage18_quality_inventory.json
+          git add audits/g5g6_stage18_quality_inventory.json audits/g5g6_stage18_quality_deep_report.json
           git diff --cached --quiet || (git commit -m "audit(stage18): capture grade5-6 generator contracts" && git pull --rebase origin audit/g5g6-stage18-20261105 && git push origin HEAD:audit/g5g6-stage18-20261105)
