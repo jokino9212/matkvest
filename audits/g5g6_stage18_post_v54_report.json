@@ -1,0 +1,95 @@
+{
+  "audit": "Stage18 complete v54 generator regression",
+  "sha256": "29e750205c4549e2c9d6105b49002ba1c505876518a2139e3da0ce5644e15859",
+  "grades": {
+    "g5": 53,
+    "g6": 58
+  },
+  "topic_stage_pairs": 333,
+  "generated": 11988,
+  "errors": {
+    "missingAnswer": 0,
+    "duplicateChoiceKeys": 0,
+    "duplicateChoiceLabels": 0,
+    "invalidFractionDenominator": 0,
+    "exceptions": 0,
+    "pageErrors": 0
+  },
+  "grade6_unavailable": [],
+  "weak_text_only_samples": [
+    {
+      "id": "g5:angles",
+      "stage": 1,
+      "visible": 1,
+      "normalized": 1
+    },
+    {
+      "id": "g5:charts",
+      "stage": 0,
+      "visible": 8,
+      "normalized": 1
+    },
+    {
+      "id": "g5:frac_shapes",
+      "stage": 0,
+      "visible": 8,
+      "normalized": 8
+    },
+    {
+      "id": "g6:number_line",
+      "stage": 0,
+      "visible": 2,
+      "normalized": 2
+    },
+    {
+      "id": "g6:number_line",
+      "stage": 1,
+      "visible": 2,
+      "normalized": 2
+    },
+    {
+      "id": "g6:number_line",
+      "stage": 2,
+      "visible": 5,
+      "normalized": 4
+    },
+    {
+      "id": "g6:coordinate_plane",
+      "stage": 2,
+      "visible": 6,
+      "normalized": 6
+    },
+    {
+      "id": "g6:point_coordinates",
+      "stage": 0,
+      "visible": 4,
+      "normalized": 4
+    },
+    {
+      "id": "g6:point_coordinates",
+      "stage": 1,
+      "visible": 4,
+      "normalized": 4
+    },
+    {
+      "id": "g6:point_coordinates",
+      "stage": 2,
+      "visible": 4,
+      "normalized": 4
+    },
+    {
+      "id": "g6:tables_charts",
+      "stage": 0,
+      "visible": 2,
+      "normalized": 2
+    },
+    {
+      "id": "g6:tables_charts",
+      "stage": 2,
+      "visible": 4,
+      "normalized": 4
+    }
+  ],
+  "note": "Low text uniqueness alone is not a failure for graph/diagram questions; images and generated numerical values must be considered.",
+  "release": "candidate only, not deployed"
+}
