@@ -1,0 +1,49 @@
+name: MatKvest stage18E - grade5-6 visual diagnostic
+on:
+  push:
+    branches: [audit/g5g6-stage18-20261105]
+    paths:
+      - .github/workflows/g5g6_stage18_visual_gate.yml
+      - audits/g5g6_stage18_visual_diagnostic.mjs
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: matkvest-stage18e-visual
+  cancel-in-progress: false
+jobs:
+  render-and-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit/g5g6-stage18-20261105
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install browser harness
+        run: npm install --no-save --no-package-lock puppeteer-core@24
+      - name: Compare 12 suspected SVG/chart topics at desktop and mobile
+        run: node audits/g5g6_stage18_visual_diagnostic.mjs
+      - name: Upload screenshot previews and diagnostic evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: matkvest-stage18e-visual-12-topic-audit
+          path: |
+            audits/g5g6_stage18_visual_previews/*.png
+            audits/g5g6_stage18_visual_diagnostic_report.json
+          if-no-files-found: warn
+      - name: Persist report after checks, keep previews in artifact only
+        if: success()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add audits/g5g6_stage18_visual_diagnostic_report.json
+          if ! git diff --cached --quiet; then
+            git commit -m "audit(stage18E): measured graphic signatures and SVG placement"
+            git pull --rebase origin audit/g5g6-stage18-20261105
+            git push origin HEAD:audit/g5g6-stage18-20261105
+          fi
