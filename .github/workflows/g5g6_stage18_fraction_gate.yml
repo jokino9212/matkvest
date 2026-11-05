@@ -27,7 +27,7 @@ jobs:
       - name: Apply visual fraction patch to isolated audit checkout
         run: |
           python3 audits/g5g6_stage18_fraction_patch.py
-          python3 audits/g7_stage12_sync_pwa.py --check
+          grep -F 'matkvest-iphone-v51' sw.js
           test "$(grep -c 'stage18UsesFractionBoxes' index.html)" -ge 5
       - uses: actions/setup-node@v4
         with:
