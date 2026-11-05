@@ -8,7 +8,7 @@ const sw=fs.readFileSync('sw.js','utf8');
 if(!sw.includes('matkvest-iphone-v56')||!sw.includes(hash))throw Error('v56 service worker SHA mismatch');
 const exe=[process.env.CHROME_BIN,'/usr/bin/google-chrome','/usr/bin/google-chrome-stable','/usr/bin/chromium'].find(x=>x&&fs.existsSync(x));
 const browser=await puppeteer.launch({executablePath:exe,headless:true,args:['--no-sandbox','--disable-dev-shm-usage','--allow-file-access-from-files']});
-const report={version:'v56',sha,tests:[],pageErrors:[],deeperNavigation:[]};
+const report={version:'v56',sha:hash,tests:[],pageErrors:[],deeperNavigation:[]};
 const check=(name,result,detail)=>report.tests.push({name,pass:!!result,detail:detail??null});
 const url=pathToFileURL(path.resolve('index.html')).href;
 async function pageFor(width){
@@ -101,6 +101,6 @@ try{
  await browser.close();
  fs.writeFileSync('audits/ui_stage19a_test_report.json',JSON.stringify(report,null,2)+'\n');
  const failures=report.tests.filter(x=>!x.pass);
- console.log(JSON.stringify({sha,passed:report.tests.length-failures.length,total:report.tests.length,failures,pageErrors:report.pageErrors},null,2));
+ console.log(JSON.stringify({sha:hash,passed:report.tests.length-failures.length,total:report.tests.length,failures,pageErrors:report.pageErrors},null,2));
  if(failures.length||report.pageErrors.length)process.exitCode=1;
 }
