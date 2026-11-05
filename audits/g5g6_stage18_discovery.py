@@ -37,3 +37,22 @@ for label,pattern in patterns.items():
     out.append("")
 Path("audits/g5g6_stage18_discovery_report.md").write_text("\n".join(out)+"\n","utf8")
 print("Stage18 discovery saved",len(out),"lines",len(s),"chars")
+
+# Targeted semantic extraction for implementing fraction UI without disturbing legacy engines.
+targets=["quizAnswerMarkup","quizFractionAnswerHtml","focusQuizInput","bindQuizKeyboard","parseRationalInput","g6FractionInputQuestion","g5q","renderQuiz","checkQuiz","checkQuizAnswer","quizAnswerKey","quizPromptHtml","g5FractionChoices"]
+focus=["# Stage18 focus: quiz input and answer pipeline",""]
+functions=list(re.finditer(r"(?m)^function\\s+([A-Za-z_$][\\w$]*)\\s*\\(",s))
+for m in functions:
+    name=m.group(1)
+    if name in targets or (("quiz" in name.lower() or "answer" in name.lower()) and any(x in name.lower() for x in ("check","read","input","markup","focus","render","validate","key","fraction"))):
+        j=next((x.start() for x in functions if x.start()>m.start()),len(s))
+        snippet=s[m.start():min(j,m.start()+11000)]
+        focus.append(f"## {name}, line {s.count(chr(10),0,m.start())+1}, offset {m.start()}, function_span {j-m.start()} chars")
+        focus.append("~~~javascript\\n"+snippet+"\\n~~~")
+for needle in ["answerMode===\"fraction\"","answerMode === \"fraction\"","q.answerMode","quizAnswerMarkup(","quizFractionAnswerHtml(","parseRationalInput(","quiz-input-hint","quiz-input"]:
+    locs=[m.start() for m in re.finditer(re.escape(needle),s)]
+    focus.append(f"## needle {needle} count {len(locs)}")
+    for pos in locs[:14]:
+        focus.append(f"- line {s.count(chr(10),0,pos)+1}\\n~~~javascript\\n{s[max(0,pos-700):pos+950]}\\n~~~")
+Path("audits/g5g6_stage18_focus_report.md").write_text("\\n".join(focus),"utf8")
+print("Stage18 focus saved",len(focus),"blocks")
