@@ -1,0 +1,147 @@
+{
+  "sha256": "4dea66f5bfa2f203d11595d2a24d6e504d97a4069f4a228563abfc8360688017",
+  "checkedAt": "2026-11-05T18:10:00.939Z",
+  "pageErrors": [],
+  "probe": {
+    "makeG5Question": {
+      "available": true,
+      "head": "function(id){\n   const generated=previous.apply(this,arguments);\n   return stage18ConvertG5Fraction(generated,{correct:generated?.ans});\n }"
+    },
+    "makeG6Question": {
+      "available": true,
+      "head": "function(...a){return gPolishQuestionObject(G_PRE716_G6(...a))}"
+    },
+    "freshQuiz": {
+      "available": true,
+      "head": "function(id){\n  const initial=previous(id);\n  const b=blockSession,name=String(id),raw=rawCourseId(id);\n  if(!name.startsWith('g7:')||!b||b.kind!=='g7quiz'||b.topicId!==raw||b.finished)return initial;\n  const key=raw+':'+b.stageIndex;\n  b._g7Stage13Used=b._g7Stage13Used||{};\n  const used=b._g7Stage13Used[key]||(b._g7Stage13Used[key]=[]);\n  const signatures=new Set(used.map(x=>x.sig)),meanings=new Set(used.map(x=>x.semantic));\n  const fits=q=>!!q?.text&&!!q?.sig&&!signatures.has(String(q.sig))&&!meanings.has(semantic(q));\n  let chosen=initial;\n  if(!fits(chosen)){\n   for(let attempt=0;attempt<600;attempt++){\n    const candidate=makeG7Question(id,b.stageIndex);\n    if(fits(candidate)){chosen=candidate;break;}\n   }\n  }\n  if(!fits(chosen)){\n   b._g7Stage13Exhausted=b._g7Stage13Exhausted||[];\n   b._g7Stage13Exhausted.push({raw,stage:b.stageIndex,position:used.length+1});\n  }\n  if(chosen!==initial&&chosen?.sig){\n   registerSignature(chosen.si"
+    },
+    "startG5QuizStage": {
+      "available": true,
+      "head": "function startG5QuizStage(id,stageIndex){\n beginBlock(`g5:${id}`,stageIndex,\"g5quiz\");\n openG5Quiz(id);\n}"
+    },
+    "startG6QuizStage": {
+      "available": true,
+      "head": "function startG6QuizStage(id,stageIndex){const t=g6InfoById(id);if(!t||t.implemented===false)return showG6Pending(id);beginBlock(t.id,stageIndex,\"g6quiz\");openG6Quiz(t.id)}"
+    },
+    "beginBlock": {
+      "available": true,
+      "head": "function beginBlock(key,stageIndex,kind,customStage=null){\n archiveInterruptedAttempt();\n const spec=customStage||STAGES[stageIndex];\n blockSession={key,stageIndex,kind,customStage,done:0,correct:0,total:spec.count,finished:false,usedSignatures:[],items:[],currentItem:null,startedAt:Date.now(),attemptId:newAttemptId(),reportId:null,grade:keyGrade(key),topicId:rawCourseId(key)};\n syncActiveAttempt();\n}"
+    },
+    "activeDifficulty": {
+      "available": true,
+      "head": "function activeDifficulty(){return blockSession?.kind===\"errorwork\"?(blockSession.errorCurrentStageIndex??0):blockSession?.kind===\"weaktopic\"?(blockSession.weakCurrentStageIndex??0):blockSession?.kind===\"controlreview\"?(blockSession.controlCurrentStageIndex??0):(blockSession?.stageIndex??0)}"
+    },
+    "g5InfoById": {
+      "available": true,
+      "head": "function g5InfoById(id){return [...G5_CORE,...G5_FRACTIONS,...G5_DECIMALS].find(x=>x.id===id)}"
+    },
+    "g6InfoById": {
+      "available": true,
+      "head": "function g6InfoById(id){const s=String(id||\"\"),key=s.startsWith(\"g6:\")?s:`g6:${s}`;return g6AllTopics().find(x=>x.id===key)||null}"
+    },
+    "quizAnswerMarkup": {
+      "available": true,
+      "head": "function quizAnswerMarkup(nextHandler,skipHandler){\n if(q?.answerMode&&q.answerMode!==\"choice\"){\n   const mode=q.answerMode,hint=q.inputHint||(mode===\"fraction\"?\"Можно ввести обыкновенную дробь, смешанное число или целое.\":mode===\"ratio\"?\"Введите отношение, например: 2 : 3\":mode===\"multi\"?\"Введите числа по порядку через пробел, запятую или точку с запятой.\":mode===\"coordinate\"?\"Введите отдельно x и y.\":\"Введите ответ.\");\n   if(stage18UsesFractionBoxes(q))return stage18FractionMarkup(nextHandler,skipHandler,hint);\n   if(mode===\"coordinate\"){\n     return `<div class=\"quiz-input-wrap\"><div class=\"quiz-input-label\">${esc(q.inputLabel||\"Введите координаты\")}</div><div class=\"coordinate-input-grid\"><label class=\"coordinate-input-field\"><span>x =</span><input id=\"quizInputX\" class=\"coordinate-input\" autocomplete=\"off\" inputmode=\"decimal\" aria-label=\"Абсцисса x\"></label><label class=\"coordinate-input-field\"><span>y =</span><input id=\"quizInputY"
+    },
+    "g6FractionInputQuestion": {
+      "available": true,
+      "head": "function g6FractionInputQuestion(text,answer,ex,sig,{requireReduced=false,preferMixed=true,audit={}}={}){\n const a=rational(answer.n,answer.d);return {text,ans:rationalPlain(a,preferMixed),correctText:rationalPlain(a,preferMixed),correctHtml:rationalHtml(a,preferMixed),answerMode:\"fraction\",answerRat:a,requireReduced:!!requireReduced,preferMixed:!!preferMixed,choices:[],ex,sig,audit};\n}"
+    }
+  },
+  "grade5": [
+    "natural",
+    "coordinate",
+    "operations",
+    "order",
+    "powers",
+    "equations",
+    "geometry",
+    "volume",
+    "angles",
+    "charts",
+    "units",
+    "word"
+  ],
+  "grade5frac": [
+    "frac_shapes",
+    "frac_parts",
+    "frac_read",
+    "frac_ray",
+    "frac_types",
+    "frac_compare_den",
+    "frac_compare_num",
+    "frac_division",
+    "frac_to_mixed",
+    "mixed_to_frac",
+    "frac_add",
+    "frac_sub",
+    "mixed_compare",
+    "mixed_add",
+    "mixed_sub",
+    "frac_equal",
+    "frac_reduce",
+    "frac_common_lcm",
+    "frac_compare_diff",
+    "frac_add_diff",
+    "frac_sub_diff",
+    "frac_mul_common",
+    "frac_div_common",
+    "frac_part_number",
+    "frac_restore",
+    "frac_word"
+  ],
+  "grade6": null,
+  "grade6implemented": [
+    "g6:divisors_multiples",
+    "g6:divisibility_2_5_10",
+    "g6:divisibility_3_9",
+    "g6:prime_composite",
+    "g6:prime_factorization",
+    "g6:gcd",
+    "g6:lcm",
+    "g6:coprime",
+    "g6:fraction_properties",
+    "g6:fraction_reduction",
+    "g6:fraction_common_denominator",
+    "g6:fraction_compare",
+    "g6:fraction_add_subtract",
+    "g6:mixed_add_subtract",
+    "g6:fraction_multiply",
+    "g6:fraction_divide",
+    "g6:mixed_multiply_divide",
+    "g6:fraction_expressions",
+    "g6:ratio",
+    "g6:ratio_value",
+    "g6:proportion",
+    "g6:proportion_unknown",
+    "g6:direct_proportion",
+    "g6:inverse_proportion",
+    "g6:divide_in_ratio",
+    "g6:scale",
+    "g6:percent_of_number",
+    "g6:number_by_percent",
+    "g6:percent_ratio",
+    "g6:percent_word_problems",
+    "g6:positive_negative",
+    "g6:number_line",
+    "g6:opposite_numbers",
+    "g6:absolute_value",
+    "g6:rational_compare",
+    "g6:negative_add",
+    "g6:negative_subtract",
+    "g6:negative_multiply",
+    "g6:negative_divide",
+    "g6:rational_expressions",
+    "g6:brackets",
+    "g6:like_terms",
+    "g6:expression_simplify",
+    "g6:expression_value",
+    "g6:linear_equations",
+    "g6:equation_word_problems",
+    "g6:coordinate_plane",
+    "g6:point_coordinates",
+    "g6:plot_point",
+    "g6:tables_charts",
+    "g6:arithmetic_mean"
+  ]
+}
