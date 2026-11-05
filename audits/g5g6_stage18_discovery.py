@@ -69,3 +69,11 @@ for needle in ["g5q(","g5Generate","g5Question","g5q","g5q5","g5Topic","g5Build"
     for pos in locs[:20]:
         pipe.append("~~~javascript\n"+s[max(0,pos-330):pos+700]+"\n~~~")
 Path("audits/g5g6_stage18_g5_pipeline_report.md").write_text("\n".join(pipe),"utf8")
+
+entries=["# Grade 5 adapter usage details"]
+for needle in ["g5DonorQuestion(","g5NewFractionQuestion(","g5q(","keyGrade(qid)===5","grade===5","grade === 5","g5Generate","g5Question","function makeQuestion","function genQ","function nextQ"]:
+    locs=[m.start() for m in re.finditer(re.escape(needle),s)]
+    entries.append("## "+needle+" total "+str(len(locs)))
+    for pos in locs[-12:]:
+        entries.append("~~~javascript\n"+s[max(0,pos-1200):pos+1600]+"\n~~~")
+Path("audits/g5g6_stage18_g5_adapter_report.md").write_text("\n".join(entries),"utf8")
