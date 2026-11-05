@@ -1572,6 +1572,22 @@ body:has(.mk872-help-layer){overflow:hidden}
 .shop-icon:has(>.mk-golden-pig-img){overflow:hidden;}
 .pet-mini>.mk-golden-pig-img,.study-pet>.mk-golden-pig-img{width:100%;height:100%;object-fit:contain;}
 </style>
+<style id="matkvest-stage18-fraction-input">
+.stage18-frac-wrap{text-align:center}
+.stage18-frac-entry{display:flex;justify-content:center;align-items:flex-end;gap:18px;flex-wrap:wrap;margin:13px auto 10px;max-width:100%}
+.stage18-frac-part{display:flex;flex-direction:column;align-items:center;gap:7px;color:var(--ink);font-weight:800;font-size:13px}
+.stage18-frac-stack{display:flex;flex-direction:column;align-items:center;gap:4px}
+.stage18-frac-cell{width:64px;height:56px;box-sizing:border-box;text-align:center;border:2px solid #93a8bd;border-radius:9px;background:#fff;font-weight:850;font-size:27px;color:var(--ink);padding:3px;box-shadow:0 1px 4px #19354914}
+.stage18-frac-cell:focus{border-color:#2770da;outline:3px solid #7eb2ff66;outline-offset:1px}
+.stage18-frac-cell.bad{border-color:#cf3838;background:#fff0f0}
+.stage18-frac-cell.good{border-color:#39a56e;background:#e8f7ef}
+.stage18-frac-entry>.stage18-frac-part:first-child{padding-bottom:33px}
+.stage18-frac-bar{height:3px;width:72px;background:var(--ink);border-radius:5px;margin:0 auto}
+.stage18-frac-title{font-weight:800;font-size:14px;margin:2px 0 0}
+.stage18-frac-label{font-size:12px;line-height:1.35;max-width:115px;color:var(--muted);text-align:center;min-height:32px}
+.stage18-frac-note{color:var(--muted);font-size:12px;line-height:1.45;margin:4px auto 8px}
+@media(max-width:480px){.stage18-frac-entry{gap:10px}.stage18-frac-cell{width:55px;height:52px;font-size:23px}.stage18-frac-bar{width:63px}.stage18-frac-label{font-size:11px;max-width:98px}}
+</style>
 </head>
 <body>
 <div class="shell">
@@ -2397,7 +2413,7 @@ function makeG5Question(id){
  const qq=g5DonorQuestion(sourceTopicId);
  const correctChoice=qq.choices.find(c=>String(c.key)===String(qq.correct));
  const correctLabel=correctChoice?.label??qq.correctLabel??qq.correct;
- return {
+ const result={
    text:qq.text,
    ans:String(qq.correct),
    choices:qq.choices.map(c=>({label:c.label,key:String(c.key)})),
@@ -2410,6 +2426,7 @@ function makeG5Question(id){
    // Это позволяет anti-repeat различать, например, разные пары сравниваемых дробей.
    sig:`g5:${requestedId}:${sourceTopicId}:${qq.templateId||"base"}:${activeDifficulty()}:${stripHtmlText(qq.text)}:${String(qq.correct)}:${qq.choices.map(c=>academicHtmlPlain(c.label)).sort().join("~")}`
  };
+ return stage18ConvertG5Fraction(result,qq);
 }
 
 
@@ -10484,9 +10501,56 @@ function correctChoicePlain(question){
  const c=question?.choices?.find(x=>String(x.key)===String(question.ans));
  return c?choicePlain(c):String(question?.correctText||question?.ans||"");
 }
+/* STAGE18 - pedagogical field-based fraction input for grades 5 and 6 only. */
+function stage18UsesFractionBoxes(question=q){
+ return question?.answerMode==="fraction"&&(keyGrade(qid)===5||keyGrade(qid)===6);
+}
+function stage18FractionMarkup(nextHandler,skipHandler,hint){
+ const whole='<label class="stage18-frac-part"><span class="stage18-frac-label">Целая часть<br>(если есть)</span><input id="quizFracWhole" class="stage18-frac-cell" autocomplete="off" inputmode="text" aria-label="Целая часть, если есть" placeholder="—"></label>';
+ const frac='<div class="stage18-frac-part"><div class="stage18-frac-label">Дробная часть</div><div class="stage18-frac-stack"><input id="quizFracNum" class="stage18-frac-cell" autocomplete="off" inputmode="text" aria-label="Числитель" placeholder="числ."><div class="stage18-frac-bar" role="presentation"></div><input id="quizFracDen" class="stage18-frac-cell" autocomplete="off" inputmode="numeric" aria-label="Знаменатель" placeholder="знам."></div></div>';
+ return '<div class="quiz-input-wrap stage18-frac-wrap"><div class="quiz-input-label stage18-frac-title">Запиши ответ в клеточках</div><div class="stage18-frac-entry">'+whole+frac+'</div><div class="stage18-frac-note">Сверху — числитель, снизу — знаменатель. Целую часть заполняй только при необходимости.</div></div><div class="feedback" id="qfb"></div><div class="actions"><button id="quizCheck" class="btn primary" onclick="checkQuizInput()">Проверить</button><button id="quizNext" class="btn primary" style="display:none" onclick="'+nextHandler+'()">Следующий пример →</button><button id="quizSkip" class="btn soft" onclick="'+skipHandler+'()">⏭ Пропустить задание</button></div>';
+}
+function stage18FractionFields(){
+ return {stage18Fraction:true,whole:String(document.getElementById("quizFracWhole")?.value||"").trim(),numerator:String(document.getElementById("quizFracNum")?.value||"").trim(),denominator:String(document.getElementById("quizFracDen")?.value||"").trim()};
+}
+function stage18FractionStudentText(raw){
+ const w=String(raw?.whole||"").trim(),n=String(raw?.numerator||"").trim(),d=String(raw?.denominator||"").trim();
+ return n&&d?(w?w+" ":"")+n+"/"+d:w||[n,d].filter(Boolean).join("/");
+}
+function stage18ParseFractionFields(raw){
+ const w=String(raw?.whole||"").trim(),n=String(raw?.numerator||"").trim(),d=String(raw?.denominator||"").trim();
+ if(!w&&!n&&!d)return {ok:false,empty:true,error:"empty"};
+ if(w&&!n&&!d)return parseRationalInput(w);
+ if(!n||!d)return {ok:false,error:"missing-part"};
+ if(!/^[+-]?\d+$/.test(n)||!/^[+-]?\d+$/.test(d))return {ok:false,error:"invalid"};
+ if(!w)return parseRationalInput(n+"/"+d);
+ if(!/^[+-]?\d+$/.test(w)||!/^\d+$/.test(n)||!/^\d+$/.test(d))return {ok:false,error:"invalid"};
+ return parseRationalInput(w+" "+n+"/"+d);
+}
+function stage18FocusFractionMissing(raw){
+ const f=raw?.stage18Fraction?raw:stage18FractionFields();
+ const id=!f.numerator&&(!f.whole||f.denominator)?"quizFracNum":f.numerator&&!f.denominator?"quizFracDen":!f.whole&&!f.numerator?"quizFracNum":"quizFracWhole";
+ document.getElementById(id)?.focus();
+}
+function stage18ConvertG5Fraction(result,source){
+ const k=String(source?.correct??""),label=String(result.correctLabel||"");
+ if(!/class="(?:frac|mixed)"/.test(label))return result;
+ const simple=k.match(/^([+-]?\d+)\/([1-9]\d*)$/),mix=k.match(/^([+-]?\d+)_([0-9]+)_([1-9]\d*)$/);
+ let a=null;
+ if(simple)a=rational(Number(simple[1]),Number(simple[2]));
+ else if(mix){
+   const w=Number(mix[1]),n=Number(mix[2]),d=Number(mix[3]);
+   if(!Number.isSafeInteger(w)||!Number.isSafeInteger(n)||!Number.isSafeInteger(d)||n>=d)return result;
+   a=rational((w<0?-1:1)*(Math.abs(w)*d+n),d);
+ }
+ if(!a)return result;
+ return {...result,answerMode:"fraction",answerRat:a,preferMixed:!!mix,requireReduced:/сократ|несократ/i.test(String(result.text||"")),correctHtml:label,correctText:result.correctText};
+}
+
 function quizAnswerMarkup(nextHandler,skipHandler){
  if(q?.answerMode&&q.answerMode!=="choice"){
    const mode=q.answerMode,hint=q.inputHint||(mode==="fraction"?"Можно ввести обыкновенную дробь, смешанное число или целое.":mode==="ratio"?"Введите отношение, например: 2 : 3":mode==="multi"?"Введите числа по порядку через пробел, запятую или точку с запятой.":mode==="coordinate"?"Введите отдельно x и y.":"Введите ответ.");
+   if(stage18UsesFractionBoxes(q))return stage18FractionMarkup(nextHandler,skipHandler,hint);
    if(mode==="coordinate"){
      return `<div class="quiz-input-wrap"><div class="quiz-input-label">${esc(q.inputLabel||"Введите координаты")}</div><div class="coordinate-input-grid"><label class="coordinate-input-field"><span>x =</span><input id="quizInputX" class="coordinate-input" autocomplete="off" inputmode="decimal" aria-label="Абсцисса x"></label><label class="coordinate-input-field"><span>y =</span><input id="quizInputY" class="coordinate-input" autocomplete="off" inputmode="decimal" aria-label="Ордината y"></label></div><small class="quiz-input-hint">${esc(hint)}</small></div><div class="feedback" id="qfb"></div><div class="actions"><button id="quizCheck" class="btn primary" onclick="checkQuizInput()">Проверить</button><button id="quizNext" class="btn primary" style="display:none" onclick="${nextHandler}()">Следующий пример →</button><button id="quizSkip" class="btn soft" onclick="${skipHandler}()">⏭ Пропустить задание</button></div>`;
    }
@@ -10526,8 +10590,8 @@ function quizInputEvaluation(question,raw){
    return {valid:true,ok,studentHtml,studentText:raw,correctText,correctHtml,detail,retryMessage:equivalent&&!formOk?"🟡 Значение выражения верное, но ответ нужно <b>полностью упростить</b>. Попробуйте ещё раз.":"🟡 Пока неверно. Проверьте коэффициент при x и свободное число.",finalWrongMessage:equivalent&&!formOk?`🟡 Выражение равносильно правильному, но требуется упрощённая запись: <b>${correctHtml}</b>. ${question.ex}`:`💡 Правильный ответ: <b>${correctHtml}</b>. ${question.ex}`};
  }
  if(mode==="fraction"){
-   const parsed=parseRationalInput(raw);if(!parsed.ok)return {valid:false,message:parsed.error==="zero-denominator"?"Знаменатель не может быть равен нулю.":"Не удалось распознать ответ. Введите дробь, смешанное число или целое."};
-   const equivalent=rationalEq(parsed.rat,question.answerRat),formOk=!question.requireReduced||parsed.wasReduced,ok=equivalent&&formOk;return {valid:true,ok,studentHtml:quizFractionAnswerHtml(parsed),studentText:raw,correctText,correctHtml,detail:equivalent&&!formOk?"Значение верное, но дробь нужно сократить полностью.":`Правильный ответ: ${correctText}`,retryMessage:equivalent&&!formOk?"🟡 Значение верное, но дробь нужно <b>сократить полностью</b>. Попробуй ещё раз.":"🟡 Пока неверно. Попробуй ещё раз или пропусти задание.",finalWrongMessage:equivalent&&!formOk?`🟡 Значение дроби верное, но по условию её нужно <b>сократить полностью</b>. Правильный ответ: <b>${correctHtml}</b>. ${question.ex}`:`💡 Правильный ответ: <b>${correctHtml}</b>. ${question.ex}`};
+   const parsed=stage18UsesFractionBoxes(question)?stage18ParseFractionFields(raw):parseRationalInput(raw);if(!parsed.ok)return {valid:false,message:parsed.error==="zero-denominator"?"Знаменатель не может быть равен нулю.":parsed.error==="missing-part"?"Заполни числитель и знаменатель. Если ответ целый, заполни только целую часть.":"Проверь числа в клеточках."};
+   const equivalent=rationalEq(parsed.rat,question.answerRat),formOk=!question.requireReduced||parsed.wasReduced,ok=equivalent&&formOk;return {valid:true,ok,studentHtml:quizFractionAnswerHtml(parsed),studentText:stage18UsesFractionBoxes(question)?stage18FractionStudentText(raw):raw,correctText,correctHtml,detail:equivalent&&!formOk?"Значение верное, но дробь нужно сократить полностью.":`Правильный ответ: ${correctText}`,retryMessage:equivalent&&!formOk?"🟡 Значение верное, но дробь нужно <b>сократить полностью</b>. Попробуй ещё раз.":"🟡 Пока неверно. Попробуй ещё раз или пропусти задание.",finalWrongMessage:equivalent&&!formOk?`🟡 Значение дроби верное, но по условию её нужно <b>сократить полностью</b>. Правильный ответ: <b>${correctHtml}</b>. ${question.ex}`:`💡 Правильный ответ: <b>${correctHtml}</b>. ${question.ex}`};
  }
  if(mode==="number"){
    const parsed=parseExactNumberInput(raw,{allowPercent:!!question.allowPercent});if(!parsed.ok)return {valid:false,message:parsed.error==="percent-not-allowed"?"Знак % здесь вводить не нужно.":parsed.error==="too-many-decimals"?"Слишком много знаков после запятой.":"Не удалось распознать число. Можно использовать запятую или точку для десятичной дроби."};
@@ -10544,21 +10608,24 @@ function quizInputEvaluation(question,raw){
  return {valid:false,message:"Для этого задания не найден способ проверки ответа."};
 }
 function quizInputElements(question=q){
+ if(stage18UsesFractionBoxes(question))return ["quizFracWhole","quizFracNum","quizFracDen"].map(id=>document.getElementById(id)).filter(Boolean);
  if(question?.answerMode==="coordinate")return [document.getElementById("quizInputX"),document.getElementById("quizInputY")].filter(Boolean);
  if(question?.answerMode==="remainder")return [document.getElementById("quizInputQ"),document.getElementById("quizInputR")].filter(Boolean);
  const el=document.getElementById("quizInput");return el?[el]:[];
 }
 function quizInputRaw(question=q){
+ if(stage18UsesFractionBoxes(question))return stage18FractionFields();
  if(question?.answerMode==="coordinate")return {x:String(document.getElementById("quizInputX")?.value||"").trim(),y:String(document.getElementById("quizInputY")?.value||"").trim()};
  if(question?.answerMode==="remainder")return {q:String(document.getElementById("quizInputQ")?.value||"").trim(),r:String(document.getElementById("quizInputR")?.value||"").trim()};
  return String(document.getElementById("quizInput")?.value||"").trim();
 }
 function quizInputEmpty(question,raw){
+ if(stage18UsesFractionBoxes(question))return !raw?.whole&&!raw?.numerator&&!raw?.denominator;
  if(question?.answerMode==="coordinate")return !raw?.x||!raw?.y;
  if(question?.answerMode==="remainder")return !raw?.q||!raw?.r;
  return !String(raw||"").trim();
 }
-function focusQuizInput(){const el=q?.answerMode==="coordinate"?document.getElementById("quizInputX"):q?.answerMode==="remainder"?document.getElementById("quizInputQ"):document.getElementById("quizInput");el?.focus()}
+function focusQuizInput(){if(stage18UsesFractionBoxes(q)){const mixedExpected=q.preferMixed&&q.answerRat&&Math.abs(q.answerRat.n)>=q.answerRat.d;document.getElementById(mixedExpected?"quizFracWhole":"quizFracNum")?.focus();return}const el=q?.answerMode==="coordinate"?document.getElementById("quizInputX"):q?.answerMode==="remainder"?document.getElementById("quizInputQ"):document.getElementById("quizInput");el?.focus()}
 function quizAdvanceResolved(){
  if(!answered)return false;
  if(blockSession?.finished){finishBlock();return true}
@@ -10587,6 +10654,7 @@ function quizKeyboard(e){
    if(!String(qq?.value||"").trim()){if(fb)fb.textContent="Введите частное.";qq?.focus();return}
    if(!String(rr?.value||"").trim()){if(fb)fb.textContent="Введите остаток.";rr?.focus();return}
  }
+ if(stage18UsesFractionBoxes(q)){const raw=stage18FractionFields();if(!raw.whole&&!raw.numerator&&!raw.denominator){document.getElementById("quizFracNum")?.focus();return}if((raw.numerator||raw.denominator)&&!raw.numerator){document.getElementById("quizFracNum")?.focus();return}if((raw.numerator||raw.denominator)&&!raw.denominator){document.getElementById("quizFracDen")?.focus();return}}
  checkQuizInput();
 }
 function bindQuizKeyboard(){const stage=document.getElementById("qstage");if(stage)stage.onkeydown=quizKeyboard}
@@ -10628,10 +10696,10 @@ function checkQuizInput(){
    }else if(q.answerMode==="remainder"){
      const qq=document.getElementById("quizInputQ"),rr=document.getElementById("quizInputR");
      (!String(qq?.value||"").trim()?qq:rr)?.focus();
-   }else inputs[0]?.focus();
+   }else if(stage18UsesFractionBoxes(q))document.getElementById("quizFracNum")?.focus();else inputs[0]?.focus();
    return;
  }
- const ev=quizInputEvaluation(q,raw);if(!ev.valid){fb.textContent=ev.message;inputs.find(x=>!String(x.value||"").trim())?.focus();return}
+ const ev=quizInputEvaluation(q,raw);if(!ev.valid){fb.textContent=ev.message;if(stage18UsesFractionBoxes(q))stage18FocusFractionMissing(raw);else inputs.find(x=>!String(x.value||"").trim())?.focus();return}
  const ok=!!ev.ok,correctText=ev.correctText,correctHtml=ev.correctHtml;
  addAttemptCheck({answer:ev.studentText,correct:ok,details:ok?[]:[ev.detail]});
  if(!ok){
@@ -10640,7 +10708,7 @@ function checkQuizInput(){
    inputs.forEach(input=>input.classList.add("bad"));
    const retryText=String(qid||"").startsWith("g3:")?`🟡 Пока неверно. ${g3WrongHint847(q)}`:keyGrade(qid)===4?`🟡 Пока неверно. ${g4WrongHint(qid)}`:keyGrade(qid)===5?`🟡 Пока неверно. ${g5WrongHint(qid)}`:keyGrade(qid)===6?`🟡 Пока неверно. ${g6WrongHint(qid)}`:keyGrade(qid)===7?`🟡 Пока неверно. ${g7WrongHint851(q,qid)}`:keyGrade(qid)===8?`🟡 Пока неверно. ${g8WrongHint852(q,qid)}`:ev.retryMessage;
    fb.innerHTML=isErrorWork()?`${retryText} Даже после исправления эта старая ошибка останется на повторение.`:retryText;
-   inputs[0]?.focus();inputs[0]?.select?.();
+   if(stage18UsesFractionBoxes(q))stage18FocusFractionMissing(raw);else{inputs[0]?.focus();inputs[0]?.select?.()}
    return;
  }
  answered=true;
@@ -32052,4 +32120,326 @@ window.G8_QA8_AUDIT={targets:RAW.slice(),levels:LENGTH.slice(),pools:Object.from
 })();
 
 </script>
+<script id="stage18-g5-final-adapter">
+(function(){
+ const previous=makeG5Question;
+ makeG5Question=function(id){
+   const generated=previous.apply(this,arguments);
+   return stage18ConvertG5Fraction(generated,{correct:generated?.ans});
+ };
+})();
+</script>\n
+<script id="matkvest-stage18b-form-and-powers">
+/* Grade 5 semantic answers: correct mathematical VALUE plus requested FORM. */
+(function(){
+ const numerals={одна:1,одну:1,один:1,два:2,две:2,три:3,четыре:4,пять:5,шесть:6,семь:7,восемь:8,девять:9,десять:10,одиннадцать:11,двенадцать:12};
+ const denominators={вторая:2,вторых:2,третья:3,третьих:3,четвертая:4,четвёртая:4,четвертых:4,четвёртых:4,пятая:5,пятых:5,шестая:6,шестых:6,седьмая:7,седьмых:7,восьмая:8,восьмых:8,девятая:9,девятых:9,десятая:10,десятых:10,одиннадцатых:11,двенадцатых:12};
+ function partsFromHtml(html){
+   const node=document.createElement('div');
+   node.innerHTML=String(html||'');
+   if(node.querySelectorAll('.frac').length!==1)return null;
+   const ff=node.querySelector('.frac'),n=Number(ff.querySelector('.num')?.textContent),d=Number(ff.querySelector('.den')?.textContent);
+   if(!Number.isSafeInteger(n)||!Number.isSafeInteger(d)||d<=0)return null;
+   const wholeNode=node.querySelector('.mixed .whole'),w=wholeNode?Number(wholeNode.textContent):null;
+   if(wholeNode&&!Number.isSafeInteger(w))return null;
+   return {n,d,whole:w};
+ }
+ function exactFromQuestion(topic,question){
+   const html=String(question.text||'');
+   let plain=String(question.text||'').replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim();
+   if(topic==='frac_read'){
+     const m=plain.match(/Запиши дробью:\s*«\s*([а-яё]+)\s+([а-яё]+)\s*»/i);
+     if(m){
+       const n=numerals[m[1].toLowerCase()],d=denominators[m[2].toLowerCase()];
+       if(n!=null&&d!=null)return {kind:'exact',n,d};
+     }
+   }
+   if(topic==='frac_ray' && /неправильной дробью/i.test(plain)){
+     const division=plain.match(/разделили\s+на\s+(\d+)\s+част/i),mark=plain.match(/на\s+(\d+)-й\s+отметке/i);
+     if(division&&mark)return {kind:'exact',n:Number(mark[1]),d:Number(division[1])};
+   }
+   if(topic==='mixed_to_frac'&&/неправильную дробь/i.test(plain)){
+     const p=partsFromHtml(html);
+     if(p&&p.whole!==null)return {kind:'exact',n:p.whole*p.d+p.n,d:p.d};
+   }
+   return null;
+ }
+ function numberRatFromCorrect(result){
+   const shown=String(result.correctLabel||result.correctHtml||'');
+   const p=partsFromHtml(shown);
+   if(p)return {rat:rational((p.whole===null?0:p.whole*p.d)+p.n,p.d),mixed:p.whole!==null};
+   const v=shown.trim().replace(/<[^>]*>/g,'');
+   if(/^[+-]?\d+$/.test(v))return {rat:rational(Number(v),1),mixed:false};
+   return null;
+ }
+ function prepareFraction(result,topic){
+   if(!result||!result.text)return result;
+   let r=result;
+   const form=exactFromQuestion(topic,r);
+   if(form){
+     if(!Number.isSafeInteger(form.n)||!Number.isSafeInteger(form.d)||form.d<1)return r;
+     r={...r,answerMode:'fraction',answerRat:rational(form.n,form.d),preferMixed:false,
+       requireReduced:false,correctText:String(form.n)+'/'+String(form.d),
+       correctHtml:frac(form.n,form.d),stage18AnswerForm:form};
+   } else if(topic==='frac_to_mixed'||topic==='mixed_add'||topic==='mixed_sub'||topic==='mixed_to_frac'){
+     const parsed=numberRatFromCorrect(r);
+     if(parsed){
+       const expectMixed=topic==='frac_to_mixed'||topic==='mixed_add'||topic==='mixed_sub';
+       r={...r,answerMode:'fraction',answerRat:parsed.rat,preferMixed:expectMixed,
+         correctText:expectMixed?rationalPlain(parsed.rat,true):rationalPlain(parsed.rat,false),
+         correctHtml:rationalHtml(parsed.rat,expectMixed),
+         stage18AnswerForm:{kind:expectMixed?'mixed':'improper'}};
+     }
+   }
+   return r;
+ }
+ function generatePowers(result,id){
+   if(id!=='powers')return result;
+   const difficulty=activeDifficulty();
+   if(difficulty>1)return result;
+   const n=difficulty===0?ri(2,14):ri(2,8);
+   const family=ri(0,5),value=difficulty===0?n*n:n*n*n,reverse=family===5;
+   const answer=reverse?n:value;
+   let prompt,why;
+   if(difficulty===0){
+     const arr=[
+       ['Найди квадрат числа '+n+'.','Квадрат числа '+n+' равен '+n+' · '+n+' = '+value+'.'],
+       ['Сторона квадрата '+n+' см. Найди его площадь (см²).','Площадь квадрата равна '+n+'² = '+value+' см².'],
+       ['В квадрате '+n+' рядов по '+n+' клеток. Сколько всего клеток?','Умножаем число рядов на число клеток: '+n+' · '+n+' = '+value+'.'],
+       ['Сколько будет '+n+' · '+n+'?','Это квадрат числа '+n+': '+value+'.'],
+       ['Сколько единичных квадратов поместится в квадрате со стороной '+n+' единиц?','Площадь в единичных квадратах равна '+n+' · '+n+' = '+value+'.'],
+       ['Квадрат какого натурального числа равен '+value+'?','Так как '+n+' · '+n+' = '+value+', искомое число '+n+'.']
+     ];
+     [prompt,why]=arr[family];
+   }else{
+     const arr=[
+       ['Найди куб числа '+n+'.','Куб числа '+n+' равен '+n+' · '+n+' · '+n+' = '+value+'.'],
+       ['Ребро куба '+n+' см. Найди его объём (см³).','Объём куба равен '+n+'³ = '+value+' см³.'],
+       ['Куб сложили из '+n+' слоёв по '+n*n+' маленьких кубиков. Сколько их всего?','Умножаем '+n+' на '+n*n+' и получаем '+value+'.'],
+       ['Найди произведение '+n+' · '+n+' · '+n+'.','Это куб числа '+n+': '+value+'.'],
+       ['В одном ряду '+n+' кубиков, таких рядов '+n+' в слое и всего '+n+' слоёв. Сколько кубиков?','Перемножаем '+n+' · '+n+' · '+n+' = '+value+'.'],
+       ['Куб какого натурального числа равен '+value+'?','Так как '+n+'³ = '+value+', ответ '+n+'.']
+     ];
+     [prompt,why]=arr[family];
+   }
+   const ch=g5nums(answer,[Math.max(0,answer+1),Math.max(0,answer-1),value+n,n*n,Math.max(0,n-1)]);
+   const answerString=String(answer);
+   return {...result,text:prompt,ans:answerString,choices:ch,
+     correctLabel:answerString,correctText:answerString,answerMode:'choice',ex:why,
+     templateId:'s18b_power_'+difficulty+'_'+family,
+     sig:'g5:powers:s18b:'+difficulty+':'+family+':'+n+':'+answerString};
+ }
+ const earlierMakeG5=makeG5Question;
+ makeG5Question=function(id){
+   const q=earlierMakeG5.apply(this,arguments);
+   const topic=String(q?.sourceTopicId||id||'');
+   return topic==='powers'?generatePowers(q,topic):prepareFraction(q,topic);
+ };
+ const earlierEvaluation=quizInputEvaluation;
+ quizInputEvaluation=function(question,raw){
+   const evaluation=earlierEvaluation.apply(this,arguments);
+   const required=question?.stage18AnswerForm;
+   if(!required||!stage18UsesFractionBoxes(question)||!evaluation?.valid||!evaluation.ok)return evaluation;
+   const w=String(raw?.whole||'').trim(),n=String(raw?.numerator||'').trim(),d=String(raw?.denominator||'').trim();
+   let accepts=true;
+   if(required.kind==='exact'){
+     accepts=!w&&Number(n)===required.n&&Number(d)===required.d;
+   }else if(required.kind==='improper'){
+     accepts=!w&&n!==''&&d!==''&&Number(n)>=Number(d);
+   }else if(required.kind==='mixed'){
+     const expect=question.answerRat,integer=!!expect&&expect.d===1;
+     accepts=integer?!!w&&!n&&!d:!!w&&n!==''&&d!==''&&Number(n)>0&&Number(n)<Number(d);
+   }
+   if(!accepts){
+     return {...evaluation,ok:false,detail:'Значение верное, но форма записи не соответствует условию.',
+       retryMessage:'🟡 Значение верное. Запиши ответ в той форме, которую требует задание.',
+       finalWrongMessage:'Запиши ответ в нужной форме: '+evaluation.correctHtml};
+   }
+   return evaluation;
+ };
+})();
+</script>
+
+
+<script id="matkvest-stage18c-grade56-variety">
+/* Stage18C: structural variety for two verified weak topics only. */
+(function(){
+ function choiceQuestion(base,text,options,correctKey,ex,variant,seedParts){
+   const choices=shuffleOptions(options.map(c=>({label:String(c.label),key:String(c.key)})));
+   const k=String(correctKey),target=choices.find(c=>c.key===k);
+   if(!target||new Set(choices.map(c=>c.key)).size!==choices.length)throw Error('Invalid grade5 fractions classification options');
+   return {...base,text,choices,ans:k,ex,answerMode:'choice',correctLabel:target.label,
+     correctText:choicePlain(target),templateId:'s18c_types_'+variant,
+     sig:'g5:frac_types:s18c:'+activeDifficulty()+':'+variant+':'+seedParts.join(':'),
+     audit:{type:'s18cFractionTypes',variant,seedParts}};
+ }
+ function numberChoice(base,text,answer,ex,variant,parts){
+   const choices=g5nums(answer,[answer+1,Math.max(0,answer-1),answer+2,Math.max(0,answer-2)]);
+   const a=String(answer),correct=choices.find(x=>String(x.key)===a);
+   if(!correct)throw Error('Fraction type target number not present');
+   return choiceQuestion(base,text,choices,a,ex,variant,parts);
+ }
+ function grade5FractionTypes(base){
+   const d=activeDifficulty();
+   if(d===0)return base;
+   const den=ri(4,d===1?12:18),v=ri(0,d===1?4:5);
+   if(d===1){
+     if(v===0){
+       const n=ri(1,den-1),items=[
+         {label:frac(n,den),key:'p'},
+         {label:frac(den,den),key:'a'},
+         {label:frac(den+ri(1,3),den),key:'b'},
+         {label:frac(den+ri(4,6),den),key:'c'}
+       ];
+       return choiceQuestion(base,'Из дробей со знаменателем '+den+' выбери правильную (меньше единицы).',items,'p',
+         'У правильной дроби числитель меньше знаменателя.',v,[den,n]);
+     }
+     if(v===1){
+       const n=den+ri(1,5),items=[
+         {label:frac(n,den),key:'imp'},
+         {label:frac(1,den),key:'a'},
+         {label:frac(den-1,den),key:'b'},
+         {label:frac(den,den),key:'c'}
+       ];
+       return choiceQuestion(base,'Из дробей со знаменателем '+den+' найди ту, которая больше единицы.',items,'imp',
+         'Дробь больше 1, если числитель больше знаменателя.',v,[den,n]);
+     }
+     if(v===2){
+       const items=[
+         {label:frac(den,den),key:'eq'},
+         {label:frac(den-1,den),key:'a'},
+         {label:frac(den+1,den),key:'b'},
+         {label:frac(1,den),key:'c'}
+       ];
+       return choiceQuestion(base,'Из дробей со знаменателем '+den+' выбери ту, которая равна единице.',items,'eq',
+         'Дробь равна 1, когда числитель равен знаменателю.',v,[den]);
+     }
+     if(v===3)return numberChoice(base,'При знаменателе '+den+' найди наибольший натуральный числитель правильной дроби.',den-1,
+       'Числитель должен быть меньше '+den+'. Наибольшее значение: '+(den-1)+'.',v,[den]);
+     const n=ri(1,den-2),add=den-n;
+     return numberChoice(base,'Дробь '+frac(n,den)+' правильная. На сколько минимум нужно увеличить числитель, чтобы она стала неправильной?',add,
+       'Неправильная дробь начинается с числителя '+den+'. Нужно прибавить '+den+' − '+n+' = '+add+'.',v,[den,n]);
+   }
+   if(v===0||v===1){
+     const k=ri(1,3),target=v===0?'правильных':'неправильных',isProper=(i)=>i<k;
+     const parts=[];
+     for(let i=0;i<4;i++){const b=den+i,n=isProper(i)?ri(1,b-1):b+ri(0,4);parts.push([n,b])}
+     const expected=v===0?k:4-k;
+     return numberChoice(base,'Сколько '+target+' дробей среди '+parts.map(p=>frac(p[0],p[1])).join(', ')+'?',expected,
+       'У правильной дроби числитель меньше знаменателя; у неправильной — не меньше.',v,parts.flat());
+   }
+   if(v===2){const n=ri(1,den-1),add=den-n;
+     return numberChoice(base,'Числитель дроби '+frac(n,den)+' увеличивают на натуральное число. На сколько минимум его нужно увеличить, чтобы дробь стала неправильной?',add,
+       'Прибавь '+add+', тогда числитель станет равен знаменателю '+den+'.',v,[den,n]);
+   }
+   if(v===3)return numberChoice(base,'Если знаменатель дроби равен '+den+', сколько существует правильных дробей с натуральным числителем?',den-1,
+     'Числитель можно выбрать от 1 до '+(den-1)+'. Таких чисел '+(den-1)+'.',v,[den]);
+   if(v===4){
+     const wrongPairs=[
+       {label:frac(den-1,den)+' и '+frac(den,den),key:'a'},
+       {label:frac(den,den)+' и '+frac(den-1,den),key:'b'},
+       {label:frac(1,den)+' и '+frac(den-2,den),key:'c'}
+     ];
+     const ans={label:frac(den,den)+' и '+frac(den+1,den),key:'both'};
+     return choiceQuestion(base,'В какой паре обе дроби неправильные?', [ans,...wrongPairs],'both',
+       'Для неправильной дроби числитель больше либо равен знаменателю.',v,[den]);
+   }
+   const n=ri(den+1,den+5);
+   return numberChoice(base,'У неправильной дроби числитель '+n+'. Какой наибольший натуральный знаменатель можно поставить, чтобы дробь осталась неправильной?',n,
+     'Дробь неправильная, если знаменатель не больше числителя.',v,[den,n]);
+ }
+ const make5=makeG5Question;
+ makeG5Question=function(id){
+   const q=make5.apply(this,arguments);
+   return id==='frac_types'?grade5FractionTypes(q):q;
+ };
+ function countNoun(n){
+   const v=Math.abs(Number(n)),t=v%10,h=v%100;
+   if(h>=11&&h<=14)return 'деталей';
+   if(t===1)return 'деталь';
+   if(t>=2&&t<=4)return 'детали';
+   return 'деталей';
+ }
+ function grade6CircleArea(base,id,stage){
+   if(String(id).replace(/^g6:/,'')!=='circle_area'||stage>1)return base;
+   // Half of generation uses the existing generator to preserve proven visual variants.
+   if(Math.random()<0.35)return base;
+   const r=ri(2,stage===0?10:12),family=stage===0?ri(0,3):ri(0,4);
+   const full=314*r*r; // exact integer in hundredths
+   let scaled=full,divisor=100,prompt,reason,tag;
+   if(stage===0){
+     if(family===0){prompt='Круглая клумба радиуса '+r+' м. Найди её площадь (м²), считая π ≈ 3,14.';tag='flowerbed'}
+     else if(family===1){prompt='Диаметр круга равен '+(2*r)+' см. Найди площадь (см²), считая π ≈ 3,14.';tag='diameter'}
+     else if(family===2){prompt='Круг вырезан из бумаги, его радиус '+r+' см. Сколько квадратных сантиметров занимает круг при π ≈ 3,14?';tag='paper'}
+     else {prompt='Найди площадь круга с радиусом '+r+' см по формуле S = πr². Считай π ≈ 3,14.';tag='formula'}
+     reason='Площадь круга S = πr² = 3,14 · '+r+'² = '+(full/100).toFixed(2).replace('.',',')+'.';
+   }else{
+     if(family===0){divisor=200;prompt='Радиус круглого листа '+r+' см. От него отрезали половину. Найди площадь полукруга (см²) при π ≈ 3,14.';tag='half'}
+     else if(family===1){divisor=400;prompt='Радиус круглого сектора, составляющего четверть круга, '+r+' см. Найди площадь сектора (см²) при π ≈ 3,14.';tag='quarter'}
+     else if(family===2){prompt='Диаметр круглой площадки '+(2*r)+' м. Найди её площадь (м²), считая π ≈ 3,14.';tag='diameter'}
+     else if(family===3){scaled=full*2;prompt='Два одинаковых круглых коврика имеют радиус '+r+' см каждый. Какова их общая площадь (см²) при π ≈ 3,14?';tag='two_discs'}
+     else {prompt='Круг имеет радиус '+r+' см. Найди площадь круга (см²), считая π ≈ 3,14.';tag='circle'}
+     reason='Один круг: S = 3,14 · '+r+'² = '+(full/100).toFixed(2).replace('.',',')+'. '+(tag==='half'?'Для полукруга делим на 2.':tag==='quarter'?'Для четверти круга делим на 4.':tag==='two_discs'?'Для двух кругов умножаем на 2.':'');
+   }
+   const ans=rational(scaled,divisor);
+   // Keep integer numerator and denominator for half/quarter circle areas.
+   const sig='g6:circle_area:s18c:'+stage+':'+tag+':'+r;
+   const q=g6NumberInputQuestion(prompt,ans,reason,sig,{audit:{type:'s18cCircleArea',variant:tag,radius:r,stage,areaNumerator:scaled,areaDenominator:divisor}});
+   return {...q,sourceTopicId:'g6:circle_area'};
+ }
+ const make6=makeG6Question;
+ makeG6Question=function(id,stage){
+   const generated=make6.apply(this,arguments),topic=String(id||'').replace(/^g6:/,'');
+   if(topic==='circle_area')return grade6CircleArea(generated,id,Number(stage??activeDifficulty()));
+   if(topic==='ratio_value'&&typeof generated?.text==='string'){
+     const text=generated.text.replace(/В одной коробке (\d+) одинаковых деталей/g,
+       (_match,count)=>'В одной коробке '+count+' '+countNoun(count));
+     return text===generated.text?generated:{...generated,text};
+   }
+   return generated;
+ };
+})();
+</script>
+
+
+<script id="matkvest-stage18d-grammar">
+/* HTML formatting of numerals is preserved while correcting Russian agreement. */
+(function(){
+ function russianDetails(n){
+   const u=Math.abs(n),ten=u%10,teens=u%100;
+   return teens>=11&&teens<=14?'деталей':ten===1?'деталь':ten>=2&&ten<=4?'детали':'деталей';
+ }
+ const before=makeG6Question;
+ makeG6Question=function(id){
+   const q=before.apply(this,arguments);
+   if(String(id||'').replace(/^g6:/,'')!=='ratio_value'||typeof q?.text!=='string')return q;
+   const text=q.text.replace(/В одной коробке\s+((?:<b>\s*)?\d+(?:\s*<\/b>)?)\s+одинаковых деталей/g,
+     (_all,countText)=>'В одной коробке '+countText+' '+russianDetails(Number(countText.replace(/<[^>]*>/g,''))));
+   return text===q.text?q:{...q,text};
+ };
+})();
+</script>
+
+
+<script id="matkvest-stage18g-sectors">
+/* "2 равных сектора", "5 равных секторов", "21 равный сектор". */
+(function(){
+ function sectorPhrase(number){
+   const n=Math.abs(Number(number)),t=n%10,h=n%100;
+   if(h>=11&&h<=14)return 'равных секторов';
+   if(t===1)return 'равный сектор';
+   if(t>=2&&t<=4)return 'равных сектора';
+   return 'равных секторов';
+ }
+ const original=makeG5Question;
+ makeG5Question=function(id){
+   const question=original.apply(this,arguments);
+   if(id!=='charts'||typeof question?.text!=='string')return question;
+   const text=question.text.replace(/(\d+)\s+равных\s+секторов/gi,(_,n)=>n+' '+sectorPhrase(n));
+   return text===question.text?question:{...question,text,
+     sig:String(question.sig||'')+':s18g-sector-copy'};
+ };
+})();
+</script>
+
 </body></html>
