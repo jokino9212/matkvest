@@ -1,0 +1,728 @@
+{
+  "sourceHash": "4dea66f5bfa2f203d11595d2a24d6e504d97a4069f4a228563abfc8360688017",
+  "tests": 20,
+  "passed": 20,
+  "failed": [],
+  "result": {
+    "grade7TextInput": true,
+    "fieldGeometry": {
+      "fractionStacked": true,
+      "wholeIsLeft": true,
+      "barVisible": true,
+      "buttons": true,
+      "mobileFits": true,
+      "labels": [
+        "Целая часть, если есть",
+        "Числитель",
+        "Знаменатель"
+      ]
+    },
+    "g5TypeSamples": [
+      {
+        "mode": "fraction",
+        "rat": {
+          "n": 1,
+          "d": 2
+        },
+        "correctText": "1/2",
+        "label": "<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">2</span></span>"
+      },
+      {
+        "mode": "fraction",
+        "rat": {
+          "n": 1,
+          "d": 3
+        },
+        "correctText": "1/3",
+        "label": "<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">3</span></span>"
+      },
+      {
+        "mode": "fraction",
+        "rat": {
+          "n": 1,
+          "d": 1
+        },
+        "correctText": "1/1",
+        "label": "<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">1</span></span>"
+      },
+      {
+        "mode": "fraction",
+        "rat": {
+          "n": 2,
+          "d": 3
+        },
+        "correctText": "2/3",
+        "label": "<span class=\"frac\"><span class=\"num\">2</span><span class=\"den\">3</span></span>"
+      },
+      {
+        "mode": "fraction",
+        "rat": {
+          "n": 7,
+          "d": 10
+        },
+        "correctText": "7/10",
+        "label": "<span class=\"frac\"><span class=\"num\">7</span><span class=\"den\">10</span></span>"
+      },
+      {
+        "mode": "fraction",
+        "rat": {
+          "n": 4,
+          "d": 7
+        },
+        "correctText": "4/7",
+        "label": "<span class=\"frac\"><span class=\"num\">4</span><span class=\"den\">7</span></span>"
+      },
+      {
+        "mode": "fraction",
+        "rat": {
+          "n": 1,
+          "d": 1
+        },
+        "correctText": "1/1",
+        "label": "<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">1</span></span>"
+      },
+      {
+        "mode": "fraction",
+        "rat": {
+          "n": 1,
+          "d": 1
+        },
+        "correctText": "1/1",
+        "label": "<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">1</span></span>"
+      },
+      {
+        "mode": "fraction",
+        "rat": {
+          "n": 1,
+          "d": 2
+        },
+        "correctText": "1/2",
+        "label": "<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">2</span></span>"
+      },
+      {
+        "mode": "fraction",
+        "rat": {
+          "n": 1,
+          "d": 5
+        },
+        "correctText": "1/5",
+        "label": "<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">5</span></span>"
+      },
+      {
+        "mode": "fraction",
+        "rat": {
+          "n": 1,
+          "d": 1
+        },
+        "correctText": "1/1",
+        "label": "<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">1</span></span>"
+      },
+      {
+        "mode": "fraction",
+        "rat": {
+          "n": 3,
+          "d": 10
+        },
+        "correctText": "3/10",
+        "label": "<span class=\"frac\"><span class=\"num\">3</span><span class=\"den\">10</span></span>"
+      },
+      {
+        "mode": "fraction",
+        "rat": {
+          "n": 1,
+          "d": 3
+        },
+        "correctText": "1/3",
+        "label": "<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">3</span></span>"
+      },
+      {
+        "mode": "fraction",
+        "rat": {
+          "n": 7,
+          "d": 8
+        },
+        "correctText": "7/8",
+        "label": "<span class=\"frac\"><span class=\"num\">7</span><span class=\"den\">8</span></span>"
+      },
+      {
+        "mode": "fraction",
+        "rat": {
+          "n": 1,
+          "d": 10
+        },
+        "correctText": "1/10",
+        "label": "<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">10</span></span>"
+      },
+      {
+        "mode": "fraction",
+        "rat": {
+          "n": 1,
+          "d": 5
+        },
+        "correctText": "1/5",
+        "label": "<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">5</span></span>"
+      },
+      {
+        "mode": "fraction",
+        "rat": {
+          "n": 1,
+          "d": 4
+        },
+        "correctText": "1/4",
+        "label": "<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">4</span></span>"
+      },
+      {
+        "mode": "fraction",
+        "rat": {
+          "n": 1,
+          "d": 2
+        },
+        "correctText": "1/2",
+        "label": "<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">2</span></span>"
+      },
+      {
+        "mode": "fraction",
+        "rat": {
+          "n": 1,
+          "d": 1
+        },
+        "correctText": "1/1",
+        "label": "<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">1</span></span>"
+      },
+      {
+        "mode": "fraction",
+        "rat": {
+          "n": 1,
+          "d": 4
+        },
+        "correctText": "1/4",
+        "label": "<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">4</span></span>"
+      },
+      {
+        "mode": "fraction",
+        "rat": {
+          "n": 4,
+          "d": 5
+        },
+        "correctText": "4/5",
+        "label": "<span class=\"frac\"><span class=\"num\">4</span><span class=\"den\">5</span></span>"
+      },
+      {
+        "mode": "fraction",
+        "rat": {
+          "n": 1,
+          "d": 3
+        },
+        "correctText": "1/3",
+        "label": "<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">3</span></span>"
+      },
+      {
+        "mode": "fraction",
+        "rat": {
+          "n": 3,
+          "d": 10
+        },
+        "correctText": "3/10",
+        "label": "<span class=\"frac\"><span class=\"num\">3</span><span class=\"den\">10</span></span>"
+      },
+      {
+        "mode": "fraction",
+        "rat": {
+          "n": 3,
+          "d": 8
+        },
+        "correctText": "3/8",
+        "label": "<span class=\"frac\"><span class=\"num\">3</span><span class=\"den\">8</span></span>"
+      },
+      {
+        "mode": "fraction",
+        "rat": {
+          "n": 1,
+          "d": 2
+        },
+        "correctText": "1/2",
+        "label": "<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">2</span></span>"
+      },
+      {
+        "mode": "fraction",
+        "rat": {
+          "n": 2,
+          "d": 5
+        },
+        "correctText": "2/5",
+        "label": "<span class=\"frac\"><span class=\"num\">2</span><span class=\"den\">5</span></span>"
+      },
+      {
+        "mode": "fraction",
+        "rat": {
+          "n": 1,
+          "d": 2
+        },
+        "correctText": "1/2",
+        "label": "<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">2</span></span>"
+      },
+      {
+        "mode": "fraction",
+        "rat": {
+          "n": 1,
+          "d": 7
+        },
+        "correctText": "1/7",
+        "label": "<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">7</span></span>"
+      },
+      {
+        "mode": "fraction",
+        "rat": {
+          "n": 2,
+          "d": 7
+        },
+        "correctText": "2/7",
+        "label": "<span class=\"frac\"><span class=\"num\">2</span><span class=\"den\">7</span></span>"
+      },
+      {
+        "mode": "fraction",
+        "rat": {
+          "n": 1,
+          "d": 1
+        },
+        "correctText": "1/1",
+        "label": "<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">1</span></span>"
+      },
+      {
+        "mode": "fraction",
+        "rat": {
+          "n": 1,
+          "d": 1
+        },
+        "correctText": "1/1",
+        "label": "<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">1</span></span>"
+      },
+      {
+        "mode": "fraction",
+        "rat": {
+          "n": 1,
+          "d": 1
+        },
+        "correctText": "1/1",
+        "label": "<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">1</span></span>"
+      },
+      {
+        "mode": "fraction",
+        "rat": {
+          "n": 1,
+          "d": 5
+        },
+        "correctText": "1/5",
+        "label": "<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">5</span></span>"
+      },
+      {
+        "mode": "fraction",
+        "rat": {
+          "n": 1,
+          "d": 1
+        },
+        "correctText": "1/1",
+        "label": "<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">1</span></span>"
+      },
+      {
+        "mode": "fraction",
+        "rat": {
+          "n": 1,
+          "d": 8
+        },
+        "correctText": "1/8",
+        "label": "<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">8</span></span>"
+      },
+      {
+        "mode": "fraction",
+        "rat": {
+          "n": 1,
+          "d": 3
+        },
+        "correctText": "1/3",
+        "label": "<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">3</span></span>"
+      },
+      {
+        "mode": "fraction",
+        "rat": {
+          "n": 1,
+          "d": 8
+        },
+        "correctText": "1/8",
+        "label": "<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">8</span></span>"
+      },
+      {
+        "mode": "fraction",
+        "rat": {
+          "n": 1,
+          "d": 1
+        },
+        "correctText": "1/1",
+        "label": "<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">1</span></span>"
+      },
+      {
+        "mode": "fraction",
+        "rat": {
+          "n": 1,
+          "d": 1
+        },
+        "correctText": "1/1",
+        "label": "<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">1</span></span>"
+      },
+      {
+        "mode": "fraction",
+        "rat": {
+          "n": 4,
+          "d": 5
+        },
+        "correctText": "4/5",
+        "label": "<span class=\"frac\"><span class=\"num\">4</span><span class=\"den\">5</span></span>"
+      },
+      {
+        "mode": "fraction",
+        "rat": {
+          "n": 3,
+          "d": 4
+        },
+        "correctText": "3/4",
+        "label": "<span class=\"frac\"><span class=\"num\">3</span><span class=\"den\">4</span></span>"
+      },
+      {
+        "mode": "fraction",
+        "rat": {
+          "n": 1,
+          "d": 10
+        },
+        "correctText": "1/10",
+        "label": "<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">10</span></span>"
+      },
+      {
+        "mode": "fraction",
+        "rat": {
+          "n": 1,
+          "d": 2
+        },
+        "correctText": "1/2",
+        "label": "<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">2</span></span>"
+      },
+      {
+        "mode": "fraction",
+        "rat": {
+          "n": 1,
+          "d": 5
+        },
+        "correctText": "1/5",
+        "label": "<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">5</span></span>"
+      },
+      {
+        "mode": "fraction",
+        "rat": {
+          "n": 5,
+          "d": 9
+        },
+        "correctText": "5/9",
+        "label": "<span class=\"frac\"><span class=\"num\">5</span><span class=\"den\">9</span></span>"
+      },
+      {
+        "mode": "fraction",
+        "rat": {
+          "n": 1,
+          "d": 1
+        },
+        "correctText": "1/1",
+        "label": "<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">1</span></span>"
+      },
+      {
+        "mode": "fraction",
+        "rat": {
+          "n": 1,
+          "d": 3
+        },
+        "correctText": "1/3",
+        "label": "<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">3</span></span>"
+      },
+      {
+        "mode": "fraction",
+        "rat": {
+          "n": 9,
+          "d": 10
+        },
+        "correctText": "9/10",
+        "label": "<span class=\"frac\"><span class=\"num\">9</span><span class=\"den\">10</span></span>"
+      },
+      {
+        "mode": "fraction",
+        "rat": {
+          "n": 1,
+          "d": 1
+        },
+        "correctText": "1/1",
+        "label": "<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">1</span></span>"
+      },
+      {
+        "mode": "fraction",
+        "rat": {
+          "n": 1,
+          "d": 1
+        },
+        "correctText": "1/1",
+        "label": "<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">1</span></span>"
+      },
+      {
+        "mode": "fraction",
+        "rat": {
+          "n": 2,
+          "d": 7
+        },
+        "correctText": "2/7",
+        "label": "<span class=\"frac\"><span class=\"num\">2</span><span class=\"den\">7</span></span>"
+      },
+      {
+        "mode": "fraction",
+        "rat": {
+          "n": 2,
+          "d": 7
+        },
+        "correctText": "2/7",
+        "label": "<span class=\"frac\"><span class=\"num\">2</span><span class=\"den\">7</span></span>"
+      },
+      {
+        "mode": "fraction",
+        "rat": {
+          "n": 4,
+          "d": 5
+        },
+        "correctText": "4/5",
+        "label": "<span class=\"frac\"><span class=\"num\">4</span><span class=\"den\">5</span></span>"
+      },
+      {
+        "mode": "fraction",
+        "rat": {
+          "n": 2,
+          "d": 9
+        },
+        "correctText": "2/9",
+        "label": "<span class=\"frac\"><span class=\"num\">2</span><span class=\"den\">9</span></span>"
+      },
+      {
+        "mode": "fraction",
+        "rat": {
+          "n": 1,
+          "d": 10
+        },
+        "correctText": "1/10",
+        "label": "<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">10</span></span>"
+      },
+      {
+        "mode": "fraction",
+        "rat": {
+          "n": 5,
+          "d": 7
+        },
+        "correctText": "5/7",
+        "label": "<span class=\"frac\"><span class=\"num\">5</span><span class=\"den\">7</span></span>"
+      },
+      {
+        "mode": "fraction",
+        "rat": {
+          "n": 4,
+          "d": 7
+        },
+        "correctText": "4/7",
+        "label": "<span class=\"frac\"><span class=\"num\">4</span><span class=\"den\">7</span></span>"
+      },
+      {
+        "mode": "fraction",
+        "rat": {
+          "n": 1,
+          "d": 1
+        },
+        "correctText": "1/1",
+        "label": "<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">1</span></span>"
+      },
+      {
+        "mode": "fraction",
+        "rat": {
+          "n": 1,
+          "d": 1
+        },
+        "correctText": "1/1",
+        "label": "<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">1</span></span>"
+      },
+      {
+        "mode": "fraction",
+        "rat": {
+          "n": 7,
+          "d": 10
+        },
+        "correctText": "7/10",
+        "label": "<span class=\"frac\"><span class=\"num\">7</span><span class=\"den\">10</span></span>"
+      },
+      {
+        "mode": "fraction",
+        "rat": {
+          "n": 2,
+          "d": 5
+        },
+        "correctText": "2/5",
+        "label": "<span class=\"frac\"><span class=\"num\">2</span><span class=\"den\">5</span></span>"
+      },
+      {
+        "mode": "fraction",
+        "rat": {
+          "n": 1,
+          "d": 1
+        },
+        "correctText": "1/1",
+        "label": "<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">1</span></span>"
+      },
+      {
+        "mode": "fraction",
+        "rat": {
+          "n": 1,
+          "d": 1
+        },
+        "correctText": "1/1",
+        "label": "<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">1</span></span>"
+      },
+      {
+        "mode": "fraction",
+        "rat": {
+          "n": 1,
+          "d": 5
+        },
+        "correctText": "1/5",
+        "label": "<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">5</span></span>"
+      },
+      {
+        "mode": "fraction",
+        "rat": {
+          "n": 1,
+          "d": 2
+        },
+        "correctText": "1/2",
+        "label": "<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">2</span></span>"
+      },
+      {
+        "mode": "fraction",
+        "rat": {
+          "n": 3,
+          "d": 7
+        },
+        "correctText": "3/7",
+        "label": "<span class=\"frac\"><span class=\"num\">3</span><span class=\"den\">7</span></span>"
+      },
+      {
+        "mode": "fraction",
+        "rat": {
+          "n": 2,
+          "d": 3
+        },
+        "correctText": "2/3",
+        "label": "<span class=\"frac\"><span class=\"num\">2</span><span class=\"den\">3</span></span>"
+      },
+      {
+        "mode": "fraction",
+        "rat": {
+          "n": 4,
+          "d": 5
+        },
+        "correctText": "4/5",
+        "label": "<span class=\"frac\"><span class=\"num\">4</span><span class=\"den\">5</span></span>"
+      },
+      {
+        "mode": "fraction",
+        "rat": {
+          "n": 9,
+          "d": 10
+        },
+        "correctText": "9/10",
+        "label": "<span class=\"frac\"><span class=\"num\">9</span><span class=\"den\">10</span></span>"
+      },
+      {
+        "mode": "fraction",
+        "rat": {
+          "n": 1,
+          "d": 2
+        },
+        "correctText": "1/2",
+        "label": "<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">2</span></span>"
+      }
+    ],
+    "g5RawSamples": [
+      {
+        "ans": "1/2",
+        "label": "<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">2</span></span>",
+        "mode": "fraction",
+        "templateId": "read_from_words_0",
+        "text": "Запиши дробью: «одна вторая»."
+      },
+      {
+        "ans": "1/3",
+        "label": "<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">3</span></span>",
+        "mode": "fraction",
+        "templateId": "read_from_words_0",
+        "text": "Запиши дробью: «одна третья»."
+      },
+      {
+        "ans": "1/1",
+        "label": "<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">1</span></span>",
+        "mode": "fraction",
+        "templateId": "read_from_words_0",
+        "text": "Запиши дробью: «четыре четвёртых»."
+      },
+      {
+        "ans": "2/3",
+        "label": "<span class=\"frac\"><span class=\"num\">2</span><span class=\"den\">3</span></span>",
+        "mode": "fraction",
+        "templateId": "read_from_words_0",
+        "text": "Запиши дробью: «две третьих»."
+      },
+      {
+        "ans": "7/10",
+        "label": "<span class=\"frac\"><span class=\"num\">7</span><span class=\"den\">10</span></span>",
+        "mode": "fraction",
+        "templateId": "read_from_words_0",
+        "text": "Запиши дробью: «семь десятых»."
+      },
+      {
+        "ans": "4/7",
+        "label": "<span class=\"frac\"><span class=\"num\">4</span><span class=\"den\">7</span></span>",
+        "mode": "fraction",
+        "templateId": "read_from_words_0",
+        "text": "Запиши дробью: «четыре седьмых»."
+      },
+      {
+        "ans": "1/1",
+        "label": "<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">1</span></span>",
+        "mode": "fraction",
+        "templateId": "read_from_words_0",
+        "text": "Запиши дробью: «шесть шестых»."
+      },
+      {
+        "ans": "1/1",
+        "label": "<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">1</span></span>",
+        "mode": "fraction",
+        "templateId": "read_from_words_0",
+        "text": "Запиши дробью: «четыре четвёртых»."
+      }
+    ],
+    "g5AdapterPatched": true,
+    "g5ConverterSource": "function stage18ConvertG5Fraction(result,source){\n const k=String(source?.correct??\"\"),label=String(result.correctLabel||\"\");\n if(!/class=\"(?:frac|mixed)\"/.test(label))return result;\n const simple=k.match(/^([+-]?\\d+)\\/([1-9]\\d*)$/),mix=k.match(/^([+-]?\\d+)_([0-9]+)_([1-9]\\d*)$/);\n let a=null;\n if(simple)a=rational(Number(simple[1]),Number(simple[2]));\n else if(mix){\n   const w=Number(mix[1]),n=Number(mix[2]),d=Number(mix[3]);\n   if(!Number.isSafeInteger(w)||!Number.isSafeInteger(n)||!Number.isSafeInteger(d)||n>=d)return result;\n   a=rational((w<0?-1:1)*(Math.abs(w)*d+n),d);\n }\n if(!a)return result;\n return {...result,answerMode:\"fraction\",answerRat:a,preferMixed:!!mix,requireReduced:/сократ|несократ/i.test(String(result.text||\"\")),correctHtml:label,correctText:result.correctText};\n}",
+    "g5VisualInput": true,
+    "otherG5Choice": "choice",
+    "cases": {
+      "proper": true,
+      "properBad": true,
+      "empty": true,
+      "missing": true,
+      "zero": true,
+      "mixed": true,
+      "improper": true,
+      "integer": true,
+      "notReduced": true,
+      "reduced": true
+    }
+  },
+  "pageErrors": []
+}

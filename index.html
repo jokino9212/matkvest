@@ -1572,6 +1572,21 @@ body:has(.mk872-help-layer){overflow:hidden}
 .shop-icon:has(>.mk-golden-pig-img){overflow:hidden;}
 .pet-mini>.mk-golden-pig-img,.study-pet>.mk-golden-pig-img{width:100%;height:100%;object-fit:contain;}
 </style>
+<style id="matkvest-stage18-fraction-input">
+.stage18-frac-wrap{text-align:center}
+.stage18-frac-entry{display:flex;justify-content:center;align-items:flex-end;gap:18px;flex-wrap:wrap;margin:13px auto 10px;max-width:100%}
+.stage18-frac-part{display:flex;flex-direction:column;align-items:center;gap:7px;color:var(--ink);font-weight:800;font-size:13px}
+.stage18-frac-stack{display:flex;flex-direction:column;align-items:center;gap:4px}
+.stage18-frac-cell{width:64px;height:56px;box-sizing:border-box;text-align:center;border:2px solid #93a8bd;border-radius:9px;background:#fff;font-weight:850;font-size:27px;color:var(--ink);padding:3px;box-shadow:0 1px 4px #19354914}
+.stage18-frac-cell:focus{border-color:#2770da;outline:3px solid #7eb2ff66;outline-offset:1px}
+.stage18-frac-cell.bad{border-color:#cf3838;background:#fff0f0}
+.stage18-frac-cell.good{border-color:#39a56e;background:#e8f7ef}
+.stage18-frac-bar{height:3px;width:72px;background:var(--ink);border-radius:5px;margin:0 auto}
+.stage18-frac-title{font-weight:800;font-size:14px;margin:2px 0 0}
+.stage18-frac-label{font-size:12px;line-height:1.35;max-width:115px;color:var(--muted);text-align:center;min-height:32px}
+.stage18-frac-note{color:var(--muted);font-size:12px;line-height:1.45;margin:4px auto 8px}
+@media(max-width:480px){.stage18-frac-entry{gap:10px}.stage18-frac-cell{width:55px;height:52px;font-size:23px}.stage18-frac-bar{width:63px}.stage18-frac-label{font-size:11px;max-width:98px}}
+</style>
 </head>
 <body>
 <div class="shell">
@@ -2397,7 +2412,7 @@ function makeG5Question(id){
  const qq=g5DonorQuestion(sourceTopicId);
  const correctChoice=qq.choices.find(c=>String(c.key)===String(qq.correct));
  const correctLabel=correctChoice?.label??qq.correctLabel??qq.correct;
- return {
+ const result={
    text:qq.text,
    ans:String(qq.correct),
    choices:qq.choices.map(c=>({label:c.label,key:String(c.key)})),
@@ -2410,6 +2425,7 @@ function makeG5Question(id){
    // Это позволяет anti-repeat различать, например, разные пары сравниваемых дробей.
    sig:`g5:${requestedId}:${sourceTopicId}:${qq.templateId||"base"}:${activeDifficulty()}:${stripHtmlText(qq.text)}:${String(qq.correct)}:${qq.choices.map(c=>academicHtmlPlain(c.label)).sort().join("~")}`
  };
+ return stage18ConvertG5Fraction(result,qq);
 }
 
 
@@ -10484,9 +10500,56 @@ function correctChoicePlain(question){
  const c=question?.choices?.find(x=>String(x.key)===String(question.ans));
  return c?choicePlain(c):String(question?.correctText||question?.ans||"");
 }
+/* STAGE18 - pedagogical field-based fraction input for grades 5 and 6 only. */
+function stage18UsesFractionBoxes(question=q){
+ return question?.answerMode==="fraction"&&(keyGrade(qid)===5||keyGrade(qid)===6);
+}
+function stage18FractionMarkup(nextHandler,skipHandler,hint){
+ const whole='<label class="stage18-frac-part"><span class="stage18-frac-label">Целая часть<br>(если есть)</span><input id="quizFracWhole" class="stage18-frac-cell" autocomplete="off" inputmode="text" aria-label="Целая часть, если есть" placeholder="—"></label>';
+ const frac='<div class="stage18-frac-part"><div class="stage18-frac-label">Дробная часть</div><div class="stage18-frac-stack"><input id="quizFracNum" class="stage18-frac-cell" autocomplete="off" inputmode="text" aria-label="Числитель" placeholder="числ."><div class="stage18-frac-bar" role="presentation"></div><input id="quizFracDen" class="stage18-frac-cell" autocomplete="off" inputmode="numeric" aria-label="Знаменатель" placeholder="знам."></div></div>';
+ return '<div class="quiz-input-wrap stage18-frac-wrap"><div class="quiz-input-label stage18-frac-title">Запиши ответ в клеточках</div><div class="stage18-frac-entry">'+whole+frac+'</div><div class="stage18-frac-note">Сверху — числитель, снизу — знаменатель. Целую часть заполняй только при необходимости.</div></div><div class="feedback" id="qfb"></div><div class="actions"><button id="quizCheck" class="btn primary" onclick="checkQuizInput()">Проверить</button><button id="quizNext" class="btn primary" style="display:none" onclick="'+nextHandler+'()">Следующий пример →</button><button id="quizSkip" class="btn soft" onclick="'+skipHandler+'()">⏭ Пропустить задание</button></div>';
+}
+function stage18FractionFields(){
+ return {stage18Fraction:true,whole:String(document.getElementById("quizFracWhole")?.value||"").trim(),numerator:String(document.getElementById("quizFracNum")?.value||"").trim(),denominator:String(document.getElementById("quizFracDen")?.value||"").trim()};
+}
+function stage18FractionStudentText(raw){
+ const w=String(raw?.whole||"").trim(),n=String(raw?.numerator||"").trim(),d=String(raw?.denominator||"").trim();
+ return n&&d?(w?w+" ":"")+n+"/"+d:w||[n,d].filter(Boolean).join("/");
+}
+function stage18ParseFractionFields(raw){
+ const w=String(raw?.whole||"").trim(),n=String(raw?.numerator||"").trim(),d=String(raw?.denominator||"").trim();
+ if(!w&&!n&&!d)return {ok:false,empty:true,error:"empty"};
+ if(w&&!n&&!d)return parseRationalInput(w);
+ if(!n||!d)return {ok:false,error:"missing-part"};
+ if(!/^[+-]?\d+$/.test(n)||!/^[+-]?\d+$/.test(d))return {ok:false,error:"invalid"};
+ if(!w)return parseRationalInput(n+"/"+d);
+ if(!/^[+-]?\d+$/.test(w)||!/^\d+$/.test(n)||!/^\d+$/.test(d))return {ok:false,error:"invalid"};
+ return parseRationalInput(w+" "+n+"/"+d);
+}
+function stage18FocusFractionMissing(raw){
+ const f=raw?.stage18Fraction?raw:stage18FractionFields();
+ const id=!f.numerator&&(!f.whole||f.denominator)?"quizFracNum":f.numerator&&!f.denominator?"quizFracDen":!f.whole&&!f.numerator?"quizFracNum":"quizFracWhole";
+ document.getElementById(id)?.focus();
+}
+function stage18ConvertG5Fraction(result,source){
+ const k=String(source?.correct??""),label=String(result.correctLabel||"");
+ if(!/class="(?:frac|mixed)"/.test(label))return result;
+ const simple=k.match(/^([+-]?\d+)\/([1-9]\d*)$/),mix=k.match(/^([+-]?\d+)_([0-9]+)_([1-9]\d*)$/);
+ let a=null;
+ if(simple)a=rational(Number(simple[1]),Number(simple[2]));
+ else if(mix){
+   const w=Number(mix[1]),n=Number(mix[2]),d=Number(mix[3]);
+   if(!Number.isSafeInteger(w)||!Number.isSafeInteger(n)||!Number.isSafeInteger(d)||n>=d)return result;
+   a=rational((w<0?-1:1)*(Math.abs(w)*d+n),d);
+ }
+ if(!a)return result;
+ return {...result,answerMode:"fraction",answerRat:a,preferMixed:!!mix,requireReduced:/сократ|несократ/i.test(String(result.text||"")),correctHtml:label,correctText:result.correctText};
+}
+
 function quizAnswerMarkup(nextHandler,skipHandler){
  if(q?.answerMode&&q.answerMode!=="choice"){
    const mode=q.answerMode,hint=q.inputHint||(mode==="fraction"?"Можно ввести обыкновенную дробь, смешанное число или целое.":mode==="ratio"?"Введите отношение, например: 2 : 3":mode==="multi"?"Введите числа по порядку через пробел, запятую или точку с запятой.":mode==="coordinate"?"Введите отдельно x и y.":"Введите ответ.");
+   if(stage18UsesFractionBoxes(q))return stage18FractionMarkup(nextHandler,skipHandler,hint);
    if(mode==="coordinate"){
      return `<div class="quiz-input-wrap"><div class="quiz-input-label">${esc(q.inputLabel||"Введите координаты")}</div><div class="coordinate-input-grid"><label class="coordinate-input-field"><span>x =</span><input id="quizInputX" class="coordinate-input" autocomplete="off" inputmode="decimal" aria-label="Абсцисса x"></label><label class="coordinate-input-field"><span>y =</span><input id="quizInputY" class="coordinate-input" autocomplete="off" inputmode="decimal" aria-label="Ордината y"></label></div><small class="quiz-input-hint">${esc(hint)}</small></div><div class="feedback" id="qfb"></div><div class="actions"><button id="quizCheck" class="btn primary" onclick="checkQuizInput()">Проверить</button><button id="quizNext" class="btn primary" style="display:none" onclick="${nextHandler}()">Следующий пример →</button><button id="quizSkip" class="btn soft" onclick="${skipHandler}()">⏭ Пропустить задание</button></div>`;
    }
@@ -10526,8 +10589,8 @@ function quizInputEvaluation(question,raw){
    return {valid:true,ok,studentHtml,studentText:raw,correctText,correctHtml,detail,retryMessage:equivalent&&!formOk?"🟡 Значение выражения верное, но ответ нужно <b>полностью упростить</b>. Попробуйте ещё раз.":"🟡 Пока неверно. Проверьте коэффициент при x и свободное число.",finalWrongMessage:equivalent&&!formOk?`🟡 Выражение равносильно правильному, но требуется упрощённая запись: <b>${correctHtml}</b>. ${question.ex}`:`💡 Правильный ответ: <b>${correctHtml}</b>. ${question.ex}`};
  }
  if(mode==="fraction"){
-   const parsed=parseRationalInput(raw);if(!parsed.ok)return {valid:false,message:parsed.error==="zero-denominator"?"Знаменатель не может быть равен нулю.":"Не удалось распознать ответ. Введите дробь, смешанное число или целое."};
-   const equivalent=rationalEq(parsed.rat,question.answerRat),formOk=!question.requireReduced||parsed.wasReduced,ok=equivalent&&formOk;return {valid:true,ok,studentHtml:quizFractionAnswerHtml(parsed),studentText:raw,correctText,correctHtml,detail:equivalent&&!formOk?"Значение верное, но дробь нужно сократить полностью.":`Правильный ответ: ${correctText}`,retryMessage:equivalent&&!formOk?"🟡 Значение верное, но дробь нужно <b>сократить полностью</b>. Попробуй ещё раз.":"🟡 Пока неверно. Попробуй ещё раз или пропусти задание.",finalWrongMessage:equivalent&&!formOk?`🟡 Значение дроби верное, но по условию её нужно <b>сократить полностью</b>. Правильный ответ: <b>${correctHtml}</b>. ${question.ex}`:`💡 Правильный ответ: <b>${correctHtml}</b>. ${question.ex}`};
+   const parsed=stage18UsesFractionBoxes(question)?stage18ParseFractionFields(raw):parseRationalInput(raw);if(!parsed.ok)return {valid:false,message:parsed.error==="zero-denominator"?"Знаменатель не может быть равен нулю.":parsed.error==="missing-part"?"Заполни числитель и знаменатель. Если ответ целый, заполни только целую часть.":"Проверь числа в клеточках."};
+   const equivalent=rationalEq(parsed.rat,question.answerRat),formOk=!question.requireReduced||parsed.wasReduced,ok=equivalent&&formOk;return {valid:true,ok,studentHtml:quizFractionAnswerHtml(parsed),studentText:stage18UsesFractionBoxes(question)?stage18FractionStudentText(raw):raw,correctText,correctHtml,detail:equivalent&&!formOk?"Значение верное, но дробь нужно сократить полностью.":`Правильный ответ: ${correctText}`,retryMessage:equivalent&&!formOk?"🟡 Значение верное, но дробь нужно <b>сократить полностью</b>. Попробуй ещё раз.":"🟡 Пока неверно. Попробуй ещё раз или пропусти задание.",finalWrongMessage:equivalent&&!formOk?`🟡 Значение дроби верное, но по условию её нужно <b>сократить полностью</b>. Правильный ответ: <b>${correctHtml}</b>. ${question.ex}`:`💡 Правильный ответ: <b>${correctHtml}</b>. ${question.ex}`};
  }
  if(mode==="number"){
    const parsed=parseExactNumberInput(raw,{allowPercent:!!question.allowPercent});if(!parsed.ok)return {valid:false,message:parsed.error==="percent-not-allowed"?"Знак % здесь вводить не нужно.":parsed.error==="too-many-decimals"?"Слишком много знаков после запятой.":"Не удалось распознать число. Можно использовать запятую или точку для десятичной дроби."};
@@ -10544,21 +10607,24 @@ function quizInputEvaluation(question,raw){
  return {valid:false,message:"Для этого задания не найден способ проверки ответа."};
 }
 function quizInputElements(question=q){
+ if(stage18UsesFractionBoxes(question))return ["quizFracWhole","quizFracNum","quizFracDen"].map(id=>document.getElementById(id)).filter(Boolean);
  if(question?.answerMode==="coordinate")return [document.getElementById("quizInputX"),document.getElementById("quizInputY")].filter(Boolean);
  if(question?.answerMode==="remainder")return [document.getElementById("quizInputQ"),document.getElementById("quizInputR")].filter(Boolean);
  const el=document.getElementById("quizInput");return el?[el]:[];
 }
 function quizInputRaw(question=q){
+ if(stage18UsesFractionBoxes(question))return stage18FractionFields();
  if(question?.answerMode==="coordinate")return {x:String(document.getElementById("quizInputX")?.value||"").trim(),y:String(document.getElementById("quizInputY")?.value||"").trim()};
  if(question?.answerMode==="remainder")return {q:String(document.getElementById("quizInputQ")?.value||"").trim(),r:String(document.getElementById("quizInputR")?.value||"").trim()};
  return String(document.getElementById("quizInput")?.value||"").trim();
 }
 function quizInputEmpty(question,raw){
+ if(stage18UsesFractionBoxes(question))return !raw?.whole&&!raw?.numerator&&!raw?.denominator;
  if(question?.answerMode==="coordinate")return !raw?.x||!raw?.y;
  if(question?.answerMode==="remainder")return !raw?.q||!raw?.r;
  return !String(raw||"").trim();
 }
-function focusQuizInput(){const el=q?.answerMode==="coordinate"?document.getElementById("quizInputX"):q?.answerMode==="remainder"?document.getElementById("quizInputQ"):document.getElementById("quizInput");el?.focus()}
+function focusQuizInput(){if(stage18UsesFractionBoxes(q)){const mixedExpected=q.preferMixed&&q.answerRat&&Math.abs(q.answerRat.n)>=q.answerRat.d;document.getElementById(mixedExpected?"quizFracWhole":"quizFracNum")?.focus();return}const el=q?.answerMode==="coordinate"?document.getElementById("quizInputX"):q?.answerMode==="remainder"?document.getElementById("quizInputQ"):document.getElementById("quizInput");el?.focus()}
 function quizAdvanceResolved(){
  if(!answered)return false;
  if(blockSession?.finished){finishBlock();return true}
@@ -10587,6 +10653,7 @@ function quizKeyboard(e){
    if(!String(qq?.value||"").trim()){if(fb)fb.textContent="Введите частное.";qq?.focus();return}
    if(!String(rr?.value||"").trim()){if(fb)fb.textContent="Введите остаток.";rr?.focus();return}
  }
+ if(stage18UsesFractionBoxes(q)){const raw=stage18FractionFields();if(!raw.whole&&!raw.numerator&&!raw.denominator){document.getElementById("quizFracNum")?.focus();return}if((raw.numerator||raw.denominator)&&!raw.numerator){document.getElementById("quizFracNum")?.focus();return}if((raw.numerator||raw.denominator)&&!raw.denominator){document.getElementById("quizFracDen")?.focus();return}}
  checkQuizInput();
 }
 function bindQuizKeyboard(){const stage=document.getElementById("qstage");if(stage)stage.onkeydown=quizKeyboard}
@@ -10628,10 +10695,10 @@ function checkQuizInput(){
    }else if(q.answerMode==="remainder"){
      const qq=document.getElementById("quizInputQ"),rr=document.getElementById("quizInputR");
      (!String(qq?.value||"").trim()?qq:rr)?.focus();
-   }else inputs[0]?.focus();
+   }else if(stage18UsesFractionBoxes(q))document.getElementById("quizFracNum")?.focus();else inputs[0]?.focus();
    return;
  }
- const ev=quizInputEvaluation(q,raw);if(!ev.valid){fb.textContent=ev.message;inputs.find(x=>!String(x.value||"").trim())?.focus();return}
+ const ev=quizInputEvaluation(q,raw);if(!ev.valid){fb.textContent=ev.message;if(stage18UsesFractionBoxes(q))stage18FocusFractionMissing(raw);else inputs.find(x=>!String(x.value||"").trim())?.focus();return}
  const ok=!!ev.ok,correctText=ev.correctText,correctHtml=ev.correctHtml;
  addAttemptCheck({answer:ev.studentText,correct:ok,details:ok?[]:[ev.detail]});
  if(!ok){
@@ -10640,7 +10707,7 @@ function checkQuizInput(){
    inputs.forEach(input=>input.classList.add("bad"));
    const retryText=String(qid||"").startsWith("g3:")?`🟡 Пока неверно. ${g3WrongHint847(q)}`:keyGrade(qid)===4?`🟡 Пока неверно. ${g4WrongHint(qid)}`:keyGrade(qid)===5?`🟡 Пока неверно. ${g5WrongHint(qid)}`:keyGrade(qid)===6?`🟡 Пока неверно. ${g6WrongHint(qid)}`:keyGrade(qid)===7?`🟡 Пока неверно. ${g7WrongHint851(q,qid)}`:keyGrade(qid)===8?`🟡 Пока неверно. ${g8WrongHint852(q,qid)}`:ev.retryMessage;
    fb.innerHTML=isErrorWork()?`${retryText} Даже после исправления эта старая ошибка останется на повторение.`:retryText;
-   inputs[0]?.focus();inputs[0]?.select?.();
+   if(stage18UsesFractionBoxes(q))stage18FocusFractionMissing(raw);else{inputs[0]?.focus();inputs[0]?.select?.()}
    return;
  }
  answered=true;
@@ -32052,4 +32119,12 @@ window.G8_QA8_AUDIT={targets:RAW.slice(),levels:LENGTH.slice(),pools:Object.from
 })();
 
 </script>
-</body></html>
+<script id="stage18-g5-final-adapter">
+(function(){
+ const previous=makeG5Question;
+ makeG5Question=function(id){
+   const generated=previous.apply(this,arguments);
+   return stage18ConvertG5Fraction(generated,{correct:generated?.ans});
+ };
+})();
+</script>\n</body></html>
