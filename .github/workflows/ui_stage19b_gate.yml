@@ -61,6 +61,7 @@ jobs:
           git add index.html sw.js audits/ui_stage19b_patch_report.json audits/ui_stage19b_test_report.json
           if ! git diff --cached --quiet; then
             git commit -m "feat(ui19B): compact accessible mobile nav and responsive desktop header v57"
+            if git ls-files --error-unmatch audits/ui_stage19a_test_report.json >/dev/null 2>&1; then git restore -- audits/ui_stage19a_test_report.json; else rm -f audits/ui_stage19a_test_report.json; fi
             git pull --rebase origin audit/ui-stage19-20261106
             git push origin HEAD:audit/ui-stage19-20261106
           fi
