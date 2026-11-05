@@ -1581,6 +1581,7 @@ body:has(.mk872-help-layer){overflow:hidden}
 .stage18-frac-cell:focus{border-color:#2770da;outline:3px solid #7eb2ff66;outline-offset:1px}
 .stage18-frac-cell.bad{border-color:#cf3838;background:#fff0f0}
 .stage18-frac-cell.good{border-color:#39a56e;background:#e8f7ef}
+.stage18-frac-entry>.stage18-frac-part:first-child{padding-bottom:33px}
 .stage18-frac-bar{height:3px;width:72px;background:var(--ink);border-radius:5px;margin:0 auto}
 .stage18-frac-title{font-weight:800;font-size:14px;margin:2px 0 0}
 .stage18-frac-label{font-size:12px;line-height:1.35;max-width:115px;color:var(--muted);text-align:center;min-height:32px}
@@ -32396,6 +32397,25 @@ window.G8_QA8_AUDIT={targets:RAW.slice(),levels:LENGTH.slice(),pools:Object.from
      return text===generated.text?generated:{...generated,text};
    }
    return generated;
+ };
+})();
+</script>
+
+
+<script id="matkvest-stage18d-grammar">
+/* HTML formatting of numerals is preserved while correcting Russian agreement. */
+(function(){
+ function russianDetails(n){
+   const u=Math.abs(n),ten=u%10,teens=u%100;
+   return teens>=11&&teens<=14?'деталей':ten===1?'деталь':ten>=2&&ten<=4?'детали':'деталей';
+ }
+ const before=makeG6Question;
+ makeG6Question=function(id){
+   const q=before.apply(this,arguments);
+   if(String(id||'').replace(/^g6:/,'')!=='ratio_value'||typeof q?.text!=='string')return q;
+   const text=q.text.replace(/В одной коробке\s+((?:<b>\s*)?\d+(?:\s*<\/b>)?)\s+одинаковых деталей/g,
+     (_all,countText)=>'В одной коробке '+countText+' '+russianDetails(Number(countText.replace(/<[^>]*>/g,''))));
+   return text===q.text?q:{...q,text};
  };
 })();
 </script>
