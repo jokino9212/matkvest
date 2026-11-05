@@ -52,9 +52,9 @@ try{
    const num=document.getElementById('quizFracNum'),den=document.getElementById('quizFracDen'),whole=document.getElementById('quizFracWhole');
    const bnum=num.getBoundingClientRect(),bden=den.getBoundingClientRect(),bwhole=whole.getBoundingClientRect();
    out.fieldGeometry={fractionStacked:bnum.bottom<bden.top,wholeIsLeft:bwhole.right<bnum.left,barVisible:!!document.querySelector('.stage18-frac-bar'),buttons:!!document.getElementById('quizCheck')&&!!document.getElementById('quizSkip'),mobileFits:bnum.right<=innerWidth&&bden.right<=innerWidth,labels:[whole.getAttribute('aria-label'),num.getAttribute('aria-label'),den.getAttribute('aria-label')]};
-   out.g5TypeSamples=[];
+   out.g5TypeSamples=[];out.g5RawSamples=[];
    for(let i=0;i<70;i++){
-     const z=makeG5Question('frac_read');
+     const z=makeG5Question('frac_read');if(out.g5RawSamples.length<8)out.g5RawSamples.push({ans:z.ans,label:z.correctLabel,mode:z.answerMode,templateId:z.templateId,text:z.text.slice(0,160)});
      if(z.answerMode==='fraction')out.g5TypeSamples.push({mode:z.answerMode,rat:z.answerRat,correctText:z.correctText,label:z.correctLabel});
    }
    if(out.g5TypeSamples.length){
@@ -86,6 +86,6 @@ try{
  ok('Grade7 fraction inputs remain legacy text to avoid unrelated changes',result.grade7TextInput);
  const report={sourceHash:hash,tests:tests.length,passed:tests.filter(x=>x.pass).length,failed:tests.filter(x=>!x.pass),result,pageErrors:errors};
  fs.writeFileSync('audits/g5g6_stage18_fraction_test_report.json',JSON.stringify(report,null,2)+'\n');
- console.log(JSON.stringify({hash,tests:report.tests,passed:report.passed,failed:report.failed,pageErrors:errors,g5TypedSamples:result.g5TypeSamples.length},null,2));
+ console.log(JSON.stringify({hash,tests:report.tests,passed:report.passed,failed:report.failed,pageErrors:errors,g5TypedSamples:result.g5TypeSamples.length,g5RawSamples:result.g5RawSamples},null,2));
  if(report.failed.length||errors.length)process.exitCode=1;
 }finally{await browser.close()}
