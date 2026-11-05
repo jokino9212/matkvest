@@ -44,7 +44,7 @@ extension=r"""
          {label:frac(den+ri(1,3),den),key:'b'},
          {label:frac(den+ri(4,6),den),key:'c'}
        ];
-       return choiceQuestion(base,'Выбери правильную дробь (она меньше единицы).',items,'p',
+       return choiceQuestion(base,'Из дробей со знаменателем '+den+' выбери правильную (меньше единицы).',items,'p',
          'У правильной дроби числитель меньше знаменателя.',v,[den,n]);
      }
      if(v===1){
@@ -54,7 +54,7 @@ extension=r"""
          {label:frac(den-1,den),key:'b'},
          {label:frac(den,den),key:'c'}
        ];
-       return choiceQuestion(base,'Найди дробь, которая больше единицы.',items,'imp',
+       return choiceQuestion(base,'Из дробей со знаменателем '+den+' найди ту, которая больше единицы.',items,'imp',
          'Дробь больше 1, если числитель больше знаменателя.',v,[den,n]);
      }
      if(v===2){
@@ -64,7 +64,7 @@ extension=r"""
          {label:frac(den+1,den),key:'b'},
          {label:frac(1,den),key:'c'}
        ];
-       return choiceQuestion(base,'Какая из дробей в точности равна единице?',items,'eq',
+       return choiceQuestion(base,'Из дробей со знаменателем '+den+' выбери ту, которая равна единице.',items,'eq',
          'Дробь равна 1, когда числитель равен знаменателю.',v,[den]);
      }
      if(v===3)return numberChoice(base,'При знаменателе '+den+' найди наибольший натуральный числитель правильной дроби.',den-1,
