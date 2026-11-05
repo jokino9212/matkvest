@@ -119,7 +119,7 @@ extension=r"""
    if(Math.random()<0.35)return base;
    const r=ri(2,stage===0?10:12),family=stage===0?ri(0,3):ri(0,4);
    const full=314*r*r; // exact integer in hundredths
-   let scaled=full,prompt,reason,tag;
+   let scaled=full,divisor=100,prompt,reason,tag;
    if(stage===0){
      if(family===0){prompt='Круглая клумба радиуса '+r+' м. Найди её площадь (м²), считая π ≈ 3,14.';tag='flowerbed'}
      else if(family===1){prompt='Диаметр круга равен '+(2*r)+' см. Найди площадь (см²), считая π ≈ 3,14.';tag='diameter'}
@@ -127,17 +127,17 @@ extension=r"""
      else {prompt='Найди площадь круга с радиусом '+r+' см по формуле S = πr². Считай π ≈ 3,14.';tag='formula'}
      reason='Площадь круга S = πr² = 3,14 · '+r+'² = '+(full/100).toFixed(2).replace('.',',')+'.';
    }else{
-     if(family===0){scaled=full/2;prompt='Радиус круглого листа '+r+' см. От него отрезали половину. Найди площадь полукруга (см²) при π ≈ 3,14.';tag='half'}
-     else if(family===1){scaled=full/4;prompt='Радиус круглого сектора, составляющего четверть круга, '+r+' см. Найди площадь сектора (см²) при π ≈ 3,14.';tag='quarter'}
+     if(family===0){divisor=200;prompt='Радиус круглого листа '+r+' см. От него отрезали половину. Найди площадь полукруга (см²) при π ≈ 3,14.';tag='half'}
+     else if(family===1){divisor=400;prompt='Радиус круглого сектора, составляющего четверть круга, '+r+' см. Найди площадь сектора (см²) при π ≈ 3,14.';tag='quarter'}
      else if(family===2){prompt='Диаметр круглой площадки '+(2*r)+' м. Найди её площадь (м²), считая π ≈ 3,14.';tag='diameter'}
      else if(family===3){scaled=full*2;prompt='Два одинаковых круглых коврика имеют радиус '+r+' см каждый. Какова их общая площадь (см²) при π ≈ 3,14?';tag='two_discs'}
      else {prompt='Круг имеет радиус '+r+' см. Найди площадь круга (см²), считая π ≈ 3,14.';tag='circle'}
      reason='Один круг: S = 3,14 · '+r+'² = '+(full/100).toFixed(2).replace('.',',')+'. '+(tag==='half'?'Для полукруга делим на 2.':tag==='quarter'?'Для четверти круга делим на 4.':tag==='two_discs'?'Для двух кругов умножаем на 2.':'');
    }
-   const ans=stage===0?rational(full,100):rational(scaled,100);
-   // 314*r*r/4 is integer or half-integer; rational(number,100) is exact here.
+   const ans=rational(scaled,divisor);
+   // Keep integer numerator and denominator for half/quarter circle areas.
    const sig='g6:circle_area:s18c:'+stage+':'+tag+':'+r;
-   const q=g6NumberInputQuestion(prompt,ans,reason,sig,{audit:{type:'s18cCircleArea',variant:tag,radius:r,stage,areaNumerator:scaled}});
+   const q=g6NumberInputQuestion(prompt,ans,reason,sig,{audit:{type:'s18cCircleArea',variant:tag,radius:r,stage,areaNumerator:scaled,areaDenominator:divisor}});
    return {...q,sourceTopicId:'g6:circle_area'};
  }
  const make6=makeG6Question;
