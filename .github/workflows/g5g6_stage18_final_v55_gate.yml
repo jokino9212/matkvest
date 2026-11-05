@@ -1,0 +1,95 @@
+name: MatKvest stage18G - final grade5-6 v55 comprehensive gate
+on:
+  push:
+    branches: [audit/g5g6-stage18-20261105]
+    paths:
+      - .github/workflows/g5g6_stage18_final_v55_gate.yml
+      - audits/g5g6_stage18_sector_grammar_patch.py
+      - audits/g5g6_stage18_sector_grammar_test.mjs
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: matkvest-stage18g-final-v55
+  cancel-in-progress: false
+jobs:
+  final-v55:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit/g5g6-stage18-20261105
+          fetch-depth: 0
+          persist-credentials: true
+      - name: Patch v54 to v55 with exact app/service worker digest
+        run: python3 audits/g5g6_stage18_sector_grammar_patch.py
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install headless Chrome harness
+        run: npm install --no-save --no-package-lock puppeteer-core@24
+      - name: Check G5 sectors, all cases, Germanic/Russian word endings
+        run: node audits/g5g6_stage18_sector_grammar_test.mjs
+      - name: Recheck G5-G6 111 topics x 3 stages x 36 generated questions
+        run: node audits/g5g6_stage18_quality_deep.mjs
+      - name: Regress grade5-6 visual answer mode, exact fractions, mathematical variety and UI
+        run: |
+          sed 's/matkvest-iphone-v51/matkvest-iphone-v55/g' audits/g5g6_stage18_fraction_test.mjs > audits/_v55_fraction.mjs
+          node audits/_v55_fraction.mjs
+          sed 's/matkvest-iphone-v52/matkvest-iphone-v55/g' audits/g5g6_stage18_semantics_test.mjs > audits/_v55_semantics.mjs
+          node audits/_v55_semantics.mjs
+          sed 's/matkvest-iphone-v53/matkvest-iphone-v55/g' audits/g5g6_stage18_variety_test.mjs > audits/_v55_variety.mjs
+          node audits/_v55_variety.mjs
+          sed 's/matkvest-iphone-v54/matkvest-iphone-v55/g' audits/g5g6_stage18_ui_polish_test.mjs > audits/_v55_ui.mjs
+          node audits/_v55_ui.mjs
+          rm audits/_v55_fraction.mjs audits/_v55_semantics.mjs audits/_v55_variety.mjs audits/_v55_ui.mjs
+      - name: Recheck real v50-to-v55 upgrade, G5/G6 drafts, G7 and offline mode
+        run: |
+          NEW_SHA=$(sha256sum index.html | cut -d ' ' -f 1)
+          sed -e 's/matkvest-iphone-v54/matkvest-iphone-v55/g' -e "s/29e750205c4549e2c9d6105b49002ba1c505876518a2139e3da0ce5644e15859/$NEW_SHA/g" audits/g5g6_stage18_resume_pwa_test.mjs > audits/_v55_resume.mjs
+          node audits/_v55_resume.mjs
+          rm audits/_v55_resume.mjs
+      - name: Final static validation and checkpoint
+        run: |
+          python3 - <<'PY'
+          import hashlib,json
+          from pathlib import Path
+          sha=hashlib.sha256(Path("index.html").read_bytes()).hexdigest()
+          sw=Path("sw.js").read_text()
+          assert sha in sw and "matkvest-iphone-v55" in sw
+          d=json.loads(Path("audits/g5g6_stage18_quality_deep_report.json").read_text())
+          assert d["inventory"]["grade5"]==53 and d["inventory"]["grade6"]==58
+          assert d["sampleCount"]==11988 and len(d["topics"])==333
+          assert not d["exceptions"] and not d["pageErrors"] and not any(d["quality"].values())
+          required=["g5g6_stage18_sector_grammar_test_report.json","g5g6_stage18_fraction_test_report.json","g5g6_stage18_semantics_test_report.json","g5g6_stage18_variety_test_report.json","g5g6_stage18_ui_polish_test_report.json","g5g6_stage18_resume_pwa_report.json"]
+          for p in required:
+              x=json.loads((Path("audits")/p).read_text())
+              assert not x.get("failed") and not x.get("failures") and not x.get("fail") and not x.get("errors") and not x.get("pageErrors") and not x.get("jsErrors"),p
+          c={"sha":sha,"version":"v55","tested_topic_count":111,"stage_combinations":333,"generated":11988,"negative_checks":0,"browser_regression":"PASS","pwa_upgrade_v50_to_v55":"PASS","released":False}
+          Path("audits/g5g6_stage18_v55_final_gate.json").write_text(json.dumps(c,ensure_ascii=False,indent=2)+"\n")
+          print(c)
+          PY
+      - name: Upload verification artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: matkvest-stage18-final-gate-v55
+          path: |
+            audits/g5g6_stage18_sector_grammar_patch_report.json
+            audits/g5g6_stage18_sector_grammar_test_report.json
+            audits/g5g6_stage18_v55_final_gate.json
+            audits/g5g6_stage18_resume_pwa_report.json
+            audits/g5g6_stage18_quality_deep_report.json
+          if-no-files-found: warn
+      - name: Persist only checked release candidate v55, never main
+        if: success()
+        run: |
+          set -eu
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js audits/g5g6_stage18_sector_grammar_patch_report.json audits/g5g6_stage18_sector_grammar_test_report.json audits/g5g6_stage18_v55_final_gate.json
+          git diff --cached --quiet || git commit -m "fix(stage18): sector declension and final tested G5-G6 candidate v55"
+          git restore -- audits/g5g6_stage18_quality_deep_report.json audits/g5g6_stage18_fraction_test_report.json audits/g5g6_stage18_semantics_test_report.json audits/g5g6_stage18_variety_test_report.json audits/g5g6_stage18_ui_polish_test_report.json audits/g5g6_stage18_resume_pwa_report.json
+          git pull --rebase origin audit/g5g6-stage18-20261105
+          git push origin HEAD:audit/g5g6-stage18-20261105
