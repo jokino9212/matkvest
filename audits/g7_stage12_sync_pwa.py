@@ -12,8 +12,13 @@ html=Path("index.html").read_bytes()
 expected=hashlib.sha256(html).hexdigest()
 worker=Path("sw.js")
 source=worker.read_text(encoding="utf-8")
-if 'matkvest-iphone-v40' not in source:
-    raise SystemExit("ERROR: expected stage12 SW v40 format")
+# Keep cache versions independent from the release number. A release may be
+# v40, v55, or any later numeric PWA build, but must retain exactly one declaration.
+cache_pattern=r'const CACHE_NAME = "matkvest-iphone-v[0-9]+";'
+matches=re.findall(cache_pattern,source)
+if len(matches)!=1:
+    raise SystemExit("ERROR: expected exactly one MatKvest versioned CACHE_NAME")
+cache_name=re.search(r'matkvest-iphone-v[0-9]+',matches[0]).group(0)
 pattern=r'const APP_BUILD_HASH = "[a-f0-9]{64}";'
 updated,count=re.subn(pattern,f'const APP_BUILD_HASH = "{expected}";',source)
 if count!=1:
