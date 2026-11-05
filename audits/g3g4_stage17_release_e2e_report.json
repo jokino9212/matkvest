@@ -1,0 +1,38 @@
+{
+  "sha256": "0b64dc42f34e375fedce727720bb6475fcca63b2429c0d9fa8fd6539012e761d",
+  "testedAt": "2026-11-05T06:26:02.566Z",
+  "passes": [
+    {
+      "label": "G7 exact resume after reload",
+      "original": "g7:geo_primitives:0:audit7_ray_name:F:C",
+      "restored": "g7:geo_primitives:0:audit7_ray_name:F:C",
+      "done": 0
+    },
+    {
+      "label": "G7 answer state and progress after reload",
+      "correct": 1,
+      "doneAfterNext": 1,
+      "idStable": true
+    },
+    {
+      "label": "G7 typed input retained after reload",
+      "value": "123,456",
+      "exactQuestion": true
+    },
+    {
+      "label": "G7 explicit exit deletes unfinished snapshot",
+      "explicitExitClearsDraft": true
+    },
+    {
+      "label": "PWA installed worker and navigation network-first",
+      "controller": true,
+      "registration": true,
+      "cacheNames": [
+        "matkvest-iphone-v50"
+      ]
+    }
+  ],
+  "failures": [],
+  "pageErrors": [],
+  "notes": []
+}

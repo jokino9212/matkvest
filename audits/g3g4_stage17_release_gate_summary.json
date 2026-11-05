@@ -1,0 +1,35 @@
+{
+  "stage": "17D Release Gate v50",
+  "overall": "PASS",
+  "candidateSha256": "0b64dc42f34e375fedce727720bb6475fcca63b2429c0d9fa8fd6539012e761d",
+  "mainCommit": "e58d84f15eaeb71a3e4d904cfb316724b2fd678d",
+  "preflight": "PASS",
+  "sixBrowserRegressions": {
+    "release_real_v40_v50_report.json": {
+      "pass": true,
+      "size": 720
+    },
+    "release_auto_resume_report.json": {
+      "pass": true,
+      "size": 1478
+    },
+    "release_sw_update_report.json": {
+      "pass": true,
+      "size": 736
+    },
+    "release_e2e_report.json": {
+      "pass": true,
+      "size": 967
+    },
+    "release_grade4_report.json": {
+      "pass": true,
+      "size": 1713
+    },
+    "release_crossgrade_report.json": {
+      "pass": true,
+      "size": 2253
+    }
+  },
+  "deployment": false,
+  "backendCompatibility": "NOT VERIFIED: backend 9.4 source, deployed API and integration credentials are not in this frontend repo"
+}

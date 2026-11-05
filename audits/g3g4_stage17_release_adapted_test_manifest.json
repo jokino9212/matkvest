@@ -1,0 +1,37 @@
+{
+  "stage": "17D-release-Gate",
+  "html_sha256": "0b64dc42f34e375fedce727720bb6475fcca63b2429c0d9fa8fd6539012e761d",
+  "main_commit": "e58d84f15eaeb71a3e4d904cfb316724b2fd678d",
+  "test_sources": {
+    "real_v40_v50": {
+      "source": "g7_stage15_legacy_upgrade.mjs",
+      "temporary": "audits/_release50_real_v40_v50.mjs",
+      "bytes": 6149
+    },
+    "auto_resume": {
+      "source": "g7_stage15_release_gate.mjs",
+      "temporary": "audits/_release50_auto_resume.mjs",
+      "bytes": 9285
+    },
+    "sw_update": {
+      "source": "g7_stage12_sw_update_test.mjs",
+      "temporary": "audits/_release50_sw_update.mjs",
+      "bytes": 5938
+    },
+    "e2e": {
+      "source": "g7_stage12_e2e.mjs",
+      "temporary": "audits/_release50_e2e.mjs",
+      "bytes": 8109
+    },
+    "grade4": {
+      "source": "g7_stage14_grade4_test.mjs",
+      "temporary": "audits/_release50_grade4.mjs",
+      "bytes": 2878
+    },
+    "crossgrade": {
+      "source": "g7_stage14_crossgrade_test.mjs",
+      "temporary": "audits/_release50_crossgrade.mjs",
+      "bytes": 3390
+    }
+  }
+}

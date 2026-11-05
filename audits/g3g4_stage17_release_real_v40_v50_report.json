@@ -1,0 +1,26 @@
+{
+  "testedAt": "2026-11-05T06:25:32.792Z",
+  "oldCommit": "e58d84f15eaeb71a3e4d904cfb316724b2fd678d",
+  "oldSha256": "f188d39a3a16fc54dfb32238fc34d3dfe6cc3c4416cd475579bf3ed65a7e1e36",
+  "newSha256": "0b64dc42f34e375fedce727720bb6475fcca63b2429c0d9fa8fd6539012e761d",
+  "steps": [
+    {
+      "name": "Old main HTML and real v39 SW loaded",
+      "pass": true,
+      "oldCacheNames": [
+        "matkvest-iphone-v40"
+      ],
+      "existingKeysCount": 4
+    },
+    {
+      "name": "Normal navigation serves current HTML and v40 while retaining legacy storage",
+      "pass": true,
+      "preservedKeys": 4,
+      "cacheNames": [
+        "matkvest-iphone-v50"
+      ]
+    }
+  ],
+  "pageErrors": [],
+  "status": "PASS"
+}

@@ -1,0 +1,63 @@
+{
+  "testedAt": "2026-11-05T06:25:39.444Z",
+  "expected": "0b64dc42f34e375fedce727720bb6475fcca63b2429c0d9fa8fd6539012e761d",
+  "checks": [
+    {
+      "name": "Exact audited HTML SHA-256",
+      "pass": true,
+      "actual": "0b64dc42f34e375fedce727720bb6475fcca63b2429c0d9fa8fd6539012e761d"
+    },
+    {
+      "name": "SW v40 and matching HTML fingerprint",
+      "pass": true
+    },
+    {
+      "name": "Safe navigation and explicit SW activation",
+      "pass": true
+    },
+    {
+      "name": "Auto-update implementation present once",
+      "pass": true
+    },
+    {
+      "name": "Stable stage13 semantic audit",
+      "pass": true
+    },
+    {
+      "name": "Required PWA assets exist",
+      "pass": true
+    },
+    {
+      "name": "v39 to v40: automatic reload and exact unfinished G7 attempt recovery",
+      "pass": true,
+      "automaticReloads": 1,
+      "exactAttempt": true,
+      "syntheticUserStorageIntact": true,
+      "cacheNames": [
+        "matkvest-iphone-v50"
+      ],
+      "keysBefore": 5,
+      "keysAfter": 5
+    },
+    {
+      "name": "v40 offline navigation and preserved storage",
+      "pass": true,
+      "offlineBoot": true,
+      "storageIntact": true
+    },
+    {
+      "name": "Mobile viewport: grade 7 quiz survives page reload",
+      "pass": true,
+      "width": 390,
+      "height": 844,
+      "exactResume": true
+    }
+  ],
+  "pageErrors": [],
+  "failures": [],
+  "metrics": {
+    "pass": 9,
+    "fail": 0,
+    "jsPageErrors": 0
+  }
+}

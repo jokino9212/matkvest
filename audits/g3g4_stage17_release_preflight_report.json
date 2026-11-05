@@ -1,0 +1,102 @@
+{
+  "stage": "17D-release-preflight",
+  "date": "2026-11-05T06:25:26.958579+00:00",
+  "checks": [
+    {
+      "name": "Main remains exact protected production commit",
+      "pass": true,
+      "detail": "e58d84f15eaeb71a3e4d904cfb316724b2fd678d"
+    },
+    {
+      "name": "Release preflight must run on audit branch, not production",
+      "pass": true,
+      "detail": "c218e663fc2586cc86b4bff33aa20620429b783b"
+    },
+    {
+      "name": "Production v40 SW matches its HTML",
+      "pass": true,
+      "detail": "f188d39a3a16fc54dfb32238fc34d3dfe6cc3c4416cd475579bf3ed65a7e1e36"
+    },
+    {
+      "name": "Reviewed v50 HTML exact SHA256",
+      "pass": true,
+      "detail": "0b64dc42f34e375fedce727720bb6475fcca63b2429c0d9fa8fd6539012e761d"
+    },
+    {
+      "name": "Reviewed v50 SW fingerprint",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "SW install skipWaiting and activate clients claim",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "SW navigation network-first",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "SW deletes obsolete matkvest-iphone caches",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Exactly one automatic-update markup",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Existing manifest unchanged",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "PWA manifest stays same origin",
+      "pass": true,
+      "detail": {
+        "name": "МатКвест 1–8 класс",
+        "short_name": "МатКвест",
+        "lang": "ru",
+        "start_url": "./index.html",
+        "scope": "./",
+        "display": "standalone",
+        "background_color": "#f3faf6",
+        "theme_color": "#25845f",
+        "orientation": "any",
+        "description": "Офлайн-тренажёр по математике для 1–8 класса"
+      }
+    },
+    {
+      "name": "Deployment payload only index.html plus sw.js",
+      "pass": true,
+      "detail": [
+        "index.html",
+        "sw.js"
+      ]
+    }
+  ],
+  "mainSha": "e58d84f15eaeb71a3e4d904cfb316724b2fd678d",
+  "expectedHtmlSha256": "0b64dc42f34e375fedce727720bb6475fcca63b2429c0d9fa8fd6539012e761d",
+  "branchAheadFiles": 199,
+  "deploymentPayload": [
+    "index.html",
+    "sw.js"
+  ],
+  "excludedFromDeployment": 197,
+  "oldHtmlSha256": "f188d39a3a16fc54dfb32238fc34d3dfe6cc3c4416cd475579bf3ed65a7e1e36",
+  "newHtmlSha256": "0b64dc42f34e375fedce727720bb6475fcca63b2429c0d9fa8fd6539012e761d",
+  "oldCache": "matkvest-iphone-v40",
+  "newCache": "matkvest-iphone-v50",
+  "frontendSignals": {
+    "fetchCalls": 0,
+    "XHRCalls": 0,
+    "WebsocketCalls": 0,
+    "APIPathLiterals": 0,
+    "localStorage": 86,
+    "serviceWorker": 4
+  },
+  "backendCompatibility": "NOT VERIFIED: backend 9.4 source, deployed API and integration credentials are not in this frontend repo",
+  "status": "PASS"
+}
