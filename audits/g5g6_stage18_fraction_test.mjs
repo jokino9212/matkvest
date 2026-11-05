@@ -23,7 +23,7 @@ try{
    function setup(mode,grade,number,preferMixed=false,requireReduced=false){
      qid='g'+grade+':'+(grade===5?'frac_add':'fraction_add_subtract');
      q={text:'Тестовая дробь',answerMode:mode,answerRat:number,preferMixed,requireReduced,ans:'',correctText:'тест',correctHtml:'<b>тест</b>',choices:[],ex:'Проверка'};
-     document.getElementById('qstage').innerHTML=quizAnswerMarkup('nextQ','skipNormalQuiz');
+     const root=document.getElementById('qstage')||Object.assign(document.createElement('div'),{id:'qstage'});if(!root.isConnected)document.body.appendChild(root);root.innerHTML=quizAnswerMarkup('nextQ','skipNormalQuiz');
    }
    function input(w,n,d){
      document.getElementById('quizFracWhole').value=w;
