@@ -21,7 +21,7 @@ async function state(p){
     stripBar:strip?.querySelector('[role="progressbar"]')?.getAttribute('aria-valuenow'),
     stripBarMax:strip?.querySelector('[role="progressbar"]')?.getAttribute('aria-valuemax'),
     homeButton:!!view.querySelector('.home-start .mk19f-home-open'),
-    modal:!!modal,modalBox:rect(modal),modalText:clean(modal?.textContent).slice(0,1400),
+    modal:!!modal&&modal.getBoundingClientRect().width>0&&getComputedStyle(document.querySelector('#modal')).display!=='none',modalBox:rect(modal),modalText:clean(modal?.textContent).slice(0,1400),
     gradeRows:stats,overall:modal?.querySelector('.mk19f-overall')?.textContent.replace(/\s+/g,' ').trim(),
     xp:modal?.querySelector('.mk19f-xp-summary')?.textContent.replace(/\s+/g,' ').trim(),
     xpBar:modal?.querySelector('.mk19f-xp-summary [role="progressbar"]')?.getAttribute('aria-valuenow'),
@@ -96,6 +96,7 @@ try{
  {
   const {ctx,p}=await fresh(390);
   await p.evaluate(()=>openGrade(7));
+  await p.waitForSelector('#mk19f-grade-strip');
   const before=await p.evaluate(()=>{
    const g=teacherGradeTopicKeys(7),key=g[0],canonical=courseKey(key);
    const initial=mk19fProgressMetrics(state);
