@@ -16,7 +16,7 @@ async function state(p){
   const rect=e=>{const b=e?.getBoundingClientRect();return b&&[Math.round(b.x),Math.round(b.y),Math.round(b.width),Math.round(b.height)]};
   const stats=[...modal?.querySelectorAll('.mk19f-grade-row')||[]].map(x=>({text:x.textContent.replace(/\s+/g,' ').slice(0,170),bar:x.querySelector('[role="progressbar"]')?.getAttribute('aria-valuenow'),max:x.querySelector('[role="progressbar"]')?.getAttribute('aria-valuemax')}));
   return{url:location.href,bodyWidth:document.documentElement.scrollWidth,w:innerWidth,
-    strip:!!strip,stripGrade:Number(strip?.dataset.grade),stripText:clean(strip?.textContent),stripBox:rect(strip),
+    strip:!!strip,stripGrade:Number(strip?.dataset.grade),stripText:String(strip?.textContent||'').replace(/\s+/g,' ').trim(),stripBox:rect(strip),
     stripBar:strip?.querySelector('[role="progressbar"]')?.getAttribute('aria-valuenow'),
     stripBarMax:strip?.querySelector('[role="progressbar"]')?.getAttribute('aria-valuemax'),
     homeButton:!!view.querySelector('.home-start .mk19f-home-open'),
