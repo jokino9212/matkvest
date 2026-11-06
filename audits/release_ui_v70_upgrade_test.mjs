@@ -29,6 +29,7 @@ try{
   for(let i=0;i<60;i++){try{const r=await fetch(url);if(r.ok){await r.body?.cancel();break;}}catch{}if(i===59)throw Error('Local legacy test server unavailable');await delay(150);}
   context=await browser.createBrowserContext();
   const page=await context.newPage();
+  const stableEval=async (fn,where)=>{for(let i=0;i<12;i++){try{return await page.evaluate(fn);}catch(e){if(!/Execution context was destroyed|Cannot find context with specified id|Navigating frame was detached/.test(String(e)))throw e;report.steps.push({name:'Browser navigated while '+where+', retrying stable evaluation',pass:true,attempt:i+1});await delay(500)}}throw Error('Page did not settle while '+where)};
   page.on('pageerror',e=>report.pageErrors.push(String(e)));
   await page.goto(url,{waitUntil:'domcontentloaded',timeout:120000});
   await page.waitForFunction(()=>!!navigator.serviceWorker?.controller,{timeout:30000});
@@ -49,7 +50,7 @@ try{
   fs.writeFileSync(path.join(temp,'index.html'),candidateHtml);
   fs.writeFileSync(path.join(temp,'sw.js'),candidateSw);
   // Normal online navigation; no DevTools, cache disable or Ctrl+Shift+R.
-  await page.goto(url,{waitUntil:'load',timeout:120000});
+  try{await page.goto(url,{waitUntil:'load',timeout:120000});}catch(e){if(!/Execution context was destroyed|Navigation|frame was detached/.test(String(e)))throw e;report.steps.push({name:'Expected v70 controllerchange during navigation',pass:true});}
   // The newly installed SW calls clients.claim(), and the v70 page may reload itself.
   // Waiting for the SW cache alone was a race: it can be ready before the new document.
   await page.waitForFunction(()=>!!document.getElementById('mk-stage12-pwa-refresh'),{timeout:20000});
@@ -63,7 +64,7 @@ try{
   },{timeout:50000});
   // Ensure document and worker settle after the controllerchange-driven navigation.
   await delay(650);
-  const newer=await page.evaluate(async()=>({
+  const newer=await stableEval(async()=>({
     sentinel:localStorage.getItem('matkvest-stage15-real-old-html-storage-probe'),
     keys:Object.keys(localStorage),
     caches:await caches.keys(),
@@ -72,26 +73,26 @@ try{
     title:document.title,
     readyState:document.readyState,
     workerScript:(await navigator.serviceWorker.getRegistration())?.active?.scriptURL||null
-  }));
+  }),'post-upgrade summary');
   if(newer.sentinel!==old.sentinel)throw Error('Previously stored profile/progress/coins/collection probe changed during upgrade');
   const missing=old.existingKeys.filter(k=>!newer.keys.includes(k));
   if(missing.length)throw Error('Previously persisted localStorage keys disappeared: '+JSON.stringify(missing));
   if(!newer.hasDraftSaver)throw Error('New exact-attempt preservation code unavailable');
   if(newer.caches.includes('matkvest-iphone-v55'))throw Error('Legacy cache has not been removed');
   await page.waitForSelector('.mk872-training-dialog',{timeout:12000});
-  const recovered=await page.evaluate(()=>{
+  const recovered=await stableEval(()=>{
     const b=[...document.querySelectorAll('.mk872-training-dialog button')].find(x=>x.textContent.trim()==='Продолжить');
     if(!b)throw Error('Resume option disappeared after v55 -> v70 upgrade');
     b.click();
     return {id:blockSession?.attemptId,key:blockSession?.key,sig:q?.sig};
-  });
+  },'resume restored training');
   if(recovered.id!==old.attempt.id||recovered.key!==old.attempt.key||recovered.sig!==old.attempt.sig)
     throw Error('Real legacy saved attempt was not recovered exactly: '+JSON.stringify({old:old.attempt,recovered}));
   report.steps.push({name:'Exact v55 quiz attempt recovered on v70',pass:true,recovered});
   report.steps.push({name:'Normal navigation serves current HTML and v70 while retaining legacy storage',pass:true,preservedKeys:old.existingKeys.length,cacheNames:newer.caches});
   report.status='PASS';
   console.log('PASS real legacy v55 main -> audited v70, normal navigation',JSON.stringify(report.steps));
-}catch(e){report.error=String(e);process.exitCode=1;console.error('FAIL legacy deployment upgrade',String(e));}
+}catch(e){report.error=String(e);report.errorStack=String(e?.stack||'').slice(0,2200);process.exitCode=1;console.error('FAIL legacy deployment upgrade',String(e),report.errorStack);}
 finally{
  if(context)await context.close();
  await browser.close();
