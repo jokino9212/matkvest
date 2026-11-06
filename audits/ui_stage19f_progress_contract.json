@@ -1,0 +1,359 @@
+{
+  "source": {
+    "teacherCourseProgress": {
+      "line": 9355,
+      "code": "9355: function teacherCourseProgress(profile,grade,keys=null){\n9356:  const g=Number(grade),base=keys||teacherGradeTopicKeys(g),arr=base.filter(k=>analyticsTopicMeta(k)?.implemented!==false),catalogTopics=g===8?g8AllTopics().length:g===7?g7AllTopics().length:base.length,total=arr.length*3,done=arr.reduce((n,k)=>n+profileCompletedStages(profile,k),0);\n9357:  return {grade:g,done,total,percent:total?Math.round(done/total*100):0,topics:arr.length,catalogTopics,availableTopics:arr.length,catalogOnly:(g===7||g===8)&&arr.length===0};\n9358: }\n9359: function teacherStageBreakdown(profile,grade){\n9360:  const g=Number(grade),all=teacherGradeTopicKeys(g),keys=g===3?all.filter(k=>analyticsTopicMeta(k)?.implemented!==false):all,out=[0,0,0],needs=[4,5,8];for(const key of keys){const p=profileProgressData(profile,key),best=Array.isArray(p?.best)?p.best:[];for(let i=0;i<3;i++)if(Number(best[i]||0)>=needs[i])out[i]++}return {warmup:out[0],training:out[1],master:out[2],topics:all.length};\n9361: }\n9362: function teacherG3Sections(profile){return G3_GROUPS.map(g=>({id:g.id,title:g.title,...teacherCourseProgress(profile,3,g.topics.map(t=>t.id))}))}\n9363: function teacherG5Sections(profile){\n9364:  const calc=arr=>teacherCourseProgress(profile,5,arr.map(t=>`g5:${t.id}`));return {core:calc(G5_CORE),fractions:calc(G5_FRACTIONS),decimals:calc(G5_DECIMALS)};\n9365: }\n9366: function teacherG6Sections(profile){return G6_GROUPS.map(g=>({id:g.id,title:g.title,...teacherCourseProgress(profile,6,g.topics.map(t=>t.id))}))}"
+    },
+    "teacherStageBreakdown": {
+      "line": 9359,
+      "code": "9359: function teacherStageBreakdown(profile,grade){\n9360:  const g=Number(grade),all=teacherGradeTopicKeys(g),keys=g===3?all.filter(k=>analyticsTopicMeta(k)?.implemented!==false):all,out=[0,0,0],needs=[4,5,8];for(const key of keys){const p=profileProgressData(profile,key),best=Array.isArray(p?.best)?p.best:[];for(let i=0;i<3;i++)if(Number(best[i]||0)>=needs[i])out[i]++}return {warmup:out[0],training:out[1],master:out[2],topics:all.length};\n9361: }\n9362: function teacherG3Sections(profile){return G3_GROUPS.map(g=>({id:g.id,title:g.title,...teacherCourseProgress(profile,3,g.topics.map(t=>t.id))}))}\n9363: function teacherG5Sections(profile){\n9364:  const calc=arr=>teacherCourseProgress(profile,5,arr.map(t=>`g5:${t.id}`));return {core:calc(G5_CORE),fractions:calc(G5_FRACTIONS),decimals:calc(G5_DECIMALS)};\n9365: }\n9366: function teacherG6Sections(profile){return G6_GROUPS.map(g=>({id:g.id,title:g.title,...teacherCourseProgress(profile,6,g.topics.map(t=>t.id))}))}\n9367: function teacherG7Courses(profile){return G7_COURSES.map(c=>{const keys=g7GroupsByCourse(c.id).flatMap(sec=>sec.topics.map(t=>t.id)),p=teacherCourseProgress(profile,7,keys);return {id:c.id,title:c.title,catalogCount:keys.length,availableCount:keys.filter(k=>analyticsTopicMeta(k)?.implemented!==false).length,...p}})}\n9368: function teacherG8Courses(profile){return G8_COURSES.map(c=>{const keys=g8GroupsByCourse(c.id).flatMap(sec=>sec.topics.map(t=>t.id)),p=teacherCourseProgress(profile,8,keys);return {id:c.id,title:c.title,catalogCount:keys.length,availableCount:keys.filter(k=>analyticsTopicMeta(k)?.implemented!==false).length,...p}})}\n9369: function teacherPeriodCutoff(period){const now=Date.now();if(period===\"today\"){const d=new Date();return new Date(d.getFullYear(),d.getMonth(),d.getDate()).getTime()}if(period===\"7\")return now-7*86400000;if(period===\"30\")return now-30*86400000;return 0}\n9370: function teacherRecentResponseStats(profile,{period=\"30\",limit=30}={}){"
+    },
+    "teacherProfileGradeActivity": {
+      "line": 9374,
+      "code": "9374: function teacherProfileGradeActivity(profile,grade,analytics=null){\n9375:  const g=Number(grade),a=analytics||buildProfileAnalytics(profile);if(a.some(x=>x.grade===g&&x.implemented!==false&&x.total>0))return true;return teacherGradeTopicKeys(g).filter(k=>analyticsTopicMeta(k)?.implemented!==false).some(k=>profileCompletedStages(profile,k)>0);\n9376: }\n9377: function studentAttentionScore(summary){return summary.weakCount*8+summary.activeErrors*5+summary.unstableCount*3+summary.recentWrong*3+summary.recentSkipped*2}\n9378: function buildTeacherStudentSummary(name,profileData){\n9379:  const profile=profileData||{},analytics=buildProfileAnalytics(profile),weak=analytics.filter(x=>x.implemented!==false&&x.status===\"weak\"),unstable=analytics.filter(x=>x.implemented!==false&&x.status===\"unstable\"),errors=profileErrorStats(profile),activeErrors=[...errors.values()].reduce((n,x)=>n+x.active,0),resolvedErrors=[...errors.values()].reduce((n,x)=>n+x.resolved,0),recent=teacherRecentResponseStats(profile,{period:\"30\",limit:30}),g3=teacherCourseProgress(profile,3),g4=teacherCourseProgress(profile,4),g5=teacherCourseProgress(profile,5),g6=teacherCourseProgress(profile,6),g7=teacherCourseProgress(profile,7),g8=teacherCourseProgress(profile,8),lastActivityAt=teacherLastActivityAt(profile);\n9380:  const s={profileId:profile.profileId||\"\",name:String(name||\"Ученик\"),profile,level:levelFor(profile.xp||0),xp:Number(profile.xp||0),coins:Number(profile.coins||0),solved:Number(profile.solved||0),bestStreak:Number(profile.bestStreak||0),lastActivityAt,grade3Progress:g3.percent,grade4Progress:g4.percent,grade5Progress:g5.percent,grade6Progress:g6.percent,grade7Progress:g7.percent,grade8Progress:g8.percent,grade3Stages:g3,grade4Stages:g4,grade5Stages:g5,grade6Stages:g6,grade7Stages:g7,grade8Stages:g8,weakCount:weak.length,unstableCount:unstable.length,activeErrors,resolvedErrors,recentSkipped:recent.skipped,recentWrong:recent.wrong,hasG3:teacherProfileGradeActivity(profile,3,analytics),hasG4:teacherProfileGradeActivity(profile,4,analytics),hasG5:teacherProfileGradeActivity(profile,5,analytics),hasG6:teacherProfileGradeActivity(profile,6,analytics),hasG7:teacherProfileGradeActivity(profile,7,analytics),hasG8:teacherProfileGradeActivity(profile,8,analytics),analytics};s.attentionScore=studentAttentionScore(s);return s;\n9381: }\n9382: function buildTeacherAllSummaries(){ensureAllProfileIdentities();return Object.entries(profiles).map(([name,p])=>buildTeacherStudentSummary(name,p))}\n9383: function teacherDashboardCounts(list){const now=Date.now();return {students:list.length,withWeak:list.filter(x=>x.weakCount>0).length,withErrors:list.filter(x=>x.activeErrors>0).length,recent:list.filter(x=>x.lastActivityAt&&now-x.lastActivityAt<=7*86400000).length}}\n9384: function teacherStudentPassesFilter(s){if(teacherListFilter===\"g1\")return s.hasG1;if(teacherListFilter===\"g2\")return s.hasG2;if(teacherListFilter===\"g3\")return s.hasG3;if(teacherListFilter===\"g4\")return s.hasG4;if(teacherListFilter===\"g5\")return s.hasG5;if(teacherListFilter===\"g6\")return s.hasG6;if(teacherListFilter===\"g7\")return s.hasG7;if(teacherListFilter===\"g8\")return s.hasG8;if(teacherListFilter===\"errors\")return s.activeErrors>0;if(teacherListFilter===\"weak\")return s.weakCount>0;return true}\n9385: function teacherSortedFilteredSummaries(list){"
+    },
+    "profileDirectBest": {
+      "line": 7246,
+      "code": "7246: function profileDirectBest(profile,key){const cp=profile?.courseProgress||{},k=courseKey(key),p=cp[k]||cp[key]||{};return Array.isArray(p.best)?p.best:[0,0,0]}\n7247: function profileDirectStagePassed(profile,key,i){const needs=[4,5,8];return Number(profileDirectBest(profile,key)[i]||0)>=Number(needs[i]||0)}\n7248: function g4AchievementKeys(){return TOPICS.filter(t=>t.id!==\"column\").map(t=>`g4:${t.id}`).concat([\"g4:column:add\",\"g4:column:sub\",\"g4:column:mul\",\"g4:column:div\"])}\n7249: function g5AchievementKeys(){return g5AllTopics().map(t=>`g5:${t.id}`)}\n7250: function uniqueFinishedAttempts(profile){const map=new Map();for(const r of (profile?.attemptHistory||[])){if(r?.status!==\"finished\")continue;const k=r.id||`legacy:${r.startedAt||0}:${r.key||\"\"}:${r.kind||\"\"}:${r.stageIndex??\"\"}`;if(!map.has(k)||Number(map.get(k)?.endedAt||0)<Number(r.endedAt||0))map.set(k,r)}return [...map.values()]}\n7251: function buildAchievementContext(profileData){const profile=profileData||{},g3Keys=g3AllTopics().filter(t=>t.implemented!==false).map(t=>t.id),g4Keys=g4AchievementKeys(),g5Keys=g5AchievementKeys(),g6Keys=g6AllTopics().filter(t=>t.implemented!==false).map(t=>t.id),allKeys=[...g3Keys,...g4Keys,...g5Keys,...g6Keys],finished=uniqueFinishedAttempts(profile),masterTopics=allKeys.filter(k=>profileDirectStagePassed(profile,k,2)).length,fractionMasters=G5_FRACTIONS.filter(t=>profileDirectStagePassed(profile,`g5:${t.id}`,2)).length,decimalMasters=G5_DECIMALS.filter(t=>profileDirectStagePassed(profile,`g5:${t.id}`,2)).length,g4Stages=g4Keys.reduce((n,k)=>n+[0,1,2].filter(i=>profileDirectStagePassed(profile,k,i)).length,0),g5Stages=g5Keys.reduce((n,k)=>n+[0,1,2].filter(i=>profileDirectStagePassed(profile,k,i)).length,0),perfectBlocks=finished.filter(r=>![\"errorwork\",\"weaktopic\",\"controlreview\"].includes(r.kind)&&Number(r.stars||0)>=3).length,controls=finished.filter(r=>r.kind===\"controlreview\"),controlSummaries=controls.map(r=>getControlReviewSummary(r)),cleanControls=controlSummaries.filter(x=>x.total>=10&&x.wrong===0&&x.skipped===0&&x.correct===x.total).length,perfectControls=controlSummaries.filter(x=>x.total>=10&&x.firstTry===x.total&&x.corrected===0&&x.wrong===0&&x.skipped===0).length,e\n7252: const PRE831_BUILD_ACHIEVEMENT_CONTEXT=buildAchievementContext;\n7253: buildAchievementContext=function(profileData){\n7254:  const p=profileData||{},c=PRE831_BUILD_ACHIEVEMENT_CONTEXT(p),hist=Array.isArray(p.trainingHistory)?p.trainingHistory:[],ag=p.trainingAggregates&&typeof p.trainingAggregates===\"object\"?p.trainingAggregates:{};\n7255:  const g7Keys=g7AllTopics().filter(t=>t.implemented!==false).map(t=>t.id),g8Keys=g8AllTopics().filter(t=>t.implemented!==false).map(t=>t.id);\n7256:  c.masterTopics+=g7Keys.filter(k=>profileDirectStagePassed(p,k,2)).length+g8Keys.filter(k=>profileDirectStagePassed(p,k,2)).length;\n7257:  c.trainingSessions=Math.max(Number(ag.totalSessions||0),hist.length);"
+    },
+    "stagePassed": {
+      "line": 8569,
+      "code": "8569: function stagePassed(key,i){return (progressFor(key).best[i]||0)>=STAGES[i].need}\n8570: function stageUnlocked(key,i){return i===0||stagePassed(key,i-1)}\n8571: function completedStages(key){return STAGES.filter((_,i)=>stagePassed(key,i)).length}\n8572: function columnCompleted(){return [\"add\",\"sub\",\"mul\",\"div\"].reduce((s,m)=>s+completedStages(\"column:\"+m),0)}\n8573: function topicProgressText(id){\n8574:  if(id===\"column\")return `${columnCompleted()}/12 этапов`;\n8575:  return `${completedStages(id)}/3 этапа`;\n8576: }\n8577: function renderTopics(){\n8578:  const el=document.getElementById(\"topics\");if(!el)return;\n8579:  el.innerHTML=TOPICS.map(t=>`<button class=\"topic\" onclick=\"openTopic('${t.id}')\"><span class=\"ico\">${t.ico}</span><strong>${t.title}</strong><small>${t.sub}</small><span class=\"topic-progress\">${topicProgressText(t.id)}</span></button>`).join(\"\");\n8580: }"
+    },
+    "progressFor": {
+      "line": 8562,
+      "code": "8562: function progressFor(key){\n8563:  const cp=ensureCourse(),k=courseKey(key);\n8564:  if(!cp[k])cp[k]={best:[0,0,0],bonus:[false,false,false]};\n8565:  if(!Array.isArray(cp[k].best))cp[k].best=[0,0,0];\n8566:  if(!Array.isArray(cp[k].bonus))cp[k].bonus=[false,false,false];\n8567:  return cp[k];\n8568: }\n8569: function stagePassed(key,i){return (progressFor(key).best[i]||0)>=STAGES[i].need}\n8570: function stageUnlocked(key,i){return i===0||stagePassed(key,i-1)}\n8571: function completedStages(key){return STAGES.filter((_,i)=>stagePassed(key,i)).length}\n8572: function columnCompleted(){return [\"add\",\"sub\",\"mul\",\"div\"].reduce((s,m)=>s+completedStages(\"column:\"+m),0)}\n8573: function topicProgressText(id){"
+    },
+    "topicProgressText": {
+      "line": 8573,
+      "code": "8573: function topicProgressText(id){\n8574:  if(id===\"column\")return `${columnCompleted()}/12 этапов`;\n8575:  return `${completedStages(id)}/3 этапа`;\n8576: }\n8577: function renderTopics(){\n8578:  const el=document.getElementById(\"topics\");if(!el)return;\n8579:  el.innerHTML=TOPICS.map(t=>`<button class=\"topic\" onclick=\"openTopic('${t.id}')\"><span class=\"ico\">${t.ico}</span><strong>${t.title}</strong><small>${t.sub}</small><span class=\"topic-progress\">${topicProgressText(t.id)}</span></button>`).join(\"\");\n8580: }\n8581: function stageCards(key,startCall){\n8582:  const p=progressFor(key);\n8583:  return STAGES.map((s,i)=>{\n8584:    const unlocked=stageUnlocked(key,i),best=p.best[i]||0,passed=stagePassed(key,i);"
+    },
+    "teacherActivity": {
+      "line": null
+    },
+    "g3TopicCard": {
+      "line": 8404,
+      "code": "8404: function g3TopicCard(t){\n8405:  const ready=t.implemented!==false,group=G3_GROUPS.find(g=>g.title===t.group);\n8406:  return `<button type=\"button\" class=\"topic g6-card g3-card ${ready?\"ready\":\"pending\"}\" onclick=\"${ready?`openG3Topic('${t.id}')`:`showG3Pending('${t.id}')`}\"><span class=\"ico\">${group?.icon||\"🔢\"}</span><strong>${esc(t.title)}</strong><small>${esc(t.shortTitle||t.group)}</small><span class=\"topic-progress\">${completedStages(t.id)}/3 этапа</span></button>`;\n8407: }\n8408: function renderG3Group(group){\n8409:  const ready=group.topics.filter(t=>t.implemented!==false).length;\n8410:  return `<section class=\"g6-group g3-group\"><div class=\"grade-head\"><div><h2>${group.icon} ${esc(group.title)}</h2><p>${esc(group.desc)}</p></div><span class=\"badge\">${group.topics.length} тем</span></div><div class=\"grid\">${group.topics.map(g3TopicCard).join(\"\")}</div></section>`;\n8411: }\n8412: function renderGrade3(){\n8413:  const ready=g3AllTopics().filter(t=>t.implemented!==false).length;\n8414:  mainView.innerHTML=`<div class=\"home-back-row\"><button class=\"home-back-btn\" onclick=\"renderHome()\">← Главный экран</button></div><section class=\"grade-hero\"><div><h1>Математика 3 класса</h1><p>48 тем: вычисления, величины, задачи, доли, геометрия, таблицы, диаграммы, закономерности и логика.</p></div><span class=\"grade-chip\">${gradeBookIcon(3,true)} 3 класс</span></section>${G3_GROUPS.map(renderG3Group).join(\"\")}`;\n8415: }"
+    },
+    "g4AchievementKeys": {
+      "line": 7248,
+      "code": "7248: function g4AchievementKeys(){return TOPICS.filter(t=>t.id!==\"column\").map(t=>`g4:${t.id}`).concat([\"g4:column:add\",\"g4:column:sub\",\"g4:column:mul\",\"g4:column:div\"])}\n7249: function g5AchievementKeys(){return g5AllTopics().map(t=>`g5:${t.id}`)}\n7250: function uniqueFinishedAttempts(profile){const map=new Map();for(const r of (profile?.attemptHistory||[])){if(r?.status!==\"finished\")continue;const k=r.id||`legacy:${r.startedAt||0}:${r.key||\"\"}:${r.kind||\"\"}:${r.stageIndex??\"\"}`;if(!map.has(k)||Number(map.get(k)?.endedAt||0)<Number(r.endedAt||0))map.set(k,r)}return [...map.values()]}\n7251: function buildAchievementContext(profileData){const profile=profileData||{},g3Keys=g3AllTopics().filter(t=>t.implemented!==false).map(t=>t.id),g4Keys=g4AchievementKeys(),g5Keys=g5AchievementKeys(),g6Keys=g6AllTopics().filter(t=>t.implemented!==false).map(t=>t.id),allKeys=[...g3Keys,...g4Keys,...g5Keys,...g6Keys],finished=uniqueFinishedAttempts(profile),masterTopics=allKeys.filter(k=>profileDirectStagePassed(profile,k,2)).length,fractionMasters=G5_FRACTIONS.filter(t=>profileDirectStagePassed(profile,`g5:${t.id}`,2)).length,decimalMasters=G5_DECIMALS.filter(t=>profileDirectStagePassed(profile,`g5:${t.id}`,2)).length,g4Stages=g4Keys.reduce((n,k)=>n+[0,1,2].filter(i=>profileDirectStagePassed(profile,k,i)).length,0),g5Stages=g5Keys.reduce((n,k)=>n+[0,1,2].filter(i=>profileDirectStagePassed(profile,k,i)).length,0),perfectBlocks=finished.filter(r=>![\"errorwork\",\"weaktopic\",\"controlreview\"].includes(r.kind)&&Number(r.stars||0)>=3).length,controls=finished.filter(r=>r.kind===\"controlreview\"),controlSummaries=controls.map(r=>getControlReviewSummary(r)),cleanControls=controlSummaries.filter(x=>x.total>=10&&x.wrong===0&&x.skipped===0&&x.correct===x.total).length,perfectControls=controlSummaries.filter(x=>x.total>=10&&x.firstTry===x.total&&x.corrected===0&&x.wrong===0&&x.skipped===0).length,e\n7252: const PRE831_BUILD_ACHIEVEMENT_CONTEXT=buildAchievementContext;\n7253: buildAchievementContext=function(profileData){\n7254:  const p=profileData||{},c=PRE831_BUILD_ACHIEVEMENT_CONTEXT(p),hist=Array.isArray(p.trainingHistory)?p.trainingHistory:[],ag=p.trainingAggregates&&typeof p.trainingAggregates===\"object\"?p.trainingAggregates:{};\n7255:  const g7Keys=g7AllTopics().filter(t=>t.implemented!==false).map(t=>t.id),g8Keys=g8AllTopics().filter(t=>t.implemented!==false).map(t=>t.id);\n7256:  c.masterTopics+=g7Keys.filter(k=>profileDirectStagePassed(p,k,2)).length+g8Keys.filter(k=>profileDirectStagePassed(p,k,2)).length;\n7257:  c.trainingSessions=Math.max(Number(ag.totalSessions||0),hist.length);\n7258:  c.completedTrainingGoals=Math.max(0,Number(p.completedTrainingGoals||0));\n7259:  c.flawlessTraining=hist.some(h=>Number(h?.answered||0)>=10&&Number(h?.wrong||0)===0&&Number(h?.correct||0)===Number(h?.answered||0))?1:0;"
+    },
+    "g7AllTopics": {
+      "line": 2017,
+      "code": "2017: function g7AllTopics(){return G7_GROUPS.flatMap(g=>g.topics)}\n2018: function g7InfoById(id){const v=String(id||\"\"),key=v.startsWith(\"g7:\")?v:`g7:${v}`;return g7AllTopics().find(x=>x.id===key)||null}\n2019: function g7CourseById(id){return G7_COURSES.find(c=>c.id===id)||null}\n2020: function g7GroupsByCourse(id){return G7_GROUPS.filter(g=>g.course===id)}\n2021: // ===== ЭТАП 8.0: каталог и архитектурный каркас 8 класса =====\n2022: const G8_COURSES=[{\"id\":\"algebra\",\"title\":\"Алгебра\",\"icon\":\"x²\",\"desc\":\"Числа и вычисления, выражения, уравнения, неравенства и функции 8 класса.\"},{\"id\":\"geometry\",\"title\":\"Геометрия\",\"icon\":\"△\",\"desc\":\"Четырёхугольники, подобие, площади, теорема Пифагора, тригонометрия и окружность.\"},{\"id\":\"probability_statistics\",\"title\":\"Вероятность и статистика\",\"icon\":\"P\",\"desc\":\"Рассеивание данных, множества, вероятность, деревья и операции со случайными событиями.\"}];\n2023: const G8_GROUPS=[{\"id\":\"square_roots_real\",\"course\":\"algebra\",\"title\":\"Квадратные корни и действительные числа\",\"icon\":\"√\",\"desc\":\"Квадратный корень, иррациональные числа, действительные числа и преобразования выражений с корнями.\",\"topics\":[{\"id\":\"g8:square_root_arithmetic\",\"grade\":8,\"course\":\"algebra\",\"section\":\"Квадратные корни и действительные числа\",\"group\":\"Квадратные корни и действительные числа\",\"title\":\"Квадратный корень и арифметический квадратный корень\",\"shortTitle\":\"Квадратный корень\",\"source\":\"ФРП «Математика. 5–9 классы (базовый уровень)», редакция 17.06.2025; официальные материалы ЕДСОО\",\"programRef\":\"ФРП 8 класс — Алгебра: Числа и вычисления — квадратный корень; иррациональные и действительные числа\",\"textbookRef\":\"Официальные материалы ЕДСОО\",\"rendererType\":\"number-input\",\"plannedRendererType\":\"number-input\",\"reuseEngine\":\"g7 algebra quiz/block engine + number input\",\"implemented\":true,\"order\":1},{\"id\":\"g8:irrational_numbers_approximations\",\"grade\":8,\"course\":\"algebra\",\"section\":\"Квадратные корни и действительные числа\",\"group\":\"Квадратные корни и действительные числа\",\"title\":\"Иррациональные числа и их десятичные приближения\",\"shortTitle\":\"Иррациональные числа\",\"source\":\"ФРП «Математика. 5–9 классы (базовый уровень)», редакция 17.06.2025; официальные материалы \n2024: function g8AllTopics(){return G8_GROUPS.flatMap(g=>g.topics)}\n2025: function g8InfoById(id){const v=String(id||\"\"),key=v.startsWith(\"g8:\")?v:`g8:${v}`;return g8AllTopics().find(x=>x.id===key)||null}\n2026: function g8CourseById(id){return G8_COURSES.find(c=>c.id===id)||null}\n2027: function g8GroupsByCourse(id){return G8_GROUPS.filter(g=>g.course===id)}\n2028: function g8ImplementedTopics(){return g8AllTopics().filter(t=>t.implemented!==false)}"
+    },
+    "g8AllTopics": {
+      "line": 2024,
+      "code": "2024: function g8AllTopics(){return G8_GROUPS.flatMap(g=>g.topics)}\n2025: function g8InfoById(id){const v=String(id||\"\"),key=v.startsWith(\"g8:\")?v:`g8:${v}`;return g8AllTopics().find(x=>x.id===key)||null}\n2026: function g8CourseById(id){return G8_COURSES.find(c=>c.id===id)||null}\n2027: function g8GroupsByCourse(id){return G8_GROUPS.filter(g=>g.course===id)}\n2028: function g8ImplementedTopics(){return g8AllTopics().filter(t=>t.implemented!==false)}\n2029: function g8CatalogAudit(){\n2030:  const topics=g8AllTopics(),ids=topics.map(t=>t.id),orders=topics.map(t=>t.order),courseIds=new Set(G8_COURSES.map(c=>c.id)),groupIds=new Set(G8_GROUPS.map(g=>g.id)),issues=[];\n2031:  const stage81=new Set([\"g8:square_root_arithmetic\",\"g8:irrational_numbers_approximations\",\"g8:real_numbers_compare\",\"g8:equation_x2_equals_a\",\"g8:square_root_properties\",\"g8:root_expression_transformations\",\"g8:root_calculations_applications\"]);\n2032:  if(new Set(ids).size!==ids.length)issues.push(\"duplicate-id\");\n2033:  if(ids.some(id=>!id.startsWith(\"g8:\")))issues.push(\"id-prefix\");\n2034:  if(topics.some(t=>t.grade!==8))issues.push(\"grade\");\n2035:  if(new Set(orders).size!==orders.length||orders.some((v,i)=>v!==i+1))issues.push(\"order\");"
+    },
+    "g5AllTopics": {
+      "line": 8352,
+      "code": "8352: function g5AllTopics(){return [...G5_CORE,...G5_FRACTIONS,...G5_DECIMALS]}\n8353: function g5CompletedStages(){return g5AllTopics().reduce((s,t)=>s+completedStages(`g5:${t.id}`),0)}\n8354: function g6CompletedStages(){return g6AllTopics().reduce((s,t)=>s+completedStages(t.id),0)}\n8355: function g6TotalStages(){return g6AllTopics().length*3}\n8356: function g7ImplementedTopics(){return g7AllTopics().filter(t=>t.implemented!==false)}\n8357: function g7CompletedStages(){return g7ImplementedTopics().reduce((s,t)=>s+completedStages(t.id),0)}\n8358: function g7TotalStages(){return g7ImplementedTopics().length*3}\n8359: function gradeCompletedTopics(grade){\n8360:  const g=Number(grade);\n8361:  if(g===3)return g3AllTopics().filter(t=>t.implemented!==false&&completedStages(t.id)===3).length;\n8362:  if(g===4)return TOPICS.filter(t=>t.id===\"column\"?columnCompleted()===12:completedStages(t.id)===3).length;\n8363:  if(g===5)return g5AllTopics().filter(t=>completedStages(`g5:${t.id}`)===3).length;"
+    },
+    "g6AllTopics": {
+      "line": 2006,
+      "code": "2006: function g6AllTopics(){return G6_GROUPS.flatMap(g=>g.topics)}\n2007: function g6InfoById(id){const s=String(id||\"\"),key=s.startsWith(\"g6:\")?s:`g6:${s}`;return g6AllTopics().find(x=>x.id===key)||null}\n2008: function g6GroupById(id){return G6_GROUPS.find(g=>g.id===id)||null}\n2009: \n2010: /* =========================================================\n2011:    7 КЛАСС — ЭТАП 7.0. Полный каталог.\n2012:    ЭТАПЫ 7.1–7.4 ниже подключают первые 33 рабочие темы алгебры.\n2013:    Три независимых курса: алгебра, геометрия, вероятность и статистика.\n2014:    ========================================================= */\n2015: const G7_COURSES=[{\"id\":\"algebra\",\"title\":\"Алгебра\",\"icon\":\"x²\",\"desc\":\"Числа и вычисления, выражения и уравнения, функции, степени, многочлены и системы.\"},{\"id\":\"geometry\",\"title\":\"Геометрия\",\"icon\":\"△\",\"desc\":\"Основные фигуры, треугольники, параллельные прямые, окружность и построения.\"},{\"id\":\"probability_statistics\",\"title\":\"Вероятность и статистика\",\"icon\":\"▥\",\"desc\":\"Данные и статистические характеристики, случайность, вероятность и графы.\"}];\n2016: const G7_GROUPS=[{\"id\":\"alg_numbers\",\"course\":\"algebra\",\"title\":\"Числа и вычисления\",\"icon\":\"ℚ\",\"desc\":\"Рациональные числа, степени, проценты, делимость и пропорции.\",\"topics\":[{\"id\":\"g7:rational_numbers_forms\",\"grade\":7,\"course\":\"algebra\",\"section\":\"Числа и вычисления\",\"group\":\"Числа и вычисления\",\"title\":\"Рациональные числа и формы их записи\",\"shortTitle\":\"Рациональные числа\",\"source\":\"ФРП «Математика. 5–9 классы (базовый уровень)», 17.06.2025; Макарычев и др., «Математика. Алгебра. 7 класс», 2024; методическое пособие, 2023\",\"programRef\":\"ФРП 7 класс: Числа и вычисления\",\"textbookRef\":\"Макарычев: глава I; глава III (степень)\",\"rendererType\":\"quiz\",\"plannedRendererType\":\"quiz\",\"reuseEngine\":\"quiz / block engine\",\"implemented\":true,\"order\":1},{\"id\":\"g7:rational_compare_order\",\"grade\":7,\"course\":\"algebra\",\"section\":\"Числа и вычисления\",\"group\":\"Числа и вычисления\",\"title\":\"Сравнение и упорядочивание рациональных чисел\",\"shortTitle\":\"Сравнение рациональных\",\"source\":\"ФРП «Математика. 5–9 классы (базовый уровень)», 17.06.2025; Макарычев и др., «Математика. Алгебра. 7 класс», 2024; методическое пособие, 2023\",\"programRef\":\"ФРП 7 класс: Числа и вычисления\",\"textbookRef\":\"Макарычев: глава I; глава III (степень)\",\"rendererType\":\"quiz\",\"plannedRendererType\":\"quiz\",\"reuseEngine\":\"quiz / \n2017: function g7AllTopics(){return G7_GROUPS.flatMap(g=>g.topics)}"
+    },
+    "g3AllTopics": {
+      "line": 1928,
+      "code": "1928: function g3AllTopics(){return G3_GROUPS.flatMap(g=>g.topics)}\n1929: function g3InfoById(id){const s=String(id||\"\"),key=s.startsWith(\"g3:\")?s:`g3:${s}`;return g3AllTopics().find(x=>x.id===key)||null}\n1930: function g3GroupById(id){return G3_GROUPS.find(g=>g.id===id)||null}\n1931: \n1932: const G6_GROUPS=[\n1933:  {id:\"divisibility\",title:\"Натуральные числа и делимость\",icon:\"🔢\",desc:\"Делители, признаки делимости, простые числа, НОД и НОК.\",topics:[\n1934:   {id:\"g6:divisors_multiples\",grade:6,group:\"Натуральные числа и делимость\",title:\"Делители и кратные\",shortTitle:\"Делители и кратные\",rendererType:\"quiz\",implemented:true,order:1},\n1935:   {id:\"g6:divisibility_2_5_10\",grade:6,group:\"Натуральные числа и делимость\",title:\"Признаки делимости на 2, 5 и 10\",shortTitle:\"Делимость на 2, 5 и 10\",rendererType:\"quiz\",implemented:true,order:2},\n1936:   {id:\"g6:divisibility_3_9\",grade:6,group:\"Натуральные числа и делимость\",title:\"Признаки делимости на 3 и 9\",shortTitle:\"Делимость на 3 и 9\",rendererType:\"quiz\",implemented:true,order:3},\n1937:   {id:\"g6:prime_composite\",grade:6,group:\"Натуральные числа и делимость\",title:\"Простые и составные числа\",shortTitle:\"Простые и составные\",rendererType:\"quiz\",implemented:true,order:4},\n1938:   {id:\"g6:prime_factorization\",grade:6,group:\"Натуральные числа и делимость\",title:\"Разложение на простые множители\",shortTitle:\"Простые множители\",rendererType:\"quiz\",implemented:true,order:5},\n1939:   {id:\"g6:gcd\",grade:6,group:\"Натуральные числа и делимость\",title:\"Наибольший общий делитель\",shortTitle:\"НОД\",rendererType:\"quiz\",implemented:true,order:6},"
+    }
+  },
+  "live": {
+    "grades": {
+      "1": {
+        "teacherCourseProgress": {
+          "grade": 1,
+          "done": 0,
+          "total": 33,
+          "percent": 0,
+          "topics": 11,
+          "catalogTopics": 11,
+          "availableTopics": 11,
+          "catalogOnly": false
+        },
+        "teacherStageBreakdown": {
+          "warmup": 0,
+          "training": 0,
+          "master": 0,
+          "topics": 11
+        },
+        "profileGradeActivity": false
+      },
+      "2": {
+        "teacherCourseProgress": {
+          "grade": 2,
+          "done": 0,
+          "total": 27,
+          "percent": 0,
+          "topics": 9,
+          "catalogTopics": 9,
+          "availableTopics": 9,
+          "catalogOnly": false
+        },
+        "teacherStageBreakdown": {
+          "warmup": 0,
+          "training": 0,
+          "master": 0,
+          "topics": 9
+        },
+        "profileGradeActivity": false
+      },
+      "3": {
+        "teacherCourseProgress": {
+          "grade": 3,
+          "done": 0,
+          "total": 144,
+          "percent": 0,
+          "topics": 48,
+          "catalogTopics": 48,
+          "availableTopics": 48,
+          "catalogOnly": false
+        },
+        "teacherStageBreakdown": {
+          "warmup": 0,
+          "training": 0,
+          "master": 0,
+          "topics": 48
+        },
+        "profileGradeActivity": false
+      },
+      "4": {
+        "teacherCourseProgress": {
+          "grade": 4,
+          "done": 0,
+          "total": 33,
+          "percent": 0,
+          "topics": 11,
+          "catalogTopics": 11,
+          "availableTopics": 11,
+          "catalogOnly": false
+        },
+        "teacherStageBreakdown": {
+          "warmup": 0,
+          "training": 0,
+          "master": 0,
+          "topics": 11
+        },
+        "profileGradeActivity": false
+      },
+      "5": {
+        "teacherCourseProgress": {
+          "grade": 5,
+          "done": 0,
+          "total": 159,
+          "percent": 0,
+          "topics": 53,
+          "catalogTopics": 53,
+          "availableTopics": 53,
+          "catalogOnly": false
+        },
+        "teacherStageBreakdown": {
+          "warmup": 0,
+          "training": 0,
+          "master": 0,
+          "topics": 53
+        },
+        "profileGradeActivity": false
+      },
+      "6": {
+        "teacherCourseProgress": {
+          "grade": 6,
+          "done": 0,
+          "total": 174,
+          "percent": 0,
+          "topics": 58,
+          "catalogTopics": 58,
+          "availableTopics": 58,
+          "catalogOnly": false
+        },
+        "teacherStageBreakdown": {
+          "warmup": 0,
+          "training": 0,
+          "master": 0,
+          "topics": 58
+        },
+        "profileGradeActivity": false
+      },
+      "7": {
+        "teacherCourseProgress": {
+          "grade": 7,
+          "done": 0,
+          "total": 321,
+          "percent": 0,
+          "topics": 107,
+          "catalogTopics": 107,
+          "availableTopics": 107,
+          "catalogOnly": false
+        },
+        "teacherStageBreakdown": {
+          "warmup": 0,
+          "training": 0,
+          "master": 0,
+          "topics": 107
+        },
+        "profileGradeActivity": false
+      },
+      "8": {
+        "teacherCourseProgress": {
+          "grade": 8,
+          "done": 0,
+          "total": 330,
+          "percent": 0,
+          "topics": 110,
+          "catalogTopics": 110,
+          "availableTopics": 110,
+          "catalogOnly": false
+        },
+        "teacherStageBreakdown": {
+          "warmup": 0,
+          "training": 0,
+          "master": 0,
+          "topics": 110
+        },
+        "profileGradeActivity": false
+      }
+    },
+    "functions": {
+      "teacherCourseProgress": "function(profile,grade,keys=null){\n const g=Number(grade);if(g!==1&&g!==2)return PRE835_TEACHER_COURSE_PROGRESS(profile,g,keys);\n const all=g===1?g1AllTopics():g2AllTopics(),base=keys||all.map(t=>t.id),arr=base.filter(k=>analyticsTopicMeta(k)?.implemented!==false),total=arr.length*3,done=arr.reduce((n,k)=>n+profileCompletedStages(profile,k),0);\n return {grade:g,done,total,percent:total?Math.round(done/total*100):0,topics:arr.length,catalogTopics:base.length,availableTopics:arr.length,catalogOnly:arr.length===0}\n}",
+      "teacherStageBreakdown": "function teacherStageBreakdown(profile,grade){\n const g=Number(grade),all=teacherGradeTopicKeys(g),keys=g===3?all.filter(k=>analyticsTopicMeta(k)?.implemented!==false):all,out=[0,0,0],needs=[4,5,8];for(const key of keys){const p=profileProgressData(profile,key),best=Array.isArray(p?.best)?p.best:[];for(let i=0;i<3;i++)if(Number(best[i]||0)>=needs[i])out[i]++}return {warmup:out[0],training:out[1],master:out[2],topics:all.length};\n}",
+      "teacherProfileGradeActivity": "function teacherProfileGradeActivity(profile,grade,analytics=null){\n const g=Number(grade),a=analytics||buildProfileAnalytics(profile);if(a.some(x=>x.grade===g&&x.implemented!==false&&x.total>0))return true;return teacherGradeTopicKeys(g).filter(k=>analyticsTopicMeta(k)?.implemented!==false).some(k=>profileCompletedStages(profile,k)>0);\n}",
+      "progressFor": "function progressFor(key){\n const cp=ensureCourse(),k=courseKey(key);\n if(!cp[k])cp[k]={best:[0,0,0],bonus:[false,false,false]};\n if(!Array.isArray(cp[k].best))cp[k].best=[0,0,0];\n if(!Array.isArray(cp[k].bonus))cp[k].bonus=[false,false,false];\n return cp[k];\n}",
+      "stagePassed": "function stagePassed(key,i){return (progressFor(key).best[i]||0)>=STAGES[i].need}"
+    },
+    "levelSamples": [
+      {
+        "xp": 0,
+        "p": {
+          "currentLevel": 1,
+          "totalXP": 0,
+          "currentLevelStartXP": 0,
+          "nextLevelXP": 115,
+          "xpIntoLevel": 0,
+          "xpNeededForLevel": 115,
+          "xpRemaining": 115,
+          "progressPercent": 0
+        }
+      },
+      {
+        "xp": 114,
+        "p": {
+          "currentLevel": 1,
+          "totalXP": 114,
+          "currentLevelStartXP": 0,
+          "nextLevelXP": 115,
+          "xpIntoLevel": 114,
+          "xpNeededForLevel": 115,
+          "xpRemaining": 1,
+          "progressPercent": 99.1304347826087
+        }
+      },
+      {
+        "xp": 115,
+        "p": {
+          "currentLevel": 2,
+          "totalXP": 115,
+          "currentLevelStartXP": 115,
+          "nextLevelXP": 260,
+          "xpIntoLevel": 0,
+          "xpNeededForLevel": 145,
+          "xpRemaining": 145,
+          "progressPercent": 0
+        }
+      },
+      {
+        "xp": 229,
+        "p": {
+          "currentLevel": 2,
+          "totalXP": 229,
+          "currentLevelStartXP": 115,
+          "nextLevelXP": 260,
+          "xpIntoLevel": 114,
+          "xpNeededForLevel": 145,
+          "xpRemaining": 31,
+          "progressPercent": 78.62068965517241
+        }
+      },
+      {
+        "xp": 230,
+        "p": {
+          "currentLevel": 2,
+          "totalXP": 230,
+          "currentLevelStartXP": 115,
+          "nextLevelXP": 260,
+          "xpIntoLevel": 115,
+          "xpNeededForLevel": 145,
+          "xpRemaining": 30,
+          "progressPercent": 79.3103448275862
+        }
+      },
+      {
+        "xp": 500,
+        "p": {
+          "currentLevel": 4,
+          "totalXP": 500,
+          "currentLevelStartXP": 435,
+          "nextLevelXP": 640,
+          "xpIntoLevel": 65,
+          "xpNeededForLevel": 205,
+          "xpRemaining": 140,
+          "progressPercent": 31.70731707317073
+        }
+      },
+      {
+        "xp": 2000,
+        "p": {
+          "currentLevel": 9,
+          "totalXP": 2000,
+          "currentLevelStartXP": 1760,
+          "nextLevelXP": 2115,
+          "xpIntoLevel": 240,
+          "xpNeededForLevel": 355,
+          "xpRemaining": 115,
+          "progressPercent": 67.6056338028169
+        }
+      },
+      {
+        "xp": 2500,
+        "p": {
+          "currentLevel": 11,
+          "totalXP": 2500,
+          "currentLevelStartXP": 2500,
+          "nextLevelXP": 2915,
+          "xpIntoLevel": 0,
+          "xpNeededForLevel": 415,
+          "xpRemaining": 415,
+          "progressPercent": 0
+        }
+      }
+    ],
+    "firstProgressKeys": [
+      "g3:numbers_1000",
+      "g3:place_value",
+      "g3:compare_order",
+      "g3:increase_decrease_times",
+      "g3:multiplicative_compare",
+      "g3:mass",
+      "g3:money",
+      "g3:time",
+      "g3:length_units",
+      "g3:area_units",
+      "g3:multiplication_table",
+      "g3:division_table",
+      "g3:offtable_multiply",
+      "g3:offtable_divide",
+      "g3:round_numbers",
+      "g3:zero_one",
+      "g3:written_add",
+      "g3:written_subtract",
+      "g3:written_multiply",
+      "g3:written_divide",
+      "g3:division_remainder",
+      "g3:properties",
+      "g3:unknown_component",
+      "g3:order_operations",
+      "g3:quantity_operations"
+    ]
+  }
+}
