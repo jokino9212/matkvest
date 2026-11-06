@@ -30,7 +30,7 @@ const {webcrypto}=require('node:crypto');
  };
  const api=new MatKvestApiClient({fetchImpl});
  await assert.rejects(api.startTraining(profile,5,'natural',attempt),e=>e.code==='CSRF_REQUIRED');
- await assert.rejects(api.register('a@b.co','Password123','admin'),/Role cannot be admin/);
+ assert.throws(()=>api.register('a@b.co','Password123','admin'),/Role cannot be admin/);
  await api.register('pupil@example.test','valid-password-123','student');
  const user=await api.login('pupil@example.test','valid-password-123');
  assert.equal(user.role,'student');
