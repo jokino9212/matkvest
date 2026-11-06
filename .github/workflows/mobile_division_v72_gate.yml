@@ -41,6 +41,15 @@ jobs:
           node -p 'process.version'
       - name: Browser geometry tests (320–1280 px)
         run: node audits/mobile_division_v72_browser_test.cjs
+      - name: Real app column-division test 14067 / 3
+        run: node audits/mobile_division_v72_real_app_test.cjs
+      - name: Preserve screenshot evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: g4-long-division-android-screenshots
+          path: audits/screenshots/*.png
+          if-no-files-found: ignore
       - name: Save tested candidate to audit branch
         run: |
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
