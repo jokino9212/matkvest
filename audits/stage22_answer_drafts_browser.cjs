@@ -81,7 +81,36 @@ async function main(){
       return {before,after:blockSession.correct,feedback:document.getElementById('qfb')?.textContent?.trim().slice(0,140)};
     });
     assert.equal(invalid.after,invalid.before,'Invalid input credited');
-    done.push({width,grade:plan.grade,chosen:data.chosen,attemptPreserved:true,invalid});
+    const correct=await page.evaluate(({plan})=>{
+      const cat=window[plan.catalog]();
+      let found=null;
+      outer:for(const topic of cat.slice(0,Math.min(45,cat.length))){
+       if(topic.implemented===false)continue;
+       for(let stage=0;stage<3;stage++){
+        try{window[plan.method](topic.id,stage)}catch(e){continue}
+        const input=document.getElementById('quizInput');
+        if(q?.answerMode==='number' && input && typeof q.ans==='number' && Number.isFinite(q.ans)){
+          found={topic:topic.id,stage,ans:q.ans};break outer;
+        }
+       }
+      }
+      if(!found)return {skipped:'NO_NUMERIC_ANSWER'};
+      const input=document.getElementById('quizInput'),check=document.getElementById('quizCheck');
+      const scoreBefore=blockSession.correct;
+      input.value=String(found.ans);input.dispatchEvent(new Event('input',{bubbles:true}));
+      check.click();
+      const scoreAfter=blockSession.correct,feedback=document.getElementById('qfb')?.textContent?.trim();
+      const next=document.getElementById('quizNext');
+      check.click();
+      return {found,scoreBefore,scoreAfter,scoreAfterSecond: blockSession.correct,
+        feedback:feedback?.slice(0,140),nextVisible:!!next && getComputedStyle(next).display!=='none'};
+    },{plan});
+    if(!correct.skipped){
+      assert.equal(correct.scoreAfter,correct.scoreBefore+1,'Correct numeric answer not credited: '+JSON.stringify(correct));
+      assert.equal(correct.scoreAfterSecond,correct.scoreAfter,'Repeated Check credited twice');
+      assert(correct.nextVisible,'Next action missing after correct answer');
+    }
+    done.push({width,grade:plan.grade,chosen:data.chosen,attemptPreserved:true,invalid,correct});
     console.log('PASS_STAGE22',JSON.stringify(done.at(-1)));
    }catch(e){failures.push({width,grade:plan.grade,error:String(e),data});console.error('FAIL_STAGE22',JSON.stringify(failures.at(-1)).slice(0,2400))}
    if(pageErrors.length)failures.push({width,grade:plan.grade,type:'js-errors',errors:pageErrors.slice(0,5)});
