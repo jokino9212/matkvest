@@ -240,6 +240,30 @@
     {
       "name": "Last-question skip completes exactly one skipped item",
       "pass": true
+    },
+    {
+      "name": "Correct answer resolves and hides skip while exposing Next",
+      "pass": true
+    },
+    {
+      "name": "Resolved question restores the same Next action and no duplicate reward",
+      "pass": true
+    },
+    {
+      "name": "Restored Next advances one new item with no duplicate XP",
+      "pass": true
+    },
+    {
+      "name": "Quick trainer saves an active session and question",
+      "pass": true
+    },
+    {
+      "name": "Quick trainer reload offers an explicit resume",
+      "pass": true
+    },
+    {
+      "name": "Quick resume restores the exact question and balance",
+      "pass": true
     }
   ],
   "errors": [],
@@ -247,8 +271,8 @@
     {
       "width": 320,
       "initial": {
-        "attemptId": "a1793971441028_tfcx4",
-        "currentItem": "item_2a5524f9-5470-4b32-9600-c31913e31dc6",
+        "attemptId": "a1793971903963_on7rc",
+        "currentItem": "item_e0e7f3f4-ae6f-4f74-a824-1df9be7fc91c",
         "done": 0,
         "answered": false,
         "penalty": false,
@@ -263,8 +287,8 @@
         "body": 320
       },
       "afterSkip": {
-        "attemptId": "a1793971441028_tfcx4",
-        "currentItem": "item_c7153fc7-4648-4383-8f45-dc3a582c611a",
+        "attemptId": "a1793971903963_on7rc",
+        "currentItem": "item_0ee4c9b5-88e4-489b-9832-c93b27101d6f",
         "done": 1,
         "answered": false,
         "penalty": false,
@@ -282,8 +306,8 @@
     {
       "width": 390,
       "initial": {
-        "attemptId": "a1793971442998_h4gmj",
-        "currentItem": "item_e47f5dee-7e7d-4f22-9c32-337642ecf6c0",
+        "attemptId": "a1793971905918_bgelo",
+        "currentItem": "item_b83615f6-1fcf-490c-8d4d-c4a45a4c6105",
         "done": 0,
         "answered": false,
         "penalty": false,
@@ -298,8 +322,8 @@
         "body": 390
       },
       "afterSkip": {
-        "attemptId": "a1793971442998_h4gmj",
-        "currentItem": "item_21f4fd31-1b80-422f-a4f2-ccd91192100c",
+        "attemptId": "a1793971905918_bgelo",
+        "currentItem": "item_812091e3-76ef-4f59-a00c-541c982b2e6a",
         "done": 1,
         "answered": false,
         "penalty": false,
@@ -317,8 +341,8 @@
     {
       "width": 768,
       "initial": {
-        "attemptId": "a1793971444668_h18lu",
-        "currentItem": "item_4f564e28-2773-412c-8bd8-39b76ca98a02",
+        "attemptId": "a1793971907655_mpqih",
+        "currentItem": "item_f67673fb-581c-49b7-bf6a-a6355e736197",
         "done": 0,
         "answered": false,
         "penalty": false,
@@ -333,8 +357,8 @@
         "body": 768
       },
       "afterSkip": {
-        "attemptId": "a1793971444668_h18lu",
-        "currentItem": "item_7f7ba695-63b2-4007-b02a-f6e30b94a37b",
+        "attemptId": "a1793971907655_mpqih",
+        "currentItem": "item_4ac39e7c-e8cd-4442-8058-630f72f5d65b",
         "done": 1,
         "answered": false,
         "penalty": false,
@@ -352,8 +376,8 @@
     {
       "width": 1280,
       "initial": {
-        "attemptId": "a1793971446241_ggnl8",
-        "currentItem": "item_bd79b770-2ee8-4b5b-8022-834fc20fd64f",
+        "attemptId": "a1793971909380_x8bp1",
+        "currentItem": "item_fb5f0e74-43d6-4276-ba35-35846858f662",
         "done": 0,
         "answered": false,
         "penalty": false,
@@ -368,8 +392,8 @@
         "body": 1280
       },
       "afterSkip": {
-        "attemptId": "a1793971446241_ggnl8",
-        "currentItem": "item_ad1c6604-aee8-4efd-b7d4-5ab8775ef836",
+        "attemptId": "a1793971909380_x8bp1",
+        "currentItem": "item_a2729d4b-e17c-48a4-99d0-f25cb6e40c0d",
         "done": 1,
         "answered": false,
         "penalty": false,
