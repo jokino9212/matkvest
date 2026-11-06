@@ -55,10 +55,15 @@ async function dispatch(req) {
     assert.equal(await dispatch(request(path, { destination: 'image' })), false, path + ': image must bypass SW');
     assert.equal(await dispatch(request(path, { destination: 'document', mode: 'navigate' })), false, path + ': navigate must bypass SW');
   }
-  assert.equal(await dispatch(request('/matkvest/public.png', { destination: 'image', headers: { Authorization: 'Bearer test' } })), false);
+  assert.equal(await dispatch(request('/matkvest/assets/public.png', { destination: 'image', headers: { Authorization: 'Bearer test' } })), false);
   assert.equal(await dispatch(request('/matkvest/api/me', { method: 'POST' })), false);
-  assert.equal(await dispatch(request('/matkvest/public.png', { destination: 'image' })), true, 'public image should remain cacheable');
-  assert.equal(entries.has('https://example.test/matkvest/public.png'), true);
+  assert.equal(await dispatch(request('/matkvest/secret-report.pdf', { destination: 'document', mode: 'navigate' })), false, 'unknown navigation must not poison app shell');
+  assert.equal(await dispatch(request('/matkvest/user-private.png', { destination: 'image' })), false, 'root image is not explicitly public');
+  assert.equal(await dispatch(request('/matkvest/api/export.png', { destination: 'image' })), false, 'API suffix must not bypass path policy');
+  assert.equal(await dispatch(request('/other-app/assets/file.png', { destination: 'image' })), false, 'outside SW scope');
+  assert.equal(await dispatch(request('/matkvest/assets/public.png', { destination: 'image', headers: { Cookie: 'session=abc' } })), false, 'credentialed resource');
+  assert.equal(await dispatch(request('/matkvest/assets/public.png', { destination: 'image' })), true, 'public image should remain cacheable');
+  assert.equal(entries.has('https://example.test/matkvest/assets/public.png'), true);
   assert.equal(await dispatch(request('/matkvest/index.html', { destination: 'document', mode: 'navigate' })), true, 'app shell navigation remains network-first');
   for (const path of privatePaths) assert.equal(entries.has('https://example.test' + path), false, 'privacy: ' + path);
   assert(fetchCalls >= 2, 'network-first app shell and public asset must fetch');
