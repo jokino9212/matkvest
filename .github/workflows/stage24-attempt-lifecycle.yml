@@ -1,7 +1,9 @@
 name: Stage24 full training lifecycle regression
 on:
   push:
-    branches: [audit/stage24-attempt-lifecycle-20261107]
+    branches: [main, audit/stage24-attempt-lifecycle-20261107]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 permissions:
   contents: read
