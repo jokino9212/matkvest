@@ -1,0 +1,36 @@
+name: MatKvest v71 - exact live GitHub Pages validation
+on:
+  push:
+    branches: [fix/ui-postrelease-v71-20261106]
+    paths:
+      - audits/v71_production_check.mjs
+      - .github/workflows/v71_production_check.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-github-pages:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/ui-postrelease-v71-20261106
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save --no-package-lock puppeteer-core@24
+      - name: Inspect public HTML SHA256, SW v71 and real Chrome desktop/mobile
+        run: node audits/v71_production_check.mjs
+      - name: Preserve production proof and screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: matkvest-v71-live-production-evidence
+          path: |
+            audits/v71_production_report.json
+            audits/v71_live_*.png
+          if-no-files-found: warn
+          retention-days: 90
