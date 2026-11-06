@@ -14,7 +14,7 @@ async function main(){
    page.on('pageerror',e=>errors.push(String(e.message||e)));
    try{
     await page.goto(FILE,{waitUntil:'domcontentloaded'});
-    const a=await page.evaluate(()=>{
+    await page.evaluate(()=>{
       openProfiles();
       document.getElementById('newProfileName').value='Ученик A';
       createProfile();
@@ -23,6 +23,10 @@ async function main(){
       createProfile();
       openProfiles();
       selectProfile(window._profileNames.indexOf('Ученик A'));
+    });
+    await page.reload({waitUntil:'domcontentloaded'});
+    await page.waitForTimeout(100);
+    const a=await page.evaluate(()=>{
       state.xp=107;state.coins=203;
       progressFor('g7:rational_numbers_forms').best[0]=3;
       persistSilently();
@@ -34,7 +38,7 @@ async function main(){
       const d=mk872ReadDraft();
       return {name:currentProfile,id:mk872ProfileId(),attempt:d?.attemptId,question:q?.sig||q?.text,
        done:blockSession.done,xp:state.xp,coins:state.coins,best:progressFor('g7:rational_numbers_forms').best[0],
-       input:input?.value,storageKey:mk872DraftKey(),draftValid:mk872DraftUsable(d)};
+       input:input?.value,storageKey:mk872DraftKey(),draftValid:mk872DraftUsable(d),learning:mk872HasActiveLearning(),overlay:overlay.className};
     });
     assert(a.draftValid&&a.attempt,'A missing draft');
     // Verify direct selection cannot override an active learner session.
