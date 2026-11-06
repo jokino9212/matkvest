@@ -1,0 +1,49 @@
+name: Mobile column division v72 candidate
+on:
+  push:
+    branches:
+      - fix/mobile-column-division-v72-20261106
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  build-and-test-mobile-column:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Apply exact-match v71 to v72 patch
+        run: python3 audits/fix_mobile_long_division_v72.py
+      - name: Verify patch, fingerprint, and HTML closing tags
+        run: |
+          python3 - <<'PY'
+          import hashlib,re
+          from pathlib import Path
+          html=Path('index.html').read_bytes()
+          sw=Path('sw.js').read_text()
+          sha=hashlib.sha256(html).hexdigest()
+          assert f'APP_BUILD_HASH = "{sha}"' in sw
+          assert 'matkvest-iphone-v72' in sw
+          assert html.count(b'id="mk-mobile-column-division-v72"')==1
+          assert html.count(b'--mk-slots:')==1
+          print('PWA synchronized:',sha)
+          PY
+      - name: Install Playwright Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Browser geometry tests (320–1280 px)
+        run: node audits/mobile_division_v72_browser_test.cjs
+      - name: Save tested candidate to audit branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js
+          if ! git diff --cached --quiet; then
+            git commit -m "fix(frontend): verified mobile column division v72 and synchronized PWA"
+            git push origin HEAD:fix/mobile-column-division-v72-20261106
+          fi
