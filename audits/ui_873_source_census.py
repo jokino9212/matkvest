@@ -57,3 +57,7 @@ for name,pat in [
  for m in ms[:16]:print("AT",m.start(),repr(s[max(0,m.start()-260):m.start()+450]))
 p=s.index("window.mkV71SectionCounts=counts")
 print("\nSECTION COUNTERS CODE",repr(s[p-5400:p+100]))
+
+print("FRACTION CSS INITIAL POSITIONS")
+for m in list(re.finditer(r'\\.stage18-frac-(?:wrap|entry|whole|part|stack|cell|bar)',s))[:35]:
+ print(m.start(),repr(s[max(m.start()-80,0):m.start()+320]))
