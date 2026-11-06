@@ -44,3 +44,16 @@ for label,a,b in [
  ("COLLECTION_OVERRIDES",4960000,4974000),
 ]:
  print("\nREGION",label,repr(s[a:b]))
+
+for name,pat in [
+ ("mixed input names",r'(?i)(?:whole|numerator|denominator|mixed)[-_]?(?:answer|input|field)|(?:answer|input)[-_]?(?:whole|num|den)'),
+ ("fraction cell classes",r'(?i)\.\w*(?:frac|mixed|num|den)\w*[^\\n]{0,150}(?:width|min-width|grid|overflow)'),
+ ("final section progress",r'window\.mkV71SectionCounts=counts'),
+ ("final sort marker",r'window\.mkV71SortItems=ordered'),
+ ("fraction table inputs",r'(?i)(?:числител|знаменател)[^\\n]{0,250}(?:input|ячейк)|(?:input|ячейк)[^\\n]{0,250}(?:числител|знаменател)'),
+]:
+ ms=list(re.finditer(pat,s))
+ print("\nFOCUSED",name,"COUNT",len(ms))
+ for m in ms[:16]:print("AT",m.start(),repr(s[max(0,m.start()-260):m.start()+450]))
+p=s.index("window.mkV71SectionCounts=counts")
+print("\nSECTION COUNTERS CODE",repr(s[p-5400:p+100]))
