@@ -17,13 +17,13 @@ async function main(){
       return '.column-modal .qin';
     }],
     ['grade6-topic',async()=>{
-      await page.evaluate(()=>{closeModal();openGrade(6)});
+      await page.evaluate(()=>{document.querySelector('.column-modal')?.remove();closeModal();openGrade(6)});
       const topic=page.locator('#mainView .topic:not(.locked):not(.disabled):not(.soon)').first();
-      await topic.click();
+      await topic.click({timeout:5000});
       return '#modal input:visible,#modal textarea:visible';
     }],
     ['grade5-topic',async()=>{
-      await page.evaluate(()=>{closeModal();openGrade(5)});
+      await page.evaluate(()=>{document.querySelector('.column-modal')?.remove();closeModal();openGrade(5)});
       const topic=page.locator('#mainView .topic:not(.locked):not(.disabled):not(.soon)').first();
       await topic.click();
       return '#modal input:visible,#modal textarea:visible';
