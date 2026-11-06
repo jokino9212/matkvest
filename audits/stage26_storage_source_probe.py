@@ -6,3 +6,7 @@ for term in terms:
  p=s.find(term)
  print("TERM",term,"INDEX",p)
  if p>=0:print("SOURCE",repr(s[max(0,p-220):p+4900]))
+
+for pat in ['function finalizeImport(', 'function applyImport(', 'function confirmImport(', 'function importBackup(', 'function loadBackup(', 'function importProfiles(', 'Резервная копия восстановлена','pendingImport=null;pendingImportPlan=null;', 'function openBackup(', 'function openImport(']:
+ p=s.find(pat)
+ if p>=0: print('IMPORT',pat,'at',p,repr(s[max(0,p-1900):p+2100]))
