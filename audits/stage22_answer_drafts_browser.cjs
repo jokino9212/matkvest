@@ -89,6 +89,23 @@ async function main(){
        for(let stage=0;stage<3;stage++){
         try{window[plan.method](topic.id,stage)}catch(e){continue}
         const input=document.getElementById('quizInput');
+        if(plan.grade===5 && q?.answerMode==='fraction' && stage18UsesFractionBoxes(q) && q.answerRat){
+          const n=Number(q.answerRat.n),d=Number(q.answerRat.d);
+          if(Number.isInteger(n)&&Number.isInteger(d)&&n>0&&d>0){
+           const candidates=[
+            {whole:'',num:String(n),den:String(d)},
+            {whole:'0',num:String(n),den:String(d)},
+            {whole:String(Math.floor(n/d)),num:String(n%d),den:String(d)}
+           ];
+           for(const form of candidates){
+            document.getElementById('quizFracWhole').value=form.whole;
+            document.getElementById('quizFracNum').value=form.num;
+            document.getElementById('quizFracDen').value=form.den;
+            const ev=quizInputEvaluation(q,stage18FractionFields());
+            if(ev.valid&&ev.ok){found={topic:topic.id,stage,form,kind:'fraction'};break outer}
+           }
+          }
+        }
         if(q?.answerMode==='number' && input && q.answerRat){
           const rat=q.answerRat;
           const options=[String(q.ans??''),String(q.correctText??''),
@@ -101,7 +118,11 @@ async function main(){
       if(!found)return {skipped:'NO_NUMERIC_ANSWER'};
       const input=document.getElementById('quizInput'),check=document.getElementById('quizCheck');
       const scoreBefore=blockSession.correct;
-      input.value=String(found.ans);input.dispatchEvent(new Event('input',{bubbles:true}));
+      if(found.kind==='fraction'){
+        for(const [id,value] of [['quizFracWhole',found.form.whole],['quizFracNum',found.form.num],['quizFracDen',found.form.den]]){
+         const el=document.getElementById(id);el.value=value;el.dispatchEvent(new Event('input',{bubbles:true}));
+        }
+      }else{input.value=String(found.ans);input.dispatchEvent(new Event('input',{bubbles:true}))}
       check.click();
       const scoreAfter=blockSession.correct,feedback=document.getElementById('qfb')?.textContent?.trim();
       const next=document.getElementById('quizNext');
@@ -109,7 +130,7 @@ async function main(){
       return {found,scoreBefore,scoreAfter,scoreAfterSecond: blockSession.correct,
         feedback:feedback?.slice(0,140),nextVisible:!!next && getComputedStyle(next).display!=='none'};
     },{plan});
-    assert(!correct.skipped,'No valid numeric answer candidate for '+plan.grade+' class');
+    assert(!correct.skipped,'No valid answer candidate for '+plan.grade+' class');
     if(!correct.skipped){
       assert.equal(correct.scoreAfter,correct.scoreBefore+1,'Correct numeric answer not credited: '+JSON.stringify(correct));
       assert.equal(correct.scoreAfterSecond,correct.scoreAfter,'Repeated Check credited twice');
