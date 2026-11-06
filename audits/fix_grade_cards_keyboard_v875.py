@@ -7,6 +7,11 @@ s=p.read_text('utf8');sw=sp.read_text('utf8')
 assert s.count("</body>")==1
 assert 'id="mk-v875-card-keyboard"' not in s
 assert 'matkvest-iphone-v74' in sw
+old_click="if(e.target.closest(interactive))return; // native action, do not duplicate"
+new_click="if(e.target.closest('button,a[href],input,select,textarea,[contenteditable=\"true\"],[role=\"link\"],[role=\"button\"]:not(.grade-card)'))return; // keep card role while excluding true nested controls"
+assert s.count(old_click)==1, "Existing delegated card activation handler changed"
+s=s.replace(old_click,new_click)
+
 style='''
 <!-- v8.75: real full-card keyboard activation and focus affordance -->
 <style id="mk-v875-card-keyboard">
