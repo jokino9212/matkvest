@@ -1,0 +1,70 @@
+name: MatKvest v71 preproduction and clean release
+on:
+  push:
+    branches: [fix/ui-postrelease-v71-20261106]
+    paths:
+      - .github/workflows/v71_preprod.yml
+      - audits/v71_upgrade_test.mjs
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: matkvest-v71-preproduction
+  cancel-in-progress: false
+
+jobs:
+  migrate-and-publish-release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 70
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/ui-postrelease-v71-20261106
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save --no-package-lock puppeteer-core@24
+      - name: Verify v70 baseline, v71 candidate and required full Gate
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          test "$(git rev-parse origin/main)" = "930aea7a53be4d333311443beec0f81fef3a59b8"
+          echo 'f3d0639236010fc143b7d3dfcb2d9a7c4805746ed4c06387a89dd719bac42640  index.html' | sha256sum --check
+          grep -F 'matkvest-iphone-v71' sw.js
+          python3 audits/g7_stage12_sync_pwa.py --check
+      - name: Real PWA update v70 to v71 without hard refresh, preserving draft and profile
+        run: node audits/v71_upgrade_test.mjs
+      - name: Retain upgrade report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: matkvest-v71-pwa-preproduction
+          path: audits/v71_upgrade_report.json
+          if-no-files-found: warn
+          retention-days: 90
+      - name: Release only tested HTML and PWA from current production
+        if: success()
+        run: |
+          set -euo pipefail
+          cp index.html "$RUNNER_TEMP/v71-index.html"
+          cp sw.js "$RUNNER_TEMP/v71-sw.js"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git fetch origin main release/ui-v71-20261106
+          test "$(git rev-parse origin/main)" = "930aea7a53be4d333311443beec0f81fef3a59b8"
+          test "$(git rev-parse origin/release/ui-v71-20261106)" = "930aea7a53be4d333311443beec0f81fef3a59b8"
+          git worktree add "$RUNNER_TEMP/v71-release" origin/release/ui-v71-20261106
+          cd "$RUNNER_TEMP/v71-release"
+          cp "$RUNNER_TEMP/v71-index.html" index.html
+          cp "$RUNNER_TEMP/v71-sw.js" sw.js
+          echo 'f3d0639236010fc143b7d3dfcb2d9a7c4805746ed4c06387a89dd719bac42640  index.html' | sha256sum --check
+          python3 audits/g7_stage12_sync_pwa.py --check
+          git add -- index.html sw.js
+          git diff --cached --check
+          test "$(git diff --cached --name-only | LC_ALL=C sort)" = "$(printf 'index.html\nsw.js')"
+          git commit -m 'release(frontend): MatKvest v71 UI corrections and verified PWA'
+          git push origin HEAD:release/ui-v71-20261106
