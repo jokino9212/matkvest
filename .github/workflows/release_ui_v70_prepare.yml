@@ -1,0 +1,101 @@
+name: MatKvest v70 - preproduction gate and clean release branch
+on:
+  push:
+    branches: [audit/ui-stage19-20261106]
+    paths:
+      - .github/workflows/release_ui_v70_prepare.yml
+      - audits/release_ui_v70_upgrade_test.mjs
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: matkvest-release-v70-preproduction
+  cancel-in-progress: false
+
+jobs:
+  verify-and-prepare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit/ui-stage19-20261106
+          fetch-depth: 0
+          persist-credentials: true
+      - name: Freeze audited frontend v70 and existing production v55
+        run: |
+          set -eu
+          echo 'c93d13aeaafdb742e3ceda0111d3242daaf19fcc3a2cdd7b90b1b4a18f0817f2  index.html' | sha256sum --check
+          grep -F 'const CACHE_NAME = "matkvest-iphone-v70";' sw.js
+          grep -F 'const APP_BUILD_HASH = "c93d13aeaafdb742e3ceda0111d3242daaf19fcc3a2cdd7b90b1b4a18f0817f2";' sw.js
+          git fetch origin main release/ui-v70-20261106
+          test "$(git rev-parse origin/main)" = "318898506e150151595d01265190e0944e4c2ab0"
+          test "$(git rev-parse origin/release/ui-v70-20261106)" = "318898506e150151595d01265190e0944e4c2ab0"
+          python3 audits/g7_stage12_sync_pwa.py --check
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save --no-package-lock puppeteer-core@24
+      - name: Real production v55 to v70 PWA upgrade with exact unfinished session
+        run: node audits/release_ui_v70_upgrade_test.mjs
+      - name: v70 128 touch-target, focus and accessibility scenarios
+        run: node audits/ui_stage19i2_test.mjs
+      - name: v69-to-v70 dialog focus regression
+        run: |
+          sed 's/matkvest-iphone-v69/matkvest-iphone-v70/g' audits/ui_stage19i_test.mjs > audits/_release_ui19i_test.mjs
+          node audits/_release_ui19i_test.mjs
+          rm audits/_release_ui19i_test.mjs
+      - name: Exact training draft, skips and exit regression
+        run: |
+          sed 's/matkvest-iphone-v68/matkvest-iphone-v70/g' audits/ui_stage19h_test.mjs > audits/_release_ui19h_test.mjs
+          node audits/_release_ui19h_test.mjs
+          rm audits/_release_ui19h_test.mjs
+      - name: Shop, pets and wallets regression
+        run: |
+          sed 's/matkvest-iphone-v67/matkvest-iphone-v70/g' audits/ui_stage19g_test.mjs > audits/_release_ui19g_test.mjs
+          node audits/_release_ui19g_test.mjs
+          rm audits/_release_ui19g_test.mjs
+      - name: Cross-grade mathematical generator regression
+        run: node audits/g7_stage14_crossgrade_test.mjs
+      - name: Grade 4 long division and answer validation regression
+        run: node audits/g7_stage14_grade4_test.mjs
+      - name: Preserve release preflight evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: matkvest-v70-preproduction-gate
+          path: |
+            audits/release_ui_v70_upgrade_report.json
+            audits/ui_stage19i2_test_report.json
+            audits/ui_stage19i_test_report.json
+            audits/ui_stage19h_test_report.json
+            audits/ui_stage19g_test_report.json
+            audits/g7_stage14_crossgrade_report.json
+            audits/g7_stage14_grade4_report.json
+          if-no-files-found: warn
+          retention-days: 90
+      - name: Publish ONLY exact audited index and worker to clean release branch
+        if: success()
+        run: |
+          set -euo pipefail
+          cp index.html "$RUNNER_TEMP/v70-index.html"
+          cp sw.js "$RUNNER_TEMP/v70-sw.js"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin main release/ui-v70-20261106
+          test "$(git rev-parse origin/main)" = "318898506e150151595d01265190e0944e4c2ab0"
+          test "$(git rev-parse origin/release/ui-v70-20261106)" = "318898506e150151595d01265190e0944e4c2ab0"
+          git worktree add "$RUNNER_TEMP/v70-release-worktree" origin/release/ui-v70-20261106
+          cd "$RUNNER_TEMP/v70-release-worktree"
+          cp "$RUNNER_TEMP/v70-index.html" index.html
+          cp "$RUNNER_TEMP/v70-sw.js" sw.js
+          echo 'c93d13aeaafdb742e3ceda0111d3242daaf19fcc3a2cdd7b90b1b4a18f0817f2  index.html' | sha256sum --check
+          python3 audits/g7_stage12_sync_pwa.py --check
+          git add -- index.html sw.js
+          git diff --cached --check
+          test "$(git diff --cached --name-only | LC_ALL=C sort)" = "$(printf 'index.html\nsw.js')"
+          git commit -m "release(frontend): audited MatKvest v70 UX/UI and PWA cache"
+          git push origin HEAD:release/ui-v70-20261106
+          echo "Release candidate published without audit files."
