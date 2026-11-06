@@ -57,7 +57,26 @@ async function main(){
     const geom=rawInputs.map(el=>{const r=el.getBoundingClientRect();return{id:el.id,left:r.left,right:r.right}});
     const overflow=geom.filter(x=>x.left<-2||x.right>document.documentElement.clientWidth+2);
     if(overflow.length)problems.push({mode:c.mode,reason:'INPUT_CLIPPED',overflow});
-    testResults.push({mode:c.mode,attempts:test.attempts,inputs:geom.length,valid:correct.valid,ok:correct.ok,wrongAccepted:incorrect.valid&&incorrect.ok,overflow:overflow.length});
+    // Submit correct complex answer through the real Check button.
+    const check=document.getElementById('quizCheck');
+    const scoreBefore=blockSession?.correct??0;
+    if(c.mode==='coordinate'){
+      document.getElementById('quizInputX').value=test.answer.x;
+      document.getElementById('quizInputY').value=test.answer.y;
+    }else{
+      const input=document.getElementById('quizInput');
+      if(!input){problems.push({mode:c.mode,reason:'MISSING_INPUT'});continue}
+      input.value=test.answer;
+    }
+    check?.click();
+    const scoreAfter=blockSession?.correct??0;
+    const next=document.getElementById('quizNext');
+    const nextVisible=!!next&&getComputedStyle(next).display!=='none';
+    check?.click();
+    const scoreAfterSecond=blockSession?.correct??0;
+    if(scoreAfter!==scoreBefore+1||scoreAfterSecond!==scoreAfter||!nextVisible)
+      problems.push({mode:c.mode,reason:'UI_SCORING_OR_NEXT',scoreBefore,scoreAfter,scoreAfterSecond,nextVisible,feedback:document.getElementById('qfb')?.textContent?.slice(0,160)});
+    testResults.push({mode:c.mode,attempts:test.attempts,inputs:geom.length,valid:correct.valid,ok:correct.ok,wrongAccepted:incorrect.valid&&incorrect.ok,overflow:overflow.length,scoredOnce:scoreAfter===scoreBefore+1&&scoreAfterSecond===scoreAfter,nextVisible});
    }
    // Validate actual skip behavior for a generated grade-7 quiz, not just a parsing function.
    startG7QuizStage('g7:rational_numbers_forms',0);
