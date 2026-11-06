@@ -1,0 +1,81 @@
+name: MatKvest v71 postrelease regression Gate
+on:
+  push:
+    branches: [fix/ui-postrelease-v71-20261106]
+    paths: [index.html, sw.js]
+  pull_request:
+    branches: [main]
+    paths: [index.html, sw.js]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: v71-regression-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  ui-and-math:
+    runs-on: ubuntu-latest
+    timeout-minutes: 65
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save --no-package-lock puppeteer-core@24
+      - name: HTML, PWA and patch verification
+        run: |
+          set -euo pipefail
+          sha=$(sha256sum index.html | cut -d' ' -f1)
+          grep -F "$sha" sw.js
+          grep -F 'matkvest-iphone-v71' sw.js
+          python3 audits/g7_stage12_sync_pwa.py --check
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          html=Path('index.html').read_text('utf8')
+          x=re.search(r'<script id="mk-v71-ui-fixes">([\s\S]*?)</script>',html)
+          assert x,'No v71 script'
+          Path('/tmp/v71-inline.js').write_text(x.group(1),encoding='utf8')
+          PY
+          node --check /tmp/v71-inline.js
+      - name: Actual Chromium v71 UI regression and viewports
+        run: node audits/v71_gate.mjs
+      - name: Cross-grade 1-8 mathematical regression
+        run: |
+          set -euo pipefail
+          sha=$(sha256sum index.html | cut -d' ' -f1)
+          sed "s/f188d39a3a16fc54dfb32238fc34d3dfe6cc3c4416cd475579bf3ed65a7e1e36/$sha/g" audits/g7_stage14_crossgrade_test.mjs > audits/_v71_crossgrade.mjs
+          node audits/_v71_crossgrade.mjs
+      - name: Grade 4 written mathematics regression
+        run: |
+          set -euo pipefail
+          sha=$(sha256sum index.html | cut -d' ' -f1)
+          sed "s/f188d39a3a16fc54dfb32238fc34d3dfe6cc3c4416cd475579bf3ed65a7e1e36/$sha/g" audits/g7_stage14_grade4_test.mjs > audits/_v71_grade4.mjs
+          node audits/_v71_grade4.mjs
+      - name: Previous verified UX/UI and profile regression
+        run: |
+          set -euo pipefail
+          git fetch origin audit/ui-stage19-20261106
+          for name in ui_stage19i2_test ui_stage19h_test ui_stage19g_test; do
+            git show origin/audit/ui-stage19-20261106:audits/$name.mjs > audits/_v71_$name.mjs
+            sed -i -E 's/matkvest-iphone-v(67|68|70)/matkvest-iphone-v71/g' audits/_v71_$name.mjs
+            node audits/_v71_$name.mjs
+          done
+      - name: Retain screenshot and regression evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: matkvest-v71-ui-math-gate
+          path: |
+            audits/v71_gate_report.json
+            audits/v71_fraction_*.png
+            audits/g7_stage14_crossgrade_report.json
+            audits/g7_stage14_grade4_report.json
+            audits/ui_stage19*_report.json
+          if-no-files-found: warn
+          retention-days: 60
