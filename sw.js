@@ -30,7 +30,7 @@ self.addEventListener("fetch", event => {
   // Stage 20: only public app-shell and static resources may enter Cache Storage.
   // In particular, NEVER intercept API/auth/profile/economy requests, even on
   // navigations. An empty destination is typical of fetch()/XHR.
-  const privatePath = /(?:^|\\/)(?:api|auth|account|accounts|session|sessions|profile|profiles|user|users|wallet|inventory|economy|progress|sync|private|admin)(?:\\/|$)/i;
+  const privatePath = new RegExp("(?:^|/)(?:api|auth|account|accounts|session|sessions|profile|profiles|user|users|wallet|inventory|economy|progress|sync|private|admin)(?:/|$)", "i");
   if (privatePath.test(url.pathname) ||
       request.headers.has("Authorization") ||
       request.headers.has("Cookie") ||
