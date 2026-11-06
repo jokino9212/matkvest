@@ -71,8 +71,12 @@ try{
   });
   const after=await p.evaluate(()=>{
    buyShopItem('pets','pet_cat');const b=state.coins,summary=mk19eProfileSummary(state);
-   openShop('wallet');return{balance:b,summary};
+   return{balance:b,summary};
   });
+  // The original purchase handler schedules an asynchronous shop refresh.
+  // Let it settle before a separate user-style navigation to the wallet.
+  await new Promise(resolve=>setTimeout(resolve,130));
+  await p.evaluate(()=>openShop('wallet'));
   check('Wallet after 390 purchase shows real price and 40 percent realizable refund',after.balance===setup.balance-390&&after.summary.spent===390&&after.summary.purchases===1&&after.summary.realizable===156&&after.summary.potential===after.balance+156,after);
   let snap=await snapshot(p);
   check('Wallet displays purchase counts and resale separate from current coins',snap.balance===after.balance.toLocaleString('ru-RU')&&snap.vals.some(v=>v.label==='Потрачено в магазине'&&v.value==='390')&&snap.potential.includes('+156'),snap);
