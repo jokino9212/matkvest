@@ -1,0 +1,16 @@
+name: Stage24 full training lifecycle regression
+on:
+  push:
+    branches: [audit/stage24-attempt-lifecycle-20261107]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - run: node audits/stage24_attempt_lifecycle_browser.cjs
