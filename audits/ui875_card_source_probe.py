@@ -22,3 +22,5 @@ for a,b,label in [(16000,21000,'base CSS'),(1647000,1652500,'grade cards code'),
 
 for a,b,label in [(257000,260500,'early card interactions'),(6278000,6295000,'latest card interactions'),(6285000,6289700,'topic keyboard'),(6289800,6300000,'other latest UI')]:
  print('DETAIL',label,repr(Path('index.html').read_text('utf-8')[a:b]))
+
+print('EXACT_CLICK_DELEGATE',repr(Path('index.html').read_text('utf8')[6270500:6278500]))
