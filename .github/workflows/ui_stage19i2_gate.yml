@@ -1,0 +1,144 @@
+name: MatKvest UI19I phase2 - touch targets, focus and full regression v70
+on:
+  push:
+    branches: [audit/ui-stage19-20261106]
+    paths:
+      - .github/workflows/ui_stage19i2_gate.yml
+      - audits/ui_stage19i2_patch.py
+      - audits/ui_stage19i2_test.mjs
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: matkvest-ui19i2-v70
+  cancel-in-progress: false
+jobs:
+  pets-and-regressions:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit/ui-stage19-20261106
+          fetch-depth: 0
+          persist-credentials: true
+      - name: Apply v70 patch to exact verified v69 SHA
+        run: python3 audits/ui_stage19i2_patch.py
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save --no-package-lock puppeteer-core@24
+      - name: Verify real targets, focus and nested help with Chromium
+        run: node audits/ui_stage19i2_test.mjs
+      - name: Regression - 19I phase1 modal accessibility v69
+        run: |
+          sed 's/matkvest-iphone-v69/matkvest-iphone-v70/g' audits/ui_stage19i_test.mjs > audits/_ui19i2_i1.mjs
+          node audits/_ui19i2_i1.mjs
+          rm audits/_ui19i2_i1.mjs
+      - name: Regression - 19H training skips, exit, restart and resume
+        run: |
+          sed 's/matkvest-iphone-v68/matkvest-iphone-v70/g' audits/ui_stage19h_test.mjs > audits/_ui19i_h.mjs
+          node audits/_ui19i_h.mjs
+          rm audits/_ui19i_h.mjs
+      - name: Regression - 19G pet store, owned pet switch and persistence
+        run: |
+          sed 's/matkvest-iphone-v67/matkvest-iphone-v70/g' audits/ui_stage19g_test.mjs > audits/_ui19h_g.mjs
+          node audits/_ui19h_g.mjs
+          rm audits/_ui19h_g.mjs
+      - name: Regression - stage 19F level and course progress
+        run: |
+          sed 's/matkvest-iphone-v66/matkvest-iphone-v70/g' audits/ui_stage19f_test.mjs > audits/_ui19g_f.mjs
+          node audits/_ui19g_f.mjs
+          rm audits/_ui19g_f.mjs
+      - name: Regression - 19E legacy accessory valuation
+        run: |
+          sed 's/matkvest-iphone-v65/matkvest-iphone-v70/g' audits/ui_stage19e_legacy_test.mjs > audits/_ui19g_e5.mjs
+          node audits/_ui19g_e5.mjs
+          rm audits/_ui19g_e5.mjs
+      - name: Regression - 19E wallet
+        run: |
+          sed 's/matkvest-iphone-v64/matkvest-iphone-v70/g' audits/ui_stage19e_test.mjs > audits/_ui19g_e4.mjs
+          node audits/_ui19g_e4.mjs
+          rm audits/_ui19g_e4.mjs
+      - name: Regression - 19D purchase and archived compensation
+        run: |
+          sed 's/matkvest-iphone-v63/matkvest-iphone-v70/g' audits/ui_stage19d_test.mjs > audits/_ui19g_d.mjs
+          node audits/_ui19g_d.mjs
+          rm audits/_ui19g_d.mjs
+      - name: Regression - 19C4 grade topics and responsive header
+        run: |
+          sed 's/matkvest-iphone-v62/matkvest-iphone-v70/g' audits/ui_stage19c4_test.mjs > audits/_ui19g_c4.mjs
+          node audits/_ui19g_c4.mjs
+          rm audits/_ui19g_c4.mjs
+      - name: Regression - 19C3B training results and collection
+        run: |
+          sed 's/matkvest-iphone-v61/matkvest-iphone-v70/g' audits/ui_stage19c3b_test.mjs > audits/_ui19g_c3b.mjs
+          node audits/_ui19g_c3b.mjs
+          rm audits/_ui19g_c3b.mjs
+      - name: Regression - 19C3A lesson and modal UX
+        run: |
+          sed 's/matkvest-iphone-v60/matkvest-iphone-v70/g' audits/ui_stage19c3_test.mjs > audits/_ui19g_c3.mjs
+          node audits/_ui19g_c3.mjs
+          rm audits/_ui19g_c3.mjs
+      - name: Regression - 19C2 class cards and adaptive header
+        run: |
+          sed 's/matkvest-iphone-v59/matkvest-iphone-v70/g' audits/ui_stage19c2_test.mjs > audits/_ui19g_c2.mjs
+          node audits/_ui19g_c2.mjs
+          rm audits/_ui19g_c2.mjs
+      - name: Regression - 19C1 accessible topic keyboard
+        run: |
+          sed -e 's/matkvest-iphone-v58/matkvest-iphone-v70/g' -e 's/state.mobileMenu===(w<=600)/state.mobileMenu===(w<=1120)/g' audits/ui_stage19c_test.mjs > audits/_ui19g_c1.mjs
+          node audits/_ui19g_c1.mjs
+          rm audits/_ui19g_c1.mjs
+      - name: Regression - 19A entire grade cards clickable
+        run: |
+          sed 's/matkvest-iphone-v56/matkvest-iphone-v70/g' audits/ui_stage19a_test.mjs > audits/_ui19g_a.mjs
+          node audits/_ui19g_a.mjs
+          rm audits/_ui19g_a.mjs
+      - name: Regression - 19B keyboard and mobile navigation
+        run: |
+          sed -e 's/matkvest-iphone-v57/matkvest-iphone-v70/g' -e 's/if(width<=600){/if(width<=768){/g' audits/ui_stage19b_test.mjs > audits/_ui19g_b.mjs
+          node audits/_ui19g_b.mjs
+          rm audits/_ui19g_b.mjs
+      - name: Crossgrade mathematical generator and practice accessibility regression
+        run: |
+          SHA="$(sha256sum index.html | cut -d' ' -f1)"
+          sed "s/f188d39a3a16fc54dfb32238fc34d3dfe6cc3c4416cd475579bf3ed65a7e1e36/$SHA/g" audits/g7_stage14_crossgrade_test.mjs > audits/_ui19g_crossgrade.mjs
+          node audits/_ui19g_crossgrade.mjs
+          rm audits/_ui19g_crossgrade.mjs
+      - name: Grade 4 written math calculation and answer input regression
+        run: |
+          SHA="$(sha256sum index.html | cut -d' ' -f1)"
+          sed "s/f188d39a3a16fc54dfb32238fc34d3dfe6cc3c4416cd475579bf3ed65a7e1e36/$SHA/g" audits/g7_stage14_grade4_test.mjs > audits/_ui19g_grade4.mjs
+          node audits/_ui19g_grade4.mjs
+          rm audits/_ui19g_grade4.mjs
+      - name: Verify offline service worker fingerprint
+        run: python3 audits/g7_stage12_sync_pwa.py --check
+      - name: Preserve real target screenshots
+        if: success()
+        run: |
+          for width in 390 1280; do
+            base64 -w0 "audits/ui19i2_after_topic_${width}.png" > "audits/ui19i2_after_topic_review_${width}.b64.txt"
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: matkvest-ui19i2-v70-accessibility-gate
+          path: |
+            audits/ui_stage19i2_patch_report.json
+            audits/ui_stage19i2_test_report.json
+            audits/ui19i2_after_topic_*.png
+          if-no-files-found: warn
+      - name: Commit v70 only after all new and previous checks pass
+        if: success()
+        run: |
+          set -eu
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js audits/ui_stage19i2_patch_report.json audits/ui_stage19i2_test_report.json audits/ui19i2_after_topic_review_*.b64.txt
+          git diff --cached --quiet || git commit -m "fix(ui19I/2): touch targets and accessible focus v70"
+          for file in audits/ui_stage19i_test_report.json audits/ui_stage19h_test_report.json audits/ui_stage19g_test_report.json audits/ui_stage19f_test_report.json audits/ui_stage19e_legacy_test_report.json audits/ui_stage19e_test_report.json audits/ui_stage19d_test_report.json audits/ui_stage19c4_test_report.json audits/ui_stage19c3b_test_report.json audits/ui_stage19c3_test_report.json audits/ui_stage19c2_test_report.json audits/ui_stage19c_test_report.json audits/ui_stage19a_test_report.json audits/ui_stage19b_test_report.json audits/g7_stage14_crossgrade_report.json audits/g7_stage14_grade4_report.json; do
+            if git ls-files --error-unmatch "$file" >/dev/null 2>&1; then git restore -- "$file"; else rm -f "$file"; fi
+          done
+          git pull --rebase origin audit/ui-stage19-20261106
+          git push origin HEAD:audit/ui-stage19-20261106
