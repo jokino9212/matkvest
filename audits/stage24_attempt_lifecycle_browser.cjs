@@ -171,9 +171,11 @@ async function firstPassBonus(page){
      document.getElementById('quizNext')?.click();
    }
    if(!blockSession.finished)throw Error('Not finished after '+cycles+' cycles');
+   const beforeFinish={xp:state.xp,coins:state.coins};
    document.getElementById('quizNext')?.click();
    if(!blockSession.reportId)throw Error('Result not finalized');
-   return {id,done:blockSession.done,correct:blockSession.correct,xp:state.xp,coins:state.coins,
+   const finishDelta={xp:state.xp-beforeFinish.xp,coins:state.coins-beforeFinish.coins};
+   return {id,done:blockSession.done,correct:blockSession.correct,xp:state.xp,coins:state.coins,finishDelta,
      history:(state.attemptHistory||[]).filter(a=>a.id===id).length,bonus:progressFor(key).bonus[stage]};
   }
   const first=complete();
@@ -191,14 +193,10 @@ async function firstPassBonus(page){
  assert.equal(result.afterDouble.xp,result.first.xp,'Double finish credited XP');
  assert.equal(result.afterDouble.coins,result.first.coins,'Double finish credited coins');
  assert.equal(result.second.history,1);
- // second run may award per-question XP/coins, but the one-time completion bonus must not be repeated.
- // Comparison uses observed bonus from first award and stable per-question payouts.
- const firstRewardXp=result.first.xp-result.originalXp;
- const secondRewardXp=result.second.xp-result.first.xp;
- const firstRewardCoins=result.first.coins-result.originalCoins;
- const secondRewardCoins=result.second.coins-result.first.coins;
- assert(firstRewardXp>=secondRewardXp+10,'One-time stage XP bonus was repeated or absent');
- assert(firstRewardCoins>=secondRewardCoins+5,'One-time stage coin bonus was repeated or absent');
+ assert.deepEqual(result.first.finishDelta,{xp:10,coins:5},
+  'First completion stage bonus incorrect: '+JSON.stringify(result));
+ assert.deepEqual(result.second.finishDelta,{xp:0,coins:0},
+  'Second completion repeated one-time bonus: '+JSON.stringify(result));
  assert.equal(result.afterRepeat.xp,result.second.xp,'Repeated finish awarded XP on second run');
  assert.equal(result.afterRepeat.coins,result.second.coins,'Repeated finish awarded coins on second run');
  return result;
