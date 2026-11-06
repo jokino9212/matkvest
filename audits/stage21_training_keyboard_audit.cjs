@@ -6,7 +6,7 @@ async function main(){
  const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
  let issues=[];
  try{
-  for(const width of [320]){
+  for(const width of [320,360,390,412,430,768]){
    const ctx=await browser.newContext({viewport:{width,height:740},isMobile:width<500,hasTouch:width<500});
    let page;const errors=[];
    const cases=[
@@ -19,6 +19,8 @@ async function main(){
       await page.evaluate(()=>openGrade(6));
       const topic=page.locator('#mainView .topic:not(.locked):not(.disabled):not(.soon)').first();
       await topic.click({timeout:5000});
+      const stages=page.locator('#modal button.stage-card:not(:disabled):not(.locked)');
+      if(await stages.count())await stages.first().click({timeout:5000});
       return '#modal input:visible,#modal textarea:visible';
     }],
     ['grade5-topic',async()=>{
