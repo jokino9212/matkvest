@@ -29,7 +29,7 @@ const snapshot=p=>p.evaluate(()=>{
    tabCount:document.querySelectorAll('#modal .mk19e-wallet-tab').length,active:tab?.classList.contains('active'),
    pillRole:pill?.getAttribute('role'),pillTabIndex:pill?.getAttribute('tabindex'),pillAria:pill?.getAttribute('aria-label'),
    sales:[...root?.querySelectorAll('.mk19e-transaction')||[]].map(e=>e.textContent.replace(/\s+/g,' ').slice(0,160)),
-   info:root?.querySelector('.mk19e-info')?.textContent.trim().slice(0,470),buttons:[...root?.querySelectorAll('.mk19e-shortcuts button')||[]].map(x=>x.textContent.trim()),
+   info:root?.querySelector('details.mk19e-info')?.textContent.trim().slice(0,620),buttons:[...root?.querySelectorAll('.mk19e-shortcuts button')||[]].map(x=>x.textContent.trim()),
    chest:[...root?.querySelectorAll('.mk19e-fact')||[]].map(x=>x.innerText.replace(/\s+/g,' ').trim()),profileName:root?.querySelector('.mk19e-id')?.textContent.trim()};
 });
 try{
@@ -39,10 +39,10 @@ try{
   check('Wallet reachable from shop tab at '+w,!!walletTab,walletTab);
   await p.evaluate(()=>{const b=[...document.querySelectorAll('#modal .shop-tab')].find(x=>/Кошелёк/.test(x.innerText));if(!b)throw Error('Wallet tab missing');b.click()});
   let a=await snapshot(p);
-  check('Wallet opens with active tab and real zero balance at '+w,a.wallet&&a.balance==='0 🪙'&&a.tabCount===1&&a.active,a);
-  check('Wallet explicitly labels shop-only expenses and no invented lifetime earnings at '+w,a.vals.some(x=>x.label==='Потрачено в магазине'&&x.value==='0 🪙')&&
+  check('Wallet opens with active tab and real zero balance at '+w,a.wallet&&a.balance==='0'&&a.tabCount===1&&a.active,a);
+  check('Wallet explicitly labels shop-only expenses and no invented lifetime earnings at '+w,a.vals.some(x=>x.label==='Потрачено в магазине'&&x.value==='0')&&
     a.info.includes('не хранится')&&a.info.includes('не включают сундуки'),a);
-  check('Wallet has accurate 0 potential refund at '+w,a.potential?.includes('+0 🪙')&&a.potential?.includes('Баланс + возможные возвраты'),a);
+  check('Wallet has accurate 0 potential refund at '+w,a.potential?.includes('+0')&&a.potential?.includes('Баланс + возможные возвраты'),a);
   check('Wallet opens without horizontal overflow at '+w,a.bodyWidth<=w+2,{bodyWidth:a.bodyWidth,viewport:w});
   check('Wallet actions remain reachable at '+w,a.buttons.includes('В магазин')&&a.buttons.includes('Моя коллекция'),a);
   check('Top balance is a real accessible wallet shortcut at '+w,a.pillRole==='button'&&a.pillTabIndex==='0'&&a.pillAria?.includes('кошелёк'),a);
@@ -75,7 +75,7 @@ try{
   });
   check('Wallet after 390 purchase shows real price and 40 percent realizable refund',after.balance===setup.balance-390&&after.summary.spent===390&&after.summary.purchases===1&&after.summary.realizable===156&&after.summary.potential===after.balance+156,after);
   let snap=await snapshot(p);
-  check('Wallet displays purchase counts and resale separate from current coins',snap.balance===after.balance.toLocaleString('ru-RU')+' 🪙'&&snap.vals.some(v=>v.label==='Потрачено в магазине'&&v.value==='390 🪙')&&snap.potential.includes('+156 🪙'),snap);
+  check('Wallet displays purchase counts and resale separate from current coins',snap.balance===after.balance.toLocaleString('ru-RU')&&snap.vals.some(v=>v.label==='Потрачено в магазине'&&v.value==='390')&&snap.potential.includes('+156'),snap);
   const beforeRead=await p.evaluate(()=>JSON.stringify({coins:state.coins,shopStats:state.shopStats,inventory:state.inventory,acquisitionMetadata:state.acquisitionMetadata,sales:state.saleHistory}));
   await p.evaluate(()=>{mk19eWallet();mk19eProfileSummary(state)});
   const afterRead=await p.evaluate(()=>JSON.stringify({coins:state.coins,shopStats:state.shopStats,inventory:state.inventory,acquisitionMetadata:state.acquisitionMetadata,sales:state.saleHistory}));
@@ -84,15 +84,15 @@ try{
   await p.evaluate(()=>mk19eWallet());
   const sold=await snapshot(p);
   check('After selling pet, wallet updates current coins and zeroes resale value',
-    sold.balance===(after.balance+156).toLocaleString('ru-RU')+' 🪙'&&sold.potential?.includes('+0 🪙'),sold);
+    sold.balance===(after.balance+156).toLocaleString('ru-RU')&&sold.potential?.includes('+0'),sold);
   check('Wallet displays actual sale-history receipt',sold.sales.some(x=>x.includes('Кот')&&x.includes('156')),sold.sales);
   check('Wallet records real refund and sale counters',
-    sold.vals.some(x=>x.label==='Возвращено монет'&&x.value==='156 🪙')&&
+    sold.vals.some(x=>x.label==='Возвращено монет'&&x.value==='156')&&
     sold.vals.some(x=>x.label==='Продаж и компенсаций'&&x.value==='1'),sold.vals);
   await p.reload({waitUntil:'domcontentloaded',timeout:120000});
   await p.evaluate(()=>mk19eWallet());
   const persisted=await snapshot(p);
-  check('Wallet reflects same monetary records after browser reload',persisted.balance===sold.balance&&persisted.sales.length===1&&persisted.vals.some(x=>x.value==='390 🪙'),persisted);
+  check('Wallet reflects same monetary records after browser reload',persisted.balance===sold.balance&&persisted.sales.length===1&&persisted.vals.some(x=>x.value==='390'),persisted);
   await ctx.close();
  }
  // Confirm exact refund in potential, without actually issuing a full refund on the read-only screen.
@@ -108,7 +108,7 @@ try{
   });
   check('Archived paid avatar contributes exact 100 percent to potential, not balance',given.eligible&&given.metrics.realizable===400&&given.metrics.potential===given.balance+400,given);
   const snap=await snapshot(p);
-  check('Wallet explains archived 100% potential and does not credit coins',snap.balance==='15 🪙'&&snap.potential.includes('+400 🪙')&&snap.potential.includes('415 🪙'),snap);
+  check('Wallet explains archived 100% potential and does not credit coins',snap.balance==='15'&&snap.potential.includes('+400')&&snap.potential.includes('415'),snap);
   await ctx.close();
  }
  // Confirm opening history and compensation display from existing counters, without opening chests.
@@ -118,7 +118,7 @@ try{
    state.chestStats.totalOpened=3;state.chestStats.compensationCoins=28;state.coins=200;save();mk19eWallet();
   });
   const snap=await snapshot(p);
-  check('Wallet displays chest opening count without claiming exact chest spending',snap.chest.some(x=>x.includes('Открыто сундуков')&&x.includes('3'))&&snap.chest.some(x=>x.includes('28 🪙'))&&snap.info.includes('не включают сундуки'),snap);
+  check('Wallet displays chest opening count without claiming exact chest spending',snap.chest.some(x=>x.includes('Открыто сундуков')&&x.includes('3'))&&snap.chest.some(x=>x.includes('28'))&&snap.info.includes('не включают сундуки'),snap);
   await ctx.close();
  }
 }finally{
