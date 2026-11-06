@@ -37,17 +37,21 @@ async function main(){
        if(chosen)break;
       }
       if(!chosen)return {error:'NO_INPUT_TASK',catalog:cat.length};
-      const input=document.getElementById(chosen.answerId);
-      const value='-123456789';
-      input.value=value;input.dispatchEvent(new Event('input',{bubbles:true}));
-      const before={attempt:blockSession?.attemptId,correct:blockSession?.correct,raw:input.value,mode:q?.answerMode,question:q?.sig||q?.text};
+      const inputs=[...document.querySelectorAll('#qstage input:not([type=hidden])')];
+      const entries=inputs.map((input,i)=>{
+       const value=['-123456789','987654321','-456789123','321987654'][i%4];
+       input.value=value;input.dispatchEvent(new Event('input',{bubbles:true}));
+       return {id:input.id,value};
+      });
+      const before={attempt:blockSession?.attemptId,correct:blockSession?.correct,fields:entries,mode:q?.answerMode,question:q?.sig||q?.text};
       const persisted=mk872PersistDraft();
       const draft=mk872ReadDraft();
-      const savedInput=draft?.html?.includes('value="'+value+'"');
-      input.value='7';input.dispatchEvent(new Event('input',{bubbles:true}));
+      const savedInput=entries.every(x=>draft?.html?.includes('value="'+x.value+'"'));
+      inputs.forEach(input=>{input.value='7';input.dispatchEvent(new Event('input',{bubbles:true}))});
       if(draft)mk872RestoreDraft(draft);
       const afterInput=document.getElementById(chosen.answerId);
-      const after={attempt:blockSession?.attemptId,correct:blockSession?.correct,raw:afterInput?.value,question:q?.sig||q?.text};
+      const after={attempt:blockSession?.attemptId,correct:blockSession?.correct,
+       fields:entries.map(x=>({id:x.id,value:document.getElementById(x.id)?.value})),question:q?.sig||q?.text};
       const modalRect=document.getElementById('modal').getBoundingClientRect();
       const inputRect=afterInput?.getBoundingClientRect();
       const check=document.getElementById('quizCheck');
@@ -63,7 +67,7 @@ async function main(){
     if(data.error)throw new Error(data.error+' '+JSON.stringify(data));
     assert(data.persisted && data.draftFound && data.savedInput,'Draft not written '+JSON.stringify(data));
     assert.equal(data.after.attempt,data.before.attempt,'Changed attempt identity');
-    assert.equal(data.after.raw,data.before.raw,'Lost answer input');
+    assert.deepEqual(data.after.fields,data.before.fields,'Lost one or more fraction/answer fields');
     assert.equal(data.after.question,data.before.question,'Question changed after restore');
     assert.equal(data.after.correct,data.before.correct,'Score changed after restore');
     assert(data.geometry.scrollWidth<=width+2,'Horizontal page overflow '+JSON.stringify(data.geometry));
