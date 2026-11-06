@@ -111,14 +111,14 @@ async function exitConfirmation(page){
  assert.equal(initialized.id,initialized.draftId,'Exit confirmation lost draft');
  const continued=await page.evaluate(()=>{
   const dialog=document.querySelector('.mk872-training-dialog');
-  [...dialog.querySelectorAll('button')].find(b=>b.textContent.includes('Продолжить'))?.click();
+  [...dialog.querySelectorAll('button')].find(b=>b.textContent.includes('Остаться в тренировке'))?.click();
   return {dialogOpen:!!document.querySelector('.mk872-training-dialog'),active:!!blockSession};
  });
  assert(!continued.dialogOpen&&continued.active,'Continue did not preserve attempt: '+JSON.stringify({initialized,continued}));
  const exited=await page.evaluate(()=>{
   closeModal();
   const dialog=document.querySelector('.mk872-training-dialog');
-  [...dialog.querySelectorAll('button')].find(b=>b.textContent.includes('Выйти из тренировки'))?.click();
+  [...dialog.querySelectorAll('button')].find(b=>b.textContent.includes('Выйти и удалить попытку'))?.click();
   return {dialogOpen:!!document.querySelector('.mk872-training-dialog'),
    draft:!!mk872ReadDraft(),active:state.activeAttempt?.id||null,
    block:!!blockSession,xp:state.xp,coins:state.coins,
