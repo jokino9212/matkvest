@@ -1,0 +1,14 @@
+name: Audit MatKvest v8.73 UI defect source
+on:
+  push:
+    branches: [fix/ui-fractions-shop-progress-20261106]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-census:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect affected source regions
+        run: python3 audits/ui_873_source_census.py
