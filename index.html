@@ -6892,6 +6892,7 @@ function mkV877AuthorizeExplicitRecovery(imported){
  return true;
 }
 try{
+  if(mkV877CorruptProfiles)throw new Error("Bad profile schema");
   profiles=JSON.parse(localStorage.getItem("mq4_profiles")||"null")||{};
   currentProfile=localStorage.getItem("mq4_current_profile")||"Ученик";
   if(!Object.keys(profiles).length){
