@@ -131,7 +131,7 @@ js=r"""
    const hero=main.querySelector(':scope > .grade-hero');
    if(hero){
      if(!main.querySelector('#mk19f-grade-strip')){
-       const match=hero.querySelector('h1')?.textContent.match(/\b([1-8])\s+класса\b/i);
+       const match=hero.querySelector('h1')?.textContent.match(/([1-8])\s+класса/i);
        const grade=match?Number(match[1]):null;
        if(grade){
          const section=document.createElement('section');
