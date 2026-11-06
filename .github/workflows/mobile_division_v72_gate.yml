@@ -12,13 +12,12 @@ permissions:
 jobs:
   build-and-test-mobile-column:
     runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
     steps:
       - uses: actions/checkout@v4
         with:
           persist-credentials: true
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
       - name: Apply exact-match v71 to v72 patch
         run: python3 audits/fix_mobile_long_division_v72.py
       - name: Verify patch, fingerprint, and HTML closing tags
@@ -38,7 +37,7 @@ jobs:
       - name: Install Playwright Chromium
         run: |
           npm install --no-save --no-package-lock playwright@1.56.1
-          npx playwright install --with-deps chromium
+          node -p 'process.version'
       - name: Browser geometry tests (320–1280 px)
         run: node audits/mobile_division_v72_browser_test.cjs
       - name: Save tested candidate to audit branch
