@@ -13,6 +13,7 @@ async function fresh(w){
 async function state(p){
  return p.evaluate(()=>{
   const modal=document.querySelector('#mk19fProgress'),strip=document.querySelector('#mk19f-grade-strip'),view=document.querySelector('#mainView');
+  const clean=s=>String(s||'').replace(/\s+/g,' ').trim();
   const rect=e=>{const b=e?.getBoundingClientRect();return b&&[Math.round(b.x),Math.round(b.y),Math.round(b.width),Math.round(b.height)]};
   const stats=[...modal?.querySelectorAll('.mk19f-grade-row')||[]].map(x=>({text:x.textContent.replace(/\s+/g,' ').slice(0,170),bar:x.querySelector('[role="progressbar"]')?.getAttribute('aria-valuenow'),max:x.querySelector('[role="progressbar"]')?.getAttribute('aria-valuemax')}));
   return{url:location.href,bodyWidth:document.documentElement.scrollWidth,w:innerWidth,
