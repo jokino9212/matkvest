@@ -1,7 +1,5 @@
 name: Stage28 commercial source audit
 on:
-  push:
-    branches: [audit/stage28-commercial-readiness-20261107]
   workflow_dispatch:
 permissions:
   contents: read
