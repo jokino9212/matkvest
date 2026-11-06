@@ -149,6 +149,66 @@ try{
    check('Last-question skip completes exactly one skipped item',d.finished&&d.skipCount===1,d);
    await ctx.close();
  }
+ // Correct-answer state must resume with its existing Next action and not grant a second reward.
+ {
+   const {ctx,p}=await fresh(390);await start(p,'quiz');
+   const correct=await p.evaluate(()=>{
+     const n=q?.choices?.findIndex(c=>String(c.key)===String(q.ans))??-1;
+     if(n<0)return false;
+     pick(n);return true;
+   });
+   if(!correct)throw Error('Grade 4 choice answer fixture disappeared');
+   const before=await p.evaluate(()=>({
+     id:blockSession?.attemptId,done:blockSession?.done,item:blockSession?.currentItem?.itemId,
+     coins:state.coins,xp:state.xp,answered,
+     skipHidden:getComputedStyle(document.getElementById('quizSkip')).display==='none',
+     nextVisible:getComputedStyle(document.getElementById('quizNext')).display!=='none'
+   }));
+   check('Correct answer resolves and hides skip while exposing Next',before.answered&&before.skipHidden&&before.nextVisible,before);
+   await p.evaluate(()=>mk872PersistDraft());
+   await p.reload({waitUntil:'domcontentloaded',timeout:120000});await popup(p);
+   await action(p,'Продолжить');
+   const resumed=await p.evaluate(()=>({
+     id:blockSession?.attemptId,done:blockSession?.done,item:blockSession?.currentItem?.itemId,
+     coins:state.coins,xp:state.xp,answered,
+     nextVisible:getComputedStyle(document.getElementById('quizNext')).display!=='none',
+     nextReady:typeof document.getElementById('quizNext')?.onclick==='function'
+   }));
+   check('Resolved question restores the same Next action and no duplicate reward',
+     resumed.id===before.id&&resumed.done===before.done&&resumed.item===before.item&&
+     resumed.coins===before.coins&&resumed.xp===before.xp&&resumed.answered&&resumed.nextVisible&&resumed.nextReady,
+     {before,resumed});
+   await p.click('#quizNext');
+   const after=await inspect(p);
+   check('Restored Next advances one new item with no duplicate XP',
+     after.currentItem!==before.item&&after.done===before.done&&after.xp===before.xp&&after.balance===before.coins,after);
+   await ctx.close();
+ }
+ // Quick trainer uses a separate session representation: reload must resume the same question.
+ {
+   const {ctx,p}=await fresh(390);
+   const before=await p.evaluate(()=>{
+     openQuickTrainer('quick:multiplication');
+     startQuickTraining();
+     return{mode:quickMode,id:quickSession?.recordId,question:quickQuestion?.instanceId,
+       count:quickSession?.answered,coins:state.coins,xp:state.xp,save:mk872PersistDraft()};
+   });
+   check('Quick trainer saves an active session and question',before.mode==='training'&&!!before.id&&!!before.question&&before.save,before);
+   await p.reload({waitUntil:'domcontentloaded',timeout:120000});await popup(p);
+   const pending=await inspect(p);
+   check('Quick trainer reload offers an explicit resume',pending.dialog&&pending.buttons.includes('Продолжить'),pending);
+   await action(p,'Продолжить');
+   const after=await p.evaluate(()=>({
+     mode:quickMode,id:quickSession?.recordId,question:quickQuestion?.instanceId,
+     count:quickSession?.answered,coins:state.coins,xp:state.xp,
+     trainingVisible:!!document.querySelector('#quickStage')
+   }));
+   check('Quick resume restores the exact question and balance',
+     after.mode==='training'&&after.id===before.id&&after.question===before.question&&
+     after.count===before.count&&after.coins===before.coins&&after.xp===before.xp&&after.trainingVisible,
+     {before,after});
+   await ctx.close();
+ }
 }finally{
  await browser.close();
  fs.writeFileSync('audits/ui_stage19h_test_report.json',JSON.stringify(report,null,2)+'\n');
