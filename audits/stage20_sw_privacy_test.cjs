@@ -6,7 +6,10 @@ const script = fs.readFileSync('sw.js', 'utf8');
 const listeners = new Map();
 const entries = new Map();
 let fetchCalls = 0;
-let responseFactory = () => new Response('public asset', { status: 200 });
+let responseFactory = request => new Response('public asset', {
+  status: 200,
+  headers: { 'Content-Type': request.mode === 'navigate' ? 'text/html' : 'image/png' }
+});
 const cache = {
   addAll: async () => {},
   match: async key => entries.get(typeof key === 'string' ? key : key.url),
@@ -25,12 +28,13 @@ const self = {
   skipWaiting: async () => {},
   clients: { claim: async () => {} }
 };
-const fetch = async () => { fetchCalls++; return responseFactory(); };
+const fetch = async request => { fetchCalls++; return responseFactory(request); };
 vm.runInNewContext(script, { self, caches, fetch, URL, Response });
 assert(listeners.has('fetch'), 'Service Worker must register fetch listener');
 function request(path, { destination = '', mode = 'cors', method = 'GET', headers = {} } = {}) {
   return { url: 'https://example.test' + path, destination, mode, method, headers: new Headers(headers) };
 }
+let lastResponse = null;
 async function dispatch(req) {
   let responded = false;
   let responsePromise;
@@ -40,7 +44,7 @@ async function dispatch(req) {
     respondWith(p) { responded = true; responsePromise = Promise.resolve(p); },
     waitUntil(p) { waits.push(Promise.resolve(p)); }
   });
-  if (responded) await responsePromise;
+  lastResponse = responded ? await responsePromise : null;
   await Promise.all(waits);
   return responded;
 }
@@ -69,6 +73,8 @@ async function dispatch(req) {
   for (const path of privatePaths) assert.equal(entries.has('https://example.test' + path), false, 'privacy: ' + path);
   // Cache must never accept private/no-store/redirected responses, even on allowlisted URLs.
   const before = entries.size;
+  const originalShell = await entries.get('./index.html').clone().text();
+  assert.equal(originalShell, 'public asset', 'canonical HTML must enter offline cache');
   responseFactory = () => new Response('private content', { headers: { 'Cache-Control': 'private, no-store' } });
   assert.equal(await dispatch(request('/matkvest/assets/secret.png', { destination: 'image' })), true);
   assert.equal(entries.size, before, 'private static response cannot enter cache');
@@ -81,9 +87,11 @@ async function dispatch(req) {
   assert.equal(entries.size, before, 'redirected static resource cannot enter cache');
   assert.equal(await dispatch(request('/matkvest/index.html', { destination: 'document', mode: 'navigate' })), true);
   assert.equal(entries.size, before, 'redirected navigation cannot replace cached shell');
+  assert.equal(await entries.get('./index.html').clone().text(), originalShell, 'redirect must not overwrite existing shell');
   responseFactory = () => { throw new Error('offline'); };
   const offline = await dispatch(request('/matkvest/index.html', { destination: 'document', mode: 'navigate' }));
   assert.equal(offline, true, 'offline shell fallback must remain intercepted');
-    assert(fetchCalls >= 2, 'network-first app shell and public asset must fetch');
+  assert.equal(await lastResponse.text(), originalShell, 'offline fallback must serve exact cached HTML');
+  assert(fetchCalls >= 2, 'network-first app shell and public asset must fetch');
   process.stdout.write('stage20 SW privacy: PASS (' + privatePaths.length + ' private endpoint families; static/offline paths preserved)\\n');
 })().catch(error => { console.error(error); process.exitCode = 1; });
