@@ -1,7 +1,9 @@
 name: Stage28 commercial readiness offline smoke
 on:
   push:
-    branches: [audit/stage28-commercial-readiness-20261107]
+    branches: [main, audit/stage28-commercial-readiness-20261107]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 permissions:
   contents: read
