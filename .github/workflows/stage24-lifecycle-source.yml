@@ -1,7 +1,5 @@
 name: Stage24 lifecycle source audit
 on:
-  push:
-    branches: [audit/stage24-attempt-lifecycle-20261107]
   workflow_dispatch:
 permissions:
   contents: read
