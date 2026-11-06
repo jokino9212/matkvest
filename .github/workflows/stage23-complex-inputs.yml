@@ -1,7 +1,9 @@
 name: Stage23 complex inputs and Skip regression
 on:
   push:
-    branches: [audit/stage23-complex-answers-20261107]
+    branches: [main, audit/stage23-complex-answers-20261107]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 permissions:
   contents: read
