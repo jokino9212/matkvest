@@ -37,3 +37,10 @@ for needle,before,after,lim in [
  points=list(re.finditer(re.escape(needle),s))
  print("TARGET",needle,"COUNT",len(points))
  for m in points[:lim]:print("AT",m.start(),repr(s[max(0,m.start()-before):m.start()+after]))
+
+for label,a,b in [
+ ("LATEST_SORT_IMPLEMENTATION",6357400,6360800),
+ ("FRACTION_GLOBAL_STYLES",48900,50200),
+ ("COLLECTION_OVERRIDES",4960000,4974000),
+]:
+ print("\nREGION",label,repr(s[a:b]))
