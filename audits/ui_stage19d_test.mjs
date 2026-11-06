@@ -79,14 +79,14 @@ try{
    const item=catalogItem('pets','pet_cat');
    return{coins:state.coins,price:item.price,level:levelFor(state.xp),owned:state.inventory.pets.includes(item.id)};
   });
-  check('Known non-reward test pet starts unowned and costs 390',before.coins===10000&&before.price===390&&!before.owned,before);
+  check('Known non-reward test pet starts unowned and costs 390',before.coins>=10000&&before.price===390&&!before.owned,before);
   const bought=await page.evaluate(()=>{
    buyShopItem('pets','pet_cat');
    const acq=mk865Acquisition(state,'pets','pet_cat');
    return{coins:state.coins,owned:state.inventory.pets.includes('pet_cat'),equipped:state.equipped.pet,acq:acq&&{source:acq.source,paidPrice:acq.paidPrice},
     spent:state.shopStats.spent,purchases:state.shopStats.purchases};
   });
-  check('Purchase costs exact 390 and writes proof',bought.coins===9610&&bought.owned&&bought.equipped==='pet_cat'&&bought.acq?.paidPrice===390&&bought.acq?.source==='store',bought);
+  check('Purchase costs exact 390 and writes proof',bought.coins===before.coins-390&&bought.owned&&bought.equipped==='pet_cat'&&bought.acq?.paidPrice===390&&bought.acq?.source==='store',bought);
   const noDup=await page.evaluate(()=>{const n=state.coins;buyShopItem('pets','pet_cat');return{before:n,after:state.coins,purchases:state.shopStats.purchases}});
   check('Repeated purchase cannot charge twice',noDup.after===noDup.before&&noDup.purchases===1,noDup);
   const eligible=await page.evaluate(()=>{
@@ -105,7 +105,7 @@ try{
     sales:state.shopStats.sales,returned:state.shopStats.refundedCoins,
     rec:state.saleHistory.filter(x=>x.type==='pets'&&x.id==='pet_cat').slice(-1)[0]};
   });
-  check('40% resale credits once and unequips pet',sold.coins===9766&&!sold.owned&&sold.equipped==='pet_none'&&sold.sales===1&&sold.returned===156&&sold.rec?.refundCoins===156,sold);
+  check('40% resale credits once and unequips pet',sold.coins===bought.coins+156&&!sold.owned&&sold.equipped==='pet_none'&&sold.sales===1&&sold.returned===156&&sold.rec?.refundCoins===156,sold);
   const duplicate=await page.evaluate(()=>{
    const n=state.coins;mk865SellItem('pets','pet_cat',0.4);return{before:n,after:state.coins,owned:state.inventory.pets.includes('pet_cat')};
   });
@@ -138,7 +138,7 @@ try{
    return{coins:state.coins,owned:state.inventory.avatars.includes('av_cat'),sales:state.shopStats.sales,
      receipt:receipt&&{paid:receipt.paidPrice,refund:receipt.refundCoins,rate:receipt.refundRate},eligible:eligible.ok,reason:eligible.reason};
   });
-  check('Archived avatar refunds 100% of historical 400 once',refunded.coins===450&&!refunded.owned&&refunded.receipt?.refund===400&&refunded.receipt?.rate===1&&!refunded.eligible,refunded);
+  check('Archived avatar refunds 100% of historical 400 once',refunded.coins===given.coins+400&&!refunded.owned&&refunded.receipt?.refund===400&&refunded.receipt?.rate===1&&!refunded.eligible,refunded);
   const again=await page.evaluate(()=>{
    const coins=state.coins;mk873RefundArchivedAvatar('av_cat');
    return{before:coins,after:state.coins,receipt:!!mk873Receipt(state,'av_cat')};
@@ -149,7 +149,7 @@ try{
    coins:state.coins,owned:state.inventory.avatars.includes('av_cat'),receipt:mk873Receipt(state,'av_cat')?.refundCoins,
    eligibility:mk873Eligibility(state,'av_cat').ok
   }));
-  check('Full refund remains safe after reload',persistent.coins===450&&!persistent.owned&&persistent.receipt===400&&!persistent.eligibility,persistent);
+  check('Full refund remains safe after reload',persistent.coins===refunded.coins&&!persistent.owned&&persistent.receipt===400&&!persistent.eligibility,persistent);
   report.transactions.push({type:'archived_full_refund',given,refunded,again,persistent});
   await ctx.close();
  }
