@@ -1,0 +1,24 @@
+name: Stage20 PWA privacy gate
+on:
+  push:
+    branches:
+      - audit/backend-stage20-20261106
+    paths:
+      - sw.js
+      - audits/stage20_sw_privacy_test.cjs
+      - .github/workflows/stage20_sw_privacy_gate.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  private-api-must-not-cache:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check JavaScript syntax
+        run: node --check sw.js && node --check audits/stage20_sw_privacy_test.cjs
+      - name: Verify PWA private requests bypass cache
+        run: node audits/stage20_sw_privacy_test.cjs
