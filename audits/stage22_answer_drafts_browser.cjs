@@ -89,8 +89,12 @@ async function main(){
        for(let stage=0;stage<3;stage++){
         try{window[plan.method](topic.id,stage)}catch(e){continue}
         const input=document.getElementById('quizInput');
-        if(q?.answerMode==='number' && input && typeof q.ans==='number' && Number.isFinite(q.ans)){
-          found={topic:topic.id,stage,ans:q.ans};break outer;
+        if(q?.answerMode==='number' && input && q.answerRat){
+          const rat=q.answerRat;
+          const options=[String(q.ans??''),String(q.correctText??''),
+           String(Number(rat.n)/Number(rat.d)),String(rat.n)+'/'+String(rat.d)];
+          const correctValue=options.find(v=>{const e=quizInputEvaluation(q,v);return e.valid&&e.ok});
+          if(correctValue!==undefined){found={topic:topic.id,stage,ans:correctValue};break outer}
         }
        }
       }
@@ -105,6 +109,7 @@ async function main(){
       return {found,scoreBefore,scoreAfter,scoreAfterSecond: blockSession.correct,
         feedback:feedback?.slice(0,140),nextVisible:!!next && getComputedStyle(next).display!=='none'};
     },{plan});
+    assert(!correct.skipped,'No valid numeric answer candidate for '+plan.grade+' class');
     if(!correct.skipped){
       assert.equal(correct.scoreAfter,correct.scoreBefore+1,'Correct numeric answer not credited: '+JSON.stringify(correct));
       assert.equal(correct.scoreAfterSecond,correct.scoreAfter,'Repeated Check credited twice');
