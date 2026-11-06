@@ -20,7 +20,6 @@ async function restoredCompletion(page){
  const started=await page.evaluate(()=>{
    startG7QuizStage('g7:rational_numbers_forms',0);
    const id=blockSession.attemptId;
-   assertHack=0;
    // First item is skipped. The next gets a valid answer when possible, otherwise it is also skipped.
    skipNormalQuiz();
    let firstCorrect=false;
@@ -115,7 +114,7 @@ async function exitConfirmation(page){
   [...dialog.querySelectorAll('button')].find(b=>b.textContent.includes('Продолжить'))?.click();
   return {dialogOpen:!!document.querySelector('.mk872-training-dialog'),active:!!blockSession};
  });
- assert(!continued.dialogOpen&&continued.active,'Continue did not preserve attempt');
+ assert(!continued.dialogOpen&&continued.active,'Continue did not preserve attempt: '+JSON.stringify({initialized,continued}));
  const exited=await page.evaluate(()=>{
   closeModal();
   const dialog=document.querySelector('.mk872-training-dialog');
