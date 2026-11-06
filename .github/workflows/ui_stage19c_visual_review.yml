@@ -1,0 +1,43 @@
+name: MatKvest UI stage19C - visual review image export
+on:
+  push:
+    branches: [audit/ui-stage19-20261106]
+    paths:
+      - .github/workflows/ui_stage19c_visual_review.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  screenshots:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit/ui-stage19-20261106
+          persist-credentials: true
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save --no-package-lock puppeteer-core@24
+      - name: Re-run screenshots on verified v58
+        run: node audits/ui_stage19c_test.mjs
+      - name: Export 5 screenshots as textual review assets
+        run: |
+          set -eu
+          base64 -w0 audits/ui19c_before_home_390.png > audits/ui19c_review_before_390.b64.txt
+          base64 -w0 audits/ui19c_before_home_1280.png > audits/ui19c_review_before_1280.b64.txt
+          base64 -w0 audits/ui19c_after_home_390.png > audits/ui19c_review_after_390.b64.txt
+          base64 -w0 audits/ui19c_after_home_1280.png > audits/ui19c_review_after_1280.b64.txt
+          base64 -w0 audits/ui19c_after_grade7_1280.png > audits/ui19c_review_after_grade7_1280.b64.txt
+      - name: Save image evidence for visual review in audit branch only
+        run: |
+          set -eu
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git restore -- audits/ui_stage19c_test_report.json
+          git add audits/ui19c_review_*.b64.txt
+          git commit -m "audit(ui19C): persist before/after v58 screenshots for independent visual review"
+          git pull --rebase origin audit/ui-stage19-20261106
+          git push origin HEAD:audit/ui-stage19-20261106
