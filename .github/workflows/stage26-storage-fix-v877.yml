@@ -40,6 +40,8 @@ jobs:
         run: node audits/stage26_corrupt_storage_browser.cjs
       - name: Explicit restore from verified backup
         run: node audits/stage26_verified_recovery_browser.cjs
+      - name: Storage quota warning and old profile migration
+        run: node audits/stage26_quota_legacy_browser.cjs
       - name: Prior regression tests
         run: |
           node audits/stage25_profile_isolation_browser.cjs
