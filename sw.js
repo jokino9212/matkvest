@@ -44,7 +44,7 @@ self.addEventListener("fetch", event => {
     event.respondWith(
       fetch(request, { cache: "no-store" })
         .then(response => {
-          if (response.ok && response.type !== "opaque" &&
+          if (response.ok && !response.redirected && response.type !== "opaque" &&
               !/\b(?:no-store|private)\b/i.test(response.headers.get("Cache-Control") || "")) {
             const copy = response.clone();
             event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.put("./index.html", copy)));
@@ -63,7 +63,7 @@ self.addEventListener("fetch", event => {
       (isManifest && request.destination === "manifest"))) return;
   event.respondWith(
     caches.match(request).then(cached => cached || fetch(request).then(response => {
-      if (response.ok && response.type !== "opaque" &&
+      if (response.ok && !response.redirected && response.type !== "opaque" &&
           !/\b(?:no-store|private)\b/i.test(response.headers.get("Cache-Control") || "")) {
         const copy = response.clone();
         event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.put(request, copy)));
