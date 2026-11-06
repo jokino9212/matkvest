@@ -33,7 +33,7 @@ addition=r"""
    Raise the target above 24px and restore minimum 4.5:1 ordinary text contrast. */
 #appVersionBadge[role="button"]{
  min-height:28px;display:flex;align-items:center;justify-content:center;
- color:#4b6659
+ color:#4b6659!important
 }
 /* Programmatically focused dialog headings announce the content. They are not
    actionable controls: remove their heavy 3px outline. Leave focus-visible rings
