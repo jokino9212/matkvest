@@ -759,7 +759,7 @@ button,input{font:inherit}button{cursor:pointer}.shell{max-width:1180px;margin:a
 .grade-card.soon{background:linear-gradient(180deg,#fff,#f8fcfa);border-style:dashed}
 .grade-card.soon:hover{transform:none;border-color:#bad8ca}
 .grade-card .soon-label{display:inline-flex;align-items:center;width:max-content;margin-top:4px;padding:4px 8px;border-radius:999px;background:#eef6f2;color:#5d7469;font-size:11px;font-weight:900}
-/* 8.76 class-page visual unification: grades 1–8 use the same hero style. */
+/* 8.77 class-page visual unification: grades 1–8 use the same hero style. */
 .elementary-mode .g6-group{margin-top:18px}
 .elementary-mode .topic.elementary-topic{min-height:150px;padding:18px;text-align:left;cursor:pointer}
 .elementary-mode .topic.elementary-topic strong{font-size:18px;line-height:1.25}
@@ -922,7 +922,7 @@ button,input{font:inherit}button{cursor:pointer}.shell{max-width:1180px;margin:a
 @keyframes mk867Spark{0%,100%{opacity:.34;transform:scale(.82)}50%{opacity:1;transform:scale(1.13)}}
 @media(prefers-reduced-motion:reduce){.mk867-avatar-svg .mk867-spark{animation:none!important}}
 
-/* 8.76: единая компактная контекстная справка. */
+/* 8.77: единая компактная контекстная справка. */
 .mk872-help-heading{display:inline-flex;align-items:center;gap:7px;flex-wrap:wrap}
 .mk872-help-trigger{display:inline-grid;place-items:center;vertical-align:middle;flex:none;width:32px;height:32px;padding:0;border:1px solid #c8dfd3;border-radius:50%;background:#f2f9f5;color:#367b5d;font-size:20px;font-weight:800;line-height:1;cursor:pointer;box-shadow:none}
 .mk872-help-trigger:hover{background:#e1f3e9;border-color:#77b495}.mk872-help-trigger:focus-visible{outline:3px solid #74bba0;outline-offset:3px}
@@ -932,7 +932,7 @@ button,input{font:inherit}button{cursor:pointer}.shell{max-width:1180px;margin:a
 .mk872-help-content{font-size:14px;line-height:1.55}.mk872-help-content p{margin:0 0 9px}.mk872-help-content p:last-child{margin-bottom:0}
 @media(max-width:420px){.mk872-help-dialog{padding:14px 16px}.mk872-help-heading{gap:5px}.mk872-help-trigger{width:32px;height:32px}}
 
-/* 8.76 — единый индикатор прогресса XP (только UI) */
+/* 8.77 — единый индикатор прогресса XP (только UI) */
 .mk872-xp-progress{min-width:0;max-width:440px;margin:7px 0;color:inherit;font-size:12px;line-height:1.35}
 .mk872-xp-head{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-weight:850}
 .mk872-xp-track{height:8px;border-radius:99px;overflow:hidden;background:rgba(122,155,134,.22);margin:5px 0 4px}
@@ -950,18 +950,18 @@ button,input{font:inherit}button{cursor:pointer}.shell{max-width:1180px;margin:a
 @media(max-width:520px){.mk872-top-progress{flex-basis:100%;max-width:100%;order:2}.mk872-xp-progress{width:100%}}
 @media(prefers-reduced-motion:reduce){.mk872-xp-fill{transition:none}}
 
-/* 8.76: логотип — стабильная левая точка первой строки navbar */
+/* 8.77: логотип — стабильная левая точка первой строки navbar */
 .top{align-items:flex-start}
 .mk872-brand-home{align-self:flex-start;flex:0 0 auto;display:flex;align-items:center;gap:10px;min-width:0;margin:0;padding:0;border:0;background:none;color:inherit;text-align:left;font:inherit;font-size:22px;font-weight:950;line-height:1.2;cursor:pointer;white-space:nowrap;appearance:none}
 .mk872-brand-home:hover{opacity:.84}
-/* 8.76 responsive modal hotfix: modal overlays always sit above navbar.
+/* 8.77 responsive modal hotfix: modal overlays always sit above navbar.
    The brand navigation resumes when the dialog is closed. */
 
 .mk872-brand-home:focus-visible{outline:3px solid var(--brand);outline-offset:4px;border-radius:12px}
 .mk872-brand-home .logo{flex:none}
 @media(max-width:520px){.mk872-brand-home{font-size:22px}.mk872-brand-home .logo{display:grid!important}.mk872-brand-home #brandTitle{display:none}}
 
-/* МатКвест 8.76 — viewport-height modal hotfix (no gameplay changes).
+/* МатКвест 8.77 — viewport-height modal hotfix (no gameplay changes).
    Hierarchy: page/navbar < overlay (200) < dialog content; help (320), preview (10000). */
 :root{--mk872-dialog-gap:12px;--mk872-dialog-max:calc(100vh - 2 * var(--mk872-dialog-gap))}
 @supports (height:100dvh){:root{--mk872-dialog-max:calc(100dvh - 2 * var(--mk872-dialog-gap))}}
@@ -2047,7 +2047,7 @@ if(!G8_CATALOG_AUDIT.ok)console.error("G8 catalog audit failed",G8_CATALOG_AUDIT
 // ЭТАП 7.1 — Алгебра 7 класса: Числа и вычисления
 
 
-/* 8.76 G5: четыре самостоятельных темы разных знаменателей. */
+/* 8.77 G5: четыре самостоятельных темы разных знаменателей. */
 const G5_NEW_FRACTION_THEORY={
 frac_shapes:{sense:"На плоскости мы рисуем окружность и круг, а в пространстве рассматриваем шар и цилиндр.",term:"Окружность — граница круга; круг включает все точки внутри неё. Шар — объёмное тело, цилиндр имеет два равных круглых основания.",steps:["Отличи плоские фигуры от объёмных тел.","У круга назови центр и радиус; диаметр вдвое больше радиуса.","У шара все точки поверхности равноудалены от центра; у цилиндра два круглых основания."],example:"Если радиус круга 4 см, его диаметр 8 см.",tip:"Не путай окружность с кругом: окружность — только линия, а круг — линия и внутренняя область."},
 frac_mul_common:{sense:"Чтобы перемножить части целого, нужно взять долю от доли.",term:"При умножении обыкновенных дробей перемножают числители и отдельно знаменатели, затем сокращают результат.",steps:["При необходимости представь целое число дробью со знаменателем 1.","Перемножь числители.","Перемножь знаменатели.","Сократи дробь; у неправильной дроби можно выделить целую часть."],example:`${frac(2,3)} × ${frac(3,5)} = ${frac(6,15)} = ${frac(2,5)}.`,tip:"Нельзя умножать числитель первой дроби на знаменатель второй вместо числителя."},
@@ -6851,7 +6851,48 @@ const EMPTY_STATE={profileId:null,createdAt:null,updatedAt:null,xp:0,coins:0,str
 let profiles={};
 let currentProfile="Ученик";
 let state={...EMPTY_STATE};
+/* v8.77: Never overwrite an unreadable multi-student profile document. */
+let mkV877CorruptProfiles=false;
 try{
+ const raw=localStorage.getItem("mq4_profiles");
+ if(raw!==null){
+  const data=JSON.parse(raw);
+  if(!data||typeof data!=="object"||Array.isArray(data)||Object.values(data).some(v=>!v||typeof v!=="object"||Array.isArray(v))){
+   throw new Error("Invalid profile collection shape");
+  }
+ }
+}catch(e){mkV877CorruptProfiles=true}
+function mkV877ProtectedSet(key,value){
+ if(mkV877CorruptProfiles&&(key==="mq4_profiles"||key==="mq4_current_profile"||key==="mq4"))return;
+ return localStorage.setItem(key,value);
+}
+let mkV877RecoveryExported=false;
+function mkV877AuthorizeExplicitRecovery(imported){
+ if(!mkV877CorruptProfiles)return true;
+ if(!imported||typeof imported!=="object"||!Object.keys(imported).length)return false;
+ const raw=localStorage.getItem("mq4_profiles");
+ // Preserve original corrupt bytes before any replacement.
+ try{
+  if(raw!==null)localStorage.setItem("mk_v877_corrupt_profiles_rescue",raw);
+ }catch(e){
+  if(!mkV877RecoveryExported){
+   alert("Недостаточно места для резервной копии повреждённых данных. Сначала скачайте их кнопкой в предупреждении.");
+   return false;
+  }
+ }
+ try{
+  localStorage.setItem("mq4_profiles",JSON.stringify(imported));
+ }catch(e){
+  alert("Не удалось записать восстановленную резервную копию: закончилось место в браузере. Исходные повреждённые данные сохранены.");
+  return false;
+ }
+ mkV877CorruptProfiles=false;
+ document.getElementById("mk-v877-storage-recovery")?.remove();
+ document.body.classList.remove("mk-v877-storage-risk");
+ return true;
+}
+try{
+  if(mkV877CorruptProfiles)throw new Error("Bad profile schema");
   profiles=JSON.parse(localStorage.getItem("mq4_profiles")||"null")||{};
   currentProfile=localStorage.getItem("mq4_current_profile")||"Ученик";
   if(!Object.keys(profiles).length){
@@ -6860,7 +6901,20 @@ try{
   }
   if(!profiles[currentProfile])profiles[currentProfile]={...EMPTY_STATE};
   state={...EMPTY_STATE,...profiles[currentProfile]};state.courseProgress=state.courseProgress||{};state.questionHistory=state.questionHistory||{};
-}catch(e){profiles={"Ученик":{...EMPTY_STATE}};currentProfile="Ученик";state={...EMPTY_STATE}}
+}catch(e){
+ // On broken multi-profile JSON, recover the most recent *valid* legacy current-profile snapshot in memory.
+ // Do not overwrite the damaged multi-profile document or its legacy fallback.
+ let legacy=null;
+ try{
+  const parsed=JSON.parse(localStorage.getItem("mq4")||"null");
+  if(parsed&&typeof parsed==="object"&&!Array.isArray(parsed))legacy=parsed;
+ }catch(ignore){}
+ currentProfile=localStorage.getItem("mq4_current_profile")||"Ученик";
+ profiles={[currentProfile]:{...EMPTY_STATE,...(legacy||{})}};
+ state={...EMPTY_STATE,...(legacy||{})};
+ state.courseProgress=state.courseProgress||{};
+ state.questionHistory=state.questionHistory||{};
+}
 /* 8.70: capture saved avatar IDs before legacy normalizers validate a partial catalog. */
 const MK870_SAVED_AVATARS_AT_BOOT=Object.fromEntries(Object.entries(profiles).map(([name,p])=>[name,{
  id:typeof p?.equipped?.avatar==="string"?p.equipped.avatar:null,
@@ -7502,9 +7556,9 @@ if(cleanupLegacyImportDuplicates()){
  state={...EMPTY_STATE,...(profiles[currentProfile]||{})};
  normalizeReports();
  try{
-   localStorage.setItem("mq4_profiles",JSON.stringify(profiles));
-   localStorage.setItem("mq4_current_profile",currentProfile);
-   localStorage.setItem("mq4",JSON.stringify(state));
+   mkV877ProtectedSet("mq4_profiles",JSON.stringify(profiles));
+   mkV877ProtectedSet("mq4_current_profile",currentProfile);
+   mkV877ProtectedSet("mq4",JSON.stringify(state));
  }catch(e){}
 }
 let lastStorageErrorAt=0;
@@ -7521,9 +7575,9 @@ function persistSilently(){
  ensureProfileIdentity(state,{touch:true});
  profiles[currentProfile]={...state};
  try{
-   localStorage.setItem("mq4_profiles",JSON.stringify(profiles));
-   localStorage.setItem("mq4_current_profile",currentProfile);
-   localStorage.setItem("mq4",JSON.stringify(state));
+   mkV877ProtectedSet("mq4_profiles",JSON.stringify(profiles));
+   mkV877ProtectedSet("mq4_current_profile",currentProfile);
+   mkV877ProtectedSet("mq4",JSON.stringify(state));
  }catch(e){reportStorageError(e,false)}
 }
 function attemptTitle(key){
@@ -7824,8 +7878,8 @@ function syncCurrentForBackup(){
  profiles[currentProfile]=deepCopy(state);
  ensureAllProfileIdentities();
  try{
-   localStorage.setItem("mq4_profiles",JSON.stringify(profiles));
-   localStorage.setItem("mq4_current_profile",currentProfile);
+   mkV877ProtectedSet("mq4_profiles",JSON.stringify(profiles));
+   mkV877ProtectedSet("mq4_current_profile",currentProfile);
  }catch(e){reportStorageError(e,true)}
 }
 function safeFilePart(s){
@@ -8148,6 +8202,10 @@ function resolveImportConflict(action){
  showNextImportConflict(c.index+1);
 }
 function applySmartImport(){
+ if(mkV877CorruptProfiles){
+  alert("Сначала сохраните повреждённые данные, затем восстановите полную резервную копию через «Заменить все данные». Умное объединение с повреждённой базой запрещено.");
+  return;
+ }
  if(!pendingImportPlan)return openDataManager();
  syncCurrentForBackup();
  let added=0,merged=0,unchanged=0,skipped=0;
@@ -8202,6 +8260,9 @@ function confirmReplaceImport(){
 }
 function replaceWithPendingImport(){
  const data=pendingImport;if(!data)return openDataManager();
+ // User already confirmed "replace all data" in the import confirmation screen.
+ // For corrupted storage, this is the sole route to unlock guarded profile writes.
+
  const imported={};
  Object.entries(data.profiles).forEach(([name,p])=>{
    const prof=normalizeImportedProfile(p);
@@ -8209,6 +8270,7 @@ function replaceWithPendingImport(){
    if(Object.values(imported).some(x=>x.profileId===prof.profileId))prof.profileId=newProfileId();
    imported[name]=prof;
  });
+ if(!mkV877AuthorizeExplicitRecovery(imported))return;
  profiles=imported;
  if(data?.scope==="all"&&data?.teacherSettings){teacherSettings=normalizeTeacherSettings(data.teacherSettings);saveTeacherSettings();teacherUnlocked=false}
  currentProfile=(data.currentProfile&&profiles[data.currentProfile])?data.currentProfile:Object.keys(profiles)[0];
@@ -8226,9 +8288,9 @@ function save(){
   ensureProfileIdentity(state,{touch:true});
   profiles[currentProfile]={...state};
   try{
-    localStorage.setItem("mq4_profiles",JSON.stringify(profiles));
-    localStorage.setItem("mq4_current_profile",currentProfile);
-    localStorage.setItem("mq4",JSON.stringify(state));
+    mkV877ProtectedSet("mq4_profiles",JSON.stringify(profiles));
+    mkV877ProtectedSet("mq4_current_profile",currentProfile);
+    mkV877ProtectedSet("mq4",JSON.stringify(state));
   }catch(e){reportStorageError(e,true)}
   stats();
   if(pendingAchievementToasts.length){
@@ -8338,9 +8400,9 @@ migrateAllUnifiedData();
 // чтобы стабильные ID не генерировались заново при следующем запуске до первого ручного сохранения.
 try{
  if(profiles[currentProfile])profiles[currentProfile]={...state};
- localStorage.setItem("mq4_profiles",JSON.stringify(profiles));
- localStorage.setItem("mq4_current_profile",currentProfile);
- localStorage.setItem("mq4",JSON.stringify(state));
+ mkV877ProtectedSet("mq4_profiles",JSON.stringify(profiles));
+ mkV877ProtectedSet("mq4_current_profile",currentProfile);
+ mkV877ProtectedSet("mq4",JSON.stringify(state));
 }catch(e){}
 
 function g4TotalStages(){return 12+(TOPICS.length-1)*3}
@@ -9312,10 +9374,10 @@ function deleteProfileById(profileId){
  const hit=findProfileById(profileId);if(!hit)return {ok:false};const name=hit.name,wasActive=state?.profileId===profileId||currentProfile===name;delete profiles[name];if(teacherViewingProfileId===profileId)teacherViewingProfileId=null;
  const remain=Object.entries(profiles);
  if(wasActive){
-   if(remain.length){currentProfile=remain[0][0];state={...EMPTY_STATE,...remain[0][1]};state.courseProgress=state.courseProgress||{};state.questionHistory=state.questionHistory||{};normalizeReports();try{localStorage.setItem("mq4_current_profile",currentProfile);localStorage.setItem("mq4",JSON.stringify(state))}catch(e){reportStorageError(e,true)}}
+   if(remain.length){currentProfile=remain[0][0];state={...EMPTY_STATE,...remain[0][1]};state.courseProgress=state.courseProgress||{};state.questionHistory=state.questionHistory||{};normalizeReports();try{mkV877ProtectedSet("mq4_current_profile",currentProfile);mkV877ProtectedSet("mq4",JSON.stringify(state))}catch(e){reportStorageError(e,true)}}
    else{currentProfile="Ученик";state={...EMPTY_STATE,courseProgress:{},questionHistory:{},attemptHistory:[],activeAttempt:null};try{localStorage.removeItem("mq4_current_profile");localStorage.removeItem("mq4")}catch(e){}}
  }
- try{localStorage.setItem("mq4_profiles",JSON.stringify(profiles))}catch(e){reportStorageError(e,true)}return {ok:true,name,wasActive,remaining:remain.length};
+ try{mkV877ProtectedSet("mq4_profiles",JSON.stringify(profiles))}catch(e){reportStorageError(e,true)}return {ok:true,name,wasActive,remaining:remain.length};
 }
 function requestTeacherDelete(profileId){
  if(!teacherUnlocked)return openTeacherEntry();const hit=teacherProfileById(profileId);if(!hit)return openTeacherDashboard();pendingTeacherDeleteProfileId=profileId;
@@ -9476,7 +9538,7 @@ function openTeacherErrors(profileId){
 }
 function openTeacherJournal(profileId){const hit=teacherProfileById(profileId);if(!hit)return;openAttemptJournal(hit.profile,hit.name,`closeModal();openTeacherStudentDetailById('${profileId}')`)}
 function openProfileAsStudent(profileId){
- const hit=teacherProfileById(profileId);if(!hit)return;currentProfile=hit.name;state={...EMPTY_STATE,...hit.profile};state.courseProgress=state.courseProgress||{};state.questionHistory=state.questionHistory||{};normalizeReports();teacherUnlocked=false;teacherViewingProfileId=null;try{localStorage.setItem("mq4_current_profile",currentProfile);localStorage.setItem("mq4",JSON.stringify(state));localStorage.setItem("mq4_profiles",JSON.stringify(profiles))}catch(e){reportStorageError(e,true)}closeModal();stats();renderHome();
+ const hit=teacherProfileById(profileId);if(!hit)return;currentProfile=hit.name;state={...EMPTY_STATE,...hit.profile};state.courseProgress=state.courseProgress||{};state.questionHistory=state.questionHistory||{};normalizeReports();teacherUnlocked=false;teacherViewingProfileId=null;try{mkV877ProtectedSet("mq4_current_profile",currentProfile);mkV877ProtectedSet("mq4",JSON.stringify(state));mkV877ProtectedSet("mq4_profiles",JSON.stringify(profiles))}catch(e){reportStorageError(e,true)}closeModal();stats();renderHome();
 }
 
 
@@ -11088,7 +11150,7 @@ function questEligiblePool(profile,{slot=null,excludeIds=[],excludeFamilies=[],a
 function generateQuest(profile,exclusions=[],preferredSlot=null,excludedFamilies=[]){
  const active=questReadState(profile).active,excludeIds=[...new Set([...exclusions,...active.map(x=>x.templateId)])],families=[...new Set(excludedFamilies)];let x=questEligiblePool(profile,{slot:preferredSlot,excludeIds,excludeFamilies:families,avoidRecent:true});if(!x.rows.length)x=questEligiblePool(profile,{slot:preferredSlot,excludeIds,excludeFamilies:families,avoidRecent:false});if(!x.rows.length)x=questEligiblePool(profile,{excludeIds,excludeFamilies:families,avoidRecent:true});if(!x.rows.length)x=questEligiblePool(profile,{excludeIds,excludeFamilies:[],avoidRecent:false});if(!x.rows.length)return null;const t=x.rows[Math.floor(Math.random()*x.rows.length)];return questMakeInstance(t,x.ctx);
 }
-function persistQuestsOnly({touch=false}={}){normalizeQuestState(state);ensureProfileIdentity(state,{touch});profiles[currentProfile]=deepCopy(state);try{localStorage.setItem("mq4_profiles",JSON.stringify(profiles));localStorage.setItem("mq4_current_profile",currentProfile);localStorage.setItem("mq4",JSON.stringify(state))}catch(e){reportStorageError(e,true)}}
+function persistQuestsOnly({touch=false}={}){normalizeQuestState(state);ensureProfileIdentity(state,{touch});profiles[currentProfile]=deepCopy(state);try{mkV877ProtectedSet("mq4_profiles",JSON.stringify(profiles));mkV877ProtectedSet("mq4_current_profile",currentProfile);mkV877ProtectedSet("mq4",JSON.stringify(state))}catch(e){reportStorageError(e,true)}}
 function ensureQuestBoard(profileData=state,{persist=false}={}){
  const profile=normalizeQuestState(profileData||state),q=profile.quests;let changed=false;const slots=["general","study","special"];
  const trulyNew=q.active.length===0&&q.history.length===0&&Number(profile.solved||0)===0&&!(profile.attemptHistory||[]).length&&getStudiedTopics(profile).length===0;
@@ -11132,7 +11194,7 @@ function openQuests(){
 }
 function teacherQuestPanel(profile){const s=questBoardSummary(profile);return `<h2>🔥 Квесты</h2><div class="teacher-kpis"><div class="teacher-kpi"><b>${s.active}</b><small>активно</small></div><div class="teacher-kpi"><b>${s.ready}</b><small>готово наград</small></div></div><div class="teacher-lock-note">Режим преподавателя только показывает состояние и не двигает прогресс квестов.</div>`}
 
-function migratePersonalizationProfiles(){let changed=false;for(const [name,p] of Object.entries(profiles)){const before=JSON.stringify({inventory:p?.inventory,equipped:p?.equipped});normalizeProfileShopData(p,{syncRewards:true});if(JSON.stringify({inventory:p?.inventory,equipped:p?.equipped})!==before)changed=true;profiles[name]=p}normalizeProfileShopData(state,{syncRewards:true});if(profiles[currentProfile])profiles[currentProfile]={...profiles[currentProfile],inventory:deepCopy(state.inventory),equipped:deepCopy(state.equipped),achievementUnlocks:deepCopy(state.achievementUnlocks)};if(changed){try{localStorage.setItem("mq4_profiles",JSON.stringify(profiles));localStorage.setItem("mq4",JSON.stringify(state))}catch(e){reportStorageError(e,false)}}return changed}
+function migratePersonalizationProfiles(){let changed=false;for(const [name,p] of Object.entries(profiles)){const before=JSON.stringify({inventory:p?.inventory,equipped:p?.equipped});normalizeProfileShopData(p,{syncRewards:true});if(JSON.stringify({inventory:p?.inventory,equipped:p?.equipped})!==before)changed=true;profiles[name]=p}normalizeProfileShopData(state,{syncRewards:true});if(profiles[currentProfile])profiles[currentProfile]={...profiles[currentProfile],inventory:deepCopy(state.inventory),equipped:deepCopy(state.equipped),achievementUnlocks:deepCopy(state.achievementUnlocks)};if(changed){try{mkV877ProtectedSet("mq4_profiles",JSON.stringify(profiles));mkV877ProtectedSet("mq4",JSON.stringify(state))}catch(e){reportStorageError(e,false)}}return changed}
 function initializeExpandedAchievements(){ACHIEVEMENTS_READY=true;normalizeAchievementUnlocks(state);const unlocked=checkAchievementRewards({profile:state,silent:false});if(unlocked.length)persistSilently();return unlocked}
 
 
@@ -12031,7 +12093,7 @@ function g8CompletedStages(){return g8ImplementedTopics().reduce((s,t)=>s+comple
 function g8TotalStages(){return g8ImplementedTopics().length*3}
 function g8Lesson(id){return G8_STAGE81_LESSONS[rawCourseId(id)]||"Решай по шагам и обязательно проверяй область допустимых значений корня."}
 function g8Pick(a){return a[ri(0,a.length-1)]}
-/* 8.76 — grade 8 variant rotation. Only newly generated tasks are affected;
+/* 8.77 — grade 8 variant rotation. Only newly generated tasks are affected;
    saved question payloads, topic IDs and profile schemas remain unchanged. */
 const G8_VARIANT_DECKS=new Map();
 function g8PickVariant(raw,d,variants){
@@ -16655,7 +16717,7 @@ function trainingPlanPersistProfile(profileId){
  hit.profile.updatedAt=Date.now();
  profiles[hit.name]={...hit.profile};
  if(state?.profileId===profileId||currentProfile===hit.name){state.activeTrainingPlan=deepCopy(hit.profile.activeTrainingPlan);save();return true}
- try{localStorage.setItem("mq4_profiles",JSON.stringify(profiles))}catch(e){reportStorageError(e,true)}
+ try{mkV877ProtectedSet("mq4_profiles",JSON.stringify(profiles))}catch(e){reportStorageError(e,true)}
  return true;
 }
 function trainingPlanMakeId(profileId){return `plan_${Date.now().toString(36)}_${String(profileId||"p").replace(/[^a-z0-9]/gi,"").slice(-6)}`}
@@ -19510,7 +19572,7 @@ function mk855RestoreBootCosmetics(){
  if(profiles[currentProfile]){
   const p=profiles[currentProfile];state.inventory=deepCopy(p.inventory);state.equipped=deepCopy(p.equipped);state.nicknameStyleId=p.nicknameStyleId||"default";normalizeProfileShopData(state,{syncRewards:false});
  }
- if(changed){try{localStorage.setItem("mq4_profiles",JSON.stringify(profiles));localStorage.setItem("mq4",JSON.stringify(state))}catch(e){reportStorageError(e,false)}}
+ if(changed){try{mkV877ProtectedSet("mq4_profiles",JSON.stringify(profiles));mkV877ProtectedSet("mq4",JSON.stringify(state))}catch(e){reportStorageError(e,false)}}
  return changed;
 }
 for(const p of Object.values(profiles))normalizeProfileShopData(p,{syncRewards:true});normalizeProfileShopData(state,{syncRewards:true});mk855RestoreBootCosmetics();
@@ -19850,9 +19912,9 @@ function mk861CommitProfileState(next){
  try{
   normalizeProfileShopData(next,{syncRewards:false});mk861NormalizeChestProfile(next);ensureProfileIdentity(next,{touch:true});
   const nextProfiles={...profiles,[currentProfile]:next};
-  localStorage.setItem("mq4_profiles",JSON.stringify(nextProfiles));
-  localStorage.setItem("mq4_current_profile",currentProfile);
-  localStorage.setItem("mq4",JSON.stringify(next));
+  mkV877ProtectedSet("mq4_profiles",JSON.stringify(nextProfiles));
+  mkV877ProtectedSet("mq4_current_profile",currentProfile);
+  mkV877ProtectedSet("mq4",JSON.stringify(next));
   profiles=nextProfiles;state=next;stats();return true;
  }catch(e){
   state=oldState;profiles=oldProfiles;
@@ -19992,7 +20054,7 @@ replaceWithPendingImport=function(){
  }
  if(protectedAny){
   if(profiles[currentProfile])state={...EMPTY_STATE,...profiles[currentProfile]};mk861NormalizeChestProfile(state);
-  try{localStorage.setItem("mq4_profiles",JSON.stringify(profiles));localStorage.setItem("mq4_current_profile",currentProfile);localStorage.setItem("mq4",JSON.stringify(state))}catch(e){reportStorageError(e,true)}
+  try{mkV877ProtectedSet("mq4_profiles",JSON.stringify(profiles));mkV877ProtectedSet("mq4_current_profile",currentProfile);mkV877ProtectedSet("mq4",JSON.stringify(state))}catch(e){reportStorageError(e,true)}
   stats();
  }
  return ret;
@@ -20234,7 +20296,7 @@ mergeSameStudent=function(local,incoming,forcedId=null){
  return mk865NormalizeSaleProfile(merged);
 };
 /* Один раз фиксируем текущее владение для anti-duplicate, но НЕ придумываем старым предметам историю покупки. */
-mk865NormalizeSaleProfile(state);profiles[currentProfile]={...state};try{localStorage.setItem("mq4_profiles",JSON.stringify(profiles));localStorage.setItem("mq4",JSON.stringify(state))}catch(_e){}
+mk865NormalizeSaleProfile(state);profiles[currentProfile]={...state};try{mkV877ProtectedSet("mq4_profiles",JSON.stringify(profiles));mkV877ProtectedSet("mq4",JSON.stringify(state))}catch(_e){}
 </script>
 
 
@@ -20329,7 +20391,7 @@ Object.assign(MK868_PATCHES,{"av_mq_shadow_knight":{"name":"Теневой ры�
 for(const [id,patch] of Object.entries({"av_mq_shadow_knight":{"name":"Теневой рыцарь","price":1100,"level":16,"rarity":"legendary","desc":"Молчаливый защитник из мира вечного затмения."},"av_mq_storm_titan":{"name":"Грозовой титан","price":1300,"level":18,"rarity":"legendary","desc":"Древний страж, в котором бушует сила грозы."},"av_mq_moon_raven":{"name":"Лунный ворон","price":1500,"level":20,"rarity":"legendary","desc":"Ночной наблюдатель, который видит то, что скрыто другим."},"av_mq_astral_lion":{"name":"Астральный лев","price":1750,"level":23,"rarity":"legendary","desc":"Величественный хранитель силы звёзд."},"av_mq_time_keeper":{"name":"Хранитель времени","price":1950,"level":26,"rarity":"legendary","desc":"Таинственный властелин мгновений и временных путей."},"av_mq_deep_king":{"name":"Король глубин","price":2200,"level":30,"rarity":"legendary","desc":"Древний правитель затонувшего мира."}}))mk868UpsertAvatar(id,patch);
 for(const id of ["av_mq_shadow_knight", "av_mq_storm_titan", "av_mq_moon_raven", "av_mq_astral_lion", "av_mq_time_keeper", "av_mq_deep_king"])MK868_FINAL_HERO_SET.add(id);
 
-/* 8.76: Golden premium avatar through existing global catalog. */
+/* 8.77: Golden premium avatar through existing global catalog. */
 Object.assign(MK868_HERO_ASSETS,{"avatar_gold":"data:image/webp;base64,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"});
 mk868UpsertAvatar('avatar_gold',{name:'Золото',price:2600,level:32,rarity:'legendary',storeOnly:true,desc:'Сияющий золотой аватар высшей редкости.'});
 MK868_FINAL_HERO_SET.add('avatar_gold');
@@ -20360,7 +20422,7 @@ shopCard=function(type,item){
 };
 </script>
 
-<div id="appVersionBadge" aria-label="Версия приложения" style="position:fixed;right:10px;bottom:8px;z-index:140;padding:4px 8px;border:1px solid rgba(113,131,123,.28);border-radius:999px;background:rgba(255,255,255,.88);box-shadow:0 2px 8px rgba(35,76,60,.08);color:#71837b;font:700 11px/1.2 Inter,system-ui,-apple-system,Segoe UI,Arial,sans-serif;letter-spacing:.01em;pointer-events:auto;cursor:pointer;user-select:none;touch-action:manipulation;backdrop-filter:blur(5px)">Версия 8.76</div>
+<div id="appVersionBadge" aria-label="Версия приложения" style="position:fixed;right:10px;bottom:8px;z-index:140;padding:4px 8px;border:1px solid rgba(113,131,123,.28);border-radius:999px;background:rgba(255,255,255,.88);box-shadow:0 2px 8px rgba(35,76,60,.08);color:#71837b;font:700 11px/1.2 Inter,system-ui,-apple-system,Segoe UI,Arial,sans-serif;letter-spacing:.01em;pointer-events:auto;cursor:pointer;user-select:none;touch-action:manipulation;backdrop-filter:blur(5px)">Версия 8.77</div>
 
 <style id="mk-dev-access-style">
 #devAccessOverlay{position:fixed;inset:0;z-index:1000;background:rgba(14,37,29,.58);display:none;align-items:center;justify-content:center;padding:16px}
@@ -20443,7 +20505,7 @@ function mk870CommitProfile(){
  if(!mk870EnsureAccess()||!state?.developerTestProfile)return false;
  ensureProfileIdentity(state,{touch:true});
  profiles[currentProfile]={...state};
- try{localStorage.setItem('mq4_profiles',JSON.stringify(profiles));localStorage.setItem('mq4_current_profile',currentProfile);localStorage.setItem('mq4',JSON.stringify(state));}catch(e){reportStorageError(e,true)}
+ try{mkV877ProtectedSet('mq4_profiles',JSON.stringify(profiles));mkV877ProtectedSet('mq4_current_profile',currentProfile);mkV877ProtectedSet('mq4',JSON.stringify(state));}catch(e){reportStorageError(e,true)}
  stats();return true;
 }
 function mk870OwnCount(p){return Object.values(p.inventory||{}).reduce((v,items)=>v+(Array.isArray(items)?items.length:0),0)}
@@ -20465,7 +20527,7 @@ function mk870Error(msg){const el=document.getElementById('mk870PanelError');if(
 function mk870ClosePanel(){const el=document.getElementById('mk870Overlay');el.classList.remove('open');el.setAttribute('aria-hidden','true')}
 function mk870Disable(){mk870ClosePanel();developerModeEnabled=false;try{localStorage.removeItem('mq_dev_mode_enabled_870')}catch(_){}if(state?.developerTestProfile){const regular=Object.keys(profiles).find(n=>!profiles[n]?.developerTestProfile);if(regular){currentProfile=regular;state={...EMPTY_STATE,...profiles[regular]};mk870CommitAnySelection();}}mk870RefreshButton();openProfiles()}
 function mk870SelectProfile(name){if(!mk870EnsureAccess()||!Object.hasOwn(profiles,name))return;currentProfile=name;state={...EMPTY_STATE,...profiles[name]};state.courseProgress ||= {};state.questionHistory ||= {};normalizeReports();mk870CommitAnySelection();openDeveloperPanel()}
-function mk870CommitAnySelection(){profiles[currentProfile]={...state};try{localStorage.setItem('mq4_current_profile',currentProfile);localStorage.setItem('mq4',JSON.stringify(state))}catch(_){}stats()}
+function mk870CommitAnySelection(){profiles[currentProfile]={...state};try{mkV877ProtectedSet('mq4_current_profile',currentProfile);mkV877ProtectedSet('mq4',JSON.stringify(state))}catch(_){}stats()}
 function mk870CreateTest(){if(!mk870EnsureAccess())return;let n='Тестовый ученик',i=2;while(Object.hasOwn(profiles,n))n='Тестовый ученик '+i++;let p=ensureProfileIdentity({...EMPTY_STATE,developerTestProfile:true,courseProgress:{},questionHistory:{}});profiles[n]=p;currentProfile=n;state={...EMPTY_STATE,...p};normalizeShop();mk870CommitProfile();openDeveloperPanel()}
 function mk870TestOnly(){if(!mk870EnsureAccess()||!state?.developerTestProfile){mk870Error('Сначала выберите тестовый профиль');return false}return true}
 function mk870SafeInt(value){const text=String(value);if(!/^\d+$/.test(text)||!Number.isSafeInteger(Number(text)))return null;return Number(text)}
@@ -20480,7 +20542,7 @@ function mk870SnapshotKey(){return MK870_SNAP_PREFIX+String(state.profileId||cur
 function mk870Snapshot(){if(!mk870TestOnly())return;mk870CommitProfile();try{localStorage.setItem(mk870SnapshotKey(),JSON.stringify(state))}catch(e){mk870Error('Не удалось сохранить снимок');return}mk870Error('Тестовый снимок сохранён')}
 function mk870RestoreSnapshot(){if(!mk870TestOnly())return;let snap;try{snap=JSON.parse(localStorage.getItem(mk870SnapshotKey())||'null')}catch(_){}if(!snap||snap.developerTestProfile!==true){mk870Error('Снимок не найден');return}state={...EMPTY_STATE,...snap,profileId:state.profileId,developerTestProfile:true};normalizeShop();mk870CommitProfile();openDeveloperPanel()}
 function mk870ResetTest(){if(!mk870TestOnly()||!confirm('Сбросить выбранного тестового ученика?'))return;const id=state.profileId;state=ensureProfileIdentity({...EMPTY_STATE,profileId:id,developerTestProfile:true,courseProgress:{},questionHistory:{}});normalizeShop();mk870CommitProfile();openDeveloperPanel()}
-function mk870DeleteTests(){if(!mk870EnsureAccess()||!confirm('Удалить все тестовые профили? Обычные ученики сохранятся.'))return;const deleted=Object.keys(profiles).filter(k=>profiles[k]?.developerTestProfile===true);for(const n of deleted){const id=profiles[n]?.profileId;try{localStorage.removeItem(MK870_SNAP_PREFIX+id)}catch(_){}delete profiles[n]}if(!profiles[currentProfile]){currentProfile=Object.keys(profiles)[0]||'Ученик';if(!profiles[currentProfile])profiles[currentProfile]=ensureProfileIdentity({...EMPTY_STATE});state={...EMPTY_STATE,...profiles[currentProfile]}}try{localStorage.setItem('mq4_profiles',JSON.stringify(profiles));localStorage.setItem('mq4_current_profile',currentProfile);localStorage.setItem('mq4',JSON.stringify(state))}catch(_){}stats();openDeveloperPanel()}
+function mk870DeleteTests(){if(!mk870EnsureAccess()||!confirm('Удалить все тестовые профили? Обычные ученики сохранятся.'))return;const deleted=Object.keys(profiles).filter(k=>profiles[k]?.developerTestProfile===true);for(const n of deleted){const id=profiles[n]?.profileId;try{localStorage.removeItem(MK870_SNAP_PREFIX+id)}catch(_){}delete profiles[n]}if(!profiles[currentProfile]){currentProfile=Object.keys(profiles)[0]||'Ученик';if(!profiles[currentProfile])profiles[currentProfile]=ensureProfileIdentity({...EMPTY_STATE});state={...EMPTY_STATE,...profiles[currentProfile]}}try{mkV877ProtectedSet('mq4_profiles',JSON.stringify(profiles));mkV877ProtectedSet('mq4_current_profile',currentProfile);mkV877ProtectedSet('mq4',JSON.stringify(state))}catch(_){}stats();openDeveloperPanel()}
 /* Developer XP and coin grants must not unlock retroactive achievements on test accounts. */
 const MK870_BASE_CHECK_ACHIEVEMENTS=checkAchievementRewards;
 checkAchievementRewards=function(...args){if(state?.developerTestProfile)return;return MK870_BASE_CHECK_ACHIEVEMENTS(...args)};
@@ -20514,7 +20576,7 @@ document.getElementById('mk870Overlay')?.addEventListener('click',e=>{if(e.targe
     state.equipped=deepCopy(profiles[currentProfile].equipped);
     normalizeProfileShopData(state,{syncRewards:false});
   }
-  if(repaired){try{localStorage.setItem('mq4_profiles',JSON.stringify(profiles));localStorage.setItem('mq4',JSON.stringify(state))}catch(e){reportStorageError(e,true)}}
+  if(repaired){try{mkV877ProtectedSet('mq4_profiles',JSON.stringify(profiles));mkV877ProtectedSet('mq4',JSON.stringify(state))}catch(e){reportStorageError(e,true)}}
 
   // Canonical source: profile.equipped.avatar, persisted by the existing save() mechanism.
   const oldAvatarHtml=avatarHtml;
@@ -20624,9 +20686,9 @@ function mk872CleanLegacy(){
  normalizeProfileShopData(next,{syncRewards:false});
  const nextProfiles={...profiles,[currentProfile]:next};
  try{
-  localStorage.setItem('mq4_profiles',JSON.stringify(nextProfiles));
-  localStorage.setItem('mq4_current_profile',currentProfile);
-  localStorage.setItem('mq4',JSON.stringify(next));
+  mkV877ProtectedSet('mq4_profiles',JSON.stringify(nextProfiles));
+  mkV877ProtectedSet('mq4_current_profile',currentProfile);
+  mkV877ProtectedSet('mq4',JSON.stringify(next));
  }catch(e){reportStorageError(e,true);return}
  profiles=nextProfiles;state=next;stats();openDeveloperPanel();
  mk870Error(`Очищено старых предметов: ${items.length}.`);
@@ -20634,7 +20696,7 @@ function mk872CleanLegacy(){
 </script>
 
 <script id="mk-stage12-pwa-refresh">
-/* МатКвест 8.76: безопасное обновление открытой вкладки при смене Service Worker. */
+/* МатКвест 8.77: безопасное обновление открытой вкладки при смене Service Worker. */
 (function mkStage12PwaRefresh(){
  'use strict';
  if(!('serviceWorker' in navigator))return;
@@ -20675,7 +20737,7 @@ function mk872CleanLegacy(){
 })();
 </script>
 
-<!-- Этап 8.76: только крупный просмотр существующих аватаров; без изменения данных профилей. -->
+<!-- Этап 8.77: только крупный просмотр существующих аватаров; без изменения данных профилей. -->
 <style id="mk872-avatar-zoom-style">
 .mk872-viewable{cursor:zoom-in!important}
 .mk872-viewable:focus-visible{outline:3px solid #e6ad30!important;outline-offset:4px}
@@ -20805,7 +20867,7 @@ function mk872CleanLegacy(){
 @media(max-width:520px){.mk872-col-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.mk872-col-card{padding:9px}.mk872-col-art{width:min(100px,100%);height:auto;aspect-ratio:1}.mk872-col-counter-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:365px){.mk872-col-grid{grid-template-columns:1fr}.mk872-col-art{width:120px}}
 
-/* MatKvest 8.76: readable and uncluttered grade pages (1–8). */
+/* MatKvest 8.77: readable and uncluttered grade pages (1–8). */
 /* All grades 1–8 share the same grade-hero colors and grade-chip styling. */
 /* Course names remain aligned to the reading column; redundant right-side topic counts are hidden. */
 #mainView .g6-group > .grade-head > .badge,
@@ -20817,7 +20879,7 @@ function mk872CleanLegacy(){
 </style>
 
 <script id="mk872-collection-ux-script">
-/* 8.76 stable visual hotfix: shared catalog, current-profile ownership; no new persistence schema. */
+/* 8.77 stable visual hotfix: shared catalog, current-profile ownership; no new persistence schema. */
 const MK872_COLLECTION_SECTIONS=Object.freeze([
  ['avatars','🙂','Аватары'],['frames','🖼️','Рамки'],['pets','🐾','Питомцы'],
  ['effects','✨','Ауры'],['nicknameStyles','Аа','Стили имени'],['stickers','⭐','Стикеры'],
@@ -20906,7 +20968,7 @@ openShop=function(category='avatars',rarity=null){if(category==='collection')mk8
 </script>
 
 <script>
-/* 8.76 — один help dialog для всех контекстов; игровое состояние не изменяется. */
+/* 8.77 — один help dialog для всех контекстов; игровое состояние не изменяется. */
 const MK872_HELP_TOPICS={
  shop:{title:'О магазине',content:'<p>Монеты тратятся только на оформление и коллекцию. Учебный результат купить нельзя.</p><p>Предметы бывают обычными, необычными, редкими, эпическими и легендарными.</p><p>Награды с 🏆 получают за достижения, а не покупают обычным способом.</p><p>Полный покупаемый альбом стикеров открывает рамку «Коллекционер».</p>'},
  collection:{title:'О моей коллекции',content:'<p>Здесь собраны предметы, которые уже принадлежат ученику.</p><p>Нажмите на карточку-счётчик категории, чтобы посмотреть свои аватары, рамки, питомцев и другие награды.</p>'},
@@ -20920,7 +20982,7 @@ document.addEventListener('keydown',function(e){const layer=document.getElementB
 </script>
 
 <script>
-/* 8.76: переход по логотипу через уже существующую историю экранов */
+/* 8.77: переход по логотипу через уже существующую историю экранов */
 function mk872BrandGoHome(){
   if(typeof mk872HelpClose==='function')mk872HelpClose();
   // A modal (Store / Collection / Data) may be open while route is already home.
@@ -20955,7 +21017,7 @@ function mk872BrandGoHome(){
   reset();
 })();
 
-/* 8.76: Route restoration ran before the final avatar catalog/UI hotfixes.
+/* 8.77: Route restoration ran before the final avatar catalog/UI hotfixes.
    If a page reload restores an open Store, refresh its visible contents only
    after all registrations and wrappers have finished. Do not touch storage,
    history or the current profile. */
@@ -20967,7 +21029,7 @@ function mk872BrandGoHome(){
 })();
 </script>
 <style id="mk872-training-guard-style">
-/* МатКвест 8.76 — локальный диалог выхода / восстановления */
+/* МатКвест 8.77 — локальный диалог выхода / восстановления */
 .mk872-training-dialog{position:fixed;inset:0;z-index:10000;display:flex;justify-content:center;align-items:center;padding:12px;background:rgba(11,32,24,.64);overflow-y:auto}
 .mk872-training-panel{width:min(470px,100%);max-height:calc(100dvh - 24px);overflow-y:auto;border-radius:20px;background:#fff;border:1px solid #dbe9e2;box-shadow:0 25px 75px rgba(0,0,0,.27);padding:20px;color:#17362c}
 .mk872-training-panel h2{font-size:clamp(20px,4vw,25px);line-height:1.2;margin:0 0 12px;overflow-wrap:anywhere}
@@ -20977,7 +21039,7 @@ function mk872BrandGoHome(){
 
 </style>
 <script id="mk872-training-guard">
-/* МатКвест 8.76 — hotfix сохранения учебных попыток; не меняет схему профиля и версию. */
+/* МатКвест 8.77 — hotfix сохранения учебных попыток; не меняет схему профиля и версию. */
 const MK872_DRAFT_PREFIX='mk872_learning_draft_v1_';
 let mk872Dialog=null,mk872DialogReturnFocus=null,mk872Saving=false,mk872Restoring=false,mk872SaveTimer=0;
 const mk872ProfileId=()=>String(state?.profileId||profiles?.[currentProfile]?.profileId||currentProfile||'');
@@ -21338,9 +21400,9 @@ function mk873RefundArchivedAvatar(id){
   const updatedProfiles={...profiles,[currentProfile]:next};const updatedRegistry={...mk873Registry(),[key]:receipt};
   try{
    localStorage.setItem(MK873_REFUND_REGISTRY_KEY,JSON.stringify(updatedRegistry));
-   localStorage.setItem('mq4_profiles',JSON.stringify(updatedProfiles));
-   localStorage.setItem('mq4',JSON.stringify(next));
-   localStorage.setItem('mq4_current_profile',currentProfile);
+   mkV877ProtectedSet('mq4_profiles',JSON.stringify(updatedProfiles));
+   mkV877ProtectedSet('mq4',JSON.stringify(next));
+   mkV877ProtectedSet('mq4_current_profile',currentProfile);
    const persisted=JSON.parse(localStorage.getItem('mq4_profiles')||'{}')?.[currentProfile];
    if(persisted?.legacyAvatarRefunds?.[id]?.transactionId!==tx)throw Error('Не удалось сохранить реестр компенсаций');
   }catch(err){
@@ -21568,7 +21630,7 @@ mk873ReconcileReceipts(state);
  #mainView .topic .ico.mk875-topic-icon{width:42px;height:42px}
 }
 
-/* МатКвест 8.76 / этап 17 — выравнивание теории во всех 110 темах 8 класса.
+/* МатКвест 8.77 / этап 17 — выравнивание теории во всех 110 темах 8 класса.
    Исправление: прежний display:grid делал каждый <b>, <span> и <br>
    отдельной строкой, отрывая формулы и пояснения друг от друга. */
 .g8-theory852,
@@ -22100,7 +22162,7 @@ mk873ReconcileReceipts(state);
 </script>
 
 <script id="mk876-grade5-quality">
-/* МатКвест 8.76: локальный hotfix качества 53 генераторов 5 класса.
+/* МатКвест 8.77: локальный hotfix качества 53 генераторов 5 класса.
    Никаких изменений сохранённых вопросов, профилей, XP, монет и структуры стадий. */
 (()=>{
 'use strict';
@@ -23038,7 +23100,7 @@ for(const key of keys){const t=g8InfoById('g8:'+key);if(t){t.implemented=true;t.
 })();
 </script>
 <script id="g8-geometry-session-dedupe-regression">
-/* 8.76 geometry QA — avoid exact prompt repeats in ongoing grade-8 practice.
+/* 8.77 geometry QA — avoid exact prompt repeats in ongoing grade-8 practice.
    No modifications to the catalog, localStorage, backups or unfinished attempts. */
 (function(){
  const priorFresh=freshQuiz;
@@ -23065,7 +23127,7 @@ for(const key of keys){const t=g8InfoById('g8:'+key);if(t){t.implemented=true;t.
 })();
 </script>
 <script id="g8-geometry-regression-step2">
-/* МатКвест 8.76: geometry regression step 2.
+/* МатКвест 8.77: geometry regression step 2.
  * Targeted repairs for 82 / 84 / 85; no ID, store, backup or save schema changes.
  * Fresh session questions are generated as before; existing interrupted attempts stay intact. */
 (function(){
@@ -23344,7 +23406,7 @@ for(const key of keys){const t=g8InfoById('g8:'+key);if(t){t.implemented=true;t.
 })();
 </script>
 <script id="g8-geometry-regression-stage4-parametric-65-67">
-/* MatKvest 8.76 — Grade 8 geometry QA stage 4. Three topics 65–67.
+/* MatKvest 8.77 — Grade 8 geometry QA stage 4. Three topics 65–67.
    Figures and numerical answers derive from the SAME independently auditable model.
    Saved question payloads, topic identifiers, progress and economy are not migrated. */
 (function(){'use strict';
@@ -23942,7 +24004,7 @@ force=order[Math.min(Number(blockSession.done)||0,order.length-1)];try{return ol
 
 </script>
 <script id="g8-regression-77-79-precise-geometry">
-/* 8.76 — quality audit: exact geometric construction, no changed topic IDs/profile state */
+/* 8.77 — quality audit: exact geometric construction, no changed topic IDs/profile state */
 (function(){'use strict';
 const TOPICS=['special_angles_trig','central_inscribed_angles','tangent_chord_angle'];
 const FULL=new Set(TOPICS.map(x=>'g8:'+x));
@@ -24149,7 +24211,7 @@ for(const raw of TOPICS){const t=g8InfoById('g8:'+raw);if(t){t.implemented=true;
 </script>
 
 <script id="g8-stage9-exact-8082">
-/* 8.76 — grade-8 geometry quality: exact constructed models, stages 80–82. */
+/* 8.77 — grade-8 geometry quality: exact constructed models, stages 80–82. */
 (function(){'use strict';
 const RAW=['chords_secants_angles','cyclic_quadrilateral','tangential_quadrilateral'];
 const IDS=new Set(RAW.map(x=>'g8:'+x));
@@ -24311,7 +24373,7 @@ for(const raw of RAW){const topic=g8InfoById('g8:'+raw);if(topic){topic.implemen
 
 </script>
 <script id="g8-stage10-geometry-83-85">
-/* МатКвест 8.76 — 8 класс, геометрия 83–85: точные окружности, касательные и ответы.
+/* МатКвест 8.77 — 8 класс, геометрия 83–85: точные окружности, касательные и ответы.
    Унаследованные ID, сохранённые вопросы и система прогресса не изменяются. */
 (function(){'use strict';
 const KEYS=['circle_relative_positions','circle_tangency','common_tangents_two_circles'];
@@ -24577,7 +24639,7 @@ freshQuiz=function(id){
 </script>
 
 <script id="g8-algebra-regression-first-3">
-/* МатКвест 8.76 — 8 класс, алгебра, регрессия 1: темы 1–3.
+/* МатКвест 8.77 — 8 класс, алгебра, регрессия 1: темы 1–3.
    Preserve all pre-existing IDs/progress; replace only future generated questions. */
 (function(){'use strict';
  const ROOT='square_root_arithmetic', IRR='irrational_numbers_approximations', CMP='real_numbers_compare';
@@ -24712,7 +24774,7 @@ freshQuiz=function(id){
 </script>
 
 <script id="g8-algebra-stage2-questions">
-/* МатКвест 8.76 — Algebra 8 grade, QA stage 2: three generators only.
+/* МатКвест 8.77 — Algebra 8 grade, QA stage 2: three generators only.
    No modifications to existing topic IDs, stored snapshots, XP, or user profiles. */
 (function(){'use strict';
  const IDS=new Set(['equation_x2_equals_a','square_root_properties','root_expression_transformations']);
@@ -24850,7 +24912,7 @@ freshQuiz=function(id){
 
 </script>
 <script id="g8-algebra-stage3-7-9">
-/* МатКвест 8.76 — Grade 8 algebra 7–9: explicit mathematical models,
+/* МатКвест 8.77 — Grade 8 algebra 7–9: explicit mathematical models,
    integer-only numeric answers, exact fraction choices, session template rotation.
    Existing topic IDs, progress and unfinished snapshots are not migrated or mutated. */
 (function(){'use strict';
@@ -24991,7 +25053,7 @@ freshQuiz=function(id){
 
 </script>
 <script id="g8-algebra-stage4-10-12">
-/* МатКвест 8.76: targeted grade 8 algebra quality patch, topics 10–12.
+/* МатКвест 8.77: targeted grade 8 algebra quality patch, topics 10–12.
    Existing saved question snapshots, profile and economy are not changed. */
 (function(){'use strict';
  const IDS=new Set(['scientific_notation','scientific_notation_operations','quadratic_trinomial']);
@@ -25122,7 +25184,7 @@ freshQuiz=function(id){
 </script>
 
 <script id="g8-algebra-stage5-13-15">
-/* MatKvest 8.76, algebra quality stage 5. Existing IDs, profile, save format and old snapshots untouched. */
+/* MatKvest 8.77, algebra quality stage 5. Existing IDs, profile, save format and old snapshots untouched. */
 (function(){'use strict';
  const RAW=['quadratic_trinomial_factorization','algebraic_fraction_domain','algebraic_fraction_basic_property'];
  const IDSET=new Set(RAW);
@@ -25470,7 +25532,7 @@ freshQuiz=function(id){
 </script>
 
 <script id="g8-algebra-stage7-19-21">
-/* MatKvest 8.76 — grade 8 algebra QA, topics 19–21. Append-only; no backend/storage schema changes. */
+/* MatKvest 8.77 — grade 8 algebra QA, topics 19–21. Append-only; no backend/storage schema changes. */
 (function(){'use strict';
 const TOPICS=['rational_expression_transformations','quadratic_equation_types','incomplete_quadratic_equations'];
 const TOPICSET=new Set(TOPICS);
@@ -25582,7 +25644,7 @@ freshQuiz=function(id){const r=rawCourseId(id),full='g8:'+r;if(!TOPICSET.has(r)|
 
 </script>
 <script id="g8-algebra-stage8-22-24">
-/* МатКвест 8.76 — Алгебра 8 класса, этап 8, темы 22–24.
+/* МатКвест 8.77 — Алгебра 8 класса, этап 8, темы 22–24.
    Сохранение структуры профилей и старых снимков: дополняющий патч. */
 (function(){'use strict';
 const TOPICS=['quadratic_discriminant_formula','quadratic_roots_cases','vieta_theorem'];
@@ -25691,7 +25753,7 @@ freshQuiz=function(id){const r=rawCourseId(id),key='g8:'+r;if(!TS.has(r)||!block
 
 </script>
 <script id="g8-algebra-stage9-25-27">
-/* МатКвест 8.76 — 8 класс, алгебра, темы 25–27; накопительный патч.
+/* МатКвест 8.77 — 8 класс, алгебра, темы 25–27; накопительный патч.
    Не изменяет ID, профиль, уже созданные вопросы, backend и хранилище. */
 (function(){'use strict';
 const TOPICS=['equations_reducible_to_quadratic','fractional_rational_equations','quadratic_word_problems'];
@@ -25810,7 +25872,7 @@ freshQuiz=function(id){const r=rawCourseId(id),key='g8:'+r;
 
 </script>
 <script id="mk-g8-algebra-stage10-28-30">
-/* МатКвест 8.76 — алгебра 8, темы 28–30. Накопительный контентный патч. */
+/* МатКвест 8.77 — алгебра 8, темы 28–30. Накопительный контентный патч. */
 (function(){'use strict';
 const NAMES=['two_variable_equation_graph','linear_system_graphical','linear_system_substitution'];
 const TARGET=new Set(NAMES), choose=a=>a[ri(0,a.length-1)], sign=n=>String(n).replace(/-/g,'−'), plane=(k,b,label='',alt=false)=>g7LineSeries(k,b,{range:6,label:label||`y=${sign(k)}x${b>=0?'+':''}${sign(b)}`,alt,dashed:alt});
@@ -25975,7 +26037,7 @@ freshQuiz=function(id){const raw=rawCourseId(id),key=`g8:${raw}`;
 </script>
 
 <script id="g8-algebra-stage11-31-33">
-/* МатКвест 8.76 — алгебра 8 класса, этап 11, темы 31–33.
+/* МатКвест 8.77 — алгебра 8 класса, этап 11, темы 31–33.
    Контентный патч: не изменяет profile, wallet, progress, backup, unfinished attempt. */
 (function(){'use strict';
 const ids=['linear_system_elimination','nonlinear_systems_intro','systems_word_problems'];
@@ -26251,7 +26313,7 @@ freshQuiz=function(id){
 
 </script>
 <script id="mk-g8-alg-stage12">
-/* МатКвест 8.76 — алгебра 8 класса, этап 12, темы 34–36.
+/* МатКвест 8.77 — алгебра 8 класса, этап 12, темы 34–36.
    Исправление новых заданий. ID, прогресс, экономика и существующие snapshot-вопросы не меняются. */
 (function(){'use strict';
 const ids=['numerical_inequalities_properties','equivalent_inequalities','linear_inequalities'];
@@ -26494,7 +26556,7 @@ freshQuiz=function(id){
 
 </script>
 <script id="mk-g8-alg-stage13">
-/* МатКвест 8.76 — алгебра 8, этап 13: темы 37–39.
+/* МатКвест 8.77 — алгебра 8, этап 13: темы 37–39.
    Только генерация новых заданий; ID, состояния профилей, экономика, snapshot не меняются. */
 (function(){'use strict';
 const IDS=['linear_inequality_systems','function_concept','function_domain_range'];
@@ -27019,7 +27081,7 @@ freshQuiz=function(id){const raw=rawCourseId(id);if(!TARGET.has(raw))return OLD_
 
 </script>
 <script id="g8-algebra-stage16-46-48">
-/* МатКвест 8.76 — Алгебра 8 класса, заключительный пакет 46–48.
+/* МатКвест 8.77 — Алгебра 8 класса, заключительный пакет 46–48.
    Новый контент, не изменяются структуры профиля, уже созданные попытки, экономика. */
 (function(){'use strict';
 const TOPICS=['absolute_value_function','graphical_equations_systems','algebra_grade8_review'],TARGET=new Set(TOPICS);
@@ -27162,7 +27224,7 @@ freshQuiz=function(id){const raw=rawCourseId(id);if(!TARGET.has(raw))return FRES
 
 </script>
 <script id="g8-stat-batch-1">
-/* MATKVEST 8.76: Grade 8 Probability & Statistics quality audit, batch 1 (orders 87–89).
+/* MATKVEST 8.77: Grade 8 Probability & Statistics quality audit, batch 1 (orders 87–89).
    Does not change existing topic identifiers, account/profile data, or attempts. */
 (function(){'use strict';
 const IDS=['probstat_grade7_review_integration','data_dispersion','standard_deviation'];
@@ -27740,7 +27802,7 @@ freshQuiz=function(id){const raw=rawCourseId(id);if(!TARGET.has(raw))return PRE_
 
 </script>
 <script id="g8-stat-stage4-96-98">
-/* МатКвест 8.76 — grade 8 Probability & Statistics 96–98. Additive, no migration. */
+/* МатКвест 8.77 — grade 8 Probability & Statistics 96–98. Additive, no migration. */
 (function(){'use strict';
 const RAW=['equiprobable_outcomes','event_probability_from_outcomes','random_choice_probability'];
 const TARGET=new Set(RAW), COUNTS=[5,7,10];
@@ -27901,7 +27963,7 @@ freshQuiz=function(id){const raw=rawCourseId(id);if(!TARGET.has(raw))return oldF
 })();
 
 </script>
-<script id="g8-statistics-trees-99-101">/* МатКвест 8.76 — аудит деревьев 8 класса, темы №99–101. Только новые тренировки. */
+<script id="g8-statistics-trees-99-101">/* МатКвест 8.77 — аудит деревьев 8 класса, темы №99–101. Только новые тренировки. */
 (function(){'use strict';
 const RAW=['tree_graph_basics','tree_unique_path_leaves','tree_vertices_edges_relation'];
 const TARGET=new Set(RAW);
@@ -28118,7 +28180,7 @@ for(const raw of RAW){const topic=g8InfoById('g8:'+raw);if(!topic)throw Error('�
 })();
 </script>
 <script id="g8-stat-stage6-102-104">
-/* МатКвест 8.76 — локальная переработка тем 102–104. Только новые сессии. */
+/* МатКвест 8.77 — локальная переработка тем 102–104. Только новые сессии. */
 (function(){'use strict';
 const SUBJECTS=new Set(['tree_multiplication_rule','opposite_events','event_union_intersection']);
 const R=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
@@ -28360,7 +28422,7 @@ window.__g8Stat7QA={groups,make};
 })();
 </script>
 <script id="g8-stat-stage8-108-110">
-/* МатКвест 8.76, 8 класс: статистика 108–110. Изменяются только новые вопросы. */
+/* МатКвест 8.77, 8 класс: статистика 108–110. Изменяются только новые вопросы. */
 (function(){'use strict';
 const ID=['independent_events','random_experiment_tree','probstat_grade8_review'];
 const SE=new Set(ID), R=(a,b)=>a+Math.floor(Math.random()*(b-a+1)),pick=a=>a[R(0,a.length-1)];
@@ -29164,7 +29226,7 @@ g7GeometryExtraSvg=function(m){if(m?.kind==='g7-g8-final-batch4')return drawPair
 </script>
 
 <script>
-/* МатКвест 8.76 — независимый пакет финального аудита G8 #53–55.
+/* МатКвест 8.77 — независимый пакет финального аудита G8 #53–55.
    Сохраняет идентификаторы, хранилище, предыдущие исправления и старые попытки. */
 (function(){'use strict';
  const TARGET = new Set(['rhombus_properties_tests','square_properties_tests','trapezoid_types_properties']);
@@ -29361,7 +29423,7 @@ g7GeometryExtraSvg=function(m){if(m?.kind==='g7-g8-final-batch4')return drawPair
 
 </script>
 <script id="mk872-g8-final-geometry-batch6">
-/* МатКвест 8.76 — финальный аудит, пакет 6: темы 57, 60, 62.
+/* МатКвест 8.77 — финальный аудит, пакет 6: темы 57, 60, 62.
    Исключительно новые задания. ID, сохранённые попытки, учебные данные, экономика неизменны. */
 (function(){'use strict';
  const TARGET=new Set(['central_symmetry','triangle_midline','triangle_centroid']);
@@ -29548,7 +29610,7 @@ g7GeometryExtraSvg=function(m){if(m?.kind==='g7-g8-final-batch4')return drawPair
 
 </script>
 <script id="mk872-g8-final-geometry-batch7">
-/* МатКвест 8.76 — финальный аудит геометрии, пакет 7: темы 65,66,67,72.
+/* МатКвест 8.77 — финальный аудит геометрии, пакет 7: темы 65,66,67,72.
    Только новые тренировочные задания; ID, сессии, сохранения и экономика не изменяются. */
 (function(){'use strict';
  const PLANS={
@@ -29754,7 +29816,7 @@ g7GeometryExtraSvg=function(m){if(m?.kind==='g7-g8-final-batch4')return drawPair
 
 </script>
 <script id="g8-audit-stage8-fixes">
-/* МатКвест 8.76 / комплексный аудит 8 класса, этап 8.
+/* МатКвест 8.77 / комплексный аудит 8 класса, этап 8.
    Устранение добора из соседних уровней, обрезания секущих и склонений.
    Совместимость: прежние попытки, ID тем, магазин, базы профилей неизменны. */
 (function(){'use strict';
@@ -30100,7 +30162,7 @@ window.G8_QA8_AUDIT={targets:RAW.slice(),levels:LENGTH.slice(),pools:Object.from
 
 </script>
 <script id="g8-audit-stage9-fixes">
-/* МатКвест 8.76. Аудит 8 класса, этап 9.
+/* МатКвест 8.77. Аудит 8 класса, этап 9.
    Темы 28–30: содержательный уровень «Мастер», без вопросов разминки.
    Остальные темы: согласование числительных в новых заданиях, без изменения ответов,
    сигнатур, идентификаторов тем и структуры сохранённых попыток. */
@@ -30769,7 +30831,7 @@ window.G8_QA8_AUDIT={targets:RAW.slice(),levels:LENGTH.slice(),pools:Object.from
 
 </script>
 <script>
-/* МатКвест 8.76 — 8 класс, аудит/исправления, этап 16.
+/* МатКвест 8.77 — 8 класс, аудит/исправления, этап 16.
    Вариативность вероятностных сценариев и баланс бинарных ответов.
    Только будущая генерация; id, сохранённые попытки, экономика без изменений. */
 (function(){
@@ -30984,7 +31046,7 @@ window.G8_QA8_AUDIT={targets:RAW.slice(),levels:LENGTH.slice(),pools:Object.from
 }
 </style>
 <script>
-/* МатКвест 8.76 — этап 21: адресные методические подсказки и
+/* МатКвест 8.77 — этап 21: адресные методические подсказки и
    устранение скрытой генерации черновых примеров при открытии теории.
    Только g8Lesson; генераторы, ID, результаты, сохранения без изменений. */
 (function(){
@@ -31031,7 +31093,7 @@ window.G8_QA8_AUDIT={targets:RAW.slice(),levels:LENGTH.slice(),pools:Object.from
 <!-- Этап 22: исправлены числовой ключ №40, периметр №65 и подписи множеств №92. -->
 <!-- Этап 23: варьирование сравнения корней, степеней, стандартной записи, неравенств и значения алгебраических дробей. -->
 <script>
-/* МатКвест 8.76 — этап 24. Исправления содержательной вариативности.
+/* МатКвест 8.77 — этап 24. Исправления содержательной вариативности.
    Не затрагивает темы и уровни вне перечисленных сценариев. */
 (function(){
  'use strict';
@@ -31218,7 +31280,7 @@ window.G8_QA8_AUDIT={targets:RAW.slice(),levels:LENGTH.slice(),pools:Object.from
  };
 })();
 /* МатКвест G7 этап 2: автономный проверенный патч генераторов */
-/* МатКвест 8.76 · аудит 7 класса, этап 2 · 2026-11-03.
+/* МатКвест 8.77 · аудит 7 класса, этап 2 · 2026-11-03.
    Только генераторы G7: #9, #37, #39, #59, #61, #62, #66, #67.
    Текущий этап 1 для #63-65, 78, 85 остаётся нетронутым;
    случайный 8%-й откат к старым вопросам #63-65 отключается отдельной
@@ -31438,7 +31500,7 @@ window.G8_QA8_AUDIT={targets:RAW.slice(),levels:LENGTH.slice(),pools:Object.from
 })();
 
 /* МатКвест G7 этап 3: автономный патч тем 43 и 44 */
-/* МатКвест 8.76: G7 stage 3, topics 43/44 only. Independent QA branch. */
+/* МатКвест 8.77: G7 stage 3, topics 43/44 only. Independent QA branch. */
 (function(){
  'use strict';
  const beforeStage3=makeG7Question;
@@ -34285,7 +34347,7 @@ body{background:var(--mk19c-canvas);color:var(--mk19c-ink)}
 </style>
 
 
-<!-- v8.76: responsive fraction answer cells; preserve semantic inputs and keyboard handling -->
+<!-- v8.77: responsive fraction answer cells; preserve semantic inputs and keyboard handling -->
 <style id="mk-v74-responsive-fraction-answers">
 .stage18-frac-wrap{max-width:100%;min-width:0;box-sizing:border-box}
 .stage18-frac-entry{
@@ -34304,7 +34366,7 @@ body{background:var(--mk19c-canvas);color:var(--mk19c-ink)}
 @media(max-width:360px){.stage18-frac-label{font-size:12px;line-height:1.3}}
 </style>
 
-<!-- v8.76: real full-card keyboard activation and focus affordance -->
+<!-- v8.77: real full-card keyboard activation and focus affordance -->
 <style id="mk-v875-card-keyboard">
 #mainView .grade-grid>.grade-card[role="button"]:focus-visible{
  outline:3px solid rgba(23,107,84,.55)!important;outline-offset:3px;
@@ -34344,7 +34406,7 @@ body{background:var(--mk19c-canvas);color:var(--mk19c-ink)}
 })();
 </script>
 
-<!-- Stage 20 / v8.76: active category must be visible in horizontally scrollable shop tabs. -->
+<!-- Stage 20 / v8.77: active category must be visible in horizontally scrollable shop tabs. -->
 <style id="mk-v876-active-shop-tab">
 #modal .shop-tabs{scroll-padding-inline:10px}
 #modal .shop-tabs .shop-tab.active{scroll-margin-inline:10px}
@@ -34375,6 +34437,59 @@ body{background:var(--mk19c-canvas);color:var(--mk19c-ink)}
  }
  new MutationObserver(queue).observe(modal,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
  queue();
+})();
+</script>
+
+<style id="mk-v877-storage-recovery-style">
+#mk-v877-storage-recovery{position:fixed;z-index:2147483000;top:0;left:0;right:0;
+ padding:12px 16px;background:#fff3cf;color:#513800;border-bottom:2px solid #b98925;
+ font:600 14px/1.5 system-ui,sans-serif;text-align:center;box-sizing:border-box}
+#mk-v877-storage-recovery a{color:inherit;text-decoration:underline}
+body.mk-v877-storage-risk{padding-top:86px!important}
+@media(max-width:390px){body.mk-v877-storage-risk{padding-top:120px!important}}
+</style>
+<script id="mk-v877-storage-recovery">
+if(mkV877CorruptProfiles){
+ const showStorageWarning=()=>{
+  if(document.getElementById('mk-v877-storage-recovery'))return;
+  const node=document.createElement('div');node.id='mk-v877-storage-recovery';
+  node.setAttribute('role','alert');node.textContent='⚠️ Данные профилей повреждены. Автосохранение профилей остановлено, чтобы не уничтожить исходные данные. Восстановите учеников из резервной копии через раздел профилей.';
+  document.body.prepend(node);
+  document.body.classList.add('mk-v877-storage-risk');
+ };
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',showStorageWarning,{once:true});
+ else showStorageWarning();
+}
+</script>
+
+<script id="mk-v877-storage-recovery-actions">
+(function(){
+ if(!mkV877CorruptProfiles)return;
+ const attach=()=>{
+  const banner=document.getElementById('mk-v877-storage-recovery');
+  if(!banner||banner.querySelector('button'))return;
+  const actions=document.createElement('span');actions.style.cssText='display:block;margin-top:6px';
+  const download=document.createElement('button');
+  download.type='button';download.textContent='Скачать повреждённые исходные данные';
+  download.style.cssText='font:600 13px system-ui;padding:7px 12px;margin:3px;border:1px solid #7b5a14;border-radius:6px;background:white;color:#513800';
+  download.onclick=()=>{
+   const raw=localStorage.getItem('mq4_profiles');
+   if(raw===null)return;
+   const blob=new Blob([raw],{type:'text/plain;charset=utf-8'});
+   const link=document.createElement('a'),url=URL.createObjectURL(blob);
+   link.href=url;link.download='matkvest_corrupt_profiles_rescue.txt';
+   document.body.appendChild(link);link.click();link.remove();
+   setTimeout(()=>URL.revokeObjectURL(url),15000);
+   mkV877RecoveryExported=true;
+  };
+  const manager=document.createElement('button');
+  manager.type='button';manager.textContent='Восстановить из полной копии';
+  manager.style.cssText=download.style.cssText;
+  manager.onclick=()=>{if(typeof openDataManager==='function')openDataManager()};
+  actions.append(download,manager);banner.append(actions);
+ };
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',attach,{once:true});
+ else attach();
 })();
 </script>
 </body></html>

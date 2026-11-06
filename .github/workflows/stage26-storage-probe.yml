@@ -1,0 +1,11 @@
+name: Stage26 storage source inspection
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 audits/stage26_storage_source_probe.py
