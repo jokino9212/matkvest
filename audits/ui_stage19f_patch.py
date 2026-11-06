@@ -168,7 +168,7 @@ js=r"""
  const main=document.getElementById('mainView');
  if(main)new MutationObserver(mk19fMount).observe(main,{childList:true});
  const oldStats=stats;
- stats=function(){const result=oldStats.apply(this,arguments);mk19fRefreshGrade();return result};
+ stats=function(){const result=oldStats.apply(this,arguments);mk19fMount();mk19fRefreshGrade();return result};
  mk19fBindLevel();mk19fMount();
 })();
 </script>
