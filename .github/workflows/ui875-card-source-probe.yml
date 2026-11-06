@@ -1,0 +1,13 @@
+name: Source probe — cards and navigation v8.74
+on:
+  push:
+    branches: [audit/ui-card-interactions-v875-20261106]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 audits/ui875_card_source_probe.py
