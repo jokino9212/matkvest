@@ -106,7 +106,7 @@ async function exitConfirmation(page){
   closeModal();
   const dialog=document.querySelector('.mk872-training-dialog');
   if(!dialog)throw Error('Exit dialog missing');
-  return {...before,dialog:dialog.textContent.slice(0,170),draftId:mk872ReadDraft()?.attemptId};
+  return {...before,dialog:dialog.textContent.slice(0,170),buttons:[...dialog.querySelectorAll('button')].map(b=>b.textContent.trim()),draftId:mk872ReadDraft()?.attemptId};
  });
  assert.equal(initialized.id,initialized.draftId,'Exit confirmation lost draft');
  const continued=await page.evaluate(()=>{
