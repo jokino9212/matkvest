@@ -24,12 +24,12 @@ async function main(){
     ['grade5-topic',async()=>{
       await page.evaluate(()=>openGrade(5));
       const topic=page.locator('#mainView .topic:not(.locked):not(.disabled):not(.soon)').first();
-      await topic.click();
+      await topic.click({timeout:5000});
       return '#modal input:visible,#modal textarea:visible';
     }],
    ];
    for(const [name,open] of cases){
-    page=await ctx.newPage();page.on('pageerror',e=>errors.push(e.message));
+    page=await browser.newPage({viewport:{width,height:740},isMobile:width<500,hasTouch:width<500});page.on('pageerror',e=>errors.push(e.message));
     await page.goto('file://'+path.resolve('index.html'),{waitUntil:'domcontentloaded'});
     let sel;try{sel=await open()}catch(e){issues.push({width,name,type:'opening-error',error:e.message.slice(0,150)});continue}
     const snapshot=await page.evaluate(()=>{
