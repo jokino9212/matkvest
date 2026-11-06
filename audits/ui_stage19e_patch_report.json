@@ -1,0 +1,20 @@
+{
+  "stage": "19E",
+  "candidate": "v64",
+  "base_sha256": "5e8d980f0311acc54b024e820a73335e3d867505f69dfca691a38e2788da7aff",
+  "sha256": "a962fc0d20e2239eb110c1ded3de73970171f5e8bae0ea0800efd9d219fd0a74",
+  "sw": "matkvest-iphone-v64",
+  "scope": [
+    "read-only profile wallet with current coins, shop stats, chest stats",
+    "sale history and eligible current resale estimation",
+    "shop tab and keyboard-accessible top balance shortcut"
+  ],
+  "not_changed": [
+    "prices",
+    "actual money, XP or inventory balances",
+    "purchases, sale or chest handlers",
+    "profile data schema",
+    "backend",
+    "other UX"
+  ]
+}
