@@ -6,6 +6,11 @@ const fs=require('node:fs');
 const path=require('node:path');
 const crypto=require('node:crypto');
 const root=process.cwd();
+const swText=fs.readFileSync(path.join(root,'sw.js'),'utf8');
+const cacheName=swText.match(/const CACHE_NAME\s*=\s*"([^"]+)"/)?.[1];
+const buildHash=swText.match(/const APP_BUILD_HASH\s*=\s*"([a-f0-9]{64})"/)?.[1];
+assert(cacheName&&buildHash,'Missing PWA cache name or fingerprint');
+assert.equal(crypto.createHash('sha256').update(fs.readFileSync(path.join(root,'index.html'))).digest('hex'),buildHash,'Service-worker HTML fingerprint mismatch');
 const mime={'.html':'text/html; charset=utf-8','.js':'application/javascript; charset=utf-8','.webmanifest':'application/manifest+json; charset=utf-8','.txt':'text/plain; charset=utf-8'};
 const server=http.createServer((req,res)=>{
  const pathname=decodeURIComponent(new URL(req.url,'http://localhost').pathname);
@@ -58,7 +63,7 @@ async function main(){
    });
    assert(online.active,'SW not installed');
    assert(offlineCache.controller,'SW not controlling app');
-   assert(offlineCache.caches.includes('matkvest-iphone-v77'),'Missing v77 cache');
+   assert(offlineCache.caches.includes(cacheName),'Missing current SW cache '+cacheName);
    assert.equal(offline.grade,6,'Cannot open grade when offline');
    assert(offline.shop,'Cannot open shop when offline');
    assert.equal(offline.saved.profile,'Офлайн ученик');
