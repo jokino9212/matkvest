@@ -13,4 +13,5 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - run: python3 audits/stage21_draft_source_probe.py
       - run: node audits/stage21_training_keyboard_audit.cjs
