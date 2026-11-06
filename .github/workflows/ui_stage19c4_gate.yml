@@ -1,0 +1,104 @@
+name: MatKvest UI stage19C4 - all-grade topic discovery and responsive regression gate
+on:
+  push:
+    branches: [audit/ui-stage19-20261106]
+    paths:
+      - .github/workflows/ui_stage19c4_gate.yml
+      - audits/ui_stage19c4_patch.py
+      - audits/ui_stage19c4_test.mjs
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: matkvest-ui19c4-v62
+  cancel-in-progress: false
+jobs:
+  grade-ux:
+    runs-on: ubuntu-latest
+    timeout-minutes: 65
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit/ui-stage19-20261106
+          fetch-depth: 0
+          persist-credentials: true
+      - name: Apply v62 only to verified v61 SHA256
+        run: python3 audits/ui_stage19c4_patch.py
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save --no-package-lock puppeteer-core@24
+      - name: Test 8 grades, filters, course shortcuts, 320px header, native lesson actions
+        run: node audits/ui_stage19c4_test.mjs
+      - name: Regression - v61 result, reviews, collections, chests
+        run: |
+          sed 's/matkvest-iphone-v61/matkvest-iphone-v62/g' audits/ui_stage19c3b_test.mjs > audits/_ui19c4_regress_c3b.mjs
+          node audits/_ui19c4_regress_c3b.mjs
+          rm audits/_ui19c4_regress_c3b.mjs
+      - name: Regression - v60 lesson, practice and system dialogs
+        run: |
+          sed 's/matkvest-iphone-v60/matkvest-iphone-v62/g' audits/ui_stage19c3_test.mjs > audits/_ui19c4_regress_c3.mjs
+          node audits/_ui19c4_regress_c3.mjs
+          rm audits/_ui19c4_regress_c3.mjs
+      - name: Regression - v59 responsive header and class cards
+        run: |
+          sed 's/matkvest-iphone-v59/matkvest-iphone-v62/g' audits/ui_stage19c2_test.mjs > audits/_ui19c4_regress_c2.mjs
+          node audits/_ui19c4_regress_c2.mjs
+          rm audits/_ui19c4_regress_c2.mjs
+      - name: Regression - v58 topic keyboard and design system
+        run: |
+          sed -e 's/matkvest-iphone-v58/matkvest-iphone-v62/g' -e 's/state.mobileMenu===(w<=600)/state.mobileMenu===(w<=1120)/g' audits/ui_stage19c_test.mjs > audits/_ui19c4_regress_c.mjs
+          node audits/_ui19c4_regress_c.mjs
+          rm audits/_ui19c4_regress_c.mjs
+      - name: Regression - v56 class-card interaction
+        run: |
+          sed 's/matkvest-iphone-v56/matkvest-iphone-v62/g' audits/ui_stage19a_test.mjs > audits/_ui19c4_regress_a.mjs
+          node audits/_ui19c4_regress_a.mjs
+          rm audits/_ui19c4_regress_a.mjs
+      - name: Regression - v57 responsive navigation
+        run: |
+          sed -e 's/matkvest-iphone-v57/matkvest-iphone-v62/g' -e 's/if(width<=600){/if(width<=768){/g' audits/ui_stage19b_test.mjs > audits/_ui19c4_regress_b.mjs
+          node audits/_ui19c4_regress_b.mjs
+          rm audits/_ui19c4_regress_b.mjs
+      - name: Crossgrade mathematical practice and availability
+        run: |
+          SHA="$(sha256sum index.html | cut -d' ' -f1)"
+          sed "s/f188d39a3a16fc54dfb32238fc34d3dfe6cc3c4416cd475579bf3ed65a7e1e36/$SHA/g" audits/g7_stage14_crossgrade_test.mjs > audits/_ui19c4_crossgrade.mjs
+          node audits/_ui19c4_crossgrade.mjs
+          rm audits/_ui19c4_crossgrade.mjs
+      - name: Grade4 column arithmetic regression
+        run: |
+          SHA="$(sha256sum index.html | cut -d' ' -f1)"
+          sed "s/f188d39a3a16fc54dfb32238fc34d3dfe6cc3c4416cd475579bf3ed65a7e1e36/$SHA/g" audits/g7_stage14_grade4_test.mjs > audits/_ui19c4_grade4.mjs
+          node audits/_ui19c4_grade4.mjs
+          rm audits/_ui19c4_grade4.mjs
+      - name: Check PWA service worker fingerprint
+        run: python3 audits/g7_stage12_sync_pwa.py --check
+      - name: Save screenshots as visual-review assets
+        if: success()
+        run: |
+          for name in home_320 grade3_390 grade7_390 grade8_390 filtered7_390 grade7_1280 filtered7_1280; do
+            base64 -w0 "audits/ui19c4_after_${name}.png" > "audits/ui19c4_after_review_${name}.b64.txt"
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: matkvest-ui19c4-v62-discovery-and-crossgrade-gate
+          path: |
+            audits/ui_stage19c4_patch_report.json
+            audits/ui_stage19c4_test_report.json
+            audits/ui19c4_after_*.png
+          if-no-files-found: warn
+      - name: Commit verified v62 to audit branch only
+        if: success()
+        run: |
+          set -eu
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js audits/ui_stage19c4_patch_report.json audits/ui_stage19c4_test_report.json audits/ui19c4_after_review_*.b64.txt
+          git diff --cached --quiet || git commit -m "feat(ui19C4): accessible topic discovery, course jump links and 320px header v62"
+          for file in audits/ui_stage19c3b_test_report.json audits/ui_stage19c3_test_report.json audits/ui_stage19c2_test_report.json audits/ui_stage19c_test_report.json audits/ui_stage19a_test_report.json audits/ui_stage19b_test_report.json audits/g7_stage14_crossgrade_report.json audits/g7_stage14_grade4_report.json; do
+            if git ls-files --error-unmatch "$file" >/dev/null 2>&1; then git restore -- "$file"; else rm -f "$file"; fi
+          done
+          git pull --rebase origin audit/ui-stage19-20261106
+          git push origin HEAD:audit/ui-stage19-20261106
