@@ -1,7 +1,9 @@
 name: Stage27 compact mobile UI audit
 on:
   push:
-    branches: [audit/stage27-mobile-final-20261107]
+    branches: [main, audit/stage27-mobile-final-20261107]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 permissions:
   contents: read
