@@ -13,3 +13,6 @@ for pat in pats:
 for needle in ['function switchProfile(', 'function createProfile(', 'function mk872ProfileId(', 'function mk872DraftKey(', 'function mk872ReadDraft(', 'function mk872PersistDraft(', 'function mk872OfferResume(', 'function renderProfiles(', 'function loadProfile(']:
  m=re.search(re.escape(needle),s)
  if m: print('DETAIL',needle,repr(s[m.start():m.start()+3800]))
+
+for needle in ['function selectProfile(', 'function openProfiles(', 'const mk872ProfileId=', 'mk872ProfileId=', 'mk872DraftKey=', 'function save(', 'function persistSilently(', 'const EMPTY_STATE=', 'let profiles=', 'let currentProfile=', 'function mk872HasFinishedRecord(']:
+ p=s.find(needle);print('TARGET',needle,'pos',p,'ctx',repr(s[max(0,p-400):p+3600]) if p>=0 else '')
