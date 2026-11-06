@@ -2,6 +2,7 @@
 const assert=require('node:assert/strict');
 const {chromium}=require('playwright');
 const path=require('node:path');
+const fs=require('node:fs');
 const file='file://'+path.resolve('index.html');
 async function main(){
  const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
@@ -38,6 +39,13 @@ async function main(){
    assert(before.guard&&before.warning&&before.download,'Recovery banner missing '+JSON.stringify(before));
    assert.equal(before.original,corrupt);
    assert.equal(before.fallbackCoins,101);
+   const downloadEvent=page.waitForEvent('download');
+   await page.locator('#mk-v877-storage-recovery button').first().click();
+   const downloaded=await downloadEvent;
+   assert.equal(downloaded.suggestedFilename(),'matkvest_corrupt_profiles_rescue.txt');
+   const downloadedText=fs.readFileSync(await downloaded.path(),'utf8');
+   assert.equal(downloadedText,corrupt,'Downloaded raw corruption differs');
+
    // Explicit full-backup restore (only after user-triggered Replace confirmation).
    const recovered=await page.evaluate(data=>{
      pendingImport={profiles:data,currentProfile:'Проба A'};
