@@ -1,0 +1,17 @@
+name: Stage20 mobile overlay browser audit
+on:
+  push:
+    branches: [audit/mobile-overlays-stage20-20261106]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Audit actual app views
+        run: node audits/stage20_mobile_overlays_browser.cjs
