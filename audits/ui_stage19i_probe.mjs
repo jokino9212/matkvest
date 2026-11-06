@@ -57,9 +57,22 @@ try{
   recordCheck('Home loads without horizontal overflow at '+width,home.pageWidth<=width+2,home.pageWidth);
   for(let grade=1;grade<=8;grade++){
     await goHome(p);
-    const opened=await p.evaluate(g=>{const c=document.querySelectorAll('.grade-grid>.grade-card')[g-1];const b=c?.querySelector('button.btn.primary');if(!b)return false;b.click();return true;},grade);
-    recordCheck('Class '+grade+' opens at '+width,opened);
-    if(!opened)continue;
+    const opened=await p.evaluate(g=>{
+      const cards=[...document.querySelectorAll('.grade-grid>.grade-card')];
+      const card=cards[g-1],button=card?.querySelector('button.btn.primary');
+      if(!button)return{ok:false,count:cards.length,slot:g-1,cards:cards.map((c,i)=>({slot:i,txt:c.innerText.replace(/\\s+/g,' ').slice(0,90),primary:!!c.querySelector('button.btn.primary'),html:c.outerHTML.slice(0,500)})),main:document.querySelector('#mainView')?.innerText.slice(0,140)};
+      button.click();return{ok:true};
+    },grade);
+    recordCheck('Class '+grade+' opens at '+width,opened.ok,opened);
+    if(!opened.ok){
+      const freshCtx=await browser.createBrowserContext(),freshPage=await freshCtx.newPage();
+      await freshPage.setViewport({width,height:900,isMobile:width<=600,hasTouch:width<=600});
+      await freshPage.goto(url,{waitUntil:'domcontentloaded',timeout:120000});
+      const fresh=await freshPage.evaluate(g=>{const c=document.querySelectorAll('.grade-grid>.grade-card')[g-1],b=c?.querySelector('button.btn.primary');if(b)b.click();return{button:!!b,topics:document.querySelectorAll('#mainView .topic').length,cardCount:document.querySelectorAll('.grade-grid>.grade-card').length}},grade);
+      result.anomalies.push({type:'stateful-navigation-or-probe',width,grade,opened,fresh});
+      await freshCtx.close();
+      continue;
+    }
     const d=await observe(p,width,'grade'+grade,{screenshot:width===390&&(grade===1||grade===7||grade===8)});
     recordCheck('Class '+grade+' has topics at '+width,d.topicCount>0,d.topicCount);
     if(grade===1||grade===7||grade===8){
