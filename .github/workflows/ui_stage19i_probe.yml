@@ -36,9 +36,10 @@ jobs:
             audits/ui19i_*.png
           if-no-files-found: warn
       - name: Save diagnostic summary to audit branch
-        if: success()
+        if: always()
         run: |
           set -eu
+          test -f audits/ui_stage19i_baseline.json || exit 0
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add audits/ui_stage19i_baseline.json
