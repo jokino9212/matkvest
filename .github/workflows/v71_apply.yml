@@ -1,0 +1,57 @@
+name: MatKvest v71 - apply reviewed postrelease patch
+on:
+  push:
+    branches: [fix/ui-postrelease-v71-20261106]
+    paths:
+      - audits/v71_apply.py
+      - .github/workflows/v71_apply.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: matkvest-v71-apply
+  cancel-in-progress: false
+
+jobs:
+  patch-and-commit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/ui-postrelease-v71-20261106
+          fetch-depth: 0
+          persist-credentials: true
+      - name: Validate immutable production v70 baseline
+        run: |
+          set -euo pipefail
+          echo 'c93d13aeaafdb742e3ceda0111d3242daaf19fcc3a2cdd7b90b1b4a18f0817f2  index.html' | sha256sum --check
+          git fetch origin main
+          test "$(git rev-parse origin/main)" = 930aea7a53be4d333311443beec0f81fef3a59b8
+      - name: Apply all three v71 fixes and bump service worker safely
+        run: |
+          set -euo pipefail
+          python3 audits/v71_apply.py
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          page=Path("index.html").read_text(encoding="utf8")
+          m=re.search(r'<script id="mk-v71-ui-fixes">([\s\S]*?)</script>',page)
+          assert m
+          Path('/tmp/matkvest_v71.js').write_text(m.group(1),encoding="utf8")
+          PY
+          node --check /tmp/matkvest_v71.js
+          sha256sum index.html
+          python3 audits/g7_stage12_sync_pwa.py --check
+      - name: Commit v71 implementation to working branch, never production
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js
+          git diff --cached --check
+          test "$(git diff --cached --name-only | LC_ALL=C sort)" = "$(printf 'index.html\nsw.js')"
+          git commit -m "fix(frontend): v71 fractions, section progress, rarity and price sorting"
+          git push origin HEAD:fix/ui-postrelease-v71-20261106
