@@ -6,6 +6,7 @@ const script = fs.readFileSync('sw.js', 'utf8');
 const listeners = new Map();
 const entries = new Map();
 let fetchCalls = 0;
+let responseFactory = () => new Response('public asset', { status: 200 });
 const cache = {
   addAll: async () => {},
   match: async key => entries.get(typeof key === 'string' ? key : key.url),
@@ -24,7 +25,7 @@ const self = {
   skipWaiting: async () => {},
   clients: { claim: async () => {} }
 };
-const fetch = async () => { fetchCalls++; return new Response('public asset', { status: 200 }); };
+const fetch = async () => { fetchCalls++; return responseFactory(); };
 vm.runInNewContext(script, { self, caches, fetch, URL, Response });
 assert(listeners.has('fetch'), 'Service Worker must register fetch listener');
 function request(path, { destination = '', mode = 'cors', method = 'GET', headers = {} } = {}) {
@@ -66,6 +67,23 @@ async function dispatch(req) {
   assert.equal(entries.has('https://example.test/matkvest/assets/public.png'), true);
   assert.equal(await dispatch(request('/matkvest/index.html', { destination: 'document', mode: 'navigate' })), true, 'app shell navigation remains network-first');
   for (const path of privatePaths) assert.equal(entries.has('https://example.test' + path), false, 'privacy: ' + path);
-  assert(fetchCalls >= 2, 'network-first app shell and public asset must fetch');
+  // Cache must never accept private/no-store/redirected responses, even on allowlisted URLs.
+  const before = entries.size;
+  responseFactory = () => new Response('private content', { headers: { 'Cache-Control': 'private, no-store' } });
+  assert.equal(await dispatch(request('/matkvest/assets/secret.png', { destination: 'image' })), true);
+  assert.equal(entries.size, before, 'private static response cannot enter cache');
+  responseFactory = () => {
+    const response = new Response('redirected content');
+    Object.defineProperty(response, 'redirected', { value: true });
+    return response;
+  };
+  assert.equal(await dispatch(request('/matkvest/assets/redirect.png', { destination: 'image' })), true);
+  assert.equal(entries.size, before, 'redirected static resource cannot enter cache');
+  assert.equal(await dispatch(request('/matkvest/index.html', { destination: 'document', mode: 'navigate' })), true);
+  assert.equal(entries.size, before, 'redirected navigation cannot replace cached shell');
+  responseFactory = () => { throw new Error('offline'); };
+  const offline = await dispatch(request('/matkvest/index.html', { destination: 'document', mode: 'navigate' }));
+  assert.equal(offline, true, 'offline shell fallback must remain intercepted');
+    assert(fetchCalls >= 2, 'network-first app shell and public asset must fetch');
   process.stdout.write('stage20 SW privacy: PASS (' + privatePaths.length + ' private endpoint families; static/offline paths preserved)\\n');
 })().catch(error => { console.error(error); process.exitCode = 1; });
