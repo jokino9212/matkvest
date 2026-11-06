@@ -1,0 +1,91 @@
+'use strict';
+const assert=require('node:assert/strict');
+const {chromium}=require('playwright');
+const path=require('node:path');
+
+const plans=[
+ {grade:5,method:'startG5QuizStage',catalog:'g5AllTopics',prefix:''},
+ {grade:6,method:'startG6QuizStage',catalog:'g6AllTopics',prefix:''},
+ {grade:7,method:'startG7QuizStage',catalog:'g7AllTopics',prefix:''},
+ {grade:8,method:'startG8QuizStage',catalog:'g8AllTopics',prefix:''}
+];
+async function main(){
+ const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
+ const failures=[],done=[];
+ try{
+ for(const width of [320,390,768]){
+ for(const plan of plans){
+   const context=await browser.newContext({viewport:{width,height:690},isMobile:width<500,hasTouch:width<500});
+   const page=await context.newPage();const pageErrors=[];
+   page.on('pageerror',e=>pageErrors.push(e.message));
+   await page.goto('file://'+path.resolve('index.html'),{waitUntil:'domcontentloaded'});
+   let data;
+   try{
+    data=await page.evaluate(({plan})=>{
+      const cat=window[plan.catalog]();
+      let chosen=null;
+      for(const t of cat.slice(0,Math.min(cat.length,55))){
+       if(t.implemented===false)continue;
+       for(let stage=0;stage<=2;stage++){
+        try{window[plan.method](t.id,stage)}catch(e){continue}
+        const inp=document.querySelector('#qstage input:not([type=hidden])');
+        const btn=document.getElementById('quizCheck');
+        if(inp&&btn&&q&&q.answerMode&&q.answerMode!=='choice'){
+         chosen={topic:t.id,stage,mode:q.answerMode,answerId:inp.id};break;
+        }
+       }
+       if(chosen)break;
+      }
+      if(!chosen)return {error:'NO_INPUT_TASK',catalog:cat.length};
+      const input=document.getElementById(chosen.answerId);
+      const value='-123456789';
+      input.value=value;input.dispatchEvent(new Event('input',{bubbles:true}));
+      const before={attempt:blockSession?.attemptId,correct:blockSession?.correct,raw:input.value,mode:q?.answerMode,question:q?.sig||q?.text};
+      const persisted=mk872PersistDraft();
+      const draft=mk872ReadDraft();
+      const savedInput=draft?.html?.includes('value="'+value+'"');
+      input.value='7';input.dispatchEvent(new Event('input',{bubbles:true}));
+      if(draft)mk872RestoreDraft(draft);
+      const afterInput=document.getElementById(chosen.answerId);
+      const after={attempt:blockSession?.attemptId,correct:blockSession?.correct,raw:afterInput?.value,question:q?.sig||q?.text};
+      const modalRect=document.getElementById('modal').getBoundingClientRect();
+      const inputRect=afterInput?.getBoundingClientRect();
+      const check=document.getElementById('quizCheck');
+      const checkRect=check?.getBoundingClientRect();
+      return {chosen,before,persisted,draftFound:!!draft,savedInput,after,
+       geometry:{viewport:document.documentElement.clientWidth,scrollWidth:document.documentElement.scrollWidth,
+        modalLeft:modalRect.left,modalRight:modalRect.right,
+        inputLeft:inputRect?.left,inputRight:inputRect?.right,
+        checkLeft:checkRect?.left,checkRight:checkRect?.right},
+       buttons:{check:!!check,next:!!document.getElementById('quizNext')}
+      };
+    },{plan});
+    if(data.error)throw new Error(data.error+' '+JSON.stringify(data));
+    assert(data.persisted && data.draftFound && data.savedInput,'Draft not written '+JSON.stringify(data));
+    assert.equal(data.after.attempt,data.before.attempt,'Changed attempt identity');
+    assert.equal(data.after.raw,data.before.raw,'Lost answer input');
+    assert.equal(data.after.question,data.before.question,'Question changed after restore');
+    assert.equal(data.after.correct,data.before.correct,'Score changed after restore');
+    assert(data.geometry.scrollWidth<=width+2,'Horizontal page overflow '+JSON.stringify(data.geometry));
+    for(const k of ['inputLeft','inputRight','checkLeft','checkRight'])assert(Number.isFinite(data.geometry[k]),'Missing visible control '+k);
+    assert(data.geometry.inputLeft>=-2&&data.geometry.inputRight<=width+2,'Input clipped');
+    assert(data.geometry.checkLeft>=-2&&data.geometry.checkRight<=width+2,'Check button clipped');
+    // Invalid answer should never improve the score. For some modes an invalid string is rejected before penalty.
+    const invalid=await page.evaluate(()=>{
+      const before=blockSession.correct;
+      const check=document.getElementById('quizCheck');check.click();
+      return {before,after:blockSession.correct,feedback:document.getElementById('qfb')?.textContent?.trim().slice(0,140)};
+    });
+    assert.equal(invalid.after,invalid.before,'Invalid input credited');
+    done.push({width,grade:plan.grade,chosen:data.chosen,attemptPreserved:true,invalid});
+    console.log('PASS_STAGE22',JSON.stringify(done.at(-1)));
+   }catch(e){failures.push({width,grade:plan.grade,error:String(e),data});console.error('FAIL_STAGE22',JSON.stringify(failures.at(-1)).slice(0,2400))}
+   if(pageErrors.length)failures.push({width,grade:plan.grade,type:'js-errors',errors:pageErrors.slice(0,5)});
+   await context.close();
+ }
+ }
+ }finally{await browser.close()}
+ console.log('STAGE22_SUMMARY',JSON.stringify({done:done.length,failures:failures.length,details:failures.slice(0,20)}));
+ if(failures.length||done.length!==12)process.exitCode=1;
+}
+main().catch(e=>{console.error(e);process.exitCode=1});
