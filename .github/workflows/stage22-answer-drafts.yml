@@ -1,7 +1,9 @@
 name: Stage22 answer entry and saved attempt regression
 on:
   push:
-    branches: [audit/stage22-answer-input-drafts-20261107]
+    branches: [main, audit/stage22-answer-input-drafts-20261107]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 permissions:
   contents: read
