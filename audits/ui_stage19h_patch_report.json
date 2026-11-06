@@ -1,0 +1,24 @@
+{
+  "stage": "19H",
+  "candidate": "v68",
+  "base_sha256": "0bae176adc5a0db883851157220e439a0d8bacaf8e0f6c5b4f26efa4f6b0adb2",
+  "sha256": "27020e041b8613f34aac5651db02d7d0b330f0b9c61b13d79918ced22ffa8f31",
+  "cache": "matkvest-iphone-v68",
+  "changes": [
+    "confirm every live explicit skip button for quiz/table/column including practice variants",
+    "cancel and Escape preserve item, typed values and original focus",
+    "deduplicate confirmation button actions",
+    "make destructive exit explicit and keep safe cancel default",
+    "confirm restart of saved draft against its actual profile and attempt"
+  ],
+  "unchanged": [
+    "question generators",
+    "answer validation",
+    "score/penalties",
+    "XP",
+    "coins",
+    "profile schema",
+    "backend",
+    "production"
+  ]
+}

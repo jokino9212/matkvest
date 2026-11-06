@@ -1,0 +1,388 @@
+{
+  "sha": "27020e041b8613f34aac5651db02d7d0b330f0b9c61b13d79918ced22ffa8f31",
+  "checks": [
+    {
+      "name": "Live grade 4 quiz is accessible at 320",
+      "pass": true
+    },
+    {
+      "name": "Skip opens explicit confirmation at 320",
+      "pass": true
+    },
+    {
+      "name": "Pending skip cannot change question or balances at 320",
+      "pass": true
+    },
+    {
+      "name": "Skip confirmation is in viewport at 320",
+      "pass": true
+    },
+    {
+      "name": "Escape cancels skip with no progress change at 320",
+      "pass": true
+    },
+    {
+      "name": "Cancel button preserves same item and focus at 320",
+      "pass": true
+    },
+    {
+      "name": "Confirmed skip consumes exactly one item at 320",
+      "pass": true
+    },
+    {
+      "name": "Explicit skip leaves XP/coins unchanged at 320",
+      "pass": true
+    },
+    {
+      "name": "No horizontal overflow after normal skip at 320",
+      "pass": true
+    },
+    {
+      "name": "After wrong answer, skip still waits for confirmation at 320",
+      "pass": true
+    },
+    {
+      "name": "Closing quiz explains destructive exit at 320",
+      "pass": true
+    },
+    {
+      "name": "Cancel exit retains attempt at 320",
+      "pass": true
+    },
+    {
+      "name": "Live grade 4 quiz is accessible at 390",
+      "pass": true
+    },
+    {
+      "name": "Skip opens explicit confirmation at 390",
+      "pass": true
+    },
+    {
+      "name": "Pending skip cannot change question or balances at 390",
+      "pass": true
+    },
+    {
+      "name": "Skip confirmation is in viewport at 390",
+      "pass": true
+    },
+    {
+      "name": "Escape cancels skip with no progress change at 390",
+      "pass": true
+    },
+    {
+      "name": "Cancel button preserves same item and focus at 390",
+      "pass": true
+    },
+    {
+      "name": "Confirmed skip consumes exactly one item at 390",
+      "pass": true
+    },
+    {
+      "name": "Explicit skip leaves XP/coins unchanged at 390",
+      "pass": true
+    },
+    {
+      "name": "No horizontal overflow after normal skip at 390",
+      "pass": true
+    },
+    {
+      "name": "After wrong answer, skip still waits for confirmation at 390",
+      "pass": true
+    },
+    {
+      "name": "Closing quiz explains destructive exit at 390",
+      "pass": true
+    },
+    {
+      "name": "Cancel exit retains attempt at 390",
+      "pass": true
+    },
+    {
+      "name": "Live grade 4 quiz is accessible at 768",
+      "pass": true
+    },
+    {
+      "name": "Skip opens explicit confirmation at 768",
+      "pass": true
+    },
+    {
+      "name": "Pending skip cannot change question or balances at 768",
+      "pass": true
+    },
+    {
+      "name": "Skip confirmation is in viewport at 768",
+      "pass": true
+    },
+    {
+      "name": "Escape cancels skip with no progress change at 768",
+      "pass": true
+    },
+    {
+      "name": "Cancel button preserves same item and focus at 768",
+      "pass": true
+    },
+    {
+      "name": "Confirmed skip consumes exactly one item at 768",
+      "pass": true
+    },
+    {
+      "name": "Explicit skip leaves XP/coins unchanged at 768",
+      "pass": true
+    },
+    {
+      "name": "No horizontal overflow after normal skip at 768",
+      "pass": true
+    },
+    {
+      "name": "After wrong answer, skip still waits for confirmation at 768",
+      "pass": true
+    },
+    {
+      "name": "Closing quiz explains destructive exit at 768",
+      "pass": true
+    },
+    {
+      "name": "Cancel exit retains attempt at 768",
+      "pass": true
+    },
+    {
+      "name": "Live grade 4 quiz is accessible at 1280",
+      "pass": true
+    },
+    {
+      "name": "Skip opens explicit confirmation at 1280",
+      "pass": true
+    },
+    {
+      "name": "Pending skip cannot change question or balances at 1280",
+      "pass": true
+    },
+    {
+      "name": "Skip confirmation is in viewport at 1280",
+      "pass": true
+    },
+    {
+      "name": "Escape cancels skip with no progress change at 1280",
+      "pass": true
+    },
+    {
+      "name": "Cancel button preserves same item and focus at 1280",
+      "pass": true
+    },
+    {
+      "name": "Confirmed skip consumes exactly one item at 1280",
+      "pass": true
+    },
+    {
+      "name": "Explicit skip leaves XP/coins unchanged at 1280",
+      "pass": true
+    },
+    {
+      "name": "No horizontal overflow after normal skip at 1280",
+      "pass": true
+    },
+    {
+      "name": "After wrong answer, skip still waits for confirmation at 1280",
+      "pass": true
+    },
+    {
+      "name": "Closing quiz explains destructive exit at 1280",
+      "pass": true
+    },
+    {
+      "name": "Cancel exit retains attempt at 1280",
+      "pass": true
+    },
+    {
+      "name": "table skip uses the same confirmation without scoring",
+      "pass": true
+    },
+    {
+      "name": "table confirmed skip advances exactly one item",
+      "pass": true
+    },
+    {
+      "name": "column skip uses the same confirmation without scoring",
+      "pass": true
+    },
+    {
+      "name": "column confirmed skip advances exactly one item",
+      "pass": true
+    },
+    {
+      "name": "Full unfinished attempt can be saved before reload",
+      "pass": true
+    },
+    {
+      "name": "After reload, resume dialog appears without auto-replacing questions",
+      "pass": true
+    },
+    {
+      "name": "Restart now requires a second explicit destructive confirmation",
+      "pass": true
+    },
+    {
+      "name": "Cancel restart does not remove persisted draft",
+      "pass": true
+    },
+    {
+      "name": "Resumed attempt keeps its original attemptId and item",
+      "pass": true
+    },
+    {
+      "name": "Resume preserves finances",
+      "pass": true
+    },
+    {
+      "name": "Explicitly destructive exit clears draft and active attempt",
+      "pass": true
+    },
+    {
+      "name": "Last-question skip completes exactly one skipped item",
+      "pass": true
+    }
+  ],
+  "errors": [],
+  "scenes": [
+    {
+      "width": 320,
+      "initial": {
+        "attemptId": "a1793971441028_tfcx4",
+        "currentItem": "item_2a5524f9-5470-4b32-9600-c31913e31dc6",
+        "done": 0,
+        "answered": false,
+        "penalty": false,
+        "quiz": true,
+        "dialog": false,
+        "buttons": [],
+        "focus": "\n\n  \n    MМатКвест\n    \n      ← Главная\n       Ученик\n ",
+        "balance": 0,
+        "xp": 0,
+        "draft": true,
+        "viewport": 320,
+        "body": 320
+      },
+      "afterSkip": {
+        "attemptId": "a1793971441028_tfcx4",
+        "currentItem": "item_c7153fc7-4648-4383-8f45-dc3a582c611a",
+        "done": 1,
+        "answered": false,
+        "penalty": false,
+        "quiz": true,
+        "dialog": false,
+        "buttons": [],
+        "focus": "\n\n  \n    MМатКвест\n    \n      ← Главная\n       Ученик\n ",
+        "balance": 0,
+        "xp": 0,
+        "draft": true,
+        "viewport": 320,
+        "body": 320
+      }
+    },
+    {
+      "width": 390,
+      "initial": {
+        "attemptId": "a1793971442998_h4gmj",
+        "currentItem": "item_e47f5dee-7e7d-4f22-9c32-337642ecf6c0",
+        "done": 0,
+        "answered": false,
+        "penalty": false,
+        "quiz": true,
+        "dialog": false,
+        "buttons": [],
+        "focus": "\n\n  \n    MМатКвест\n    \n      ← Главная\n       Ученик\n ",
+        "balance": 0,
+        "xp": 0,
+        "draft": true,
+        "viewport": 390,
+        "body": 390
+      },
+      "afterSkip": {
+        "attemptId": "a1793971442998_h4gmj",
+        "currentItem": "item_21f4fd31-1b80-422f-a4f2-ccd91192100c",
+        "done": 1,
+        "answered": false,
+        "penalty": false,
+        "quiz": true,
+        "dialog": false,
+        "buttons": [],
+        "focus": "\n\n  \n    MМатКвест\n    \n      ← Главная\n       Ученик\n ",
+        "balance": 0,
+        "xp": 0,
+        "draft": true,
+        "viewport": 390,
+        "body": 390
+      }
+    },
+    {
+      "width": 768,
+      "initial": {
+        "attemptId": "a1793971444668_h18lu",
+        "currentItem": "item_4f564e28-2773-412c-8bd8-39b76ca98a02",
+        "done": 0,
+        "answered": false,
+        "penalty": false,
+        "quiz": true,
+        "dialog": false,
+        "buttons": [],
+        "focus": "\n\n  \n    MМатКвест\n    \n      ← Главная\n       Ученик\n ",
+        "balance": 0,
+        "xp": 0,
+        "draft": true,
+        "viewport": 768,
+        "body": 768
+      },
+      "afterSkip": {
+        "attemptId": "a1793971444668_h18lu",
+        "currentItem": "item_7f7ba695-63b2-4007-b02a-f6e30b94a37b",
+        "done": 1,
+        "answered": false,
+        "penalty": false,
+        "quiz": true,
+        "dialog": false,
+        "buttons": [],
+        "focus": "\n\n  \n    MМатКвест\n    \n      ← Главная\n       Ученик\n ",
+        "balance": 0,
+        "xp": 0,
+        "draft": true,
+        "viewport": 768,
+        "body": 768
+      }
+    },
+    {
+      "width": 1280,
+      "initial": {
+        "attemptId": "a1793971446241_ggnl8",
+        "currentItem": "item_bd79b770-2ee8-4b5b-8022-834fc20fd64f",
+        "done": 0,
+        "answered": false,
+        "penalty": false,
+        "quiz": true,
+        "dialog": false,
+        "buttons": [],
+        "focus": "\n\n  \n    MМатКвест\n    \n      ← Главная\n       Ученик\n ",
+        "balance": 0,
+        "xp": 0,
+        "draft": true,
+        "viewport": 1280,
+        "body": 1280
+      },
+      "afterSkip": {
+        "attemptId": "a1793971446241_ggnl8",
+        "currentItem": "item_ad1c6604-aee8-4efd-b7d4-5ab8775ef836",
+        "done": 1,
+        "answered": false,
+        "penalty": false,
+        "quiz": true,
+        "dialog": false,
+        "buttons": [],
+        "focus": "\n\n  \n    MМатКвест\n    \n      ← Главная\n       Ученик\n ",
+        "balance": 0,
+        "xp": 0,
+        "draft": true,
+        "viewport": 1280,
+        "body": 1280
+      }
+    }
+  ]
+}
