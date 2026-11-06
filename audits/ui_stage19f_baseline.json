@@ -1,0 +1,1103 @@
+{
+  "lineCount": 33561,
+  "hits": {
+    "level": {
+      "count": 7,
+      "samples": [
+        {
+          "line": 1684,
+          "text": "1682:       <div class=\"pill grade-back\" id=\"gradeBackPill\" onclick=\"renderHome()\">← Главная</div>\n1683:       <div class=\"pill profile-pill\" onclick=\"openProfiles()\"><span id=\"playerAvatar\"><span class=\"ui-glyph ui-smile\" aria-hidden=\"true\"></span></span> <span id=\"playerName\">Ученик</span></div>\n1684:       <div class=\"pill level-pill\"><span class=\"ui-glyph ui-medal\" aria-hidden=\"true\"></span> Ур. <span id=\"level\">1</span></div><div id=\"mk872TopLevelProgress\" class=\"mk872-xp-progress mk872-top-progress\" aria-label=\"Прогресс уровня\"></div>\n1685:       <div class=\"pill\"><span class=\"ui-glyph ui-coin\" aria-hidden=\"true\"></span> <span id=\"coins\">0</span></div>\n1686:       <div class=\"pill\"><span class=\"ui-glyph ui-fire\" aria-hidden=\"true\"></span> <span id=\"streak\">0</span></div>\n1687:       <div class=\"pill shop-pill\" onclick=\"openShop()\"><span class=\"ui-glyph ui-shop\" aria-hidden=\"true\"></span> Магазин</div>"
+        },
+        {
+          "line": 6883,
+          "text": "6881: const MK859_LEVEL_CURVE={linear:100,quadratic:15};\n6882: function levelThreshold(level){const n=Math.max(0,Math.trunc(Number(level||1))-1);return MK859_LEVEL_CURVE.linear*n+MK859_LEVEL_CURVE.quadratic*n*n}\n6883: function levelFor(x){x=Math.max(0,Number(x||0));let lo=1,hi=2;while(levelThreshold(hi)<=x&&hi<10000)hi*=2;while(lo+1<hi){const mid=Math.floor((lo+hi)/2);if(levelThreshold(mid)<=x)lo=mid;else hi=mid}return lo}\n6884: function levelProgressInfo(x){x=Math.max(0,Number(x||0));const level=levelFor(x),start=levelThreshold(level),next=levelThreshold(level+1),span=Math.max(1,next-start),within=Math.max(0,Math.min(span,x-start));return {level,start,next,remaining:Math.max(0,next-x),percent:Math.max(0,Math.min(100,Math.round(within/span*100)))}}\n6885: /* Все представления читают одну и ту же исходную кривую levelFor/levelThreshold. */\n6886: function mk872GetLevelProgress(profileXP){"
+        },
+        {
+          "line": 6892,
+          "text": "6890:  return {currentLevel:base.level,totalXP,currentLevelStartXP:base.start,nextLevelXP:base.next,xpIntoLevel,xpNeededForLevel,xpRemaining:base.remaining,progressPercent:Math.max(0,Math.min(100,xpIntoLevel/xpNeededForLevel*100))};\n6891: }\n6892: function mk872LevelProgressHtml(profileXP,variant=\"full\"){\n6893:  const p=mk872GetLevelProgress(profileXP),compact=variant!==\"full\",small=variant===\"tiny\";\n6894:  const label=`Уровень ${p.currentLevel}: ${Math.floor(p.xpIntoLevel)} из ${p.xpNeededForLevel} XP до уровня ${p.currentLevel+1}; осталось ${Math.ceil(p.xpRemaining)} XP`;\n6895:  const labelText=small?`Ур. ${p.currentLevel} · ${Math.round(p.progressPercent)}%`:`Уровень ${p.currentLevel} → ${p.currentLevel+1}`;"
+        },
+        {
+          "line": 6899,
+          "text": "6897:  return `<div class=\"mk872-xp-progress ${compact?'compact':''} ${variant==='top'?'mk872-top-progress':''} ${variant==='tiny'?'mk872-leader-progress':''}\" role=\"progressbar\" aria-label=\"${label}\" aria-valuemin=\"0\" aria-valuemax=\"${p.xpNeededForLevel}\" aria-valuenow=\"${Math.floor(p.xpIntoLevel)}\"><div class=\"mk872-xp-head\"><span>${labelText}</span>${small?'':`<span>${Math.round(p.progressPercent)}%</span>`}</div><div class=\"mk872-xp-track\"><span class=\"mk872-xp-fill\" style=\"width:${p.progressPercent}%\"></span></div><div class=\"mk872-xp-foot\">${details}</div></div>`;\n6898: }\n6899: function mk872UpdateTopLevelProgress(){const node=document.getElementById('mk872TopLevelProgress');if(node)node.outerHTML=mk872LevelProgressHtml(state.xp||0,'top').replace('class=\"mk872-xp-progress','id=\"mk872TopLevelProgress\" class=\"mk872-xp-progress');}\n6900: \n6901: \n6902: const YANDEX_EMOJI_PNG={"
+        },
+        {
+          "line": 32777,
+          "text": "32775:  .top>.stats>.profile-pill{min-height:44px;font-size:14px;padding:6px 8px}\n32776:  .top>.stats>.pill:not(.grade-back):not(.profile-pill):not(.level-pill){min-height:44px;font-size:14px;padding:6px 8px}\n32777:  .top>.stats>#mk872TopLevelProgress{\n32778:    flex:0 1 174px!important;width:174px!important;max-width:174px!important;\n32779:    min-width:126px!important;margin:0!important\n32780:  }"
+        },
+        {
+          "line": 32806,
+          "text": "32804: }\n32805: @media(min-width:681px) and (max-width:800px){\n32806:  .top>.stats>#mk872TopLevelProgress{flex-basis:132px!important;width:132px!important;max-width:132px!important;min-width:104px!important}\n32807:  .top>.stats>.profile-pill{padding:6px}\n32808: }\n32809: /* Class selection is already clickable across the entire card."
+        },
+        {
+          "line": 33215,
+          "text": "33213:    width:56px!important;max-width:56px!important\n33214:  }\n33215:  .top>.stats>#mk872TopLevelProgress{\n33216:    order:3!important;flex:1 1 calc(100% - 94px)!important;\n33217:    width:auto!important;min-width:0!important;max-width:none!important;\n33218:    margin:0!important"
+        }
+      ]
+    },
+    "grade": {
+      "count": 9,
+      "samples": [
+        {
+          "line": 8272,
+          "text": "8270: }\n8271: function esc(s){return String(s).replace(/[&<>\"']/g,ch=>({\"&\":\"&amp;\",\"<\":\"&lt;\",\">\":\"&gt;\",'\"':\"&quot;\",\"'\":\"&#39;\"}[ch]))}\n8272: function openProfiles(){\n8273:   const names=Object.keys(profiles).sort((a,b)=>(profiles[b].xp||0)-(profiles[a].xp||0));\n8274:   window._profileNames=names;\n8275:   const rows=names.map((name,i)=>{const p=profiles[name],title=profileTitleText(p);return `<div class=\"profile-row ${name===currentProfile?\"current\":\"\"}\"><div class=\"profile-row-main\">${avatarHtml(p,\"small\")}<div><b>${esc(name)}</b>${title?`<div class=\"leader-title\">${esc(title)}</div>`:\"\"}<div class=\"profile-info\"><span>ур. ${levelFor(p.xp)}</span><span>${p.xp||0} XP</span><span>🪙 ${p.coins||0}</span><span>🔥 рекорд ${p.bestStreak||0}</span><span>🎒 ${ownedTotal(p)}</span></div>${mk872LevelProgressHtml(p?.xp||0,\"compact\")}${profileBadgesHtml(p,\"compact\")}<div class=\"profile-sticker-line\">${f"
+        },
+        {
+          "line": 8369,
+          "text": "8367:  return 0;\n8368: }\n8369: function renderHome(){\n8370:  closeModal();\n8371:  currentGrade=null;\n8372:  const back=document.getElementById(\"gradeBackPill\");if(back)back.style.display=\"none\";"
+        },
+        {
+          "line": 8412,
+          "text": "8410:  return `<section class=\"g6-group g3-group\"><div class=\"grade-head\"><div><h2>${group.icon} ${esc(group.title)}</h2><p>${esc(group.desc)}</p></div><span class=\"badge\">${group.topics.length} тем</span></div><div class=\"grid\">${group.topics.map(g3TopicCard).join(\"\")}</div></section>`;\n8411: }\n8412: function renderGrade3(){\n8413:  const ready=g3AllTopics().filter(t=>t.implemented!==false).length;\n8414:  mainView.innerHTML=`<div class=\"home-back-row\"><button class=\"home-back-btn\" onclick=\"renderHome()\">← Главный экран</button></div><section class=\"grade-hero\"><div><h1>Математика 3 класса</h1><p>48 тем: вычисления, величины, задачи, доли, геометрия, таблицы, диаграммы, закономерности и логика.</p></div><span class=\"grade-chip\">${gradeBookIcon(3,true)} 3 класс</span></section>${G3_GROUPS.map(renderG3Group).join(\"\")}`;\n8415: }"
+        },
+        {
+          "line": 8494,
+          "text": "8492: function openG3Written(id){const t=g3InfoById(id),wm=g3WrittenMode(id);if(!t||!wm)return;mode=wm;show(`<div class=\"mtop\"><h2>3 класс • ${esc(t.title)}</h2><button class=\"x\" onclick=\"closeModal()\">×</button></div><div class=\"lesson\">${g3Lesson(id)}</div>${blockHead()}<div class=\"column-guide\">Заполняй запись по разрядам, как в тетради. Маленькие клетки переноса и отметки занимания можно оставлять пустыми — они не считаются ошибкой.</div><div id=\"stage\"></div>`);modal.classList.add(\"column-modal\");newTask()}\n8493: \n8494: function renderGrade4(){\n8495:  mainView.innerHTML=`<div class=\"home-back-row\"><button class=\"home-back-btn\" onclick=\"renderHome()\">← Главный экран</button></div><section class=\"grade-hero\"><div><h1>Математика 4 класса</h1><p>Основные темы года. Отдельно — письменные вычисления в клеточках и тренажёр таблицы умножения.</p></div><span class=\"grade-chip\">${gradeBookIcon(4,true)} 4 класс</span></section>\n8496:  <div class=\"title\"><h2>Основные темы</h2><p>Вычисления, величины, геометрия и текстовые задачи.</p></div><div class=\"grid\" id=\"topics\"></div>`;\n8497:  renderTopics();"
+        },
+        {
+          "line": 8505,
+          "text": "8503:  return `<section class=\"g5-group ${cls}\"><div class=\"grade-head\"><div><h2>${title}</h2><p>${desc}</p></div><span class=\"badge\">${arr.length} тем</span></div>${cls===\"fractions\"?`<div class=\"g5-mix\"><div><b>🎲 Микс по дробям</b><small>12 заданий из разделов обыкновенных дробей.</small></div><button class=\"btn primary\" onclick=\"openG5FractionMix()\">Играть</button></div>`:\"\"}<div class=\"grid\">${arr.map(t=>g5Card(t,cls)).join(\"\")}</div></section>`;\n8504: }\n8505: function renderGrade5(){\n8506:  mainView.innerHTML=`<div class=\"home-back-row\"><button class=\"home-back-btn\" onclick=\"renderHome()\">← Главный экран</button></div><section class=\"grade-hero\"><div><h1>Математика 5 класса</h1><p>Полный курс из исходного тренажёра: основы, 19 тем по обыкновенным дробям и 15 тем по десятичным дробям, процентам и среднему.</p></div><span class=\"grade-chip\">${gradeBookIcon(5,true)} 5 класс</span></section>\n8507:  ${renderG5Group(\"Основы 5 класса\",\"Числа, вычисления, уравнения, геометрия и задачи.\",G5_CORE)}\n8508:  ${renderG5Group(\"Обыкновенные дроби\",\"Главный большой блок: от устройства дроби до смешанных чисел и задач.\",G5_FRACTIONS,\"fractions\")}"
+        },
+        {
+          "line": 8521,
+          "text": "8519:  return `<section class=\"g6-group\"><div class=\"grade-head\"><div><h2>${esc(group.icon)} ${esc(group.title)}</h2><p>${esc(group.desc||\"\")}</p></div><span class=\"badge\">${group.topics.length} тем</span></div><div class=\"grid\">${group.topics.map(g6TopicCard).join(\"\")}</div></section>`;\n8520: }\n8521: function renderGrade6(){\n8522:  mainView.innerHTML=`<div class=\"home-back-row\"><button class=\"home-back-btn\" onclick=\"renderHome()\">← Главный экран</button></div><section class=\"grade-hero\"><div><h1>Математика 6 класса</h1><p>Делимость, обыкновенные дроби, отношения и проценты, рациональные числа, уравнения, координаты, данные и геометрия.</p></div><span class=\"grade-chip\">${gradeBookIcon(6,true)} 6 класс</span></section>${G6_GROUPS.map(renderG6Group).join(\"\")}`;\n8523: }\n8524: function showG6Pending(id){"
+        },
+        {
+          "line": 8536,
+          "text": "8534: function renderG7Group(group){const ready=group.topics.filter(t=>t.implemented!==false).length;return `<section class=\"g6-group\"><div class=\"grade-head\"><div><h2>${esc(group.icon)} ${esc(group.title)}</h2><p>${esc(group.desc||\"\")}</p></div><span class=\"badge\">${ready?`${ready} готово • `:\"\"}${group.topics.length} тем</span></div><div class=\"grid\">${group.topics.map(g7TopicCard).join(\"\")}</div></section>`}\n8535: function renderG7Course(course){const groups=g7GroupsByCourse(course.id),topics=groups.flatMap(g=>g.topics),count=topics.length,ready=topics.filter(t=>t.implemented!==false).length;return `<section class=\"g7-course\"><div class=\"grade-head\"><div><h2>${esc(course.icon)} ${esc(course.title)}</h2><p>${esc(course.desc)}</p></div><span class=\"badge\">${ready?`${ready} готово • `:\"\"}${count} тем</span></div><div class=\"g7-course-note\">${ready?`Рабочих тем: <b>${ready}</b>. Остальные темы каталога подключаются поэтапно.`:\"Каталог подготовлен — темы добавляются поэтапно.\"}</div>${groups.map(renderG7Grou\n8536: function renderGrade7(){\n8537:  const counts=G7_COURSES.map(c=>{const topics=g7GroupsByCourse(c.id).flatMap(g=>g.topics);return {title:c.title,n:topics.length,ready:topics.filter(t=>t.implemented!==false).length}}),ready=g7ImplementedTopics().length;\n8538:  mainView.innerHTML=`<div class=\"home-back-row\"><button class=\"home-back-btn\" onclick=\"renderHome()\">← Главный экран</button></div><section class=\"grade-hero\"><div><h1>Математика 7 класса</h1><p>Три самостоятельных курса: Алгебра, Геометрия, Вероятность и статистика. Первые рабочие тренажёры подключаются к общей системе МатКвеста без отдельного движка.</p></div><span class=\"grade-chip\">${gradeBookIcon(7,true)} 7 класс</span></section>${G7_COURSES.map(renderG7Course).join(\"\")}`;\n8539: }"
+        },
+        {
+          "line": 8547,
+          "text": "8545: function renderG8Group(group){return `<section class=\"g6-group\"><div class=\"grade-head\"><div><h2>${esc(group.icon)} ${esc(group.title)}</h2><p>${esc(group.desc||\"\")}</p></div><span class=\"badge\">${group.topics.length} тем</span></div><div class=\"grid\">${group.topics.map(g8TopicCard).join(\"\")}</div></section>`}\n8546: function renderG8Course(course){const groups=g8GroupsByCourse(course.id),topics=groups.flatMap(g=>g.topics);return `<section class=\"g7-course\"><div class=\"grade-head\"><div><h2>${esc(course.icon)} ${esc(course.title)}</h2><p>${esc(course.desc)}</p></div><span class=\"badge\">${topics.length} тем</span></div><div class=\"g7-course-note\"><b>Каталог подготовлен.</b> На Этапе 8.0 учебные генераторы намеренно не подключены: все темы имеют статус pending.</div>${groups.map(renderG8Group).join(\"\")}</section>`}\n8547: function renderGrade8(){\n8548:  const counts=G8_COURSES.map(c=>({title:c.title,n:g8GroupsByCourse(c.id).reduce((n,g)=>n+g.topics.length,0)}));\n8549:  mainView.innerHTML=`<div class=\"home-back-row\"><button class=\"home-back-btn\" onclick=\"renderHome()\">← Главный экран</button></div><section class=\"grade-hero\"><div><h1>Математика 8 класса</h1><p>Каталог по федеральной рабочей программе: Алгебра, Геометрия, Вероятность и статистика. На Этапе 8.0 задания ещё не запускаются.</p></div><span class=\"grade-chip\">${gradeBookIcon(8,true)} 8 класс</span></section>${G8_COURSES.map(renderG8Course).join(\"\")}`;\n8550: }"
+        },
+        {
+          "line": 8577,
+          "text": "8575:  return `${completedStages(id)}/3 этапа`;\n8576: }\n8577: function renderTopics(){\n8578:  const el=document.getElementById(\"topics\");if(!el)return;\n8579:  el.innerHTML=TOPICS.map(t=>`<button class=\"topic\" onclick=\"openTopic('${t.id}')\"><span class=\"ico\">${t.ico}</span><strong>${t.title}</strong><small>${t.sub}</small><span class=\"topic-progress\">${topicProgressText(t.id)}</span></button>`).join(\"\");\n8580: }"
+        }
+      ]
+    },
+    "history": {
+      "count": 140,
+      "samples": [
+        {
+          "line": 6850,
+          "text": "6848: {id:\"word\",ico:\"🚲\",title:\"Текстовые задачи\",sub:\"цена, количество, движение\"}];\n6849: \n6850: const EMPTY_STATE={profileId:null,createdAt:null,updatedAt:null,xp:0,coins:0,streak:0,bestStreak:0,solved:0,mistakes:0,courseProgress:{},questionHistory:{},attemptHistory:[],activeAttempt:null,inventory:null,equipped:null,shopStats:null,achievementUnlocks:null,quests:null};\n6851: let profiles={};\n6852: let currentProfile=\"Ученик\";\n6853: let state={...EMPTY_STATE};"
+        },
+        {
+          "line": 6862,
+          "text": "6860:   }\n6861:   if(!profiles[currentProfile])profiles[currentProfile]={...EMPTY_STATE};\n6862:   state={...EMPTY_STATE,...profiles[currentProfile]};state.courseProgress=state.courseProgress||{};state.questionHistory=state.questionHistory||{};\n6863: }catch(e){profiles={\"Ученик\":{...EMPTY_STATE}};currentProfile=\"Ученик\";state={...EMPTY_STATE}}\n6864: /* 8.70: capture saved avatar IDs before legacy normalizers validate a partial catalog. */\n6865: const MK870_SAVED_AVATARS_AT_BOOT=Object.fromEntries(Object.entries(profiles).map(([name,p])=>[name,{"
+        },
+        {
+          "line": 7246,
+          "text": "7244: function achievementUnlockView(profile){const src=profile?.achievementUnlocks&&typeof profile.achievementUnlocks===\"object\"&&!Array.isArray(profile.achievementUnlocks)?profile.achievementUnlocks:{},out={};for(const [id,v] of Object.entries(src)){if(v&&typeof v===\"object\")out[id]={unlockedAt:Number(v.unlockedAt||0)||null,rewardGranted:v.rewardGranted!==false,legacy:!!v.legacy};else if(v)out[id]={unlockedAt:null,rewardGranted:true,legacy:true}}for(const a of ACHIEVEMENTS){if(a.rewardType&&a.rewardId&&profileInventoryHas(profile,a.rewardType,a.rewardId)&&!out[a.id])out[a.id]={unlockedAt:null,rewa\n7245: function normalizeAchievementUnlocks(profile){if(!profile||typeof profile!==\"object\")return {};profile.achievementUnlocks=achievementUnlockView(profile);return profile.achievementUnlocks}\n7246: function profileDirectBest(profile,key){const cp=profile?.courseProgress||{},k=courseKey(key),p=cp[k]||cp[key]||{};return Array.isArray(p.best)?p.best:[0,0,0]}\n7247: function profileDirectStagePassed(profile,key,i){const needs=[4,5,8];return Number(profileDirectBest(profile,key)[i]||0)>=Number(needs[i]||0)}\n7248: function g4AchievementKeys(){return TOPICS.filter(t=>t.id!==\"column\").map(t=>`g4:${t.id}`).concat([\"g4:column:add\",\"g4:column:sub\",\"g4:column:mul\",\"g4:column:div\"])}\n7249: function g5AchievementKeys(){return g5AllTopics().map(t=>`g5:${t.id}`)}"
+        },
+        {
+          "line": 7250,
+          "text": "7248: function g4AchievementKeys(){return TOPICS.filter(t=>t.id!==\"column\").map(t=>`g4:${t.id}`).concat([\"g4:column:add\",\"g4:column:sub\",\"g4:column:mul\",\"g4:column:div\"])}\n7249: function g5AchievementKeys(){return g5AllTopics().map(t=>`g5:${t.id}`)}\n7250: function uniqueFinishedAttempts(profile){const map=new Map();for(const r of (profile?.attemptHistory||[])){if(r?.status!==\"finished\")continue;const k=r.id||`legacy:${r.startedAt||0}:${r.key||\"\"}:${r.kind||\"\"}:${r.stageIndex??\"\"}`;if(!map.has(k)||Number(map.get(k)?.endedAt||0)<Number(r.endedAt||0))map.set(k,r)}return [...map.values()]}\n7251: function buildAchievementContext(profileData){const profile=profileData||{},g3Keys=g3AllTopics().filter(t=>t.implemented!==false).map(t=>t.id),g4Keys=g4AchievementKeys(),g5Keys=g5AchievementKeys(),g6Keys=g6AllTopics().filter(t=>t.implemented!==false).map(t=>t.id),allKeys=[...g3Keys,...g4Keys,...g5Keys,...g6Keys],finished=uniqueFinishedAttempts(profile),masterTopics=allKeys.filter(k=>profileDirectStagePassed(profile,k,2)).length,fractionMasters=G5_FRACTIONS.filter(t=>profileDirectStagePassed(profile,`g5:${t.id}`,2)).length,decimalMasters=G5_DECIMALS.filter(t=>profileDirectStagePassed(profile,`g\n7252: const PRE831_BUILD_ACHIEVEMENT_CONTEXT=buildAchievementContext;\n7253: buildAchievementContext=function(profileData){"
+        },
+        {
+          "line": 7254,
+          "text": "7252: const PRE831_BUILD_ACHIEVEMENT_CONTEXT=buildAchievementContext;\n7253: buildAchievementContext=function(profileData){\n7254:  const p=profileData||{},c=PRE831_BUILD_ACHIEVEMENT_CONTEXT(p),hist=Array.isArray(p.trainingHistory)?p.trainingHistory:[],ag=p.trainingAggregates&&typeof p.trainingAggregates===\"object\"?p.trainingAggregates:{};\n7255:  const g7Keys=g7AllTopics().filter(t=>t.implemented!==false).map(t=>t.id),g8Keys=g8AllTopics().filter(t=>t.implemented!==false).map(t=>t.id);\n7256:  c.masterTopics+=g7Keys.filter(k=>profileDirectStagePassed(p,k,2)).length+g8Keys.filter(k=>profileDirectStagePassed(p,k,2)).length;\n7257:  c.trainingSessions=Math.max(Number(ag.totalSessions||0),hist.length);"
+        },
+        {
+          "line": 7484,
+          "text": "7482:    if(r.currentItem)fixItem(r.currentItem);\n7483:  };\n7484:  (Array.isArray(profile.attemptHistory)?profile.attemptHistory:[]).forEach(normalizeRecord);\n7485:  if(profile.activeAttempt)normalizeRecord(profile.activeAttempt);\n7486:  return profile;\n7487: }"
+        },
+        {
+          "line": 7491,
+          "text": "7489:  state=ensureProfileIdentity(state);\n7490:  normalizeShop();\n7491:  state.attemptHistory=Array.isArray(state.attemptHistory)?state.attemptHistory:[];\n7492:  state.questionHistory=state.questionHistory||{};\n7493:  state.courseProgress=state.courseProgress||{};\n7494:  ensureAttemptItemIds(state);"
+        },
+        {
+          "line": 7492,
+          "text": "7490:  normalizeShop();\n7491:  state.attemptHistory=Array.isArray(state.attemptHistory)?state.attemptHistory:[];\n7492:  state.questionHistory=state.questionHistory||{};\n7493:  state.courseProgress=state.courseProgress||{};\n7494:  ensureAttemptItemIds(state);\n7495:  normalizeAchievementUnlocks(state);"
+        },
+        {
+          "line": 7493,
+          "text": "7491:  state.attemptHistory=Array.isArray(state.attemptHistory)?state.attemptHistory:[];\n7492:  state.questionHistory=state.questionHistory||{};\n7493:  state.courseProgress=state.courseProgress||{};\n7494:  ensureAttemptItemIds(state);\n7495:  normalizeAchievementUnlocks(state);\n7496:  normalizeQuestState(state);"
+        },
+        {
+          "line": 7557,
+          "text": "7555:  let t=0;\n7556:  const take=v=>{const n=Number(v||0);if(Number.isFinite(n))t=Math.max(t,n)};\n7557:  (p?.attemptHistory||[]).forEach(a=>{take(a?.endedAt);take(a?.startedAt)});\n7558:  take(p?.activeAttempt?.startedAt);\n7559:  return t;\n7560: }"
+        },
+        {
+          "line": 7676,
+          "text": "7674:    const cur={...a.currentItem,endedAt:Date.now(),durationMs:Date.now()-(a.currentItem.startedAt||Date.now()),finalCorrect:false,interrupted:true};items.push(cur);\n7675:  }\n7676:  state.attemptHistory.unshift({...a,items,status:\"interrupted\",endedAt:Date.now()});\n7677:  state.attemptHistory=state.attemptHistory.slice(0,50);state.activeAttempt=null;persistSilently();\n7678: }\n7679: function finalizeBlockAttempt(passed,stars){"
+        },
+        {
+          "line": 7677,
+          "text": "7675:  }\n7676:  state.attemptHistory.unshift({...a,items,status:\"interrupted\",endedAt:Date.now()});\n7677:  state.attemptHistory=state.attemptHistory.slice(0,50);state.activeAttempt=null;persistSilently();\n7678: }\n7679: function finalizeBlockAttempt(passed,stars){\n7680:  if(!blockSession)return null;"
+        },
+        {
+          "line": 7695,
+          "text": "7693:    items:deepCopy(blockSession.items||[])\n7694:  };\n7695:  state.attemptHistory=Array.isArray(state.attemptHistory)?state.attemptHistory:[];\n7696:  state.attemptHistory.unshift(record);state.attemptHistory=state.attemptHistory.slice(0,50);\n7697:  state.activeAttempt=null;blockSession.reportId=id;persistSilently();return id;\n7698: }"
+        },
+        {
+          "line": 7696,
+          "text": "7694:  };\n7695:  state.attemptHistory=Array.isArray(state.attemptHistory)?state.attemptHistory:[];\n7696:  state.attemptHistory.unshift(record);state.attemptHistory=state.attemptHistory.slice(0,50);\n7697:  state.activeAttempt=null;blockSession.reportId=id;persistSilently();return id;\n7698: }\n7699: function fmtDate(ts){try{return new Date(ts).toLocaleString(\"ru-RU\",{day:\"2-digit\",month:\"2-digit\",hour:\"2-digit\",minute:\"2-digit\"})}catch(e){return \"\"}}"
+        },
+        {
+          "line": 7719,
+          "text": "7717:  const records=[];\n7718:  if(profile.activeAttempt)records.push({...profile.activeAttempt,status:\"active\"});\n7719:  records.push(...(Array.isArray(profile.attemptHistory)?profile.attemptHistory:[]));\n7720:  window._attemptRecords=records;\n7721:  window._attemptJournalContext={profileData:profile,profileName:String(profileName||\"Ученик\"),backAction:String(backAction||\"\")};\n7722:  const back=backAction?`<button class=\"btn soft\" onclick=\"${backAction}\">← К ученику</button>`:\"\";"
+        },
+        {
+          "line": 7788,
+          "text": "7786: }\n7787: function openAttemptReviewById(id){\n7788:  normalizeReports();window._attemptJournalContext={profileData:state,profileName:currentProfile,backAction:\"\"};const r=(state.attemptHistory||[]).find(x=>x.id===id)||(state.activeAttempt?.id===id?state.activeAttempt:null);if(r)openAttemptReviewRecord(r);\n7789: }\n7790: function openAttemptReviewRecord(r){\n7791:  const items=[...(r.items||[])];if(r.currentItem)items.push({...r.currentItem,label:(r.currentItem.label||\"Текущее задание\")+\" (не завершено)\"});"
+        },
+        {
+          "line": 7876,
+          "text": "7874:  const entries=Object.entries(ps);\n7875:  let attempts=0,solved=0;\n7876:  entries.forEach(([,p])=>{attempts+=Array.isArray(p?.attemptHistory)?p.attemptHistory.length:0;solved+=Number(p?.solved||0)});\n7877:  return {profiles:entries.length,attempts,solved,names:entries.map(([n])=>n)};\n7878: }\n7879: function openDataManager(){"
+        },
+        {
+          "line": 7924,
+          "text": "7922: function normalizeImportedProfile(p,{assignId=true}={}){\n7923:  const obj={...EMPTY_STATE,...deepCopy(p||{})};\n7924:  obj.courseProgress=obj.courseProgress||{};\n7925:  obj.questionHistory=obj.questionHistory||{};\n7926:  obj.attemptHistory=Array.isArray(obj.attemptHistory)?obj.attemptHistory:[];\n7927:  obj.activeAttempt=obj.activeAttempt&&typeof obj.activeAttempt===\"object\"?obj.activeAttempt:null;"
+        },
+        {
+          "line": 7925,
+          "text": "7923:  const obj={...EMPTY_STATE,...deepCopy(p||{})};\n7924:  obj.courseProgress=obj.courseProgress||{};\n7925:  obj.questionHistory=obj.questionHistory||{};\n7926:  obj.attemptHistory=Array.isArray(obj.attemptHistory)?obj.attemptHistory:[];\n7927:  obj.activeAttempt=obj.activeAttempt&&typeof obj.activeAttempt===\"object\"?obj.activeAttempt:null;\n7928:  migrateUnifiedProfile(obj);"
+        },
+        {
+          "line": 7926,
+          "text": "7924:  obj.courseProgress=obj.courseProgress||{};\n7925:  obj.questionHistory=obj.questionHistory||{};\n7926:  obj.attemptHistory=Array.isArray(obj.attemptHistory)?obj.attemptHistory:[];\n7927:  obj.activeAttempt=obj.activeAttempt&&typeof obj.activeAttempt===\"object\"?obj.activeAttempt:null;\n7928:  migrateUnifiedProfile(obj);\n7929:  ensureAttemptItemIds(obj);"
+        },
+        {
+          "line": 8057,
+          "text": "8055:  }\n8056:  const out=[...map.values()].sort((x,y)=>Number(y?.endedAt||y?.startedAt||0)-Number(x?.endedAt||x?.startedAt||0)).slice(0,50);\n8057:  return ensureAttemptItemIds({attemptHistory:out}).attemptHistory;\n8058: }\n8059: function mergeQuestionHistory(a,b){\n8060:  const out={};"
+        },
+        {
+          "line": 8095,
+          "text": "8093:  // Монеты берём из более свежей версии: иначе можно вернуть уже потраченные монеты.\n8094:  merged.coins=Number(newer.coins||0);\n8095:  merged.attemptHistory=mergeAttemptHistory(local.attemptHistory,incoming.attemptHistory);\n8096:  merged.questionHistory=mergeQuestionHistory(newer.questionHistory,older.questionHistory);\n8097:  merged.courseProgress=mergeCourseProgress(local.courseProgress,incoming.courseProgress);\n8098:  merged.inventory=mergeInventory(local.inventory,incoming.inventory);"
+        },
+        {
+          "line": 8096,
+          "text": "8094:  merged.coins=Number(newer.coins||0);\n8095:  merged.attemptHistory=mergeAttemptHistory(local.attemptHistory,incoming.attemptHistory);\n8096:  merged.questionHistory=mergeQuestionHistory(newer.questionHistory,older.questionHistory);\n8097:  merged.courseProgress=mergeCourseProgress(local.courseProgress,incoming.courseProgress);\n8098:  merged.inventory=mergeInventory(local.inventory,incoming.inventory);\n8099:  merged.achievementUnlocks=mergeAchievementUnlocks(local.achievementUnlocks,incoming.achievementUnlocks);"
+        },
+        {
+          "line": 8097,
+          "text": "8095:  merged.attemptHistory=mergeAttemptHistory(local.attemptHistory,incoming.attemptHistory);\n8096:  merged.questionHistory=mergeQuestionHistory(newer.questionHistory,older.questionHistory);\n8097:  merged.courseProgress=mergeCourseProgress(local.courseProgress,incoming.courseProgress);\n8098:  merged.inventory=mergeInventory(local.inventory,incoming.inventory);\n8099:  merged.achievementUnlocks=mergeAchievementUnlocks(local.achievementUnlocks,incoming.achievementUnlocks);\n8100:  merged.quests=mergeQuestStates(newer.quests,older.quests);"
+        },
+        {
+          "line": 8124,
+          "text": "8122: }\n8123: function profileMiniStats(p){\n8124:  return `<div class=\"conflict-stats\"><span>ур. ${levelFor(p?.xp||0)}</span><span>${p?.xp||0} XP</span><span>🪙 ${p?.coins||0}</span><span>🔥 ${p?.bestStreak||0}</span><span>📋 ${(p?.attemptHistory||[]).length}</span></div>`;\n8125: }\n8126: function showNextImportConflict(index){\n8127:  const conflicts=pendingImportPlan.filter(x=>x.type===\"conflict\");"
+        },
+        {
+          "line": 8280,
+          "text": "8278: function selectProfile(i){\n8279:   const name=window._profileNames?.[i];if(!name||!profiles[name])return;\n8280:   currentProfile=name;state={...EMPTY_STATE,...profiles[name]};state.courseProgress=state.courseProgress||{};state.questionHistory=state.questionHistory||{};normalizeReports();save();closeModal();\n8281: }\n8282: function createProfile(){\n8283:   const inp=document.getElementById(\"newProfileName\");let name=(inp?.value||\"\").trim().replace(/\\s+/g,\" \");"
+        },
+        {
+          "line": 8285,
+          "text": "8283:   const inp=document.getElementById(\"newProfileName\");let name=(inp?.value||\"\").trim().replace(/\\s+/g,\" \");\n8284:   if(!name)return;\n8285:   if(profiles[name]){currentProfile=name;state={...EMPTY_STATE,...profiles[name]};state.courseProgress=state.courseProgress||{};state.questionHistory=state.questionHistory||{};normalizeReports();save();closeModal();return}\n8286:   profiles[name]=ensureProfileIdentity({...EMPTY_STATE,courseProgress:{},questionHistory:{}});currentProfile=name;state={...EMPTY_STATE,...profiles[name]};save();closeModal();rewardPop(`Профиль «${name}» создан`);\n8287: }\n8288: function openLeaderboard(){"
+        },
+        {
+          "line": 8286,
+          "text": "8284:   if(!name)return;\n8285:   if(profiles[name]){currentProfile=name;state={...EMPTY_STATE,...profiles[name]};state.courseProgress=state.courseProgress||{};state.questionHistory=state.questionHistory||{};normalizeReports();save();closeModal();return}\n8286:   profiles[name]=ensureProfileIdentity({...EMPTY_STATE,courseProgress:{},questionHistory:{}});currentProfile=name;state={...EMPTY_STATE,...profiles[name]};save();closeModal();rewardPop(`Профиль «${name}» создан`);\n8287: }\n8288: function openLeaderboard(){\n8289:   const list=Object.entries(profiles).filter(([,p])=>developerModeEnabled||p?.developerTestProfile!==true).sort((a,b)=>(b[1].xp||0)-(a[1].xp||0)||(b[1].bestStreak||0)-(a[1].bestStreak||0)||(b[1].solved||0)-(a[1].solved||0));"
+        }
+      ]
+    },
+    "progress": {
+      "count": 8,
+      "samples": [
+        {
+          "line": 936,
+          "text": "934: \n935: /* 8.72 — единый индикатор прогресса XP (только UI) */\n936: .mk872-xp-progress{min-width:0;max-width:440px;margin:7px 0;color:inherit;font-size:12px;line-height:1.35}\n937: .mk872-xp-head{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-weight:850}\n938: .mk872-xp-track{height:8px;border-radius:99px;overflow:hidden;background:rgba(122,155,134,.22);margin:5px 0 4px}\n939: .mk872-xp-fill{display:block;height:100%;background:linear-gradient(90deg,#25845f,#d5ad33);border-radius:inherit;transition:width .2s ease}"
+        },
+        {
+          "line": 941,
+          "text": "939: .mk872-xp-fill{display:block;height:100%;background:linear-gradient(90deg,#25845f,#d5ad33);border-radius:inherit;transition:width .2s ease}\n940: .mk872-xp-foot{font-size:11px;opacity:.86;overflow-wrap:anywhere}\n941: .mk872-xp-progress.compact{max-width:240px;margin:4px 0;font-size:11px}\n942: .mk872-xp-progress.compact .mk872-xp-track{height:5px;margin:3px 0}\n943: .mk872-xp-progress.compact .mk872-xp-foot{font-size:10px}\n944: .mk872-top-progress{flex:1 1 130px;min-width:105px;max-width:190px;align-self:center;margin:0 2px}"
+        },
+        {
+          "line": 942,
+          "text": "940: .mk872-xp-foot{font-size:11px;opacity:.86;overflow-wrap:anywhere}\n941: .mk872-xp-progress.compact{max-width:240px;margin:4px 0;font-size:11px}\n942: .mk872-xp-progress.compact .mk872-xp-track{height:5px;margin:3px 0}\n943: .mk872-xp-progress.compact .mk872-xp-foot{font-size:10px}\n944: .mk872-top-progress{flex:1 1 130px;min-width:105px;max-width:190px;align-self:center;margin:0 2px}\n945: .mk872-top-progress .mk872-xp-head{font-size:10px}"
+        },
+        {
+          "line": 943,
+          "text": "941: .mk872-xp-progress.compact{max-width:240px;margin:4px 0;font-size:11px}\n942: .mk872-xp-progress.compact .mk872-xp-track{height:5px;margin:3px 0}\n943: .mk872-xp-progress.compact .mk872-xp-foot{font-size:10px}\n944: .mk872-top-progress{flex:1 1 130px;min-width:105px;max-width:190px;align-self:center;margin:0 2px}\n945: .mk872-top-progress .mk872-xp-head{font-size:10px}\n946: .mk872-top-progress .mk872-xp-track{height:5px;margin:3px 0}"
+        },
+        {
+          "line": 950,
+          "text": "948: .mk872-leader-progress{min-width:70px;max-width:95px}\n949: .mk872-leader-progress .mk872-xp-track{height:5px;margin:3px 0}\n950: @media(max-width:520px){.mk872-top-progress{flex-basis:100%;max-width:100%;order:2}.mk872-xp-progress{width:100%}}\n951: @media(prefers-reduced-motion:reduce){.mk872-xp-fill{transition:none}}\n952: \n953: /* 8.72: логотип — стабильная левая точка первой строки navbar */"
+        },
+        {
+          "line": 1684,
+          "text": "1682:       <div class=\"pill grade-back\" id=\"gradeBackPill\" onclick=\"renderHome()\">← Главная</div>\n1683:       <div class=\"pill profile-pill\" onclick=\"openProfiles()\"><span id=\"playerAvatar\"><span class=\"ui-glyph ui-smile\" aria-hidden=\"true\"></span></span> <span id=\"playerName\">Ученик</span></div>\n1684:       <div class=\"pill level-pill\"><span class=\"ui-glyph ui-medal\" aria-hidden=\"true\"></span> Ур. <span id=\"level\">1</span></div><div id=\"mk872TopLevelProgress\" class=\"mk872-xp-progress mk872-top-progress\" aria-label=\"Прогресс уровня\"></div>\n1685:       <div class=\"pill\"><span class=\"ui-glyph ui-coin\" aria-hidden=\"true\"></span> <span id=\"coins\">0</span></div>\n1686:       <div class=\"pill\"><span class=\"ui-glyph ui-fire\" aria-hidden=\"true\"></span> <span id=\"streak\">0</span></div>\n1687:       <div class=\"pill shop-pill\" onclick=\"openShop()\"><span class=\"ui-glyph ui-shop\" aria-hidden=\"true\"></span> Магазин</div>"
+        },
+        {
+          "line": 6897,
+          "text": "6895:  const labelText=small?`Ур. ${p.currentLevel} · ${Math.round(p.progressPercent)}%`:`Уровень ${p.currentLevel} → ${p.currentLevel+1}`;\n6896:  const details=small?`${Math.ceil(p.xpRemaining)} XP осталось`:`${Math.floor(p.xpIntoLevel)} / ${p.xpNeededForLevel} XP · до ур. ${p.currentLevel+1}: ${Math.ceil(p.xpRemaining)} XP`;\n6897:  return `<div class=\"mk872-xp-progress ${compact?'compact':''} ${variant==='top'?'mk872-top-progress':''} ${variant==='tiny'?'mk872-leader-progress':''}\" role=\"progressbar\" aria-label=\"${label}\" aria-valuemin=\"0\" aria-valuemax=\"${p.xpNeededForLevel}\" aria-valuenow=\"${Math.floor(p.xpIntoLevel)}\"><div class=\"mk872-xp-head\"><span>${labelText}</span>${small?'':`<span>${Math.round(p.progressPercent)}%</span>`}</div><div class=\"mk872-xp-track\"><span class=\"mk872-xp-fill\" style=\"width:${p.progressPercent}%\"></span></div><div class=\"mk872-xp-foot\">${details}</div></div>`;\n6898: }\n6899: function mk872UpdateTopLevelProgress(){const node=document.getElementById('mk872TopLevelProgress');if(node)node.outerHTML=mk872LevelProgressHtml(state.xp||0,'top').replace('class=\"mk872-xp-progress','id=\"mk872TopLevelProgress\" class=\"mk872-xp-progress');}\n6900: "
+        },
+        {
+          "line": 6899,
+          "text": "6897:  return `<div class=\"mk872-xp-progress ${compact?'compact':''} ${variant==='top'?'mk872-top-progress':''} ${variant==='tiny'?'mk872-leader-progress':''}\" role=\"progressbar\" aria-label=\"${label}\" aria-valuemin=\"0\" aria-valuemax=\"${p.xpNeededForLevel}\" aria-valuenow=\"${Math.floor(p.xpIntoLevel)}\"><div class=\"mk872-xp-head\"><span>${labelText}</span>${small?'':`<span>${Math.round(p.progressPercent)}%</span>`}</div><div class=\"mk872-xp-track\"><span class=\"mk872-xp-fill\" style=\"width:${p.progressPercent}%\"></span></div><div class=\"mk872-xp-foot\">${details}</div></div>`;\n6898: }\n6899: function mk872UpdateTopLevelProgress(){const node=document.getElementById('mk872TopLevelProgress');if(node)node.outerHTML=mk872LevelProgressHtml(state.xp||0,'top').replace('class=\"mk872-xp-progress','id=\"mk872TopLevelProgress\" class=\"mk872-xp-progress');}\n6900: \n6901: \n6902: const YANDEX_EMOJI_PNG={"
+        }
+      ]
+    },
+    "xp": {
+      "count": 7,
+      "samples": [
+        {
+          "line": 8222,
+          "text": "8220: }\n8221: \n8222: function save(){\n8223:   normalizeReports();\n8224:   normalizeShop();\n8225:   checkAchievementRewards();"
+        },
+        {
+          "line": 8239,
+          "text": "8237:   }\n8238: }\n8239: function stats(){\n8240:  coins.textContent=state.coins||0;streak.textContent=state.streak||0;\n8241:  level.textContent=levelFor(state.xp||0);mk872UpdateTopLevelProgress();playerName.textContent=currentProfile;playerName.title=currentProfile;\n8242:  const topAv=document.getElementById(\"playerAvatar\");if(topAv){topAv.innerHTML=avatarHtml(state,\"small\")}"
+        },
+        {
+          "line": 8254,
+          "text": "8252:   rewardPop.timer=setTimeout(()=>el.classList.remove(\"show\"),1700);\n8253: }\n8254: function award(ok,type=\"normal\"){\n8255:   const beforeLevel=levelFor(state.xp||0);\n8256:   if(!ok){state.streak=0;state.mistakes=(state.mistakes||0)+1;save();return {xp:0,coins:0,bonus:\"\"}}\n8257:   state.solved=(state.solved||0)+1;"
+        },
+        {
+          "line": 9251,
+          "text": "9249:  return {enabled:!!x.enabled,pinHash:String(x.pinHash||\"\"),pinFallbackHash:String(x.pinFallbackHash||\"\"),pinSalt:String(x.pinSalt||\"\"),pinAlgo:String(x.pinAlgo||\"\")};\n9250: }\n9251: function saveTeacherSettings(){\n9252:  teacherSettings=normalizeTeacherSettings(teacherSettings);appSettings=(appSettings&&typeof appSettings===\"object\")?appSettings:{};appSettings.teacherSettings=deepCopy(teacherSettings);\n9253:  try{localStorage.setItem(APP_SETTINGS_KEY,JSON.stringify(appSettings))}catch(e){reportStorageError(e,true)}\n9254: }"
+        },
+        {
+          "line": 19287,
+          "text": "19285:  return MK854_PRE_EXTRA_ROUTE(route)\n19286: };\n19287: function saveProfileEdit854(){\n19288:  const inp=document.getElementById(\"mk854NicknameInput\"),err=document.getElementById(\"mk854EditError\"),checked=nicknameInput854(inp?.value||\"\");\n19289:  if(!checked.ok){if(err)err.textContent=checked.error;return false}\n19290:  const newName=checked.name,oldName=currentProfile;"
+        },
+        {
+          "line": 19595,
+          "text": "19593: function mk855PenaltyStep(wrongNo,remediation=false){if(remediation)return 1;return wrongNo===1?2:wrongNo===2?3:4}\n19594: function mk855PenaltyCap(remediation=false){return remediation?5:10}\n19595: function mk855ApplyWrongPenalty(type=\"normal\"){\n19596:  const rs=mk855CurrentRewardState();if(!mk855LastCheckRecorded)return {xp:0,coins:0,bonus:\"\",penalty:0,duplicate:true};\n19597:  const remediation=typeof isErrorWork===\"function\"&&isErrorWork(),cap=mk855PenaltyCap(remediation);rs.wrongAttempts=Number(rs.wrongAttempts||0)+1;rs.rewardEligibility=rs.wrongAttempts===1?\"half\":\"none\";\n19598:  const want=Math.max(0,Math.min(mk855PenaltyStep(rs.wrongAttempts,remediation),cap-Number(rs.penaltyApplied||0))),actual=Math.min(want,Math.max(0,Number(state.xp||0)));"
+        },
+        {
+          "line": 19607,
+          "text": "19605:  quick:{xp:3,coins:1,streakCoins:false}\n19606: };\n19607: function mk855CorrectReward(type=\"normal\"){\n19608:  const rs=mk855CurrentRewardState();if(rs.rewardGranted)return {xp:0,coins:0,bonus:\"\",duplicate:true};rs.rewardGranted=true;\n19609:  const wrongs=Number(rs.wrongAttempts||0),beforeLevel=levelFor(state.xp||0),cfg=MK859_REWARD_CONFIG[type]||MK859_REWARD_CONFIG.normal,baseXp=cfg.xp,baseCoins=cfg.coins;\n19610:  state.solved=(state.solved||0)+1;let xpGain=0,coinGain=0,bonus=\"\";"
+        }
+      ]
+    },
+    "stages": {
+      "count": 22,
+      "samples": [
+        {
+          "line": 200,
+          "text": "198: /* Учебные блоки и видимый прогресс */\n199: .stage-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:14px 0}\n200: .stage-card{border:1px solid var(--line);border-radius:17px;background:#fff;padding:15px;text-align:left;color:var(--ink);position:relative;min-height:145px;transition:.15s}\n201: .stage-card:hover:not(.locked){border-color:#92cab0;transform:translateY(-1px)}\n202: .stage-card.locked{opacity:.48;cursor:not-allowed;background:#f5f7f6}\n203: .stage-card .stage-ico{font-size:26px}.stage-card strong{display:block;font-size:18px;margin:7px 0 4px}.stage-card small{display:block;color:var(--muted);line-height:1.35}"
+        },
+        {
+          "line": 201,
+          "text": "199: .stage-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:14px 0}\n200: .stage-card{border:1px solid var(--line);border-radius:17px;background:#fff;padding:15px;text-align:left;color:var(--ink);position:relative;min-height:145px;transition:.15s}\n201: .stage-card:hover:not(.locked){border-color:#92cab0;transform:translateY(-1px)}\n202: .stage-card.locked{opacity:.48;cursor:not-allowed;background:#f5f7f6}\n203: .stage-card .stage-ico{font-size:26px}.stage-card strong{display:block;font-size:18px;margin:7px 0 4px}.stage-card small{display:block;color:var(--muted);line-height:1.35}\n204: .stage-best{margin-top:9px;font-size:13px;font-weight:850;color:var(--brand)}"
+        },
+        {
+          "line": 202,
+          "text": "200: .stage-card{border:1px solid var(--line);border-radius:17px;background:#fff;padding:15px;text-align:left;color:var(--ink);position:relative;min-height:145px;transition:.15s}\n201: .stage-card:hover:not(.locked){border-color:#92cab0;transform:translateY(-1px)}\n202: .stage-card.locked{opacity:.48;cursor:not-allowed;background:#f5f7f6}\n203: .stage-card .stage-ico{font-size:26px}.stage-card strong{display:block;font-size:18px;margin:7px 0 4px}.stage-card small{display:block;color:var(--muted);line-height:1.35}\n204: .stage-best{margin-top:9px;font-size:13px;font-weight:850;color:var(--brand)}\n205: .stage-lock{position:absolute;right:10px;top:9px;font-size:18px}"
+        },
+        {
+          "line": 203,
+          "text": "201: .stage-card:hover:not(.locked){border-color:#92cab0;transform:translateY(-1px)}\n202: .stage-card.locked{opacity:.48;cursor:not-allowed;background:#f5f7f6}\n203: .stage-card .stage-ico{font-size:26px}.stage-card strong{display:block;font-size:18px;margin:7px 0 4px}.stage-card small{display:block;color:var(--muted);line-height:1.35}\n204: .stage-best{margin-top:9px;font-size:13px;font-weight:850;color:var(--brand)}\n205: .stage-lock{position:absolute;right:10px;top:9px;font-size:18px}\n206: .topic-progress{display:block;margin-top:7px;color:var(--brand);font-size:12px;font-weight:900}"
+        },
+        {
+          "line": 1410,
+          "text": "1408: }\n1409: @media(prefers-reduced-motion:reduce){\n1410:  .grade-card,.topic,.stage-card,.home-back-btn,.profile-pill,.leader-pill{transition:none!important;transform:none!important}\n1411: }\n1412: </style>\n1413: <style id=\"stage862-class-card-hotfix\">"
+        },
+        {
+          "line": 7627,
+          "text": "7625:    grade:blockSession.grade||keyGrade(blockSession.key),topicId:blockSession.topicId||rawCourseId(blockSession.key),\n7626:    startedAt:blockSession.startedAt,total:blockSession.total,done:blockSession.done,correct:blockSession.correct,\n7627:    title:attemptTitle(blockSession.key),stageName:(blockSession.customStage||STAGES?.[blockSession.stageIndex])?.name||\"Этап\",status:blockSession.finished?\"finishing\":\"active\",\n7628:    errorXpEarned:blockSession.errorXpEarned||0,errorCoinsEarned:blockSession.errorCoinsEarned||0,\n7629:    practiceXpEarned:blockSession.practiceXpEarned||0,practiceCoinsEarned:blockSession.practiceCoinsEarned||0,practiceMode:blockSession.practiceMode||null,\n7630:    controlXpEarned:blockSession.controlXpEarned||0,controlCoinsEarned:blockSession.controlCoinsEarned||0,controlBonusXp:blockSession.controlBonusXp||0,controlGradeChoice:blockSession.controlGradeChoice||null,"
+        },
+        {
+          "line": 7686,
+          "text": "7684:    id,key:blockSession.key,kind:blockSession.kind,stageIndex:blockSession.stageIndex,\n7685:    grade:blockSession.grade||keyGrade(blockSession.key),topicId:blockSession.topicId||rawCourseId(blockSession.key),\n7686:    stageName:(blockSession.customStage||STAGES[blockSession.stageIndex])?.name||\"Этап\",title:attemptTitle(blockSession.key),\n7687:    startedAt:blockSession.startedAt||Date.now(),endedAt:Date.now(),total:blockSession.total,\n7688:    done:Math.min(blockSession.done,blockSession.total),correct:Math.min(blockSession.correct,blockSession.total),\n7689:    passed:!!passed,stars:stars||0,status:\"finished\","
+        },
+        {
+          "line": 7725,
+          "text": "7723:  if(!records.length){show(`<div class=\"mtop\"><h2>📋 Журнал попыток — ${esc(profileName||\"Ученик\")}</h2><button class=\"x\" onclick=\"closeModal()\">×</button></div><div class=\"report-empty\">Пока нет ни одной попытки. После прохождения блока здесь появится подробный разбор.</div>${back?`<div class=\"actions\">${back}</div>`:\"\"}`);return}\n7724:  const rows=records.map((r,i)=>{\n7725:    const stage=r.kind===\"errorwork\"?(r.stageName||\"Работа над ошибками\"):r.kind===\"controlreview\"?(r.stageName||\"Контрольное повторение\"):(STAGES[r.stageIndex]?.name||r.stageName||\"\");\n7726:    const finalCorrect=(r.kind===\"weaktopic\"||r.kind===\"controlreview\")?(r.items||[]).filter(x=>x.finalCorrect&&!x.skipped).length:(r.correct||0);\n7727:    const score=r.status===\"finished\"?`${finalCorrect}/${r.total||0}`:`${r.done||0}/${r.total||0}`;\n7728:    const when=fmtDate(r.startedAt),dur=r.endedAt?fmtDuration((r.endedAt||Date.now())-(r.startedAt||Date.now())):\"идёт сейчас\";"
+        },
+        {
+          "line": 7794,
+          "text": "7792:  const firstTry=items.filter(x=>x.firstTry).length,corrected=items.filter(x=>x.finalCorrect&&!x.firstTry).length,wrong=items.filter(x=>!x.finalCorrect&&!x.skipped).length,skipped=items.filter(x=>x.skipped).length;\n7793:  const duration=(r.endedAt||Date.now())-(r.startedAt||Date.now());\n7794:  const stage=r.kind===\"errorwork\"?(r.stageName||\"Работа над ошибками\"):r.kind===\"controlreview\"?(r.stageName||\"Контрольное повторение\"):(STAGES[r.stageIndex]?.name||r.stageName||\"\");\n7795:  const remediationResolved=items.filter(x=>x.sourceAttemptId&&x.remediationOutcome===\"resolved\").length;\n7796:  const remediationRepeat=items.filter(x=>x.sourceAttemptId&&x.remediationOutcome!==\"resolved\").length;\n7797:  const summary=r.kind===\"errorwork\""
+        },
+        {
+          "line": 8585,
+          "text": "8583:  return STAGES.map((s,i)=>{\n8584:    const unlocked=stageUnlocked(key,i),best=p.best[i]||0,passed=stagePassed(key,i);\n8585:    return `<button class=\"stage-card ${unlocked?\"\":\"locked\"}\" ${unlocked?`onclick=\"${startCall}(${i})\"`:\"disabled\"}><span class=\"stage-lock\">${passed?\"✅\":unlocked?\"\":\"🔒\"}</span><span class=\"stage-ico\">${s.ico}</span><strong>${i+1}. ${s.name}</strong><small>${s.count} заданий • пройти: ${s.need}/${s.count}<br>${s.desc}</small><div class=\"stage-best\">${best?`Лучший результат: ${best}/${s.count}`:\"Ещё не пройден\"}</div></button>`\n8586:  }).join(\"\");\n8587: }\n8588: /* ЭТАП 8.48 — полноценная Theory 4 класса: смысл → термин → правило → шаги → пример. */"
+        },
+        {
+          "line": 8644,
+          "text": "8642:  blockSession=null;const key='column:'+m,p=progressFor(key);\n8643:  const theory=g4TheoryHtml(key);\n8644:  show(`<div class=\"mtop\"><h2>${ic} ${name} столбиком</h2><button class=\"x\" onclick=\"closeModal()\">×</button></div><div class=\"lesson\">${theory}<p><small>Переносы, точки и маленькие подсказочные клетки помогают показать ход решения. Если подсказочную клетку оставишь пустой, это само по себе не считается ошибкой.</small></p></div><div class=\"stage-grid\">${STAGES.map((s,i)=>{const u=stageUnlocked(key,i),best=p.best[i]||0,passed=stagePassed(key,i);return `<button class=\"stage-card ${u?'':'locked'}\" ${u?`onclick=\"startColumnStage('${m}',${i})\"`:'disabled'}><span class=\"stage-lock\">${passed?'✅':u?''\n8645: }\n8646: function openTablePath(){openStagePicker('table','Таблица умножения','✖️','startTableStage')}\n8647: function openQuizPath(id){const t=TOPICS.find(x=>x.id===id);openStagePicker(id,t.title,t.ico,`startQuizStage.bind(null,'${id}')`)}"
+        },
+        {
+          "line": 9410,
+          "text": "9408: function teacherLatestWorks(profile,period=teacherDetailPeriod,limit=5){const cutoff=teacherPeriodCutoff(period);return (profile?.attemptHistory||[]).filter(r=>r?.status===\"finished\"&&(!cutoff||Number(r.endedAt||r.startedAt||0)>=cutoff)).slice().sort((a,b)=>Number(b.endedAt||b.startedAt||0)-Number(a.endedAt||a.startedAt||0)).slice(0,limit)}\n9409: function teacherAttemptScore(r){if(r.kind===\"weaktopic\"||r.kind===\"controlreview\")return `${(r.items||[]).filter(x=>x.finalCorrect&&!x.skipped).length}/${r.total||0}`;if(r.kind===\"errorwork\")return `${(r.items||[]).filter(x=>x.remediationOutcome===\"resolved\").length}/${r.total||0}`;return `${r.correct||0}/${r.total||0}`}\n9410: function teacherWorkRow(r){const stage=r.kind===\"errorwork\"?(r.stageName||\"Работа над ошибками\"):r.kind===\"controlreview\"?(r.stageName||\"Контрольное повторение\"):(r.kind===\"weaktopic\"?(r.practiceMode===\"topic\"?\"Тренировка темы\":\"Смешанная тренировка\"):(STAGES[r.stageIndex]?.name||r.stageName||\"\")),dur=(r.startedAt&&r.endedAt)?fmtDuration(r.endedAt-r.startedAt):\"\";return `<div class=\"teacher-work-row\"><div><b>${esc(r.title||attemptTitle(r.key))}</b><small>${teacherDateTime(r.endedAt||r.startedAt)}${stage?` • ${esc(stage)}`:\"\"}${dur?` • ${dur}`:\"\"}</small></div><span class=\"teacher-work-score\">$\n9411: function teacherResponseStatsPanel(profile){const st=teacherRecentResponseStats(profile,{period:teacherDetailPeriod,limit:teacherDetailPeriod===\"all\"?Infinity:30});return `<div class=\"teacher-kpis\"><div class=\"teacher-kpi\"><b>${st.firstTry}</b><small>✅ с первой</small></div><div class=\"teacher-kpi\"><b>${st.corrected}</b><small>🟡 исправлено</small></div><div class=\"teacher-kpi\"><b>${st.wrong}</b><small>❌ неверно</small></div><div class=\"teacher-kpi\"><b>${st.skipped}</b><small>⏭ пропущено</small></div></div><div class=\"teacher-lock-note\">В выборке: ${st.total} заданий. Пустой Enter и повторные \n9412: function teacherCoursePanel(profile,grade){const cp=teacherCourseProgress(profile,grade);if(cp.catalogOnly){const g=Number(grade),courses=g===8?G8_COURSES:G7_COURSES,groupsByCourse=g===8?g8GroupsByCourse:g7GroupsByCourse,counts=courses.map(c=>`${c.title}: ${groupsByCourse(c.id).reduce((n,x)=>n+x.topics.length,0)}`).join(\" • \");return `<h3>${gradeBookIcon(g,true)} ${g} класс</h3><div class=\"teacher-empty\"><b>Каталог подготовлен — темы добавляются поэтапно.</b><br>${cp.catalogTopics} тем. ${esc(counts)}</div>`;}\n9413:  const g=Number(grade),p=teacherCourseProgress(profile,g),b=teacherStageBreakdown(profile,g),has=teacherProfileGradeActivity(profile,g);let extra=\"\";"
+        },
+        {
+          "line": 16433,
+          "text": "16431: \n16432: function quickNewSession(id,selectedConfig){\n16433:  finishQuickSession(\"abandoned\");const meta=quickMeta(id),now=Date.now(),config=quickNormalizeSelection(id,selectedConfig),record={id:`quick_${now}_${Math.random().toString(36).slice(2,8)}`,key:meta.id,kind:\"quicktrainer\",activityType:\"quick_trainer\",trainerId:meta.id,grade:0,topicId:meta.id,title:meta.title,stageName:\"Быстрый тренажёр\",selectedConfig:deepCopy(config),startedAt:now,endedAt:null,status:\"active\",items:[],total:0,done:0,correct:0};\n16434:  state.attemptHistory=Array.isArray(state.attemptHistory)?state.attemptHistory:[];state.attemptHistory.unshift(record);state.attemptHistory=state.attemptHistory.slice(0,50);\n16435:  const activeGoal=ensureTrainingState().activeTrainingGoal,goalForSession=activeGoal&&activeGoal.status===\"active\"&&quickKey(activeGoal.trainerId)===quickKey(meta.id)?activeGoal:null;quickSession={sessionId:`qs_${now.toString(36)}_${Math.random().toString(36).slice(2,10)}`,recordId:record.id,trainerId:meta.id,selectedConfig:deepCopy(config),startedAt:now,answered:0,correct:0,wrong:0,currentStreak:0,bestSessionStreak:0,earnedXP:0,earnedCoins:0,startXP:0,startCoins:0,usedSignatures:[],lastSig:\"\",lastCore:\"\",lastTemplate:\"\",lastFactKey:\"\",reviewQueue:[],problemFacts:{},goalIdAtStart:goalForSessio\n16436: }"
+        },
+        {
+          "line": 32896,
+          "text": "32894: /* Three stage choices: keep native buttons, lock badges and sequential unlocking. */\n32895: #modal .stage-grid{gap:10px}\n32896: #modal button.stage-card{\n32897:   border-radius:15px;border:1px solid #d6e6de;\n32898:   box-shadow:0 2px 5px rgba(25,63,47,.025);\n32899:   padding:14px;transition:border-color .17s ease,box-shadow .17s ease,transform .17s ease"
+        },
+        {
+          "line": 32901,
+          "text": "32899:   padding:14px;transition:border-color .17s ease,box-shadow .17s ease,transform .17s ease\n32900: }\n32901: #modal button.stage-card:not(:disabled):not(.locked):hover{\n32902:   transform:translateY(-2px);\n32903:   border-color:#8dbfa6;\n32904:   box-shadow:0 9px 21px rgba(24,72,51,.1)"
+        },
+        {
+          "line": 32906,
+          "text": "32904:   box-shadow:0 9px 21px rgba(24,72,51,.1)\n32905: }\n32906: #modal button.stage-card:focus-visible{\n32907:   outline:3px solid rgba(23,107,84,.38);outline-offset:3px\n32908: }\n32909: #modal button.stage-card.locked,#modal button.stage-card:disabled{"
+        },
+        {
+          "line": 32909,
+          "text": "32907:   outline:3px solid rgba(23,107,84,.38);outline-offset:3px\n32908: }\n32909: #modal button.stage-card.locked,#modal button.stage-card:disabled{\n32910:   cursor:not-allowed;box-shadow:none\n32911: }\n32912: #modal button.stage-card strong{font-weight:800;letter-spacing:-.012em}"
+        },
+        {
+          "line": 32912,
+          "text": "32910:   cursor:not-allowed;box-shadow:none\n32911: }\n32912: #modal button.stage-card strong{font-weight:800;letter-spacing:-.012em}\n32913: #modal button.stage-card small{line-height:1.45}\n32914: /* Practice: improve rhythm without overriding right/wrong/selected answer colors. */\n32915: #modal .block-head{"
+        },
+        {
+          "line": 32913,
+          "text": "32911: }\n32912: #modal button.stage-card strong{font-weight:800;letter-spacing:-.012em}\n32913: #modal button.stage-card small{line-height:1.45}\n32914: /* Practice: improve rhythm without overriding right/wrong/selected answer colors. */\n32915: #modal .block-head{\n32916:   border-radius:13px;border:1px solid #d8e9df;"
+        },
+        {
+          "line": 32980,
+          "text": "32978:  #modal .lesson{padding:13px;border-radius:13px}\n32979:  #modal .stage-grid{gap:8px}\n32980:  #modal button.stage-card{padding:12px 13px;border-radius:13px}\n32981:  #modal .block-head{padding:9px 10px}\n32982:  #modal .quizq{font-size:22px}\n32983:  #modal .answers{gap:9px}"
+        },
+        {
+          "line": 32991,
+          "text": "32989: /* State changes (correct, wrong, locked, purchased, equipped) are owned by the app. */\n32990: @media(hover:none){\n32991:  #modal button.stage-card:hover{transform:none}\n32992:  #modal .mtop .x:hover{box-shadow:none}\n32993: }\n32994: @media(prefers-reduced-motion:reduce){"
+        },
+        {
+          "line": 32995,
+          "text": "32993: }\n32994: @media(prefers-reduced-motion:reduce){\n32995:  #modal .mtop .x,#modal button.stage-card,\n32996:  #modal button.shop-tab,#modal .answers button.answer{\n32997:    transition:none!important;transform:none!important;animation:none!important\n32998:  }"
+        }
+      ]
+    }
+  },
+  "definitions": [
+    {
+      "line": 6883,
+      "text": "6882: function levelThreshold(level){const n=Math.max(0,Math.trunc(Number(level||1))-1);return MK859_LEVEL_CURVE.linear*n+MK859_LEVEL_CURVE.quadratic*n*n}\n6883: function levelFor(x){x=Math.max(0,Number(x||0));let lo=1,hi=2;while(levelThreshold(hi)<=x&&hi<10000)hi*=2;while(lo+1<hi){const mid=Math.floor((lo+hi)/2);if(levelThreshold(mid)<=x)lo=mid;else hi=mid}return lo}\n6884: function levelProgressInfo(x){x=Math.max(0,Number(x||0));const level=levelFor(x),start=levelThreshold(level),next=levelThreshold(level+1),span=Math.max(1,next-start),within=Math.max(0,Math.min(span,x-start));return {level,start,next,remaining:Math.max(0,next-x),percent:Math.max(0,Math.min(100,Math.round(within/span*100)))}}\n6885: /* Все представления читают одну и ту же исходную кривую levelFor/levelThreshold. */\n6886: function mk872GetLevelProgress(profileXP){\n6887:  const totalXP=Math.max(0,Number(profileXP)||0),base=levelProgressInfo(totalXP);\n6888:  const xpNeededForLevel=Math.max(1,base.next-base.start);\n6889:  const xpIntoLevel=Math.max(0,Math.min(xpNeededForLevel,totalXP-base.start));\n6890:  return {currentLevel:base.level,totalXP,currentLevelStartXP:base.start,nextLevelXP:base.next,xpIntoLevel,xpNeededForLevel,xpRemaining:base.remaining,progressPercent:Math.max(0,Math.min(100,xpIntoLevel/xpNeededForLevel*100))};\n6891: }\n6892: function mk872LevelProgressHtml(profileXP,variant=\"full\"){\n6893:  const p=mk872GetLevelProgress(profileXP),compact=variant!==\"full\",small=variant===\"tiny\";\n6894:  const label=`Уровень ${p.currentLevel}: ${Math.floor(p.xpIntoLevel)} из ${p.xpNeededForLevel} XP до уровня ${p.currentLevel+1}; осталось ${Math.ceil(p.xpRemaining)} XP`;"
+    },
+    {
+      "line": 6892,
+      "text": "6891: }\n6892: function mk872LevelProgressHtml(profileXP,variant=\"full\"){\n6893:  const p=mk872GetLevelProgress(profileXP),compact=variant!==\"full\",small=variant===\"tiny\";\n6894:  const label=`Уровень ${p.currentLevel}: ${Math.floor(p.xpIntoLevel)} из ${p.xpNeededForLevel} XP до уровня ${p.currentLevel+1}; осталось ${Math.ceil(p.xpRemaining)} XP`;\n6895:  const labelText=small?`Ур. ${p.currentLevel} · ${Math.round(p.progressPercent)}%`:`Уровень ${p.currentLevel} → ${p.currentLevel+1}`;\n6896:  const details=small?`${Math.ceil(p.xpRemaining)} XP осталось`:`${Math.floor(p.xpIntoLevel)} / ${p.xpNeededForLevel} XP · до ур. ${p.currentLevel+1}: ${Math.ceil(p.xpRemaining)} XP`;\n6897:  return `<div class=\"mk872-xp-progress ${compact?'compact':''} ${variant==='top'?'mk872-top-progress':''} ${variant==='tiny'?'mk872-leader-progress':''}\" role=\"progressbar\" aria-label=\"${label}\" aria-valuemin=\"0\" aria-valuemax=\"${p.xpNeededForLevel}\" aria-valuenow=\"${Math.floor(p.xpIntoLevel)}\"><div class=\"mk872-xp-head\"><span>${labelText}</span>${small?'':`<span>${Math.round(p.progressPercent)}%</span>`}</div><div class=\"mk872-xp-track\"><span class=\"mk872-xp-fill\" style=\"width:${p.progressPercent}%\"></span></div><div class=\"mk872-xp-foot\">${details}</div></div>`;\n6898: }\n6899: function mk872UpdateTopLevelProgress(){const node=document.getElementById('mk872TopLevelProgress');if(node)node.outerHTML=mk872LevelProgressHtml(state.xp||0,'top').replace('class=\"mk872-xp-progress','id=\"mk872TopLevelProgress\" class=\"mk872-xp-progress');}\n6900: \n6901: \n6902: const YANDEX_EMOJI_PNG={\n6903:   smile:\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJAAAACQCAYAAADnRuK4AAAc6klEQVR42u2de5QU1Z3Hv7eqe7p7nj28ZpBxgIE5YwgjiELQgwQ1khBWwIBC9iQrnsjJuvGoe3CNJJI9q0nW4+P42BgTE1cNuxoSTaI5xCwJosgqBwzLMBtWHBgeDjDDc97dPd1Vd//orupbVfdWVT9mugfrd86c6enHdD0+9f19f7+quhfwwgsvvPDCCy+88MILL7zwwgsvvPDCCy+88MILL7zwwgsvvPDCCy+88MILLy6WIJ+2FV7Q5F80rcbfWD8hUD93enAeAEwd55veUB9osLxZTm0ehRqe7ulWuj9sj+4GgD2Hkr+3t/ZvO35WOXr8nHrUA+giieY6efachsDclddUrTJAooEhGVefyO7/N1VSD1RqgEyDa8+h6O7trf3bdh6Mv+MBNEqiqlQKr7gqeMvKa6pWXdUQnFcVlsM6MClYDJDIklVt3AarSopqhUp7XVGxrSWy9fX3e17b2x7b09qh7PMAKlJobpgVWqxDkYJGB4Z9ngVJ4mwCHkymNMaqjw4O+z5FtQKlqGg/EW//1a7+V17e3vPCxZDuRi1AC5r8i9bMk25b+6VL1hKJJAHhQcMCo8HCApLLFqAccFioeDDFVYsyvbxj8GceQCMUty0sXXffsrEPTJ3oa9DB8UtpSFLQcIEhzmtPbLYIpS5AolaguDAxqtTTR7uf29r9o2f+0PNEz6Da7QE0guDo0KRA0cExQ0McICEZbgoTTZTaAMWD6SIBiYx6cDKFxgxKvlKYiSL9IeUok0uQHn7twkYPoBw8zv03j9tw/YzQYuKH0eOU2IDjBA1xWHuSATB2KYyhiAuTCKS4mnysUhw5lWh/YNOp9VtaEr/zAMqgqrr7y1Xrv72s+kHIFEQiQImcNsea6vj54FigEQFDss9gXC/Eg0gEkxNIcco8Bt4+ENn69We6VhdjWiPFpjrPrat9YeoEf4OuOuZ0ZQeOHTQiD5THFEapC5icQBoypbUhBVSl6B1A97pnP7m92NRILpYF2biq+uGfrKv59+pKq"
+    },
+    {
+      "line": 6899,
+      "text": "6898: }\n6899: function mk872UpdateTopLevelProgress(){const node=document.getElementById('mk872TopLevelProgress');if(node)node.outerHTML=mk872LevelProgressHtml(state.xp||0,'top').replace('class=\"mk872-xp-progress','id=\"mk872TopLevelProgress\" class=\"mk872-xp-progress');}\n6900: \n6901: \n6902: const YANDEX_EMOJI_PNG={\n6903:   smile:\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJAAAACQCAYAAADnRuK4AAAc6klEQVR42u2de5QU1Z3Hv7eqe7p7nj28ZpBxgIE5YwgjiELQgwQ1khBWwIBC9iQrnsjJuvGoe3CNJJI9q0nW4+P42BgTE1cNuxoSTaI5xCwJosgqBwzLMBtWHBgeDjDDc97dPd1Vd//orupbVfdWVT9mugfrd86c6enHdD0+9f19f7+quhfwwgsvvPDCCy+88MILL7zwwgsvvPDCCy+88MILL7zwwgsvvPDCCy+88MILLy6WIJ+2FV7Q5F80rcbfWD8hUD93enAeAEwd55veUB9osLxZTm0ehRqe7ulWuj9sj+4GgD2Hkr+3t/ZvO35WOXr8nHrUA+giieY6efachsDclddUrTJAooEhGVefyO7/N1VSD1RqgEyDa8+h6O7trf3bdh6Mv+MBNEqiqlQKr7gqeMvKa6pWXdUQnFcVlsM6MClYDJDIklVt3AarSopqhUp7XVGxrSWy9fX3e17b2x7b09qh7PMAKlJobpgVWqxDkYJGB4Z9ngVJ4mwCHkymNMaqjw4O+z5FtQKlqGg/EW//1a7+V17e3vPCxZDuRi1AC5r8i9bMk25b+6VL1hKJJAHhQcMCo8HCApLLFqAccFioeDDFVYsyvbxj8GceQCMUty0sXXffsrEPTJ3oa9DB8UtpSFLQcIEhzmtPbLYIpS5AolaguDAxqtTTR7uf29r9o2f+0PNEz6Da7QE0guDo0KRA0cExQ0McICEZbgoTTZTaAMWD6SIBiYx6cDKFxgxKvlKYiSL9IeUok0uQHn7twkYPoBw8zv03j9tw/YzQYuKH0eOU2IDjBA1xWHuSATB2KYyhiAuTCKS4mnysUhw5lWh/YNOp9VtaEr/zAMqgqrr7y1Xrv72s+kHIFEQiQImcNsea6vj54FigEQFDss9gXC/Eg0gEkxNIcco8Bt4+ENn69We6VhdjWiPFpjrPrat9YeoEf4OuOuZ0ZQeOHTQiD5THFEapC5icQBoypbUhBVSl6B1A97pnP7m92NRILpYF2biq+uGfrKv59+pKq\n6904:   robot:\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJAAAACQCAYAAADnRuK4AAAQY0lEQVR42u2dfVBTZ77Hv5AEDHkDAkRehCgExVfUinVdi7Sl3XbGadXOOjqdbtuZdet6O9za2Vud9lbb3du93Tu32tvr3V7Hvmh39XJn673udFssWrGWqigI4gsVxISaQF4IeeMlBOL+ERITOIEkHhJCfp+ZzMA5v5znl+f3Pb/nec55znMAgiAIgiAIgiAIgiAIgiAIgiAIgpiexFEV+LJs1ZrNefmKktzZBSskqSnZAGA29qg7brddVN1qrWs4d/Yo1RIJaAwFRQvXbtm6/ZPUdJl8PDujXqs8cmD/C203rtZQrQEcqgJg/bMv7v35i7/6kC8QJk9kyxcIk0seKnseANpuXDtDAopxfrZh0+5H123YGUrGIhHFuIAKihau3fKrlz+9n++33bh2xmjQKWO1DuNjWUBbtm7/ZCocI5rhxvJoy1+HOaW1BXlfHUeCxQwAGBRLoHriKfQo5o2xTU2XyV2ZKDY71TGbgfLyFSX+xKOoPOwRDwAkWMxQVB5GSmsL47EWLS95ipqwGCN3dsEKRmF9ddy/6Pzs83csEtA0xn2RcDTemSeYfSQggiABBY7Z2KNm2j4olvj9znj7SEAxRsfttotM21VP+O8P+9vn71gkoGmM6lZrHdP2HsU8tG56zifbDIolaN30HOMwHgCa6+uOx2o9xvTN1Df3/vH2RDdPJ8Ko1yrffmXbbMpAMciRA/tfmArHiGZi+l6Y+x6W+8ZosFQdq9xTd/b0IRJQDOO+mx6siKqOVe6pOlb5VqzXH00oG4EmlJGAWGHZqjWbn9v+yhGmfYf3791CU1qpEz0uFlNPZyj7SEAEQQIiSEAECYggAREECYggAREkIIIERBAkIIIEREw5wv5kqkiSLJNl5RQVFC0onYoVkpqWLve3r2TN2l9MVb91nZqbWs2dG2rV7cZwlhu2u/HZebOLn3nul/85e+681XTeTh63f2ip/dtfjrwRrukmYRHQeFMkiMnhTNUX+/7vTx+/MtnlcEg80xN5QeGDwOSvX\n6905:   fox:\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJAAAACQCAYAAADnRuK4AAAWi0lEQVR42u2de3gTZb7Hv0kmk0nTTtILTVt6CRRSaAsUFwGxYCst4MpKuR6EisKeRdfd5bIiyjmuiuseUdZd8LYKrgVl1Qcot2VXsbItWJBW0CIXaaVQWhRKb2lI0qRJk/MHpLZNJvdk0ma+z8MfZN7OzPu+n/nd3rkAnDhx4sSJEydOnDhx4sSJEydOnDhx4sSJEydOnDhx4sSJEydOnIJIgmA+uRSFYrE8Lm6q0WhUGwyGJm66gk+8YDwpIUnKpk7NPyqNlI2y/tbYeL3s/Nmz6280NpaF2iQJSVKWkJBw/+DEpFkAcPbMt8+r29vPcwAxaOwdd/xVOWLkKnvbGurrd31VWbHc2NmpCgVw0tJGrFIqlSuFIpGs57YTx48VXqmr+wcHUB/FyuU5uVPzSh21MRoMqlOnTv42GAbQX1KOGLEqMyPzub7g9ByDzz8vuZttSxR0MdCdEycWhYeHKxyeNEFQiUnJc6RSWUZDff2ugQQOLZWm35WdvXPYcOVjAoKgHI0BRVGxbPefH2zWRy6Py3G1fVJy8vwZ993/rZAkZQMBnli5PCcvL/+Yq2OQlJw8n5ZK0zmAbmvYcOXj7v6NNFI2aurU/KNsD6QvMs7cqXmlTC6LSZmjRj/PAXTbdCclJ8/35G+lkbJReXn5x/orRCkKxeKJk+7ewbQ9ijCgYHAtogiDXSvEpgUOGoDi4uOneZWxiESy/giRK/A8lfEVFqZU46mMr+y2SUhIuD/kARo6JHUZ07bx9HUsTz1j9wrszxC5Ck+KRH2rvUSN8fR1m3bW+lDIAkRLpek9i4Z9B/H3mV/jXnkD3hp/GAWDawcERLRUmu4OPFbNSL5i142FNECO3Ne8lJpe/1+YUo1nMyscWqNgh4iWStPz8vKPOWqzbNhZG3gAIJ1usdv3WLk8J2QBYnJfUYQBYyNv2B3EpzK+6pcQCUlSNmlS9seOsq2CwbUYF9XIuI8p8qu2AMWGKEBCkpQxua9hYW2IJO1DkiJR47cjqvqdO7tz/IQ\n6906:   tiger:\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJAAAACQCAYAAADnRuK4AAAdxUlEQVR42u1dfVxUZdq+RmSIj8EBQXAIBAFBzEA+NxWBMBVN0szE6C01VtPdMtulD7fX3fi5uhu7qb2tgouY7xvix7rrTqVLSaBmBaINlcooKEKMoyAzMHwIBvP+MZ5hPs+cc+bMMOi5fj9/2ficr+dcz31f9/3cz3MADhw4cODAgQMHDhw4cODAgQMHDhw4cODAgQMHDhw4cOBgBN5wXFToCmFMAGJiApxixnkMjtP9t1tdo25JWgYkkhZIlL1Qcq+II5CWNCsSnVYsnza4PDEIiVSOabyNxm+u45tDtepDlfWo5Aj1ABJI6ArhG4/z3lj7GNYK3SBkeh5lD5TH63B897fq3ZX1qHxQX1hqGFL1+qUXSkkLJPclgVLDkLp3GW9v8FgEs3nexttofPcLvPtRtfojts4Z5MULVtx1s3ifqq5uu5E3JgAxqWFOqYmBg4kZkcggG4DVTaguv4Ly6iZ19dEfcHTEE2hFIm/F3izsteXNMyFSahhSCe2VHo50AEgMQmJOWShq5O6Ur7077ftqACi/gvLLrbjc2K5uZMMyEq5+/czB9UwHXuNtNO74atSO7ScHto9IAtmDPIaj781P1W8avsAgL17w4+FInTMJc0J9EEqmvZZ9Eg5puyvla0pe/N6iJaCj29hy9YZE2iBWb7ClReKNdPLoYms5tn4uVX8+J4I3Jz0c6VTFuqrfCcmlU2hda1taI9KCOimRu/wKyg9J1IfMaZUtC3hb2CSOIUrPo3TdEfU6WwQhrBIoNQypFet4FSNNmBbU+qFA4kfrmAjvXhTNvQoBf4CWRSiVoJQgU0wAYgqX8gqpEt1aK710H5Y1KdSNDkkgoSuE137Hu0Z5FP3MAzqcge7Rmj93R2l+dx4E3H/W/Bnbb3PySNtdseyTcEbHMiGRLpnYDi6oRLJpu9RpbEZtrBFo//O8/ctjsZwycW49NEQac3AeBIJ6NGSyAcT1Xsg/K4Kq34nxOQT8AWRHtSEzVAGRRz8cHcoeKEP+qA5hy52xQ\n6907:   scientist:\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJAAAACQCAYAAADnRuK4AAAtY0lEQVR42u19eXwb133nd04MbhDgTYqkSOqgqIPW4UOyJcqH5CuRfNRWGm8j126dpEkVb7ub7Ceb2oq7m226WztpsvG23tjtx5vYThrbaRyfsSTHtqTooqj7okCR4g0SB0EAg5k3+8dggAEIkAAJkpKF3+fDD8ABZt7De9/3u9/vAQUqUIEKVKACFahABSpQgQpUoAIVqEAFKlCBClSgAhWoQAUq0GeTqCupM5VOe2vPsG/3TD3fahTqKp32VqtRqKty2TcAgMBydcV2Sx1N0yCEoN8baIvKkleUiHfQFzg6PBpsG/SNtgVCYXcBLlcogKxGoe7W5QtfLLFZW3976PjGfIKo0mlvXVRV+qVSm63VLPB12nWapgEADK0OAU3RoLX3sc/05BsLubsGPbs7B0fevOzx7o5EJW8BPlcAgCqd9tbN1y15nQIcMiHYd9b96JnL/S9N55k8yzgWV5dvb6oq38GxdF3q54wOINp7PaA0MKUDEgCERcl7vrfvjXZ3zw88gWBbAUBzRC6ruWXbLauPRKISwqIIALg87H1p17Fzj04VOMvrqr9R7bDtYDnGkQqAGIMBTWmgoZJApAdTNkACgEuDnt0ftp999FoVcXMGIAPHOv5k400XWZpyjEUiiEoyaJoCz7L4xadH5ucyIanAyeqHUxQoigJNJQNKD6ZcgLTn+Nkn292Xn7vWAMTMVcPX1c/71vwy152RqISoJEGUZNCxSa0pcbVe6Bt8VSYkPBkIm2sqvnxLU+OLLqtxKyhKyKUPiqKAKApkQkAUBYACRVE/kwmBoqj/q5cSn1HU+HVXV+q602zg6twDw28WADQLdM/q5a/TFISoJCEqyZAJAUWpk2My8OUNZSXbJEJ8o+GIWw8kA8c6qosdm1bWV3/r+gV1z1c5HVsVRXFIhEy7TyQGKKIoUBQFFEXlBKRSh63lWgPRnIgwl9Xc8scbrj9CCEEoImIsEoEkE1AUBY5h4qKEY1kwNIVINOodCYbayh22VpU7KCCEQ\n6908:   ninja:\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJAAAACQCAYAAADnRuK4AAAqNUlEQVR42u19aXAbZ3rmA3QDfeBqHAQBnqBIiZSog5bGtixbFj2OPD4mHtrJTpxdT1necqUyqUpsV6om2SRb9mRTm2OS8mSzO5vZ2ZTszWwyOdYeZ5x4fGyGHo9k+ZJonSQlizcIAgRxNq5Gd+8PsJuNgzcpglw8VV0kgEaj++un3/t7P6CGGmqooYYaaqihhhpqqKGGGmqooYYaaqihhhpqqKGGGnYmdLUhKMDlcvU0NDT02my2VpfL1Wm1Wvc6HA7fUt/JZrPR6enpDwBgenr6o/Gx0f65ubmBTDYXrRFoh8Nisfja2tr62tvbH/B6vXdRFMURBAEAEEURBEFAFMVlj1Npv1AoNDA2NtZ/7dq1V2ZnZwdqBNpB6OzsPLVv376v+ny+h0o/E0URmUwGqRQPAEgkkksey2AwgKYp0DQz/z9dts/c3Nzo0NDQK1euXHk5kUiM1gi0DUFTRq7ntsPPHT58+FmKojjtZ4lEAtFoFKlUCrlcbl2/QxAETCYTTCYTrFYrjEZj0ecXLlx4eXho8BX/dKC/RqBtTBye5zE3N4dEIrEiNbXm36dp2O122O12KOoRAEZHR9989913f20nSKQdS6Dm5ua+L37xiy9xHKcawrFYDMFgcN2SZi2SyWKxoL6+HiRJqu+fP3/+2x9/9OE3t7PRrduJUuehhx/5m5aWlof0ej0kSdoy4lQCx3HweDyqRIpGo6PvvP3W09tVrRE7zRV/8mtfu+BwOA4AQDqdxuTkJMLh8KaqqtUgk8kgEolApwNYlgVN01x39/5TOp1ONzk5ue1ItGMkUGdn56kvfelLpzWuNILBYFWfM8uyaGpqgsFgAADcvHmz/9133n5sO6m0HUGg3t7e0wcPHjyluOIjIyPIZrPb4tz1ej0aGxthtVoVt3/gH//h7+/bLiQidgJ59u/ff0qWZaTTady8eROCICz5HUmSIMtyVZy/LMuIxWIAAIZhQNO0Z/eePU9MTU29l0qlAjUC3QLyKPGciYmJRW0dSZKQz\n6909:   astronaut:\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJAAAACQCAYAAADnRuK4AAAp2klEQVR42u19eVRb173uB5rnASQECIMQNgSMTQoecJ3YJGlWnMTYGZrU8X0Z2jQvHW6drNu603rrXt9mNXm9667EaZqb9jp149frJm06ZW5jx2NsiO0aD2DADAIEYtJ4NB8J3h+yDjoaDyAZcPStxbIRR2ef4dvfb9i/vTeQRRZZZJFFFllkkUUWWWSRRRZZZJFFFllkkUUWWWSRRRZZZJFFDHKyjwBQq9VlhYWFegCoqam5Jdmx7e3tJwDAZDL1jo+PG7IE+hxBLBbL9Xp9fU1NzS06nW61SqUq0+v1dfM5Z29vb9vExITh8uXLxwwGw6ULFy4czhLoBlOXxsbG7WvXrt22atWqzdejzZaWlr9cvnz52OnTp/9yo6vUDUug22677dHm5uZnkymMVCaDUCCAVCqFSCSCQMBPek6SDMButyMQCP3rIAiQfn/S71y8ePHo4cOH93/22WfvOJ1OW5ZAi9xENTc3P9Pc3LxLJBLJo/8uFAqh0WiQl5cHpVIJDocz7zZ9HhcmLTZMTk7CbDbD7XbHPc7lctmOHz/+u7fffvtnN5Iq5dzoxAmTRq8rBU8gyvi1EASBoaEhjI6OJiTThx9++F83CpGWPIFuu+22R5966qm90cTJy8tDeXk5CgoKGKmIZfgCfG4CluH2+OZOqYEorww8gRzK4mpG12axmDE0ZMTQ0FBcRXrnnXf2vvPOOy8tZdO2ZAmkVqvLdu3atT/aMc7Ly0Nl5QoolXmJX+xwBwwXP4Kx9xgmDKMgvaZZt5+nrYG8qAYlupugLm9MSiqfx4XO7p64RBodHTW88sorTy7V6G1JEmjbtm3P7Nix418jVUcqk2FlTXVC4liGO3Du8K8xePEEjTAiiRwSiRhcLgscDh8ulyv0uUgEkvTC7w9Sx/r9Afh8Xvi9BEgySPevFMtQvroJ+rotKKzYMGsiffjhh/914MCBHy01NVpSBBKLxfJdu3btX79+/fbwZxwuFyuWV0CnK4/7woYu/hWn3nsVbusg9\n6910:   dragon:\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJAAAACQCAYAAADnRuK4AAAnFElEQVR42u19eVhU99n2fWYfhpk5LMOuDEJYxMhoFG2McUw0TZoYIY1pki5iv7bZmk9tm3S9ivT9+mVt1bSxTZv3BdItibZiUrOZlKFJrAETB5VVwAEZtoHhzDAw+5z3j2FgdmaGVTP3dXEBZ5uz3PM89/P8nt9zgCiiiCKKKKKIIooooogiiiiiiCKKKKKIIooooogiiiiiuDZBXIsXxRPxybxthSWi9DgpAAy19inbTjXVRB93lEAzQpweJ/3anx+qjctIkLov7z7ToTj62CulJr2Rij72uQPzWrugHc98pXLZGulGABjtHVGZ9EaKL4ohyYx4qdVsNffUdymij33uwLjWLih/+6oSAHjvl2/sf3Hr01kvbn06q/tMhwIAinfftDf6yOcWrKV4UpkbsuWrS9fuzt22qoQvjiFdy426Caq7vktx6f2mE23vN9UEc0fn/3G2yvV32wfNJzI35sjdjxXFNUqg236642Bx2c37/K3ji2PI/O2rSvK3ryrZpps4WF/90eGG6o8OuROp7oX3KgDAfRmZTmZGH/XnQETveHpXZdGXi8tc/w+29CpbTzWfGGrtUwJAUn6abPU9N+x2F8hG3QT14W/fr6iv+vBQIGt274vfOM4Xx5BG3QT1q3XlccHO4dlvE8+uz8V6ADjyJo4c/Td91H39rpuJXT95gPhJ1jLGqj+csB988o/0k1ECLQHkbS8s2XWk7LiLFP/88et7AoXemRuy5Td/d1t55sYcubd7G2zpa5zWQyt3JhdkyNyt04e/OXUg0Dmc+x3jnCwbU9vrLAwbeZeN7U6uJ3YRT7jvk/24cE1Xm04ZJdAi49tv7D3neth/+trvt3Z/0jljtJS5IVu+fvdNe13CORhaT12sOfZodWkwy+NNDgAgbnMQwdY/d5R+7vNshZaMBnKRp/XUxZpQyAMA3Z90Kro/6VSI0+OkedtXleTdunJnUkGazCWWR3tHVIMt/cpL7zedaHQT1d6QFxFyf+RQNNIKl9vytx4A6vlJ"
+    },
+    {
+      "line": 8239,
+      "text": "8238: }\n8239: function stats(){\n8240:  coins.textContent=state.coins||0;streak.textContent=state.streak||0;\n8241:  level.textContent=levelFor(state.xp||0);mk872UpdateTopLevelProgress();playerName.textContent=currentProfile;playerName.title=currentProfile;\n8242:  const topAv=document.getElementById(\"playerAvatar\");if(topAv){topAv.innerHTML=avatarHtml(state,\"small\")}\n8243:  if(typeof renderTopics===\"function\")renderTopics();\n8244:  if(currentGrade===3&&document.querySelector(\".g3-card\"))renderGrade3();\n8245:  if(currentGrade===5&&document.querySelector(\".g5-card\"))renderGrade5();\n8246:  if(currentGrade===6&&document.querySelector(\".g6-card\"))renderGrade6();\n8247:  if(currentGrade===7&&document.querySelector(\".g7-card\"))renderGrade7();\n8248: }\n8249: function rewardPop(text){\n8250:   const el=document.getElementById(\"rewardPop\");if(!el)return;"
+    },
+    {
+      "line": 8272,
+      "text": "8271: function esc(s){return String(s).replace(/[&<>\"']/g,ch=>({\"&\":\"&amp;\",\"<\":\"&lt;\",\">\":\"&gt;\",'\"':\"&quot;\",\"'\":\"&#39;\"}[ch]))}\n8272: function openProfiles(){\n8273:   const names=Object.keys(profiles).sort((a,b)=>(profiles[b].xp||0)-(profiles[a].xp||0));\n8274:   window._profileNames=names;\n8275:   const rows=names.map((name,i)=>{const p=profiles[name],title=profileTitleText(p);return `<div class=\"profile-row ${name===currentProfile?\"current\":\"\"}\"><div class=\"profile-row-main\">${avatarHtml(p,\"small\")}<div><b>${esc(name)}</b>${title?`<div class=\"leader-title\">${esc(title)}</div>`:\"\"}<div class=\"profile-info\"><span>ур. ${levelFor(p.xp)}</span><span>${p.xp||0} XP</span><span>🪙 ${p.coins||0}</span><span>🔥 рекорд ${p.bestStreak||0}</span><span>🎒 ${ownedTotal(p)}</span></div>${mk872LevelProgressHtml(p?.xp||0,\"compact\")}${profileBadgesHtml(p,\"compact\")}<div class=\"profile-sticker-line\">${favoriteStickersHtml(p)}</div></div></div><button class=\"btn soft\" onclick=\"selectProfile(${i})\">${name===currentProfile?\"Текущий\":\"Выбрать\"}</button></div>`}).join(\"\");\n8276:   show(`<div class=\"mk871-profiles-screen\"><div class=\"mtop\"><h2>👤 Профили учеников</h2><button class=\"x\" onclick=\"closeModal()\">×</button></div>${shopPreview()}<div class=\"actions\"><button class=\"btn primary\" onclick=\"openShop()\">🛍️ Магазин</button><button class=\"btn soft\" onclick=\"openCollection()\">🎒 Моя коллекция</button></div><div class=\"profile-list\">${rows}</div><div class=\"profile-create\"><input id=\"newProfileName\" maxlength=\"24\" placeholder=\"Имя ученика\" onkeydown=\"if(event.key==='Enter')createProfile()\"><button class=\"btn primary\" onclick=\"createProfile()\">Создать</button></div></div>`);\n8277: }\n8278: function selectProfile(i){\n8279:   const name=window._profileNames?.[i];if(!name||!profiles[name])return;\n8280:   currentProfile=name;state={...EMPTY_STATE,...profiles[name]};state.courseProgress=state.courseProgress||{};state.questionHistory=state.questionHistory||{};normalizeReports();save();closeModal();\n8281: }\n8282: function createProfile(){\n8283:   const inp=document.getElementById(\"newProfileName\");let name=(inp?.value||\"\").trim().replace(/\\s+/g,\" \");"
+    },
+    {
+      "line": 8369,
+      "text": "8368: }\n8369: function renderHome(){\n8370:  closeModal();\n8371:  currentGrade=null;\n8372:  const back=document.getElementById(\"gradeBackPill\");if(back)back.style.display=\"none\";\n8373:  if(brandLogo)brandLogo.textContent=\"M\";if(brandTitle)brandTitle.textContent=\"МатКвест\";\n8374:  const g3done=g3CompletedStages(),g3total=g3TotalStages(),g4done=g4CompletedStages(),g4total=g4TotalStages(),g5done=g5CompletedStages(),g5total=g5AllTopics().length*3,g6done=g6CompletedStages(),g6total=g6TotalStages(),g7done=g7CompletedStages(),g7total=g7TotalStages(),g7ready=g7ImplementedTopics().length;\n8375:  const errorSummary=errorWorkSummary();\n8376:  const weakSummary=weakTopicsSummary(state);\n8377:  ensureQuestBoard(state,{persist:true});const questSummary=questBoardSummary(state);\n8378:  mainView.innerHTML=`<section class=\"home-hero\"><h1>МАТКВЕСТ</h1><p>Выбери класс. Профиль, награды, магазин и журнал остаются общими.</p></section>\n8379:  ${profileIdentityCardHtml(state,currentProfile)}\n8380:  <div class=\"grade-grid\">"
+    },
+    {
+      "line": 8412,
+      "text": "8411: }\n8412: function renderGrade3(){\n8413:  const ready=g3AllTopics().filter(t=>t.implemented!==false).length;\n8414:  mainView.innerHTML=`<div class=\"home-back-row\"><button class=\"home-back-btn\" onclick=\"renderHome()\">← Главный экран</button></div><section class=\"grade-hero\"><div><h1>Математика 3 класса</h1><p>48 тем: вычисления, величины, задачи, доли, геометрия, таблицы, диаграммы, закономерности и логика.</p></div><span class=\"grade-chip\">${gradeBookIcon(3,true)} 3 класс</span></section>${G3_GROUPS.map(renderG3Group).join(\"\")}`;\n8415: }\n8416: function showG3Pending(id){\n8417:  const t=g3InfoById(id);if(!t)return renderGrade3();\n8418:  if(t.implemented!==false)return openG3Topic(t.id);\n8419:  show(`<div class=\"mtop\"><h2>${esc(t.title)}</h2><button class=\"x\" onclick=\"closeModal()\">×</button></div><div class=\"lesson\"><b>3 класс • ${esc(t.group)}</b><br>Тема будет добавлена на следующем этапе.</div><div class=\"actions\"><button class=\"btn primary\" onclick=\"closeModal()\">Понятно</button></div>`);\n8420: }\n8421: function g3Lesson(id){\n8422:  const raw=rawCourseId(id),lessons={\n8423:   numbers_1000:\"Числа идут по порядку. Чтобы найти следующее число, прибавь 1; предыдущее — вычти 1.\","
+    },
+    {
+      "line": 8494,
+      "text": "8493: \n8494: function renderGrade4(){\n8495:  mainView.innerHTML=`<div class=\"home-back-row\"><button class=\"home-back-btn\" onclick=\"renderHome()\">← Главный экран</button></div><section class=\"grade-hero\"><div><h1>Математика 4 класса</h1><p>Основные темы года. Отдельно — письменные вычисления в клеточках и тренажёр таблицы умножения.</p></div><span class=\"grade-chip\">${gradeBookIcon(4,true)} 4 класс</span></section>\n8496:  <div class=\"title\"><h2>Основные темы</h2><p>Вычисления, величины, геометрия и текстовые задачи.</p></div><div class=\"grid\" id=\"topics\"></div>`;\n8497:  renderTopics();\n8498: }\n8499: function g5Card(t,group){\n8500:  return `<button class=\"topic g5-card\" onclick=\"openG5Topic('${t.id}')\"><span class=\"ico\">${t.ico}</span><strong>${t.title}</strong><small>${t.sub}</small><span class=\"topic-progress\">${completedStages(`g5:${t.id}`)}/3 этапа</span></button>`;\n8501: }\n8502: function renderG5Group(title,desc,arr,cls=\"\"){\n8503:  return `<section class=\"g5-group ${cls}\"><div class=\"grade-head\"><div><h2>${title}</h2><p>${desc}</p></div><span class=\"badge\">${arr.length} тем</span></div>${cls===\"fractions\"?`<div class=\"g5-mix\"><div><b>🎲 Микс по дробям</b><small>12 заданий из разделов обыкновенных дробей.</small></div><button class=\"btn primary\" onclick=\"openG5FractionMix()\">Играть</button></div>`:\"\"}<div class=\"grid\">${arr.map(t=>g5Card(t,cls)).join(\"\")}</div></section>`;\n8504: }\n8505: function renderGrade5(){"
+    },
+    {
+      "line": 8505,
+      "text": "8504: }\n8505: function renderGrade5(){\n8506:  mainView.innerHTML=`<div class=\"home-back-row\"><button class=\"home-back-btn\" onclick=\"renderHome()\">← Главный экран</button></div><section class=\"grade-hero\"><div><h1>Математика 5 класса</h1><p>Полный курс из исходного тренажёра: основы, 19 тем по обыкновенным дробям и 15 тем по десятичным дробям, процентам и среднему.</p></div><span class=\"grade-chip\">${gradeBookIcon(5,true)} 5 класс</span></section>\n8507:  ${renderG5Group(\"Основы 5 класса\",\"Числа, вычисления, уравнения, геометрия и задачи.\",G5_CORE)}\n8508:  ${renderG5Group(\"Обыкновенные дроби\",\"Главный большой блок: от устройства дроби до смешанных чисел и задач.\",G5_FRACTIONS,\"fractions\")}\n8509:  ${renderG5Group(\"Десятичные дроби и проценты\",\"Действия с десятичными дробями, проценты и среднее арифметическое.\",G5_DECIMALS)}`;\n8510: }\n8511: \n8512: \n8513: \n8514: function g6TopicCard(t){\n8515:  const ready=t.implemented!==false;\n8516:  return `<button type=\"button\" class=\"topic g6-card ${ready?\"ready\":\"pending\"}\" onclick=\"${ready?`openG6Topic('${t.id}')`:`showG6Pending('${t.id}')`}\"><span class=\"ico\">6</span><strong>${esc(t.title)}</strong><small>${esc(t.group)}</small><span class=\"topic-progress\">${completedStages(t.id)}/3 этапа</span></button>`;"
+    },
+    {
+      "line": 8521,
+      "text": "8520: }\n8521: function renderGrade6(){\n8522:  mainView.innerHTML=`<div class=\"home-back-row\"><button class=\"home-back-btn\" onclick=\"renderHome()\">← Главный экран</button></div><section class=\"grade-hero\"><div><h1>Математика 6 класса</h1><p>Делимость, обыкновенные дроби, отношения и проценты, рациональные числа, уравнения, координаты, данные и геометрия.</p></div><span class=\"grade-chip\">${gradeBookIcon(6,true)} 6 класс</span></section>${G6_GROUPS.map(renderG6Group).join(\"\")}`;\n8523: }\n8524: function showG6Pending(id){\n8525:  const t=g6InfoById(id);if(!t)return renderGrade6();\n8526:  if(t.implemented!==false)return openG6Topic(t.id);\n8527:  show(`<div class=\"mtop\"><h2>${esc(t.title)}</h2><button class=\"x\" onclick=\"closeModal()\">×</button></div><div class=\"lesson\"><b>6 класс • ${esc(t.group)}</b><br><br>Тема уже есть в общем каталоге, но её полноценный генератор будет подключён на следующем учебном этапе.</div><div class=\"actions\"><button class=\"btn primary\" onclick=\"closeModal()\">Понятно</button></div>`);\n8528: }\n8529: function openG6Topic(id){const t=g6InfoById(id);if(!t)return;if(t.implemented===false)return showG6Pending(id);openStagePicker(t.id,t.title,\"6\",`startG6QuizStage.bind(null,'${t.id}')`)}\n8530: function startG6QuizStage(id,stageIndex){const t=g6InfoById(id);if(!t||t.implemented===false)return showG6Pending(id);beginBlock(t.id,stageIndex,\"g6quiz\");openG6Quiz(t.id)}\n8531: function openG6Quiz(id){qid=String(id).startsWith(\"g6:\")?String(id):`g6:${id}`;const t=g6InfoById(qid);show(`<div class=\"mtop\"><h2>6 ${esc(t?.title||\"6 класс\")}</h2><button class=\"x\" onclick=\"closeModal()\">×</button></div>${blockHead()}<div class=\"lesson\">${g6Lesson(qid)}</div><div id=\"qstage\"></div>`);nextQ()}\n8532: "
+    },
+    {
+      "line": 8536,
+      "text": "8535: function renderG7Course(course){const groups=g7GroupsByCourse(course.id),topics=groups.flatMap(g=>g.topics),count=topics.length,ready=topics.filter(t=>t.implemented!==false).length;return `<section class=\"g7-course\"><div class=\"grade-head\"><div><h2>${esc(course.icon)} ${esc(course.title)}</h2><p>${esc(course.desc)}</p></div><span class=\"badge\">${ready?`${ready} готово • `:\"\"}${count} тем</span></div><div class=\"g7-course-note\">${ready?`Рабочих тем: <b>${ready}</b>. Остальные темы каталога подключаются поэтапно.`:\"Каталог подготовлен — темы добавляются поэтапно.\"}</div>${groups.map(renderG7Group).join(\"\")}</section>`}\n8536: function renderGrade7(){\n8537:  const counts=G7_COURSES.map(c=>{const topics=g7GroupsByCourse(c.id).flatMap(g=>g.topics);return {title:c.title,n:topics.length,ready:topics.filter(t=>t.implemented!==false).length}}),ready=g7ImplementedTopics().length;\n8538:  mainView.innerHTML=`<div class=\"home-back-row\"><button class=\"home-back-btn\" onclick=\"renderHome()\">← Главный экран</button></div><section class=\"grade-hero\"><div><h1>Математика 7 класса</h1><p>Три самостоятельных курса: Алгебра, Геометрия, Вероятность и статистика. Первые рабочие тренажёры подключаются к общей системе МатКвеста без отдельного движка.</p></div><span class=\"grade-chip\">${gradeBookIcon(7,true)} 7 класс</span></section>${G7_COURSES.map(renderG7Course).join(\"\")}`;\n8539: }\n8540: function showG7Pending(id){const t=g7InfoById(id);if(!t)return renderGrade7();if(t.implemented!==false)return openG7Topic(t.id);const course=g7CourseById(t.course);show(`<div class=\"mtop\"><h2>${esc(t.title)}</h2><button class=\"x\" onclick=\"closeModal()\">×</button></div><div class=\"lesson\"><b>7 класс • ${esc(course?.title||t.course)} • ${esc(t.section||t.group)}</b><br><br>Тема уже включена в каталог, но учебный генератор ещё не подключён. Пустой блок Разминка / Тренировка / Мастер не запускается.<br><br><small>Планируемый renderer: ${esc(t.plannedRendererType||\"quiz\")}. Переиспользование: ${esc(t.reuseEngine||\"общий block engine\")}.</small></div><div class=\"actions\"><button class=\"btn primary\" onclick=\"closeModal()\">Понятно</button></div>`)}\n8541: function openG7Topic(id){const t=g7InfoById(id);if(!t)return;if(t.implemented===false)return showG7Pending(id);openStagePicker(t.id,t.title,\"7\",`startG7QuizStage.bind(null,'${t.id}')`)}\n8542: function startG7QuizStage(id,stageIndex){const t=g7InfoById(id);if(!t||t.implemented===false)return showG7Pending(id);beginBlock(t.id,stageIndex,\"g7quiz\");openG7Quiz(t.id)}\n8543: function openG7Quiz(id){qid=String(id).startsWith(\"g7:\")?String(id):`g7:${id}`;const t=g7InfoById(qid),course=t?g7CourseById(t.course):null;show(`<div class=\"mtop\"><h2>7 класс • ${esc(t?.title||\"Задание\")}</h2><button class=\"x\" onclick=\"closeModal()\">×</button></div>${blockHead()}<div class=\"lesson\"><b>${esc(course?.title||\"Алгебра\")} • ${esc(t?.section||\"\")}</b><br><br>${g7Lesson(qid)}</div><div id=\"qstage\"></div>`);nextQ()}\n8544: function g8TopicCard(t){const ready=t.implemented!==false;return `<button type=\"button\" class=\"topic g7-card ${ready?\"ready\":\"pending\"}\" onclick=\"${ready?`openG8Topic('${t.id}')`:`showG8Pending('${t.id}')`}\"><span class=\"ico\">8</span><strong>${esc(t.title)}</strong><small>${esc(t.shortTitle||t.section||t.group)}</small><span class=\"g7-course-chip\">${esc(g8CourseById(t.course)?.title||t.course)}</span><span class=\"${ready?\"g6-ready\":\"g6-pending\"}\">${ready?\"✓ Можно решать\":\"Каталог • генератор позже\"}</span>${ready?`<span class=\"topic-progress\">${completedStages(t.id)}/3 этапа</span>`:\"\"}</button>`}\n8545: function renderG8Group(group){return `<section class=\"g6-group\"><div class=\"grade-head\"><div><h2>${esc(group.icon)} ${esc(group.title)}</h2><p>${esc(group.desc||\"\")}</p></div><span class=\"badge\">${group.topics.length} тем</span></div><div class=\"grid\">${group.topics.map(g8TopicCard).join(\"\")}</div></section>`}\n8546: function renderG8Course(course){const groups=g8GroupsByCourse(course.id),topics=groups.flatMap(g=>g.topics);return `<section class=\"g7-course\"><div class=\"grade-head\"><div><h2>${esc(course.icon)} ${esc(course.title)}</h2><p>${esc(course.desc)}</p></div><span class=\"badge\">${topics.length} тем</span></div><div class=\"g7-course-note\"><b>Каталог подготовлен.</b> На Этапе 8.0 учебные генераторы намеренно не подключены: все темы имеют статус pending.</div>${groups.map(renderG8Group).join(\"\")}</section>`}\n8547: function renderGrade8(){"
+    },
+    {
+      "line": 8547,
+      "text": "8546: function renderG8Course(course){const groups=g8GroupsByCourse(course.id),topics=groups.flatMap(g=>g.topics);return `<section class=\"g7-course\"><div class=\"grade-head\"><div><h2>${esc(course.icon)} ${esc(course.title)}</h2><p>${esc(course.desc)}</p></div><span class=\"badge\">${topics.length} тем</span></div><div class=\"g7-course-note\"><b>Каталог подготовлен.</b> На Этапе 8.0 учебные генераторы намеренно не подключены: все темы имеют статус pending.</div>${groups.map(renderG8Group).join(\"\")}</section>`}\n8547: function renderGrade8(){\n8548:  const counts=G8_COURSES.map(c=>({title:c.title,n:g8GroupsByCourse(c.id).reduce((n,g)=>n+g.topics.length,0)}));\n8549:  mainView.innerHTML=`<div class=\"home-back-row\"><button class=\"home-back-btn\" onclick=\"renderHome()\">← Главный экран</button></div><section class=\"grade-hero\"><div><h1>Математика 8 класса</h1><p>Каталог по федеральной рабочей программе: Алгебра, Геометрия, Вероятность и статистика. На Этапе 8.0 задания ещё не запускаются.</p></div><span class=\"grade-chip\">${gradeBookIcon(8,true)} 8 класс</span></section>${G8_COURSES.map(renderG8Course).join(\"\")}`;\n8550: }\n8551: function showG8Pending(id){const t=g8InfoById(id);if(!t)return renderGrade8();const course=g8CourseById(t.course);show(`<div class=\"mtop\"><h2>${esc(t.title)}</h2><button class=\"x\" onclick=\"closeModal()\">×</button></div><div class=\"lesson\"><b>8 класс • ${esc(course?.title||t.course)} • ${esc(t.section||t.group)}</b><br><br>Тема включена в официальный каталог 8 класса, но на Этапе 8.0 учебный генератор намеренно не подключён. Разминка / Тренировка / Мастер не запускаются.<br><br><small>Планируемый renderer: ${esc(t.plannedRendererType||\"quiz\")}. Переиспользование: ${esc(t.reuseEngine||\"общий block engine\")}.</small></div><div class=\"actions\"><button class=\"btn primary\" onclick=\"closeModal()\">Понятно</button></div>`)}\n8552: function openG8Topic(id){const t=g8InfoById(id);if(!t)return;if(t.implemented===false)return showG8Pending(id)}\n8553: \n8554: \n8555: const STAGES=[\n8556:  {name:\"Разминка\",ico:\"🌱\",count:5,need:4,desc:\"Короткий лёгкий блок, чтобы войти в тему.\"},\n8557:  {name:\"Тренировка\",ico:\"🚀\",count:7,need:5,desc:\"Числа крупнее и больше комбинаций.\"},\n8558:  {name:\"Мастер\",ico:\"🏆\",count:10,need:8,desc:\"Полный уровень: самые трудные варианты темы.\"}"
+    },
+    {
+      "line": 8577,
+      "text": "8576: }\n8577: function renderTopics(){\n8578:  const el=document.getElementById(\"topics\");if(!el)return;\n8579:  el.innerHTML=TOPICS.map(t=>`<button class=\"topic\" onclick=\"openTopic('${t.id}')\"><span class=\"ico\">${t.ico}</span><strong>${t.title}</strong><small>${t.sub}</small><span class=\"topic-progress\">${topicProgressText(t.id)}</span></button>`).join(\"\");\n8580: }\n8581: function stageCards(key,startCall){\n8582:  const p=progressFor(key);\n8583:  return STAGES.map((s,i)=>{\n8584:    const unlocked=stageUnlocked(key,i),best=p.best[i]||0,passed=stagePassed(key,i);\n8585:    return `<button class=\"stage-card ${unlocked?\"\":\"locked\"}\" ${unlocked?`onclick=\"${startCall}(${i})\"`:\"disabled\"}><span class=\"stage-lock\">${passed?\"✅\":unlocked?\"\":\"🔒\"}</span><span class=\"stage-ico\">${s.ico}</span><strong>${i+1}. ${s.name}</strong><small>${s.count} заданий • пройти: ${s.need}/${s.count}<br>${s.desc}</small><div class=\"stage-best\">${best?`Лучший результат: ${best}/${s.count}`:\"Ещё не пройден\"}</div></button>`\n8586:  }).join(\"\");\n8587: }\n8588: /* ЭТАП 8.48 — полноценная Theory 4 класса: смысл → термин → правило → шаги → пример. */"
+    }
+  ],
+  "live": {
+    "xp": 0,
+    "levelFor": "function levelFor(x){x=Math.max(0,Number(x||0));let lo=1,hi=2;while(levelThreshold(hi)<=x&&hi<10000)hi*=2;while(lo+1<hi){const mid=Math.floor((lo+hi)/2);if(levelThreshold(mid)<=x)lo=mid;else hi=mid}return lo}",
+    "thresholds": [
+      {
+        "xp": 0,
+        "lv": 1
+      },
+      {
+        "xp": 5,
+        "lv": 1
+      },
+      {
+        "xp": 10,
+        "lv": 1
+      },
+      {
+        "xp": 20,
+        "lv": 1
+      },
+      {
+        "xp": 40,
+        "lv": 1
+      },
+      {
+        "xp": 50,
+        "lv": 1
+      },
+      {
+        "xp": 100,
+        "lv": 1
+      },
+      {
+        "xp": 150,
+        "lv": 2
+      },
+      {
+        "xp": 200,
+        "lv": 2
+      },
+      {
+        "xp": 300,
+        "lv": 3
+      },
+      {
+        "xp": 500,
+        "lv": 4
+      },
+      {
+        "xp": 750,
+        "lv": 5
+      },
+      {
+        "xp": 1000,
+        "lv": 6
+      },
+      {
+        "xp": 1200,
+        "lv": 7
+      },
+      {
+        "xp": 2000,
+        "lv": 9
+      },
+      {
+        "xp": 3000,
+        "lv": 12
+      },
+      {
+        "xp": 5000,
+        "lv": 16
+      },
+      {
+        "xp": 10000,
+        "lv": 23
+      },
+      {
+        "xp": 30000,
+        "lv": 42
+      }
+    ],
+    "top": {
+      "html": "<div id=\"mk872TopLevelProgress\" class=\"mk872-xp-progress compact mk872-top-progress \" role=\"progressbar\" aria-label=\"Уровень 1: 0 из 115 XP до уровня 2; осталось 115 XP\" aria-valuemin=\"0\" aria-valuemax=\"115\" aria-valuenow=\"0\"><div class=\"mk872-xp-head\"><span>Уровень 1 → 2</span><span>0%</span></div><div class=\"mk872-xp-track\"><span class=\"mk872-xp-fill\" style=\"width:0%\"></span></div><div class=\"mk872-xp-foot\">0 / 115 XP · до ур. 2: 115 XP</div></div>",
+      "text": "Уровень 1 → 2 0%",
+      "rect": [
+        125,
+        82,
+        240,
+        25
+      ]
+    },
+    "home": {
+      "html": "<main id=\"mainView\">\n \n <section class=\"home-start\"><h1>Выбери класс</h1><p>Начни с нужного класса — остальные инструменты находятся ниже.</p></section><div class=\"grade-grid\"><section class=\"grade-card\"><div class=\"grade-ico\"><span class=\"grade-book-icon g6\" role=\"img\" aria-label=\"1 класс\"><span class=\"book-left\"></span><span class=\"book-right\"></span><span class=\"book-spine\"></span><span class=\"grade-number\">1</span></span></div><h2>1 КЛАСС</h2><p>Числа до 20, первые действия, задачи, величины и фигуры.</p><div class=\"grade-summary\">Пройдено тем: 0/11 • всего в курсе: 11</div><button class=\"btn primary\" onclick=\"openGrade(1)\">Открыть 1 класс</button></section><section class=\"grade-card\"><div class=\"grade-ico\"><span class=\"grade-book-icon g6\" role=\"img\" aria-label=\"2 класс\"><span class=\"book-left\"></span><span class=\"book-right\"></span><span class=\"book-spine\"></span><span class=\"grade-number\">2</span></span></div><h2>2 КЛАСС</h2><p>Числа до 100, четыре действия, задачи, величины и геометрия.</p><div class=\"grade-summary\">Пройдено тем: 0/9 • всего в курсе: 9</div><button class=\"btn primary\" onclick=\"openGrade(2)\">Открыть 2 класс</button></section>\n  <section class=\"grade-card\"><div class=\"grade-ico\"><span class=\"grade-book-icon g3\" role=\"img\" aria-label=\"3 класс\"><span class=\"book-left\"></span><span class=\"book-right\"></span><span class=\"book-spine\"></span><span class=\"grade-number\">3</span></span></div><h2>3 КЛАСС</h2><p>Числа до 1000, арифметические действия, задачи, доли, геометрия и работа с данными.</p><div class=\"grade-summary\">Пройдено тем: 0/48 • этапов: 0/144</div><button class=\"btn primary\" onclick=\"openGrade(3)\">Открыть 3 класс</button></section>\n  <section class=\"grade-card\"><div class=\"grade-ico\"><span class=\"grade-book-icon g4\" role=\"img\" aria-label=\"4 класс\"><span class=\"book-left\"></span><span class=\"book-right\"></span><span class=\"book-spine\"></span><span class=\"grade-number\">4</span></span></div><h2>4 КЛАСС</h2><p>Вычисления, величины, геометрия, задачи и полная письменная работа столбиком.</p><div class=\"grade-summary\">Пройдено тем: 0/8 • этапов: 0/33</div><button class=\"btn primary\" onclick=\"openGrade(4)\">Открыть 4 класс</button></section>\n  <section class=\"grade-card\"><div class=\"grade-ico\"><span class=\"grade-book-icon g5\" role=\"img\" aria-label=\"5 класс\"><span class=\"book-left\"></span><span class=\"book-right\"></span><span class=\"book-spine\"></span><span class=\"grade-number\">5</span></span></div><h2>5 КЛАСС</h2><p>Натуральные числа, обыкновенные и десятичные дроби, проценты и геометрия.</p><div class=\"grade-summary\">Пройдено тем: 0/53 • этапов: 0/159</div><button class=\"btn primary\" onclick=\"openGrade(5)\">Открыть 5 класс</button></section>\n  <section class=\"grade-card\"><div class=\"grade-ico\"><span class=\"grade-book-icon g6\" role=\"img\" aria-label=\"6 класс\"><span class=\"book-left\"></span><span class=\"book-right\"></span><span class=\"book-spine\"></span><span class=\"grade-number\">6</span></span></div><h2>6 КЛАСС</h2><p>Делимость, дроби, пропорции, рациональные числа, уравнения, координаты и геометрия.</p><div class=\"grade-summary\">Пройдено тем: 0/58 • этапов: 0/174</div><button class=\"btn primary\" onclick=\"openGrade(6)\">Открыть 6 класс</button></section>\n  <section class=\"grade-card g7-card\"><div class=\"grade-ico\"><span class=\"grade-book-icon g7\" role=\"img\" aria-label=\"7 класс\"><span class=\"book-left\"></span><span class=\"book-right\"></span><span class=\"book-spine\"></span><span class=\"grade-number\">7</span></span></div><h2>7 КЛАСС</h2><p>Алгебра • Геометрия • Вероятность и статистика.</p><div class=\"grade-summary\">Пройдено тем: 0/107 • этапов: 0/321</div><button class=\"btn primary\" onclick=\"openGrade(7)\">Открыть 7 класс</button></section>\n  <section class=\"grade-card g7-card\"><div class=\"grade-ico\"><span class=\"grade-book-icon g8\" role=\"img\" aria-label=\"8 класс\"><span class=\"book-left\"></span><span class=\"book-right\"></span><span class=\"book-spine\"></span><span class=\"grade-number\">8</span></span></div><h2>8 КЛАСС</h2><p>Алгебра • Геометрия • Вероятность и статистика.</p><div class=\"grade-summary\">Пройдено тем: 0/110 • этапов: 0/330</div><button class=\"btn primary\" onclick=\"openGrade(8)\">Открыть 8 класс</button></section>\n </div><section class=\"quick-home\"><div class=\"quick-home-head\"><div><h2>⚡ Быстрые тр",
+      "text": "Выбери класс Начни с нужного класса — остальные инструменты находятся ниже. 1 1 КЛАСС Числа до 20, первые действия, задачи, величины и фигуры. Пройдено тем: 0/11 • всего в курсе: 11 Открыть 1 класс 2 2 КЛАСС Числа до 100, четыре действия, задачи, величины и геометрия. Пройдено тем: 0/9 • всего в курсе: 9 Открыть 2 класс 3 3 КЛАСС Числа до 1000, арифметические действия, задачи, доли, геометрия и работа с данными. Пройдено тем: 0/48 • этапов: 0/144 Открыть 3 класс 4 4 КЛАСС Вычисления, величины, геометрия, задачи и полная письменная работа столбиком. Пройдено тем: 0/8 • этапов: 0/33 Открыть 4 класс 5 5 КЛАСС Натуральные числа, обыкновенные и де",
+      "rect": [
+        10,
+        142,
+        370,
+        4566
+      ]
+    },
+    "history": {
+      "courseProgress": {
+        "type": "object",
+        "keys": [
+          "g3:numbers_1000",
+          "g3:place_value",
+          "g3:compare_order",
+          "g3:increase_decrease_times",
+          "g3:multiplicative_compare",
+          "g3:mass",
+          "g3:money",
+          "g3:time",
+          "g3:length_units",
+          "g3:area_units",
+          "g3:multiplication_table",
+          "g3:division_table",
+          "g3:offtable_multiply",
+          "g3:offtable_divide",
+          "g3:round_numbers",
+          "g3:zero_one",
+          "g3:written_add",
+          "g3:written_subtract"
+        ],
+        "sample": {
+          "best": [
+            0,
+            0,
+            0
+          ],
+          "bonus": [
+            false,
+            false,
+            false
+          ]
+        }
+      },
+      "questionHistory": {
+        "type": "object",
+        "keys": []
+      },
+      "attemptHistory": {
+        "type": "array",
+        "n": 0,
+        "sample": null
+      },
+      "trainingHistory": {
+        "type": "array",
+        "n": 0,
+        "sample": null
+      },
+      "trainingAggregates": {
+        "type": "object",
+        "keys": [
+          "totalSessions",
+          "totalQuestions",
+          "totalCorrect",
+          "lastSessionAt"
+        ],
+        "sample": 0
+      }
+    },
+    "functions": {
+      "mk872UpdateTopLevelProgress": "function mk872UpdateTopLevelProgress(){const node=document.getElementById('mk872TopLevelProgress');if(node)node.outerHTML=mk872LevelProgressHtml(state.xp||0,'top').replace('class=\"mk872-xp-progress','id=\"mk872TopLevelProgress\" class=\"mk872-xp-progress');}",
+      "mk872LevelProgressHtml": "function mk872LevelProgressHtml(profileXP,variant=\"full\"){\n const p=mk872GetLevelProgress(profileXP),compact=variant!==\"full\",small=variant===\"tiny\";\n const label=`Уровень ${p.currentLevel}: ${Math.floor(p.xpIntoLevel)} из ${p.xpNeededForLevel} XP до уровня ${p.currentLevel+1}; осталось ${Math.ceil(p.xpRemaining)} XP`;\n const labelText=small?`Ур. ${p.currentLevel} · ${Math.round(p.progressPercent)}%`:`Уровень ${p.currentLevel} → ${p.currentLevel+1}`;\n const details=small?`${Math.ceil(p.xpRemaining)} XP осталось`:`${Math.floor(p.xpIntoLevel)} / ${p.xpNeededForLevel} XP · до ур. ${p.currentLevel+1}: ${Math.ceil(p.xpRemaining)} XP`;\n return `<div class=\"mk872-xp-progress ${compact?'compact':''} ${variant==='top'?'mk872-top-progress':''} ${variant==='tiny'?'mk872-leader-progress':''}\" role=\"progressbar\" aria-label=\"${label}\" aria-valuemin=\"0\" aria-valuemax=\"${p.xpNeededForLevel}\" aria-valuenow=\"${Math.floor(p.xpIntoLevel)}\"><div class=\"mk872-xp-head\"><span>${labelText}</span>${small?'':`<span>${Math.round(p.progressPercent)}%</span>`}</div><div class=\"mk872-xp-track\"><span class=\"mk872-xp-fill\" style=\"width:${p.progressPercent}%\"></span></div><div class=\"mk872-xp-foot\">${details}</div></div>`;\n}",
+      "renderHome": "function(){\n if(mk854Restoring)return MK854_CORE_RENDER_HOME();\n const r=mk854Route();\n if(mk854HistoryReady&&r.screen!==\"home\")return mk854BackOrHome();\n mk854HistoryWrite({screen:\"home\"},\"replace\");\n return mk854RunRestoring(()=>MK854_CORE_RENDER_HOME());\n}",
+      "renderGrade": "string",
+      "renderTopics": "function renderTopics(){\n const el=document.getElementById(\"topics\");if(!el)return;\n el.innerHTML=TOPICS.map(t=>`<button class=\"topic\" onclick=\"openTopic('${t.id}')\"><span class=\"ico\">${t.ico}</span><strong>${t.title}</strong><small>${t.sub}</small><span class=\"topic-progress\">${topicProgressText(t.id)}</span></button>`).join(\"\");\n}"
+    }
+  },
+  "screens": [
+    {
+      "grade": 1,
+      "headings": [
+        "Математика 1 класса",
+        "Числа и величины",
+        "Арифметические действия",
+        "Текстовые задачи",
+        "Пространственные отношения и геометрические фигуры",
+        "Математическая информация"
+      ],
+      "elements": [
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        }
+      ],
+      "themeCount": 11,
+      "top": "<div class=\"home-back-row\"><button class=\"home-back-btn\" onclick=\"renderHome()\">← Главный экран</button></div><section class=\"grade-hero\"><div><h1>Математика 1 класса</h1><p>Счёт, первые действия, задачи, величины и наглядная геометрия.</p></div><span class=\"grade-chip\"><span class=\"grade-book-icon g6 compact\" role=\"img\" aria-label=\"1 класс\"><span class=\"book-left\"></span><span class=\"book-right\"></span><span class=\"book-spine\"></span><span class=\"grade-number\">1</span></span> 1 класс</span></section><section class=\"g6-group\"><div class=\"grade-head\"><div><h2 class=\"mk874-section-heading\"><span class=\"mk874-pictogram mk874-theme-blue\" aria-hidden=\"true\"><svg class=\"mk874-svg\" viewBox=\"0 0 24 24\" aria-hidden=\"true\" focusable=\"false\"><use href=\"#mk874-svg-numbers\"></use></svg></span><span class=\"mk874-section-label\">Числа и величины</span></h2><p>Счёт, числа до 20 и первые измерения.</p></div><span class=\"badge\">4 тем</span></div><div class=\"grid\"><button type=\"button\" class=\"topic elementary-topic ready\" onclick=\"openG1Topic('g1:numbers_1_9')\" role=\"button\" tabindex=\"0\"><span class=\"ico mk875-topic-icon\" style=\"--mk875-ink:#52637b;--mk875-bg:#f1f4fa;--mk875-line:#dce3ee\" aria-hidden=\"true\"><svg class=\"mk875-topic-svg\" viewBox=\"0 0 48 48\" focusable=\"false\" aria-hidden=\"true\" data-topic-icon=\"mk875-g1-numbers_1_9\"><rect x=\"1\" y=\"1\" width=\"46\" height=\"46\" rx=\"12\" fill=\"#f1f4fa\" stroke=\"#dce3ee\"></rect><svg x=\"9\" y=\"3\" width=\"30\" height=\"30\" viewBox=\"0 0 24 24\" style=\"color:#52637b\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.9\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><use href=\"#mk874-svg-numbers\"></use></svg><rect x=\"4\" y=\"32\" width=\"40\" height=\"12\" rx=\"5\" fill=\"#ffffff\" opacity=\".92\"></rect><text x=\"24\" y=\"41\" text-anchor=\"middle\" font-size=\"11.4\" font-family=\"Arial,DejaVu Sans,sans-serif\" font-weight=\"700\" fill=\"#52637b\">1–9</text></svg></span><strong>Числа от 1 до 9</strong><small>Числа 1–9</small><span class=\"topic-progress\">0/3 этапа</span></button><button type=\"button\" class=\"topic elementary-topic ready\" onclick=\"openG1Topic('g1:numbers_0_10')\" role=\"button\" tabindex=\"0\"><span class=\"ico mk875-topic-icon\" style=\"--mk875-ink:#52637b;--mk875-bg:#f1f4fa;--mk875-line:#dce3ee\" aria-hidden=\"true\"><svg class=\"mk875-topic-svg\" viewBox=\"0 0 48 48\" focusable=\"false\" aria-hidden=\"true\" data-topic-icon=\"mk875-g1-numbers_0_10\"><rect x=\"1\" y=\"1\" width=\"46\" height=\"46\" rx=\"12\" fill=\"#f1f4fa\" stroke=\"#dce3ee\"></rect><svg x=\"9\" y=\"3\" width=\"30\" height=\"30\" viewBox=\"0 0 24 24\" style=\"color:#52637b\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.9\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><use href=\"#mk874-svg-signed\"></use></svg><rect x=\"4\" y=\"32\" width=\"40\" height=\"12\" rx=\"5\" fill=\"#ffffff\" opacity=\".92\"></rect><text x=\"24\" y=\"41\" text-anchor=\"middle\" font-size=\"9.6\" font-family=\"Arial,DejaVu Sans,sans-serif\" font-weight=\"700\" fill=\"#52637b\">0–10</text></svg></span><strong>Числа от 0 до 10</strong><small>Числа 0–10</small><span class=\"topic-progress\">0/3 этапа</span></button><button type=\"button\" class=\"topic elementary-topic ready\" onclick=\"openG1Topic('g1:numbers_11_20')\" role=\"button\" tabindex=\"0\"><span class=\"ico mk875-topic-icon\" style=\"--mk875-ink:#6b50ae;--mk875-bg:#f2eeff;--mk875-line:#dcd3f8\" aria-hidden=\"true\"><svg class=\"mk875-topic-svg\" viewBox=\"0 0 48 48\" focusable=\"false\" aria-hidden=\"true\" data-topic-icon=\"mk875-g1-numbers_11_20\"><rect x=\"1\" y=\"1\" width=\"46\" height=\"46\" rx=\"12\" fill=\"#f2eeff\" stroke=\"#dcd3f8\"></rect><svg x=\"9\" y=\"3\" width=\"30\" height=\"30\" viewBox=\"0 0 24 24\" style=\"color:#6b50ae\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.9\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><use href=\"#mk874-svg-table\"></use></svg><rect x=\"4\" y=\"32\" width=\"40\" height=\"12\" rx=\"5\" fill=\"#ffffff\" opacity=\".92\"></rect><text x=\"24\" y=\"41\" text-anchor=\"middle\" font-size=\"8.2\" font-family=\"Arial,DejaVu Sans,sans-serif\" font-weight=\"700\" fill=\"#6b50ae\">11–20</text></svg></span><strong>Числа от 11 до 20</strong><small>Числа 11–20</small><span class=\"topic-progress\">0/3 этапа</span></button><button type=\"button\" class=\"topic elementary-topic ready\" onclick=\"openG1Topic('g1:length_measurement')\" role=\"button\" tabindex=\"0\"><span class=\"ico mk875-topic-icon\" style=\"--mk875-ink:#127e6e;--mk875-bg:#e6f8f1;--mk875-line:#bfeadd\" aria-hidden=\"true\"><svg class=\"mk875-topic-svg\" viewBox=\"0 0 48 48\" focusable=\"false\" aria-hidden=\"true\" data-topic-icon=\"mk875-g1-length_measurement\"><rect x=\"1\" y=\"1\" width=\"46\" height=\"46\" rx=\"12\" fill=\"#e6f8f1\" stroke=\"#bfeadd\"></rect><svg x=\"9\" y=\"3\" width=\"30\" height=\"30\" viewBox=\"0 0 24 24\" style=\"color:#127e6e\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.9\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><use href=\"#mk874-svg-ruler\"></use></svg><rect x=\"4\" y=\"32\" "
+    },
+    {
+      "grade": 4,
+      "headings": [
+        "Математика 4 класса",
+        "Основные темы"
+      ],
+      "elements": [
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/12 этапов"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        }
+      ],
+      "themeCount": 8,
+      "top": "<div class=\"home-back-row\"><button class=\"home-back-btn\" onclick=\"renderHome()\">← Главный экран</button></div><section class=\"grade-hero\"><div><h1>Математика 4 класса</h1><p>Основные темы года. Отдельно — письменные вычисления в клеточках и тренажёр таблицы умножения.</p></div><span class=\"grade-chip\"><span class=\"grade-book-icon g4 compact\" role=\"img\" aria-label=\"4 класс\"><span class=\"book-left\"></span><span class=\"book-right\"></span><span class=\"book-spine\"></span><span class=\"grade-number\">4</span></span> 4 класс</span></section>\n <div class=\"title\"><h2>Основные темы</h2><p>Вычисления, величины, геометрия и текстовые задачи.</p></div><div class=\"grid\" id=\"topics\"><button class=\"topic\" onclick=\"openTopic('column')\" role=\"button\" tabindex=\"0\"><span class=\"ico\">🧮</span><strong>Счёт столбиком</strong><small>сложение, вычитание, умножение, деление</small><span class=\"topic-progress\">0/12 этапов</span></button><button class=\"topic\" onclick=\"openTopic('table')\" role=\"button\" tabindex=\"0\"><span class=\"ico\">✖️</span><strong>Таблица умножения</strong><small>2–9, тренировка и полная таблица</small><span class=\"topic-progress\">0/3 этапа</span></button><button class=\"topic\" onclick=\"openTopic('numbers')\" role=\"button\" tabindex=\"0\"><span class=\"ico\">🔢</span><strong>Многозначные числа</strong><small>разряды, сравнение, округление</small><span class=\"topic-progress\">0/3 этапа</span></button><button class=\"topic\" onclick=\"openTopic('order')\" role=\"button\" tabindex=\"0\"><span class=\"ico\">🧠</span><strong>Порядок действий</strong><small>скобки и порядок вычислений</small><span class=\"topic-progress\">0/3 этапа</span></button><button class=\"topic\" onclick=\"openTopic('equations')\" role=\"button\" tabindex=\"0\"><span class=\"ico\">🔎</span><strong>Уравнения</strong><small>неизвестные компоненты</small><span class=\"topic-progress\">0/3 этапа</span></button><button class=\"topic\" onclick=\"openTopic('quantities')\" role=\"button\" tabindex=\"0\"><span class=\"ico\">📏</span><strong>Величины</strong><small>длина, масса, время</small><span class=\"topic-progress\">0/3 этапа</span></button><button class=\"topic\" onclick=\"openTopic('geometry')\" role=\"button\" tabindex=\"0\"><span class=\"ico\">📐</span><strong>Периметр и площадь</strong><small>прямоугольник и квадрат</small><span class=\"topic-progress\">0/3 этапа</span></button><button class=\"topic\" onclick=\"openTopic('word')\" role=\"button\" tabindex=\"0\"><span class=\"ico\">🚲</span><strong>Текстовые задачи</strong><small>цена, количество, движение</small><span class=\"topic-progress\">0/3 этапа</span></button></div>"
+    },
+    {
+      "grade": 7,
+      "headings": [
+        "Математика 7 класса",
+        "Алгебра",
+        "Числа и вычисления",
+        "Выражения, тождества и уравнения",
+        "Функции и графики",
+        "Степени и одночлены",
+        "Многочлены",
+        "Формулы сокращённого умножения",
+        "Системы линейных уравнений",
+        "Геометрия",
+        "Начальные геометрические сведения",
+        "Треугольники"
+      ],
+      "elements": [
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        }
+      ],
+      "themeCount": 107,
+      "top": "<div class=\"home-back-row\"><button class=\"home-back-btn\" onclick=\"renderHome()\">← Главный экран</button></div><section class=\"grade-hero\"><div><h1>Математика 7 класса</h1><p>Алгебра • Геометрия • Вероятность и статистика.</p></div><span class=\"grade-chip\"><span class=\"grade-book-icon g7 compact\" role=\"img\" aria-label=\"7 класс\"><span class=\"book-left\"></span><span class=\"book-right\"></span><span class=\"book-spine\"></span><span class=\"grade-number\">7</span></span> 7 класс</span></section><section id=\"mk19c4-topic-tools\" aria-label=\"Поиск учебных тем\"><div class=\"mk19c4-search-row\"><div class=\"mk19c4-search-wrap\"><input class=\"mk19c4-search-input\" type=\"search\" autocomplete=\"off\" spellcheck=\"false\" aria-label=\"Найти учебную тему\" placeholder=\"Найти тему по названию…\"></div><button class=\"mk19c4-clear\" type=\"button\" disabled=\"\">Очистить</button></div><div class=\"mk19c4-course-links\"><button type=\"button\" class=\"mk19c4-course-link\">Алгебра</button><button type=\"button\" class=\"mk19c4-course-link\">Геометрия</button><button type=\"button\" class=\"mk19c4-course-link\">Вероятность и статистика</button></div><div class=\"mk19c4-count\" role=\"status\" aria-live=\"polite\">Всего тем: 107</div><div class=\"mk19c4-empty\" data-visible=\"false\">Темы не найдены. Измени запрос или очисти поиск.</div></section><section class=\"g7-course\"><div class=\"grade-head\"><div><h2 class=\"mk874-section-heading\"><span class=\"mk874-pictogram mk874-theme-blue mk874-course-icon\" aria-hidden=\"true\"><svg class=\"mk874-svg\" viewBox=\"0 0 24 24\" aria-hidden=\"true\" focusable=\"false\"><use href=\"#mk874-svg-algebraCourse\"></use></svg></span><span class=\"mk874-section-label\">Алгебра</span></h2><p>Числа и вычисления, выражения и уравнения, функции, степени, многочлены и системы.</p></div><span class=\"badge\">50 тем</span></div><section class=\"g6-group\"><div class=\"grade-head\"><div><h2 class=\"mk874-section-heading\"><span class=\"mk874-pictogram mk874-theme-blue\" aria-hidden=\"true\"><svg class=\"mk874-svg\" viewBox=\"0 0 24 24\" aria-hidden=\"true\" focusable=\"false\"><use href=\"#mk874-svg-rational\"></use></svg></span><span class=\"mk874-section-label\">Числа и вычисления</span></h2><p>Рациональные числа, степени, проценты, делимость и пропорции.</p></div><span class=\"badge\">9 тем</span></div><div class=\"grid\"><button type=\"button\" class=\"topic g7-card\" onclick=\"openG7Topic('g7:rational_numbers_forms')\" role=\"button\" tabindex=\"0\"><span class=\"ico mk875-topic-icon\" style=\"--mk875-ink:#52637b;--mk875-bg:#f1f4fa;--mk875-line:#dce3ee\" aria-hidden=\"true\"><svg class=\"mk875-topic-svg\" viewBox=\"0 0 48 48\" focusable=\"false\" aria-hidden=\"true\" data-topic-icon=\"mk875-g7-rational_numbers_forms\"><rect x=\"1\" y=\"1\" width=\"46\" height=\"46\" rx=\"12\" fill=\"#f1f4fa\" stroke=\"#dce3ee\"></rect><svg x=\"9\" y=\"3\" width=\"30\" height=\"30\" viewBox=\"0 0 24 24\" style=\"color:#52637b\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.9\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><use href=\"#mk874-svg-rational\"></use></svg><rect x=\"4\" y=\"32\" width=\"40\" height=\"12\" rx=\"5\" fill=\"#ffffff\" opacity=\".92\"></rect><text x=\"24\" y=\"41\" text-anchor=\"middle\" font-size=\"11.4\" font-family=\"Arial,DejaVu Sans,sans-serif\" font-weight=\"700\" fill=\"#52637b\">ℚ</text></svg></span><strong>Рациональные числа и формы их записи</strong><small>Рациональные числа</small><span class=\"g7-course-chip\">Алгебра</span><span class=\"topic-progress\">0/3 этапа</span></button><button type=\"button\" class=\"topic g7-card\" onclick=\"openG7Topic('g7:rational_compare_order')\" role=\"button\" tabindex=\"0\"><span class=\"ico mk875-topic-icon\" style=\"--mk875-ink:#2368a6;--mk875-bg:#eaf4ff;--mk875-line:#d0e4f6\" aria-hidden=\"true\"><svg class=\"mk875-topic-svg\" viewBox=\"0 0 48 48\" focusable=\"false\" aria-hidden=\"true\" data-topic-icon=\"mk875-g7-rational_compare_order\"><rect x=\"1\" y=\"1\" width=\"46\" height=\"46\" rx=\"12\" fill=\"#eaf4ff\" stroke=\"#d0e4f6\"></rect><svg x=\"9\" y=\"3\" width=\"30\" height=\"30\" viewBox=\"0 0 24 24\" style=\"color:#2368a6\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.9\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><use href=\"#mk874-svg-inequality\"></use></svg><rect x=\"4\" y=\"32\" width=\"40\" height=\"12\" rx=\"5\" fill=\"#ffffff\" opacity=\".92\"></rect><text x=\"24\" y=\"41\" text-anchor=\"middle\" font-size=\"11.4\" font-family=\"Arial,DejaVu Sans,sans-serif\" font-weight=\"700\" fill=\"#2368a6\">ℚ≤</text></svg></span><strong>Сравнение и упорядочивание рациональных чисел</strong><small>Сравнение рациональных</small><span class=\"g7-course-chip\">Алгебра</span><span class=\"topic-progress\">0/3 этапа</span></button><button type=\"button\" class=\"topic g7-card\" onclick=\"openG7Topic('g7:rational_arithmetic')\" role=\"button\" tabindex=\"0\"><span class=\"ico mk875-topic-icon\" style=\"--mk875-ink:#2368a6;--mk875-bg:#eaf4ff;--mk875-line:#d0e4f6\" aria-hidden=\"true\"><svg class=\"mk875-topic-svg\" v"
+    },
+    {
+      "grade": 8,
+      "headings": [
+        "Математика 8 класса",
+        "Алгебра",
+        "Квадратные корни и действительные числа",
+        "Степень с целым показателем и стандартная запись",
+        "Квадратный трёхчлен",
+        "Алгебраические дроби и рациональные выражения",
+        "Квадратные и рациональные уравнения",
+        "Системы уравнений",
+        "Неравенства",
+        "Функция: основные понятия",
+        "Числовые функции и их графики",
+        "Повторение и обобщение алгебры 8 класса"
+      ],
+      "elements": [
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "topic-progress",
+          "id": "",
+          "txt": "0/3 этапа"
+        }
+      ],
+      "themeCount": 110,
+      "top": "<div class=\"home-back-row\"><button class=\"home-back-btn\" onclick=\"renderHome()\">← Главный экран</button></div><section class=\"grade-hero\"><div><h1>Математика 8 класса</h1><p>Алгебра • Геометрия • Вероятность и статистика. Доступность тем определяется фактически подключёнными тренажёрами.</p></div><span class=\"grade-chip\"><span class=\"grade-book-icon g8 compact\" role=\"img\" aria-label=\"8 класс\"><span class=\"book-left\"></span><span class=\"book-right\"></span><span class=\"book-spine\"></span><span class=\"grade-number\">8</span></span> 8 класс</span></section><section id=\"mk19c4-topic-tools\" aria-label=\"Поиск учебных тем\"><div class=\"mk19c4-search-row\"><div class=\"mk19c4-search-wrap\"><input class=\"mk19c4-search-input\" type=\"search\" autocomplete=\"off\" spellcheck=\"false\" aria-label=\"Найти учебную тему\" placeholder=\"Найти тему по названию…\"></div><button class=\"mk19c4-clear\" type=\"button\" disabled=\"\">Очистить</button></div><div class=\"mk19c4-course-links\"><button type=\"button\" class=\"mk19c4-course-link\">Алгебра</button><button type=\"button\" class=\"mk19c4-course-link\">Геометрия</button><button type=\"button\" class=\"mk19c4-course-link\">Вероятность и статистика</button></div><div class=\"mk19c4-count\" role=\"status\" aria-live=\"polite\">Всего тем: 110</div><div class=\"mk19c4-empty\" data-visible=\"false\">Темы не найдены. Измени запрос или очисти поиск.</div></section><section class=\"g7-course\"><div class=\"grade-head\"><div><h2 class=\"mk874-section-heading\"><span class=\"mk874-pictogram mk874-theme-blue mk874-course-icon\" aria-hidden=\"true\"><svg class=\"mk874-svg\" viewBox=\"0 0 24 24\" aria-hidden=\"true\" focusable=\"false\"><use href=\"#mk874-svg-algebraCourse\"></use></svg></span><span class=\"mk874-section-label\">Алгебра</span></h2><p>Числа и вычисления, выражения, уравнения, неравенства и функции 8 класса.</p></div><span class=\"badge\">48 тем</span></div><section class=\"g6-group\"><div class=\"grade-head\"><div><h2 class=\"mk874-section-heading\"><span class=\"mk874-pictogram mk874-theme-amber\" aria-hidden=\"true\"><svg class=\"mk874-svg\" viewBox=\"0 0 24 24\" aria-hidden=\"true\" focusable=\"false\"><use href=\"#mk874-svg-radical\"></use></svg></span><span class=\"mk874-section-label\">Квадратные корни и действительные числа</span></h2><p>Квадратный корень, иррациональные числа, действительные числа и преобразования выражений с корнями.</p></div><span class=\"badge\">7 тем</span></div><div class=\"grid\"><button type=\"button\" class=\"topic g7-card\" onclick=\"openG8Topic('g8:square_root_arithmetic')\" role=\"button\" tabindex=\"0\"><span class=\"ico mk875-topic-icon\" style=\"--mk875-ink:#a16919;--mk875-bg:#fff4e2;--mk875-line:#f4dbb0\" aria-hidden=\"true\"><svg class=\"mk875-topic-svg\" viewBox=\"0 0 48 48\" focusable=\"false\" aria-hidden=\"true\" data-topic-icon=\"mk875-g8-square_root_arithmetic\"><rect x=\"1\" y=\"1\" width=\"46\" height=\"46\" rx=\"12\" fill=\"#fff4e2\" stroke=\"#f4dbb0\"></rect><svg x=\"9\" y=\"3\" width=\"30\" height=\"30\" viewBox=\"0 0 24 24\" style=\"color:#a16919\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.9\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><use href=\"#mk874-svg-radical\"></use></svg><rect x=\"4\" y=\"32\" width=\"40\" height=\"12\" rx=\"5\" fill=\"#ffffff\" opacity=\".92\"></rect><text x=\"24\" y=\"41\" text-anchor=\"middle\" font-size=\"11.4\" font-family=\"Arial,DejaVu Sans,sans-serif\" font-weight=\"700\" fill=\"#a16919\">√a</text></svg></span><strong>Квадратный корень и арифметический квадратный корень</strong><small>Квадратный корень</small><span class=\"g7-course-chip\">Алгебра</span><span class=\"topic-progress\">0/3 этапа</span></button><button type=\"button\" class=\"topic g7-card\" onclick=\"openG8Topic('g8:irrational_numbers_approximations')\" role=\"button\" tabindex=\"0\"><span class=\"ico mk875-topic-icon\" style=\"--mk875-ink:#52637b;--mk875-bg:#f1f4fa;--mk875-line:#dce3ee\" aria-hidden=\"true\"><svg class=\"mk875-topic-svg\" viewBox=\"0 0 48 48\" focusable=\"false\" aria-hidden=\"true\" data-topic-icon=\"mk875-g8-irrational_numbers_approximations\"><rect x=\"1\" y=\"1\" width=\"46\" height=\"46\" rx=\"12\" fill=\"#f1f4fa\" stroke=\"#dce3ee\"></rect><svg x=\"9\" y=\"3\" width=\"30\" height=\"30\" viewBox=\"0 0 24 24\" style=\"color:#52637b\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.9\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><use href=\"#mk874-svg-rational\"></use></svg><rect x=\"4\" y=\"32\" width=\"40\" height=\"12\" rx=\"5\" fill=\"#ffffff\" opacity=\".92\"></rect><text x=\"24\" y=\"41\" text-anchor=\"middle\" font-size=\"11.4\" font-family=\"Arial,DejaVu Sans,sans-serif\" font-weight=\"700\" fill=\"#52637b\">√2≈</text></svg></span><strong>Иррациональные числа и их десятичные приближения</strong><small>Иррациональные числа</small><span class=\"g7-course-chip\">Алгебра</span><span class=\"topic-progress\">0/3 этапа</span></button><button type=\"button\" class=\"topic g7-card\" onclick=\"openG8Topic('g8:real_numbers_compare')\" role=\"button\" tabindex=\""
+    }
+  ]
+}
