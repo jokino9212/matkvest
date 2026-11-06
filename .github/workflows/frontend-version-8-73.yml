@@ -1,0 +1,54 @@
+name: Bump MatKvest frontend version 8.73
+on:
+  push:
+    branches: [release/frontend-8-73-20261106]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  bump-and-gate:
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: release/frontend-8-73-20261106
+          persist-credentials: true
+      - name: Apply frontend version bump
+        run: python3 audits/bump_frontend_version_8_73.py
+      - name: Verify HTML/PWA integrity
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib
+          html=Path('index.html').read_bytes()
+          sw=Path('sw.js').read_text()
+          assert b'8.73' in html and b'8.72' not in html
+          assert hashlib.sha256(html).hexdigest() in sw
+          assert 'matkvest-iphone-v73' in sw
+          assert html.count(b'</body>')==1
+          print('PASS frontend version, closing body, PWA fingerprint')
+          PY
+      - name: Run Android division regression
+        run: |
+          npm install --no-save --no-package-lock playwright@1.56.1
+          node audits/mobile_division_v72_browser_test.cjs
+          node audits/mobile_division_v72_real_app_test.cjs
+      - name: Save screenshot evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: version-8-73-mobile-checks
+          path: audits/screenshots/*.png
+          if-no-files-found: ignore
+      - name: Commit tested release candidate
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js
+          if ! git diff --cached --quiet; then
+            git commit -m "release(frontend): show version 8.73 and synchronize PWA v73"
+            git push origin HEAD:release/frontend-8-73-20261106
+          fi
