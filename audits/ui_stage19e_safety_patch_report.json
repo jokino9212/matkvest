@@ -1,0 +1,16 @@
+{
+  "stage": "19E / resale accuracy",
+  "version": "v65",
+  "base_sha256": "a962fc0d20e2239eb110c1ded3de73970171f5e8bae0ea0800efd9d219fd0a74",
+  "sha256": "a18915ed7d83dc02444e2736546fbb08484443e4cf5b7d603bcc02364ef6a6df",
+  "cache": "matkvest-iphone-v65",
+  "change": "Exclude disabled, archived accessory type from immediate-sale potential; explain omission",
+  "excluded": [
+    "purchases",
+    "sale handlers",
+    "wallet current coins",
+    "inventory",
+    "rarity prices",
+    "PWA logic"
+  ]
+}

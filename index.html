@@ -33475,7 +33475,7 @@ body{background:var(--mk19c-canvas);color:var(--mk19c-ink)}
    for(const [type,ids] of Object.entries(inv)){
      for(const rawId of Array.isArray(ids)?ids:[]){
        const id=String(rawId),key=type+':'+id;if(seen.has(key))continue;seen.add(key);
-       const item=catalogItem(type,id);if(!item)continue;
+       const item=catalogItem(type,id);if(!item||type==='accessories')continue;
        let amount=0;
        if(type==='avatars'&&typeof mk873IsArchivedAvatar==='function'&&mk873IsArchivedAvatar(id)){
          const e=mk873Eligibility(profile,id);
@@ -33522,7 +33522,7 @@ body{background:var(--mk19c-canvas);color:var(--mk19c-ink)}
       '<section><div class="mk19e-potential"><div class="mk19e-potential-line"><span>Если продать доступные предметы сейчас</span><b>+'+mk19eMoney(a.realizable)+'</b></div><p>Подтверждённый возврат без учебных миссий за '+a.eligibleCount+' предмет(ов). Учитываются 40% цены покупки; для подходящих архивных аватаров — 100%. Эти монеты ещё не на счёте.</p><div class="mk19e-potential-line" style="margin-top:9px;border-top:1px solid #dce9df;padding-top:10px"><span>Баланс + возможные возвраты</span><b>'+mk19eMoney(a.potential)+'</b></div></div></section>'+
       '<section><h3 class="mk19e-section-title">Сундуки</h3><div class="mk19e-facts"><div class="mk19e-fact">Открыто сундуков<b>'+a.chestCount+'</b></div><div class="mk19e-fact">Компенсации из сундуков<b>'+mk19eMoney(a.chestBonus)+'</b></div><div class="mk19e-fact">Цена одного сейчас<b>200 🪙</b></div></div></section>'+
       '<section><h3 class="mk19e-section-title">Последние продажи</h3>'+mk19eSalesHtml(a.saleHistory)+'</section>'+
-      '<details class="mk19e-info"><summary>Как считаются суммы</summary><p>Кошелёк берёт текущий баланс и сохранённые счётчики покупок, продаж и сундуков только выбранного профиля. Расходы в магазине не включают сундуки. Возможные возвраты — это не монеты на счёте. Полная сумма монет, когда-либо заработанных за обучение и достижения, в старых данных отдельно не хранится, поэтому мы не показываем выдуманный «общий заработок». История продаж может быть неполной после переноса старых данных.</p></details>'+
+      '<details class="mk19e-info"><summary>Как считаются суммы</summary><p>Кошелёк берёт текущий баланс и сохранённые счётчики покупок, продаж и сундуков только выбранного профиля. Расходы в магазине не включают сундуки. Возможные возвраты — это не монеты на счёте. Устаревшие аксессуары не учитываются, поскольку их продажа через магазин недоступна. Полная сумма монет, когда-либо заработанных за обучение и достижения, в старых данных отдельно не хранится, поэтому мы не показываем выдуманный «общий заработок». История продаж может быть неполной после переноса старых данных.</p></details>'+
       '<div class="mk19e-shortcuts"><button class="btn soft" type="button" onclick="openShop(\'avatars\')">В магазин</button><button class="btn soft" type="button" onclick="openCollection()">Моя коллекция</button></div>'+
      '</div>');
  }
@@ -33554,4 +33554,7 @@ body{background:var(--mk19c-canvas);color:var(--mk19c-ink)}
 })();
 </script>
 
+<style id="mk-ui19e-legacy-sell-safety">
+/* A traceable build marker: no visual changes. */
+</style>
 </body></html>

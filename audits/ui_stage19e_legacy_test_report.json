@@ -1,0 +1,61 @@
+{
+  "sha": "a18915ed7d83dc02444e2736546fbb08484443e4cf5b7d603bcc02364ef6a6df",
+  "checks": [
+    {
+      "label": "Historic accessory has a valid old purchase and ordinary resale quote",
+      "pass": true,
+      "detail": {
+        "eligible": true,
+        "refund": 560
+      }
+    },
+    {
+      "label": "Hidden accessory excluded from immediately sellable wealth despite historical quote",
+      "pass": true,
+      "detail": {
+        "balance": 1083,
+        "spent": 0,
+        "purchases": 0,
+        "sales": 0,
+        "refunded": 0,
+        "chestCount": 0,
+        "chestBonus": 0,
+        "realizable": 0,
+        "eligibleCount": 0,
+        "potential": 1083,
+        "saleHistory": []
+      }
+    },
+    {
+      "label": "Wallet explains that the hidden legacy accessory is excluded",
+      "pass": true,
+      "detail": "Как считаются суммыКошелёк берёт текущий баланс и сохранённые счётчики покупок, продаж и сундуков только выбранного профиля. Расходы в магазине не включают сундуки. Возможные возвраты — это не монеты на счёте. Устаревшие аксессуары не учитываются, поскольку их продажа через магазин недоступна. Полная сумма монет, когда-либо заработанных за обучение и достижения, в старых данных отдельно не хранится, поэтому мы не показываем выдуманный «общий заработок». История продаж может быть неполной после переноса старых данных."
+    },
+    {
+      "label": "Wallet does not change profile data for legacy item",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "Ordinary sellable pet is still included at 40%, without counting hidden accessory",
+      "pass": true,
+      "detail": {
+        "sum": {
+          "balance": 1083,
+          "spent": 0,
+          "purchases": 0,
+          "sales": 0,
+          "refunded": 0,
+          "chestCount": 0,
+          "chestBonus": 0,
+          "realizable": 156,
+          "eligibleCount": 1,
+          "potential": 1239,
+          "saleHistory": []
+        },
+        "text": "Если продать доступные предметы сейчас+156 🪙Подтверждённый возврат без учебных миссий за 1 предмет(ов). Учитываются 40% цены покупки; для подходящих архивных аватаров — 100%. Эти монеты ещё не на счёте.Баланс + возможные возвраты1 239 🪙"
+      }
+    }
+  ],
+  "errors": []
+}
