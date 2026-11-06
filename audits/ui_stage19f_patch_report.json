@@ -1,0 +1,20 @@
+{
+  "stage": "19F",
+  "version": "v66",
+  "base_sha256": "a18915ed7d83dc02444e2736546fbb08484443e4cf5b7d603bcc02364ef6a6df",
+  "sha256": "5e335da962b320d29d2988cc1607df4d9fb20501efb132b4353890ae9fa10ffa",
+  "cache": "matkvest-iphone-v66",
+  "new": [
+    "compact current-grade progress strip",
+    "8-grade XP and course-stage overview",
+    "accessible level and home shortcuts",
+    "native grade navigation from overview"
+  ],
+  "invariants": [
+    "same levelThreshold and mk872GetLevelProgress",
+    "teacherCourseProgress and teacherStageBreakdown for study counts",
+    "no XP or grading changes",
+    "no shop/economy changes",
+    "no backend or user-data migration"
+  ]
+}
