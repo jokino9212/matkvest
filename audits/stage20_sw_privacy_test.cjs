@@ -88,7 +88,19 @@ async function dispatch(req) {
   assert.equal(await dispatch(request('/matkvest/index.html', { destination: 'document', mode: 'navigate' })), true);
   assert.equal(entries.size, before, 'redirected navigation cannot replace cached shell');
   assert.equal(await entries.get('./index.html').clone().text(), originalShell, 'redirect must not overwrite existing shell');
-  responseFactory = () => { throw new Error('offline'); };
+  responseFactory = () => new Response('{"private":true}', {
+    headers: { 'Content-Type': 'application/json' }
+  });
+  assert.equal(await dispatch(request('/matkvest/index.html', { destination: 'document', mode: 'navigate' })), true);
+  assert.equal(await entries.get('./index.html').clone().text(), originalShell, 'JSON must never overwrite HTML shell');
+  responseFactory = () => new Response('query-specific HTML', {
+    headers: { 'Content-Type': 'text/html; charset=utf-8' }
+  });
+  assert.equal(await dispatch(request('/matkvest/index.html?user=123', { destination: 'document', mode: 'navigate' })), true);
+  assert.equal(await entries.get('./index.html').clone().text(), originalShell, 'query-specific page must not overwrite shell');
+    responseFactory = () => { throw new Error('offline'); };
+  assert.equal(await dispatch(request('/matkvest/assets/public.png', { destination: 'image' })), true);
+  assert.equal(await lastResponse.text(), 'public asset', 'offline static asset must read cached bytes');
   const offline = await dispatch(request('/matkvest/index.html', { destination: 'document', mode: 'navigate' }));
   assert.equal(offline, true, 'offline shell fallback must remain intercepted');
   assert.equal(await lastResponse.text(), originalShell, 'offline fallback must serve exact cached HTML');
