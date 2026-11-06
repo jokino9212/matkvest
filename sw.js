@@ -24,7 +24,19 @@ self.addEventListener("activate", event => {
 
 self.addEventListener("fetch", event => {
   const request = event.request;
-  if (request.method !== "GET" || new URL(request.url).origin !== self.location.origin) return;
+  const url = new URL(request.url);
+  if (request.method !== "GET" || url.origin !== self.location.origin) return;
+
+  // Stage 20: only public app-shell and static resources may enter Cache Storage.
+  // In particular, NEVER intercept API/auth/profile/economy requests, even on
+  // navigations. An empty destination is typical of fetch()/XHR.
+  const privatePath = /(?:^|\\/)(?:api|auth|account|accounts|session|sessions|profile|profiles|user|users|wallet|inventory|economy|progress|sync|private|admin)(?:\\/|$)/i;
+  if (privatePath.test(url.pathname) ||
+      request.headers.has("Authorization") ||
+      request.headers.has("Cookie") ||
+      (request.mode !== "navigate" && !["script", "style", "image", "font", "manifest"].includes(request.destination))) {
+    return;
+  }
 
   if (request.mode === "navigate") {
     event.respondWith(
