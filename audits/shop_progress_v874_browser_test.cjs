@@ -35,7 +35,7 @@ async function main(){
       const arr=mk872CollectionOwned(type);
       const rank={common:0,uncommon:1,rare:2,epic:3,legendary:4};
       let violations=0;
-      for(let i=1;i<arr.length;i++) if((rank[arr[i-1].rarity]??9)-(rank[arr[i].rarity]??9)||Number(arr[i-1].price||0)-Number(arr[i].price||0)>0) violations++;
+      for(let i=1;i<arr.length;i++) if((((rank[arr[i-1].rarity]??9)-(rank[arr[i].rarity]??9))||(Number(arr[i-1].price||0)-Number(arr[i].price||0)))>0) violations++;
       collection[type]={count:arr.length,violations};
       if(orig===null)delete state.inventory[type];else state.inventory[type]=orig;
     }
