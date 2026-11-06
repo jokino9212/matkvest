@@ -1,0 +1,16 @@
+name: Audit UI card navigation and responsive header
+on:
+  push:
+    branches: [audit/ui-card-interactions-v875-20261106]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  browser-audit:
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - run: node audits/ui875_card_nav_browser_audit.cjs
