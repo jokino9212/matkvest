@@ -98,7 +98,7 @@ body{background:var(--mk19c-canvas);color:var(--mk19c-ink)}
   box-shadow:var(--mk19c-shadow);
   transition:transform 170ms var(--mk19c-ease),border-color 170ms ease,box-shadow 170ms ease,background-color 170ms ease
 }
-.topic.g7-card{background-color:#fff}
+.topic.g7-card{background-color:var(--mk19c-surface)!important}
 .topic[role="button"]:focus-visible{
   outline:3px solid rgba(23,107,84,.38);outline-offset:3px;border-color:var(--mk19c-brand)
 }
