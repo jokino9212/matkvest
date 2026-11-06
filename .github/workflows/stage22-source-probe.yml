@@ -1,0 +1,13 @@
+name: Stage22 source audit
+on:
+  push:
+    branches: [audit/stage22-answer-input-drafts-20261107]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 audits/stage22_source_probe.py
