@@ -15,3 +15,7 @@ for pat in pats:
 for keyword in ['function mk872RestoreDraft(', 'function mk872ReadDraft(', 'function mk872BlockActive(', 'function mk872DraftKey(']:
  p=s.find(keyword)
  print('DETAIL',keyword,repr(s[p:p+2200]) if p>=0 else 'missing')
+
+for keyword in ['function quizInputEvaluation(', 'function checkQuizInput(', 'function quizInputRaw(']:
+ p=s.find(keyword)
+ print('FULL',keyword,repr(s[p:p+8500]))
