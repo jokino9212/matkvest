@@ -1,0 +1,22 @@
+{
+  "stage": "19D",
+  "candidate": "v63",
+  "baseline": "eae5f44bc14b0736579e0435f4fa0118e2a17fb1b51399b0e7408527de53a2f0",
+  "sha256": "5e8d980f0311acc54b024e820a73335e3d867505f69dfca691a38e2788da7aff",
+  "sw": "matkvest-iphone-v63",
+  "changes": [
+    "reset rarity filter when shop category changes",
+    "show rarity options only for available catalog entries",
+    "display actual visible counts and purchase price range"
+  ],
+  "not_changed": [
+    "catalog prices",
+    "rarity classifications",
+    "level requirements",
+    "purchase handlers",
+    "resale 40/80%",
+    "archived 100% refund",
+    "chest 200 and odds",
+    "learning logic"
+  ]
+}
