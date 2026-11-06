@@ -40,7 +40,7 @@ async function main(){
    current:currentProfile,
    xp:state.xp,coins:state.coins,
    originalLegacy:JSON.parse(localStorage.getItem('mq4')||'{}')?.xp,
-   guard:typeof mkV877StorageGuard!=='undefined'?mkV877StorageGuard:null,
+   guard:typeof mkV877CorruptProfiles!=='undefined'?mkV877CorruptProfiles:null,
    keys:Object.keys(localStorage).filter(x=>/backup|recovery|corrupt/.test(x)).slice(0,10)
   }));
   console.log('STAGE26_CASE',JSON.stringify({width,valid,corruptProfile:{...outcome,stored:String(outcome.stored).slice(0,150)},errors:errors.slice(0,3)}));
