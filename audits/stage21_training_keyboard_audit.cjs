@@ -8,8 +8,7 @@ async function main(){
  try{
   for(const width of [320,360,390,412,430,768]){
    const ctx=await browser.newContext({viewport:{width,height:740},isMobile:width<500,hasTouch:width<500});
-   const page=await ctx.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
-   await page.goto('file://'+path.resolve('index.html'),{waitUntil:'domcontentloaded'});
+   let page;const errors=[];
    const cases=[
     ['column-division',async()=>{
       await page.evaluate(()=>{startColumnStage('div',0);task={a:14067,b:3,quotient:'4689',ans:4689,steps:divisionSteps(14067,3)};renderDivision()});
@@ -17,19 +16,21 @@ async function main(){
       return '.column-modal .qin';
     }],
     ['grade6-topic',async()=>{
-      await page.evaluate(()=>{document.querySelector('.column-modal')?.remove();closeModal();openGrade(6)});
+      await page.evaluate(()=>openGrade(6));
       const topic=page.locator('#mainView .topic:not(.locked):not(.disabled):not(.soon)').first();
       await topic.click({timeout:5000});
       return '#modal input:visible,#modal textarea:visible';
     }],
     ['grade5-topic',async()=>{
-      await page.evaluate(()=>{document.querySelector('.column-modal')?.remove();closeModal();openGrade(5)});
+      await page.evaluate(()=>openGrade(5));
       const topic=page.locator('#mainView .topic:not(.locked):not(.disabled):not(.soon)').first();
       await topic.click();
       return '#modal input:visible,#modal textarea:visible';
     }],
    ];
    for(const [name,open] of cases){
+    page=await ctx.newPage();page.on('pageerror',e=>errors.push(e.message));
+    await page.goto('file://'+path.resolve('index.html'),{waitUntil:'domcontentloaded'});
     let sel;try{sel=await open()}catch(e){issues.push({width,name,type:'opening-error',error:e.message.slice(0,150)});continue}
     const snapshot=await page.evaluate(()=>{
       const el=document.querySelector('.column-modal')||document.querySelector('#modal');
@@ -61,6 +62,7 @@ async function main(){
       await page.setViewportSize({width,height:740});
     }
     console.log('SCREEN',width,name,JSON.stringify(snapshot));
+    await page.close();
    }
    if(errors.length)issues.push({width,type:'pageerror',errors:errors.slice(0,3)});
    await ctx.close();
