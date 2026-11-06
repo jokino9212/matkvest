@@ -1,0 +1,55 @@
+name: Gate v8.75 grade-card keyboard navigation
+on:
+  push:
+    branches: [audit/ui-card-interactions-v875-20261106]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit/ui-card-interactions-v875-20261106
+          persist-credentials: true
+      - name: Apply targeted keyboard patch
+        run: |
+          if ! grep -q 'id="mk-v875-card-keyboard"' index.html; then
+            python3 audits/fix_grade_cards_keyboard_v875.py
+          fi
+      - name: Verify release fingerprint
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib
+          html=Path('index.html').read_bytes()
+          sw=Path('sw.js').read_text()
+          assert html.count(b'id="mk-v875-card-keyboard"')==1
+          assert b'8.75' in html and b'8.74' not in html
+          assert 'matkvest-iphone-v75' in sw
+          assert hashlib.sha256(html).hexdigest() in sw
+          assert html.count(b'</body>')==1
+          print('PASS fingerprint + version')
+          PY
+      - name: Install Chromium driver
+        run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Browser audit for card and header navigation
+        run: node audits/ui875_card_nav_browser_audit.cjs
+      - name: Regress prior UI behavior
+        run: |
+          node audits/shop_progress_v874_browser_test.cjs
+          node audits/responsive_fraction_v874_test.cjs
+          node audits/mobile_division_v72_real_app_test.cjs
+      - name: Commit vetted candidate to audit branch
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js
+          if ! git diff --cached --quiet; then
+            git commit -m "fix(frontend): grade cards accessible by keyboard v8.75"
+            git push origin HEAD:audit/ui-card-interactions-v875-20261106
+          fi
