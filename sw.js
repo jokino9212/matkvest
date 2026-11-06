@@ -1,5 +1,5 @@
-const CACHE_NAME = "matkvest-iphone-v69";
-const APP_BUILD_HASH = "9f2f50a7e49653e6bfcb62de22402e6948ee1c3a642ffb80c0f25e4d3d4d55d1";
+const CACHE_NAME = "matkvest-iphone-v70";
+const APP_BUILD_HASH = "c93d13aeaafdb742e3ceda0111d3242daaf19fcc3a2cdd7b90b1b4a18f0817f2";
 const APP_FILES = ["./", "./index.html", "./manifest.webmanifest"];
 
 // Navigation must prefer the network: cached HTML may be from a previous deployment.
