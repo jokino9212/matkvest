@@ -1,0 +1,20 @@
+name: Stage22 answer entry and saved attempt regression
+on:
+  push:
+    branches: [main, audit/stage22-answer-input-drafts-20261107]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test driver
+        run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Test answer entry, invalid scores and draft restoration
+        run: node audits/stage22_answer_drafts_browser.cjs
