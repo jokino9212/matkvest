@@ -23,6 +23,7 @@ const {webcrypto}=require('node:crypto');
    return {ok:false,status,json:async()=>({error:{code:status===429?'FREE_START_LIMIT':'TOPIC_CATALOG_PENDING',message:'Server policy rejected request'}})};
   }
   if(url.endsWith('/auth/login'))return {ok:true,status:200,json:async()=>({user:{id:'u',role:'student'},csrf_token:'csrf-in-memory'})};
+  if(url.endsWith('/auth/me'))return {ok:true,status:200,json:async()=>({id:'u',role:'student'})};
   if(url.endsWith('/auth/csrf'))return {ok:true,status:200,json:async()=>({csrf_token:'csrf-in-memory'})};
   if(url.endsWith('/auth/register'))return {ok:true,status:201,json:async()=>({id:'new-account',role:'student'})};
   if(url.endsWith('/auth/logout'))return {ok:true,status:200,json:async()=>({ok:true})};
