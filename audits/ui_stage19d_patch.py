@@ -80,7 +80,7 @@ script=r"""
  shopRarityButtons=function(category){
    const options=filterOptions(category);
    return '<div class="shop-filter-bar" role="group" aria-label="Редкость предметов">'
-     +options.map(([id,label,n])=>'<button type="button" class="shop-filter-btn '+(shopRarityFilter===id?'active':'')+'" onclick="openShop(\\''+category+'\\',\\''+id+'\\')" aria-pressed="'+(shopRarityFilter===id)+'">'+label+'<span class="mk19d-filter-count" aria-hidden="true">'+n+'</span></button>').join('')
+     +options.map(([id,label,n])=>'<button type="button" class="shop-filter-btn '+(shopRarityFilter===id?'active':'')+'" onclick="openShop(&quot;'+category+'&quot;,&quot;'+id+'&quot;)" aria-pressed="'+(shopRarityFilter===id)+'">'+label+'<span class="mk19d-filter-count" aria-hidden="true">'+n+'</span></button>').join('')
      +'</div>';
  };
  const pretty=n=>Math.max(0,Math.floor(Number(n)||0)).toLocaleString('ru-RU');
