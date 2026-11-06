@@ -1,7 +1,5 @@
 name: Stage26 storage source inspection
 on:
-  push:
-    branches: [audit/stage26-storage-resilience-20261107]
   workflow_dispatch:
 permissions:
   contents: read
