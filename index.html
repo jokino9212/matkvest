@@ -10049,7 +10049,7 @@ function renderDivision(){
  });
  const qinputs=[...t.quotient].map((d,i)=>`<input class="qin" maxlength="1" inputmode="numeric" data-exp="${d}" data-row="quot" data-col="${i}" oninput="workInput(this)" onkeydown="workKey(event,this)">`).join("");
  stage.innerHTML=`<div class="card"><div class="task-title"><b>${t.a} : ${t.b}</b> — выполни деление уголком</div>
- <div class="div-layout"><div class="div-rows">${rows}</div><div class="div-side"><div class="divisor-box">${t.b}</div><div class="quotient-inputs">${qinputs}</div></div></div>
+ <div class="div-layout" style="--mk-cols:${cols};--mk-qcols:${t.quotient.length};--mk-slots:${cols+t.quotient.length+1}"><div class="div-rows">${rows}</div><div class="div-side"><div class="divisor-box">${t.b}</div><div class="quotient-inputs">${qinputs}</div></div></div>
  <div class="work-note div-mini-note">Частное — справа. Каждый минус стоит непосредственно перед своим промежуточным произведением; строки смещаются по разрядам.</div>
  <div class="actions"><button id="columnPrimary" class="btn primary" onclick="checkColumn()">Проверить все шаги</button><button class="btn soft" onclick="newTask()">${blockSession?"⏭ Пропустить задание":"Другой пример"}</button></div><div class="feedback" id="fb"></div></div>`;
  setTimeout(()=>document.querySelector(".qin")?.focus(),0);
@@ -34263,5 +34263,25 @@ body{background:var(--mk19c-canvas);color:var(--mk19c-ink)}
  document.addEventListener('focusin',function(e){fit(e.target)},true);
 })();
 </script>
+
+
+<!-- Mobile long division v72: proportionally size the COMPLETE arrangement -->
+<style id="mk-mobile-column-division-v72">
+.column-modal .div-layout{display:grid!important;grid-template-columns:max-content max-content!important;justify-content:center!important;width:100%!important;max-width:100%!important;min-width:0!important;box-sizing:border-box!important;padding:3px!important;overflow:visible!important;container-type:inline-size}
+.column-modal .div-layout .div-rows,.column-modal .div-layout .div-side{--mk-cell:max(13px,min(46px,calc((100cqw - 12px)/var(--mk-slots))));min-width:0!important;box-sizing:border-box!important}
+.column-modal .div-layout .drow{grid-template-columns:calc(var(--mk-cell)*.78) repeat(var(--dcols),var(--mk-cell))!important;grid-auto-rows:var(--mk-cell)!important}
+.column-modal .div-layout .div-top-row,.column-modal .div-layout .div-input-row{grid-auto-rows:var(--mk-cell)!important}
+.column-modal .div-layout .div-line-row{grid-auto-rows:6px!important;height:6px!important;min-height:6px!important}
+.column-modal .div-layout .div-fixed,.column-modal .div-layout .div-spacer{box-sizing:border-box!important;width:calc(var(--mk-cell) - 2px)!important;height:calc(var(--mk-cell) - 2px)!important;min-width:0!important;font-size:clamp(13px,calc(var(--mk-cell)*.61),28px)!important}
+.column-modal .div-layout .div-work-in{box-sizing:border-box!important;width:calc(var(--mk-cell) - 3px)!important;height:calc(var(--mk-cell) - 3px)!important;min-width:0!important;font-size:clamp(13px,calc(var(--mk-cell)*.58),25px)!important;padding:0!important;border-radius:5px!important}
+.column-modal .div-layout .div-rule{box-sizing:border-box!important;width:calc(var(--mk-cell) - 3px)!important;max-width:100%!important}
+.column-modal .div-layout .div-op{box-sizing:border-box!important;width:calc(var(--mk-cell)*.76)!important;height:calc(var(--mk-cell) - 2px)!important;font-size:clamp(13px,calc(var(--mk-cell)*.60),26px)!important}
+.column-modal .div-layout .inline-div-op{width:calc(var(--mk-cell) - 3px)!important}
+.column-modal .div-layout .div-side{box-sizing:border-box!important;width:calc(var(--mk-cell)*var(--mk-qcols) + 8px)!important;min-width:0!important;font-size:clamp(13px,calc(var(--mk-cell)*.58),26px)!important}
+.column-modal .div-layout .divisor-box{box-sizing:border-box!important;min-width:0!important;width:100%!important;height:var(--mk-cell)!important;padding:0 3px!important}
+.column-modal .div-layout .quotient-inputs{box-sizing:border-box!important;display:flex!important;min-width:0!important;width:100%!important;gap:2px!important;padding:4px 3px 0!important;min-height:calc(var(--mk-cell) + 5px)!important}
+.column-modal .div-layout .qin{box-sizing:border-box!important;flex:0 0 calc(var(--mk-cell) - 2px)!important;min-width:0!important;width:calc(var(--mk-cell) - 2px)!important;height:calc(var(--mk-cell) - 3px)!important;font-size:clamp(13px,calc(var(--mk-cell)*.57),24px)!important;padding:0!important}
+@media(max-width:520px){.column-modal{box-sizing:border-box!important;width:calc(100vw - 12px)!important;max-width:calc(100vw - 12px)!important;padding-left:8px!important;padding-right:8px!important}.column-modal .card{box-sizing:border-box!important;min-width:0!important;padding-left:5px!important;padding-right:5px!important}.column-modal .div-layout{padding-left:0!important;padding-right:0!important}}
+</style>
 
 </body></html>
