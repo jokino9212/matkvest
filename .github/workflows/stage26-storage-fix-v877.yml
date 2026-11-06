@@ -22,6 +22,8 @@ jobs:
           fi
       - name: Add explicit safe recovery UI and import gate
         run: python3 audits/stage26_recovery_actions_v877.py
+      - name: Reject parseable but invalid profile schema
+        run: python3 audits/stage26_reject_invalid_schema_v877.py
       - name: Validate fingerprint and cache
         run: |
           python3 - <<'PY'
