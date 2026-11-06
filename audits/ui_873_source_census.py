@@ -19,3 +19,21 @@ for label,pat in pats:
  print('\n###',label,'TOTAL',len(matches))
  for m in matches[:min(12,len(matches))]:
   print('AT',m.start(),repr(s[max(0,m.start()-260):m.start()+420]))
+
+print("\n### TARGETED REGIONS")
+for needle,before,after,lim in [
+ ("function openCollection(",120,4500,2),
+ ("openCollection=function",120,3500,2),
+ ("function filteredShopItems(",50,2200,2),
+ ("filteredShopItems=function",60,1800,4),
+ ("function mk872ModernCatalog(",120,2400,2),
+ ("function mk872Collection",80,2800,2),
+ ("function mk872",0,1200,8),
+ (".mixed-input",80,2200,4),
+ (".fraction-input",80,2000,4),
+ ("frac-input",80,2000,4),
+ ("mk872Fraction",120,2500,4),
+]:
+ points=list(re.finditer(re.escape(needle),s))
+ print("TARGET",needle,"COUNT",len(points))
+ for m in points[:lim]:print("AT",m.start(),repr(s[max(0,m.start()-before):m.start()+after]))
