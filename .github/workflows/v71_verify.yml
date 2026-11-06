@@ -1,4 +1,5 @@
 name: MatKvest v71 postrelease regression Gate
+# Rerun after verified dynamic overflow correction.
 on:
   push:
     branches: [fix/ui-postrelease-v71-20261106]
