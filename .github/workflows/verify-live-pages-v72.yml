@@ -1,7 +1,9 @@
 name: Verify deployed MatKvest v72 on GitHub Pages
 on:
   push:
-    branches: [audit/live-pages-v72-20261106]
+    branches: [main, audit/live-pages-v72-20261106]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 permissions:
   contents: read
