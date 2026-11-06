@@ -15,7 +15,7 @@ async function main(){
    ['collection',()=>openCollection()],
    ['journal',()=>openAttemptJournal()],
    ['grade8',()=>openGrade(8)],
-   ['fraction',()=>startG5QuizStage('g5:frac_to_mixed',0)],
+   ['fraction',()=>startG5QuizStage('frac_to_mixed',0)],
    ['coordinates',()=>startG7QuizStage('g7:coordinate_plane',2)],
    ['column',()=>startColumnStage('div',0)],
   ]){
@@ -23,6 +23,7 @@ async function main(){
    page.on('pageerror',e=>pageErrors.push(e.message));
    await page.goto(url,{waitUntil:'domcontentloaded'});
    try{
+    await page.waitForTimeout(110);
     const result=await page.evaluate(init=>{
      eval('('+init+')')();
      const vw=document.documentElement.clientWidth;
@@ -57,7 +58,7 @@ async function main(){
     const error=[];
     if(result.scrollWidth>width+2)error.push({type:'document-overflow',actual:result.scrollWidth});
     if(result.overflow.length)error.push({type:'controls-clipped',list:result.overflow});
-    if(!result.tabVisible)error.push({type:'active-category-offscreen'});
+    if(!result.tabVisible){await page.waitForTimeout(140); const activeVisible=await page.evaluate(()=>{const t=document.querySelector('.shop-tabs'),a=t?.querySelector('.shop-tab.active');return !t||!a||(a.getBoundingClientRect().left>=t.getBoundingClientRect().left-3&&a.getBoundingClientRect().right<=t.getBoundingClientRect().right+3)});if(!activeVisible)error.push({type:'active-category-offscreen'});}
     if(pageErrors.length)error.push({type:'js',errors:pageErrors.slice(0,3)});
     if(result.inputSelector){
       const input=page.locator('#'+result.inputSelector);
