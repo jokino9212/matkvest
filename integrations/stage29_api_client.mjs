@@ -88,6 +88,14 @@ export class MatKvestApiClient {
     if(!response?.csrf_token||!response?.user)throw new MatKvestApiError('LOGIN_INVALID','Server did not return user and CSRF');
     this.csrfToken=response.csrf_token;return response.user;
   }
+  async resumeSession() {
+    // Backend 9.5 Phase B: authenticated GET reads the existing CSRF cookie at
+    // /api/v1/auth/csrf. Never persist this token in localStorage.
+    const session=await this.request('GET','/auth/csrf');
+    if(!session?.csrf_token)throw new MatKvestApiError('CSRF_INVALID','Session cannot be resumed');
+    this.csrfToken=session.csrf_token;
+    return this.getMe();
+  }
   getMe(){return this.request('GET','/auth/me')}
   getPlans(){return this.request('GET','/plans')}
   getEntitlements(){return this.request('GET','/me/entitlements')}
