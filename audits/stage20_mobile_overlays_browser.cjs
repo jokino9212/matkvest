@@ -29,7 +29,8 @@ for(const width of [320,360,390,412,430,768,1024]){
     const box=container?.getBoundingClientRect();
     const nodes=Array.from(container?.querySelectorAll('button,input,select,textarea,.shop-card,.mk872-col-card,.report-card,.quizq,.lesson,.stage-card')||[]);
     const tabs=container?.querySelector('.shop-tabs');
-    const tabStatus=tabs?{scrollWidth:tabs.scrollWidth,clientWidth:tabs.clientWidth,overflowX:getComputedStyle(tabs).overflowX,lastTab:tabs.querySelector('.shop-tab:last-child')?.textContent}:null;
+    const activeTab=tabs?.querySelector('.shop-tab.active');const tabBox=tabs?.getBoundingClientRect();const activeBox=activeTab?.getBoundingClientRect();
+    const tabStatus=tabs?{scrollWidth:tabs.scrollWidth,clientWidth:tabs.clientWidth,overflowX:getComputedStyle(tabs).overflowX,scrollLeft:tabs.scrollLeft,activeText:activeTab?.textContent.trim(),activeVisible:!activeBox||activeBox.left>=tabBox.left-2&&activeBox.right<=tabBox.right+2,lastTab:tabs.querySelector('.shop-tab:last-child')?.textContent}:null;
     const overflow=nodes.filter(el=>{if(el.closest('.shop-tabs') && tabs && ['auto','scroll'].includes(getComputedStyle(tabs).overflowX))return false;
       const st=getComputedStyle(el);if(st.display==='none'||st.visibility==='hidden')return false;
       const r=el.getBoundingClientRect();return r.width>0&&(r.left<Math.max(0,box.left)-3||r.right>Math.min(vw,box.right)+3);
@@ -38,6 +39,7 @@ for(const width of [320,360,390,412,430,768,1024]){
     return {vw,scrollWidth:document.documentElement.scrollWidth,visible,container:box&&{left:Math.round(box.left),right:Math.round(box.right),width:Math.round(box.width)},overflow,smallTargets,count:nodes.length,tabStatus};
   });
   console.log('SCREEN',width,name,JSON.stringify(result));
+  if((name==='shop'||name==='collection')&&result.tabStatus&&!result.tabStatus.activeVisible)failures.push({width,name,type:'active-tab-offscreen',tabStatus:result.tabStatus});
   if(result.scrollWidth>width+2||result.overflow.length)failures.push({width,name,type:'overflow',data:result});
   if(errors.length)failures.push({width,name,type:'page-errors',errors:errors.slice(0,3)});
  }
