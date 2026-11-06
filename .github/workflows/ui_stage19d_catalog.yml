@@ -1,0 +1,34 @@
+name: MatKvest UI19D - live catalog and economy formula audit
+on:
+  push:
+    branches: [audit/ui-stage19-20261106]
+    paths:
+      - .github/workflows/ui_stage19d_catalog.yml
+      - audits/ui_stage19d_catalog_economy.mjs
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  catalog:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit/ui-stage19-20261106
+          persist-credentials: true
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save --no-package-lock puppeteer-core@24
+      - name: Inspect actual catalog and price/refund functions in isolated Chromium
+        run: node audits/ui_stage19d_catalog_economy.mjs
+      - name: Preserve source of truth in audit branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add audits/ui_stage19d_catalog_economy.json
+          git diff --cached --quiet || git commit -m "audit(ui19D): catalog item rarity, price, gated status and economy handlers"
+          git pull --rebase origin audit/ui-stage19-20261106
+          git push origin HEAD:audit/ui-stage19-20261106
