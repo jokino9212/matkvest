@@ -2,7 +2,7 @@ name: MatKvest v71 postrelease regression Gate
 on:
   push:
     branches: [fix/ui-postrelease-v71-20261106]
-    paths: [index.html, sw.js]
+    paths: [index.html, sw.js, .github/workflows/v71_verify.yml]
   pull_request:
     branches: [main]
     paths: [index.html, sw.js]
