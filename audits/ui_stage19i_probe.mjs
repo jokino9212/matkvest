@@ -46,7 +46,7 @@ const observe=async(p,width,name,opts={})=>{
  if(opts.screenshot)await p.screenshot({path:'audits/ui19i_'+name+'_'+width+'.png',fullPage:false});
  return d;
 };
-async function goHome(p){await p.goto(url,{waitUntil:'domcontentloaded',timeout:120000});}
+async function goHome(p){const ok=await p.evaluate(()=>{document.querySelector('.mk872-brand-home')?.click();return !!document.querySelector('.grade-grid>.grade-card')});if(!ok)throw Error('Brand home navigation failed');}
 try{
  for(const width of result.widths){
   const ctx=await browser.createBrowserContext(),p=await ctx.newPage();
