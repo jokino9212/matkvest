@@ -27,22 +27,25 @@ self.addEventListener("fetch", event => {
   const url = new URL(request.url);
   if (request.method !== "GET" || url.origin !== self.location.origin) return;
 
-  // Stage 20: only public app-shell and static resources may enter Cache Storage.
-  // In particular, NEVER intercept API/auth/profile/economy requests, even on
-  // navigations. An empty destination is typical of fetch()/XHR.
-  const privatePath = new RegExp("(?:^|/)(?:api|auth|account|accounts|session|sessions|profile|profiles|user|users|wallet|inventory|economy|progress|sync|private|admin)(?:/|$)", "i");
-  if (privatePath.test(url.pathname) ||
-      request.headers.has("Authorization") ||
-      request.headers.has("Cookie") ||
-      (request.mode !== "navigate" && !["script", "style", "image", "font", "manifest"].includes(request.destination))) {
-    return;
-  }
+  // Only explicit public app shell URLs and public assets are eligible.
+  // Never cache API responses, even when an endpoint resembles a static file.
+  const scope = new URL(self.registration.scope);
+  if (!url.pathname.startsWith(scope.pathname)) return;
+  const relativePath = url.pathname.slice(scope.pathname.length);
+  const isShell = relativePath === "" || relativePath === "index.html";
+  const isManifest = relativePath === "manifest.webmanifest";
+  const isPublicAsset = /^(?:assets|images|icons)\\/[a-z0-9_./-]+\\.(?:png|jpg|jpeg|webp|svg|gif|ico|woff2?|css|js)$/i.test(relativePath) &&
+    !relativePath.split("/").includes("..");
+  const hasCredentialsHeader = request.headers.has("Authorization") || request.headers.has("Cookie");
+  if (hasCredentialsHeader) return;
 
   if (request.mode === "navigate") {
+    if (!isShell) return;
     event.respondWith(
       fetch(request, { cache: "no-store" })
         .then(response => {
-          if (response.ok) {
+          if (response.ok && response.type !== "opaque" &&
+              !/\\b(?:no-store|private)\\b/i.test(response.headers.get("Cache-Control") || "")) {
             const copy = response.clone();
             event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.put("./index.html", copy)));
           }
@@ -56,9 +59,12 @@ self.addEventListener("fetch", event => {
     return;
   }
 
+  if (!((isPublicAsset && ["script", "style", "image", "font"].includes(request.destination)) ||
+      (isManifest && request.destination === "manifest"))) return;
   event.respondWith(
     caches.match(request).then(cached => cached || fetch(request).then(response => {
-      if (response.ok) {
+      if (response.ok && response.type !== "opaque" &&
+          !/\\b(?:no-store|private)\\b/i.test(response.headers.get("Cache-Control") || "")) {
         const copy = response.clone();
         event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.put(request, copy)));
       }
