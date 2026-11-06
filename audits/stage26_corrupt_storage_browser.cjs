@@ -47,6 +47,16 @@ async function main(){
   if(outcome.stored!==corrupted) {failures++;console.error('FAIL_STAGE26',JSON.stringify({width,reason:'CORRUPT_PROFILE_OVERWRITTEN',stored:String(outcome.stored).slice(0,160)}))}
   if(outcome.originalLegacy!==271){failures++;console.error('FAIL_STAGE26',JSON.stringify({width,reason:'LAST_GOOD_LEGACY_OVERWRITTEN',originalLegacy:outcome.originalLegacy}))}
   if(!outcome.guard){failures++;console.error('FAIL_STAGE26',JSON.stringify({width,reason:'SAFE_MODE_NOT_ENABLED'}))}
+  for(const invalidShape of ['[]','{"Проба A":42}']){
+    await page.evaluate(raw=>localStorage.setItem('mq4_profiles',raw),invalidShape);
+    await page.reload({waitUntil:'domcontentloaded'});
+    const afterShape=await page.evaluate(()=>{save();return {raw:localStorage.getItem('mq4_profiles'),xp:state.xp,coins:state.coins,guard:mkV877CorruptProfiles}});
+    if(afterShape.raw!==invalidShape||afterShape.xp!==271||afterShape.coins!==413||!afterShape.guard){
+      failures++;
+      console.error('FAIL_STAGE26',JSON.stringify({width,reason:'PARSEABLE_INVALID_SCHEMA',invalidShape,afterShape}));
+    }else console.log('PASS_STAGE26_INVALID_SCHEMA',JSON.stringify({width,invalidShape,protected:true}));
+  }
+
   await context.close();
  }
  }finally{await browser.close()}
