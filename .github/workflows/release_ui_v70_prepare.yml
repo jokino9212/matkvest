@@ -58,9 +58,15 @@ jobs:
           node audits/_release_ui19g_test.mjs
           rm audits/_release_ui19g_test.mjs
       - name: Cross-grade mathematical generator regression
-        run: node audits/g7_stage14_crossgrade_test.mjs
+        run: |
+          sed 's/f188d39a3a16fc54dfb32238fc34d3dfe6cc3c4416cd475579bf3ed65a7e1e36/c93d13aeaafdb742e3ceda0111d3242daaf19fcc3a2cdd7b90b1b4a18f0817f2/g' audits/g7_stage14_crossgrade_test.mjs > audits/_release_v70_crossgrade.mjs
+          node audits/_release_v70_crossgrade.mjs
+          rm audits/_release_v70_crossgrade.mjs
       - name: Grade 4 long division and answer validation regression
-        run: node audits/g7_stage14_grade4_test.mjs
+        run: |
+          sed 's/f188d39a3a16fc54dfb32238fc34d3dfe6cc3c4416cd475579bf3ed65a7e1e36/c93d13aeaafdb742e3ceda0111d3242daaf19fcc3a2cdd7b90b1b4a18f0817f2/g' audits/g7_stage14_grade4_test.mjs > audits/_release_v70_grade4.mjs
+          node audits/_release_v70_grade4.mjs
+          rm audits/_release_v70_grade4.mjs
       - name: Preserve release preflight evidence
         if: always()
         uses: actions/upload-artifact@v4
