@@ -45,6 +45,8 @@ self.addEventListener("fetch", event => {
       fetch(request, { cache: "no-store" })
         .then(response => {
           if (response.ok && !response.redirected && response.type !== "opaque" &&
+              url.search === "" &&
+              /^text\/html(?:\s*;|\s*$)/i.test(response.headers.get("Content-Type") || "") &&
               !/\b(?:no-store|private)\b/i.test(response.headers.get("Cache-Control") || "")) {
             const copy = response.clone();
             event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.put("./index.html", copy)));
