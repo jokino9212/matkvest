@@ -14,9 +14,30 @@ async function stage(p){await click(p,'.grade-grid>.grade-card:first-child butto
 try{for(const w of [390,1280]){
  {const {p,context}=await fresh(w);await stage(p);await scene(p,'quiz_in_progress',w);
   for(let step=0;step<7;step++){
-   const a=await p.evaluate(()=>{const a=[...document.querySelectorAll('#modal button.answer')].find(e=>!e.disabled&&e.getBoundingClientRect().width>0);if(!a)return{ready:false,txt:document.querySelector('#modal')?.innerText.slice(-300)};a.click();const n=document.querySelector('#quizNext');return{ready:true,next:!!n&&getComputedStyle(n).display!=='none',feedback:document.querySelector('#qfb')?.innerText.slice(0,110)}});
-   report.events.push({type:'quiz',w,step,a});if(!a.ready)break;
-   const advanced=await p.evaluate(()=>{const n=document.querySelector('#quizNext');if(n&&getComputedStyle(n).display!=='none'&&!n.disabled){n.click();return true}return false});if(!advanced)break;
+   let success=false,hadAnswer=false;
+   for(let attempt=0;attempt<5;attempt++){
+    const a=await p.evaluate(()=>{
+     const n=document.querySelector('#quizNext');
+     if(n&&getComputedStyle(n).display!=='none')return{ready:true,next:true,feedback:document.querySelector('#qfb')?.innerText.slice(0,110)};
+     const q=document.querySelector('#modal .answers');
+     const choices=[...(q?.querySelectorAll('button.answer')||[])].filter(e=>!e.disabled&&!e.classList.contains('bad')&&e.getBoundingClientRect().width>0);
+     if(!choices.length)return{ready:false,txt:document.querySelector('#modal')?.innerText.slice(-320)};
+     const answer=choices[0];answer.click();const next=document.querySelector('#quizNext');
+     return{ready:true,choice:answer.innerText,next:!!next&&getComputedStyle(next).display!=='none',feedback:document.querySelector('#qfb')?.innerText.slice(0,110)};
+    });
+    report.events.push({type:'quiz_try',w,step,attempt,a});
+    if(!a.ready)break;
+    hadAnswer=true;if(a.next){success=true;break}
+   }
+   if(!success){
+    if(!hadAnswer)break;
+    const skipped=await p.evaluate(()=>{const b=document.querySelector('#quizSkip');if(!b||b.disabled)return false;b.click();return true});
+    report.events.push({type:'quiz_skip_after_tries',w,step,skipped});
+    if(!skipped)break;
+   }
+   const advanced=await p.evaluate(()=>{const n=document.querySelector('#quizNext');if(n&&getComputedStyle(n).display!=='none'&&!n.disabled){n.click();return true}return false});
+   report.events.push({type:'quiz_advance',w,step,advanced});
+   if(!advanced)break;
   }await scene(p,'quiz_result',w);await context.close()
  }
  {const {p,context}=await fresh(w);await stage(p);await scene(p,'resume_active',w);await click(p,'#modal .mtop button.x');await p.reload({waitUntil:'domcontentloaded',timeout:120000});await scene(p,'resume_reload',w);await context.close()}
