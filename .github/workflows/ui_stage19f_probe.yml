@@ -1,0 +1,40 @@
+name: MatKvest UI19F - study progress data and interface baseline
+on:
+  push:
+    branches: [audit/ui-stage19-20261106]
+    paths:
+      - .github/workflows/ui_stage19f_probe.yml
+      - audits/ui_stage19f_probe.mjs
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit/ui-stage19-20261106
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save --no-package-lock puppeteer-core@24
+      - name: Inspect XP thresholds, course progress state and grade screens
+        run: node audits/ui_stage19f_probe.mjs
+      - name: Preserve focused baseline
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add audits/ui_stage19f_baseline.json
+          git diff --cached --quiet || git commit -m "audit(ui19F): capture XP, course progress and grade layout"
+          git pull --rebase origin audit/ui-stage19-20261106
+          git push origin HEAD:audit/ui-stage19-20261106
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: matkvest-ui19f-v65-before-progress
+          path: audits/ui19f_before_*.png
+          if-no-files-found: warn
