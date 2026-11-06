@@ -74,6 +74,21 @@ async function main(){
     for(const k of ['inputLeft','inputRight','checkLeft','checkRight'])assert(Number.isFinite(data.geometry[k]),'Missing visible control '+k);
     assert(data.geometry.inputLeft>=-2&&data.geometry.inputRight<=width+2,'Input clipped');
     assert(data.geometry.checkLeft>=-2&&data.geometry.checkRight<=width+2,'Check button clipped');
+    await page.reload({waitUntil:'domcontentloaded'});
+    const reboot=await page.evaluate((ids)=>{
+      const d=mk872ReadDraft();
+      if(!d)return {error:'DRAFT_MISSING_AFTER_RELOAD'};
+      mk872RestoreDraft(d);
+      return {attempt:blockSession?.attemptId,correct:blockSession?.correct,
+        question:q?.sig||q?.text,fields:ids.map(x=>({id:x.id,value:document.getElementById(x.id)?.value})),
+        overlayOpen:document.getElementById('overlay')?.classList.contains('show')};
+    },data.before.fields);
+    assert(!reboot.error,'Draft lost after reload '+JSON.stringify(reboot));
+    assert.equal(reboot.attempt,data.before.attempt,'Reload changed attempt identity');
+    assert.equal(reboot.correct,data.before.correct,'Reload changed score');
+    assert.equal(reboot.question,data.before.question,'Reload changed question');
+    assert.deepEqual(reboot.fields,data.before.fields,'Reload lost one or more inputs');
+    assert(reboot.overlayOpen,'Restored lesson not visible after reload');
     // Invalid answer should never improve the score. For some modes an invalid string is rejected before penalty.
     const invalid=await page.evaluate(()=>{
       const before=blockSession.correct;
