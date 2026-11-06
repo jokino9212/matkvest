@@ -135,18 +135,87 @@ async function exitConfirmation(page){
  return {initialized,continued,exited,reloaded};
 }
 
+
+async function firstPassBonus(page){
+ const result=await page.evaluate(()=>{
+  const originalXp=state.xp,originalCoins=state.coins;
+  const topic='g8:square_root_arithmetic';
+  const key=topic,stage=0;
+  const prior=progressFor(key).bonus[stage];
+  if(prior)throw Error('Clean test profile already has completion bonus');
+  function answer(){
+   if(q?.choices?.length){
+    const index=q.choices.findIndex(c=>String(c.key)===String(q.ans));
+    if(index<0)throw Error('No correct choice');
+    pick(index);return;
+   }
+   if(q?.answerMode==='number'&&q.answerRat){
+    const r=q.answerRat;
+    const variants=[String(q.correctText??''),String(Number(r.n)/Number(r.d)),String(r.n)+'/'+String(r.d)];
+    const answer=variants.find(x=>{const e=quizInputEvaluation(q,x);return e.valid&&e.ok});
+    if(answer===undefined)throw Error('Unable to derive numeric answer');
+    const input=document.getElementById('quizInput');if(!input)throw Error('No input');
+    input.value=answer;input.dispatchEvent(new Event('input',{bubbles:true}));
+    document.getElementById('quizCheck')?.click();return;
+   }
+   throw Error('Unsupported generated form '+q?.answerMode);
+  }
+  function complete(){
+   startG8QuizStage(topic,stage);
+   const id=blockSession.attemptId;
+   let cycles=0;
+   while(cycles++<15){
+     answer();
+     if(!answered)throw Error('Input not credited');
+     if(blockSession.finished)break;
+     document.getElementById('quizNext')?.click();
+   }
+   if(!blockSession.finished)throw Error('Not finished after '+cycles+' cycles');
+   document.getElementById('quizNext')?.click();
+   if(!blockSession.reportId)throw Error('Result not finalized');
+   return {id,done:blockSession.done,correct:blockSession.correct,xp:state.xp,coins:state.coins,
+     history:(state.attemptHistory||[]).filter(a=>a.id===id).length,bonus:progressFor(key).bonus[stage]};
+  }
+  const first=complete();
+  finishBlock();
+  const afterDouble={xp:state.xp,coins:state.coins,history:(state.attemptHistory||[]).filter(a=>a.id===first.id).length};
+  const second=complete();
+  finishBlock();
+  const afterRepeat={xp:state.xp,coins:state.coins,history:(state.attemptHistory||[]).filter(a=>a.id===second.id).length};
+  return {originalXp,originalCoins,first,afterDouble,second,afterRepeat};
+ });
+ assert.equal(result.first.correct,result.first.done,'First passing run not all correct');
+ assert(result.first.bonus,'Initial pass bonus flag missing');
+ assert.equal(result.first.history,1);
+ assert.equal(result.afterDouble.history,1,'Duplicate history when finish repeated');
+ assert.equal(result.afterDouble.xp,result.first.xp,'Double finish credited XP');
+ assert.equal(result.afterDouble.coins,result.first.coins,'Double finish credited coins');
+ assert.equal(result.second.history,1);
+ // second run may award per-question XP/coins, but the one-time completion bonus must not be repeated.
+ // Comparison uses observed bonus from first award and stable per-question payouts.
+ const firstRewardXp=result.first.xp-result.originalXp;
+ const secondRewardXp=result.second.xp-result.first.xp;
+ const firstRewardCoins=result.first.coins-result.originalCoins;
+ const secondRewardCoins=result.second.coins-result.first.coins;
+ assert(firstRewardXp>=secondRewardXp+10,'One-time stage XP bonus was repeated or absent');
+ assert(firstRewardCoins>=secondRewardCoins+5,'One-time stage coin bonus was repeated or absent');
+ assert.equal(result.afterRepeat.xp,result.second.xp,'Repeated finish awarded XP on second run');
+ assert.equal(result.afterRepeat.coins,result.second.coins,'Repeated finish awarded coins on second run');
+ return result;
+}
+
 async function main(){
  const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
  let failures=0;
  try{
   for(const width of [320,390,768]){
-   for(const [name,fn] of [['resume-complete',restoredCompletion],['exit-dialog',exitConfirmation]]){
+   for(const [name,fn] of [['resume-complete',restoredCompletion],['exit-dialog',exitConfirmation],['first-pass-bonus',firstPassBonus]]){
     try{await runScenario(browser,width,name,fn)}
     catch(e){failures++;console.error('FAIL_STAGE24',JSON.stringify({width,name,error:String(e),stack:String(e.stack||'').slice(0,2100)}))}
    }
   }
  }finally{await browser.close()}
- console.log('STAGE24_SUMMARY',JSON.stringify({expected:6,failures}));
+ console.log('STAGE24_SUMMARY',JSON.stringify({expected:9,failures}));
  if(failures)process.exitCode=1;
 }
 main().catch(e=>{console.error(e);process.exitCode=1});
