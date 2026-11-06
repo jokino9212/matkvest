@@ -1,0 +1,18 @@
+name: Stage29 API privacy and offline compatibility
+on:
+  push:
+    branches: [audit/stage29-backend95-contract-20261107]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  private-api:
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - run: node audits/stage29_private_api_cache_browser.cjs
+      - run: node audits/stage28_offline_pwa_browser.cjs
+      - run: node audits/stage25_profile_isolation_browser.cjs
