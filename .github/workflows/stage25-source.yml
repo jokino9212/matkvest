@@ -1,7 +1,5 @@
 name: Stage25 profile state source inspection
 on:
-  push:
-    branches: [audit/stage25-profile-isolation-20261107]
   workflow_dispatch:
 permissions:
   contents: read
