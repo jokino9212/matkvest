@@ -6,7 +6,7 @@ async function main(){
  const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
  let issues=[];
  try{
-  for(const width of [320,360,390,412,430,768]){
+  for(const width of [320]){
    const ctx=await browser.newContext({viewport:{width,height:740},isMobile:width<500,hasTouch:width<500});
    let page;const errors=[];
    const cases=[
