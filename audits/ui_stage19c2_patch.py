@@ -75,6 +75,7 @@ css=r"""
   font-size:14px!important;font-weight:750!important;
   background-color:#e7f4ec!important;border:1px solid #c5dfd0!important;
   color:#155940!important;border-radius:11px!important;box-shadow:none!important;
+  transition:none!important; /* avoid yellow-to-green first-paint flash */
 }
 @media(hover:hover){
  #mainView .grade-grid>.grade-card:hover>button.btn.primary{
