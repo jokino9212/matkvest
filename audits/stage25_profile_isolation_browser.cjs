@@ -36,15 +36,15 @@ async function main(){
     const locked=await page.evaluate(()=>{
       profiles['Ученик B']=ensureProfileIdentity({...EMPTY_STATE,courseProgress:{},questionHistory:{}});
       persistSilently();
-      const before={name:currentProfile,attempt:blockSession?.attemptId};
+      const before={name:currentProfile,attempt:blockSession?.attemptId,learning:mk872HasActiveLearning(),overlay:overlay.className,report:blockSession?.reportId};
       window._profileNames=['Ученик A','Ученик B'];
       selectProfile(1);
-      const current={name:currentProfile,attempt:blockSession?.attemptId,dialog:!!document.querySelector('.mk872-training-dialog')};
+      const current={name:currentProfile,attempt:blockSession?.attemptId,dialog:!!document.querySelector('.mk872-training-dialog'),learning:mk872HasActiveLearning(),overlay:overlay.className};
       const stay=[...document.querySelectorAll('.mk872-training-dialog button')].find(b=>b.textContent.includes('Остаться'));
       stay?.click();
       return {before,current,after:{name:currentProfile,attempt:blockSession?.attemptId,dialog:!!document.querySelector('.mk872-training-dialog')}};
     });
-    assert(locked.current.dialog,'Switch did not prompt active-attempt protection');
+    assert(locked.current.dialog,'Switch did not prompt active-attempt protection: '+JSON.stringify(locked));
     assert.equal(locked.current.name,a.name,'Switch changed profile with active attempt');
     assert.equal(locked.after.attempt,a.attempt,'Switch lost running attempt');
     await page.reload({waitUntil:'domcontentloaded'});
