@@ -70,15 +70,15 @@ css=r"""
   font-size:11.5px!important;line-height:1.3!important;
   margin-top:auto!important;margin-bottom:7px!important;
 }
-.grade-grid>.grade-card>.btn.primary{
+#mainView .grade-grid>.grade-card>button.btn.primary{
   min-height:44px!important;padding:8px 10px!important;
   font-size:14px!important;font-weight:750!important;
-  background:#e7f4ec!important;border:1px solid #c5dfd0!important;
+  background-color:#e7f4ec!important;border:1px solid #c5dfd0!important;
   color:#155940!important;border-radius:11px!important;box-shadow:none!important;
 }
 @media(hover:hover){
- .grade-grid>.grade-card:hover>.btn.primary{
-   background:#d9eddf!important;border-color:#a9ceb6!important;color:#104b36!important
+ #mainView .grade-grid>.grade-card:hover>button.btn.primary{
+   background-color:#d9eddf!important;border-color:#a9ceb6!important;color:#104b36!important
  }
 }
 @media(max-width:680px){
@@ -90,10 +90,10 @@ css=r"""
 /* Explicit keyboard and touch feedback, never animation-dependent affordances. */
 .top .mk-ui19-nav-toggle:focus-visible,
 .top .mk-ui19-nav-wrap>.pill:focus-visible,
-.grade-grid>.grade-card>.btn.primary:focus-visible{
+#mainView .grade-grid>.grade-card>button.btn.primary:focus-visible{
  outline:3px solid rgba(23,107,84,.4)!important;outline-offset:3px
 }
-@media(hover:none){.grade-grid>.grade-card:hover>.btn.primary{background:#e7f4ec!important}}
+@media(hover:none){#mainView .grade-grid>.grade-card:hover>button.btn.primary{background-color:#e7f4ec!important}}
 @media(prefers-reduced-motion:reduce){
  .grade-grid>.grade-card>.btn.primary,.top .mk-ui19-nav-toggle{transition:none!important;animation:none!important}
 }
