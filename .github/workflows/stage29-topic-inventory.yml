@@ -1,0 +1,30 @@
+name: Stage29 frontend–backend 9.4 topic contract audit
+on:
+  push:
+    branches: [audit/stage29-backend95-contract-20261107]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  catalog:
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit/stage29-backend95-contract-20261107
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - run: node audits/stage29_frontend_catalog_browser.cjs
+      - name: Store reviewed input inventory on audit branch
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add audits/stage29_frontend_topic_inventory.json
+          if ! git diff --cached --quiet; then
+            git commit -m "audit(stage29): snapshot actual frontend topic catalog"
+            git fetch origin audit/stage29-backend95-contract-20261107
+            git rebase origin/audit/stage29-backend95-contract-20261107
+            git push origin HEAD:audit/stage29-backend95-contract-20261107
+          fi
