@@ -46,7 +46,7 @@ const observe=async(p,width,name,opts={})=>{
  if(opts.screenshot)await p.screenshot({path:'audits/ui19i_'+name+'_'+width+'.png',fullPage:false});
  return d;
 };
-async function goHome(p){await p.evaluate(()=>renderHome());}
+async function goHome(p){await p.goto(url,{waitUntil:'domcontentloaded',timeout:120000});}
 try{
  for(const width of result.widths){
   const ctx=await browser.createBrowserContext(),p=await ctx.newPage();
@@ -60,7 +60,7 @@ try{
     const opened=await p.evaluate(g=>{
       const cards=[...document.querySelectorAll('.grade-grid>.grade-card')];
       const card=cards[g-1],button=card?.querySelector('button.btn.primary');
-      if(!button)return{ok:false,count:cards.length,slot:g-1,cards:cards.map((c,i)=>({slot:i,txt:c.innerText.replace(/\\s+/g,' ').slice(0,90),primary:!!c.querySelector('button.btn.primary'),html:c.outerHTML.slice(0,500)})),main:document.querySelector('#mainView')?.innerText.slice(0,140)};
+      if(!button)return{ok:false,count:cards.length,slot:g-1,cards:cards.map((c,i)=>({slot:i,txt:c.innerText.replace(/\s+/g,' ').slice(0,90),primary:!!c.querySelector('button.btn.primary'),html:c.outerHTML.slice(0,500)})),main:document.querySelector('#mainView')?.innerText.slice(0,140)};
       button.click();return{ok:true};
     },grade);
     recordCheck('Class '+grade+' opens at '+width,opened.ok,opened);
