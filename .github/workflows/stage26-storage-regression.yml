@@ -1,0 +1,23 @@
+name: Stage26 storage safety regression
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  storage-guard:
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Preserve corrupted source and legacy state
+        run: node audits/stage26_corrupt_storage_browser.cjs
+      - name: Restore from explicit verified full backup
+        run: node audits/stage26_verified_recovery_browser.cjs
+      - name: Test legacy migration and quota error notification
+        run: node audits/stage26_quota_legacy_browser.cjs
