@@ -1,7 +1,9 @@
 name: Audit live UI behaviors v8.74 — shop and progress
 on:
   push:
-    branches: [audit/shop-section-progress-v874-20261106]
+    branches: [main, audit/shop-section-progress-v874-20261106]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 permissions:
   contents: read
