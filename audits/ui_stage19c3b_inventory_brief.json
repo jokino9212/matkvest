@@ -2,43 +2,199 @@
   "version": "v60",
   "events": [
     {
-      "type": "quiz",
+      "type": "quiz_try",
       "w": 390,
       "step": 0,
+      "attempt": 0,
       "a": {
         "ready": true,
-        "next": true,
-        "feedback": "✅ Верно! +10 XP, +3 🪙 Посчитай кружки по одному. Их 6."
-      }
-    },
-    {
-      "type": "quiz",
-      "w": 390,
-      "step": 1,
-      "a": {
-        "ready": true,
-        "next": true,
-        "feedback": "✅ Верно! +10 XP, +3 🪙 После 2 идёт 3."
-      }
-    },
-    {
-      "type": "quiz",
-      "w": 390,
-      "step": 2,
-      "a": {
-        "ready": true,
-        "next": true,
-        "feedback": "✅ Верно! +10 XP, +3 🪙 Посчитай кружки по одному. Их 3."
-      }
-    },
-    {
-      "type": "quiz",
-      "w": 390,
-      "step": 3,
-      "a": {
-        "ready": true,
+        "choice": "6",
         "next": false,
         "feedback": "🟡 Пока неверно. Попробуй ещё раз или пропусти задание."
+      }
+    },
+    {
+      "type": "quiz_try",
+      "w": 390,
+      "step": 0,
+      "attempt": 1,
+      "a": {
+        "ready": true,
+        "choice": "7",
+        "next": true,
+        "feedback": "🟡 Исправлено! +5 XP, +0 🪙 Посчитай кружки по одному. Их 7."
+      }
+    },
+    {
+      "type": "quiz_advance",
+      "w": 390,
+      "step": 0,
+      "advanced": true
+    },
+    {
+      "type": "quiz_try",
+      "w": 390,
+      "step": 1,
+      "attempt": 0,
+      "a": {
+        "ready": true,
+        "choice": "4",
+        "next": false,
+        "feedback": "🟡 Пока неверно. Попробуй ещё раз или пропусти задание."
+      }
+    },
+    {
+      "type": "quiz_try",
+      "w": 390,
+      "step": 1,
+      "attempt": 1,
+      "a": {
+        "ready": true,
+        "choice": "1",
+        "next": false,
+        "feedback": "🟡 Пока неверно. Попробуй ещё раз или пропусти задание."
+      }
+    },
+    {
+      "type": "quiz_try",
+      "w": 390,
+      "step": 1,
+      "attempt": 2,
+      "a": {
+        "ready": true,
+        "choice": "2",
+        "next": true,
+        "feedback": "🟡 Исправлено! +0 XP, +0 🪙 После 1 идёт 2."
+      }
+    },
+    {
+      "type": "quiz_advance",
+      "w": 390,
+      "step": 1,
+      "advanced": true
+    },
+    {
+      "type": "quiz_try",
+      "w": 390,
+      "step": 2,
+      "attempt": 0,
+      "a": {
+        "ready": true,
+        "choice": "4",
+        "next": false,
+        "feedback": "🟡 Пока неверно. Попробуй ещё раз или пропусти задание."
+      }
+    },
+    {
+      "type": "quiz_try",
+      "w": 390,
+      "step": 2,
+      "attempt": 1,
+      "a": {
+        "ready": true,
+        "choice": "7",
+        "next": false,
+        "feedback": "🟡 Пока неверно. Попробуй ещё раз или пропусти задание."
+      }
+    },
+    {
+      "type": "quiz_try",
+      "w": 390,
+      "step": 2,
+      "attempt": 2,
+      "a": {
+        "ready": true,
+        "choice": "6",
+        "next": false,
+        "feedback": "🟡 Пока неверно. Попробуй ещё раз или пропусти задание."
+      }
+    },
+    {
+      "type": "quiz_try",
+      "w": 390,
+      "step": 2,
+      "attempt": 3,
+      "a": {
+        "ready": true,
+        "choice": "5",
+        "next": true,
+        "feedback": "🟡 Исправлено! +0 XP, +0 🪙 Посчитай кружки по одному. Их 5."
+      }
+    },
+    {
+      "type": "quiz_advance",
+      "w": 390,
+      "step": 2,
+      "advanced": true
+    },
+    {
+      "type": "quiz_try",
+      "w": 390,
+      "step": 3,
+      "attempt": 0,
+      "a": {
+        "ready": true,
+        "choice": "2",
+        "next": false,
+        "feedback": "🟡 Пока неверно. Попробуй ещё раз или пропусти задание."
+      }
+    },
+    {
+      "type": "quiz_try",
+      "w": 390,
+      "step": 3,
+      "attempt": 1,
+      "a": {
+        "ready": true,
+        "choice": "3",
+        "next": true,
+        "feedback": "🟡 Исправлено! +5 XP, +0 🪙 После 2 идёт 3."
+      }
+    },
+    {
+      "type": "quiz_advance",
+      "w": 390,
+      "step": 3,
+      "advanced": true
+    },
+    {
+      "type": "quiz_try",
+      "w": 390,
+      "step": 4,
+      "attempt": 0,
+      "a": {
+        "ready": true,
+        "choice": "3",
+        "next": false,
+        "feedback": "🟡 Пока неверно. Попробуй ещё раз или пропусти задание."
+      }
+    },
+    {
+      "type": "quiz_try",
+      "w": 390,
+      "step": 4,
+      "attempt": 1,
+      "a": {
+        "ready": true,
+        "choice": "1",
+        "next": true,
+        "feedback": "🟡 Исправлено! +5 XP, +0 🪙 Посчитай кружки по одному. Их 1."
+      }
+    },
+    {
+      "type": "quiz_advance",
+      "w": 390,
+      "step": 4,
+      "advanced": true
+    },
+    {
+      "type": "quiz_try",
+      "w": 390,
+      "step": 5,
+      "attempt": 0,
+      "a": {
+        "ready": false,
+        "txt": "дения нужно 4/5. Повтори блок — результат уже сохранён как лучший.\n\nПропуск занимает одно задание в блоке, но в журнале хранится отдельно от ошибки. Внутри блока задания не повторяются; при новом прохождении приложение сначала подбирает варианты, которых ученик недавно не видел.\n📋 Разбор попытки\nПовторить блок\nК темам"
       }
     },
     {
@@ -47,23 +203,211 @@
       "result": true
     },
     {
-      "type": "quiz",
+      "type": "quiz_try",
       "w": 1280,
       "step": 0,
+      "attempt": 0,
       "a": {
         "ready": true,
-        "next": true,
-        "feedback": "✅ Верно! +10 XP, +3 🪙 Посчитай кружки по одному. Их 3."
+        "choice": "1",
+        "next": false,
+        "feedback": "🟡 Пока неверно. Попробуй ещё раз или пропусти задание."
       }
     },
     {
-      "type": "quiz",
+      "type": "quiz_try",
       "w": 1280,
-      "step": 1,
+      "step": 0,
+      "attempt": 1,
       "a": {
         "ready": true,
+        "choice": "3",
         "next": false,
         "feedback": "🟡 Пока неверно. Попробуй ещё раз или пропусти задание."
+      }
+    },
+    {
+      "type": "quiz_try",
+      "w": 1280,
+      "step": 0,
+      "attempt": 2,
+      "a": {
+        "ready": true,
+        "choice": "2",
+        "next": true,
+        "feedback": "🟡 Исправлено! +0 XP, +0 🪙 Посчитай кружки по одному. Их 2."
+      }
+    },
+    {
+      "type": "quiz_advance",
+      "w": 1280,
+      "step": 0,
+      "advanced": true
+    },
+    {
+      "type": "quiz_try",
+      "w": 1280,
+      "step": 1,
+      "attempt": 0,
+      "a": {
+        "ready": true,
+        "choice": "2",
+        "next": false,
+        "feedback": "🟡 Пока неверно. Попробуй ещё раз или пропусти задание."
+      }
+    },
+    {
+      "type": "quiz_try",
+      "w": 1280,
+      "step": 1,
+      "attempt": 1,
+      "a": {
+        "ready": true,
+        "choice": "3",
+        "next": true,
+        "feedback": "🟡 Исправлено! +5 XP, +0 🪙 После 2 идёт 3."
+      }
+    },
+    {
+      "type": "quiz_advance",
+      "w": 1280,
+      "step": 1,
+      "advanced": true
+    },
+    {
+      "type": "quiz_try",
+      "w": 1280,
+      "step": 2,
+      "attempt": 0,
+      "a": {
+        "ready": true,
+        "choice": "8",
+        "next": false,
+        "feedback": "🟡 Пока неверно. Попробуй ещё раз или пропусти задание."
+      }
+    },
+    {
+      "type": "quiz_try",
+      "w": 1280,
+      "step": 2,
+      "attempt": 1,
+      "a": {
+        "ready": true,
+        "choice": "9",
+        "next": false,
+        "feedback": "🟡 Пока неверно. Попробуй ещё раз или пропусти задание."
+      }
+    },
+    {
+      "type": "quiz_try",
+      "w": 1280,
+      "step": 2,
+      "attempt": 2,
+      "a": {
+        "ready": true,
+        "choice": "6",
+        "next": false,
+        "feedback": "🟡 Пока неверно. Попробуй ещё раз или пропусти задание."
+      }
+    },
+    {
+      "type": "quiz_try",
+      "w": 1280,
+      "step": 2,
+      "attempt": 3,
+      "a": {
+        "ready": true,
+        "choice": "7",
+        "next": true,
+        "feedback": "🟡 Исправлено! +0 XP, +0 🪙 Посчитай кружки по одному. Их 7."
+      }
+    },
+    {
+      "type": "quiz_advance",
+      "w": 1280,
+      "step": 2,
+      "advanced": true
+    },
+    {
+      "type": "quiz_try",
+      "w": 1280,
+      "step": 3,
+      "attempt": 0,
+      "a": {
+        "ready": true,
+        "choice": "7",
+        "next": false,
+        "feedback": "🟡 Пока неверно. Попробуй ещё раз или пропусти задание."
+      }
+    },
+    {
+      "type": "quiz_try",
+      "w": 1280,
+      "step": 3,
+      "attempt": 1,
+      "a": {
+        "ready": true,
+        "choice": "6",
+        "next": false,
+        "feedback": "🟡 Пока неверно. Попробуй ещё раз или пропусти задание."
+      }
+    },
+    {
+      "type": "quiz_try",
+      "w": 1280,
+      "step": 3,
+      "attempt": 2,
+      "a": {
+        "ready": true,
+        "choice": "9",
+        "next": true,
+        "feedback": "🟡 Исправлено! +0 XP, +0 🪙 После 8 идёт 9."
+      }
+    },
+    {
+      "type": "quiz_advance",
+      "w": 1280,
+      "step": 3,
+      "advanced": true
+    },
+    {
+      "type": "quiz_try",
+      "w": 1280,
+      "step": 4,
+      "attempt": 0,
+      "a": {
+        "ready": true,
+        "choice": "8",
+        "next": false,
+        "feedback": "🟡 Пока неверно. Попробуй ещё раз или пропусти задание."
+      }
+    },
+    {
+      "type": "quiz_try",
+      "w": 1280,
+      "step": 4,
+      "attempt": 1,
+      "a": {
+        "ready": true,
+        "choice": "6",
+        "next": true,
+        "feedback": "🟡 Исправлено! +5 XP, +0 🪙 Посчитай кружки по одному. Их 6."
+      }
+    },
+    {
+      "type": "quiz_advance",
+      "w": 1280,
+      "step": 4,
+      "advanced": true
+    },
+    {
+      "type": "quiz_try",
+      "w": 1280,
+      "step": 5,
+      "attempt": 0,
+      "a": {
+        "ready": false,
+        "txt": "дения нужно 4/5. Повтори блок — результат уже сохранён как лучший.\n\nПропуск занимает одно задание в блоке, но в журнале хранится отдельно от ошибки. Внутри блока задания не повторяются; при новом прохождении приложение сначала подбирает варианты, которых ученик недавно не видел.\n📋 Разбор попытки\nПовторить блок\nК темам"
       }
     },
     {
@@ -77,13 +421,13 @@
     {
       "name": "quiz_in_progress",
       "width": 390,
-      "modalText": "1 класс • Числа от 1 до 9 × 🌱 Разминка Выполнено 0 / 5 ✅ 0 Сколько кружков? 6 7 8 5 ⏭ Пропустить задание",
+      "modalText": "1 класс • Числа от 1 до 9 × 🌱 Разминка Выполнено 0 / 5 ✅ 0 Сколько кружков? 6 7 9 8 ⏭ Пропустить задание",
       "roots": [
         {
           "cls": "modal",
           "id": "modal",
           "tag": "DIV",
-          "text": "1 класс • Числа от 1 до 9 × 🌱 Разминка Выполнено 0 / 5 ✅ 0 Сколько кружков? 6 7 8 5 ⏭ Пропустить задание",
+          "text": "1 класс • Числа от 1 до 9 × 🌱 Разминка Выполнено 0 / 5 ✅ 0 Сколько кружков? 6 7 9 8 ⏭ Пропустить задание",
           "rect": [
             12,
             12,
@@ -102,7 +446,7 @@
           "cls": "modal",
           "id": "modal",
           "tag": "DIV",
-          "text": "1 класс • Числа от 1 до 9 × 🌱 Разминка Выполнено 0 / 5 ✅ 0 Сколько кружков? 6 7 8 5 ⏭ Пропустить задание",
+          "text": "1 класс • Числа от 1 до 9 × 🌱 Разминка Выполнено 0 / 5 ✅ 0 Сколько кружков? 6 7 9 8 ⏭ Пропустить задание",
           "rect": [
             12,
             12,
@@ -178,177 +522,6 @@
           "rect": [
             200,
             320,
-            158,
-            56
-          ],
-          "bg": "rgb(255, 255, 255)",
-          "fg": "rgb(23, 54, 44)",
-          "radius": "13px",
-          "shadow": "none",
-          "padding": "1px 6px",
-          "disabled": false
-        },
-        {
-          "cls": "answer",
-          "id": "",
-          "tag": "BUTTON",
-          "text": "8",
-          "rect": [
-            33,
-            385,
-            158,
-            56
-          ],
-          "bg": "rgb(255, 255, 255)",
-          "fg": "rgb(23, 54, 44)",
-          "radius": "13px",
-          "shadow": "none",
-          "padding": "1px 6px",
-          "disabled": false
-        },
-        {
-          "cls": "answer",
-          "id": "",
-          "tag": "BUTTON",
-          "text": "5",
-          "rect": [
-            200,
-            385,
-            158,
-            56
-          ],
-          "bg": "rgb(255, 255, 255)",
-          "fg": "rgb(23, 54, 44)",
-          "radius": "13px",
-          "shadow": "none",
-          "padding": "1px 6px",
-          "disabled": false
-        },
-        {
-          "cls": "btn soft",
-          "id": "quizSkip",
-          "tag": "BUTTON",
-          "text": "⏭ Пропустить задание",
-          "rect": [
-            85,
-            504,
-            220,
-            43
-          ],
-          "bg": "rgb(238, 246, 242)",
-          "fg": "rgb(37, 89, 72)",
-          "radius": "12px",
-          "shadow": "none",
-          "padding": "12px 16px",
-          "disabled": false
-        }
-      ],
-      "html": "<div class=\"modal\" id=\"modal\"><div class=\"mtop\"><h2>1 класс • Числа от 1 до 9</h2><button class=\"x\" onclick=\"closeModal()\">×</button></div><div class=\"block-head\">\n   <span>🌱 Разминка</span>\n   <div class=\"block-progress-wrap\">\n     <div id=\"blockProgressText\" class=\"block-progress-text\">Выполнено 0 / 5</div>\n     <div class=\"block-progress-track\"><span id=\"blockProgressBar\" style=\"width:0%\"></span></div>\n   </div>\n   <span id=\"blockCorrectCount\">✅ 0</span>\n </div><div id=\"qstage\" class=\"elementary-quiz\"><div class=\"quizq\">Сколько кружков?</div><div class=\"g1-counter-wrap\" role=\"img\" aria-label=\"Набор кружков для подсчёта\"><span class=\"g1-counter \" aria-hidden=\"true\"></span><span class=\"g1-counter \" aria-hidden=\"true\"></span><span class=\"g1-counter \" aria-hidden=\"true\"></span><span class=\"g1-counter \" aria-hidden=\"true\"></span><span class=\"g1-counter \" aria-hidden=\"true\"></span><span class=\"g1-counter \" aria-hidden=\"true\"></span></div><div class=\"answers\"><button class=\"answer\" onclic"
-    },
-    {
-      "name": "quiz_result",
-      "width": 390,
-      "modalText": "1 класс • Числа от 1 до 9 × 🌱 Разминка Выполнено 3 / 5 ✅ 3 Какое число идёт после 8? 6 8 9 7 🟡 Пока неверно. Попробуй ещё раз или пропусти задание. ⏭ Пропустить задание",
-      "roots": [
-        {
-          "cls": "modal",
-          "id": "modal",
-          "tag": "DIV",
-          "text": "1 класс • Числа от 1 до 9 × 🌱 Разминка Выполнено 3 / 5 ✅ 3 Какое число идёт после 8? 6 8 9 7 🟡 Пока неверно. Попробуй ещё раз или пропусти задание. ",
-          "rect": [
-            12,
-            12,
-            366,
-            526
-          ],
-          "bg": "rgb(255, 255, 255)",
-          "fg": "rgb(23, 55, 47)",
-          "radius": "18px",
-          "shadow": "rgba(15, 44, 34, 0.22) 0px 28px 70px 0px, rgba(15, 44, 34, 0.06) 0px 4px 12px 0px",
-          "padding": "20px"
-        }
-      ],
-      "panels": [
-        {
-          "cls": "modal",
-          "id": "modal",
-          "tag": "DIV",
-          "text": "1 класс • Числа от 1 до 9 × 🌱 Разминка Выполнено 3 / 5 ✅ 3 Какое число идёт после 8? 6 8 9 7 🟡 Пока неверно. Попробуй ещё раз или пропусти задание. ",
-          "rect": [
-            12,
-            12,
-            366,
-            526
-          ],
-          "bg": "rgb(255, 255, 255)",
-          "fg": "rgb(23, 55, 47)",
-          "radius": "18px",
-          "shadow": "rgba(15, 44, 34, 0.22) 0px 28px 70px 0px, rgba(15, 44, 34, 0.06) 0px 4px 12px 0px",
-          "padding": "20px"
-        },
-        {
-          "cls": "feedback",
-          "id": "qfb",
-          "tag": "DIV",
-          "text": "🟡 Пока неверно. Попробуй ещё раз или пропусти задание.",
-          "rect": [
-            33,
-            413,
-            324,
-            48
-          ],
-          "bg": "rgba(0, 0, 0, 0)",
-          "fg": "rgb(23, 55, 47)",
-          "radius": "0px",
-          "shadow": "none",
-          "padding": "0px"
-        }
-      ],
-      "controls": [
-        {
-          "cls": "x",
-          "id": "",
-          "tag": "BUTTON",
-          "text": "×",
-          "rect": [
-            315,
-            35,
-            42,
-            42
-          ],
-          "bg": "rgb(240, 246, 242)",
-          "fg": "rgb(38, 88, 72)",
-          "radius": "12px",
-          "shadow": "none",
-          "padding": "1px 6px",
-          "disabled": false
-        },
-        {
-          "cls": "answer bad",
-          "id": "",
-          "tag": "BUTTON",
-          "text": "6",
-          "rect": [
-            33,
-            280,
-            158,
-            56
-          ],
-          "bg": "rgb(255, 240, 240)",
-          "fg": "rgb(23, 54, 44)",
-          "radius": "13px",
-          "shadow": "none",
-          "padding": "1px 6px",
-          "disabled": true
-        },
-        {
-          "cls": "answer",
-          "id": "",
-          "tag": "BUTTON",
-          "text": "8",
-          "rect": [
-            200,
-            280,
             158,
             56
           ],
@@ -366,7 +539,7 @@
           "text": "9",
           "rect": [
             33,
-            345,
+            385,
             158,
             56
           ],
@@ -381,10 +554,10 @@
           "cls": "answer",
           "id": "",
           "tag": "BUTTON",
-          "text": "7",
+          "text": "8",
           "rect": [
             200,
-            345,
+            385,
             158,
             56
           ],
@@ -402,7 +575,7 @@
           "text": "⏭ Пропустить задание",
           "rect": [
             85,
-            474,
+            504,
             220,
             43
           ],
@@ -414,23 +587,23 @@
           "disabled": false
         }
       ],
-      "html": "<div class=\"modal\" id=\"modal\"><div class=\"mtop\"><h2>1 класс • Числа от 1 до 9</h2><button class=\"x\" onclick=\"closeModal()\">×</button></div><div class=\"block-head\">\n   <span>🌱 Разминка</span>\n   <div class=\"block-progress-wrap\">\n     <div id=\"blockProgressText\" class=\"block-progress-text\">Выполнено 3 / 5</div>\n     <div class=\"block-progress-track\"><span id=\"blockProgressBar\" style=\"width: 60%;\"></span></div>\n   </div>\n   <span id=\"blockCorrectCount\">✅ 3</span>\n </div><div id=\"qstage\" class=\"elementary-quiz\"><div class=\"quizq\">Какое число идёт после 8?</div><div class=\"answers\"><button class=\"answer bad\" onclick=\"pick(0)\" disabled=\"\">6</button><button class=\"answer\" onclick=\"pick(1)\">8</button><button class=\"answer\" onclick=\"pick(2)\">9</button><button class=\"answer\" onclick=\"pick(3)\">7</button></div><div class=\"feedback\" id=\"qfb\">🟡 Пока неверно. Попробуй ещё раз или пропусти задание.</div><div class=\"actions\"><button id=\"quizNext\" class=\"btn primary\" style=\"display:none\" onclick=\"next"
+      "html": "<div class=\"modal\" id=\"modal\"><div class=\"mtop\"><h2>1 класс • Числа от 1 до 9</h2><button class=\"x\" onclick=\"closeModal()\">×</button></div><div class=\"block-head\">\n   <span>🌱 Разминка</span>\n   <div class=\"block-progress-wrap\">\n     <div id=\"blockProgressText\" class=\"block-progress-text\">Выполнено 0 / 5</div>\n     <div class=\"block-progress-track\"><span id=\"blockProgressBar\" style=\"width:0%\"></span></div>\n   </div>\n   <span id=\"blockCorrectCount\">✅ 0</span>\n </div><div id=\"qstage\" class=\"elementary-quiz\"><div class=\"quizq\">Сколько кружков?</div><div class=\"g1-counter-wrap\" role=\"img\" aria-label=\"Набор кружков для подсчёта\"><span class=\"g1-counter \" aria-hidden=\"true\"></span><span class=\"g1-counter \" aria-hidden=\"true\"></span><span class=\"g1-counter \" aria-hidden=\"true\"></span><span class=\"g1-counter \" aria-hidden=\"true\"></span><span class=\"g1-counter \" aria-hidden=\"true\"></span><span class=\"g1-counter \" aria-hidden=\"true\"></span><span class=\"g1-counter \" aria-hidden=\"true\"></span></di"
     },
     {
-      "name": "resume_active",
+      "name": "quiz_result",
       "width": 390,
-      "modalText": "1 класс • Числа от 1 до 9 × 🌱 Разминка Выполнено 0 / 5 ✅ 0 Сколько кружков? 4 2 3 1 ⏭ Пропустить задание",
+      "modalText": "💪 Разминка завершена × ☆☆☆ 3 ★ — без ошибок · 2 ★ — от 80% · 1 ★ — от 60% Верно с первой: 0 из 5 ✅ С первой: 0 • 🟡 Исправлено: 5 • ❌ Осталось неверно: 0 • ⏭ Пропущено: 0 Для прохождения нужно 4/5. Повтори блок — результат уже сохранён как лучший. Пропуск занимает одно задание в блоке, но в журнале хранится отдельно от ошибки. Внутри блока задания не повторяются; при новом прохождении приложение сначала подбирает варианты, которых ученик недавно не видел. 📋 Разбор попытки Повторить блок К темам",
       "roots": [
         {
           "cls": "modal",
           "id": "modal",
           "tag": "DIV",
-          "text": "1 класс • Числа от 1 до 9 × 🌱 Разминка Выполнено 0 / 5 ✅ 0 Сколько кружков? 4 2 3 1 ⏭ Пропустить задание",
+          "text": "💪 Разминка завершена × ☆☆☆ 3 ★ — без ошибок · 2 ★ — от 80% · 1 ★ — от 60% Верно с первой: 0 из 5 ✅ С первой: 0 • 🟡 Исправлено: 5 • ❌ Осталось неверн",
           "rect": [
             12,
             12,
             366,
-            556
+            629
           ],
           "bg": "rgb(255, 255, 255)",
           "fg": "rgb(23, 55, 47)",
@@ -444,12 +617,147 @@
           "cls": "modal",
           "id": "modal",
           "tag": "DIV",
-          "text": "1 класс • Числа от 1 до 9 × 🌱 Разминка Выполнено 0 / 5 ✅ 0 Сколько кружков? 4 2 3 1 ⏭ Пропустить задание",
+          "text": "💪 Разминка завершена × ☆☆☆ 3 ★ — без ошибок · 2 ★ — от 80% · 1 ★ — от 60% Верно с первой: 0 из 5 ✅ С первой: 0 • 🟡 Исправлено: 5 • ❌ Осталось неверн",
           "rect": [
             12,
             12,
             366,
-            556
+            629
+          ],
+          "bg": "rgb(255, 255, 255)",
+          "fg": "rgb(23, 55, 47)",
+          "radius": "18px",
+          "shadow": "rgba(15, 44, 34, 0.22) 0px 28px 70px 0px, rgba(15, 44, 34, 0.06) 0px 4px 12px 0px",
+          "padding": "20px"
+        },
+        {
+          "cls": "block-result",
+          "id": "",
+          "tag": "DIV",
+          "text": "☆☆☆ 3 ★ — без ошибок · 2 ★ — от 80% · 1 ★ — от 60% Верно с первой: 0 из 5 ✅ С первой: 0 • 🟡 Исправлено: 5 • ❌ Осталось неверно: 0 • ⏭ Пропущено: 0 Дл",
+          "rect": [
+            33,
+            94,
+            324,
+            525
+          ],
+          "bg": "rgba(0, 0, 0, 0)",
+          "fg": "rgb(23, 55, 47)",
+          "radius": "0px",
+          "shadow": "none",
+          "padding": "8px 2px"
+        }
+      ],
+      "controls": [
+        {
+          "cls": "x",
+          "id": "",
+          "tag": "BUTTON",
+          "text": "×",
+          "rect": [
+            315,
+            35,
+            42,
+            42
+          ],
+          "bg": "rgb(240, 246, 242)",
+          "fg": "rgb(38, 88, 72)",
+          "radius": "12px",
+          "shadow": "none",
+          "padding": "1px 6px",
+          "disabled": false
+        },
+        {
+          "cls": "btn soft",
+          "id": "",
+          "tag": "BUTTON",
+          "text": "📋 Разбор попытки",
+          "rect": [
+            91,
+            512,
+            207,
+            45
+          ],
+          "bg": "rgb(238, 246, 242)",
+          "fg": "rgb(37, 89, 72)",
+          "radius": "12px",
+          "shadow": "none",
+          "padding": "12px 16px",
+          "disabled": false
+        },
+        {
+          "cls": "btn soft",
+          "id": "",
+          "tag": "BUTTON",
+          "text": "Повторить блок",
+          "rect": [
+            46,
+            566,
+            179,
+            45
+          ],
+          "bg": "rgb(238, 246, 242)",
+          "fg": "rgb(37, 89, 72)",
+          "radius": "12px",
+          "shadow": "none",
+          "padding": "12px 16px",
+          "disabled": false
+        },
+        {
+          "cls": "btn soft",
+          "id": "",
+          "tag": "BUTTON",
+          "text": "К темам",
+          "rect": [
+            235,
+            566,
+            109,
+            45
+          ],
+          "bg": "rgb(238, 246, 242)",
+          "fg": "rgb(37, 89, 72)",
+          "radius": "12px",
+          "shadow": "none",
+          "padding": "12px 16px",
+          "disabled": false
+        }
+      ],
+      "html": "<div class=\"modal\" id=\"modal\"><div class=\"mtop\"><h2>💪 Разминка завершена</h2><button class=\"x\" onclick=\"closeModal()\">×</button></div><div class=\"block-result\"><div class=\"block-stars\">☆☆☆</div><div style=\"font-size:12px;color:var(--muted);margin-top:2px\">3 ★ — без ошибок · 2 ★ — от 80% · 1 ★ — от 60%</div><h3>Верно с первой: 0 из 5</h3><div class=\"level-box\" style=\"margin:8px 0 12px\"><b>✅ С первой:</b> 0 &nbsp;•&nbsp; <b>🟡 Исправлено:</b> 5 &nbsp;•&nbsp; <b>❌ Осталось неверно:</b> 0 &nbsp;•&nbsp; <b>⏭ Пропущено:</b> 0</div><p>Для прохождения нужно 4/5. Повтори блок — результат уже сохранён как лучший.</p><div style=\"font-size:12px;color:var(--muted);margin:-4px 0 10px\">Пропуск занимает одно задание в блоке, но в журнале хранится отдельно от ошибки. Внутри блока задания не повторяются; при новом прохождении приложение сначала подбирает варианты, которых ученик недавно не видел.</div><div class=\"actions\"><button class=\"btn soft\" onclick=\"openAttemptReviewById('a1793927596287_lforv')\">"
+    },
+    {
+      "name": "resume_active",
+      "width": 390,
+      "modalText": "1 класс • Числа от 1 до 9 × 🌱 Разминка Выполнено 0 / 5 ✅ 0 Какое число идёт после 6? 9 7 6 8 ⏭ Пропустить задание",
+      "roots": [
+        {
+          "cls": "modal",
+          "id": "modal",
+          "tag": "DIV",
+          "text": "1 класс • Числа от 1 до 9 × 🌱 Разминка Выполнено 0 / 5 ✅ 0 Какое число идёт после 6? 9 7 6 8 ⏭ Пропустить задание",
+          "rect": [
+            12,
+            12,
+            366,
+            516
+          ],
+          "bg": "rgb(255, 255, 255)",
+          "fg": "rgb(23, 55, 47)",
+          "radius": "18px",
+          "shadow": "rgba(15, 44, 34, 0.22) 0px 28px 70px 0px, rgba(15, 44, 34, 0.06) 0px 4px 12px 0px",
+          "padding": "20px"
+        }
+      ],
+      "panels": [
+        {
+          "cls": "modal",
+          "id": "modal",
+          "tag": "DIV",
+          "text": "1 класс • Числа от 1 до 9 × 🌱 Разминка Выполнено 0 / 5 ✅ 0 Какое число идёт после 6? 9 7 6 8 ⏭ Пропустить задание",
+          "rect": [
+            12,
+            12,
+            366,
+            516
           ],
           "bg": "rgb(255, 255, 255)",
           "fg": "rgb(23, 55, 47)",
@@ -464,7 +772,7 @@
           "text": "",
           "rect": [
             33,
-            453,
+            413,
             324,
             38
           ],
@@ -498,10 +806,10 @@
           "cls": "answer",
           "id": "",
           "tag": "BUTTON",
-          "text": "4",
+          "text": "9",
           "rect": [
             33,
-            320,
+            280,
             158,
             56
           ],
@@ -516,10 +824,10 @@
           "cls": "answer",
           "id": "",
           "tag": "BUTTON",
-          "text": "2",
+          "text": "7",
           "rect": [
             200,
-            320,
+            280,
             158,
             56
           ],
@@ -534,10 +842,10 @@
           "cls": "answer",
           "id": "",
           "tag": "BUTTON",
-          "text": "3",
+          "text": "6",
           "rect": [
             33,
-            385,
+            345,
             158,
             56
           ],
@@ -552,10 +860,10 @@
           "cls": "answer",
           "id": "",
           "tag": "BUTTON",
-          "text": "1",
+          "text": "8",
           "rect": [
             200,
-            385,
+            345,
             158,
             56
           ],
@@ -573,7 +881,7 @@
           "text": "⏭ Пропустить задание",
           "rect": [
             85,
-            504,
+            464,
             220,
             43
           ],
@@ -585,7 +893,7 @@
           "disabled": false
         }
       ],
-      "html": "<div class=\"modal\" id=\"modal\"><div class=\"mtop\"><h2>1 класс • Числа от 1 до 9</h2><button class=\"x\" onclick=\"closeModal()\">×</button></div><div class=\"block-head\">\n   <span>🌱 Разминка</span>\n   <div class=\"block-progress-wrap\">\n     <div id=\"blockProgressText\" class=\"block-progress-text\">Выполнено 0 / 5</div>\n     <div class=\"block-progress-track\"><span id=\"blockProgressBar\" style=\"width:0%\"></span></div>\n   </div>\n   <span id=\"blockCorrectCount\">✅ 0</span>\n </div><div id=\"qstage\" class=\"elementary-quiz\"><div class=\"quizq\">Сколько кружков?</div><div class=\"g1-counter-wrap\" role=\"img\" aria-label=\"Набор кружков для подсчёта\"><span class=\"g1-counter \" aria-hidden=\"true\"></span><span class=\"g1-counter \" aria-hidden=\"true\"></span></div><div class=\"answers\"><button class=\"answer\" onclick=\"pick(0)\">4</button><button class=\"answer\" onclick=\"pick(1)\">2</button><button class=\"answer\" onclick=\"pick(2)\">3</button><button class=\"answer\" onclick=\"pick(3)\">1</button></div><div class=\"feedback\" id=\"q"
+      "html": "<div class=\"modal\" id=\"modal\"><div class=\"mtop\"><h2>1 класс • Числа от 1 до 9</h2><button class=\"x\" onclick=\"closeModal()\">×</button></div><div class=\"block-head\">\n   <span>🌱 Разминка</span>\n   <div class=\"block-progress-wrap\">\n     <div id=\"blockProgressText\" class=\"block-progress-text\">Выполнено 0 / 5</div>\n     <div class=\"block-progress-track\"><span id=\"blockProgressBar\" style=\"width:0%\"></span></div>\n   </div>\n   <span id=\"blockCorrectCount\">✅ 0</span>\n </div><div id=\"qstage\" class=\"elementary-quiz\"><div class=\"quizq\">Какое число идёт после 6?</div><div class=\"answers\"><button class=\"answer\" onclick=\"pick(0)\">9</button><button class=\"answer\" onclick=\"pick(1)\">7</button><button class=\"answer\" onclick=\"pick(2)\">6</button><button class=\"answer\" onclick=\"pick(3)\">8</button></div><div class=\"feedback\" id=\"qfb\"></div><div class=\"actions\"><button id=\"quizNext\" class=\"btn primary\" style=\"display:none\" onclick=\"nextQ()\">Следующий пример →</button><button id=\"quizSkip\" class=\"btn soft\" onc"
     },
     {
       "name": "resume_reload",
@@ -4161,13 +4469,13 @@
     {
       "name": "quiz_in_progress",
       "width": 1280,
-      "modalText": "1 класс • Числа от 1 до 9 × 🌱 Разминка Выполнено 0 / 5 ✅ 0 Сколько кружков? 3 4 2 5 ⏭ Пропустить задание",
+      "modalText": "1 класс • Числа от 1 до 9 × 🌱 Разминка Выполнено 0 / 5 ✅ 0 Сколько кружков? 1 3 2 4 ⏭ Пропустить задание",
       "roots": [
         {
           "cls": "modal",
           "id": "modal",
           "tag": "DIV",
-          "text": "1 класс • Числа от 1 до 9 × 🌱 Разминка Выполнено 0 / 5 ✅ 0 Сколько кружков? 3 4 2 5 ⏭ Пропустить задание",
+          "text": "1 класс • Числа от 1 до 9 × 🌱 Разминка Выполнено 0 / 5 ✅ 0 Сколько кружков? 1 3 2 4 ⏭ Пропустить задание",
           "rect": [
             190,
             12,
@@ -4186,7 +4494,7 @@
           "cls": "modal",
           "id": "modal",
           "tag": "DIV",
-          "text": "1 класс • Числа от 1 до 9 × 🌱 Разминка Выполнено 0 / 5 ✅ 0 Сколько кружков? 3 4 2 5 ⏭ Пропустить задание",
+          "text": "1 класс • Числа от 1 до 9 × 🌱 Разминка Выполнено 0 / 5 ✅ 0 Сколько кружков? 1 3 2 4 ⏭ Пропустить задание",
           "rect": [
             190,
             12,
@@ -4240,7 +4548,7 @@
           "cls": "answer",
           "id": "",
           "tag": "BUTTON",
-          "text": "3",
+          "text": "1",
           "rect": [
             211,
             305,
@@ -4258,7 +4566,7 @@
           "cls": "answer",
           "id": "",
           "tag": "BUTTON",
-          "text": "4",
+          "text": "3",
           "rect": [
             645,
             305,
@@ -4294,7 +4602,7 @@
           "cls": "answer",
           "id": "",
           "tag": "BUTTON",
-          "text": "5",
+          "text": "4",
           "rect": [
             645,
             371,
@@ -4327,23 +4635,23 @@
           "disabled": false
         }
       ],
-      "html": "<div class=\"modal\" id=\"modal\"><div class=\"mtop\"><h2>1 класс • Числа от 1 до 9</h2><button class=\"x\" onclick=\"closeModal()\">×</button></div><div class=\"block-head\">\n   <span>🌱 Разминка</span>\n   <div class=\"block-progress-wrap\">\n     <div id=\"blockProgressText\" class=\"block-progress-text\">Выполнено 0 / 5</div>\n     <div class=\"block-progress-track\"><span id=\"blockProgressBar\" style=\"width:0%\"></span></div>\n   </div>\n   <span id=\"blockCorrectCount\">✅ 0</span>\n </div><div id=\"qstage\" class=\"elementary-quiz\"><div class=\"quizq\">Сколько кружков?</div><div class=\"g1-counter-wrap\" role=\"img\" aria-label=\"Набор кружков для подсчёта\"><span class=\"g1-counter \" aria-hidden=\"true\"></span><span class=\"g1-counter \" aria-hidden=\"true\"></span><span class=\"g1-counter \" aria-hidden=\"true\"></span></div><div class=\"answers\"><button class=\"answer\" onclick=\"pick(0)\">3</button><button class=\"answer\" onclick=\"pick(1)\">4</button><button class=\"answer\" onclick=\"pick(2)\">2</button><button class=\"answer\" onclick=\""
+      "html": "<div class=\"modal\" id=\"modal\"><div class=\"mtop\"><h2>1 класс • Числа от 1 до 9</h2><button class=\"x\" onclick=\"closeModal()\">×</button></div><div class=\"block-head\">\n   <span>🌱 Разминка</span>\n   <div class=\"block-progress-wrap\">\n     <div id=\"blockProgressText\" class=\"block-progress-text\">Выполнено 0 / 5</div>\n     <div class=\"block-progress-track\"><span id=\"blockProgressBar\" style=\"width:0%\"></span></div>\n   </div>\n   <span id=\"blockCorrectCount\">✅ 0</span>\n </div><div id=\"qstage\" class=\"elementary-quiz\"><div class=\"quizq\">Сколько кружков?</div><div class=\"g1-counter-wrap\" role=\"img\" aria-label=\"Набор кружков для подсчёта\"><span class=\"g1-counter \" aria-hidden=\"true\"></span><span class=\"g1-counter \" aria-hidden=\"true\"></span></div><div class=\"answers\"><button class=\"answer\" onclick=\"pick(0)\">1</button><button class=\"answer\" onclick=\"pick(1)\">3</button><button class=\"answer\" onclick=\"pick(2)\">2</button><button class=\"answer\" onclick=\"pick(3)\">4</button></div><div class=\"feedback\" id=\"q"
     },
     {
       "name": "quiz_result",
       "width": 1280,
-      "modalText": "1 класс • Числа от 1 до 9 × 🌱 Разминка Выполнено 1 / 5 ✅ 1 Какое число идёт после 3? 6 5 3 4 🟡 Пока неверно. Попробуй ещё раз или пропусти задание. ⏭ Пропустить задание",
+      "modalText": "💪 Разминка завершена × ☆☆☆ 3 ★ — без ошибок · 2 ★ — от 80% · 1 ★ — от 60% Верно с первой: 0 из 5 ✅ С первой: 0 • 🟡 Исправлено: 5 • ❌ Осталось неверно: 0 • ⏭ Пропущено: 0 Для прохождения нужно 4/5. Повтори блок — результат уже сохранён как лучший. Пропуск занимает одно задание в блоке, но в журнале хранится отдельно от ошибки. Внутри блока задания не повторяются; при новом прохождении приложение сначала подбирает варианты, которых ученик недавно не видел. 📋 Разбор попытки Повторить блок К темам",
       "roots": [
         {
           "cls": "modal",
           "id": "modal",
           "tag": "DIV",
-          "text": "1 класс • Числа от 1 до 9 × 🌱 Разминка Выполнено 1 / 5 ✅ 1 Какое число идёт после 3? 6 5 3 4 🟡 Пока неверно. Попробуй ещё раз или пропусти задание. ",
+          "text": "💪 Разминка завершена × ☆☆☆ 3 ★ — без ошибок · 2 ★ — от 80% · 1 ★ — от 60% Верно с первой: 0 из 5 ✅ С первой: 0 • 🟡 Исправлено: 5 • ❌ Осталось неверн",
           "rect": [
             190,
             12,
             900,
-            470
+            404
           ],
           "bg": "rgb(255, 255, 255)",
           "fg": "rgb(23, 55, 47)",
@@ -4357,12 +4665,12 @@
           "cls": "modal",
           "id": "modal",
           "tag": "DIV",
-          "text": "1 класс • Числа от 1 до 9 × 🌱 Разминка Выполнено 1 / 5 ✅ 1 Какое число идёт после 3? 6 5 3 4 🟡 Пока неверно. Попробуй ещё раз или пропусти задание. ",
+          "text": "💪 Разминка завершена × ☆☆☆ 3 ★ — без ошибок · 2 ★ — от 80% · 1 ★ — от 60% Верно с первой: 0 из 5 ✅ С первой: 0 • 🟡 Исправлено: 5 • ❌ Осталось неверн",
           "rect": [
             190,
             12,
             900,
-            470
+            404
           ],
           "bg": "rgb(255, 255, 255)",
           "fg": "rgb(23, 55, 47)",
@@ -4371,21 +4679,21 @@
           "padding": "20px"
         },
         {
-          "cls": "feedback",
-          "id": "qfb",
+          "cls": "block-result",
+          "id": "",
           "tag": "DIV",
-          "text": "🟡 Пока неверно. Попробуй ещё раз или пропусти задание.",
+          "text": "☆☆☆ 3 ★ — без ошибок · 2 ★ — от 80% · 1 ★ — от 60% Верно с первой: 0 из 5 ✅ С первой: 0 • 🟡 Исправлено: 5 • ❌ Осталось неверно: 0 • ⏭ Пропущено: 0 Дл",
           "rect": [
             211,
-            367,
+            85,
             858,
-            38
+            310
           ],
           "bg": "rgba(0, 0, 0, 0)",
           "fg": "rgb(23, 55, 47)",
           "radius": "0px",
           "shadow": "none",
-          "padding": "0px"
+          "padding": "8px 2px"
         }
       ],
       "controls": [
@@ -4408,87 +4716,51 @@
           "disabled": false
         },
         {
-          "cls": "answer bad",
+          "cls": "btn soft",
           "id": "",
           "tag": "BUTTON",
-          "text": "6",
+          "text": "📋 Разбор попытки",
           "rect": [
-            211,
-            233,
-            424,
-            56
+            383,
+            342,
+            207,
+            45
           ],
-          "bg": "rgb(255, 240, 240)",
-          "fg": "rgb(23, 54, 44)",
-          "radius": "13px",
+          "bg": "rgb(238, 246, 242)",
+          "fg": "rgb(37, 89, 72)",
+          "radius": "12px",
           "shadow": "none",
-          "padding": "1px 6px",
-          "disabled": true
-        },
-        {
-          "cls": "answer",
-          "id": "",
-          "tag": "BUTTON",
-          "text": "5",
-          "rect": [
-            645,
-            233,
-            424,
-            56
-          ],
-          "bg": "rgb(255, 255, 255)",
-          "fg": "rgb(23, 54, 44)",
-          "radius": "13px",
-          "shadow": "none",
-          "padding": "1px 6px",
-          "disabled": false
-        },
-        {
-          "cls": "answer",
-          "id": "",
-          "tag": "BUTTON",
-          "text": "3",
-          "rect": [
-            211,
-            299,
-            424,
-            56
-          ],
-          "bg": "rgb(255, 255, 255)",
-          "fg": "rgb(23, 54, 44)",
-          "radius": "13px",
-          "shadow": "none",
-          "padding": "1px 6px",
-          "disabled": false
-        },
-        {
-          "cls": "answer",
-          "id": "",
-          "tag": "BUTTON",
-          "text": "4",
-          "rect": [
-            645,
-            299,
-            424,
-            56
-          ],
-          "bg": "rgb(255, 255, 255)",
-          "fg": "rgb(23, 54, 44)",
-          "radius": "13px",
-          "shadow": "none",
-          "padding": "1px 6px",
+          "padding": "12px 16px",
           "disabled": false
         },
         {
           "cls": "btn soft",
-          "id": "quizSkip",
+          "id": "",
           "tag": "BUTTON",
-          "text": "⏭ Пропустить задание",
+          "text": "Повторить блок",
           "rect": [
-            530,
-            418,
-            220,
-            43
+            600,
+            342,
+            179,
+            45
+          ],
+          "bg": "rgb(238, 246, 242)",
+          "fg": "rgb(37, 89, 72)",
+          "radius": "12px",
+          "shadow": "none",
+          "padding": "12px 16px",
+          "disabled": false
+        },
+        {
+          "cls": "btn soft",
+          "id": "",
+          "tag": "BUTTON",
+          "text": "К темам",
+          "rect": [
+            788,
+            342,
+            109,
+            45
           ],
           "bg": "rgb(238, 246, 242)",
           "fg": "rgb(37, 89, 72)",
@@ -4498,18 +4770,18 @@
           "disabled": false
         }
       ],
-      "html": "<div class=\"modal\" id=\"modal\"><div class=\"mtop\"><h2>1 класс • Числа от 1 до 9</h2><button class=\"x\" onclick=\"closeModal()\">×</button></div><div class=\"block-head\">\n   <span>🌱 Разминка</span>\n   <div class=\"block-progress-wrap\">\n     <div id=\"blockProgressText\" class=\"block-progress-text\">Выполнено 1 / 5</div>\n     <div class=\"block-progress-track\"><span id=\"blockProgressBar\" style=\"width: 20%;\"></span></div>\n   </div>\n   <span id=\"blockCorrectCount\">✅ 1</span>\n </div><div id=\"qstage\" class=\"elementary-quiz\"><div class=\"quizq\">Какое число идёт после 3?</div><div class=\"answers\"><button class=\"answer bad\" onclick=\"pick(0)\" disabled=\"\">6</button><button class=\"answer\" onclick=\"pick(1)\">5</button><button class=\"answer\" onclick=\"pick(2)\">3</button><button class=\"answer\" onclick=\"pick(3)\">4</button></div><div class=\"feedback\" id=\"qfb\">🟡 Пока неверно. Попробуй ещё раз или пропусти задание.</div><div class=\"actions\"><button id=\"quizNext\" class=\"btn primary\" style=\"display:none\" onclick=\"next"
+      "html": "<div class=\"modal\" id=\"modal\"><div class=\"mtop\"><h2>💪 Разминка завершена</h2><button class=\"x\" onclick=\"closeModal()\">×</button></div><div class=\"block-result\"><div class=\"block-stars\">☆☆☆</div><div style=\"font-size:12px;color:var(--muted);margin-top:2px\">3 ★ — без ошибок · 2 ★ — от 80% · 1 ★ — от 60%</div><h3>Верно с первой: 0 из 5</h3><div class=\"level-box\" style=\"margin:8px 0 12px\"><b>✅ С первой:</b> 0 &nbsp;•&nbsp; <b>🟡 Исправлено:</b> 5 &nbsp;•&nbsp; <b>❌ Осталось неверно:</b> 0 &nbsp;•&nbsp; <b>⏭ Пропущено:</b> 0</div><p>Для прохождения нужно 4/5. Повтори блок — результат уже сохранён как лучший.</p><div style=\"font-size:12px;color:var(--muted);margin:-4px 0 10px\">Пропуск занимает одно задание в блоке, но в журнале хранится отдельно от ошибки. Внутри блока задания не повторяются; при новом прохождении приложение сначала подбирает варианты, которых ученик недавно не видел.</div><div class=\"actions\"><button class=\"btn soft\" onclick=\"openAttemptReviewById('a1793927609036_qyw5j')\">"
     },
     {
       "name": "resume_active",
       "width": 1280,
-      "modalText": "1 класс • Числа от 1 до 9 × 🌱 Разминка Выполнено 0 / 5 ✅ 0 Какое число идёт после 1? 4 2 1 3 ⏭ Пропустить задание",
+      "modalText": "1 класс • Числа от 1 до 9 × 🌱 Разминка Выполнено 0 / 5 ✅ 0 Какое число идёт после 1? 3 1 2 4 ⏭ Пропустить задание",
       "roots": [
         {
           "cls": "modal",
           "id": "modal",
           "tag": "DIV",
-          "text": "1 класс • Числа от 1 до 9 × 🌱 Разминка Выполнено 0 / 5 ✅ 0 Какое число идёт после 1? 4 2 1 3 ⏭ Пропустить задание",
+          "text": "1 класс • Числа от 1 до 9 × 🌱 Разминка Выполнено 0 / 5 ✅ 0 Какое число идёт после 1? 3 1 2 4 ⏭ Пропустить задание",
           "rect": [
             190,
             12,
@@ -4528,7 +4800,7 @@
           "cls": "modal",
           "id": "modal",
           "tag": "DIV",
-          "text": "1 класс • Числа от 1 до 9 × 🌱 Разминка Выполнено 0 / 5 ✅ 0 Какое число идёт после 1? 4 2 1 3 ⏭ Пропустить задание",
+          "text": "1 класс • Числа от 1 до 9 × 🌱 Разминка Выполнено 0 / 5 ✅ 0 Какое число идёт после 1? 3 1 2 4 ⏭ Пропустить задание",
           "rect": [
             190,
             12,
@@ -4582,27 +4854,9 @@
           "cls": "answer",
           "id": "",
           "tag": "BUTTON",
-          "text": "4",
+          "text": "3",
           "rect": [
             211,
-            233,
-            424,
-            56
-          ],
-          "bg": "rgb(255, 255, 255)",
-          "fg": "rgb(23, 54, 44)",
-          "radius": "13px",
-          "shadow": "none",
-          "padding": "1px 6px",
-          "disabled": false
-        },
-        {
-          "cls": "answer",
-          "id": "",
-          "tag": "BUTTON",
-          "text": "2",
-          "rect": [
-            645,
             233,
             424,
             56
@@ -4620,6 +4874,24 @@
           "tag": "BUTTON",
           "text": "1",
           "rect": [
+            645,
+            233,
+            424,
+            56
+          ],
+          "bg": "rgb(255, 255, 255)",
+          "fg": "rgb(23, 54, 44)",
+          "radius": "13px",
+          "shadow": "none",
+          "padding": "1px 6px",
+          "disabled": false
+        },
+        {
+          "cls": "answer",
+          "id": "",
+          "tag": "BUTTON",
+          "text": "2",
+          "rect": [
             211,
             299,
             424,
@@ -4636,7 +4908,7 @@
           "cls": "answer",
           "id": "",
           "tag": "BUTTON",
-          "text": "3",
+          "text": "4",
           "rect": [
             645,
             299,
@@ -4669,7 +4941,7 @@
           "disabled": false
         }
       ],
-      "html": "<div class=\"modal\" id=\"modal\"><div class=\"mtop\"><h2>1 класс • Числа от 1 до 9</h2><button class=\"x\" onclick=\"closeModal()\">×</button></div><div class=\"block-head\">\n   <span>🌱 Разминка</span>\n   <div class=\"block-progress-wrap\">\n     <div id=\"blockProgressText\" class=\"block-progress-text\">Выполнено 0 / 5</div>\n     <div class=\"block-progress-track\"><span id=\"blockProgressBar\" style=\"width:0%\"></span></div>\n   </div>\n   <span id=\"blockCorrectCount\">✅ 0</span>\n </div><div id=\"qstage\" class=\"elementary-quiz\"><div class=\"quizq\">Какое число идёт после 1?</div><div class=\"answers\"><button class=\"answer\" onclick=\"pick(0)\">4</button><button class=\"answer\" onclick=\"pick(1)\">2</button><button class=\"answer\" onclick=\"pick(2)\">1</button><button class=\"answer\" onclick=\"pick(3)\">3</button></div><div class=\"feedback\" id=\"qfb\"></div><div class=\"actions\"><button id=\"quizNext\" class=\"btn primary\" style=\"display:none\" onclick=\"nextQ()\">Следующий пример →</button><button id=\"quizSkip\" class=\"btn soft\" onc"
+      "html": "<div class=\"modal\" id=\"modal\"><div class=\"mtop\"><h2>1 класс • Числа от 1 до 9</h2><button class=\"x\" onclick=\"closeModal()\">×</button></div><div class=\"block-head\">\n   <span>🌱 Разминка</span>\n   <div class=\"block-progress-wrap\">\n     <div id=\"blockProgressText\" class=\"block-progress-text\">Выполнено 0 / 5</div>\n     <div class=\"block-progress-track\"><span id=\"blockProgressBar\" style=\"width:0%\"></span></div>\n   </div>\n   <span id=\"blockCorrectCount\">✅ 0</span>\n </div><div id=\"qstage\" class=\"elementary-quiz\"><div class=\"quizq\">Какое число идёт после 1?</div><div class=\"answers\"><button class=\"answer\" onclick=\"pick(0)\">3</button><button class=\"answer\" onclick=\"pick(1)\">1</button><button class=\"answer\" onclick=\"pick(2)\">2</button><button class=\"answer\" onclick=\"pick(3)\">4</button></div><div class=\"feedback\" id=\"qfb\"></div><div class=\"actions\"><button id=\"quizNext\" class=\"btn primary\" style=\"display:none\" onclick=\"nextQ()\">Следующий пример →</button><button id=\"quizSkip\" class=\"btn soft\" onc"
     },
     {
       "name": "resume_reload",
