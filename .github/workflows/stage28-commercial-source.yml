@@ -1,0 +1,11 @@
+name: Stage28 commercial source audit
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 audits/stage28_commercial_source_probe.py
