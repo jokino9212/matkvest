@@ -139,7 +139,7 @@ addon=r'''
 })();
 (function(){
  // Shrink only long numeric answers; keyboard Tab, minus and focus remain native.
- function fit(el){if(!el||!el.classList.contains('stage18-frac-cell'))return;const n=String(el.value||'').length;el.style.fontSize=n>=7?'13px':n>=6?'15px':n>=5?'17px':n>=4?'20px':''}
+ function fit(el){if(!el||!el.classList.contains('stage18-frac-cell'))return;const n=String(el.value||'').length;if(n<=3){el.style.fontSize='';return}let size=n>=7?13:n>=6?15:n>=5?17:20;for(;size>=8;size--){el.style.fontSize=size+'px';if(el.scrollWidth<=el.clientWidth+1)break}}
  document.addEventListener('input',function(e){fit(e.target)},true);
  document.addEventListener('focusin',function(e){fit(e.target)},true);
 })();

@@ -27,12 +27,14 @@ jobs:
       - name: Validate immutable production v70 baseline
         run: |
           set -euo pipefail
-          echo 'c93d13aeaafdb742e3ceda0111d3242daaf19fcc3a2cdd7b90b1b4a18f0817f2  index.html' | sha256sum --check
+          test "$(git show 930aea7a53be4d333311443beec0f81fef3a59b8:index.html | sha256sum | cut -d' ' -f1)" = c93d13aeaafdb742e3ceda0111d3242daaf19fcc3a2cdd7b90b1b4a18f0817f2
           git fetch origin main
           test "$(git rev-parse origin/main)" = 930aea7a53be4d333311443beec0f81fef3a59b8
       - name: Apply all three v71 fixes and bump service worker safely
         run: |
           set -euo pipefail
+          git show 930aea7a53be4d333311443beec0f81fef3a59b8:index.html > index.html
+          git show 930aea7a53be4d333311443beec0f81fef3a59b8:sw.js > sw.js
           python3 audits/v71_apply.py
           python3 - <<'PY'
           import re
