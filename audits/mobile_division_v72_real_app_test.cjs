@@ -15,7 +15,7 @@ async function main(){
    const hasApp=await page.evaluate(()=>typeof openColumn==='function' && typeof renderDivision==='function' && typeof divisionSteps==='function');
    assert(hasApp,'Actual application functions missing at width '+width+'; errors: '+errors.slice(0,3).join(' | '));
    await page.evaluate(()=>{
-     openColumn('div');
+     startColumnStage('div',0);
      task={a:14067,b:3,quotient:'4689',ans:4689,steps:divisionSteps(14067,3)};
      renderDivision();
    });
