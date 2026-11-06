@@ -1,0 +1,109 @@
+name: MatKvest UI19D - shop rarity, pricing and refund correctness gate
+on:
+  push:
+    branches: [audit/ui-stage19-20261106]
+    paths:
+      - .github/workflows/ui_stage19d_gate.yml
+      - audits/ui_stage19d_patch.py
+      - audits/ui_stage19d_test.mjs
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: matkvest-ui19d-v63
+  cancel-in-progress: false
+jobs:
+  shop-and-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 65
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit/ui-stage19-20261106
+          fetch-depth: 0
+          persist-credentials: true
+      - name: Apply v63 scoped patch only to SHA-verified v62
+        run: python3 audits/ui_stage19d_patch.py
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save --no-package-lock puppeteer-core@24
+      - name: Verify rarity filters, price range, checkout, sale and archived refund
+        run: node audits/ui_stage19d_test.mjs
+      - name: Regression - grade 1 to 8 topic search, navigation, 320px header
+        run: |
+          sed 's/matkvest-iphone-v62/matkvest-iphone-v63/g' audits/ui_stage19c4_test.mjs > audits/_ui19d_regress_c4.mjs
+          node audits/_ui19d_regress_c4.mjs
+          rm audits/_ui19d_regress_c4.mjs
+      - name: Regression - result, resume, chest and collection
+        run: |
+          sed 's/matkvest-iphone-v61/matkvest-iphone-v63/g' audits/ui_stage19c3b_test.mjs > audits/_ui19d_regress_c3b.mjs
+          node audits/_ui19d_regress_c3b.mjs
+          rm audits/_ui19d_regress_c3b.mjs
+      - name: Regression - shop tabs, lessons and profile dialogs
+        run: |
+          sed 's/matkvest-iphone-v60/matkvest-iphone-v63/g' audits/ui_stage19c3_test.mjs > audits/_ui19d_regress_c3.mjs
+          node audits/_ui19d_regress_c3.mjs
+          rm audits/_ui19d_regress_c3.mjs
+      - name: Regression - desktop and mobile grade cards and header
+        run: |
+          sed 's/matkvest-iphone-v59/matkvest-iphone-v63/g' audits/ui_stage19c2_test.mjs > audits/_ui19d_regress_c2.mjs
+          node audits/_ui19d_regress_c2.mjs
+          rm audits/_ui19d_regress_c2.mjs
+      - name: Regression - grade 7 and 8 topic keyboard and design
+        run: |
+          sed -e 's/matkvest-iphone-v58/matkvest-iphone-v63/g' -e 's/state.mobileMenu===(w<=600)/state.mobileMenu===(w<=1120)/g' audits/ui_stage19c_test.mjs > audits/_ui19d_regress_c.mjs
+          node audits/_ui19d_regress_c.mjs
+          rm audits/_ui19d_regress_c.mjs
+      - name: Regression - class-card click semantics
+        run: |
+          sed 's/matkvest-iphone-v56/matkvest-iphone-v63/g' audits/ui_stage19a_test.mjs > audits/_ui19d_regress_a.mjs
+          node audits/_ui19d_regress_a.mjs
+          rm audits/_ui19d_regress_a.mjs
+      - name: Regression - responsive menu
+        run: |
+          sed -e 's/matkvest-iphone-v57/matkvest-iphone-v63/g' -e 's/if(width<=600){/if(width<=768){/g' audits/ui_stage19b_test.mjs > audits/_ui19d_regress_b.mjs
+          node audits/_ui19d_regress_b.mjs
+          rm audits/_ui19d_regress_b.mjs
+      - name: Cross-grade mathematics and question availability
+        run: |
+          SHA="$(sha256sum index.html | cut -d' ' -f1)"
+          sed "s/f188d39a3a16fc54dfb32238fc34d3dfe6cc3c4416cd475579bf3ed65a7e1e36/$SHA/g" audits/g7_stage14_crossgrade_test.mjs > audits/_ui19d_crossgrade.mjs
+          node audits/_ui19d_crossgrade.mjs
+          rm audits/_ui19d_crossgrade.mjs
+      - name: Grade 4 written arithmetic regression
+        run: |
+          SHA="$(sha256sum index.html | cut -d' ' -f1)"
+          sed "s/f188d39a3a16fc54dfb32238fc34d3dfe6cc3c4416cd475579bf3ed65a7e1e36/$SHA/g" audits/g7_stage14_grade4_test.mjs > audits/_ui19d_grade4.mjs
+          node audits/_ui19d_grade4.mjs
+          rm audits/_ui19d_grade4.mjs
+      - name: Service worker hash and offline update verification
+        run: python3 audits/g7_stage12_sync_pwa.py --check
+      - name: Export screenshots to review source evidence
+        if: success()
+        run: |
+          for name in avatars_390 pets_390 avatars_1280 pets_1280; do
+            base64 -w0 "audits/ui19d_after_${name}.png" > "audits/ui19d_after_review_${name}.b64.txt"
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: matkvest-ui19d-v63-economic-correctness-gate
+          path: |
+            audits/ui_stage19d_patch_report.json
+            audits/ui_stage19d_test_report.json
+            audits/ui19d_after_*.png
+          if-no-files-found: warn
+      - name: Commit v63 only if every new and existing regression check passes
+        if: success()
+        run: |
+          set -eu
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js audits/ui_stage19d_patch_report.json audits/ui_stage19d_test_report.json audits/ui19d_after_review_*.b64.txt
+          git diff --cached --quiet || git commit -m "fix(ui19D): reset rarity on category change, show existing tiers and true prices v63"
+          for file in audits/ui_stage19c4_test_report.json audits/ui_stage19c3b_test_report.json audits/ui_stage19c3_test_report.json audits/ui_stage19c2_test_report.json audits/ui_stage19c_test_report.json audits/ui_stage19a_test_report.json audits/ui_stage19b_test_report.json audits/g7_stage14_crossgrade_report.json audits/g7_stage14_grade4_report.json; do
+            if git ls-files --error-unmatch "$file" >/dev/null 2>&1; then git restore -- "$file"; else rm -f "$file"; fi
+          done
+          git pull --rebase origin audit/ui-stage19-20261106
+          git push origin HEAD:audit/ui-stage19-20261106
