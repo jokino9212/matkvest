@@ -6866,6 +6866,31 @@ function mkV877ProtectedSet(key,value){
  if(mkV877CorruptProfiles&&(key==="mq4_profiles"||key==="mq4_current_profile"||key==="mq4"))return;
  return localStorage.setItem(key,value);
 }
+let mkV877RecoveryExported=false;
+function mkV877AuthorizeExplicitRecovery(imported){
+ if(!mkV877CorruptProfiles)return true;
+ if(!imported||typeof imported!=="object"||!Object.keys(imported).length)return false;
+ const raw=localStorage.getItem("mq4_profiles");
+ // Preserve original corrupt bytes before any replacement.
+ try{
+  if(raw!==null)localStorage.setItem("mk_v877_corrupt_profiles_rescue",raw);
+ }catch(e){
+  if(!mkV877RecoveryExported){
+   alert("Недостаточно места для резервной копии повреждённых данных. Сначала скачайте их кнопкой в предупреждении.");
+   return false;
+  }
+ }
+ try{
+  localStorage.setItem("mq4_profiles",JSON.stringify(imported));
+ }catch(e){
+  alert("Не удалось записать восстановленную резервную копию: закончилось место в браузере. Исходные повреждённые данные сохранены.");
+  return false;
+ }
+ mkV877CorruptProfiles=false;
+ document.getElementById("mk-v877-storage-recovery")?.remove();
+ document.body.classList.remove("mk-v877-storage-risk");
+ return true;
+}
 try{
   profiles=JSON.parse(localStorage.getItem("mq4_profiles")||"null")||{};
   currentProfile=localStorage.getItem("mq4_current_profile")||"Ученик";
@@ -8176,6 +8201,10 @@ function resolveImportConflict(action){
  showNextImportConflict(c.index+1);
 }
 function applySmartImport(){
+ if(mkV877CorruptProfiles){
+  alert("Сначала сохраните повреждённые данные, затем восстановите полную резервную копию через «Заменить все данные». Умное объединение с повреждённой базой запрещено.");
+  return;
+ }
  if(!pendingImportPlan)return openDataManager();
  syncCurrentForBackup();
  let added=0,merged=0,unchanged=0,skipped=0;
@@ -8230,6 +8259,9 @@ function confirmReplaceImport(){
 }
 function replaceWithPendingImport(){
  const data=pendingImport;if(!data)return openDataManager();
+ // User already confirmed "replace all data" in the import confirmation screen.
+ // For corrupted storage, this is the sole route to unlock guarded profile writes.
+
  const imported={};
  Object.entries(data.profiles).forEach(([name,p])=>{
    const prof=normalizeImportedProfile(p);
@@ -8237,6 +8269,7 @@ function replaceWithPendingImport(){
    if(Object.values(imported).some(x=>x.profileId===prof.profileId))prof.profileId=newProfileId();
    imported[name]=prof;
  });
+ if(!mkV877AuthorizeExplicitRecovery(imported))return;
  profiles=imported;
  if(data?.scope==="all"&&data?.teacherSettings){teacherSettings=normalizeTeacherSettings(data.teacherSettings);saveTeacherSettings();teacherUnlocked=false}
  currentProfile=(data.currentProfile&&profiles[data.currentProfile])?data.currentProfile:Object.keys(profiles)[0];
@@ -34426,5 +34459,36 @@ if(mkV877CorruptProfiles){
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',showStorageWarning,{once:true});
  else showStorageWarning();
 }
+</script>
+
+<script id="mk-v877-storage-recovery-actions">
+(function(){
+ if(!mkV877CorruptProfiles)return;
+ const attach=()=>{
+  const banner=document.getElementById('mk-v877-storage-recovery');
+  if(!banner||banner.querySelector('button'))return;
+  const actions=document.createElement('span');actions.style.cssText='display:block;margin-top:6px';
+  const download=document.createElement('button');
+  download.type='button';download.textContent='Скачать повреждённые исходные данные';
+  download.style.cssText='font:600 13px system-ui;padding:7px 12px;margin:3px;border:1px solid #7b5a14;border-radius:6px;background:white;color:#513800';
+  download.onclick=()=>{
+   const raw=localStorage.getItem('mq4_profiles');
+   if(raw===null)return;
+   const blob=new Blob([raw],{type:'text/plain;charset=utf-8'});
+   const link=document.createElement('a'),url=URL.createObjectURL(blob);
+   link.href=url;link.download='matkvest_corrupt_profiles_rescue.txt';
+   document.body.appendChild(link);link.click();link.remove();
+   setTimeout(()=>URL.revokeObjectURL(url),15000);
+   mkV877RecoveryExported=true;
+  };
+  const manager=document.createElement('button');
+  manager.type='button';manager.textContent='Восстановить из полной копии';
+  manager.style.cssText=download.style.cssText;
+  manager.onclick=()=>{if(typeof openDataManager==='function')openDataManager()};
+  actions.append(download,manager);banner.append(actions);
+ };
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',attach,{once:true});
+ else attach();
+})();
 </script>
 </body></html>
