@@ -78,6 +78,30 @@ async function main(){
       problems.push({mode:c.mode,reason:'UI_SCORING_OR_NEXT',scoreBefore,scoreAfter,scoreAfterSecond,nextVisible,feedback:document.getElementById('qfb')?.textContent?.slice(0,160)});
     testResults.push({mode:c.mode,attempts:test.attempts,inputs:geom.length,valid:correct.valid,ok:correct.ok,wrongAccepted:incorrect.valid&&incorrect.ok,overflow:overflow.length,scoredOnce:scoreAfter===scoreBefore+1&&scoreAfterSecond===scoreAfter,nextVisible});
    }
+   const semanticCases=[
+    {name:'ratio-equivalent',q:{answerMode:'ratio',answerRatio:[2,3],requireReducedRatio:false},answer:'4:6',expected:true},
+    {name:'ratio-wrong',q:{answerMode:'ratio',answerRatio:[2,3]},answer:'2:4',expected:false},
+    {name:'ratio-zero-denominator',q:{answerMode:'ratio',answerRatio:[2,3]},answer:'2:0',invalid:true},
+    {name:'ratio-reduced-required',q:{answerMode:'ratio',answerRatio:[2,3],requireReducedRatio:true},answer:'4:6',expected:false},
+    {name:'remainder-correct',q:{answerMode:'remainder',answerQuotient:4,answerRemainder:3},answer:{q:'4',r:'3'},expected:true},
+    {name:'remainder-wrong',q:{answerMode:'remainder',answerQuotient:4,answerRemainder:3},answer:{q:'5',r:'3'},expected:false},
+    {name:'coordinate-comma',q:{answerMode:'coordinate',answerPoint:{x:{n:-3,d:2},y:{n:5,d:4}}},answer:{x:'-1,5',y:'1.25'},expected:true},
+    {name:'fraction-equivalent',q:{answerMode:'fraction',answerRat:{n:1,d:2},requireReduced:false},answer:'2/4',expected:true},
+    {name:'fraction-reduced-required',q:{answerMode:'fraction',answerRat:{n:1,d:2},requireReduced:true},answer:'2/4',expected:false},
+    {name:'multi-negative',q:{answerMode:'multi',answerList:[2,-1,5]},answer:'2; -1; 5',expected:true},
+    {name:'multi-wrong-order',q:{answerMode:'multi',answerList:[2,-1,5]},answer:'-1; 2; 5',expected:false},
+    {name:'linear-expression',q:{answerMode:'linear',answerLinear:{a:{n:2,d:1},b:{n:-3,d:1}}},answer:'2x-3',expected:true},
+    {name:'linear-wrong-sign',q:{answerMode:'linear',answerLinear:{a:{n:2,d:1},b:{n:-3,d:1}}},answer:'2x+3',expected:false},
+   ];
+   const semantic=[];
+   for(const c of semanticCases){
+    try{
+     const out=quizInputEvaluation(c.q,c.answer);
+     const match=c.invalid?!out.valid:out.valid&&out.ok===c.expected;
+     if(!match)problems.push({mode:'semantic',name:c.name,reason:'UNEXPECTED_ANSWER_RESULT',out});
+     semantic.push({name:c.name,valid:out.valid,ok:out.ok,match});
+    }catch(e){problems.push({mode:'semantic',name:c.name,reason:'THREW',error:String(e)})}
+   }
    // Validate actual skip behavior for a generated grade-7 quiz, not just a parsing function.
    startG7QuizStage('g7:rational_numbers_forms',0);
    const initial={id:blockSession?.attemptId,done:blockSession?.done,correct:blockSession?.correct,question:q?.sig||q?.text};
@@ -85,13 +109,13 @@ async function main(){
    const post={id:blockSession?.attemptId,done:blockSession?.done,correct:blockSession?.correct,question:q?.sig||q?.text};
    if(!skipped||post.id!==initial.id||post.correct!==initial.correct||post.done!==initial.done+1)
     problems.push({mode:'skip',reason:'SKIP_BEHAVIOR',initial,skipped,post});
-   return {testResults,problems,skip:{initial,post,skipped},scrollWidth:document.documentElement.scrollWidth,viewport:document.documentElement.clientWidth};
+   return {testResults,semantic,problems,skip:{initial,post,skipped},scrollWidth:document.documentElement.scrollWidth,viewport:document.documentElement.clientWidth};
   });
   if(result.scrollWidth>width+2)failures.push({width,type:'horizontal-overflow',result});
   if(result.problems.length)failures.push({width,problems:result.problems});
   if(pageErrors.length)failures.push({width,pageErrors:pageErrors.slice(0,6)});
   reports.push({width,...result});
-  console.log('STAGE23',JSON.stringify({width,modes:result.testResults,issues:result.problems,skip:result.skip,errors:pageErrors}));
+  console.log('STAGE23',JSON.stringify({width,modes:result.testResults,semantic:result.semantic,issues:result.problems,skip:result.skip,errors:pageErrors}));
   await context.close();
  }
  }finally{await browser.close()}
