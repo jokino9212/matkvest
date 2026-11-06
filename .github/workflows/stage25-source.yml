@@ -1,0 +1,13 @@
+name: Stage25 profile state source inspection
+on:
+  push:
+    branches: [audit/stage25-profile-isolation-20261107]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 audits/stage25_profile_source_probe.py
