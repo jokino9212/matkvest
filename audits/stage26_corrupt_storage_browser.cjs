@@ -43,9 +43,10 @@ async function main(){
    guard:typeof mkV877StorageGuard!=='undefined'?mkV877StorageGuard:null,
    keys:Object.keys(localStorage).filter(x=>/backup|recovery|corrupt/.test(x)).slice(0,10)
   }));
-  console.log('STAGE26_CASE',JSON.stringify({width,valid,corruptProfile:outcome,errors:errors.slice(0,3)}));
-  if(outcome.stored!==corrupted) {failures++;console.error('FAIL_STAGE26',JSON.stringify({width,reason:'CORRUPT_PROFILE_OVERWRITTEN',outcome}))}
-  if(outcome.originalLegacy!==271){failures++;console.error('FAIL_STAGE26',JSON.stringify({width,reason:'LAST_GOOD_LEGACY_OVERWRITTEN',outcome}))}
+  console.log('STAGE26_CASE',JSON.stringify({width,valid,corruptProfile:{...outcome,stored:String(outcome.stored).slice(0,150)},errors:errors.slice(0,3)}));
+  if(outcome.stored!==corrupted) {failures++;console.error('FAIL_STAGE26',JSON.stringify({width,reason:'CORRUPT_PROFILE_OVERWRITTEN',stored:String(outcome.stored).slice(0,160)}))}
+  if(outcome.originalLegacy!==271){failures++;console.error('FAIL_STAGE26',JSON.stringify({width,reason:'LAST_GOOD_LEGACY_OVERWRITTEN',originalLegacy:outcome.originalLegacy}))}
+  if(!outcome.guard){failures++;console.error('FAIL_STAGE26',JSON.stringify({width,reason:'SAFE_MODE_NOT_ENABLED'}))}
   await context.close();
  }
  }finally{await browser.close()}
