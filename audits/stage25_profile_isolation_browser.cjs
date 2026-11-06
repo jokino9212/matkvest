@@ -18,6 +18,11 @@ async function main(){
       openProfiles();
       document.getElementById('newProfileName').value='Ученик A';
       createProfile();
+      openProfiles();
+      document.getElementById('newProfileName').value='Ученик B';
+      createProfile();
+      openProfiles();
+      selectProfile(window._profileNames.indexOf('Ученик A'));
       state.xp=107;state.coins=203;
       progressFor('g7:rational_numbers_forms').best[0]=3;
       persistSilently();
@@ -34,8 +39,6 @@ async function main(){
     assert(a.draftValid&&a.attempt,'A missing draft');
     // Verify direct selection cannot override an active learner session.
     const locked=await page.evaluate(()=>{
-      profiles['Ученик B']=ensureProfileIdentity({...EMPTY_STATE,courseProgress:{},questionHistory:{}});
-      persistSilently();
       const before={name:currentProfile,attempt:blockSession?.attemptId,learning:mk872HasActiveLearning(),overlay:overlay.className,report:blockSession?.reportId};
       window._profileNames=['Ученик A','Ученик B'];
       selectProfile(1);
