@@ -1,7 +1,9 @@
 name: Stage25 multi-profile isolation regression
 on:
   push:
-    branches: [audit/stage25-profile-isolation-20261107]
+    branches: [main, audit/stage25-profile-isolation-20261107]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 permissions:
   contents: read
