@@ -1,0 +1,18 @@
+name: Audit live UI behaviors v8.74 — shop and progress
+on:
+  push:
+    branches: [audit/shop-section-progress-v874-20261106]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  browser-gate:
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Chromium driver
+        run: npm install --no-save --package-lock=false playwright@1.56.1
+      - name: Verify actual shop ordering and section counters
+        run: node audits/shop_progress_v874_browser_test.cjs
