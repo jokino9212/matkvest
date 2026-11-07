@@ -81,7 +81,7 @@ script="""<script id="mk30-artwork-viewer-script">
   if(petIcon)return {kind:'pet',node:petIcon};
   // Shop cards do not store their type in data-*; use the active tab.
   const shopIcon=node.closest('.shop-card .shop-icon');
-  if(shopIcon&&/Питомцы/.test(document.querySelector('.shop-tabs .active')?.textContent||''))return {kind:'pet',node:shopIcon};
+  if(shopIcon&&(document.getElementById('modal')?.dataset.mk30Shop==='pets'||/Питомцы/.test(document.querySelector('.shop-tabs .active')?.textContent||'')))return {kind:'pet',node:shopIcon};
   // Collection cards are grouped by section, not by a type attribute.
   const collected=node.closest('.mk872-col-art');
   if(collected&&/Питомцы/.test(collected.closest('.mk872-col-section')?.querySelector('h3')?.textContent||''))return {kind:'pet',node:collected};
@@ -156,6 +156,13 @@ extra="""<style id="mk30-collection-worth-style">
 <script id="mk30-collection-worth-script">
 (function(){
  'use strict';
+ const oldShop=openShop;
+ openShop=function(category){
+  const result=oldShop.apply(this,arguments);
+  const m=document.getElementById('modal');
+  if(m)m.dataset.mk30Shop=String(category||'avatars');
+  return result;
+ };
  const original=openCollection;
  openCollection=function(){
   const result=original.apply(this,arguments);
