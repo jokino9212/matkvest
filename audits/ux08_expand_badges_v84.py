@@ -2,7 +2,7 @@ from pathlib import Path
 import re,hashlib,json
 p=Path('index.html');swp=Path('sw.js')
 s=p.read_text('utf8');sw=swp.read_text('utf8')
-assert 'matkvest-iphone-v84' in sw and 'mkUX00BadgeArtworkInstalled' in s
+assert 'matkvest-iphone-v83' in sw and 'mkUX00BadgeArtworkInstalled' in s
 assert 'bd_orbit"' not in s and 'bd_orbit.svg' not in sw
 base=['bd_star','bd_diamond','bd_pi','bd_root','bd_sigma','bd_fraction','bd_infinity','bd_div_master','bd_fraction_master','bd_perfect','bd_control','bd_errors','bd_grade4','bd_grade5','bd_thousand','bd_equations','bd_comet','bd_geometry','bd_logic','bd_sprint']
 new=[
@@ -30,7 +30,7 @@ assert match, 'Artwork IDs set missing'
 ids=json.loads(match.group(1))
 assert ids==base
 s=s[:match.start(1)]+json.dumps(base+[item['id'] for item in new])+s[match.end(1):]
-sw=sw.replace('matkvest-iphone-v84','matkvest-iphone-v84',1)
+sw=sw.replace('matkvest-iphone-v83','matkvest-iphone-v84',1)
 existing='const APP_FILES = ['
 assert sw.count(existing)==1
 end=sw.index('];',sw.index(existing))
