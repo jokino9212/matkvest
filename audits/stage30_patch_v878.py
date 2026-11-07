@@ -37,6 +37,7 @@ s=s.replace(old,new,1)
 old="cell('Потрачено в магазине',mk19eMoney(a.spent),'Учтённые покупки предметов; без сундуков')+"
 new="cell('Стоимость коллекции',mk19eMoney(mk30CollectionWorth(state)),'Все принадлежащие предметы по ценам каталога')+\\n        cell('Расходы на покупки',mk19eMoney(a.spent),'Исторические расходы в магазине; без сундуков')+"
 assert s.count(old)==1
+new=new.replace(chr(92)+'n',chr(10))
 s=s.replace(old,new,1)
 # The viewer is repaired by intercepting at window capture: existing document
 # handler cannot replace the cloned artwork with text or medal/level numbers.
