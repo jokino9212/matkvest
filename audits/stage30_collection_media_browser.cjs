@@ -68,7 +68,7 @@ async function main(){
    assert(petView.open&&petView.pet,'Pet did not open as full-screen artwork');
    await page.keyboard.press('Escape');
    await page.evaluate(()=>openCollection());
-   assert((await page.locator('#modal').innerText()).includes('Стоимость коллекции'),'Collection worth missing');
+   assert((await page.locator('#modal').innerText()).includes('Стоимость коллекции'),'Collection worth missing: '+(await page.locator('#modal').innerText()).slice(0,850));
    assert((await page.locator('#modal').innerText()).includes(String(setup.expected)),'Collection worth wrong');
    if(errors.length)throw Error('JS page errors '+JSON.stringify(errors.slice(0,3)));
    console.log('STAGE30_PASS',JSON.stringify({width,setup,worth,
