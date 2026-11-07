@@ -36,8 +36,8 @@ const expected={
    console.log('GATE_SHOP_CHECKED',width,JSON.stringify(shop));await page.screenshot({path:'audits/ux00_badge_integration_output/shop_'+width+'.png',animations:'disabled',timeout:15000});
    const owned=await page.evaluate(()=>{
      state.inventory.badges=[...new Set([...(state.inventory.badges||[]),'bd_star','bd_pi','bd_div_master','bd_perfect'])];
-     openCollection();
-     return {owned:mk872CollectionOwned('badges').length,renderCount:document.querySelectorAll('#modal .mk-ux-badge-image').length};
+     mk872CollectionTab='badges';openCollection();
+     return {owned:mk872CollectionOwned('badges').length,renderCount:document.querySelectorAll('#modal .mk-ux-badge-image').length,visible:document.querySelector('#modal')?.innerText?.slice(0,150)};
    });
    assert(owned.owned>=4,JSON.stringify(owned));
    assert(owned.renderCount>=4,'Collection missing art '+JSON.stringify(owned));
