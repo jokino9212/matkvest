@@ -1,0 +1,53 @@
+name: Stage30 leaderboard and avatar/pet hotfix
+on:
+  push:
+    branches: [fix/leaderboard-collection-avatar-pets-20261107]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  verify-and-commit:
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/leaderboard-collection-avatar-pets-20261107
+      - name: Apply hotfix if needed
+        run: |
+          if ! grep -q 'mk30-artwork-viewer-script' index.html; then
+            python3 audits/stage30_patch_v878.py
+          else
+            python3 audits/stage30_sync_v878.py
+          fi
+      - name: PWA hash invariant
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib
+          data=Path('index.html').read_bytes()
+          sw=Path('sw.js').read_text()
+          assert 'matkvest-iphone-v78' in sw
+          assert hashlib.sha256(data).hexdigest() in sw
+          assert b'mk30CollectionWorth' in data
+          print('PASS_STAGE30_FINGERPRINT',hashlib.sha256(data).hexdigest())
+          PY
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - run: node audits/stage30_collection_media_browser.cjs
+      - name: Verify existing mobile and draft regression
+        run: |
+          node audits/stage27_compact_mobile_browser.cjs
+          node audits/stage25_profile_isolation_browser.cjs
+      - name: Commit tested HTML and SW to audit branch
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js
+          if ! git diff --cached --quiet; then
+            git commit -m "fix(ui): v8.78 collection valuation and full-size avatar/pet imagery"
+            git fetch origin fix/leaderboard-collection-avatar-pets-20261107
+            git rebase origin/fix/leaderboard-collection-avatar-pets-20261107
+            git push origin HEAD:fix/leaderboard-collection-avatar-pets-20261107
+          fi
