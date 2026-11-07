@@ -49,3 +49,13 @@
 - Созданы `audits/UX_UI_INVENTORY.md`, `audits/UX_UI_ASSET_REGISTER.csv`, `audits/UX_UI_INVENTORY_DATA.json` **в рабочей ветке**. Снимки 36 экранных состояний — в Actions artifact `ux00-visual-baseline`.
 - UX-00 **В РАБОТЕ**, не DONE: требуются реальный просмотр скриншотов, контактные листы по всем товарам, проверка alpha bounding box и Art Bible.
 - `index.html`, `sw.js`, цены, логика и production при этой партии не менялись.
+
+## UX-00 — следующая контрольная точка (партия 2, 2026-11-08)
+В рабочей ветке `ux-final/ux00-inventory-20261108` сохранены обновлённый `UX_UI_FINAL_STATUS.md`, `UX_UI_INVENTORY.md`, `UX_UI_ART_BIBLE.md` (v0.1, предварительная), `UX_UI_GALLERY_METRICS.json`.
+
+- GitHub Actions: https://github.com/jokino9212/matkvest/actions/runs/42418695544 — SUCCESS, artifact `ux00-artwork-galleries`.
+- Собраны изображения 55 аватаров, 20 питомцев, 16 значков, 31 стикера.
+- 20 растровых аватаров и 16 растровых питомцев имеют исходники 144–150px; это нужно проверить для полноэкранного качества.
+- Кандидаты по alpha bounds: `av_penguin`, `pet_penguin`, `st_planet`, `st_orbit`.
+- **UX-00 ещё НЕ завершён**: нет утверждённых художественных эталонов и полноценной визуальной приёмки. Продолжать с ветки, не начинать инвентаризацию с нуля.
+- В production HTML/SW изменений нет.
