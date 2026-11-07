@@ -73,13 +73,20 @@ async function main(){
    await page.evaluate(()=>openShop('pets'));
    const shopIcons=page.locator('#modal .shop-grid .shop-card .shop-icon');
    assert((await shopIcons.count())>0,'Pet shop has no icon previews');
+   await page.evaluate(()=>{
+      window._mk30ClickTrace=null;
+      window.addEventListener('click',e=>{
+       window._mk30ClickTrace={tag:e.target.tagName,cls:String(e.target.className).slice(0,100),
+        outer:e.target.outerHTML.slice(0,160),card:e.target.closest('.shop-card')?.querySelector('strong')?.textContent};
+      },true);
+   });
    await shopIcons.nth(1).click();
    const shopDiagnostic=await page.evaluate(()=>({active:document.querySelector('#modal')?.dataset.mk30Shop,
      icon:document.querySelector('#modal .shop-grid .shop-card:nth-child(2) .shop-icon')?.outerHTML?.slice(0,400),
      viewer:document.getElementById('mk872AvatarViewer')?.querySelector('.mk30-visual')?.outerHTML?.slice(0,250),
      title:document.querySelector('#modal .shop-grid .shop-card:nth-child(2) strong')?.textContent,
      selected:document.querySelector('#modal .shop-tabs .active')?.textContent?.slice(0,80),
-     hook:openShop.toString().slice(0,130)}));
+     hook:openShop.toString().slice(0,130),clickTrace:window._mk30ClickTrace}));
    assert(await page.locator('#mk872AvatarViewer .mk30-pet').count(),'Pet shop icon did not open full-size preview '+JSON.stringify(shopDiagnostic));
    await page.keyboard.press('Escape');
    await page.evaluate(()=>openProfiles());
