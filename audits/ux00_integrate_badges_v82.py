@@ -23,7 +23,7 @@ inject='''/* UX/UI FINAL: SVG-first artwork for existing badge catalog, zero eco
  for(const item of itemList){
   if(!artworkIds.has(item.id))continue;
   const file='assets/source/badges/prototypes/'+item.id+'.svg';
-  item.icon='<img class="mk-ux-badge-image" alt="" loading="lazy" decoding="async" src="'+file+'">';
+  item.icon='<img class="mk-ux-badge-image" alt="" loading="eager" decoding="async" src="'+file+'">';
  }
 })();
 '''%json.dumps(ids,ensure_ascii=False)
