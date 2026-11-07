@@ -59,7 +59,7 @@ async function main(){
     assert.equal(result.cacheName,'matkvest-iphone-v78');
     assert.equal(result.missing.length,0,'Missing runtime functions');
     assert.equal(result.worth,result.expectedWorth,'Live collection valuation mismatch');
-    assert(result.columns.includes('Коллекция'),'Live leaderboard has no collection column');
+    assert(result.columns.includes('Коллекция'),'Live leaderboard has no collection column: '+JSON.stringify({columns:result.columns,worthCell:result.worthCell,hash:result.hash}));
     assert.equal(result.worthCell,String(result.expectedWorth),'Live leaderboard value mismatch');
     assert(result.hasAvatar&&result.hasPet,'Avatar or pet missing');
     const original=await page.locator('.leader-table .avatar-badge .avatar-core').first().evaluate(el=>el.parentElement.querySelector('img')?.getAttribute('src'));
