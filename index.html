@@ -1673,6 +1673,13 @@ body:has(.mk872-help-layer){overflow:hidden}
 }
 </style>
 
+<style id="mk-ux00-badge-artwork">
+.shop-badge-icon{display:grid;place-items:center;width:100%;height:100%;font-size:inherit}
+.mk-ux-badge-image{display:block;object-fit:contain;max-width:100%;max-height:100%;width:100%;height:100%;aspect-ratio:1}
+.shop-icon:has(.mk-ux-badge-image){overflow:hidden;padding:3px}
+.badge-select-item .mk-ux-badge-image,.badge-token .mk-ux-badge-image,
+.achievement-reward-item-icon .mk-ux-badge-image{width:100%;height:100%;object-fit:contain}
+</style>
 </head>
 <body>
 <div class="shell">
@@ -7361,6 +7368,16 @@ function normalizeShop(){
  normalizeProfileShopData(state,{syncRewards:true});
  const allStickerIds=purchasableStickerItems().map(x=>x.id);if(allStickerIds.length&&allStickerIds.every(id=>state.inventory.stickers.includes(id))&&!state.inventory.frames.includes("fr_collector"))state.inventory.frames.push("fr_collector");
 }
+/* UX/UI FINAL: SVG-first artwork for existing badge catalog, zero economy changes. */
+(function mkUX00BadgeArtworkInstalled(){
+ const artworkIds=new Set(["bd_star", "bd_diamond", "bd_pi", "bd_root", "bd_sigma", "bd_fraction", "bd_infinity", "bd_div_master", "bd_fraction_master", "bd_perfect", "bd_control", "bd_errors", "bd_grade4", "bd_grade5", "bd_thousand", "bd_equations"]);
+ const itemList=SHOP_CATALOG.badges||[];
+ for(const item of itemList){
+  if(!artworkIds.has(item.id))continue;
+  const file='assets/source/badges/prototypes/'+item.id+'.svg';
+  item.icon='<img class="mk-ux-badge-image" alt="" loading="eager" decoding="async" src="'+file+'">';
+ }
+})();
 function catalogItem(type,id){return SHOP_CATALOG[type]?.find(x=>x.id===id)||null}
 function normalizeProfileCosmetics(p){
  p=p||{};const inv=p.inventory||{},eq=p.equipped||{};

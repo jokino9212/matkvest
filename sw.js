@@ -1,6 +1,6 @@
-const CACHE_NAME = "matkvest-iphone-v81";
-const APP_BUILD_HASH = "ecca78e27ee8c67baf4f45e0da0f4895b1e2a18df279dda14513986a86ac7037";
-const APP_FILES = ["./", "./index.html", "./manifest.webmanifest"];
+const CACHE_NAME = "matkvest-iphone-v82";
+const APP_BUILD_HASH = "0eca631177a4077e422b82be2d08e3111dd696c817d4729fc5d4bb27628a597a";
+const APP_FILES = ["./", "./index.html", "./manifest.webmanifest", "./assets/source/badges/prototypes/bd_star.svg", "./assets/source/badges/prototypes/bd_diamond.svg", "./assets/source/badges/prototypes/bd_pi.svg", "./assets/source/badges/prototypes/bd_root.svg", "./assets/source/badges/prototypes/bd_sigma.svg", "./assets/source/badges/prototypes/bd_fraction.svg", "./assets/source/badges/prototypes/bd_infinity.svg", "./assets/source/badges/prototypes/bd_div_master.svg", "./assets/source/badges/prototypes/bd_fraction_master.svg", "./assets/source/badges/prototypes/bd_perfect.svg", "./assets/source/badges/prototypes/bd_control.svg", "./assets/source/badges/prototypes/bd_errors.svg", "./assets/source/badges/prototypes/bd_grade4.svg", "./assets/source/badges/prototypes/bd_grade5.svg", "./assets/source/badges/prototypes/bd_thousand.svg", "./assets/source/badges/prototypes/bd_equations.svg"];
 
 // Navigation must prefer the network: cached HTML may be from a previous deployment.
 self.addEventListener("install", event => {
