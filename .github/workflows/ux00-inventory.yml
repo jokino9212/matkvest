@@ -1,0 +1,42 @@
+name: UX-00 asset and screenshot inventory
+on:
+  push:
+    branches:
+      - ux-final/ux00-inventory-20261108
+    paths:
+      - '.github/workflows/ux00-inventory.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  inventory:
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Collect item register and baseline screenshots
+        run: node audits/ux00_inventory_browser.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ux00-visual-baseline
+          path: audits/ux00_output/
+          retention-days: 60
+      - name: Preserve machine-readable inventory in branch
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          mkdir -p audits
+          cp audits/ux00_output/asset_register.csv audits/UX_UI_ASSET_REGISTER.csv
+          cp audits/ux00_output/inventory_summary.json audits/UX_UI_INVENTORY_DATA.json
+          cp audits/ux00_output/UX_UI_INVENTORY_AUTOMATED.md audits/UX_UI_INVENTORY.md
+          git add audits/UX_UI_ASSET_REGISTER.csv audits/UX_UI_INVENTORY_DATA.json audits/UX_UI_INVENTORY.md
+          if ! git diff --cached --quiet; then
+            git commit -m "audit(ux00): capture real item catalog and screen baseline [skip ci]"
+            git push origin HEAD:ux-final/ux00-inventory-20261108
+          fi
