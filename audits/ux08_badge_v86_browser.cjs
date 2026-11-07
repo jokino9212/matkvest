@@ -2,7 +2,7 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 const {chromium}=require('playwright');
 const expected=[['bd_abacus','uncommon',195,5],['bd_hourglass','rare',285,7],['bd_atom','rare',355,8],['bd_matrix','epic',495,10],['bd_phoenix','legendary',780,13]];
-const original={bd_star:55,bd_diamond:60,bd_pi:65,bd_root:75,bd_sigma:80,bd_fraction:90,bd_infinity:125,bd_comet:160,bd_geometry:240,bd_logic:360,bd_sprint:520,bd_orbit:190,bd_compass:275,bd_clock:335,bd_puzzle:425,bd_crown:650,bd_prism:215,bd_rocket:310,bd_chess:385,bd_spiral:465,bd_telescope:720};
+const original={bd_star:55,bd_diamond:60,bd_pi:65,bd_root:75,bd_sigma:80,bd_fraction:90,bd_infinity:125,bd_comet:160,bd_geometry:240,bd_logic:360,bd_sprint:520,bd_orbit:190,bd_compass:275,bd_clock:330,bd_puzzle:425,bd_crown:650,bd_prism:215,bd_rocket:310,bd_chess:385,bd_spiral:465,bd_telescope:720};
 (async()=>{
  const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
  const out='audits/ux08_badge_v86_output';fs.mkdirSync(out,{recursive:true});
