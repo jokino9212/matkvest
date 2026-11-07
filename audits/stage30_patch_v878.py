@@ -57,6 +57,7 @@ css="""<style id="mk30-zoom-style">
 .mk30-visual>.pet-mini img,.mk30-visual>.study-pet img{width:100%!important;height:100%!important}
 .mk30-visual .pet-mini{width:21%!important;height:21%!important;right:-8px!important;bottom:-8px!important;font-size:22px!important}
 .leader-table .mk30-worth{white-space:nowrap;font-variant-numeric:tabular-nums}
+.pet-mini,.mk19g-pet-icon{pointer-events:auto!important;cursor:zoom-in!important}
 @media(max-width:520px){
  .leader-table{min-width:640px}
  .leader-table th:nth-child(5),.leader-table td:nth-child(5),
@@ -74,10 +75,16 @@ script="""<script id="mk30-artwork-viewer-script">
  let previousFocus=null;
  function select(node){
   if(!node?.closest||node.closest('#mk872AvatarViewer'))return null;
-  const pet=node.closest('.pet-mini,.study-pet');
+  const pet=node.closest('.pet-mini,.study-pet,.mk19g-pet-icon');
   if(pet)return {kind:'pet',node:pet};
   const petIcon=node.closest('.mk19g-pet-choice .shop-icon,.mk19g-pet-choice .mk19g-pet-art,.shop-card[data-type="pets"] .shop-icon,.shop-card[data-shop-type="pets"] .shop-icon');
   if(petIcon)return {kind:'pet',node:petIcon};
+  // Shop cards do not store their type in data-*; use the active tab.
+  const shopIcon=node.closest('.shop-card .shop-icon');
+  if(shopIcon&&/Питомцы/.test(document.querySelector('.shop-tabs .active')?.textContent||''))return {kind:'pet',node:shopIcon};
+  // Collection cards are grouped by section, not by a type attribute.
+  const collected=node.closest('.mk872-col-art');
+  if(collected&&/Питомцы/.test(collected.closest('.mk872-col-section')?.querySelector('h3')?.textContent||''))return {kind:'pet',node:collected};
   const avatar=node.closest('.avatar-badge,.mk868-final-hero-card .shop-icon');
   if(avatar)return {kind:'avatar',node:avatar};
   return null;
@@ -126,7 +133,7 @@ script="""<script id="mk30-artwork-viewer-script">
   if(root.nodeType!==1&&root.nodeType!==9)return;
   let nodes=[];
   if(root.nodeType===1)nodes.push(root);
-  root.querySelectorAll?.('.avatar-badge,.pet-mini,.study-pet,.mk868-final-hero-card .shop-icon,.mk19g-pet-choice .shop-icon').forEach(el=>nodes.push(el));
+  root.querySelectorAll?.('.avatar-badge,.pet-mini,.study-pet,.mk868-final-hero-card .shop-icon,.mk19g-pet-choice .shop-icon,.mk19g-pet-icon,.mk872-col-art,.shop-card .shop-icon').forEach(el=>nodes.push(el));
   for(const el of nodes){
    if(!select(el))continue;
    el.classList.add('mk872-viewable');
