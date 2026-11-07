@@ -1,0 +1,44 @@
+name: UX-08 badge expansion v83 staging gate
+on:
+  push:
+    branches: [ux-final/ux00-inventory-20261108]
+    paths: ['.github/workflows/ux08-badge-v83-staging.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  stage:
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Guarded catalog extension and PWA v83
+        run: python3 audits/ux08_expand_badges_v83.py
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Four widths - new images, pricing, purchase and collection
+        run: timeout 150s node audits/ux08_badge_v83_browser.cjs
+      - name: Regression - sorting and progress
+        run: timeout 120s node audits/shop_progress_v874_browser_test.cjs
+      - name: Regression - media viewer
+        run: timeout 120s node audits/collection_viewer_v81_browser.cjs
+      - name: Regression - leaderboard and inventory worth
+        run: timeout 120s node audits/stage30_collection_media_browser.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ux08-badges-v83-gallery
+          path: audits/ux08_badge_output/
+          retention-days: 60
+      - name: Only commit working HTML/SW after full tests
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js
+          if ! git diff --cached --quiet; then
+            git commit -m "feat(ux08): stage four new purchasable SVG badges with balanced prices [skip ci]"
+            git push origin HEAD:ux-final/ux00-inventory-20261108
+          fi
