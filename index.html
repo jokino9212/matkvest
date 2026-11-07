@@ -7393,7 +7393,15 @@ function normalizeShop(){
   {"id":"bd_spiral","name":"Спираль Фибоначчи","price":465,"level":10,"rarity":"epic","desc":"Красота золотой спирали и последовательностей."},
   {"id":"bd_telescope","name":"Звёздный наблюдатель","price":720,"level":12,"rarity":"legendary","desc":"Распознаёт великие открытия среди звёзд."}
  );
- const artworkIds=new Set(["bd_star", "bd_diamond", "bd_pi", "bd_root", "bd_sigma", "bd_fraction", "bd_infinity", "bd_div_master", "bd_fraction_master", "bd_perfect", "bd_control", "bd_errors", "bd_grade4", "bd_grade5", "bd_thousand", "bd_equations", "bd_comet", "bd_geometry", "bd_logic", "bd_sprint", "bd_orbit", "bd_compass", "bd_clock", "bd_puzzle", "bd_crown", "bd_prism", "bd_rocket", "bd_chess", "bd_spiral", "bd_telescope"]);
+ /* UX-08 phase 4: five new purchasable badges; original 16 records untouched. */
+ SHOP_CATALOG.badges.push(
+  {"id":"bd_abacus","name":"Счётная машина","price":195,"level":5,"rarity":"uncommon","desc":"Мастер устного счёта с волшебными счётами."},
+  {"id":"bd_hourglass","name":"Песочные часы","price":285,"level":7,"rarity":"rare","desc":"Тот, кто умеет ценить время решения."},
+  {"id":"bd_atom","name":"Атом познания","price":355,"level":8,"rarity":"rare","desc":"Искатель закономерностей и научных открытий."},
+  {"id":"bd_matrix","name":"Матрица чисел","price":495,"level":10,"rarity":"epic","desc":"Девять чисел образуют строгую систему."},
+  {"id":"bd_phoenix","name":"Пламенный интеллект","price":780,"level":13,"rarity":"legendary","desc":"Сияющий феникс интеллектуального роста."}
+ );
+ const artworkIds=new Set(["bd_star", "bd_diamond", "bd_pi", "bd_root", "bd_sigma", "bd_fraction", "bd_infinity", "bd_div_master", "bd_fraction_master", "bd_perfect", "bd_control", "bd_errors", "bd_grade4", "bd_grade5", "bd_thousand", "bd_equations", "bd_comet", "bd_geometry", "bd_logic", "bd_sprint", "bd_orbit", "bd_compass", "bd_clock", "bd_puzzle", "bd_crown", "bd_prism", "bd_rocket", "bd_chess", "bd_spiral", "bd_telescope", "bd_abacus", "bd_hourglass", "bd_atom", "bd_matrix", "bd_phoenix"]);
  const itemList=SHOP_CATALOG.badges||[];
  for(const item of itemList){
   if(!artworkIds.has(item.id))continue;
