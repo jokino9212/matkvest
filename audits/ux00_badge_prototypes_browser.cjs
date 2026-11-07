@@ -6,7 +6,7 @@ const fs=require('node:fs'),path=require('node:path'),assert=require('node:asser
  try{
   const page=await browser.newPage({viewport:{width:1350,height:820}});
   await page.goto('file://'+path.resolve('index.html'),{waitUntil:'domcontentloaded'});
-  const names=['bd_star','bd_diamond','bd_pi','bd_root','bd_sigma','bd_fraction','bd_infinity','bd_div_master','bd_fraction_master','bd_perfect','bd_control','bd_errors','bd_grade4','bd_grade5','bd_thousand','bd_equations'];
+  const names=['bd_star','bd_diamond','bd_pi','bd_root','bd_sigma','bd_fraction','bd_infinity','bd_div_master','bd_fraction_master','bd_perfect','bd_control','bd_errors','bd_grade4','bd_grade5','bd_thousand','bd_equations','bd_comet','bd_geometry','bd_logic','bd_sprint'];
   await page.evaluate(names=>{
    const base='assets/source/badges/prototypes/';
    const root=document.createElement('main');root.style.cssText='background:#101827;color:#f9fafb;padding:28px;font-family:system-ui;min-height:100vh';
@@ -26,9 +26,9 @@ const fs=require('node:fs'),path=require('node:path'),assert=require('node:asser
    await Promise.all([...document.querySelectorAll('main img')].map(img=>img.decode().catch(()=>null)));
    return [...document.querySelectorAll('main img')].map(img=>({src:img.src,ok:img.complete&&img.naturalWidth>0,size:img.width}));
   });
-  assert.equal(images.length,32);assert(images.every(x=>x.ok),JSON.stringify(images));
+  assert.equal(images.length,40);assert(images.every(x=>x.ok),JSON.stringify(images));
   fs.mkdirSync('audits/ux00_prototype_output',{recursive:true});
-  await page.screenshot({path:'audits/ux00_prototype_output/badge_prototypes_16.png',fullPage:true,animations:'disabled'});
+  await page.screenshot({path:'audits/ux00_prototype_output/badge_prototypes_20.png',fullPage:true,animations:'disabled'});
   fs.writeFileSync('audits/ux00_prototype_output/results.json',JSON.stringify(images,null,2));
   console.log('SVG_PROTO_PASS',JSON.stringify(images));
  }finally{await browser.close();}
