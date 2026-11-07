@@ -7370,7 +7370,14 @@ function normalizeShop(){
 }
 /* UX/UI FINAL: SVG-first artwork for existing badge catalog, zero economy changes. */
 (function mkUX00BadgeArtworkInstalled(){
- const artworkIds=new Set(["bd_star", "bd_diamond", "bd_pi", "bd_root", "bd_sigma", "bd_fraction", "bd_infinity", "bd_div_master", "bd_fraction_master", "bd_perfect", "bd_control", "bd_errors", "bd_grade4", "bd_grade5", "bd_thousand", "bd_equations"]);
+ /* UX-08 phase 1: four new purchasable badges; original 16 records untouched. */
+ SHOP_CATALOG.badges.push(
+  {"id":"bd_comet","name":"Комета","price":160,"level":4,"rarity":"uncommon","desc":"Стремительная комета — космический коллекционный значок."},
+  {"id":"bd_geometry","name":"Архитектор фигур","price":240,"level":6,"rarity":"rare","desc":"Объёмная геометрия для исследователей фигур."},
+  {"id":"bd_logic","name":"Логический лабиринт","price":360,"level":8,"rarity":"epic","desc":"Трофей за любовь к логике и задачам на смекалку."},
+  {"id":"bd_sprint","name":"Молниеносное решение","price":520,"level":10,"rarity":"legendary","desc":"Престижный значок молниеносного математика."}
+ );
+ const artworkIds=new Set(["bd_star", "bd_diamond", "bd_pi", "bd_root", "bd_sigma", "bd_fraction", "bd_infinity", "bd_div_master", "bd_fraction_master", "bd_perfect", "bd_control", "bd_errors", "bd_grade4", "bd_grade5", "bd_thousand", "bd_equations", "bd_comet", "bd_geometry", "bd_logic", "bd_sprint"]);
  const itemList=SHOP_CATALOG.badges||[];
  for(const item of itemList){
   if(!artworkIds.has(item.id))continue;
