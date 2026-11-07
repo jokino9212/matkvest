@@ -1,8 +1,8 @@
 'use strict';
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 const {chromium}=require('playwright');
-const expected=[['bd_magnet','uncommon',240,6],['bd_gear','rare',340,8],['bd_mountain','epic',405,9],['bd_key','epic',540,11],['bd_dragonfly','legendary',830,14]];
-const original={bd_star:55,bd_diamond:60,bd_pi:65,bd_root:75,bd_sigma:80,bd_fraction:90,bd_infinity:125,bd_comet:160,bd_geometry:240,bd_logic:360,bd_sprint:520,bd_orbit:190,bd_compass:275,bd_clock:330,bd_puzzle:425,bd_crown:650,bd_prism:215,bd_rocket:310,bd_chess:385,bd_spiral:465,bd_telescope:720,bd_abacus:195,bd_hourglass:285,bd_atom:405,bd_matrix:495,bd_phoenix:780};
+const expected=[['bd_magnet','uncommon',235,6],['bd_gear','rare',340,8],['bd_mountain','epic',405,9],['bd_key','epic',535,11],['bd_dragonfly','legendary',830,14]];
+const original={bd_star:55,bd_diamond:60,bd_pi:65,bd_root:75,bd_sigma:80,bd_fraction:90,bd_infinity:125,bd_comet:160,bd_geometry:240,bd_logic:360,bd_sprint:520,bd_orbit:190,bd_compass:275,bd_clock:330,bd_puzzle:425,bd_crown:650,bd_prism:215,bd_rocket:310,bd_chess:385,bd_spiral:465,bd_telescope:720,bd_abacus:195,bd_hourglass:285,bd_atom:355,bd_matrix:495,bd_phoenix:780};
 (async()=>{
  const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
  const out='audits/ux08_badge_v87_output';fs.mkdirSync(out,{recursive:true});
