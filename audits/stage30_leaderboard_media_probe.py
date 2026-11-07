@@ -9,3 +9,11 @@ for needle in terms:
 for pat in [r'function \w*(?:Leader|Avatar|Pet|Collect|Inventory|Shop|Preview|Lightbox|FullScreen|Profile)\w*\(',r'(?:onclick|addEventListener)\s*=\s*[\x22\x27][^\n]{0,220}(?:Avatar|Pet|avatar|pet)',r'const \w*(?:avatar|pet)\w*=']:
  found=list(re.finditer(pat,s,re.I));print('PATTERN',pat,'COUNT',len(found))
  for m in found[:90]:print('DEF',m.start(),repr(s[m.start():m.start()+320]))
+
+for needle,n in [('function openLeaderboard(',5500),('function avatarBadge(',5000),('function previewAvatar(',4000),('function mk19e',3500),('Потрачено в магазине',2200),('function openCollection(',5000),('function openProfile(',4700),('function avatarHtml(',3500),('function renderAvatar(',3500)]:
+ p=s.find(needle)
+ if p!=-1:print('DETAIL',needle,p,repr(s[p:p+n]))
+for phrase in ['pet-mini','previewAvatar','previewItem','pet-badge','avatar-badge','function itemPrice','function shopPrice','shopCatalog','SHOP_ITEMS','ITEMS=','rarity','inventory','p.items']:
+ matches=list(re.finditer(re.escape(phrase),s,re.I))
+ print('FOCUS',phrase,len(matches))
+ for m in matches[-12:]:print('CTX',m.start(),repr(s[max(0,m.start()-180):m.start()+280]))
