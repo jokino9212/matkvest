@@ -34520,7 +34520,23 @@ if(mkV877CorruptProfiles){
  max-width:100%!important;max-height:100%!important;object-fit:contain!important
 }
 .mk30-visual>.pet-mini img,.mk30-visual>.study-pet img{width:100%!important;height:100%!important}
-.mk30-visual .pet-mini{width:21%!important;height:21%!important;right:-8px!important;bottom:-8px!important;font-size:22px!important}
+.mk30-visual.mk30-avatar .pet-mini{width:21%!important;height:21%!important;right:-8px!important;bottom:-8px!important;font-size:22px!important}
+/* A pet thumbnail in its own zoom must not inherit the avatar's 21% overlay badge size. */
+.mk30-visual.mk30-pet>.pet-mini,
+.mk30-visual.mk30-pet>.study-pet,
+.mk30-visual.mk30-pet>.mk19g-pet-icon,
+.mk30-visual.mk30-pet>.mk19g-pet-art,
+.mk30-visual.mk30-pet>.mk872-col-art{
+ width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;
+ max-width:100%!important;max-height:100%!important;
+ display:grid!important;place-items:center!important;
+ font-size:clamp(88px,25vw,175px)!important;line-height:1!important;
+ position:relative!important;inset:auto!important;transform:none!important;margin:0!important;
+ overflow:visible!important;
+}
+.mk30-visual.mk30-pet>*>.emoji-fallback-img,
+.mk30-visual.mk30-pet>*>img{width:85%!important;height:85%!important;max-width:85%!important;max-height:85%!important;object-fit:contain!important}
+.mk30-visual.mk30-pet .stack-badge{font-size:.34em}
 .leader-table .mk30-worth{white-space:nowrap;font-variant-numeric:tabular-nums}
 @media(max-width:520px){
  .leader-table{min-width:640px}
@@ -34576,9 +34592,13 @@ if(mkV877CorruptProfiles){
   const wrap=document.createElement('div');wrap.className='mk30-visual '+(item.kind==='pet'?'mk30-pet':'mk30-avatar');
   wrap.append(copy);visual.replaceChildren(wrap);
   const img=orig.querySelector('img');
-  const row=orig.closest('.leader-identity');
-  const name=orig.closest('.mk868-final-hero-card,.shop-card,.mk19g-pet-choice')?.querySelector('strong,.shop-name');
-  title.textContent=name?.textContent?.trim()||img?.alt?.trim()||(item.kind==='pet'?'Питомец':'Аватар');
+  const name=orig.closest('.mk868-final-hero-card,.shop-card,.mk19g-pet-choice')?.querySelector('strong,.shop-name')
+    ||orig.closest('.mk19g-pet-panel')?.querySelector('.mk19g-pet-name');
+  const petFromCatalog=item.kind==='pet' ? SHOP_CATALOG.pets.find(p=>p.id!=='pet_none'&&
+    (p.icon===orig.innerHTML||p.icon===orig.textContent.trim())) : null;
+  title.textContent=item.kind==='pet'
+    ? (name?.textContent?.trim()||petFromCatalog?.name||'Питомец')
+    : (name?.textContent?.trim()||img?.alt?.trim()||'Аватар');
   popup.setAttribute('aria-label',item.kind==='pet'?'Просмотр питомца':'Просмотр аватара');
   previousFocus=document.activeElement;
   popup.classList.add('mk872-open');popup.setAttribute('aria-hidden','false');
