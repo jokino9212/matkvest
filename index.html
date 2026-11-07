@@ -7385,7 +7385,15 @@ function normalizeShop(){
   {"id":"bd_puzzle","name":"Мастер головоломок","price":425,"level":9,"rarity":"epic","desc":"Старинная мозаика из фигур для знатоков логики."},
   {"id":"bd_crown","name":"Корона разума","price":650,"level":12,"rarity":"legendary","desc":"Королевская награда за математическую смекалку."}
  );
- const artworkIds=new Set(["bd_star", "bd_diamond", "bd_pi", "bd_root", "bd_sigma", "bd_fraction", "bd_infinity", "bd_div_master", "bd_fraction_master", "bd_perfect", "bd_control", "bd_errors", "bd_grade4", "bd_grade5", "bd_thousand", "bd_equations", "bd_comet", "bd_geometry", "bd_logic", "bd_sprint", "bd_orbit", "bd_compass", "bd_clock", "bd_puzzle", "bd_crown"]);
+ /* UX-08 phase 3: five new purchasable badges; original 16 records untouched. */
+ SHOP_CATALOG.badges.push(
+  {"id":"bd_prism","name":"Призма света","price":215,"level":5,"rarity":"uncommon","desc":"Свет преломляется в математической призме."},
+  {"id":"bd_rocket","name":"Ракета знаний","price":310,"level":7,"rarity":"rare","desc":"Запускает знания в неизведанные миры."},
+  {"id":"bd_chess","name":"Шахматный стратег","price":385,"level":9,"rarity":"epic","desc":"Ход конём для настоящего стратега."},
+  {"id":"bd_spiral","name":"Спираль Фибоначчи","price":465,"level":10,"rarity":"epic","desc":"Красота золотой спирали и последовательностей."},
+  {"id":"bd_telescope","name":"Звёздный наблюдатель","price":720,"level":12,"rarity":"legendary","desc":"Распознаёт великие открытия среди звёзд."}
+ );
+ const artworkIds=new Set(["bd_star", "bd_diamond", "bd_pi", "bd_root", "bd_sigma", "bd_fraction", "bd_infinity", "bd_div_master", "bd_fraction_master", "bd_perfect", "bd_control", "bd_errors", "bd_grade4", "bd_grade5", "bd_thousand", "bd_equations", "bd_comet", "bd_geometry", "bd_logic", "bd_sprint", "bd_orbit", "bd_compass", "bd_clock", "bd_puzzle", "bd_crown", "bd_prism", "bd_rocket", "bd_chess", "bd_spiral", "bd_telescope"]);
  const itemList=SHOP_CATALOG.badges||[];
  for(const item of itemList){
   if(!artworkIds.has(item.id))continue;
