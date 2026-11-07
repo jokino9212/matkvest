@@ -1,0 +1,37 @@
+name: UX-00 actual artwork contact sheets
+on:
+  push:
+    branches: [ux-final/ux00-inventory-20261108]
+    paths: ['.github/workflows/ux00-artwork-gallery.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  galleries:
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Render actual catalog media
+        run: node audits/ux00_artwork_gallery_browser.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ux00-artwork-galleries
+          path: audits/ux00_artwork_output/
+          retention-days: 60
+      - name: Preserve per-item render metrics
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          cp audits/ux00_artwork_output/gallery_metrics.json audits/UX_UI_GALLERY_METRICS.json
+          git add audits/UX_UI_GALLERY_METRICS.json
+          if ! git diff --cached --quiet; then
+            git commit -m "audit(ux00): store rendered media gallery metrics [skip ci]"
+            git push origin HEAD:ux-final/ux00-inventory-20261108
+          fi
