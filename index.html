@@ -7377,7 +7377,15 @@ function normalizeShop(){
   {"id":"bd_logic","name":"Логический лабиринт","price":360,"level":8,"rarity":"epic","desc":"Трофей за любовь к логике и задачам на смекалку."},
   {"id":"bd_sprint","name":"Молниеносное решение","price":520,"level":10,"rarity":"legendary","desc":"Престижный значок молниеносного математика."}
  );
- const artworkIds=new Set(["bd_star", "bd_diamond", "bd_pi", "bd_root", "bd_sigma", "bd_fraction", "bd_infinity", "bd_div_master", "bd_fraction_master", "bd_perfect", "bd_control", "bd_errors", "bd_grade4", "bd_grade5", "bd_thousand", "bd_equations", "bd_comet", "bd_geometry", "bd_logic", "bd_sprint"]);
+ /* UX-08 phase 2: five new purchasable badges; original 16 records untouched. */
+ SHOP_CATALOG.badges.push(
+  {"id":"bd_orbit","name":"Орбитальный исследователь","price":190,"level":5,"rarity":"uncommon","desc":"Планета и золотой спутник на орбите — знак любознательности."},
+  {"id":"bd_compass","name":"Компас открытий","price":275,"level":7,"rarity":"rare","desc":"Точный компас математического первооткрывателя."},
+  {"id":"bd_clock","name":"Хранитель времени","price":330,"level":8,"rarity":"rare","desc":"Награда любителям решать задачи вовремя."},
+  {"id":"bd_puzzle","name":"Мастер головоломок","price":425,"level":9,"rarity":"epic","desc":"Старинная мозаика из фигур для знатоков логики."},
+  {"id":"bd_crown","name":"Корона разума","price":650,"level":12,"rarity":"legendary","desc":"Королевская награда за математическую смекалку."}
+ );
+ const artworkIds=new Set(["bd_star", "bd_diamond", "bd_pi", "bd_root", "bd_sigma", "bd_fraction", "bd_infinity", "bd_div_master", "bd_fraction_master", "bd_perfect", "bd_control", "bd_errors", "bd_grade4", "bd_grade5", "bd_thousand", "bd_equations", "bd_comet", "bd_geometry", "bd_logic", "bd_sprint", "bd_orbit", "bd_compass", "bd_clock", "bd_puzzle", "bd_crown"]);
  const itemList=SHOP_CATALOG.badges||[];
  for(const item of itemList){
   if(!artworkIds.has(item.id))continue;
