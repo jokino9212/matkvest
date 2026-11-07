@@ -89,6 +89,16 @@ script="""<script id="mk30-artwork-viewer-script">
   // Collection cards are grouped by section, not by a type attribute.
   const collected=node.closest('.mk872-col-art');
   if(collected&&/Питомцы/.test(collected.closest('.mk872-col-section')?.querySelector('h3')?.textContent||''))return {kind:'pet',node:collected};
+  // Some themes disable pointer events on the thumbnail, so clicks target
+  // its parent card. Preserve buy/equip button behavior.
+  if(!node.closest('.shop-card button')){
+    const petCard=node.closest('.shop-grid .shop-card');
+    const name=petCard?.querySelector('strong')?.textContent?.trim();
+    if(petCard&&SHOP_CATALOG.pets.some(x=>x.name===name)){
+      const icon=petCard.querySelector('.shop-icon');
+      if(icon)return {kind:'pet',node:icon};
+    }
+  }
   const avatar=node.closest('.avatar-badge,.mk868-final-hero-card .shop-icon');
   if(avatar)return {kind:'avatar',node:avatar};
   return null;
