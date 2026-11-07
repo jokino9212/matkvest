@@ -40,7 +40,7 @@ async function main(){
      const td=[...row.children].map(x=>x.textContent.trim());
      return {th,td,pet:!!row.querySelector('.pet-mini'),legacy:row.querySelector('.avatar-badge')?.innerHTML};
    });
-   assert(board.th.includes('Коллекция 🪙'),'Missing worth column');
+   assert(board.th.includes('Коллекция 🪙'),'Missing worth column: '+JSON.stringify(board.th));
    assert.equal(board.td[board.th.indexOf('Коллекция 🪙')],String(setup.expected));
    assert(board.pet,'Pet not visible');
    const oldHtml=await page.locator('.leader-table .avatar-badge').first().evaluate(n=>n.innerHTML);
