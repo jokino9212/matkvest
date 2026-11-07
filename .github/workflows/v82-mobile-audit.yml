@@ -1,0 +1,22 @@
+name: v82 mobile responsive audit
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/v82-mobile-audit.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  responsive-audit:
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Run compact mobile screen matrix
+        run: node audits/stage27_compact_mobile_browser.cjs
+      - name: Run overlay screen matrix
+        if: always()
+        run: node audits/stage20_mobile_overlays_browser.cjs
