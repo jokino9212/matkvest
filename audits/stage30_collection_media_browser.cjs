@@ -93,7 +93,17 @@ async function main(){
    const profilePet=page.locator('#modal .pet-mini').first();
    if(await profilePet.count()){
      await profilePet.click({force:true});
-     assert(await page.locator('#mk872AvatarViewer .mk30-pet').count(),'Profile pet did not open full-size preview');
+     const profileDiag=await page.evaluate(()=>{
+       const badge=document.querySelector('#modal .pet-mini');
+       const viewer=document.querySelector('#mk872AvatarViewer');
+       const zoom=viewer?.querySelector('.mk30-visual');
+       const rect=badge?.getBoundingClientRect();
+       return {outer:badge?.outerHTML.slice(0,200),pointer:badge?getComputedStyle(badge).pointerEvents:null,
+         location:rect?{x:rect.x,y:rect.y,width:rect.width,height:rect.height}:null,
+         zoomClass:zoom?.className,viewerOpen:viewer?.classList.contains('mk872-open'),
+         clickTrace:window._mk30ClickTrace};
+     });
+     assert(await page.locator('#mk872AvatarViewer .mk30-pet').count(),'Profile pet did not open full-size preview '+JSON.stringify(profileDiag));
      await page.keyboard.press('Escape');
    }
    const rasterId=await page.evaluate(()=>SHOP_CATALOG.avatars.find(x=>x.mk868Raster)?.id||null);
