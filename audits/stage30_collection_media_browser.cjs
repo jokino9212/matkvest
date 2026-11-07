@@ -70,6 +70,35 @@ async function main(){
    await page.evaluate(()=>openCollection());
    assert((await page.locator('#modal').innerText()).includes('Стоимость коллекции'),'Collection worth missing: '+(await page.locator('#modal').innerText()).slice(0,850));
    assert((await page.locator('#modal').innerText()).includes(String(setup.expected)),'Collection worth wrong');
+   await page.evaluate(()=>openShop('pets'));
+   const shopIcons=page.locator('#modal .shop-grid .shop-card .shop-icon');
+   assert((await shopIcons.count())>0,'Pet shop has no icon previews');
+   await shopIcons.first().click();
+   assert(await page.locator('#mk872AvatarViewer .mk30-pet').count(),'Pet shop icon did not open full-size preview');
+   await page.keyboard.press('Escape');
+   await page.evaluate(()=>openProfiles());
+   const profilePet=page.locator('#modal .pet-mini').first();
+   if(await profilePet.count()){
+     await profilePet.click({force:true});
+     assert(await page.locator('#mk872AvatarViewer .mk30-pet').count(),'Profile pet did not open full-size preview');
+     await page.keyboard.press('Escape');
+   }
+   const rasterId=await page.evaluate(()=>SHOP_CATALOG.avatars.find(x=>x.mk868Raster)?.id||null);
+   if(rasterId){
+     await page.evaluate(id=>{
+       profiles[currentProfile].inventory.avatars=[...new Set([...(profiles[currentProfile].inventory.avatars||[]),id])];
+       profiles[currentProfile].equipped.avatar=id;
+       state=profiles[currentProfile];
+       openLeaderboard();
+     },rasterId);
+     const hero=page.locator('.leader-table .avatar-core img.mk868-avatar-img').first();
+     assert(await hero.count(),'Raster avatar missing in leaderboard');
+     const heroSrc=await hero.getAttribute('src');
+     await hero.click();
+     const heroZoom=page.locator('#mk872AvatarViewer .mk30-visual .avatar-core img.mk868-avatar-img').first();
+     assert.equal(await heroZoom.getAttribute('src'),heroSrc,'Raster hero zoom replaced with emoji or level');
+     await page.keyboard.press('Escape');
+   }
    if(errors.length)throw Error('JS page errors '+JSON.stringify(errors.slice(0,3)));
    console.log('STAGE30_PASS',JSON.stringify({width,setup,worth,
      board:{columns:board.th,worth:board.td[board.th.indexOf('Коллекция')]},
