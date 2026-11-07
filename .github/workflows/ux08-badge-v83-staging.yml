@@ -2,7 +2,7 @@ name: UX-08 badge expansion v83 staging gate
 on:
   push:
     branches: [ux-final/ux00-inventory-20261108]
-    paths: ['.github/workflows/ux08-badge-v83-staging.yml']
+    paths: ['.github/workflows/ux08-badge-v83-staging.yml', 'audits/ux08_badge_v83_browser.cjs']
   workflow_dispatch:
 permissions:
   contents: write
