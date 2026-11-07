@@ -58,10 +58,10 @@ const original={bd_star:55,bd_diamond:60,bd_pi:65,bd_root:75,bd_sigma:80,bd_frac
      mk872CollectionTab='badges';openCollection();
      const imgs=[...document.querySelectorAll('#modal img.mk-ux-badge-image')];
      await Promise.all(imgs.map(x=>x.decode().catch(()=>null)));
-     return {count:imgs.length,broken:imgs.filter(x=>x.naturalWidth===0).map(x=>x.src),
+     return {count:imgs.length,ids:[...new Set(imgs.map(x=>x.getAttribute('src')?.split('/').pop()?.replace('.svg','')))],broken:imgs.filter(x=>x.naturalWidth===0).map(x=>x.src),
        overflows:document.documentElement.scrollWidth>document.documentElement.clientWidth+2};
    });
-   assert.equal(collection.count,20);assert.deepEqual(collection.broken,[]);assert(!collection.overflows);
+   assert.equal(collection.ids.length,20,'20 unique collection artworks: '+JSON.stringify(collection));assert.deepEqual(collection.broken,[]);assert(!collection.overflows);
    await page.screenshot({path:out+'/collection_'+width+'.png',animations:'disabled',timeout:12000});
    assert.deepEqual(errors,[],'JavaScript errors '+width);
    results.push({width,shop,purchase,collection,errors});
