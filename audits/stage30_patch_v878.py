@@ -81,7 +81,11 @@ script="""<script id="mk30-artwork-viewer-script">
   if(petIcon)return {kind:'pet',node:petIcon};
   // Shop cards do not store their type in data-*; use the active tab.
   const shopIcon=node.closest('.shop-card .shop-icon');
-  if(shopIcon&&(document.getElementById('modal')?.dataset.mk30Shop==='pets'||/Питомцы/.test(document.querySelector('.shop-tabs .active')?.textContent||'')))return {kind:'pet',node:shopIcon};
+  if(shopIcon){
+    const cardName=shopIcon.closest('.shop-card')?.querySelector('strong')?.textContent?.trim();
+    const petByName=SHOP_CATALOG.pets.some(x=>x.name===cardName);
+    if(petByName||document.getElementById('modal')?.dataset.mk30Shop==='pets'||/Питомцы/.test(document.querySelector('.shop-tabs .active')?.textContent||''))return {kind:'pet',node:shopIcon};
+  }
   // Collection cards are grouped by section, not by a type attribute.
   const collected=node.closest('.mk872-col-art');
   if(collected&&/Питомцы/.test(collected.closest('.mk872-col-section')?.querySelector('h3')?.textContent||''))return {kind:'pet',node:collected};
