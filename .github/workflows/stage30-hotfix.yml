@@ -18,6 +18,8 @@ jobs:
         run: |
           if ! grep -q 'mk30-artwork-viewer-script' index.html; then
             python3 audits/stage30_patch_v878.py
+          else
+            python3 audits/stage30_sync_v878.py
           fi
       - name: PWA hash invariant
         run: |
