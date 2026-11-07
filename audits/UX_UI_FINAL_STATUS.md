@@ -98,3 +98,13 @@
 - SVG/Chromium Gate 20 рисунков: **SUCCESS** https://github.com/jokino9212/matkvest/actions/runs/42423672799 , артефакт `badge_prototypes_20.png`.
 - Не назначать цены без проверки дохода монет, не подменять художественный Gate техническим. Production `main` остаётся v81, рабочая staging — v82. Полная UX-программа ещё не завершена.
 - Новый чат продолжает с более актуального `audits/UX_UI_FINAL_STATUS.md` в рабочей ветке, не запускает инвентаризацию заново.
+
+## UX-08 — партия 9: staging v83, 20 значков в каталоге (2026-11-08)
+
+- Ветка `ux-final/ux00-inventory-20261108`, staging PWA v83; **production остаётся v81**, `main` HTML не менялся.
+- Все **20 значков интегрированы** в реальный магазин и коллекцию: прежние 16 без изменения ID/price/rarity/achievement, четыре новые — `bd_comet` uncommon/160/ур.4; `bd_geometry` rare/240/ур.6; `bd_logic` epic/360/ур.8; `bd_sprint` legendary/520/ур.10.
+- Подтверждена экономика по исходному коду: 3 монеты за обычный правильный ответ, 5 за деление столбиком, бонусы серии +5/+15; детали в новом документе `audits/UX_UI_BADGE_ECONOMY_V83.md` рабочей ветки.
+- **CI Gate**: https://github.com/jokino9212/matkvest/actions/runs/42424197313 — SUCCESS, покупка, ledger, инвентарь, магазин, сортировка, viewer, leaderboard.
+- **Six-width Gate**: https://github.com/jokino9212/matkvest/actions/runs/42424295578 — SUCCESS, 20 SVG на 320/360/390/430/768/1280px, артефакт скриншотов.
+- Следующее: художественная проверка галереи и новый ассортимент ещё 30 уникальных значков до целевых 50; не считать UX-08 DONE и не выпускать production без визуальной приёмки.
+- Подробный актуальный STATUS сохранён в той же рабочей ветке.
