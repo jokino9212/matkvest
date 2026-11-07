@@ -130,3 +130,10 @@
 - Из последней стабильной v85/30 предметов создана и успешно проверена staging **v86 с 35 реальными значками** в `SHOP_CATALOG.badges`, ветка `ux-final/ux00-inventory-20261108`. Добавлены: `bd_abacus` uncommon/195/ур.5, `bd_hourglass` rare/285/ур.7, `bd_atom` rare/355/ур.8, `bd_matrix` epic/495/ур.10, `bd_phoenix` legendary/780/ур.13. Прежние цены и наградные ID сохранены.
 - Полный E2E-Gate **SUCCESS** https://github.com/jokino9212/matkvest/actions/runs/42426531366 — покупка, расход, сохранение, каталог, viewer, сортировка, рейтинг; six-width SVG Gate **SUCCESS** https://github.com/jokino9212/matkvest/actions/runs/42426621188 — 35 картинок в магазине/коллекции на 320/360/390/430/768/1280px.
 - **Production `main` всё ещё v81**; визуальная художественная приёмка и реальный Android ожидаются. До ≥50 значков остаётся 15; подробный STATUS обновлён в рабочей ветке. Не начинать разработку заново.
+
+## UX-08 — партия 13: 40/50 значков, проверенная staging v87 (2026-11-08)
+
+- Продолжается рабочая ветка `ux-final/ux00-inventory-20261108`, PWA v87, 40 предметов `SHOP_CATALOG.badges` вместо прежних 35. Новые: `bd_magnet` uncommon/235/ур.6, `bd_gear` rare/340/ур.8, `bd_mountain` epic/405/ур.9, `bd_key` epic/535/ур.11, `bd_dragonfly` legendary/830/ур.14.
+- Фактическая staging сборка commit `4b012d7ee6b38ea578d7c419b67818b8cd634295`; PWA кеш v87, предыдущие цены сохранены.
+- **E2E PASS** https://github.com/jokino9212/matkvest/actions/runs/42427247078 ; **Six-width mobile visual Gate PASS** https://github.com/jokino9212/matkvest/actions/runs/42427332872 .
+- **Production `main` остаётся v81**. Следом 10 новых SVG (5+5), финальный художественный contact-sheet и UI QA, затем возвращаемся к питомцам, стикерам, аватарам. Контрольная точка рабочей ветки — более подробная и актуальная.
