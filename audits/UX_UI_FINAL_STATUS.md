@@ -59,3 +59,10 @@
 - Кандидаты по alpha bounds: `av_penguin`, `pet_penguin`, `st_planet`, `st_orbit`.
 - **UX-00 ещё НЕ завершён**: нет утверждённых художественных эталонов и полноценной визуальной приёмки. Продолжать с ветки, не начинать инвентаризацию с нуля.
 - В production HTML/SW изменений нет.
+
+## UX-00 — партия 3: SVG-эталоны (2026-11-08)
+- Активная ветка: `ux-final/ux00-inventory-20261108`, там сохранена более новая полная версия этого STATUS.
+- Созданы **три настоящих редактируемых SVG**: `assets/source/badges/prototypes/bd_star.svg`, `bd_diamond.svg`, `bd_pi.svg`.
+- GitHub Actions https://github.com/jokino9212/matkvest/actions/runs/42418950965 — SUCCESS; при размерах 48 и 160 px. Артефакт скриншота `ux00-badge-style-prototypes`.
+- `audits/UX_UI_ART_BIBLE.md` v0.1 дополнена. Эти прототипы **не введены в магазин и не получили художественного утверждения**.
+- Следующий шаг: оценка визуального качества контактных листов, per-item viewer QA и эталоны питомцев/аватаров/стикеров. UX-00 ещё IN PROGRESS.
