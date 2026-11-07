@@ -2,13 +2,13 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 const {chromium}=require('playwright');
 const expected=[['bd_orbit','uncommon',190,5],['bd_compass','rare',275,7],['bd_clock','rare',330,8],['bd_puzzle','epic',425,9],['bd_crown','legendary',650,12]];
-const original={bd_star:55,bd_diamond:60,bd_pi:65,bd_root:75,bd_sigma:80,bd_fraction:90,bd_infinity:125,bd_comet:160,bd_geometry:240,bd_logic:360,bd_sprint:525};
+const original={bd_star:55,bd_diamond:60,bd_pi:65,bd_root:75,bd_sigma:80,bd_fraction:90,bd_infinity:125,bd_comet:160,bd_geometry:240,bd_logic:360,bd_sprint:520};
 (async()=>{
  const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
  const out='audits/ux08_badge_v84_output';fs.mkdirSync(out,{recursive:true});
  const results=[];
  try{
-  for(const width of [325,390,768,1280]){
+  for(const width of [320,390,768,1280]){
    console.log('UX084_BEGIN',width);
    const page=await browser.newPage({viewport:{width,height:width<500?740:850},isMobile:width<500,hasTouch:width<500});
    page.setDefaultTimeout(16000);
