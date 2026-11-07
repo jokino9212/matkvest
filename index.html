@@ -7401,7 +7401,15 @@ function normalizeShop(){
   {"id":"bd_matrix","name":"Матрица чисел","price":495,"level":10,"rarity":"epic","desc":"Девять чисел образуют строгую систему."},
   {"id":"bd_phoenix","name":"Пламенный интеллект","price":780,"level":13,"rarity":"legendary","desc":"Сияющий феникс интеллектуального роста."}
  );
- const artworkIds=new Set(["bd_star", "bd_diamond", "bd_pi", "bd_root", "bd_sigma", "bd_fraction", "bd_infinity", "bd_div_master", "bd_fraction_master", "bd_perfect", "bd_control", "bd_errors", "bd_grade4", "bd_grade5", "bd_thousand", "bd_equations", "bd_comet", "bd_geometry", "bd_logic", "bd_sprint", "bd_orbit", "bd_compass", "bd_clock", "bd_puzzle", "bd_crown", "bd_prism", "bd_rocket", "bd_chess", "bd_spiral", "bd_telescope", "bd_abacus", "bd_hourglass", "bd_atom", "bd_matrix", "bd_phoenix"]);
+ /* UX-08 phase 5: five new purchasable badges; original 16 records untouched. */
+ SHOP_CATALOG.badges.push(
+  {"id":"bd_magnet","name":"Магнит идей","price":235,"level":6,"rarity":"uncommon","desc":"Притягивает интересные математические идеи."},
+  {"id":"bd_gear","name":"Шестерня мысли","price":340,"level":8,"rarity":"rare","desc":"Каждая точная мысль запускает сложный механизм."},
+  {"id":"bd_mountain","name":"Вершина знаний","price":405,"level":9,"rarity":"epic","desc":"На вершину знаний поднимаются настойчивые."},
+  {"id":"bd_key","name":"Ключ к решению","price":535,"level":11,"rarity":"epic","desc":"Золотой ключ открывает сложнейшие задачи."},
+  {"id":"bd_dragonfly","name":"Стрекоза точности","price":830,"level":14,"rarity":"legendary","desc":"Лёгкость и точность каждого математического движения."}
+ );
+ const artworkIds=new Set(["bd_star", "bd_diamond", "bd_pi", "bd_root", "bd_sigma", "bd_fraction", "bd_infinity", "bd_div_master", "bd_fraction_master", "bd_perfect", "bd_control", "bd_errors", "bd_grade4", "bd_grade5", "bd_thousand", "bd_equations", "bd_comet", "bd_geometry", "bd_logic", "bd_sprint", "bd_orbit", "bd_compass", "bd_clock", "bd_puzzle", "bd_crown", "bd_prism", "bd_rocket", "bd_chess", "bd_spiral", "bd_telescope", "bd_abacus", "bd_hourglass", "bd_atom", "bd_matrix", "bd_phoenix", "bd_magnet", "bd_gear", "bd_mountain", "bd_key", "bd_dragonfly"]);
  const itemList=SHOP_CATALOG.badges||[];
  for(const item of itemList){
   if(!artworkIds.has(item.id))continue;
