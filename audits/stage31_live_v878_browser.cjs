@@ -13,7 +13,7 @@ async function main(){
  const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
  let failures=0;
  try{
-  for(const width of [320,390,768]){
+  for(const width of [320,390,768,1280]){
    const context=await browser.newContext({viewport:{width,height:760},isMobile:width<500,hasTouch:width<500,serviceWorkers:'allow'});
    const page=await context.newPage(),errors=[];
    page.on('pageerror',e=>errors.push(e.message));
@@ -57,6 +57,7 @@ async function main(){
     assert.equal(result.hash,localHash,'Live HTML is not current main');
     assert.equal(result.expected,localHash,'Live SW hash mismatches live HTML');
     assert.equal(result.cacheName,'matkvest-iphone-v78');
+    assert(result.docWidth<=result.viewport+1,'Horizontal document overflow: '+JSON.stringify({width,docWidth:result.docWidth,viewport:result.viewport}));
     assert.equal(result.missing.length,0,'Missing runtime functions');
     assert.equal(result.worth,result.expectedWorth,'Live collection valuation mismatch');
     assert(result.columns.some(x=>x.startsWith('Коллекция')),'Live leaderboard has no collection column: '+JSON.stringify({columns:result.columns,worthCell:result.worthCell,hash:result.hash}));
@@ -95,7 +96,7 @@ async function main(){
    await context.close();
   }
  }finally{await browser.close()}
- console.log('STAGE31_LIVE_SUMMARY',JSON.stringify({expected:3,failures}));
+ console.log('STAGE31_LIVE_SUMMARY',JSON.stringify({expected:4,failures}));
  if(failures)process.exitCode=1;
 }
 main().catch(e=>{console.error(e);process.exitCode=1});
