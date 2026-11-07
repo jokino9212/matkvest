@@ -73,9 +73,9 @@ async function main(){
    await page.evaluate(()=>openShop('pets'));
    const shopIcons=page.locator('#modal .shop-grid .shop-card .shop-icon');
    assert((await shopIcons.count())>0,'Pet shop has no icon previews');
-   await shopIcons.first().click();
+   await shopIcons.nth(1).click();
    const shopDiagnostic=await page.evaluate(()=>({active:document.querySelector('#modal')?.dataset.mk30Shop,
-     icon:document.querySelector('#modal .shop-grid .shop-card .shop-icon')?.outerHTML?.slice(0,400),
+     icon:document.querySelector('#modal .shop-grid .shop-card:nth-child(2) .shop-icon')?.outerHTML?.slice(0,400),
      viewer:document.getElementById('mk872AvatarViewer')?.querySelector('.mk30-visual')?.outerHTML?.slice(0,250),
      title:document.querySelector('#modal .shop-grid .shop-card strong')?.textContent}));
    assert(await page.locator('#mk872AvatarViewer .mk30-pet').count(),'Pet shop icon did not open full-size preview '+JSON.stringify(shopDiagnostic));
