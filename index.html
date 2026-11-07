@@ -34537,6 +34537,23 @@ if(mkV877CorruptProfiles){
 .mk30-visual.mk30-pet>*>.emoji-fallback-img,
 .mk30-visual.mk30-pet>*>img{width:85%!important;height:85%!important;max-width:85%!important;max-height:85%!important;object-fit:contain!important}
 .mk30-visual.mk30-pet .stack-badge{font-size:.34em}
+/* v81: prevent collection pet art inheriting the tiny inventory thumbnail geometry. */
+.mk30-visual.mk30-pet>.mk872-col-art{
+ width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;
+ max-width:100%!important;max-height:100%!important;display:grid!important;
+ place-items:center!important;padding:0!important;margin:0!important;
+ position:relative!important;inset:auto!important;transform:none!important;
+}
+.mk30-visual.mk30-pet>.mk872-col-art>.shop-icon{
+ width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;
+ max-width:100%!important;max-height:100%!important;display:grid!important;
+ place-items:center!important;font-size:clamp(75px,24vw,165px)!important;
+}
+.mk30-visual.mk30-pet>.mk872-col-art>.shop-icon img,
+.mk30-visual.mk30-pet>.mk872-col-art>.shop-icon svg{
+ width:95%!important;height:95%!important;max-width:95%!important;
+ max-height:95%!important;object-fit:contain!important;
+}
 /* v80: collection avatars use the full visual area in the zoom dialog. */
 .mk30-visual.mk30-avatar>.mk872-col-art{
  width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;
