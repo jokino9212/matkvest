@@ -2,7 +2,7 @@ name: UX-00 badge v82 staging integration
 on:
   push:
     branches: [ux-final/ux00-inventory-20261108]
-    paths: ['.github/workflows/ux00-badge-v82-staging.yml']
+    paths: ['.github/workflows/ux00-badge-v82-staging.yml', 'audits/ux00_badge_integration_browser.cjs']
   workflow_dispatch:
 permissions:
   contents: write
@@ -19,7 +19,7 @@ jobs:
         run: python3 audits/ux00_integrate_badges_v82.py
       - run: npm install --no-save --no-package-lock playwright@1.56.1
       - name: Verify real artwork and unchanged item values
-        run: node audits/ux00_badge_integration_browser.cjs
+        run: timeout 150s node audits/ux00_badge_integration_browser.cjs
       - name: Regression - shop sorting and progress
         run: node audits/shop_progress_v874_browser_test.cjs
       - name: Regression - collection full-screen artwork
