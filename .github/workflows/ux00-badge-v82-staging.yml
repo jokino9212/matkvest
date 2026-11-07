@@ -2,7 +2,7 @@ name: UX-00 badge v82 staging integration
 on:
   push:
     branches: [ux-final/ux00-inventory-20261108]
-    paths: ['.github/workflows/ux00-badge-v82-staging.yml', 'audits/ux00_badge_integration_browser.cjs']
+    paths: ['.github/workflows/ux00-badge-v82-staging.yml', 'audits/ux00_badge_integration_browser.cjs', 'audits/ux00_integrate_badges_v82.py']
   workflow_dispatch:
 permissions:
   contents: write
