@@ -34537,6 +34537,19 @@ if(mkV877CorruptProfiles){
 .mk30-visual.mk30-pet>*>.emoji-fallback-img,
 .mk30-visual.mk30-pet>*>img{width:85%!important;height:85%!important;max-width:85%!important;max-height:85%!important;object-fit:contain!important}
 .mk30-visual.mk30-pet .stack-badge{font-size:.34em}
+/* v80: collection avatars use the full visual area in the zoom dialog. */
+.mk30-visual.mk30-avatar>.mk872-col-art{
+ width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;
+ max-width:100%!important;max-height:100%!important;display:grid!important;place-items:center!important;
+ padding:0!important;position:relative!important;inset:auto!important;margin:0!important;transform:none!important;
+}
+.mk30-visual.mk30-avatar>.mk872-col-art>.shop-icon{
+ width:100%!important;height:100%!important;max-width:100%!important;max-height:100%!important;
+ display:grid!important;place-items:center!important;font-size:clamp(75px,24vw,165px)!important;
+}
+.mk30-visual.mk30-avatar>.mk872-col-art>.shop-icon img{
+ width:95%!important;height:95%!important;object-fit:contain!important;
+}
 .leader-table .mk30-worth{white-space:nowrap;font-variant-numeric:tabular-nums}
 @media(max-width:520px){
  .leader-table{min-width:640px}
@@ -34568,7 +34581,11 @@ if(mkV877CorruptProfiles){
   }
   // Collection cards are grouped by section, not by a type attribute.
   const collected=node.closest('.mk872-col-art');
-  if(collected&&/Питомцы/.test(collected.closest('.mk872-col-section')?.querySelector('h3')?.textContent||''))return {kind:'pet',node:collected};
+  if(collected){
+   const heading=collected.closest('.mk872-col-section')?.querySelector('h3')?.textContent||'';
+   if(/Питомцы/.test(heading))return {kind:'pet',node:collected};
+   if(/Аватары/.test(heading)||collected.matches('.mk868-final-hero-card'))return {kind:'avatar',node:collected};
+  }
   // Some themes disable pointer events on the thumbnail, so clicks target
   // its parent card. Preserve buy/equip button behavior.
   if(!node.closest('.shop-card button')){
@@ -34592,7 +34609,8 @@ if(mkV877CorruptProfiles){
   const wrap=document.createElement('div');wrap.className='mk30-visual '+(item.kind==='pet'?'mk30-pet':'mk30-avatar');
   wrap.append(copy);visual.replaceChildren(wrap);
   const img=orig.querySelector('img');
-  const name=orig.closest('.mk868-final-hero-card,.shop-card,.mk19g-pet-choice')?.querySelector('strong,.shop-name')
+  const name=orig.closest('.mk872-col-card')?.querySelector('strong')
+    ||orig.closest('.mk868-final-hero-card,.shop-card,.mk19g-pet-choice')?.querySelector('strong,.shop-name')
     ||orig.closest('.mk19g-pet-panel')?.querySelector('.mk19g-pet-name');
   const petFromCatalog=item.kind==='pet' ? SHOP_CATALOG.pets.find(p=>p.id!=='pet_none'&&
     (p.icon===orig.innerHTML||p.icon===orig.textContent.trim())) : null;
