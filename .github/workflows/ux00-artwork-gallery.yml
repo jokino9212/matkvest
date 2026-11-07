@@ -2,7 +2,7 @@ name: UX-00 actual artwork contact sheets
 on:
   push:
     branches: [ux-final/ux00-inventory-20261108]
-    paths: ['.github/workflows/ux00-artwork-gallery.yml']
+    paths: ['.github/workflows/ux00-artwork-gallery.yml', 'audits/ux00_artwork_gallery_browser.cjs']
   workflow_dispatch:
 permissions:
   contents: write
