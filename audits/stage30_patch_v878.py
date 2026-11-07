@@ -57,7 +57,7 @@ css="""<style id="mk30-zoom-style">
 .mk30-visual>.pet-mini img,.mk30-visual>.study-pet img{width:100%!important;height:100%!important}
 .mk30-visual .pet-mini{width:21%!important;height:21%!important;right:-8px!important;bottom:-8px!important;font-size:22px!important}
 .leader-table .mk30-worth{white-space:nowrap;font-variant-numeric:tabular-nums}
-.pet-mini,.mk19g-pet-icon{pointer-events:auto!important;cursor:zoom-in!important}
+.pet-mini,.mk19g-pet-icon,#modal .avatar-badge .pet-mini,#modal .profile-preview .avatar-badge.large .pet-mini{pointer-events:auto!important;cursor:zoom-in!important}
 @media(max-width:520px){
  .leader-table{min-width:640px}
  .leader-table th:nth-child(5),.leader-table td:nth-child(5),
