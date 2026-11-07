@@ -1,0 +1,13 @@
+name: Leaderboard avatar and pet source probe
+on:
+  push:
+    branches: [fix/leaderboard-collection-avatar-pets-20261107]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 audits/stage30_leaderboard_media_probe.py
