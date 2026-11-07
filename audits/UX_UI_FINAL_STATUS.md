@@ -66,3 +66,10 @@
 - GitHub Actions https://github.com/jokino9212/matkvest/actions/runs/42418950965 — SUCCESS; при размерах 48 и 160 px. Артефакт скриншота `ux00-badge-style-prototypes`.
 - `audits/UX_UI_ART_BIBLE.md` v0.1 дополнена. Эти прототипы **не введены в магазин и не получили художественного утверждения**.
 - Следующий шаг: оценка визуального качества контактных листов, per-item viewer QA и эталоны питомцев/аватаров/стикеров. UX-00 ещё IN PROGRESS.
+
+## UX-00 — партия 5: семь SVG значков в рабочей ветке (2026-11-08)
+
+- Ветка `ux-final/ux00-inventory-20261108`: сделаны реальные SVG `bd_root`, `bd_sigma` («Сигма-бой» как оригинальная музыкальная пасхалка), `bd_fraction`, `bd_infinity`. Итого **7 из существующих 16** значков как редактируемые прототипы.
+- Проверка **SUCCESS**: https://github.com/jokino9212/matkvest/actions/runs/42421689817 ; семь значков отображены Chromium в 48px/160px, SVG-safety PASS. Artifact `ux00-badge-style-prototypes`.
+- Подробное ТЗ: `audits/UX_UI_BADGE_PRODUCTION_SPEC.md` в рабочей ветке; подробный текущий статус читать из той же ветки.
+- **Не внедрено в production**. Следующая партия: девять наградных значков SVG и визуальная приёмка перед интеграцией. UX-00 остаётся IN PROGRESS.
