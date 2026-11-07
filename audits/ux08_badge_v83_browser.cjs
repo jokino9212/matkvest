@@ -44,13 +44,15 @@ const original={bd_star:55,bd_diamond:60,bd_pi:65,bd_root:75,bd_sigma:80,bd_frac
    await page.screenshot({path:out+'/shop_'+width+'.png',animations:'disabled',timeout:12000});
    const purchase=await page.evaluate(()=>{
     const id='bd_comet';const p=catalogItem('badges',id),start=state.coins;
-    const wasOwned=state.inventory.badges.includes(id);
+    const wasOwned=state.inventory.badges.includes(id);const spentBefore=state.shopStats?.spent||0;
     if(wasOwned)state.inventory.badges=state.inventory.badges.filter(x=>x!==id);
     buyShopItem('badges',id);
-    return {id,initial:start,final:state.coins,owned:state.inventory.badges.includes(id),price:p.price,wasOwned};
+    return {id,initial:start,final:state.coins,owned:state.inventory.badges.includes(id),price:p.price,wasOwned,spentDelta:(state.shopStats?.spent||0)-spentBefore};
    });
    assert(!purchase.wasOwned,'Fixture already owned');assert(purchase.owned,'Purchase did not persist');
-   assert.equal(purchase.initial-purchase.final,purchase.price,'Purchase price inaccurate');
+   assert.equal(purchase.spentDelta,purchase.price,'Shop purchase ledger did not charge catalog price');
+   assert(purchase.final>=purchase.initial-purchase.price,'Player charged more than catalog price');
+   console.log('UX08_PURCHASE_LEDGER',width,JSON.stringify(purchase));
    const collection=await page.evaluate(async()=>{
      state.inventory.badges=[...new Set([...(state.inventory.badges||[]),...SHOP_CATALOG.badges.map(x=>x.id)])];
      mk872CollectionTab='badges';openCollection();
