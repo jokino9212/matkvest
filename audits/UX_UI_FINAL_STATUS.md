@@ -73,3 +73,10 @@
 - Проверка **SUCCESS**: https://github.com/jokino9212/matkvest/actions/runs/42421689817 ; семь значков отображены Chromium в 48px/160px, SVG-safety PASS. Artifact `ux00-badge-style-prototypes`.
 - Подробное ТЗ: `audits/UX_UI_BADGE_PRODUCTION_SPEC.md` в рабочей ветке; подробный текущий статус читать из той же ветки.
 - **Не внедрено в production**. Следующая партия: девять наградных значков SVG и визуальная приёмка перед интеграцией. UX-00 остаётся IN PROGRESS.
+
+## UX-00 — партия 6: все базовые SVG значки созданы (2026-11-08)
+
+- В рабочей ветке `ux-final/ux00-inventory-20261108` находятся **16/16 SVG-прототипов**, включая 9 наградных из последней партии. Исходники `assets/source/badges/prototypes/`.
+- [GitHub Actions 42422397820](https://github.com/jokino9212/matkvest/actions/runs/42422397820) — **SUCCESS**, в артефакте `ux00-badge-style-prototypes` создана полная галерея `badge_prototypes_16.png` в 48px/160px.
+- Производственное ТЗ и подробный STATUS обновлены в рабочей ветке.
+- **ВНИМАНИЕ:** худож. приёмка всех 16 + integration тесты остаются незавершёнными; в `main` `index.html`/`sw.js` не изменялись, продукт не содержит новых SVG. Продолжить с ветки, проверить галерею и затем внедрять реальные assets.
