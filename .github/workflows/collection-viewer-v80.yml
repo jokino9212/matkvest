@@ -1,0 +1,46 @@
+name: Fix collection avatar zoom v80
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/collection-viewer-v80.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: collection-viewer-v80-main
+  cancel-in-progress: false
+jobs:
+  patch-and-verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: true
+      - name: Apply guarded patch
+        run: python3 audits/fix_collection_avatar_viewer_v80.py
+      - name: Validate patch and PWA digest
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib
+          s=Path('index.html').read_text(encoding='utf-8')
+          sw=Path('sw.js').read_text(encoding='utf-8')
+          assert s.count('v80: collection avatars')==1
+          assert "if(/Аватары/.test(heading)" in s
+          assert "orig.closest('.mk872-col-card')" in s
+          assert 'matkvest-iphone-v80' in sw
+          assert hashlib.sha256(Path('index.html').read_bytes()).hexdigest() in sw
+          assert s.count('</body>')==1
+          print('PASS collection viewer v80 integrity')
+          PY
+      - name: Commit verified app and SW
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js
+          if ! git diff --cached --quiet; then
+            git commit -m "fix(collection): v80 full-size avatar zoom and PWA"
+            git push origin HEAD:main
+          fi
