@@ -144,7 +144,7 @@ s=s.replace('8.77','8.78')
 sw=sw.replace('matkvest-iphone-v77','matkvest-iphone-v78')
 p.write_text(s,'utf8')
 sha=hashlib.sha256(p.read_bytes()).hexdigest()
-sw,n=re.subn(r'(const APP_BUILD_HASH\\s*=\\s*")[a-f0-9]{64}(";)',lambda m:m.group(1)+sha+m.group(2),sw)
+sw,n=re.subn(r'[a-f0-9]{64}',sha,sw,count=1)
 assert n==1
 swp.write_text(sw,'utf8')
 print('STAGE30_PATCH_OK',sha,'v78')
