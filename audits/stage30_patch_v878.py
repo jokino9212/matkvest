@@ -167,7 +167,7 @@ extra="""<style id="mk30-collection-worth-style">
  };
 })();
 </script>"""
-s=s.replace('</body>',extra+'\\n</body>',1)
+s=s.replace('</body>',extra+chr(10)+'</body>',1)
 assert '8.77' in s
 s=s.replace('8.77','8.78')
 sw=sw.replace('matkvest-iphone-v77','matkvest-iphone-v78')
