@@ -22,3 +22,7 @@ for start,length in [(4958000,6000),(4418500,2300),(3289000,1400),(6333500,3700)
  print('SLICE',start,'LEN',length,repr(s[start:start+length]))
 for regex in [r'function catalogItem\(',r'function shopItemIcon\(',r'function shopPreview\(',r'function openLeaderboard\(',r'function mk19eProfileSummary\(',r'const SHOP_CATALOG\s*=',r'function avatarHtml\(',r'function mk868IsRasterAvatarItem\(']:
  for m in list(re.finditer(regex,s))[:4]:print('LOCATE',regex,m.start(),repr(s[m.start():m.start()+900]))
+
+for needle in ['function shopCard(', 'mk19g-pet-choice', 'mk872-col-art', 'function mk19gPet', 'function shopItemIcon(', 'function openShop(']:
+ p=s.find(needle)
+ print('MEDIA_MARKUP',needle,p,repr(s[p:p+3800]) if p!=-1 else '')
