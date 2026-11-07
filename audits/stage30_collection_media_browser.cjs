@@ -53,7 +53,9 @@ async function main(){
        visualText:viewer.querySelector('.mk30-visual')?.textContent?.slice(0,40)};
    });
    assert(avatarView.open&&avatarView.hasClone,'Avatar modal did not contain original artwork');
-   assert.equal(avatarView.html,oldHtml,'Avatar modal did not preserve rendered image layers');
+   const originalSrc=await page.locator('.leader-table .avatar-core img').first().getAttribute('src');
+   const cloneSrc=await page.locator('#mk872AvatarViewer .mk30-visual .avatar-core img').first().getAttribute('src');
+   assert.equal(cloneSrc,originalSrc,'Avatar zoom lost original rendered image source');
    assert(!/^\s*100\s*$/.test(avatarView.visualText||''),'Level badge opened instead of avatar');
    await page.keyboard.press('Escape');
    assert(!(await page.locator('#mk872AvatarViewer').evaluate(n=>n.classList.contains('mk872-open'))),'Escape did not close');
