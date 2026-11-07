@@ -151,6 +151,7 @@ script="""<script id="mk30-artwork-viewer-script">
   for(const el of nodes){
    if(!select(el))continue;
    el.classList.add('mk872-viewable');
+   if(el.matches('.pet-mini,.study-pet,.mk19g-pet-icon'))el.style.setProperty('pointer-events','auto','important');
    if(!el.hasAttribute('tabindex'))el.tabIndex=0;
   }
  };
