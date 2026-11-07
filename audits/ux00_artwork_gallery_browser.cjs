@@ -32,7 +32,27 @@ const findings={};try{
    document.body.append(root);
    await Promise.all([...root.querySelectorAll('img')].map(i=>i.decode().catch(()=>null)));
    return records.map(({item,media})=>{
-    const images=[...media.querySelectorAll('img')].map(img=>({ok:img.complete&&img.naturalWidth>0,naturalWidth:img.naturalWidth,naturalHeight:img.naturalHeight,displayWidth:img.getBoundingClientRect().width}));
+    const images=[...media.querySelectorAll('img')].map(img=>{
+      const info={ok:img.complete&&img.naturalWidth>0,naturalWidth:img.naturalWidth,naturalHeight:img.naturalHeight,displayWidth:img.getBoundingClientRect().width};
+      if(info.ok){
+       try{
+        const cvs=document.createElement('canvas');cvs.width=info.naturalWidth;cvs.height=info.naturalHeight;
+        if(cvs.width*cvs.height>2000000)throw Error('image-over-limit');
+        const ctx=cvs.getContext('2d',{willReadFrequently:true});ctx.drawImage(img,0,0);
+        const pixels=ctx.getImageData(0,0,cvs.width,cvs.height).data;
+        let minX=cvs.width,maxX=-1,minY=cvs.height,maxY=-1,occupied=0;
+        for(let y=0;y<cvs.height;y+=2)for(let x=0;x<cvs.width;x+=2){
+         if(pixels[(y*cvs.width+x)*4+3]>24){
+          minX=Math.min(minX,x);maxX=Math.max(maxX,x);minY=Math.min(minY,y);maxY=Math.max(maxY,y);occupied++;
+         }
+        }
+        info.alphaWidthRatio=maxX<0?0:(maxX-minX+1)/cvs.width;
+        info.alphaHeightRatio=maxY<0?0:(maxY-minY+1)/cvs.height;
+        info.alphaAreaRatio=occupied/(Math.ceil(cvs.width/2)*Math.ceil(cvs.height/2));
+       }catch(e){info.alphaError=String(e).slice(0,80)}
+      }
+      return info;
+    });
     const svg=[...media.querySelectorAll('svg')].map(x=>({viewBox:x.getAttribute('viewBox'),width:x.getBoundingClientRect().width}));
     return {id:item.id,name:item.name,rarity:item.rarity,price:item.price,images,svg,onlyText:images.length===0&&svg.length===0};
    });
