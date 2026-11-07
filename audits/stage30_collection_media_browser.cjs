@@ -40,8 +40,8 @@ async function main(){
      const td=[...row.children].map(x=>x.textContent.trim());
      return {th,td,pet:!!row.querySelector('.pet-mini'),legacy:row.querySelector('.avatar-badge')?.innerHTML};
    });
-   assert(board.th.includes('Коллекция 🪙'),'Missing worth column: '+JSON.stringify(board.th));
-   assert.equal(board.td[board.th.indexOf('Коллекция 🪙')],String(setup.expected));
+   assert(board.th.includes('Коллекция'),'Missing worth column: '+JSON.stringify(board.th));
+   assert.equal(board.td[board.th.indexOf('Коллекция')],String(setup.expected));
    assert(board.pet,'Pet not visible');
    const oldHtml=await page.locator('.leader-table .avatar-badge').first().evaluate(n=>n.innerHTML);
    await page.locator('.leader-table .avatar-core').first().click();
@@ -70,7 +70,7 @@ async function main(){
    assert((await page.locator('#modal').innerText()).includes(String(setup.expected)),'Collection worth wrong');
    if(errors.length)throw Error('JS page errors '+JSON.stringify(errors.slice(0,3)));
    console.log('STAGE30_PASS',JSON.stringify({width,setup,worth,
-     board:{columns:board.th,worth:board.td[board.th.indexOf('Коллекция 🪙')]},
+     board:{columns:board.th,worth:board.td[board.th.indexOf('Коллекция')]},
      avatar:{opened:avatarView.open,cloned:true,title:avatarView.title},
      pet:{opened:petView.open,cloned:petView.pet}}));
   }catch(e){issues.push({width,error:String(e)});console.error('STAGE30_FAIL',JSON.stringify({width,error:String(e),stack:String(e.stack||'').slice(0,1300)}))}
