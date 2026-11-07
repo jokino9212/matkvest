@@ -139,6 +139,35 @@ script="""<script id="mk30-artwork-viewer-script">
 </script>"""
 assert s.count('</body>')==1
 s=s.replace('</body>',css+'\n'+script+'\n</body>',1)
+extra="""<style id="mk30-collection-worth-style">
+.mk30-collection-worth{display:flex;align-items:center;justify-content:space-between;
+ gap:10px;flex-wrap:wrap;border:1px solid #d8e7df;border-radius:12px;
+ background:#f5fbf7;color:#173a2d;padding:10px 14px;margin:10px 0 12px}
+.mk30-collection-worth strong{font-size:18px;font-variant-numeric:tabular-nums}
+.mk30-collection-worth small{color:#597668;font-size:11px}
+</style>
+<script id="mk30-collection-worth-script">
+(function(){
+ 'use strict';
+ const original=openCollection;
+ openCollection=function(){
+  const result=original.apply(this,arguments);
+  const modal=document.getElementById('modal');
+  if(!modal||modal.querySelector('.mk30-collection-worth'))return result;
+  const anchor=modal.querySelector('.collection-stats,.mk872-col-counter-grid,.shop-tabs,.profile-preview');
+  const line=document.createElement('section');
+  line.className='mk30-collection-worth';
+  const label=document.createElement('span');label.textContent='📦 Стоимость коллекции';
+  const amount=document.createElement('strong');amount.textContent=mk30WorthLabel(state)+' 🪙';
+  const hint=document.createElement('small');hint.textContent='Все принадлежащие предметы по ценам каталога';
+  line.append(label,amount,hint);
+  if(anchor)anchor.insertAdjacentElement('beforebegin',line);
+  else modal.querySelector('.mtop')?.insertAdjacentElement('afterend',line);
+  return result;
+ };
+})();
+</script>"""
+s=s.replace('</body>',extra+'\\n</body>',1)
 assert '8.77' in s
 s=s.replace('8.77','8.78')
 sw=sw.replace('matkvest-iphone-v77','matkvest-iphone-v78')
