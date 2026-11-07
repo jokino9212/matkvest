@@ -1,0 +1,36 @@
+name: UX-00 SVG badge prototype verification
+on:
+  push:
+    branches: [ux-final/ux00-inventory-20261108]
+    paths: ['.github/workflows/ux00-svg-badge-prototypes.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  svg-prototypes:
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - name: SVG secure syntax and structure
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import xml.etree.ElementTree as ET
+          for f in sorted(Path('assets/source/badges/prototypes').glob('*.svg')):
+              s=f.read_text('utf8')
+              root=ET.fromstring(s)
+              assert root.tag.endswith('svg')
+              assert root.attrib.get('viewBox') == '0 0 512 512'
+              assert all(x not in s.lower() for x in ['<script','onload=','<foreignobject','http://www.w3.org/1999/xlink'])
+              print('SVG_SAFE',f)
+          PY
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - run: node audits/ux00_badge_prototypes_browser.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ux00-badge-style-prototypes
+          path: audits/ux00_prototype_output/
+          retention-days: 60
