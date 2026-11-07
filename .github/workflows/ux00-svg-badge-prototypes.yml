@@ -2,7 +2,7 @@ name: UX-00 SVG badge prototype verification
 on:
   push:
     branches: [ux-final/ux00-inventory-20261108]
-    paths: ['.github/workflows/ux00-svg-badge-prototypes.yml']
+    paths: ['.github/workflows/ux00-svg-badge-prototypes.yml', 'audits/ux00_badge_prototypes_browser.cjs', 'assets/source/badges/prototypes/**']
   workflow_dispatch:
 permissions:
   contents: read
