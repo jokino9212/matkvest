@@ -80,3 +80,13 @@
 - [GitHub Actions 42422397820](https://github.com/jokino9212/matkvest/actions/runs/42422397820) — **SUCCESS**, в артефакте `ux00-badge-style-prototypes` создана полная галерея `badge_prototypes_16.png` в 48px/160px.
 - Производственное ТЗ и подробный STATUS обновлены в рабочей ветке.
 - **ВНИМАНИЕ:** худож. приёмка всех 16 + integration тесты остаются незавершёнными; в `main` `index.html`/`sw.js` не изменялись, продукт не содержит новых SVG. Продолжить с ветки, проверить галерею и затем внедрять реальные assets.
+
+## UX-00 — партия 7, проверенная staging-интеграция 16 SVG (2026-11-08)
+
+- **Рабочая ветка**: `ux-final/ux00-inventory-20261108`, staging PWA **v82**.
+- Все 16 значков теперь реально подключены к `SHOP_CATALOG.badges` в рабочем `index.html`, с обновлённым `sw.js` и offline cache.
+- Github Actions **SUCCESS**: https://github.com/jokino9212/matkvest/actions/runs/42423141239 . Проверены shop/collection SVG, неизменные ID/цены/редкости, сортировка, mobile+desktop, zoom, рейтинг.
+- Снимки экрана магазина/коллекции доступны в артефакте `ux00-badges-integrated-staging`.
+- Staging `index.html`+`sw.js` commit `a47f5c448125400eae770e2b5a5a5d6a2386c343`; полный статус в рабочей ветке актуальнее.
+- **Production `main` НЕ деплоился и остаётся v81.** Художественный Gate и реальный Android не проверены; UX-00 НЕ DONE.
+- Следующее: оценить снимки и полноту рисунков в профиле/достижениях, исправить замечания, после визуальной приёмки решать о release; продолжать расширение до ≥50 значков и UX по питомцам.
