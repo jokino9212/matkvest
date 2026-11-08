@@ -35144,4 +35144,32 @@ if(mkV877CorruptProfiles){
  if(SHOP_CATALOG.stickers.length!==40||existing.size!==40)throw Error("UX-101 catalog not 40 unique stickers");
 })();
 </script>
+<style id="mk-ux103-pet-style">
+/* Transparent artwork, never a tile or an ornamental puddle. */
+.shop-icon>img.mk-ux103-pet-image,.mk872-col-art img.mk-ux103-pet-image{
+  box-sizing:border-box;display:block;width:90%;height:90%;max-width:100%;max-height:100%;
+  margin:auto;object-fit:contain;aspect-ratio:1;background:none!important;border:0!important;
+}
+#mk872AvatarViewer .mk30-visual.mk30-pet img.mk-ux103-pet-image{
+  display:block;box-sizing:border-box;width:94%!important;height:94%!important;
+  max-width:94%!important;max-height:94%!important;object-fit:contain!important;
+  margin:auto;background:transparent!important;border:0!important;
+}
+</style>
+<script id="mk-ux103-pet-art">
+/* Late art-only override: keep stable ID, rarity, price, level, ownership and achievements. */
+(function(){
+ const expected={
+  pet_phoenix:{price:820,rarity:'epic'},
+  pet_orb:{price:1050,rarity:'legendary'},
+  pet_ghost:{price:1500,rarity:'legendary'}
+ };
+ for(const [id,check] of Object.entries(expected)){
+  const pet=SHOP_CATALOG.pets.find(item=>item.id===id);
+  if(!pet||pet.price!==check.price||pet.rarity!==check.rarity)
+    throw new Error('UX-103 pet catalog mismatch '+id);
+  pet.icon='<img class="emoji-fallback-img mk-ux103-pet-image" alt="" loading="eager" decoding="async" src="assets/source/pets/'+id+'.svg">';
+ }
+})();
+</script>
 </body></html>
