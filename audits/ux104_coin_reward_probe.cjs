@@ -15,7 +15,7 @@ const output='audits/ux104_coins_audit_output';fs.mkdirSync(output,{recursive:tr
    const p=ensureProfileIdentity({...EMPTY_STATE,coins:12000,xp:mode?100000:0,
     inventory:{...(EMPTY_STATE.inventory||{}),pets:mode===2?SHOP_CATALOG.pets.filter(x=>x.id!=='pet_ghost').map(x=>x.id):['pet_none']},
     equipped:{...(EMPTY_STATE.equipped||{}),pet:'pet_none'}});
-   profiles={'Economy QA '+kind:p};currentProfile='Economy QA '+kind;state=p;
+   profiles={['Economy QA '+kind]:p};currentProfile='Economy QA '+kind;state=p;
    const functionSource=String(buyShopItem).slice(0,14000);
    const beforeSetup={coins:state.coins,xp:state.xp,inventory:state.inventory.pets.length,
      shopSpent:state.shopStats?.spent||0,counter:state.coinStats||null,
