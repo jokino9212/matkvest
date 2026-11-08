@@ -50,7 +50,7 @@ for(const [id] of newOnes){
    assert.deepEqual([x.rarity,x.price,x.level,x.rewardOnly],[rarity,price,level,false],'Wrong new tier '+id);
   }
   assert.deepEqual(catalog.items.filter(x=>x.rewardOnly).map(x=>x.achievement).sort(),
-   ['controlPerfect','grade4Perfect','master10'].sort(),'Reward achievements changed');
+   ['controlPerfect','grade4','master10'].sort(),'Reward achievements changed');
   assert(catalog.items.every(x=>x.src==='assets/source/stickers/'+x.id+'.svg'),
    'Legacy or new sticker is not a real vector');
   await page.evaluate(()=>{
