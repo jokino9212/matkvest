@@ -27,7 +27,7 @@ const ids=['pet_phoenix','pet_orb','pet_ghost'];
       const image=el.querySelector('img[src="assets/source/pets/'+id+'.webp"]');
       await image.decode();
       const r=image.getBoundingClientRect(),parent=el.getBoundingClientRect(),card=el.closest('.shop-card')?.getBoundingClientRect();
-      return {id,loaded:image.naturalWidth===512,area:{w:r.width,h:r.height},
+      return {id,loaded:image.naturalWidth===640,area:{w:r.width,h:r.height},
        icon:{w:parent.width,h:parent.height},cardW:card?.width,
        contain:getComputedStyle(image).objectFit,overflow:r.width>parent.width+2};
    },id);
