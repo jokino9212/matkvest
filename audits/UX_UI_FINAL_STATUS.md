@@ -137,3 +137,10 @@
 - Фактическая staging сборка commit `4b012d7ee6b38ea578d7c419b67818b8cd634295`; PWA кеш v87, предыдущие цены сохранены.
 - **E2E PASS** https://github.com/jokino9212/matkvest/actions/runs/42427247078 ; **Six-width mobile visual Gate PASS** https://github.com/jokino9212/matkvest/actions/runs/42427332872 .
 - **Production `main` остаётся v81**. Следом 10 новых SVG (5+5), финальный художественный contact-sheet и UI QA, затем возвращаемся к питомцам, стикерам, аватарам. Контрольная точка рабочей ветки — более подробная и актуальная.
+
+## UX-08 — партия 14: staging v88, 45/50 SVG значков (2026-11-08)
+
+- Рабочая ветка `ux-final/ux00-inventory-20261108`; staging app `index.html` + `sw.js` `matkvest-iphone-v88` на commit `4c18f1fd1572b86e6638b0419a7ef57f68c8131b`.
+- **45 настоящих предметов** `SHOP_CATALOG.badges`; новые `bd_lighthouse` uncommon/255/ур.6, `bd_book` rare/375/ур.8, `bd_owl` epic/445/ур.10, `bd_sundial` epic/575/ур.11, `bd_rune` legendary/890/ур.15. Все прежние 40 ID/цены сохранены.
+- **E2E PASS** https://github.com/jokino9212/matkvest/actions/runs/42427907120 ; **six-width visual PASS** https://github.com/jokino9212/matkvest/actions/runs/42428007784 (ширины 320/360/390/430/768/1280).
+- **Production `main` остаётся v81**, в этой ветке меняется лишь документ статуса. Осталось создать 5 значков до цели 50, затем художественный аудит, тесты на настоящем Android и остальные части UX-00 по питомцам/аватарам/стикерам. Полный STATUS в рабочей ветке актуальнее.
