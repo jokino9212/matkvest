@@ -1,0 +1,22 @@
+name: UX-104 batch3 - four premium pets safe preflight
+on:
+  push:
+    branches:
+      - 'ux-final/ux00-inventory-20261108'
+    paths:
+      - 'audits/ux104_batch3_manifest.json'
+      - 'audits/ux104_batch3_v105_patch.py'
+      - 'audits/ux104_batch3_preflight.py'
+      - '.github/workflows/ux104-batch3-guard.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  no-unapproved-art-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Python syntax and strict release guard
+        run: |
+          python3 -m py_compile audits/ux104_batch3_v105_patch.py audits/ux104_batch3_preflight.py
+          python3 audits/ux104_batch3_preflight.py
