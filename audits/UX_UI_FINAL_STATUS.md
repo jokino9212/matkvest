@@ -192,3 +192,11 @@
 - Созданы 8 оригинальных квадратных SVG-декалей и подключены к настоящему `SHOP_CATALOG.stickers`: `st_pi`, `st_star`, `st_rocket`, `st_lightning`, `st_cube`, `st_planet`, `st_trophy`, `st_crown`. Цены, ID, редкости и награды не менялись. Оставшиеся **23 стикера ещё старого вида**, продолжать партиями.
 - **Полный Gate PASS** https://github.com/jokino9212/matkvest/actions/runs/42433244611 — 320/390/768/1280px, магазин, 8 SVG, выбор/отмена избранного, 55 аватаров, питомцы, 50 значков, мобильная навигация, лидерборд и стоимость склада. В artifact `ux94-sticker-v94-responsive` настоящие скриншоты; просмотрены `shop_320.png`, `collection_390.png`.
 - **Production `main` HTML остаётся v81**, в этом коммите обновлён только checkpoint. Подробный актуальный STATUS в рабочей ветке. Далее ещё 23 стикера и полный art/sticker-tab Gate, затем Android, релиз.
+
+## UX/UI FINAL — партия 21: staging PWA v95, 16/31 SVG-стикеров (2026-11-08)
+
+- Рабочая ветка `ux-final/ux00-inventory-20261108`, проверенный app commit `c8e7915e2e0ad2c987e159c97fc9aba50304b794`, PWA `matkvest-iphone-v95`. **Production main приложение всё ещё v81**, в main обновляется только checkpoint.
+- Новая партия 8 оригинальных SVG-стикеров (`st_sigma`, `st_root`, `st_percent`, `st_divide`, `st_times`, `st_equals`, `st_delta`, `st_pi2`) подключена к реальному каталогу. Теперь **16/31 SVG**. Остальные 15 ещё не переведены в новый стиль. Все ID, цены, редкости, награды, выбор 3 любимых сохранены.
+- **Полный E2E-Gate SUCCESS** https://github.com/jokino9212/matkvest/actions/runs/42477765323 — 31 предмет, 16 SVG, 320/390/768/1280px, избранное, профиль, коллекция, магазин, 55 аватаров, питомцы, 50 значков, рейтинг и стоимость склада.
+- Artifact `ux95-sticker-v95-responsive` скачан, реально просмотрены `shop_320.png`, `leader_320.png`, `collection_390.png`. Выявлен следующий отдельный дефект: на 320px имя в leaderboard визуально соприкасается с подписью «значки не выбраны», мобильная ширина таблицы требует отдельного исправления.
+- **Следующее:** стикеры `st_x2`, `st_approx`, `st_fraction`, `st_degree`, `st_orbit`, `st_fire`, `st_crystal`, `st_bolt2` (партия 8), затем финальные 7. Продолжать с реальной ветки, не создавать заново. Полная контрольная точка — `audits/UX_UI_FINAL_STATUS.md` в staging.
