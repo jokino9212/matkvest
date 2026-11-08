@@ -1,0 +1,30 @@
+name: UX-99 complete sticker art gallery and QA
+on:
+  push:
+    branches: [ux-final/ux00-inventory-20261108]
+    paths: ['.github/workflows/ux99-sticker-art-gallery.yml','audits/ux99_sticker_art_gallery_browser.cjs']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: All 31 real stickers 32px and 128px + uniqueness contrast asset QA
+        run: timeout 140s node audits/ux99_sticker_art_gallery_browser.cjs
+      - name: Regression - mobile leaderboard six widths
+        run: timeout 120s node audits/ux98_mobile_leader_browser.cjs
+      - name: Regression - all 31 stickers responsive
+        run: timeout 160s node audits/ux97_sticker_v97_browser.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ux99-all-31-stickers-gallery-and-qa
+          path: |
+            audits/ux99_sticker_art_output/
+            audits/ux98_leader_mobile_output/
+          retention-days: 60
