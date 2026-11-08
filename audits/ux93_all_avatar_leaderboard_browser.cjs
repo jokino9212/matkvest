@@ -14,7 +14,7 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),path
     const p=ensureProfileIdentity({...EMPTY_STATE,coins:100,xp:10000,
      inventory:{...(EMPTY_STATE.inventory||{}),avatars:['av_default',item.id],pets:['pet_none']},
      equipped:{...(EMPTY_STATE.equipped||{}),avatar:item.id,pet:'pet_none'}});
-    profiles={'Тестовый '+item.id:p};currentProfile='Тестовый '+item.id;state=p;
+    profiles={['Тестовый '+item.id]:p};currentProfile='Тестовый '+item.id;state=p;
     openLeaderboard();
     const badge=document.querySelector('.leader-table .avatar-badge'),core=badge?.querySelector('.avatar-core')||badge;
     return {html:badge?.outerHTML.slice(0,350),sourceImg:core?.querySelector('img')?.getAttribute('src')||'',sourceSvg:core?.querySelector('svg')?.outerHTML.slice(0,200)||'',sourceText:core?.textContent?.trim()||''};
