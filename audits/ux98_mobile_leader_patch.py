@@ -37,6 +37,18 @@ css='''
    grid-row:3!important;display:block!important;
    width:100%!important;max-width:100%!important;overflow:visible!important;
  }
+ /* Nickname and empty-badge live in the SAME nested wrapper in real rows. */
+ #modal .leader-table .leader-identity .nickname-style{
+   display:block!important;white-space:normal!important;
+   max-height:none!important;margin:0 0 5px!important;line-height:1.3!important;
+   overflow-wrap:anywhere!important;
+ }
+ #modal .leader-table .leader-identity .profile-badge-empty{
+   display:block!important;position:static!important;float:none!important;
+   clear:both!important;width:auto!important;max-width:100%!important;
+   white-space:normal!important;overflow-wrap:anywhere!important;
+   margin:0 0 6px!important;font-size:11px!important;line-height:1.25!important;
+ }
  #modal .leader-table .leader-identity > .leader-mobile-level{
    grid-row:4!important;display:block!important;
    width:auto!important;max-width:100%!important;
