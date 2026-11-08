@@ -2,7 +2,7 @@ name: UX mobile shop source audit v90
 on:
   push:
     branches: [ux-final/ux00-inventory-20261108]
-    paths: ['.github/workflows/ux-mobile-shop-probe-v90.yml']
+    paths: ['.github/workflows/ux-mobile-shop-probe-v90.yml','audits/ux_mobile_shop_probe_v90.py']
   workflow_dispatch:
 permissions:
   contents: read
