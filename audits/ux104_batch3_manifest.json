@@ -1,0 +1,84 @@
+{
+  "phase": "UX-104",
+  "batch": 3,
+  "status": "art_briefs_ready_assets_not_created",
+  "staging": "v102",
+  "production": "v81",
+  "note": "Existing pet artwork only; no new products, no economy migration. Never publish without human art approval.",
+  "immutable_fields": [
+    "id",
+    "name",
+    "rarity",
+    "price",
+    "level",
+    "rewardOnly",
+    "achievement",
+    "inventory",
+    "equipped",
+    "shopStats"
+  ],
+  "items": [
+    {
+      "id": "pet_fox",
+      "avatar_duplicate": "av_fox",
+      "name": "Лисёнок",
+      "rarity": "uncommon",
+      "level": 3,
+      "price": 260,
+      "asset": "assets/candidates/pets/pet_fox.webp",
+      "sha256": null,
+      "visual_brief": "Отдельный пушистый рыжий лисёнок-исследователь с большим хвостом, маленьким телескопом и тёплым освещением; объёмная светотень, настоящий прозрачный фон, узнаваемый силуэт в 48 px, никакого повторения av_fox."
+    },
+    {
+      "id": "pet_turtle",
+      "avatar_duplicate": "av_turtle",
+      "name": "Черепашка",
+      "rarity": "uncommon",
+      "level": 4,
+      "price": 280,
+      "asset": "assets/candidates/pets/pet_turtle.webp",
+      "sha256": null,
+      "visual_brief": "Добрая самостоятельная зелёная черепашка с выразительной мордочкой, сложным расписным панцирем и математической мини-картой; премиальный 2.5D объем, прозрачный фон, не av_turtle."
+    },
+    {
+      "id": "pet_tiger",
+      "avatar_duplicate": "av_tiger",
+      "name": "Тигрёнок",
+      "rarity": "rare",
+      "level": 6,
+      "price": 340,
+      "asset": "assets/candidates/pets/pet_tiger.webp",
+      "sha256": null,
+      "visual_brief": "Игривый пушистый тигрёнок с объёмными оранжевыми полосками и аккуратным школьным снаряжением, оригинальная поза, видны лапы и хвост; 2.5D WebP RGBA, не av_tiger."
+    },
+    {
+      "id": "pet_astronaut",
+      "avatar_duplicate": "av_astronaut",
+      "name": "Космонавт",
+      "rarity": "epic",
+      "level": 8,
+      "price": 450,
+      "asset": "assets/candidates/pets/pet_astronaut.webp",
+      "sha256": null,
+      "visual_brief": "Самостоятельный маленький космический спутник в объёмном скафандре с прозрачным шлемом, реактивным ранцем и деликатным свечением, без фона-лужи, не av_astronaut и не копия av_robot."
+    }
+  ],
+  "art_acceptance": {
+    "required": true,
+    "status": "pending_visual_review",
+    "accepted_sha256": {
+      "pet_fox": null,
+      "pet_turtle": null,
+      "pet_tiger": null,
+      "pet_astronaut": null
+    }
+  },
+  "acceptance_checks": [
+    "four distinct WebP RGBA 640x640 with transparent corners",
+    "individual 48/128/384px light/dark contact sheets",
+    "real 320/390px shop, collection, leaderboard and fullscreen screenshots",
+    "zero truncated ears/wings/paws, no baked background tiles",
+    "SHA-256 of approved exact bytes required before staging publish"
+  ],
+  "next_stage_requires": "UX-104 batch1 approval and staging v103, batch2 sequential art gate, then batch3; no production release."
+}
