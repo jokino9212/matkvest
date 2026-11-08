@@ -1,0 +1,47 @@
+name: UX-92 real pet/avatar v92 staging Gate
+on:
+  push:
+    branches: [ux-final/ux00-inventory-20261108]
+    paths: ['.github/workflows/ux92-pet-viewer-v92.yml','audits/ux92_pet_viewer_v92_browser.cjs']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  staging:
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Patch pet viewer and update PWA v92
+        run: python3 audits/ux92_pet_viewer_patch.py
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Real pets and avatars on four responsive widths
+        run: timeout 130s node audits/ux92_pet_viewer_v92_browser.cjs
+      - name: Regression - legacy viewer
+        run: timeout 120s node audits/collection_viewer_v81_browser.cjs
+      - name: Regression - full 50 badge shop and collection
+        run: timeout 150s node audits/ux00_badge_final_visual_browser.cjs
+      - name: Regression - shop sorting
+        run: timeout 120s node audits/shop_progress_v874_browser_test.cjs
+      - name: Regression - leaderboard and worth
+        run: timeout 120s node audits/stage30_collection_media_browser.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ux92-pet-avatar-v92-screenshots
+          path: audits/ux92_viewer_v92_output/
+          retention-days: 60
+      - name: Commit staging only if all tests pass
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js
+          if ! git diff --cached --quiet; then
+            git commit -m "fix(ux92): accurate fullscreen pet artwork without empty placeholder [skip ci]"
+            git pull --rebase origin ux-final/ux00-inventory-20261108
+            git push origin HEAD:ux-final/ux00-inventory-20261108
+          fi
