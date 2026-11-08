@@ -1,0 +1,86 @@
+name: UX-104 batch 1 - three unique premium pets staging v103
+on:
+  push:
+    branches: [ux-final/ux00-inventory-20261108]
+    paths:
+      - 'assets/source/pets/pet_bot.webp'
+      - 'assets/source/pets/pet_owl.webp'
+      - 'assets/source/pets/pet_penguin.webp'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  art-and-compatibility:
+    name: Quality and identity Gate for three new premium original WebP pets
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        name: Preserve pristine v102 comparison
+        with:
+          ref: ux-final/ux00-inventory-20261108
+          path: baseline_v102
+      - name: Integrate only after genuine WebP artwork has been supplied
+        run: python3 audits/ux104_batch1_v103_patch.py
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Full artifact visual alpha QA, all 3 distinct, no dupes with v102 premium art
+        run: timeout 140s node audits/ux104_batch1_art_browser.cjs
+      - name: Check 55 avatars and all 20 existing pet ID/price/rarity/level untouched across 320/390/768/1280
+        run: timeout 200s node audits/ux104_batch1_v103_browser.cjs
+      - name: Existing premium mascot art remains unchanged
+        run: timeout 150s node audits/ux103r_premium_art_v102_browser.cjs
+      - name: Mobile leaderboard, inventory value and viewer regression
+        run: timeout 160s node audits/stage30_collection_media_browser.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ux104-batch1-original-pet-art-and-mobile-qa
+          path: |
+            audits/ux104_batch1_art_output/
+            audits/ux104_batch1_v103_output/
+          retention-days: 60
+  pwa-upgrade:
+    name: Production v81 -> preview v103 service worker and persistent two-profile state
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        name: Read-only production baseline
+        with:
+          ref: main
+          path: baseline_v81
+      - run: python3 audits/ux104_batch1_v103_patch.py
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Real migration, separate profiles and unfinished training retained
+        run: timeout 270s node audits/ux104_pwa_upgrade_v81_v103_browser.cjs
+      - name: Offline store and navigation
+        run: timeout 180s node audits/stage28_offline_pwa_browser.cjs
+      - name: Saved attempt lifecycle and economy
+        run: timeout 180s node audits/stage24_attempt_lifecycle_browser.cjs
+  publish-staging:
+    name: Only stage v103 after both Gates green (never production)
+    needs: [art-and-compatibility,pwa-upgrade]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - run: python3 audits/ux104_batch1_v103_patch.py
+      - run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js
+          if ! git diff --cached --quiet; then
+            git commit -m "feat(ux104): three original premium companion artworks staging v103 [skip ci]"
+            git pull --rebase origin ux-final/ux00-inventory-20261108
+            git push origin HEAD:ux-final/ux00-inventory-20261108
+          fi
