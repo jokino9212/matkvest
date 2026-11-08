@@ -38,5 +38,5 @@ const out='audits/ux93_stack_avatar_output';fs.mkdirSync(out,{recursive:true});
   }
   await page.close();
  }}finally{await browser.close()}
- function SHOP_AVATAR_TITLE(id){return id==='av_centurion'?'Сотник':id==='av_grade5_master'?'Легенда 5 класса':id==='av_mathquest_master'?'Мастер МатКвеста':'Аватар'}
+ function SHOP_AVATAR_TITLE(id){return id==='av_centurion'?'Сотник':id==='av_grade5_master'?'Легенда 5 класса':id==='av_mathquest_master'?'Мастер МатКвеста':'Классик'}
 })().catch(e=>{console.error(e);process.exitCode=1});
