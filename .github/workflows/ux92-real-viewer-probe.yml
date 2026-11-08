@@ -1,0 +1,23 @@
+name: UX-92 real pet avatar viewer diagnostic
+on:
+  push:
+    branches: [ux-final/ux00-inventory-20261108]
+    paths: ['.github/workflows/ux92-real-viewer-probe.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - run: timeout 120s node audits/ux92_viewer_real_source_browser.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ux92-real-pet-avatar-screenshots
+          path: audits/ux92_viewer_probe_output/
+          retention-days: 60
