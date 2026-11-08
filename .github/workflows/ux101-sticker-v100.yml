@@ -1,0 +1,91 @@
+name: UX-101 extend catalog to 40 original stickers (staging v100)
+on:
+  push:
+    branches: [ux-final/ux00-inventory-20261108]
+    paths:
+      - '.github/workflows/ux101-sticker-v100.yml'
+      - 'audits/ux101_sticker_v100_patch.py'
+      - 'audits/ux101_sticker_v100_browser.cjs'
+      - 'audits/ux101_all_40_stickers_art_browser.cjs'
+      - 'audits/ux101_pwa_upgrade_v81_v100_browser.cjs'
+      - 'assets/source/stickers/st_*.svg'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  catalog-and-art:
+    name: 40 SVG items, 6-width store/profile, visual art and regressions
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build staging PWA v100 with 9 new stickers
+        run: python3 audits/ux101_sticker_v100_patch.py
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Validate 40 SVG items, 9 new prices and purchase ledger, 6 viewport sizes
+        run: timeout 190s node audits/ux101_sticker_v100_browser.cjs
+      - name: Full artistic contact sheet, 32px and 128px, asset safety
+        run: timeout 190s node audits/ux101_all_40_stickers_art_browser.cjs
+      - name: Regression - mobile leaderboard and horizontal scroll
+        run: timeout 150s node audits/ux99_leader_scroll_hint_browser.cjs
+      - name: Regression - all 55 avatars with real pointer clicks
+        run: timeout 160s node audits/ux93_all_avatar_leaderboard_browser.cjs
+      - name: Regression - 50 badge items at six widths
+        run: timeout 160s node audits/ux00_badge_final_visual_browser.cjs
+      - name: Regression - pets and fullscreen avatar viewer
+        run: timeout 130s node audits/ux92_pet_viewer_v92_browser.cjs
+      - name: Regression - inventory valuation
+        run: timeout 130s node audits/stage30_collection_media_browser.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ux101-40-original-stickers-art-mobile
+          path: |
+            audits/ux101_sticker_v100_output/
+            audits/ux101_sticker_art_output/
+          retention-days: 60
+  upgrade-and-offline:
+    name: Real production-v81 to staging-v100 upgrade and offline retention
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        name: Read-only production baseline v81
+        with:
+          ref: main
+          path: baseline_v81
+      - name: Prepare staging v100 migration candidate
+        run: python3 audits/ux101_sticker_v100_patch.py
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Upgrade SW v81 to v100; preserve two profiles and unfinished attempt
+        run: timeout 270s node audits/ux101_pwa_upgrade_v81_v100_browser.cjs
+      - name: Offline store/navigation and manifest regression
+        run: timeout 180s node audits/stage28_offline_pwa_browser.cjs
+  publish-staging:
+    name: Commit and push only after both Gates pass
+    needs: [catalog-and-art,upgrade-and-offline]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Apply already-tested v100 integration
+        run: python3 audits/ux101_sticker_v100_patch.py
+      - name: Push application to STAGING ONLY
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js
+          if ! git diff --cached --quiet; then
+            git commit -m "feat(ux101): 40 original SVG stickers in staging PWA v100 [skip ci]"
+            git pull --rebase origin ux-final/ux00-inventory-20261108
+            git push origin HEAD:ux-final/ux00-inventory-20261108
+          fi
