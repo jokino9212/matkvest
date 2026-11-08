@@ -1,0 +1,19 @@
+name: UX104 pet candidates safe preflight
+on:
+  push:
+    branches:
+      - 'ux-final/ux00-inventory-20261108'
+    paths:
+      - 'audits/ux104_batch3_manifest.json'
+      - 'audits/ux104_candidates_preflight.py'
+      - '.github/workflows/ux104-candidates-preflight.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  candidate-contract-only:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Strict read-only candidate SHA, metadata and PWA checks
+        run: python3 audits/ux104_candidates_preflight.py
