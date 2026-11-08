@@ -1,0 +1,49 @@
+name: UX-98 mobile leaderboard v98 staging Gate
+on:
+  push:
+    branches: [ux-final/ux00-inventory-20261108]
+    paths: ['.github/workflows/ux98-mobile-leader-v98.yml','audits/ux98_mobile_leader_patch.py','audits/ux98_mobile_leader_browser.cjs']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  staging:
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Stage accessible narrow-screen leaderboard with PWA v98
+        run: python3 audits/ux98_mobile_leader_patch.py
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Six-width overlapping text and layout tests
+        run: timeout 140s node audits/ux98_mobile_leader_browser.cjs
+      - name: Regression - 31 vector stickers and favorites
+        run: timeout 160s node audits/ux97_sticker_v97_browser.cjs
+      - name: Regression - 55 legacy avatars in leaderboard
+        run: timeout 160s node audits/ux93_all_avatar_leaderboard_browser.cjs
+      - name: Regression - 50 badges at six widths
+        run: timeout 150s node audits/ux00_badge_final_visual_browser.cjs
+      - name: Regression - fullscreen pets and avatars
+        run: timeout 120s node audits/ux92_pet_viewer_v92_browser.cjs
+      - name: Regression - leaderboard inventory values
+        run: timeout 130s node audits/stage30_collection_media_browser.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ux98-mobile-leader-grid-screenshots
+          path: audits/ux98_leader_mobile_output/
+          retention-days: 60
+      - name: Push staging app only after complete regression success
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js
+          if ! git diff --cached --quiet; then
+            git commit -m "fix(ux98): prevent narrow leaderboard name/badge collisions [skip ci]"
+            git pull --rebase origin ux-final/ux00-inventory-20261108
+            git push origin HEAD:ux-final/ux00-inventory-20261108
+          fi
