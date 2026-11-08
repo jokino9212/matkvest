@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """UX-104 batch 3: guarded, immutable, art-only future staging upgrade.
 
-Never use this to bypass batch 1. --preflight performs no writes.
+Never use this to bypass batch 1 or batch 2. --preflight performs no writes.
 Release requires the reviewed image hashes AND v104 already active in staging.
 """
 import sys, json, hashlib, re
@@ -30,7 +30,7 @@ if '--preflight' in sys.argv:
     sys.exit(0)
 
 assert current_cache.group(1)=='matkvest-iphone-v104',(
-    'Release blocked: UX104 batch1 must pass full Gate and publish staging v104 first.')
+    'Release blocked: UX104 batch1 and batch2 must pass full Gates; staging v104 required.')
 assert 'id="mk-ux104-premium-pets-1"' in html and 'id="mk-ux104-premium-pets-2"' in html,(
     'Release blocked: batch1 AND batch2 artwork must already be active.')
 assert 'id="mk-ux104-premium-pets-3"' not in html,(
