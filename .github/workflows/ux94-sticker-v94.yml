@@ -1,0 +1,47 @@
+name: UX-94 sticker v94 staged art and responsive Gate
+on:
+  push:
+    branches: [ux-final/ux00-inventory-20261108]
+    paths: ['.github/workflows/ux94-sticker-v94.yml','audits/ux94_sticker_v94_browser.cjs','audits/ux94_sticker_v94_patch.py']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  staging:
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Stage first eight original stickers and PWA v94
+        run: python3 audits/ux94_sticker_v94_patch.py
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Sticker economy, four-size UI, favorites and collection Gate
+        run: timeout 160s node audits/ux94_sticker_v94_browser.cjs
+      - name: Regression - original profile/leaderboard avatars
+        run: timeout 150s node audits/ux93_all_avatar_leaderboard_browser.cjs
+      - name: Regression - pets and avatar fullscreen
+        run: timeout 120s node audits/ux92_pet_viewer_v92_browser.cjs
+      - name: Regression - shop categories and 50 badge images
+        run: timeout 120s node audits/ux_mobile_shop_v91_browser.cjs
+      - name: Regression - item worth and leaderboard
+        run: timeout 120s node audits/stage30_collection_media_browser.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ux94-sticker-v94-responsive
+          path: audits/ux94_sticker_v94_output/
+          retention-days: 60
+      - name: Commit staging app only after all tests PASS
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js
+          if ! git diff --cached --quiet; then
+            git commit -m "feat(ux94): eight original vector stickers, consistent favorite slots and PWA v94 [skip ci]"
+            git pull --rebase origin ux-final/ux00-inventory-20261108
+            git push origin HEAD:ux-final/ux00-inventory-20261108
+          fi
