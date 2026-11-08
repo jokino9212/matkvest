@@ -23,6 +23,7 @@ const out='audits/ux93_stack_avatar_output';fs.mkdirSync(out,{recursive:true});
       imageLoaded:img?.naturalWidth>0,levelText:badge?.textContent?.trim(),elementId:visual?.querySelector('[data-mk-avatar-id]')?.dataset.mkAvatarId};
    });
    assert(info.open&&info.kind.includes('mk30-avatar'),'Viewer failed '+JSON.stringify(info));
+   if(!info.title)console.log('UX93_TITLE_DIAG',JSON.stringify(await page.evaluate(()=>{const a=document.querySelector('.leader-table .avatar-badge');const id=a?.dataset.mkAvatarId;return {id,catalogName:SHOP_CATALOG.avatars.find(x=>x.id===id)?.name,originalTitle:document.querySelector('#mk872ViewerTitle')?.outerHTML,avatar:a?.outerHTML.slice(0,180),currentTitle:document.querySelector('#mk872ViewerTitle')?.textContent,viewerElementCount:document.querySelectorAll('#mk872ViewerTitle').length}})));
    assert.equal(info.title,SHOP_AVATAR_TITLE(id),'Avatar name incorrect '+JSON.stringify(info));
    assert.equal(info.elementId,id);
    if(id!=='av_default'){
