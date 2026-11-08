@@ -209,3 +209,12 @@
 - **Полный Gate SUCCESS:** https://github.com/jokino9212/matkvest/actions/runs/42478718411 — 24 SVG, responsive 320/390/768/1280, профиль, 3 избранных, магазин, коллекция, 55 аватаров, питомцы, 50 значков, рейтинг/стоимость склада.
 - Скачан artifact `ux96-sticker-v96-responsive`, просмотрены `shop_320.png` и `leader_320.png`. **Остаточный баг** — на 320px мобильный leaderboard обрезает справа надпись «значки не выбраны»; это следующий UX-фикс после оставшихся 7 наклеек.
 - **Production `main` HTML остаётся v81**. Далее семь финальных SVG (`st_star2`, `st_royal`, `st_infinity`, `st_golden_pi`, `st_master10`, `st_grade4`, `st_control_perfect`) и общая художественная приёмка, mobile leaderboard, Android/release Gate. Полная контрольная точка находится в рабочей ветке.
+
+## UX/UI FINAL — партия 23: 31/31 SVG-стикеров, мобильный лидерборд staging v98 (2026-11-08)
+
+- Рабочая ветка `ux-final/ux00-inventory-20261108`. **Все 31 стикер реального каталога теперь имеют оригинальные квадратные SVG**, исходники `assets/source/stickers/`. Последняя группа: `st_star2`, `st_royal`, `st_infinity`, `st_golden_pi`, `st_master10`, `st_grade4`, `st_control_perfect`. Все цены, предметные ID, редкости и условия наград неизменны.
+- **v97 проверка 31/31 и регрессии PASS:** https://github.com/jokino9212/matkvest/actions/runs/42479573371 .
+- **v98 исправлена мобильная таблица лидеров на ширинах 320–430:** ник, статус «значки не выбраны», избранные стикеры и уровень идут отдельными строками с понятным расстоянием. Исправлен также вложенный wrapper, который в первом тесте продолжал накладывать статус на имя.
+- **Полный v98 Gate SUCCESS:** https://github.com/jokino9212/matkvest/actions/runs/42480168123 — замеры прямоугольников/текста в 320/360/390/430, desktop 768/1280, 31 SVG, 55 аватаров, питомцы, 50 значков и экономика.
+- **Последний staging app commit:** `470cbebb214d653c2998043e33cdbfe3befd4bac`, PWA `matkvest-iphone-v98`. Из artifact `ux98-mobile-leader-grid-screenshots` скачан и визуально проверен `leader_320.png`: столкновения текста больше нет.
+- **Production `main` HTML по-прежнему v81**; эта запись изменяет только checkpoint. Далее единая художественная приёмка 31 стикера, полный UX/UI Gate, настоящий Android, решение по выпуску. Подробная контрольная точка в staging `audits/UX_UI_FINAL_STATUS.md`.
