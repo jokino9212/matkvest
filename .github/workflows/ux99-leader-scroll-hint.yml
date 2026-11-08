@@ -1,0 +1,51 @@
+name: UX-99 horizontal leaderboard hint staging Gate
+on:
+  push:
+    branches: [ux-final/ux00-inventory-20261108]
+    paths: ['.github/workflows/ux99-leader-scroll-hint.yml','audits/ux99_leader_scroll_hint_patch.py','audits/ux99_leader_scroll_hint_browser.cjs']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  staging:
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Add mobile leaderboard scroll instruction, PWA v99
+        run: python3 audits/ux99_leader_scroll_hint_patch.py
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Mobile scroll discovery + real horizontal column navigation
+        run: timeout 130s node audits/ux99_leader_scroll_hint_browser.cjs
+      - name: Regression - current mobile leaderboard card layout
+        run: timeout 120s node audits/ux98_mobile_leader_browser.cjs
+      - name: Regression - full 31 sticker collection
+        run: timeout 140s node audits/ux97_sticker_v97_browser.cjs
+      - name: Regression - historical 55 avatars
+        run: timeout 140s node audits/ux93_all_avatar_leaderboard_browser.cjs
+      - name: Regression - 50 badges at 6 widths
+        run: timeout 140s node audits/ux00_badge_final_visual_browser.cjs
+      - name: Regression - pets and avatars
+        run: timeout 120s node audits/ux92_pet_viewer_v92_browser.cjs
+      - name: Regression - inventory worth
+        run: timeout 130s node audits/stage30_collection_media_browser.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ux99-leaderboard-scroll-mobile
+          path: audits/ux99_leader_hint_output/
+          retention-days: 60
+      - name: Push staging only after full Gate PASS
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js
+          if ! git diff --cached --quiet; then
+            git commit -m "feat(ux99): accessible horizontal leaderboard hint in staging PWA v99 [skip ci]"
+            git pull --rebase origin ux-final/ux00-inventory-20261108
+            git push origin HEAD:ux-final/ux00-inventory-20261108
+          fi
