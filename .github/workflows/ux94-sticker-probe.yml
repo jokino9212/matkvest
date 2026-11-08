@@ -1,0 +1,14 @@
+name: UX-94 sticker source audit
+on:
+  push:
+    branches: [ux-final/ux00-inventory-20261108]
+    paths: ['.github/workflows/ux94-sticker-probe.yml','audits/ux94_sticker_source_probe.py']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 audits/ux94_sticker_source_probe.py
