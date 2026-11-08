@@ -24,10 +24,12 @@ const pets=[
  try{
   const page=await browser.newPage({viewport:{width:1450,height:900},deviceScaleFactor:1});
   await page.goto('file://'+path.resolve('index.html'),{waitUntil:'domcontentloaded'});
+  // Raster inspection must use same-origin data URLs: file:// SVG taints canvas in Chromium.
+  const samples=pets.map(p=>({...p,dataUrl:'data:image/svg+xml;base64,'+fs.readFileSync('assets/source/pets/'+p.id+'.svg').toString('base64')}));
   const measurements=await page.evaluate(async pets=>{
    const sizes=[48,128,384],result=[];
    for(const item of pets){
-    const img=new Image();img.src='assets/source/pets/'+item.id+'.svg';
+    const img=new Image();img.src=item.dataUrl;
     await img.decode();
     if(img.naturalWidth!==512||img.naturalHeight!==512)throw Error('Wrong natural dimensions '+item.id);
     for(const size of sizes){
@@ -52,7 +54,7 @@ const pets=[
     }
    }
    return result;
-  },pets);
+  },samples);
   for(const m of measurements){
     assert(m.coverage>=.13 && m.coverage<=.82,'Art poorly visible or opaque tile '+JSON.stringify(m));
     assert(m.bounds.width>=.63&&m.bounds.height>=.65,'Pet too small on canvas '+JSON.stringify(m));
