@@ -1,0 +1,27 @@
+name: UX-101 sticker catalog schema probe
+on:
+  push:
+    branches: [ux-final/ux00-inventory-20261108]
+    paths: ['.github/workflows/ux101-sticker-schema-probe.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  catalog:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          s=Path('index.html').read_text('utf-8')
+          a=s.index(' stickers:[',s.index('const SHOP_CATALOG'))
+          b=s.index(' ],',a)
+          segment=s[a:b]
+          print('UX101_CATALOG_HEAD',segment[:2800])
+          print('UX101_CATALOG_TAIL',segment[-3400:])
+          for needle in ['st_pi','st_infinity','st_master10','st_control_perfect']:
+              i=segment.find('id:"'+needle+'"')
+              print('UX101_ITEM',needle,segment[i-2:i+420] if i>=0 else 'NOT FOUND')
+          print('UX101_STICKERS_COUNT',segment.count('{id:"st_'))
+          PY
