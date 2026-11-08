@@ -114,6 +114,7 @@ for(const id of ids){
     return {owned:state.inventory.pets.includes('pet_ghost'),before:coins,after:state.coins,
       spentBefore:spent,spentAfter:state.shopStats?.spent||0};
   });
+  console.log('UX103_PURCHASE_DIAGNOSTIC',width,JSON.stringify(purchase));
   assert(purchase.owned,'Pet purchase failed');
   assert.equal(purchase.after,purchase.before-1500,'Pet price changed or coins incorrectly deducted');
   assert.equal(purchase.spentAfter-purchase.spentBefore,1500,'Pet inventory worth/shop ledger incorrect');
