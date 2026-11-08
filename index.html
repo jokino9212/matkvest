@@ -7409,7 +7409,15 @@ function normalizeShop(){
   {"id":"bd_key","name":"Ключ к решению","price":535,"level":11,"rarity":"epic","desc":"Золотой ключ открывает сложнейшие задачи."},
   {"id":"bd_dragonfly","name":"Стрекоза точности","price":830,"level":14,"rarity":"legendary","desc":"Лёгкость и точность каждого математического движения."}
  );
- const artworkIds=new Set(["bd_star", "bd_diamond", "bd_pi", "bd_root", "bd_sigma", "bd_fraction", "bd_infinity", "bd_div_master", "bd_fraction_master", "bd_perfect", "bd_control", "bd_errors", "bd_grade4", "bd_grade5", "bd_thousand", "bd_equations", "bd_comet", "bd_geometry", "bd_logic", "bd_sprint", "bd_orbit", "bd_compass", "bd_clock", "bd_puzzle", "bd_crown", "bd_prism", "bd_rocket", "bd_chess", "bd_spiral", "bd_telescope", "bd_abacus", "bd_hourglass", "bd_atom", "bd_matrix", "bd_phoenix", "bd_magnet", "bd_gear", "bd_mountain", "bd_key", "bd_dragonfly"]);
+ /* UX-08 phase 6: five new purchasable badges; original 16 records untouched. */
+ SHOP_CATALOG.badges.push(
+  {"id":"bd_lighthouse","name":"Маяк знаний","price":255,"level":6,"rarity":"uncommon","desc":"Освещает путь к верному решению."},
+  {"id":"bd_book","name":"Атлас формул","price":375,"level":8,"rarity":"rare","desc":"Старинная книга математических открытий."},
+  {"id":"bd_owl","name":"Сова мудрости","price":445,"level":10,"rarity":"epic","desc":"Мудрая сова замечает каждую закономерность."},
+  {"id":"bd_sundial","name":"Солнечные часы","price":575,"level":11,"rarity":"epic","desc":"Точный расчёт времени по лучам солнца."},
+  {"id":"bd_rune","name":"Руна равновесия","price":890,"level":15,"rarity":"legendary","desc":"Знак равновесия математических сил."}
+ );
+ const artworkIds=new Set(["bd_star", "bd_diamond", "bd_pi", "bd_root", "bd_sigma", "bd_fraction", "bd_infinity", "bd_div_master", "bd_fraction_master", "bd_perfect", "bd_control", "bd_errors", "bd_grade4", "bd_grade5", "bd_thousand", "bd_equations", "bd_comet", "bd_geometry", "bd_logic", "bd_sprint", "bd_orbit", "bd_compass", "bd_clock", "bd_puzzle", "bd_crown", "bd_prism", "bd_rocket", "bd_chess", "bd_spiral", "bd_telescope", "bd_abacus", "bd_hourglass", "bd_atom", "bd_matrix", "bd_phoenix", "bd_magnet", "bd_gear", "bd_mountain", "bd_key", "bd_dragonfly", "bd_lighthouse", "bd_book", "bd_owl", "bd_sundial", "bd_rune"]);
  const itemList=SHOP_CATALOG.badges||[];
  for(const item of itemList){
   if(!artworkIds.has(item.id))continue;
