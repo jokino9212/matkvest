@@ -6,7 +6,7 @@ const expected={pet_phoenix:{price:820,rarity:'epic'},pet_orb:{price:1050,rarity
 const out='audits/ux103r_premium_v102_output';
 fs.mkdirSync(out,{recursive:true});
 const html=fs.readFileSync('index.html'),sw=fs.readFileSync('sw.js','utf8');
-assert(sw.includes('matkvest-iphone-v101'),'PWA v101 absent');
+assert(sw.includes('matkvest-iphone-v102'),'PWA v102 absent');
 assert(sw.includes('APP_BUILD_HASH = "'+crypto.createHash('sha256').update(html).digest('hex')+'"'),'HTML/SW hash mismatch');
 for(const id of ids){
  const src='assets/source/pets/'+id+'.webp';
