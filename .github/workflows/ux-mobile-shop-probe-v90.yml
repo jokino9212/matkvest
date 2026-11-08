@@ -1,0 +1,14 @@
+name: UX mobile shop source audit v90
+on:
+  push:
+    branches: [ux-final/ux00-inventory-20261108]
+    paths: ['.github/workflows/ux-mobile-shop-probe-v90.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 audits/ux_mobile_shop_probe_v90.py
