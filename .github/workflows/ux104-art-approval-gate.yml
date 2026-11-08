@@ -1,0 +1,20 @@
+name: UX-104 fail-closed premium art visual approval
+on:
+  push:
+    branches: [ux-final/ux00-inventory-20261108]
+    paths:
+      - '.github/workflows/ux104-art-approval-gate.yml'
+      - 'audits/ux104_visual_approval_gate_test.py'
+      - 'audits/ux104_batch1_v103_patch.py'
+      - 'audits/ux104_batch1_manifest.json'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  cannot-publish-unreviewed-art:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test preflight, publish reject with 3 genuine but unreviewed WebPs, and no HTML/SW changes
+        run: python3 audits/ux104_visual_approval_gate_test.py
