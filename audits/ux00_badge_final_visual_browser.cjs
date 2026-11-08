@@ -3,7 +3,7 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs'), path=require('node:path'), {chromium}=require('playwright');
 const out='audits/ux00_badge_final_visual_output';fs.mkdirSync(out,{recursive:true});
 const widths=[320,360,390,430,768,1280];
-const ids=['bd_star','bd_diamond','bd_pi','bd_root','bd_sigma','bd_fraction','bd_infinity','bd_div_master','bd_fraction_master','bd_perfect','bd_control','bd_errors','bd_grade4','bd_grade5','bd_thousand','bd_equations','bd_comet','bd_geometry','bd_logic','bd_sprint','bd_orbit','bd_compass','bd_clock','bd_puzzle','bd_crown','bd_prism','bd_rocket','bd_chess','bd_spiral','bd_telescope','bd_abacus','bd_hourglass','bd_atom','bd_matrix','bd_phoenix','bd_magnet','bd_gear','bd_mountain','bd_key','bd_dragonfly','bd_lighthouse','bd_book','bd_owl','bd_sundial','bd_rune'];
+const ids=['bd_star','bd_diamond','bd_pi','bd_root','bd_sigma','bd_fraction','bd_infinity','bd_div_master','bd_fraction_master','bd_perfect','bd_control','bd_errors','bd_grade4','bd_grade5','bd_thousand','bd_equations','bd_comet','bd_geometry','bd_logic','bd_sprint','bd_orbit','bd_compass','bd_clock','bd_puzzle','bd_crown','bd_prism','bd_rocket','bd_chess','bd_spiral','bd_telescope','bd_abacus','bd_hourglass','bd_atom','bd_matrix','bd_phoenix','bd_magnet','bd_gear','bd_mountain','bd_key','bd_dragonfly','bd_lighthouse','bd_book','bd_owl','bd_sundial','bd_rune','bd_crystal','bd_satellite','bd_archimedes','bd_galaxy','bd_aurora'];
 (async()=>{
  const browser=await chromium.launch({headless:true,args:['--no-sandbox']});const results=[];
  try{
@@ -21,7 +21,7 @@ const ids=['bd_star','bd_diamond','bd_pi','bd_root','bd_sigma','bd_fraction','bd
          documentOverflow:document.documentElement.scrollWidth>document.documentElement.clientWidth+2,
          modalOverflow:document.querySelector('#modal')?.scrollWidth>document.querySelector('#modal')?.clientWidth+4};
    });
-   assert.equal(shop.ids.length,45,'shop count '+width);
+   assert.equal(shop.ids.length,50,'shop count '+width);
    assert.deepEqual(new Set(shop.ids),new Set(ids),'shop ids '+width);
    assert.deepEqual(shop.unloaded,[],'shop image loads '+width);
    assert.deepEqual(shop.tooSmall,[],'shop image too small '+width);
@@ -37,7 +37,7 @@ const ids=['bd_star','bd_diamond','bd_pi','bd_root','bd_sigma','bd_fraction','bd
        tooSmall:images.filter(x=>x.getBoundingClientRect().width<35||x.getBoundingClientRect().height<35).map(x=>({src:x.src,width:x.getBoundingClientRect().width})),
        hasViewportOverflow:document.documentElement.scrollWidth>document.documentElement.clientWidth+2};
    });
-   assert.equal(collection.ids.length,45,'collection count '+width+' '+JSON.stringify(collection));
+   assert.equal(collection.ids.length,50,'collection count '+width+' '+JSON.stringify(collection));
    assert.deepEqual(new Set(collection.ids),new Set(ids));
    assert.deepEqual(collection.unloaded,[]);
    assert(!collection.hasViewportOverflow,'collection viewport overflow '+width);
