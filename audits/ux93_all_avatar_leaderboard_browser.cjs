@@ -20,7 +20,10 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),path
     return {html:badge?.outerHTML.slice(0,350),sourceImg:core?.querySelector('img')?.getAttribute('src')||'',sourceSvg:core?.querySelector('svg')?.outerHTML.slice(0,200)||'',sourceText:core?.textContent?.trim()||''};
   },item);
   const core=page.locator('.leader-table .avatar-core').first();
-  if(await core.count())await core.click({force:true});else await page.locator('.leader-table .avatar-badge').first().click({force:true});
+  // User-equivalent click: do not bypass hit-testing while previous viewer closes.
+  if(await core.count())await core.click({timeout:4000});else await page.locator('.leader-table .avatar-badge').first().click({timeout:4000});
+  // Opening may be completed in the delegated event/microtask cycle.
+  await page.waitForFunction(()=>document.querySelector('#mk872AvatarViewer')?.classList.contains('mk872-open'),null,{timeout:2200}).catch(()=>{});
   const viewer=await page.evaluate(()=>{
     const holder=document.querySelector('#mk872AvatarViewer'),v=holder.querySelector('.mk30-visual'),core=v?.querySelector('.avatar-core')||v;
     return {open:holder.classList.contains('mk872-open'),kind:v?.className,
@@ -36,6 +39,7 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),path
   if(['av_centurion','av_grade5_master'].includes(item.id))console.log('LAYER_LAYOUT',item.id,JSON.stringify(await page.evaluate(()=>{const root=document.querySelector('#mk872AvatarViewer .mk30-visual');return [...root.querySelectorAll('.stack-icon,.stack-base,.stack-badge,img')].map(x=>{let r=x.getBoundingClientRect(),c=getComputedStyle(x);return {tag:x.tagName,cls:x.className?.baseVal||x.className,txt:x.textContent.trim().slice(0,12),w:r.width,h:r.height,left:r.left,top:r.top,fontSize:c.fontSize,position:c.position};})})));
   if(['av_default','av_centurion','av_grade5_master','av_mathquest_master'].includes(item.id)||item.id===avatarCatalog[avatarCatalog.length-1].id)await page.screenshot({path:out+'/avatar_'+item.id+'.png',animations:'disabled'});
   await page.keyboard.press('Escape');
+  await page.waitForFunction(()=>!document.querySelector('#mk872AvatarViewer')?.classList.contains('mk872-open'),null,{timeout:3000});
  }
  fs.writeFileSync(out+'/legacy_avatar_matrix.json',JSON.stringify({avatarCatalog,report},null,2));
  console.log('LEGACY_AVATAR_AUDIT_TOTAL',report.length,'FAIL',report.filter(x=>x.malformed).length);
