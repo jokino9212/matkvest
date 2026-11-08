@@ -2,7 +2,7 @@ name: UX-93 legacy avatar v93 staging Gate
 on:
   push:
     branches: [ux-final/ux00-inventory-20261108]
-    paths: ['.github/workflows/ux93-v93-staging.yml','audits/ux93_stack_avatar_v93_browser.cjs']
+    paths: ['.github/workflows/ux93-v93-staging.yml','audits/ux93_stack_avatar_v93_browser.cjs','audits/ux93_stack_avatar_patch.py']
   workflow_dispatch:
 permissions:
   contents: write
