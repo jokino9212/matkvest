@@ -200,3 +200,12 @@
 - **Полный E2E-Gate SUCCESS** https://github.com/jokino9212/matkvest/actions/runs/42477765323 — 31 предмет, 16 SVG, 320/390/768/1280px, избранное, профиль, коллекция, магазин, 55 аватаров, питомцы, 50 значков, рейтинг и стоимость склада.
 - Artifact `ux95-sticker-v95-responsive` скачан, реально просмотрены `shop_320.png`, `leader_320.png`, `collection_390.png`. Выявлен следующий отдельный дефект: на 320px имя в leaderboard визуально соприкасается с подписью «значки не выбраны», мобильная ширина таблицы требует отдельного исправления.
 - **Следующее:** стикеры `st_x2`, `st_approx`, `st_fraction`, `st_degree`, `st_orbit`, `st_fire`, `st_crystal`, `st_bolt2` (партия 8), затем финальные 7. Продолжать с реальной ветки, не создавать заново. Полная контрольная точка — `audits/UX_UI_FINAL_STATUS.md` в staging.
+
+## UX/UI FINAL — партия 22: staging PWA v96, 24/31 оригинальных SVG-стикеров (2026-11-08)
+
+- Продолжена ветка `ux-final/ux00-inventory-20261108`, проверенная рабочая сборка `c8da990fd5cd537d9f66a7378f7fe68a0acaaa60`, PWA `matkvest-iphone-v96`.
+- Новые SVG `st_x2`, `st_approx`, `st_fraction`, `st_degree`, `st_orbit`, `st_fire`, `st_crystal`, `st_bolt2`. Теперь **24 из 31** стикера в едином оформлении, старые цены и unlock сохранены. 
+- Устранена конфликтная поздняя перезапись `st_orbit` и `st_bolt2` (первые два Gate показывали 22/24), векторные рисунки теперь применяются после reward cosmetic decorators.
+- **Полный Gate SUCCESS:** https://github.com/jokino9212/matkvest/actions/runs/42478718411 — 24 SVG, responsive 320/390/768/1280, профиль, 3 избранных, магазин, коллекция, 55 аватаров, питомцы, 50 значков, рейтинг/стоимость склада.
+- Скачан artifact `ux96-sticker-v96-responsive`, просмотрены `shop_320.png` и `leader_320.png`. **Остаточный баг** — на 320px мобильный leaderboard обрезает справа надпись «значки не выбраны»; это следующий UX-фикс после оставшихся 7 наклеек.
+- **Production `main` HTML остаётся v81**. Далее семь финальных SVG (`st_star2`, `st_royal`, `st_infinity`, `st_golden_pi`, `st_master10`, `st_grade4`, `st_control_perfect`) и общая художественная приёмка, mobile leaderboard, Android/release Gate. Полная контрольная точка находится в рабочей ветке.
