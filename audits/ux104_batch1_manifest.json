@@ -1,0 +1,54 @@
+{
+  "phase": "UX-104",
+  "batch": 1,
+  "staging_from": "v102",
+  "staging_to": "v103",
+  "production": "unchanged v81",
+  "format": "webp RGBA 640x640",
+  "min_width": 640,
+  "min_height": 640,
+  "immutable": [
+    "id",
+    "name",
+    "price",
+    "rarity",
+    "level",
+    "rewardOnly",
+    "achievement",
+    "inventory",
+    "equipped",
+    "shopStats"
+  ],
+  "items": [
+    {
+      "id": "pet_bot",
+      "avatar_duplicate": "av_robot",
+      "name": "Мини-бот",
+      "price": 240,
+      "rarity": "uncommon",
+      "level": 3,
+      "asset": "assets/source/pets/pet_bot.webp",
+      "visual_brief": "Отдельный маленький помощник-робот, тёплая объёмная керамика и анодированный металл, выразительное лицо на экранчике, крошечные колёсики/лапки, голубое свечение, красный рюкзачок инструментов. Не копия квадратного аватара-робота и не плоская иконка."
+    },
+    {
+      "id": "pet_owl",
+      "avatar_duplicate": "av_owl",
+      "name": "Сова",
+      "price": 270,
+      "rarity": "uncommon",
+      "level": 4,
+      "asset": "assets/source/pets/pet_owl.webp",
+      "visual_brief": "Самостоятельная мини-сова-спутник со сложными перьями, выразительными янтарными глазами, объёмным пушистым силуэтом и моноклем-лупой, маленький футляр с карандашом. Не копия коричневой совы-аватара и не кристальная сфера из UX-103R."
+    },
+    {
+      "id": "pet_penguin",
+      "avatar_duplicate": "av_penguin",
+      "name": "Пингвин",
+      "price": 300,
+      "rarity": "rare",
+      "level": 5,
+      "asset": "assets/source/pets/pet_penguin.webp",
+      "visual_brief": "Пухлый ледяной пингвинёнок-питомец в цветном шарфе с мини-компасом, глянцевые большие глаза, пушистые переходы белого/синего, объёмный свет, оригинальная поза и узнаваемые маленькие ласты. Не копия плоского чёрно-белого аватара."
+    }
+  ]
+}
