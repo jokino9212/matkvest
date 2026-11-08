@@ -14,7 +14,7 @@ const out='audits/ux08_final_art_quality_output';fs.mkdirSync(out,{recursive:tru
   for(const item of items){
     const source=fs.readFileSync(path.join(base,item.id+'.svg'),'utf8');
     const banned=/<script\b|<foreignObject\b|\bonload\s*=|\bonerror\s*=|https?:\/\/|url\(https?:|data:image/i;
-    if(banned.test(source))problems.push(item.id+': unsafe markup');
+    if(banned.test(source.replace('xmlns="http://www.w3.org/2000/svg"','')))problems.push(item.id+': unsafe markup');
     if(!source.includes('viewBox="0 0 512 512"'))problems.push(item.id+': invalid viewBox');
     if(item.src!==base+'/'+item.id+'.svg')problems.push(item.id+': icon URI mismatch');
     const circleCount=(source.match(/<circle\b/g)||[]).length;
