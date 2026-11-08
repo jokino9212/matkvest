@@ -1,0 +1,37 @@
+name: UX-08 final art QA and v90 regression
+on:
+  push:
+    branches: [ux-final/ux00-inventory-20261108]
+    paths: ['.github/workflows/ux08-v90-art-qa.yml','audits/ux08_final_art_quality_browser.cjs']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Review 50 SVGs at actual 48px and check medallion consistency
+        run: timeout 120s node audits/ux08_final_art_quality_browser.cjs
+      - name: Build updated full contact sheet
+        run: timeout 120s node audits/ux08_final_50_gallery_browser.cjs
+      - name: Validate store and all 50 SVGs at six widths
+        run: timeout 150s node audits/ux00_badge_final_visual_browser.cjs
+      - name: Regression - shop sorting
+        run: timeout 120s node audits/shop_progress_v874_browser_test.cjs
+      - name: Regression - avatar and pet viewer
+        run: timeout 120s node audits/collection_viewer_v81_browser.cjs
+      - name: Regression - leaderboard and inventory
+        run: timeout 120s node audits/stage30_collection_media_browser.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ux08-v90-final-art-audit
+          path: |
+            audits/ux08_final_art_quality_output/
+            audits/ux08_50_gallery_output/
+            audits/ux00_badge_final_visual_output/
+          retention-days: 60
