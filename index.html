@@ -7417,7 +7417,15 @@ function normalizeShop(){
   {"id":"bd_sundial","name":"Солнечные часы","price":575,"level":11,"rarity":"epic","desc":"Точный расчёт времени по лучам солнца."},
   {"id":"bd_rune","name":"Руна равновесия","price":890,"level":15,"rarity":"legendary","desc":"Знак равновесия математических сил."}
  );
- const artworkIds=new Set(["bd_star", "bd_diamond", "bd_pi", "bd_root", "bd_sigma", "bd_fraction", "bd_infinity", "bd_div_master", "bd_fraction_master", "bd_perfect", "bd_control", "bd_errors", "bd_grade4", "bd_grade5", "bd_thousand", "bd_equations", "bd_comet", "bd_geometry", "bd_logic", "bd_sprint", "bd_orbit", "bd_compass", "bd_clock", "bd_puzzle", "bd_crown", "bd_prism", "bd_rocket", "bd_chess", "bd_spiral", "bd_telescope", "bd_abacus", "bd_hourglass", "bd_atom", "bd_matrix", "bd_phoenix", "bd_magnet", "bd_gear", "bd_mountain", "bd_key", "bd_dragonfly", "bd_lighthouse", "bd_book", "bd_owl", "bd_sundial", "bd_rune"]);
+ /* UX-08 phase 7: five new purchasable badges; original 16 records untouched. */
+ SHOP_CATALOG.badges.push(
+  {"id":"bd_crystal","name":"Кристалл логики","price":270,"level":7,"rarity":"uncommon","desc":"Чистая структура мыслей в сияющем кристалле."},
+  {"id":"bd_satellite","name":"Спутник знаний","price":395,"level":9,"rarity":"rare","desc":"Исследователь передаёт знания за пределы Земли."},
+  {"id":"bd_archimedes","name":"Рычаг Архимеда","price":475,"level":10,"rarity":"epic","desc":"Сила точного расчёта и равновесия."},
+  {"id":"bd_galaxy","name":"Галактика формул","price":615,"level":12,"rarity":"epic","desc":"Великая галактика математических закономерностей."},
+  {"id":"bd_aurora","name":"Полярное сияние","price":950,"level":16,"rarity":"legendary","desc":"Редкая вершина мастерства — сияние знаний."}
+ );
+ const artworkIds=new Set(["bd_star", "bd_diamond", "bd_pi", "bd_root", "bd_sigma", "bd_fraction", "bd_infinity", "bd_div_master", "bd_fraction_master", "bd_perfect", "bd_control", "bd_errors", "bd_grade4", "bd_grade5", "bd_thousand", "bd_equations", "bd_comet", "bd_geometry", "bd_logic", "bd_sprint", "bd_orbit", "bd_compass", "bd_clock", "bd_puzzle", "bd_crown", "bd_prism", "bd_rocket", "bd_chess", "bd_spiral", "bd_telescope", "bd_abacus", "bd_hourglass", "bd_atom", "bd_matrix", "bd_phoenix", "bd_magnet", "bd_gear", "bd_mountain", "bd_key", "bd_dragonfly", "bd_lighthouse", "bd_book", "bd_owl", "bd_sundial", "bd_rune", "bd_crystal", "bd_satellite", "bd_archimedes", "bd_galaxy", "bd_aurora"]);
  const itemList=SHOP_CATALOG.badges||[];
  for(const item of itemList){
   if(!artworkIds.has(item.id))continue;
