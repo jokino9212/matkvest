@@ -18,8 +18,8 @@ injection="""
 })();
 """
 html=html.replace(anchor,injection+anchor,1)
-html=html.replace('</body>','<!-- UX-95: 24/31 original vector stickers --><meta id="mk-ux95-sticker-stage" data-series="24"/>\n</body>',1)
-sw=sw.replace('matkvest-iphone-v94','matkvest-iphone-v96',1)
+html=html.replace('</body>','<!-- UX-96: 24/31 original vector stickers --><meta id="mk-ux96-sticker-stage" data-series="24"/>\n</body>',1)
+sw=sw.replace('matkvest-iphone-v95','matkvest-iphone-v96',1)
 assert sw.count('];\n\n// Navigation')==1
 for id in ids:
  assert Path('assets/source/stickers',id+'.svg').is_file()
