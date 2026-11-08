@@ -1,0 +1,79 @@
+name: UX-100 v81-to-v99 pre-release readiness Gate
+on:
+  push:
+    branches: [ux-final/ux00-inventory-20261108]
+    paths:
+      - '.github/workflows/ux100-release-readiness.yml'
+      - 'audits/ux100_pwa_upgrade_v81_v99_browser.cjs'
+  workflow_dispatch:
+permissions:
+  contents: read
+
+jobs:
+  upgrade:
+    name: Real v81 to v99 upgrade and offline profile retention
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout production v81 as baseline, never overwrite staging
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: baseline_v81
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Test real service-worker migration, multiple profiles, active training draft and offline relaunch
+        run: timeout 300s node audits/ux100_pwa_upgrade_v81_v99_browser.cjs
+      - name: Regression - full offline experience and PWA fingerprint
+        run: timeout 180s node audits/stage28_offline_pwa_browser.cjs
+  data-safety:
+    name: Training lifecycle, profiles and corruption protection
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: No duplicate rewards on training recovery / finish
+        run: timeout 180s node audits/stage24_attempt_lifecycle_browser.cjs
+      - name: Strict separation of separate student profiles
+        run: timeout 180s node audits/stage25_profile_isolation_browser.cjs
+      - name: No silent overwrite of corrupted data
+        run: timeout 130s node audits/stage26_corrupt_storage_browser.cjs
+      - name: Explicit backup recovery only
+        run: timeout 130s node audits/stage26_verified_recovery_browser.cjs
+      - name: Legacy migration and storage quota warning
+        run: timeout 130s node audits/stage26_quota_legacy_browser.cjs
+  ux-regression:
+    name: Sticker/badge/leaderboard/mobile and economy regression
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Mobile leaderboard scroll hint (320-1280px)
+        run: timeout 170s node audits/ux99_leader_scroll_hint_browser.cjs
+      - name: Sticker collection 31/31 and three favorites
+        run: timeout 170s node audits/ux97_sticker_v97_browser.cjs
+      - name: Historical avatars 55/55
+        run: timeout 150s node audits/ux93_all_avatar_leaderboard_browser.cjs
+      - name: Badge collection 50 at six widths
+        run: timeout 160s node audits/ux00_badge_final_visual_browser.cjs
+      - name: Pet and avatar full-screen viewer
+        run: timeout 150s node audits/ux92_pet_viewer_v92_browser.cjs
+      - name: Leaderboard and inventory valuation
+        run: timeout 150s node audits/stage30_collection_media_browser.cjs
+      - name: Preserve screenshot evidence for manual review
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ux100-mobile-and-art-regression
+          path: |
+            audits/ux99_leader_hint_output/
+            audits/ux97_sticker_v97_output/
+          retention-days: 60
