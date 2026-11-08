@@ -17,7 +17,9 @@ injection="""
  }
 })();
 """
-html=html.replace(anchor,injection+anchor,1)
+# Late reward decorators overwrite st_orbit and st_bolt2 in the catalog.
+# Apply the vector override only after those decorators finish.
+html=html.replace('</body>','<script id="mk-ux96-final-sticker-art">'+injection+'</script>\n</body>',1)
 html=html.replace('</body>','<!-- UX-96: 24/31 original vector stickers --><meta id="mk-ux96-sticker-stage" data-series="24"/>\n</body>',1)
 sw=sw.replace('matkvest-iphone-v95','matkvest-iphone-v96',1)
 assert sw.count('];\n\n// Navigation')==1
