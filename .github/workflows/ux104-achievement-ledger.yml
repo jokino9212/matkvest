@@ -1,0 +1,27 @@
+name: UX-104 achievement reward integrity on pet purchase
+on:
+  push:
+    branches: [ux-final/ux00-inventory-20261108]
+    paths:
+      - 'audits/ux104_achievement_ledger_browser.cjs'
+      - '.github/workflows/ux104-achievement-ledger.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  award-integrity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Check full 1500 cost, independent 83-coin achievements, idempotent purchase on 320/390/768/1280
+        run: timeout 150s node audits/ux104_achievement_ledger_browser.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ux104-achievement-ledger-regression
+          path: audits/ux104_shop_achievement_ledger_output/
+          retention-days: 40
