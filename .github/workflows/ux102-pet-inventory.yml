@@ -1,0 +1,31 @@
+name: UX-102 pet catalog and alpha-bounds baseline
+on:
+  push:
+    branches: [ux-final/ux00-inventory-20261108]
+    paths:
+      - '.github/workflows/ux102-pet-inventory.yml'
+      - 'audits/ux102_pet_inventory_v100_browser.cjs'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inspect-pets:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Live audit of 20 pets and SVG/PNG/WebP/symbol media; make 64/256 contact sheet
+        run: timeout 160s node audits/ux102_pet_inventory_v100_browser.cjs
+      - name: Regression - full screen viewer and no duplicated background
+        run: timeout 140s node audits/ux92_pet_viewer_v92_browser.cjs
+      - name: Regression - inventory and leaderboard pet media
+        run: timeout 140s node audits/stage30_collection_media_browser.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ux102-pet-inventory-v100-contact-sheet
+          path: audits/ux102_pet_inventory_output/
+          retention-days: 60
