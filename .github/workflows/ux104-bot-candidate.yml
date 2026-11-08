@@ -1,0 +1,28 @@
+name: UX-104 original bot candidate art and non-destructive shop preview
+on:
+  push:
+    branches: [ux-final/ux00-inventory-20261108]
+    paths:
+      - '.github/workflows/ux104-bot-candidate.yml'
+      - 'audits/ux104_bot_candidate_browser.cjs'
+      - 'assets/candidates/pets/pet_bot.webp'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Validate alpha, avatar preservation and temporary shop/collection/leader/fullscreen at 320/390/768/1280
+        run: timeout 180s node audits/ux104_bot_candidate_browser.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ux104-mini-bot-candidate-visual-review
+          path: audits/ux104_bot_candidate_output/
+          retention-days: 60
