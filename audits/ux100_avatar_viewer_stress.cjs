@@ -17,7 +17,7 @@ const fs=require('node:fs');
       const p=ensureProfileIdentity({...EMPTY_STATE,xp:11000,coins:7000,
        inventory:{...(EMPTY_STATE.inventory||{}),avatars:['av_default',id],pets:['pet_none']},
        equipped:{...(EMPTY_STATE.equipped||{}),avatar:id,pet:'pet_none'}});
-      profiles={'Stress-'+id:p};currentProfile='Stress-'+id;state=p;openLeaderboard();
+      profiles={['Stress-'+id]:p};currentProfile='Stress-'+id;state=p;openLeaderboard();
     },id);
     const core=page.locator('.leader-table .avatar-core').first();
     await core.click({timeout:5000});
