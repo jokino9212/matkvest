@@ -7433,6 +7433,15 @@ function normalizeShop(){
   item.icon='<img class="mk-ux-badge-image" alt="" loading="eager" decoding="async" src="'+file+'">';
  }
 })();
+
+/* UX-94: original matching sticker decals. Preserve catalog ID, price, rarity and unlock. */
+(function(){
+ const ids=new Set(["st_pi","st_star","st_rocket","st_lightning","st_cube","st_planet","st_trophy","st_crown"]);
+ for(const item of SHOP_CATALOG.stickers){
+  if(!ids.has(item.id))continue;
+  item.icon='<img class="mk-ux94-sticker-image" alt="" loading="eager" decoding="async" src="assets/source/stickers/'+item.id+'.svg">';
+ }
+})();
 function catalogItem(type,id){return SHOP_CATALOG[type]?.find(x=>x.id===id)||null}
 function normalizeProfileCosmetics(p){
  p=p||{};const inv=p.inventory||{},eq=p.equipped||{};
@@ -34941,4 +34950,38 @@ if(mkV877CorruptProfiles){
  };
 })();
 </script>
+
+<style id="mk-ux94-sticker-style">
+/* Sticker slots must be equal regardless of whether the source is text, PNG or SVG. */
+.favorite-stickers{min-width:0;display:inline-flex;align-items:center;gap:5px;flex-wrap:wrap}
+.favorite-sticker,.favorite-stickers.large .favorite-sticker{
+ box-sizing:border-box;display:inline-grid;place-items:center;flex:0 0 34px;
+ width:34px!important;min-width:34px!important;max-width:34px!important;
+ height:34px!important;min-height:34px!important;max-height:34px!important;
+ padding:3px!important;margin:0;border-radius:10px;
+ font-size:clamp(12px,3.4vw,17px);font-weight:900;line-height:1;
+ overflow:hidden;white-space:nowrap;text-align:center;
+}
+.favorite-sticker>.mk-ux94-sticker-image,
+.favorite-sticker>.emoji-fallback-img,
+.favorite-stickers.large .favorite-sticker>.emoji-fallback-img,
+.favorite-sticker>img{
+ display:block!important;box-sizing:border-box;width:100%!important;
+ height:100%!important;max-width:100%!important;max-height:100%!important;
+ object-fit:contain!important;vertical-align:middle!important;
+}
+.profile-sticker-line,.leader-stickers{min-width:0;max-width:100%}
+.profile-sticker-line{flex-wrap:wrap}
+.shop-icon>.mk-ux94-sticker-image,.sticker-slot .sticker>.mk-ux94-sticker-image,
+.mk872-col-art .mk-ux94-sticker-image{
+ display:block;width:90%;height:90%;max-width:100%;max-height:100%;
+ margin:auto;object-fit:contain;aspect-ratio:1;
+}
+@media(max-width:380px){
+ .favorite-stickers{gap:4px}
+ .leader-table .favorite-sticker{flex-basis:30px;width:30px!important;
+  min-width:30px!important;max-width:30px!important;height:30px!important;
+  min-height:30px!important;max-height:30px!important}
+}
+</style>
 </body></html>
