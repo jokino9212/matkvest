@@ -1,0 +1,99 @@
+name: UX-103 replace 3 emoji pets with original art (staging v101)
+on:
+  push:
+    branches: [ux-final/ux00-inventory-20261108]
+    paths:
+      - '.github/workflows/ux103-pet-v101.yml'
+      - 'audits/ux103_pet_v101_patch.py'
+      - 'audits/ux103_pet_v101_browser.cjs'
+      - 'audits/ux103_pet_v101_art_browser.cjs'
+      - 'audits/ux103_pwa_upgrade_v81_v101_browser.cjs'
+      - 'audits/ux103_40_sticker_regression_browser.cjs'
+      - 'assets/source/pets/pet_phoenix.svg'
+      - 'assets/source/pets/pet_orb.svg'
+      - 'assets/source/pets/pet_ghost.svg'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  pet-art-and-ux:
+    name: Three original pet drawings, shop/viewer/collection, gallery and regressions
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch staging v100 to v101, preserve IDs and economy
+        run: python3 audits/ux103_pet_v101_patch.py
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Three SVG original art sources - 48/128/384px, alpha and light/dark backgrounds
+        run: timeout 170s node audits/ux103_pet_v101_art_browser.cjs
+      - name: All 3 pets in shop, collection, leaderboard, fullscreen and purchase
+        run: timeout 210s node audits/ux103_pet_v101_browser.cjs
+      - name: Regression - existing 40 stickers and nine new sticker assets
+        run: timeout 180s node audits/ux103_40_sticker_regression_browser.cjs
+      - name: Regression - 55 legacy avatars, zoom lifecycle
+        run: timeout 160s node audits/ux93_all_avatar_leaderboard_browser.cjs
+      - name: Regression - original 50 SVG badges, six widths
+        run: timeout 160s node audits/ux00_badge_final_visual_browser.cjs
+      - name: Regression - pet/avatars fullscreen, backgrounds and Esc
+        run: timeout 130s node audits/ux92_pet_viewer_v92_browser.cjs
+      - name: Regression - mobile leaderboard horizontal scrolling
+        run: timeout 130s node audits/ux99_leader_scroll_hint_browser.cjs
+      - name: Regression - collection valuation and leaderboard inventory
+        run: timeout 130s node audits/stage30_collection_media_browser.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ux103-pets-artwork-and-responsive-checks
+          path: |
+            audits/ux103_pet_art_output/
+            audits/ux103_pet_v101_output/
+            audits/ux103_40_sticker_output/
+          retention-days: 60
+  migration-and-storage:
+    name: Real production v81-to-v101 PWA upgrade, profile/attempt protection and offline
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - name: Read-only production baseline v81
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: baseline_v81
+      - run: python3 audits/ux103_pet_v101_patch.py
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Preserve existing profiles, two balances and incomplete attempt after v81 -> v101 SW upgrade
+        run: timeout 300s node audits/ux103_pwa_upgrade_v81_v101_browser.cjs
+      - name: Offline PWA cache and navigation
+        run: timeout 160s node audits/stage28_offline_pwa_browser.cjs
+      - name: No duplicate XP/coins from training completion and restore
+        run: timeout 150s node audits/stage24_attempt_lifecycle_browser.cjs
+      - name: Profile data isolation
+        run: timeout 150s node audits/stage25_profile_isolation_browser.cjs
+  publish-staging:
+    name: Publish only to staging after all tests PASS
+    needs: [pet-art-and-ux,migration-and-storage]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - run: python3 audits/ux103_pet_v101_patch.py
+      - name: Push verified index and PWA to staging branch, never to main
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js
+          if ! git diff --cached --quiet; then
+            git commit -m "feat(ux103): original pet illustrations in staging PWA v101 [skip ci]"
+            git pull --rebase origin ux-final/ux00-inventory-20261108
+            git push origin HEAD:ux-final/ux00-inventory-20261108
+          fi
