@@ -1,0 +1,21 @@
+name: UX-104 batch2 release guard - art approval and v103 prerequisite
+on:
+  push:
+    branches: [ux-final/ux00-inventory-20261108]
+    paths:
+      - '.github/workflows/ux104-batch2-release-guard.yml'
+      - 'audits/ux104_batch2_manifest.json'
+      - 'audits/ux104_batch2_v104_patch.py'
+      - 'audits/ux104_batch2_preflight.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  fail-closed-preflight:
+    name: Verify real batch2 candidate files and refuse staging update before approval
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Candidate SHA, stage-v103 dependency, art-approval and nonmutation checks
+        run: python3 audits/ux104_batch2_preflight.py
