@@ -1,0 +1,29 @@
+name: UX-103 post-deploy true shop card scale QA (v101)
+on:
+  push:
+    branches: [ux-final/ux00-inventory-20261108]
+    paths:
+      - '.github/workflows/ux103-pet-card-scale.yml'
+      - 'audits/ux103_real_pet_cards_browser.cjs'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - name: Confirm deployed staging cache is v101
+        run: grep -q 'matkvest-iphone-v101' sw.js
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Real pet shop cards at 320/390/768/1280, min display 38px
+        run: timeout 150s node audits/ux103_real_pet_cards_browser.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ux103-actual-pet-card-thumbnails
+          path: audits/ux103_real_pet_cards_output/
+          retention-days: 60
