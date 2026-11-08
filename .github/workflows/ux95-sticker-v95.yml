@@ -1,0 +1,49 @@
+name: UX-95 sticker v95 vector math staged Gate
+on:
+  push:
+    branches: [ux-final/ux00-inventory-20261108]
+    paths: ['.github/workflows/ux95-sticker-v95.yml','audits/ux95_sticker_v95_browser.cjs','audits/ux95_sticker_v95_patch.py']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  staging:
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Stage 8 more SVG stickers and PWA v95
+        run: python3 audits/ux95_sticker_v95_patch.py
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Test 16 SVG stickers, all 31 items and 4 responsive sizes
+        run: timeout 160s node audits/ux95_sticker_v95_browser.cjs
+      - name: Regression - 55 legacy avatars
+        run: timeout 150s node audits/ux93_all_avatar_leaderboard_browser.cjs
+      - name: Regression - real pet and avatar zoom
+        run: timeout 120s node audits/ux92_pet_viewer_v92_browser.cjs
+      - name: Regression - 50 SVG badges and 6 responsive sizes
+        run: timeout 150s node audits/ux00_badge_final_visual_browser.cjs
+      - name: Regression - shop selector and collection
+        run: timeout 120s node audits/ux_mobile_shop_v91_browser.cjs
+      - name: Regression - leaderboard and collection worth
+        run: timeout 120s node audits/stage30_collection_media_browser.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ux95-sticker-v95-responsive
+          path: audits/ux95_sticker_v95_output/
+          retention-days: 60
+      - name: Commit staging only on full success
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js
+          if ! git diff --cached --quiet; then
+            git commit -m "feat(ux95): 16 vector stickers and offline PWA v95 [skip ci]"
+            git pull --rebase origin ux-final/ux00-inventory-20261108
+            git push origin HEAD:ux-final/ux00-inventory-20261108
+          fi
