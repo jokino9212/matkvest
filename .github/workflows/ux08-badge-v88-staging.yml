@@ -1,0 +1,45 @@
+name: UX-08 badge expansion v88 staging gate
+on:
+  push:
+    branches: [ux-final/ux00-inventory-20261108]
+    paths: ['.github/workflows/ux08-badge-v88-staging.yml','audits/ux08_badge_v88_browser.cjs']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  staging:
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Stage 45 badge catalog and PWA v88
+        run: python3 audits/ux08_expand_badges_v88.py
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: E2E 45 badges, purchase, collection and prices
+        run: timeout 150s node audits/ux08_badge_v88_browser.cjs
+      - name: Regression - shop and section progress
+        run: timeout 120s node audits/shop_progress_v874_browser_test.cjs
+      - name: Regression - full-screen viewer
+        run: timeout 120s node audits/collection_viewer_v81_browser.cjs
+      - name: Regression - leaderboard worth
+        run: timeout 120s node audits/stage30_collection_media_browser.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ux08-badge-v88-gallery
+          path: audits/ux08_badge_v88_output/
+          retention-days: 60
+      - name: Push staging HTML only after all gates
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js
+          if ! git diff --cached --quiet; then
+            git commit -m "feat(ux08): 45 collectible badges in staging v88 [skip ci]"
+            git pull --rebase origin ux-final/ux00-inventory-20261108
+            git push origin HEAD:ux-final/ux00-inventory-20261108
+          fi
