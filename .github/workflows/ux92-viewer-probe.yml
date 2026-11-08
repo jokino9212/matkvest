@@ -2,7 +2,7 @@ name: UX-92 avatar and pet viewer source audit
 on:
   push:
     branches: [ux-final/ux00-inventory-20261108]
-    paths: ['.github/workflows/ux92-viewer-probe.yml']
+    paths: ['.github/workflows/ux92-viewer-probe.yml','audits/ux92_viewer_source_probe.py']
   workflow_dispatch:
 permissions:
   contents: read
