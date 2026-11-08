@@ -35129,4 +35129,19 @@ if(mkV877CorruptProfiles){
  queue();
 })();
 </script>
+<script id="mk-ux101-sticker-catalog">
+/* UX-101: nine original, purchasable stickers. Original 31 and all reward conditions are immutable. */
+(function(){
+ const fresh=[{"id":"st_pencil","name":"Карандаш","price":28,"level":1,"rarity":"common","desc":"Для первых аккуратных решений.","icon":"<img class=\"mk-ux94-sticker-image\" alt=\"\" loading=\"eager\" decoding=\"async\" src=\"assets/source/stickers/st_pencil.svg\">"},{"id":"st_heart","name":"Сердце","price":33,"level":2,"rarity":"common","desc":"Любовь к математическим открытиям.","icon":"<img class=\"mk-ux94-sticker-image\" alt=\"\" loading=\"eager\" decoding=\"async\" src=\"assets/source/stickers/st_heart.svg\">"},{"id":"st_target","name":"Точная цель","price":36,"level":2,"rarity":"common","desc":"Попадание точно в ответ.","icon":"<img class=\"mk-ux94-sticker-image\" alt=\"\" loading=\"eager\" decoding=\"async\" src=\"assets/source/stickers/st_target.svg\">"},{"id":"st_hourglass","name":"Песочные часы","price":46,"level":3,"rarity":"uncommon","desc":"Терпение и внимание к каждой минуте.","icon":"<img class=\"mk-ux94-sticker-image\" alt=\"\" loading=\"eager\" decoding=\"async\" src=\"assets/source/stickers/st_hourglass.svg\">"},{"id":"st_magnifier","name":"Лупа исследователя","price":47,"level":3,"rarity":"uncommon","desc":"Находить закономерности интересно.","icon":"<img class=\"mk-ux94-sticker-image\" alt=\"\" loading=\"eager\" decoding=\"async\" src=\"assets/source/stickers/st_magnifier.svg\">"},{"id":"st_joystick","name":"Геймпад","price":61,"level":5,"rarity":"rare","desc":"Задачи как увлекательная игра.","icon":"<img class=\"mk-ux94-sticker-image\" alt=\"\" loading=\"eager\" decoding=\"async\" src=\"assets/source/stickers/st_joystick.svg\">"},{"id":"st_robot","name":"Робот-помощник","price":63,"level":5,"rarity":"rare","desc":"Технологичный спутник тренировки.","icon":"<img class=\"mk-ux94-sticker-image\" alt=\"\" loading=\"eager\" decoding=\"async\" src=\"assets/source/stickers/st_robot.svg\">"},{"id":"st_portal","name":"Портал знаний","price":82,"level":7,"rarity":"epic","desc":"Новый мир сложных математических задач.","icon":"<img class=\"mk-ux94-sticker-image\" alt=\"\" loading=\"eager\" decoding=\"async\" src=\"assets/source/stickers/st_portal.svg\">"},{"id":"st_phoenix","name":"Феникс победы","price":125,"level":10,"rarity":"legendary","desc":"Возрождение после сложных испытаний.","icon":"<img class=\"mk-ux94-sticker-image\" alt=\"\" loading=\"eager\" decoding=\"async\" src=\"assets/source/stickers/st_phoenix.svg\">"}];
+ if(SHOP_CATALOG.stickers.length!==31)throw Error("UX-101 expected 31 existing stickers");
+ const existing=new Set(SHOP_CATALOG.stickers.map(item=>item.id));
+ for(const item of fresh){
+   if(existing.has(item.id))throw Error("UX-101 sticker ID collision "+item.id);
+   if(!Number.isInteger(item.price)||item.price<1)throw Error("UX-101 invalid shop price");
+   SHOP_CATALOG.stickers.push(item);
+   existing.add(item.id);
+ }
+ if(SHOP_CATALOG.stickers.length!==40||existing.size!==40)throw Error("UX-101 catalog not 40 unique stickers");
+})();
+</script>
 </body></html>
