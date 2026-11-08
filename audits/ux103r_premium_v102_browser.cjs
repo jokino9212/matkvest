@@ -10,12 +10,13 @@ assert(sw.includes('matkvest-iphone-v102'),'PWA v102 absent');
 assert(sw.includes('APP_BUILD_HASH = "'+crypto.createHash('sha256').update(html).digest('hex')+'"'),'HTML/SW hash mismatch');
 for(const id of ids){
  const src='assets/source/pets/'+id+'.webp';
- assert(sw.includes('./'+src),'SVG missing from PWA precache '+id);
- const text=fs.readFileSync(src,'utf8');
- assert(text.includes('viewBox="0 0 512 512"'),'Wrong artboard '+id);
- assert(/aria-label="[^"]+"/.test(text),'Missing accessible art description '+id);
- assert(!/<script\b|<foreignObject\b|onload\s*=|onerror\s*=|href\s*=|http:\/\//i.test(text.replace(/http:\/\/www\.w3\.org\/2000\/svg/g,'')),'Unsafe pet SVG '+id);
+ assert(sw.includes('./'+src),'Premium WebP absent from offline precache '+id);
+ const bytes=fs.readFileSync(src);
+ assert(bytes.subarray(0,4).toString('ascii')==='RIFF','WebP RIFF signature missing '+id);
+ assert(bytes.subarray(8,12).toString('ascii')==='WEBP','WebP payload invalid '+id);
+ assert(bytes.length>45000&&bytes.length<250000,'Pet artwork unexpectedly small or huge '+id);
 }
+
 (async()=>{
  const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
  const summary=[];
