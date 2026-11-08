@@ -7452,7 +7452,7 @@ function isEquipped(type,id){
 }
 function avatarHtml(p=state,size=""){
  const c=normalizeProfileCosmetics(p),frame=c.frame?.css||"frame-none",pet=c.pet?.icon||"";
- return `<span class="avatar-badge ${size} ${frame}">${c.avatar?.icon||"🙂"}${pet?`<span class="pet-mini">${pet}</span>`:""}</span>`;
+ return `<span class="avatar-badge ${size} ${frame}" data-mk-avatar-id="${c.avatar?.id||"av_default"}">${c.avatar?.icon||"🙂"}${pet?`<span class="pet-mini">${pet}</span>`:""}</span>`;
 }
 function favoriteStickersHtml(p=state,size=""){
  const c=normalizeProfileCosmetics(p),items=c.favoriteStickers||[];
@@ -34708,7 +34708,9 @@ if(mkV877CorruptProfiles){
     (p.icon===orig.innerHTML||p.icon===orig.textContent.trim())) : null;
   title.textContent=item.kind==='pet'
     ? (name?.textContent?.trim()||petFromCatalog?.name||'Питомец')
-    : (name?.textContent?.trim()||img?.alt?.trim()||'Аватар');
+    : (name?.textContent?.trim()
+       ||SHOP_CATALOG.avatars.find(x=>x.id===(orig.dataset.mkAvatarId||orig.querySelector('[data-mk-avatar-id]')?.dataset.mkAvatarId))?.name
+       ||img?.alt?.trim()||'Аватар');
   popup.setAttribute('aria-label',item.kind==='pet'?'Просмотр питомца':'Просмотр аватара');
   previousFocus=document.activeElement;
   popup.classList.add('mk872-open');popup.setAttribute('aria-hidden','false');
@@ -34889,4 +34891,54 @@ if(mkV877CorruptProfiles){
   overflow:visible!important;
 }
 </style>
+
+<style id="mk-ux93-stack-avatar-css">
+/* Historic award avatars combine trophy image and numeric tag. Both must scale together. */
+#mk872AvatarViewer .mk30-visual.mk30-avatar .stack-icon{
+ box-sizing:border-box!important;display:grid!important;place-items:center!important;
+ position:relative!important;width:92%!important;height:92%!important;
+ max-width:92%!important;max-height:92%!important;
+ font-size:inherit!important;line-height:1!important;
+ overflow:visible!important;transform:none!important;
+}
+#mk872AvatarViewer .mk30-visual.mk30-avatar .stack-base{
+ display:grid!important;place-items:center!important;
+ width:100%!important;height:100%!important;
+ max-width:100%!important;max-height:100%!important;
+}
+#mk872AvatarViewer .mk30-visual.mk30-avatar .stack-base>img,
+#mk872AvatarViewer .mk30-visual.mk30-avatar .stack-base>svg{
+ width:100%!important;height:100%!important;
+ max-width:100%!important;max-height:100%!important;
+ object-fit:contain!important;
+}
+#mk872AvatarViewer .mk30-visual.mk30-avatar .stack-badge{
+ display:grid!important;place-items:center!important;
+ position:absolute!important;right:1%!important;bottom:1%!important;
+ width:auto!important;height:auto!important;max-width:65%!important;
+ font-size:clamp(18px,5vw,27px)!important;font-weight:900!important;
+ line-height:1.2!important;padding:3px 7px!important;
+ color:#16362d!important;background:#fffdf0!important;
+ border:2px solid #b4cdbd!important;border-radius:10px!important;
+ box-shadow:0 3px 9px #15292140!important;
+ transform:none!important;
+}
+</style>
+
+<script id="mk-ux93-avatar-catalog-identity">
+(function(){
+ 'use strict';
+ // The final avatarHtml implementation is wrapped only after later cosmetic
+ // decorators have loaded. Keep its existing artwork and add a stable item id.
+ if(typeof avatarHtml!=='function'||typeof normalizeProfileCosmetics!=='function')return;
+ const previous=avatarHtml;
+ avatarHtml=function(p,size){
+  const html=previous(p,size);
+  const id=normalizeProfileCosmetics(p).avatar?.id;
+  if(!id||typeof html!=='string')return html;
+  return html.replace(/(<span\b[^>]*\bclass="avatar-badge[^"]*")/,
+   '$1 data-mk-avatar-id="'+id+'"');
+ };
+})();
+</script>
 </body></html>
