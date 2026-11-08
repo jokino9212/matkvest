@@ -7442,6 +7442,15 @@ function normalizeShop(){
   item.icon='<img class="mk-ux94-sticker-image" alt="" loading="eager" decoding="async" src="assets/source/stickers/'+item.id+'.svg">';
  }
 })();
+
+/* UX-95: matching math decals — vector-only visual override, zero economy changes. */
+(function(){
+ const ids=new Set(["st_sigma","st_root","st_percent","st_divide","st_times","st_equals","st_delta","st_pi2"]);
+ for(const item of SHOP_CATALOG.stickers){
+  if(!ids.has(item.id))continue;
+  item.icon='<img class="mk-ux94-sticker-image" alt="" loading="eager" decoding="async" src="assets/source/stickers/'+item.id+'.svg">';
+ }
+})();
 function catalogItem(type,id){return SHOP_CATALOG[type]?.find(x=>x.id===id)||null}
 function normalizeProfileCosmetics(p){
  p=p||{};const inv=p.inventory||{},eq=p.equipped||{};
@@ -34984,4 +34993,5 @@ if(mkV877CorruptProfiles){
   min-height:30px!important;max-height:30px!important}
 }
 </style>
+<!-- UX-95: 16/31 original vector stickers --><meta id="mk-ux95-sticker-stage" data-series="16"/>
 </body></html>
