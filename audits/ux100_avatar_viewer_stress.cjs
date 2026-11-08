@@ -20,7 +20,7 @@ const fs=require('node:fs');
       profiles={'Stress-'+id:p};currentProfile='Stress-'+id;state=p;openLeaderboard();
     },id);
     const core=page.locator('.leader-table .avatar-core').first();
-    await core.click({force:true});
+    await core.click({timeout:5000});
     const immediate=await page.evaluate(()=>({
       open:document.querySelector('#mk872AvatarViewer')?.classList.contains('mk872-open'),
       svg:!!document.querySelector('#mk872AvatarViewer .mk30-visual svg'),
@@ -38,7 +38,7 @@ const fs=require('node:fs');
     report.push({round,id,immediate:immediate.open,stable,reason});
     if(!stable)failures.push({round,id,immediate,reason});
     await page.keyboard.press('Escape');
-    await page.waitForTimeout(35);
+    await page.waitForFunction(()=>!document.querySelector('#mk872AvatarViewer')?.classList.contains('mk872-open'),null,{timeout:3000});
     if(await page.evaluate(()=>document.querySelector('#mk872AvatarViewer')?.classList.contains('mk872-open')))
      failures.push({round,id,reason:'Viewer did not close after Esc'});
    }
