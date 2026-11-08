@@ -34662,6 +34662,9 @@ if(mkV877CorruptProfiles){
   const petIcon=node.closest('.mk19g-pet-choice .shop-icon,.mk19g-pet-choice .mk19g-pet-art,.shop-card[data-type="pets"] .shop-icon,.shop-card[data-shop-type="pets"] .shop-icon');
   if(petIcon)return {kind:'pet',node:petIcon};
   // Shop cards do not store their type in data-*; use the active tab.
+  // A catalog placeholder is not artwork; never zoom the empty-pet option.
+  const emptyPetCard=node.closest('.shop-grid .shop-card');
+  if(emptyPetCard?.querySelector('strong')?.textContent?.trim()==='Без питомца')return null;
   const shopIcon=node.closest('.shop-card .shop-icon');
   if(shopIcon){
     const cardName=shopIcon.closest('.shop-card')?.querySelector('strong')?.textContent?.trim();
@@ -34868,4 +34871,22 @@ if(mkV877CorruptProfiles){
  queue();
 })();
 </script>
+
+<!-- UX-92: enlarged real pets show the artwork, not a second shop tile. -->
+<style id="mk-ux92-pet-viewer-finish">
+#mk872AvatarViewer .mk30-visual.mk30-pet > .shop-icon,
+#mk872AvatarViewer .mk30-visual.mk30-pet > .mk872-col-art > .shop-icon{
+  background:transparent!important;border:0!important;box-shadow:none!important;
+  border-radius:0!important;overflow:visible!important;
+}
+#mk872AvatarViewer .mk30-visual.mk30-pet > .shop-icon > img,
+#mk872AvatarViewer .mk30-visual.mk30-pet > .mk872-col-art > .shop-icon > img{
+  width:94%!important;height:94%!important;
+  max-width:94%!important;max-height:94%!important;
+  object-fit:contain!important;aspect-ratio:1!important;
+}
+#mk872AvatarViewer .mk30-visual.mk30-pet{
+  overflow:visible!important;
+}
+</style>
 </body></html>
