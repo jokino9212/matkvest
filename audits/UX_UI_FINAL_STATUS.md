@@ -144,3 +144,11 @@
 - **45 настоящих предметов** `SHOP_CATALOG.badges`; новые `bd_lighthouse` uncommon/255/ур.6, `bd_book` rare/375/ур.8, `bd_owl` epic/445/ур.10, `bd_sundial` epic/575/ур.11, `bd_rune` legendary/890/ур.15. Все прежние 40 ID/цены сохранены.
 - **E2E PASS** https://github.com/jokino9212/matkvest/actions/runs/42427907120 ; **six-width visual PASS** https://github.com/jokino9212/matkvest/actions/runs/42428007784 (ширины 320/360/390/430/768/1280).
 - **Production `main` остаётся v81**, в этой ветке меняется лишь документ статуса. Осталось создать 5 значков до цели 50, затем художественный аудит, тесты на настоящем Android и остальные части UX-00 по питомцам/аватарам/стикерам. Полный STATUS в рабочей ветке актуальнее.
+
+## UX-08 — партия 15: 50/50 значков, staging PWA v89 (2026-11-08)
+
+- Существующий проект продолжен с ветки `ux-final/ux00-inventory-20261108`; staging v89 реально включает **50 уникальных SVG-предметов в `SHOP_CATALOG.badges`**. Последняя пятёрка: `bd_crystal` uncommon/270/ур.7, `bd_satellite` rare/395/ур.9, `bd_archimedes` epic/475/ур.10, `bd_galaxy` epic/615/ур.12, `bd_aurora` legendary/950/ур.16. Все прежние 45 сохранены.
+- **E2E SUCCESS** https://github.com/jokino9212/matkvest/actions/runs/42428518899 (покупка/цена/инвентарь/сортировка/viewer/рейтинг); **6 ширин SUCCESS** https://github.com/jokino9212/matkvest/actions/runs/42428624427 (50 SVG, 320–1280 px).
+- **Общий контактный лист 48+160px SUCCESS** https://github.com/jokino9212/matkvest/actions/runs/42428675103 , артефакт `ux08-all-50-badges-review-sheet` с `all_50_badges_48_and_160.png` и JSON каталога.
+- **ВНИМАНИЕ:** общий художественный просмотр/правки и физический Android ещё не завершены, UX/UI FINAL не DONE, production `main` HTML по-прежнему **v81**. Актуальная более полная контрольная точка в рабочей ветке, файл `audits/UX_UI_FINAL_STATUS.md`.
+- Следующий этап — художественная приёмка 50 значков и UX-полировка питомцев, аватаров, стикеров, затем согласованный релиз.
