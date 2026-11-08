@@ -18,6 +18,7 @@ const ids=['st_pi','st_star','st_rocket','st_lightning','st_cube','st_planet','s
     badges:SHOP_CATALOG.badges.length,images:items.filter(x=>x.icon.includes('mk-ux94-sticker-image')).length,
     special:items.filter(x=>ids.includes(x.id)).map(x=>({id:x.id,rarity:x.rarity,price:x.price,src:x.icon.match(/src="([^"]+)/)?.[1]}))};
   },ids);
+  console.log('UX96_BASELINE',width,JSON.stringify(baseline));
   assert.equal(baseline.catalog,31);
   assert.equal(baseline.badges,50);
   assert.equal(baseline.images,24);
