@@ -5,6 +5,7 @@ on:
     paths:
       - '.github/workflows/ux100-release-readiness.yml'
       - 'audits/ux100_pwa_upgrade_v81_v99_browser.cjs'
+      - 'audits/ux100_avatar_regression_probe.cjs'
   workflow_dispatch:
 permissions:
   contents: read
@@ -60,6 +61,8 @@ jobs:
         run: timeout 170s node audits/ux99_leader_scroll_hint_browser.cjs
       - name: Sticker collection 31/31 and three favorites
         run: timeout 170s node audits/ux97_sticker_v97_browser.cjs
+      - name: Diagnose rare Rex/Mare avatar failures before full avatar Gate
+        run: timeout 120s node audits/ux100_avatar_regression_probe.cjs
       - name: Historical avatars 55/55
         run: timeout 150s node audits/ux93_all_avatar_leaderboard_browser.cjs
       - name: Badge collection 50 at six widths
