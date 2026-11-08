@@ -35005,4 +35005,15 @@ if(mkV877CorruptProfiles){
 })();
 </script>
 <!-- UX-96: 24/31 original vector stickers --><meta id="mk-ux96-sticker-stage" data-series="24"/>
+<script id="mk-ux97-final-sticker-art">
+/* UX-97: matching math decals — vector-only visual override, zero economy changes. */
+(function(){
+ const ids=new Set(["st_star2","st_royal","st_infinity","st_golden_pi","st_master10","st_grade4","st_control_perfect"]);
+ for(const item of SHOP_CATALOG.stickers){
+  if(!ids.has(item.id))continue;
+  item.icon='<img class="mk-ux94-sticker-image" alt="" loading="eager" decoding="async" src="assets/source/stickers/'+item.id+'.svg">';
+ }
+})();
+</script>
+<!-- UX-97: 31/31 original vector stickers --><meta id="mk-ux97-sticker-stage" data-series="31"/>
 </body></html>
