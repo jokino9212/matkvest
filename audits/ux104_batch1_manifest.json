@@ -50,5 +50,15 @@
       "asset": "assets/source/pets/pet_penguin.webp",
       "visual_brief": "Пухлый ледяной пингвинёнок-питомец в цветном шарфе с мини-компасом, глянцевые большие глаза, пушистые переходы белого/синего, объёмный свет, оригинальная поза и узнаваемые маленькие ласты. Не копия плоского чёрно-белого аватара."
     }
-  ]
+  ],
+  "art_acceptance": {
+    "required": true,
+    "status": "pending_visual_review",
+    "interpretation": "Release gate: exact SHA-256 of each 640x640 premium WebP, set only after human review of contact sheet and real 320px viewer.",
+    "accepted_sha256": {
+      "pet_bot": null,
+      "pet_owl": null,
+      "pet_penguin": null
+    }
+  }
 }
