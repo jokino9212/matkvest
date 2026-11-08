@@ -1,0 +1,49 @@
+name: UX-97 final 31 sticker v97 staging Gate
+on:
+  push:
+    branches: [ux-final/ux00-inventory-20261108]
+    paths: ['.github/workflows/ux97-sticker-v97.yml','audits/ux97_sticker_v97_browser.cjs','audits/ux97_sticker_v97_patch.py']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  staging:
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Complete 31 original SVG sticker collection and PWA v97
+        run: python3 audits/ux97_sticker_v97_patch.py
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Verify 31 images, favorites, profile, shop and collection on 4 widths
+        run: timeout 160s node audits/ux97_sticker_v97_browser.cjs
+      - name: Regression - all legacy avatars
+        run: timeout 150s node audits/ux93_all_avatar_leaderboard_browser.cjs
+      - name: Regression - fullscreen pet and avatar viewer
+        run: timeout 120s node audits/ux92_pet_viewer_v92_browser.cjs
+      - name: Regression - 50 badges and 6 widths
+        run: timeout 150s node audits/ux00_badge_final_visual_browser.cjs
+      - name: Regression - mobile shop tabs and collection
+        run: timeout 120s node audits/ux_mobile_shop_v91_browser.cjs
+      - name: Regression - leaderboard inventory worth
+        run: timeout 120s node audits/stage30_collection_media_browser.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ux97-all-31-stickers-responsive
+          path: audits/ux97_sticker_v97_output/
+          retention-days: 60
+      - name: Push staging app only after full Gate success
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js
+          if ! git diff --cached --quiet; then
+            git commit -m "feat(ux97): all 31 vector stickers in staging PWA v97 [skip ci]"
+            git pull --rebase origin ux-final/ux00-inventory-20261108
+            git push origin HEAD:ux-final/ux00-inventory-20261108
+          fi
