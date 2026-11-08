@@ -1,0 +1,102 @@
+name: UX-103R premium illustrated pets WebP 640px (staging v102)
+on:
+  push:
+    branches: [ux-final/ux00-inventory-20261108]
+    paths:
+      - '.github/workflows/ux103r-premium-pets-v102.yml'
+      - 'audits/ux103r_premium_v102_patch.py'
+      - 'audits/ux103r_premium_v102_browser.cjs'
+      - 'audits/ux103r_premium_art_v102_browser.cjs'
+      - 'audits/ux103r_premium_cards_v102_browser.cjs'
+      - 'audits/ux103r_pwa_upgrade_v81_v102_browser.cjs'
+      - 'audits/ux103r_sticker_regression_browser.cjs'
+      - 'assets/source/pets/pet_phoenix.webp'
+      - 'assets/source/pets/pet_orb.webp'
+      - 'assets/source/pets/pet_ghost.webp'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  artwork-and-ux:
+    name: Premium pet art 640px, mobile grids, fullscreen and comprehensive catalog regression
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply staging v102 correction
+        run: python3 audits/ux103r_premium_v102_patch.py
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Verify three independent real WebP images and alpha at 48, 128 and 384 px
+        run: timeout 190s node audits/ux103r_premium_art_v102_browser.cjs
+      - name: Verify pets in actual shop, collection, leaderboard, fullscreen and purchase on 4 widths
+        run: timeout 190s node audits/ux103r_premium_v102_browser.cjs
+      - name: Verify actual shop card 61px pet images, not small header avatar
+        run: timeout 140s node audits/ux103r_premium_cards_v102_browser.cjs
+      - name: Preserve 40 stickers, purchases and layouts on six widths
+        run: timeout 190s node audits/ux103r_sticker_regression_browser.cjs
+      - name: Keep 55 avatars correct in leader and viewer
+        run: timeout 160s node audits/ux93_all_avatar_leaderboard_browser.cjs
+      - name: Keep 50 unique badges responsive
+        run: timeout 170s node audits/ux00_badge_final_visual_browser.cjs
+      - name: Preserve fullscreen pet zoom and Esc behavior
+        run: timeout 130s node audits/ux92_pet_viewer_v92_browser.cjs
+      - name: Preserve leaderboard scroll and inventory valuation
+        run: |
+          timeout 130s node audits/ux99_leader_scroll_hint_browser.cjs
+          timeout 130s node audits/stage30_collection_media_browser.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ux103r-premium-pets-gallery-mobile-qa
+          path: |
+            audits/ux103r_premium_art_output/
+            audits/ux103r_premium_v102_output/
+            audits/ux103r_real_pet_cards_output/
+          retention-days: 60
+  safe-upgrade:
+    name: Real production v81 -> staging v102 PWA, profiles, progress and offline
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        name: Read-only production main baseline
+        with:
+          ref: main
+          path: baseline_v81
+      - run: python3 audits/ux103r_premium_v102_patch.py
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Same-origin v81 to v102 update, multiple profiles and unfinished training
+        run: timeout 300s node audits/ux103r_pwa_upgrade_v81_v102_browser.cjs
+      - name: Cache and navigation survive network loss
+        run: timeout 170s node audits/stage28_offline_pwa_browser.cjs
+      - name: Safe training completion and re-entry
+        run: timeout 140s node audits/stage24_attempt_lifecycle_browser.cjs
+      - name: Multi-profile data segregation
+        run: timeout 140s node audits/stage25_profile_isolation_browser.cjs
+  push-staging:
+    name: Release only staging HTML and SW after all independent jobs PASS
+    needs: [artwork-and-ux,safe-upgrade]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - run: python3 audits/ux103r_premium_v102_patch.py
+      - name: Commit and push staging only
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js
+          if ! git diff --cached --quiet; then
+            git commit -m "fix(ux103r): premium 2.5D WebP pets staging PWA v102 [skip ci]"
+            git pull --rebase origin ux-final/ux00-inventory-20261108
+            git push origin HEAD:ux-final/ux00-inventory-20261108
+          fi
