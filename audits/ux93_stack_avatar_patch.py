@@ -4,6 +4,7 @@ p=Path('index.html');swp=Path('sw.js')
 s=p.read_text('utf8');sw=swp.read_text('utf8')
 assert 'matkvest-iphone-v92' in sw
 assert 'id="mk-ux93-stack-avatar-css"' not in s
+assert 'id="mk-ux93-avatar-catalog-identity"' not in s
 before='return `<span class="avatar-badge ${size} ${frame}">${c.avatar?.icon||"🙂"}${pet?`<span class="pet-mini">${pet}</span>`:""}</span>`;'
 after='return `<span class="avatar-badge ${size} ${frame}" data-mk-avatar-id="${c.avatar?.id||"av_default"}">${c.avatar?.icon||"🙂"}${pet?`<span class="pet-mini">${pet}</span>`:""}</span>`;'
 assert s.count(before)==1
@@ -49,7 +50,25 @@ style=r'''
 </style>
 '''
 assert s.count('</body>')==1
-s=s.replace('</body>',style+'</body>',1)
+script=r'''
+<script id="mk-ux93-avatar-catalog-identity">
+(function(){
+ 'use strict';
+ // The final avatarHtml implementation is wrapped only after later cosmetic
+ // decorators have loaded. Keep its existing artwork and add a stable item id.
+ if(typeof avatarHtml!=='function'||typeof normalizeProfileCosmetics!=='function')return;
+ const previous=avatarHtml;
+ avatarHtml=function(p,size){
+  const html=previous(p,size);
+  const id=normalizeProfileCosmetics(p).avatar?.id;
+  if(!id||typeof html!=='string')return html;
+  return html.replace(/(<span\b[^>]*\bclass="avatar-badge[^"]*")/,
+   '$1 data-mk-avatar-id="'+id+'"');
+ };
+})();
+</script>
+'''
+s=s.replace('</body>',style+script+'</body>',1)
 sw=sw.replace('matkvest-iphone-v92','matkvest-iphone-v93',1)
 sha=hashlib.sha256(s.encode('utf8')).hexdigest()
 sw,n=re.subn(r'(const APP_BUILD_HASH = ")[0-9a-f]{64}(")',lambda m:m.group(1)+sha+m.group(2),sw,count=1)
