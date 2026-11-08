@@ -22,11 +22,12 @@ const out='audits/ux08_final_art_quality_output';fs.mkdirSync(out,{recursive:tru
     const fixture={id:item.id,rarity:item.rarity,price:item.price,circles:circleCount,size:Buffer.byteLength(source)};
     stats.push(fixture);
   }
+  const inlineItems=items.map(item=>({...item,dataUrl:'data:image/svg+xml;base64,'+fs.readFileSync(path.join(base,item.id+'.svg')).toString('base64')}));
   const optics=await page.evaluate(async items=>{
     const cvs=document.createElement('canvas');cvs.width=48;cvs.height=48;const cx=cvs.getContext('2d',{willReadFrequently:true});
     const rec=[];
     for(const item of items){
-      const img=new Image();img.src=item.src;await img.decode();
+      const img=new Image();img.src=item.dataUrl;await img.decode();
       cx.clearRect(0,0,48,48);cx.drawImage(img,0,0,48,48);
       const pixels=cx.getImageData(0,0,48,48).data;
       let occupied=0,sum=0,sumSq=0;
@@ -39,7 +40,7 @@ const out='audits/ux08_final_art_quality_output';fs.mkdirSync(out,{recursive:tru
       rec.push({id:item.id,pixelCoverage:Math.round(occupied/2304*1000)/10,contrast:Math.round(contrast*10)/10});
     }
     return rec;
-  },items);
+  },inlineItems);
   for(const o of optics){
     if(o.pixelCoverage<28)problems.push(o.id+': too little artwork in 48px thumbnail ('+o.pixelCoverage+'%)');
     if(o.contrast<24)problems.push(o.id+': low 48px luma variance ('+o.contrast+')');
