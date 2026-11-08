@@ -1,0 +1,45 @@
+name: UX-104 code and artwork intake contract (preflight only)
+on:
+  push:
+    branches: [ux-final/ux00-inventory-20261108]
+    paths:
+      - '.github/workflows/ux104-code-preflight.yml'
+      - 'audits/ux104_batch1_manifest.json'
+      - 'audits/ux104_batch1_v103_patch.py'
+      - 'audits/ux104_batch1_v103_browser.cjs'
+      - 'audits/ux104_batch1_art_browser.cjs'
+      - 'audits/ux104_pwa_upgrade_v81_v103_browser.cjs'
+      - '.github/workflows/ux104-pet-batch1-v103.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+      - name: Confirm staging still v102 (no premature art publish)
+        run: |
+          grep -q 'matkvest-iphone-v102' sw.js
+          python3 - <<'PY'
+          from pathlib import Path
+          import json
+          data=json.loads(Path('audits/ux104_batch1_manifest.json').read_text('utf8'))
+          assert len(data['items'])==3
+          assert [x['id'] for x in data['items']]==['pet_bot','pet_owl','pet_penguin']
+          assert not any(Path(x['asset']).exists() for x in data['items']), 'Some art appears: run full candidate Gate'
+          print('UX104_EXPECTED_ASSETS_PENDING',[(x['id'],x['asset']) for x in data['items']])
+          PY
+      - name: Syntax validation (no artificial placeholder art)
+        run: |
+          python3 -m py_compile audits/ux104_batch1_v103_patch.py
+          node --check audits/ux104_batch1_v103_browser.cjs
+          node --check audits/ux104_batch1_art_browser.cjs
+          node --check audits/ux104_pwa_upgrade_v81_v103_browser.cjs
+      - name: Read-only check of guarded integration contract
+        run: python3 audits/ux104_batch1_v103_patch.py --preflight
+      - name: Confirm UX-104 code tests did not change app hash or version
+        run: |
+          grep -q 'matkvest-iphone-v102' sw.js
+          ! grep -q 'mk-ux104-premium-pets-1' index.html
