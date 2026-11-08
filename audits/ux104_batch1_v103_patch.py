@@ -18,6 +18,7 @@ if '--preflight' in sys.argv:
         'batch':1,'candidate_ids':[v['id'] for v in items],
         'missing_original_assets':[v['asset'] for v in items if not Path(v['asset']).is_file()],
         'staging':'v102 unchanged until source artwork passes Gate',
+        'art_acceptance':manifest.get('art_acceptance',{}).get('status','not_set'),
         'production':'v81 unchanged'
     },ensure_ascii=False))
     sys.exit(0)
@@ -31,6 +32,15 @@ for item in items:
     assert f'./{f.as_posix()}' not in sw, f'File already cached: {f}'
     art.append((item,hashlib.sha256(data).hexdigest()))
 assert len({digest for _,digest in art})==3,'Different pets cannot reuse one source image'
+# Human art review is a separate release gate: three valid WebPs alone cannot
+# authorize publication, even when image dimensions and alpha QA are green.
+accepted=manifest.get('art_acceptance',{})
+assert accepted.get('required') is True and accepted.get('status')=='approved', (
+    'UX104 visual art approval missing. Keep v102; never auto-publish unreviewed pet images.')
+expected_hashes=accepted.get('accepted_sha256',{})
+for item,digest in art:
+    assert expected_hashes.get(item['id'])==digest, (
+        'UX104 reviewed art SHA mismatch '+item['id']+'; approval is tied to exact image bytes.')
 checks={i['id']:{k:i[k] for k in ['price','rarity','level']} for i in items}
 src={i['id']:i['asset'] for i in items}
 js='''<script id="mk-ux104-premium-pets-1">
