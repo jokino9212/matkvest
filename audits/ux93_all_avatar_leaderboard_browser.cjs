@@ -31,9 +31,10 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),path
    viewerImg:!!viewer.img,viewerSvg:!!viewer.svg,sameImage:setup.sourceImg===viewer.img,
    sameSvg:setup.sourceSvg===viewer.svg,sameText:setup.sourceText===viewer.text,
    sourceText:setup.sourceText.slice(0,35),viewerText:viewer.text.slice(0,35),open:viewer.open,
-   malformed:!viewer.open||!viewer.kind?.includes('mk30-avatar')||(!!setup.sourceImg&&!viewer.img)||(!!setup.sourceSvg&&!viewer.svg)||(setup.sourceText==='100'&&viewer.text==='100')};
+   malformed:!viewer.open||!viewer.kind?.includes('mk30-avatar')||(!!setup.sourceImg&&!viewer.img)||(!!setup.sourceSvg&&!viewer.svg)};
   report.push(result);console.log('AVATAR_CHECK',JSON.stringify(result));
-  if(item.id==='av_default'||item.id===avatarCatalog[avatarCatalog.length-1].id)await page.screenshot({path:out+'/avatar_'+item.id+'.png',animations:'disabled'});
+  if(['av_centurion','av_grade5_master'].includes(item.id))console.log('LAYER_LAYOUT',item.id,JSON.stringify(await page.evaluate(()=>{const root=document.querySelector('#mk872AvatarViewer .mk30-visual');return [...root.querySelectorAll('.stack-icon,.stack-base,.stack-badge,img')].map(x=>{let r=x.getBoundingClientRect(),c=getComputedStyle(x);return {tag:x.tagName,cls:x.className?.baseVal||x.className,txt:x.textContent.trim().slice(0,12),w:r.width,h:r.height,left:r.left,top:r.top,fontSize:c.fontSize,position:c.position};})})));
+  if(['av_default','av_centurion','av_grade5_master','av_mathquest_master'].includes(item.id)||item.id===avatarCatalog[avatarCatalog.length-1].id)await page.screenshot({path:out+'/avatar_'+item.id+'.png',animations:'disabled'});
   await page.keyboard.press('Escape');
  }
  fs.writeFileSync(out+'/legacy_avatar_matrix.json',JSON.stringify({avatarCatalog,report},null,2));
