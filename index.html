@@ -35172,4 +35172,20 @@ if(mkV877CorruptProfiles){
  }
 })();
 </script>
+<script id="mk-ux103r-premium-pets">
+/* UX-103 premium art correction: the old flat SVGs were not production quality. */
+(function(){
+ const originals={
+   pet_phoenix:{price:820,rarity:"epic"},
+   pet_orb:{price:1050,rarity:"legendary"},
+   pet_ghost:{price:1500,rarity:"legendary"}
+ };
+ for(const [id,existing] of Object.entries(originals)){
+   const matches=SHOP_CATALOG.pets.filter(x=>x.id===id);
+   if(matches.length!==1||matches[0].price!==existing.price||matches[0].rarity!==existing.rarity)
+     throw new Error("UX-103 premium pet identity/economy mismatch "+id);
+   matches[0].icon='<img class="emoji-fallback-img mk-ux103-pet-image mk-ux103-premium-image" alt="" loading="eager" decoding="async" src="assets/source/pets/'+id+'.webp">';
+ }
+})();
+</script>
 </body></html>
