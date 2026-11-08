@@ -1,0 +1,36 @@
+name: UX-104 three premium pet candidates visual and mobile Gate (no release)
+on:
+  push:
+    branches: [ux-final/ux00-inventory-20261108]
+    paths:
+      - '.github/workflows/ux104-three-candidates.yml'
+      - 'audits/ux104_batch1_candidates_browser.cjs'
+      - 'assets/candidates/pets/pet_bot.webp'
+      - 'assets/candidates/pets/pet_owl.webp'
+      - 'assets/candidates/pets/pet_penguin.webp'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  original-art-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 17
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - name: Confirm staging is still v102 and these are candidates only
+        run: |
+          grep -q 'matkvest-iphone-v102' sw.js
+          test ! -e assets/source/pets/pet_bot.webp
+          test ! -e assets/source/pets/pet_owl.webp
+          test ! -e assets/source/pets/pet_penguin.webp
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: QA three unique RGBA WebPs, identity, shop, collection, leaderboard, fullscreen and 4 viewport sizes
+        run: timeout 220s node audits/ux104_batch1_candidates_browser.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ux104-three-premium-candidate-visual-review
+          path: audits/ux104_batch1_candidate_output/
+          retention-days: 60
