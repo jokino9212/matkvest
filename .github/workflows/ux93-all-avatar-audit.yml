@@ -1,0 +1,23 @@
+name: UX-93 all legacy avatar leaderboard audit
+on:
+  push:
+    branches: [ux-final/ux00-inventory-20261108]
+    paths: ['.github/workflows/ux93-all-avatar-audit.yml','audits/ux93_all_avatar_leaderboard_browser.cjs']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - run: timeout 150s node audits/ux93_all_avatar_leaderboard_browser.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ux93-avatar-legacy-matrix
+          path: audits/ux93_legacy_avatar_output/
+          retention-days: 60
