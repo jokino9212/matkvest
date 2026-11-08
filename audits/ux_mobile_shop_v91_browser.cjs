@@ -9,7 +9,7 @@ const output='audits/ux_mobile_shop_v91_output';fs.mkdirSync(output,{recursive:t
    const errors=[];page.on('pageerror',e=>errors.push(e.message));page.setDefaultTimeout(12000);
    await page.goto('file://'+path.resolve('index.html'),{waitUntil:'domcontentloaded'});
    await page.evaluate(()=>{state.coins=3000;openShop('badges','all')});
-   await page.locator('#modal .mk-ux91-category-select').waitFor();
+   await page.locator('#modal .mk-ux91-category-select').waitFor({state:'attached'});
    const check=await page.evaluate(()=>{
       const h=document.querySelector('#modal .mtop .mk872-help-heading');
       const help=h.querySelector('.mk872-help-trigger'),close=document.querySelector('#modal .mtop .x');
