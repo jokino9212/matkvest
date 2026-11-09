@@ -1,0 +1,32 @@
+name: UX-104 all 10 original premium pet candidates visual gallery and browser QA
+on:
+  push:
+    branches: [ux-final/ux00-inventory-20261108]
+    paths:
+      - 'audits/ux104_all10_candidates_browser.cjs'
+      - '.github/workflows/ux104-all10-candidates.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  all-ten-art-and-application:
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install browser runner
+        run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Ten exact distinct WebP source hashes; intact 55 avatars and catalog economy; mobile shop, viewer, collection and leaderboard; 30 alpha render checks
+        run: timeout 220s node audits/ux104_all10_candidates_browser.cjs
+      - name: Ensure staging version remains unchanged
+        run: |
+          grep -q 'matkvest-iphone-v102' sw.js
+          ! grep -q 'assets/candidates/pets/' index.html sw.js
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ux104-all-10-premium-mascots-human-art-review
+          path: audits/ux104_all10_output/
+          retention-days: 60
