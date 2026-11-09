@@ -1,0 +1,109 @@
+name: UX104 owner request - release ten approved premium pets staging and production
+on:
+  push:
+    branches: [ux-final/ux00-inventory-20261108]
+    paths:
+      - 'audits/ux104_owner_release_v105.py'
+      - 'audits/ux104_owner_v105_browser.cjs'
+      - '.github/workflows/ux104-owner-production-release.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: ux104-production-release
+  cancel-in-progress: false
+jobs:
+  full-regression-before-release:
+    name: Build v105 in isolation, test 10 art sources, v81 upgrade, saved progress and offline
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        name: Preserve actual production v81 snapshot
+        with:
+          ref: main
+          path: baseline_v81
+      - name: Build sequentially only from validated originals and owner approval
+        run: python3 audits/ux104_owner_release_v105.py
+      - name: Install Playwright
+        run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Real v105 shop, all ten premium sources, fullscreen, collection and leaderboard
+        run: timeout 180s node audits/ux104_owner_v105_browser.cjs
+      - name: Preserve two real profiles, exact XP/coins/progress, unfinished training and offline on v81 to v105 upgrade
+        run: |
+          sed 's/matkvest-iphone-v103/matkvest-iphone-v105/g; s/v103 worker/v105 worker/g; s/usable in v103/usable in v105/g' audits/ux104_pwa_upgrade_v81_v103_browser.cjs > audits/ux104_v81_to_v105_upgrade_generated.cjs
+          timeout 300s node audits/ux104_v81_to_v105_upgrade_generated.cjs
+      - name: Mobile leaderboard and collection value regression
+        run: timeout 180s node audits/stage30_collection_media_browser.cjs
+      - name: Training draft lifecycle and profile persistence
+        run: timeout 180s node audits/stage24_attempt_lifecycle_browser.cjs
+      - name: Real offline reload and intact stored balances
+        run: timeout 180s node audits/stage28_offline_pwa_browser.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ux104-v105-approved-pets-full-production-regression
+          path: |
+            audits/ux104_owner_v105_output/
+            audits/stage24_attempt_lifecycle_output/
+          retention-days: 60
+  publish-staging:
+    name: Commit fully tested v105 and ten WebP to staging only
+    needs: [full-regression-before-release]
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - run: python3 audits/ux104_owner_release_v105.py
+      - name: Record exact tested changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js assets/source/pets/pet_bot.webp assets/source/pets/pet_owl.webp assets/source/pets/pet_penguin.webp assets/source/pets/pet_dino.webp assets/source/pets/pet_cat.webp assets/source/pets/pet_dragon.webp assets/source/pets/pet_fox.webp assets/source/pets/pet_turtle.webp assets/source/pets/pet_tiger.webp assets/source/pets/pet_astronaut.webp audits/ux104_batch1_manifest.json audits/ux104_batch2_manifest.json audits/ux104_batch3_manifest.json
+          git commit -m "feat(ux104): stage all 10 approved premium WebP pets with PWA v105"
+          git pull --rebase origin ux-final/ux00-inventory-20261108
+          git push origin HEAD:ux-final/ux00-inventory-20261108
+  publish-production:
+    name: Final production v81 to v105 deployment after a second browser gate
+    needs: [publish-staging]
+    runs-on: ubuntu-latest
+    timeout-minutes: 24
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          fetch-depth: 1
+      - name: Load exact live branches, preserve main and copy verified app + all required artwork
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin main ux-final/ux00-inventory-20261108
+          git checkout -B main origin/main
+          grep -q 'const CACHE_NAME = "matkvest-iphone-v81"' sw.js
+          git branch backup/pre-ux104-pets-production-20261109
+          git checkout origin/ux-final/ux00-inventory-20261108 -- index.html sw.js assets/source audits/ux104_batch1_manifest.json audits/ux104_batch2_manifest.json audits/ux104_batch3_manifest.json audits/ux104_owner_v105_browser.cjs
+          grep -q 'const CACHE_NAME = "matkvest-iphone-v105"' sw.js
+          python3 -c "import hashlib,re,pathlib; h=pathlib.Path('index.html').read_bytes();s=pathlib.Path('sw.js').read_text();assert re.search(r'const APP_BUILD_HASH = \"([0-9a-f]{64})\"',s).group(1)==hashlib.sha256(h).hexdigest()"
+      - name: Test the actual proposed production file tree
+        run: |
+          npm install --no-save --no-package-lock playwright@1.56.1
+          timeout 190s node audits/ux104_owner_v105_browser.cjs
+          timeout 190s node audits/stage30_collection_media_browser.cjs
+          timeout 190s node audits/stage28_offline_pwa_browser.cjs
+      - name: Publish main only after successful second round of verification
+        run: |
+          git add index.html sw.js assets/source audits/ux104_batch1_manifest.json audits/ux104_batch2_manifest.json audits/ux104_batch3_manifest.json audits/ux104_owner_v105_browser.cjs
+          git commit -m "release(ux104): v105 production ten premium pets and verified UX refresh"
+          git push origin backup/pre-ux104-pets-production-20261109
+          git push origin HEAD:main
