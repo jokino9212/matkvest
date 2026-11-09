@@ -1,6 +1,6 @@
 # МатКвест · UX-104 · итоговый художественный просмотр всех 10 настоящих кандидатов
 
-**Дата:** 9 ноября 2026. **Состояние:** все 10 отдельных оригинальных WebP RGBА 640×640 сохранены в GitHub и прошли совместную техническую проверку в настоящем браузере. **Художественная приёмка пользователем ещё не выполнена; не считать рисунки утверждёнными или выпущенными.**
+**Дата:** 9 ноября 2026. **Состояние:** все 10 отдельных оригинальных WebP RGBA 640×640 сохранены в GitHub и прошли совместную техническую проверку в настоящем браузере. **Художественная приёмка пользователем ещё не выполнена; не считать рисунки утверждёнными или выпущенными.**
 
 **Истина:** рабочая ветка `ux-final/ux00-inventory-20261108` · staging PWA **v102**, production **v81**.
 
@@ -12,7 +12,6 @@
 |:---:|:---:|:---:|:---:|:---:|
 | <img src="../assets/candidates/pets/pet_bot.webp" width="145" alt="Мини-бот"/> | <img src="../assets/candidates/pets/pet_owl.webp" width="145" alt="Сова"/> | <img src="../assets/candidates/pets/pet_penguin.webp" width="145" alt="Пингвин"/> | <img src="../assets/candidates/pets/pet_dino.webp" width="145" alt="Динозавр"/> | <img src="../assets/candidates/pets/pet_cat.webp" width="145" alt="Кот"/> |
 | **Мини-бот** | **Сова** | **Пингвин** | **Динозавр** | **Кот** |
-|:---:|:---:|:---:|:---:|:---:|
 | <img src="../assets/candidates/pets/pet_dragon.webp" width="145" alt="Дракончик"/> | <img src="../assets/candidates/pets/pet_fox.webp" width="145" alt="Лисёнок"/> | <img src="../assets/candidates/pets/pet_turtle.webp" width="145" alt="Черепашка"/> | <img src="../assets/candidates/pets/pet_tiger.webp" width="145" alt="Тигрёнок"/> | <img src="../assets/candidates/pets/pet_astronaut.webp" width="145" alt="Космо-напарник"/> |
 | **Дракончик** | **Лисёнок** | **Черепашка** | **Тигрёнок** | **Космо-напарник** |
 
