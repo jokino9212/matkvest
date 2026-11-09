@@ -47,7 +47,7 @@ const locate=()=>page.evaluate(()=>{
 });
 console.log('PROFILES_GIANT',width,JSON.stringify(await locate()));
 
-const actual=await page.evaluate(()=>{
+let actual=await page.evaluate(()=>{
  const modal=document.querySelector('#modal');
  const els=[...modal.querySelectorAll('.favorite-stickers,.favorite-sticker,.favorite-sticker img,.favorite-sticker svg,.profile-badges,.profile-badge-chip,.profile-badge-chip img,.profile-badge-chip svg')];
  return els.map(el=>{const r=el.getBoundingClientRect(),cs=getComputedStyle(el);
@@ -74,7 +74,7 @@ console.log('ICON_ISOLATION',width,JSON.stringify({stickerProblem:isolate.sticke
 await page.evaluate(()=>openLeaderboard());
 console.log('LEADER_GIANT',width,JSON.stringify(await locate()));
 
-const actual=await page.evaluate(()=>{
+actual=await page.evaluate(()=>{
  const modal=document.querySelector('#modal');
  const els=[...modal.querySelectorAll('.favorite-stickers,.favorite-sticker,.favorite-sticker img,.favorite-sticker svg,.profile-badges,.profile-badge-chip,.profile-badge-chip img,.profile-badge-chip svg')];
  return els.map(el=>{const r=el.getBoundingClientRect(),cs=getComputedStyle(el);
