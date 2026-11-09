@@ -1,0 +1,28 @@
+name: UX105 final 30 pets approved art only (manual release gate)
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  full-30-pet-release-candidate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Require 10 individually human-approved and exact SHA256-locked 640px original WebP files
+        run: timeout 220s node audits/ux105_v107_browser.cjs
+      - name: Existing media viewer / inventory worth
+        run: timeout 180s node audits/stage30_collection_media_browser.cjs
+      - name: Protected profiles and saved progress
+        run: timeout 180s node audits/stage25_profile_isolation_browser.cjs
+      - name: PWA offline and profile balances
+        run: timeout 180s node audits/stage28_offline_pwa_browser.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ux105-30-pets-v107-browser-visual-qa
+          path: audits/ux105_v107_output/
+          retention-days: 60
