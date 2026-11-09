@@ -23,7 +23,7 @@ jobs:
           from pathlib import Path
           import hashlib
           sw=Path('sw.js').read_text()
-          assert 'matkvest-iphone-v81' in sw or 'matkvest-iphone-v105' in sw, 'Unexpected PWA version'
+          assert 'matkvest-iphone-v81' in sw or 'matkvest-iphone-v105' in sw or 'matkvest-iphone-v106' in sw, 'Unexpected PWA version'
           assert hashlib.sha256(Path('index.html').read_bytes()).hexdigest() in sw
           print('PWA_DIGEST_PASS')
           PY
@@ -34,6 +34,9 @@ jobs:
             node audits/collection_viewer_v81_browser.cjs
           elif grep -q 'matkvest-iphone-v105' sw.js; then
             node audits/ux104_owner_v105_browser.cjs
+            node audits/stage30_collection_media_browser.cjs
+          elif grep -q 'matkvest-iphone-v106' sw.js; then
+            node audits/ux106_badge_overflow_browser.cjs
             node audits/stage30_collection_media_browser.cjs
           else
             echo 'Unrecognized release version: inspect before updating baseline'
