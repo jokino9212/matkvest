@@ -61,7 +61,7 @@ assert len({r[2] for r in records})==4
 checks={i['id']:{field:i[field] for field in ['price','rarity','level']}
         for i in items}
 sources={i['id']:active.as_posix() for i,active,sha in records}
-script='''<script id="mk-ux104-premium-pets-2">
+script='''<script id="mk-ux104-premium-pets-3">
 /* UX-104 third approved premium art batch: no economy, progress or ID mutations. */
 (function(){
  const checks=__CHECKS__;
@@ -90,7 +90,7 @@ new_sw,n=re.subn(r'(const APP_BUILD_HASH = ")[0-9a-f]{64}(")',
 assert n==1 and new_sw!=sw and new_html!=html
 index.write_text(new_html,'utf-8')
 swfile.write_text(new_sw,'utf-8')
-print('UX104_BATCH3_APPROVED_STAGE_V104',json.dumps({
+print('UX104_BATCH3_APPROVED_STAGE_V105',json.dumps({
   'ids':[i['id'] for i in items],'art_sha256':{i['id']:sha for i,active,sha in records},
   'pwa':'v105','html_hash':digest,'production':'untouched'
 },ensure_ascii=False))
