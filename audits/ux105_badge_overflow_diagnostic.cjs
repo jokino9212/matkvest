@@ -6,6 +6,14 @@ for(const needle of ['function openProfiles(', 'function openLeaderboard(', 'fun
  let i=text.indexOf(needle);
  console.log('SRC_LOOKUP',needle,i, i<0?'':text.slice(Math.max(0,i-150),i+1350).replace(/\n/g,' '));
 }
+
+for(const needle of ['function favoriteStickersHtml(', 'function profileBadgesHtml(', 'function stickerIcon(', 'function mkSticker', 'function badgeIcon(', 'function renderItemIcon(', 'favoriteStickers:', 'favoriteStickers=', '.leader-stickers', '.profile-sticker-line', '.profile-sticker-slot', 'function shopIconHtml(', 'const SHOP_CATALOG']){
+ let p=-1,count=0;
+ while((p=text.indexOf(needle,p+1))>=0 && count<3){
+ console.log('DEEP_SOURCE',needle,p,text.slice(Math.max(0,p-210),p+2300).replace(/\n/g,' '));count++;
+ }
+}
+
 (async()=>{
 const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
 try{
