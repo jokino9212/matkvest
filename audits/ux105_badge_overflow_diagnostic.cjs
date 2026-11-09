@@ -32,8 +32,8 @@ const seeded=await page.evaluate(()=>{
  const allBadges=SHOP_CATALOG.badges.map(x=>x.id);
  const allStickers=SHOP_CATALOG.stickers.map(x=>x.id);
  const allPets=SHOP_CATALOG.pets.filter(x=>x.id!=='pet_none').map(x=>x.id);
- const a=ensureProfileIdentity({...EMPTY_STATE,coins:181,xp:2851,inventory:{...(EMPTY_STATE.inventory||{}),badges:allBadges,stickers:allStickers,pets:allPets},equipped:{...(EMPTY_STATE.equipped||{}),pet:'pet_owl',avatar:'av_trophy'}});
- const b=ensureProfileIdentity({...EMPTY_STATE,coins:114,xp:5141,inventory:{...(EMPTY_STATE.inventory||{}),badges:allBadges,stickers:allStickers,pets:allPets},equipped:{...(EMPTY_STATE.equipped||{}),pet:'pet_owl',avatar:'av_crown'}});
+ const a=ensureProfileIdentity({...EMPTY_STATE,coins:181,xp:2851,inventory:{...(EMPTY_STATE.inventory||{}),badges:allBadges,stickers:allStickers,pets:allPets},equipped:{...(EMPTY_STATE.equipped||{}),pet:'pet_owl',avatar:'av_trophy',stickers:['st_hourglass','st_orbit','st_control_perfect'],badges:allBadges.slice(0,3)}});
+ const b=ensureProfileIdentity({...EMPTY_STATE,coins:114,xp:5141,inventory:{...(EMPTY_STATE.inventory||{}),badges:allBadges,stickers:allStickers,pets:allPets},equipped:{...(EMPTY_STATE.equipped||{}),pet:'pet_owl',avatar:'av_crown',stickers:['st_hourglass','st_grade4','st_royal'],badges:allBadges.slice(2,5)}});
  profiles={'sausage2628':a,'Боба':b};state=a;currentProfile='sausage2628';openProfiles();
  return {badges:allBadges.length,stickers:allStickers.length,profileModal:!!document.querySelector('#modal')};
 });
@@ -46,6 +46,16 @@ const locate=()=>page.evaluate(()=>{
  return candidates.filter(x=>x.rect[2]>180&&x.rect[3]>90&&x.rect[2]<1100).sort((a,b)=>b.rect[2]*b.rect[3]-a.rect[2]*a.rect[3]).slice(0,28);
 });
 console.log('PROFILES_GIANT',width,JSON.stringify(await locate()));
+
+const actual=await page.evaluate(()=>{
+ const modal=document.querySelector('#modal');
+ const els=[...modal.querySelectorAll('.favorite-stickers,.favorite-sticker,.favorite-sticker img,.favorite-sticker svg,.profile-badges,.profile-badge-chip,.profile-badge-chip img,.profile-badge-chip svg')];
+ return els.map(el=>{const r=el.getBoundingClientRect(),cs=getComputedStyle(el);
+  return {tag:el.tagName,className:el.getAttribute('class'),title:el.getAttribute('title'),src:el.getAttribute('src'),rect:[r.x,r.y,r.width,r.height].map(x=>+x.toFixed(1)),scroll:[el.scrollWidth,el.scrollHeight],css:{w:cs.width,h:cs.height,maxW:cs.maxWidth,maxH:cs.maxHeight,display:cs.display,overflow:cs.overflow,transform:cs.transform},html:el.outerHTML.slice(0,230)}
+ });
+});
+console.log('ACTUAL_STICKER_RECTS',width,JSON.stringify(actual));
+
 
 const isolate=await page.evaluate(()=>{
  const asNode=(icon,style)=>{const host=document.createElement('div');host.className='ux105-diagnostic-target';host.style.cssText='position:absolute;left:45px;top:40px;z-index:0';
@@ -63,6 +73,16 @@ console.log('ICON_ISOLATION',width,JSON.stringify({stickerProblem:isolate.sticke
 
 await page.evaluate(()=>openLeaderboard());
 console.log('LEADER_GIANT',width,JSON.stringify(await locate()));
+
+const actual=await page.evaluate(()=>{
+ const modal=document.querySelector('#modal');
+ const els=[...modal.querySelectorAll('.favorite-stickers,.favorite-sticker,.favorite-sticker img,.favorite-sticker svg,.profile-badges,.profile-badge-chip,.profile-badge-chip img,.profile-badge-chip svg')];
+ return els.map(el=>{const r=el.getBoundingClientRect(),cs=getComputedStyle(el);
+  return {tag:el.tagName,className:el.getAttribute('class'),title:el.getAttribute('title'),src:el.getAttribute('src'),rect:[r.x,r.y,r.width,r.height].map(x=>+x.toFixed(1)),scroll:[el.scrollWidth,el.scrollHeight],css:{w:cs.width,h:cs.height,maxW:cs.maxWidth,maxH:cs.maxHeight,display:cs.display,overflow:cs.overflow,transform:cs.transform},html:el.outerHTML.slice(0,230)}
+ });
+});
+console.log('ACTUAL_STICKER_RECTS',width,JSON.stringify(actual));
+
 await page.close();
 }
 }finally{await browser.close()}
