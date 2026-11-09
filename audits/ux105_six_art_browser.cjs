@@ -85,7 +85,7 @@ const folder='audits/ux105_six_art_output';fs.mkdirSync(folder,{recursive:true})
   const alpha=await gallery.evaluate(async items=>{
    const checks=[];
    for(const p of items){
-     const img=new Image();img.src=p.asset;await img.decode();
+     const img=new Image();img.src=p.data;await img.decode();
      if(img.naturalWidth!==640||img.naturalHeight!==640)throw Error('Wrong pixel dimensions '+p.id);
      for(const size of [48,128,384]){
        const c=document.createElement('canvas');c.width=c.height=size;
@@ -96,7 +96,7 @@ const folder='audits/ux105_six_art_output';fs.mkdirSync(folder,{recursive:true})
      }
    }
    return checks;
-  },six);
+  },six.map(p=>({...p,data:'data:image/webp;base64,'+fs.readFileSync(p.asset).toString('base64')})));
   assert.equal(alpha.length,18);
   for(const a of alpha){
    assert(a.coverage>.19&&a.coverage<.80,'Bad silhouette coverage '+JSON.stringify(a));
