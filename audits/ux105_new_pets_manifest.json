@@ -5,7 +5,7 @@
   "source_pwa": "v106",
   "staging_branch": "feature/ux105-ten-new-pets-20261110",
   "purpose": "Add exactly ten new purchasable pet IDs to the existing 20 distinct pets; never replace existing items, prices or save structures.",
-  "status": "six_original_webp_candidates_in_GitHub_four_remaining_not_created",
+  "status": "all_ten_original_webp_art_candidates_created_no_approval_no_release",
   "base_counts": {
     "pets": 21,
     "real_pets": 20,
@@ -48,7 +48,7 @@
     "size": "640x640",
     "individual_assets_required": 10,
     "accepted_count": 0,
-    "asset_state": "six_candidates_created_and_sha256_verified_four_remaining_pending",
+    "asset_state": "ten_original_individual_640_webp_sha256_verified_pending_owner_visual_review",
     "previews": [
       48,
       128,
@@ -63,8 +63,8 @@
     ],
     "render_style": "Premium rounded 2.5D game character figurines with studio shading and distinctive silhouettes, no hard background squares, realistic transparent alpha",
     "art_approval": "pending",
-    "candidate_count": 6,
-    "visual_review_artifact": "audits/UX105_SIX_PET_CANDIDATES_REVIEW.md"
+    "candidate_count": 10,
+    "visual_review_artifact": "audits/UX105_ALL10_ART_REVIEW.md"
   },
   "items": [
     {
@@ -194,10 +194,11 @@
       "achievement": null,
       "asset": "assets/candidates/pets/pet_moon_rabbit.webp",
       "source_asset": "assets/source/pets/pet_moon_rabbit.webp",
-      "sha256": null,
+      "sha256": "d217654aa0fca80c14c6df5388f49e23bd4e3e2bb3c66739a4f69041aa678387",
       "approved_sha256": null,
-      "status": "planned",
-      "order": 7
+      "status": "candidate_art_created_pending_review",
+      "order": 7,
+      "candidate_size_bytes": 99832
     },
     {
       "id": "pet_rocket_snail",
@@ -212,10 +213,11 @@
       "achievement": null,
       "asset": "assets/candidates/pets/pet_rocket_snail.webp",
       "source_asset": "assets/source/pets/pet_rocket_snail.webp",
-      "sha256": null,
+      "sha256": "e4ff3e4b10393792be1a5fed3d0789611d658110ee33ef6d9fd1d27396bf3cd1",
       "approved_sha256": null,
-      "status": "planned",
-      "order": 8
+      "status": "candidate_art_created_pending_review",
+      "order": 8,
+      "candidate_size_bytes": 85670
     },
     {
       "id": "pet_griffin",
@@ -230,10 +232,11 @@
       "achievement": null,
       "asset": "assets/candidates/pets/pet_griffin.webp",
       "source_asset": "assets/source/pets/pet_griffin.webp",
-      "sha256": null,
+      "sha256": "4a6ed0ec23277a76000df3aee8cd2bfd3c26844415ed3df555fb7fe4453cc748",
       "approved_sha256": null,
-      "status": "planned",
-      "order": 9
+      "status": "candidate_art_created_pending_review",
+      "order": 9,
+      "candidate_size_bytes": 98734
     },
     {
       "id": "pet_cosmic_whale",
@@ -248,10 +251,11 @@
       "achievement": null,
       "asset": "assets/candidates/pets/pet_cosmic_whale.webp",
       "source_asset": "assets/source/pets/pet_cosmic_whale.webp",
-      "sha256": null,
+      "sha256": "6e24abbb9b85c3ed4131122f782b3b0b156393bbb80551dd9c553e2c7503c651",
       "approved_sha256": null,
-      "status": "planned",
-      "order": 10
+      "status": "candidate_art_created_pending_review",
+      "order": 10,
+      "candidate_size_bytes": 84890
     }
   ]
 }
