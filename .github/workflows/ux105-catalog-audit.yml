@@ -1,0 +1,25 @@
+name: UX105 baseline 20-pet inventory (read only)
+on:
+  push:
+    branches: [feature/ux105-ten-new-pets-20261110]
+    paths:
+      - 'audits/ux105_catalog_audit.cjs'
+      - '.github/workflows/ux105-catalog-audit.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  read-only-inventory:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - run: timeout 110s node audits/ux105_catalog_audit.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ux105-unchanged-production-20-pet-inventory
+          path: audits/ux105_output/
