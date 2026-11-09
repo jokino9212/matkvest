@@ -1,0 +1,68 @@
+{
+  "phase": "UX-104",
+  "batch": 2,
+  "status": "owner_requested_release_sha256_approved",
+  "staging": "v102",
+  "production": "v81",
+  "immutable_fields": [
+    "id",
+    "name",
+    "rarity",
+    "price",
+    "level",
+    "rewardOnly",
+    "achievement",
+    "inventory",
+    "equipped",
+    "shopStats"
+  ],
+  "candidates": [
+    {
+      "id": "pet_dino",
+      "avatar_duplicate": "av_dino",
+      "name": "Динозавр",
+      "rarity": "rare",
+      "level": 6,
+      "price": 360,
+      "asset": "assets/candidates/pets/pet_dino.webp",
+      "sha256": "63bb54a3516474bb25507a15dff64065a0281f9bb3ae68da079fdb0ccb2cc52c",
+      "size": 72176
+    },
+    {
+      "id": "pet_cat",
+      "avatar_duplicate": "av_cat",
+      "name": "Кот",
+      "rarity": "rare",
+      "level": 7,
+      "price": 390,
+      "asset": "assets/candidates/pets/pet_cat.webp",
+      "sha256": "9832ef0f4c62ed5cbd9d16a7d54cfb8bf93fada48c124ce369d2340ff3b3b9ad",
+      "size": 93108
+    },
+    {
+      "id": "pet_dragon",
+      "avatar_duplicate": "av_dragon",
+      "name": "Дракончик",
+      "rarity": "epic",
+      "level": 9,
+      "price": 500,
+      "asset": "assets/candidates/pets/pet_dragon.webp",
+      "sha256": "86e0af857742de85ab2b3c51674af9aa93387267aa453a300274d28d50bdd15f",
+      "size": 111358
+    }
+  ],
+  "art_acceptance": {
+    "status": "approved",
+    "accepted_sha256": {
+      "pet_dino": "63bb54a3516474bb25507a15dff64065a0281f9bb3ae68da079fdb0ccb2cc52c",
+      "pet_cat": "9832ef0f4c62ed5cbd9d16a7d54cfb8bf93fada48c124ce369d2340ff3b3b9ad",
+      "pet_dragon": "86e0af857742de85ab2b3c51674af9aa93387267aa453a300274d28d50bdd15f"
+    },
+    "required": true,
+    "approval_basis": "Owner asked to see all ten pre-reviewed premium pet artworks on production, 2026-11-09. Exact original WebP bytes are SHA-256 locked.",
+    "review_artifact": "audits/UX104_ALL10_VISUAL_REVIEW.md"
+  },
+  "change_policy": "art-only: replace icon for existing item, do not add duplicate item or change economy",
+  "next_stage_requires": "batch1 v103 active only after art approval, then batch2 v104 gate; never bypass checkpoint",
+  "qa_run": "https://github.com/jokino9212/matkvest/actions/runs/42527993662"
+}

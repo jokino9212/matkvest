@@ -1673,6 +1673,13 @@ body:has(.mk872-help-layer){overflow:hidden}
 }
 </style>
 
+<style id="mk-ux00-badge-artwork">
+.shop-badge-icon{display:grid;place-items:center;width:100%;height:100%;font-size:inherit}
+.mk-ux-badge-image{display:block;object-fit:contain;max-width:100%;max-height:100%;width:100%;height:100%;aspect-ratio:1}
+.shop-icon:has(.mk-ux-badge-image){overflow:hidden;padding:3px}
+.badge-select-item .mk-ux-badge-image,.badge-token .mk-ux-badge-image,
+.achievement-reward-item-icon .mk-ux-badge-image{width:100%;height:100%;object-fit:contain}
+</style>
 </head>
 <body>
 <div class="shell">
@@ -7361,6 +7368,89 @@ function normalizeShop(){
  normalizeProfileShopData(state,{syncRewards:true});
  const allStickerIds=purchasableStickerItems().map(x=>x.id);if(allStickerIds.length&&allStickerIds.every(id=>state.inventory.stickers.includes(id))&&!state.inventory.frames.includes("fr_collector"))state.inventory.frames.push("fr_collector");
 }
+/* UX/UI FINAL: SVG-first artwork for existing badge catalog, zero economy changes. */
+(function mkUX00BadgeArtworkInstalled(){
+ /* UX-08 phase 1: four new purchasable badges; original 16 records untouched. */
+ SHOP_CATALOG.badges.push(
+  {"id":"bd_comet","name":"Комета","price":160,"level":4,"rarity":"uncommon","desc":"Стремительная комета — космический коллекционный значок."},
+  {"id":"bd_geometry","name":"Архитектор фигур","price":240,"level":6,"rarity":"rare","desc":"Объёмная геометрия для исследователей фигур."},
+  {"id":"bd_logic","name":"Логический лабиринт","price":360,"level":8,"rarity":"epic","desc":"Трофей за любовь к логике и задачам на смекалку."},
+  {"id":"bd_sprint","name":"Молниеносное решение","price":520,"level":10,"rarity":"legendary","desc":"Престижный значок молниеносного математика."}
+ );
+ /* UX-08 phase 2: five new purchasable badges; original 16 records untouched. */
+ SHOP_CATALOG.badges.push(
+  {"id":"bd_orbit","name":"Орбитальный исследователь","price":190,"level":5,"rarity":"uncommon","desc":"Планета и золотой спутник на орбите — знак любознательности."},
+  {"id":"bd_compass","name":"Компас открытий","price":275,"level":7,"rarity":"rare","desc":"Точный компас математического первооткрывателя."},
+  {"id":"bd_clock","name":"Хранитель времени","price":330,"level":8,"rarity":"rare","desc":"Награда любителям решать задачи вовремя."},
+  {"id":"bd_puzzle","name":"Мастер головоломок","price":425,"level":9,"rarity":"epic","desc":"Старинная мозаика из фигур для знатоков логики."},
+  {"id":"bd_crown","name":"Корона разума","price":650,"level":12,"rarity":"legendary","desc":"Королевская награда за математическую смекалку."}
+ );
+ /* UX-08 phase 3: five new purchasable badges; original 16 records untouched. */
+ SHOP_CATALOG.badges.push(
+  {"id":"bd_prism","name":"Призма света","price":215,"level":5,"rarity":"uncommon","desc":"Свет преломляется в математической призме."},
+  {"id":"bd_rocket","name":"Ракета знаний","price":310,"level":7,"rarity":"rare","desc":"Запускает знания в неизведанные миры."},
+  {"id":"bd_chess","name":"Шахматный стратег","price":385,"level":9,"rarity":"epic","desc":"Ход конём для настоящего стратега."},
+  {"id":"bd_spiral","name":"Спираль Фибоначчи","price":465,"level":10,"rarity":"epic","desc":"Красота золотой спирали и последовательностей."},
+  {"id":"bd_telescope","name":"Звёздный наблюдатель","price":720,"level":12,"rarity":"legendary","desc":"Распознаёт великие открытия среди звёзд."}
+ );
+ /* UX-08 phase 4: five new purchasable badges; original 16 records untouched. */
+ SHOP_CATALOG.badges.push(
+  {"id":"bd_abacus","name":"Счётная машина","price":195,"level":5,"rarity":"uncommon","desc":"Мастер устного счёта с волшебными счётами."},
+  {"id":"bd_hourglass","name":"Песочные часы","price":285,"level":7,"rarity":"rare","desc":"Тот, кто умеет ценить время решения."},
+  {"id":"bd_atom","name":"Атом познания","price":355,"level":8,"rarity":"rare","desc":"Искатель закономерностей и научных открытий."},
+  {"id":"bd_matrix","name":"Матрица чисел","price":495,"level":10,"rarity":"epic","desc":"Девять чисел образуют строгую систему."},
+  {"id":"bd_phoenix","name":"Пламенный интеллект","price":780,"level":13,"rarity":"legendary","desc":"Сияющий феникс интеллектуального роста."}
+ );
+ /* UX-08 phase 5: five new purchasable badges; original 16 records untouched. */
+ SHOP_CATALOG.badges.push(
+  {"id":"bd_magnet","name":"Магнит идей","price":235,"level":6,"rarity":"uncommon","desc":"Притягивает интересные математические идеи."},
+  {"id":"bd_gear","name":"Шестерня мысли","price":340,"level":8,"rarity":"rare","desc":"Каждая точная мысль запускает сложный механизм."},
+  {"id":"bd_mountain","name":"Вершина знаний","price":405,"level":9,"rarity":"epic","desc":"На вершину знаний поднимаются настойчивые."},
+  {"id":"bd_key","name":"Ключ к решению","price":535,"level":11,"rarity":"epic","desc":"Золотой ключ открывает сложнейшие задачи."},
+  {"id":"bd_dragonfly","name":"Стрекоза точности","price":830,"level":14,"rarity":"legendary","desc":"Лёгкость и точность каждого математического движения."}
+ );
+ /* UX-08 phase 6: five new purchasable badges; original 16 records untouched. */
+ SHOP_CATALOG.badges.push(
+  {"id":"bd_lighthouse","name":"Маяк знаний","price":255,"level":6,"rarity":"uncommon","desc":"Освещает путь к верному решению."},
+  {"id":"bd_book","name":"Атлас формул","price":375,"level":8,"rarity":"rare","desc":"Старинная книга математических открытий."},
+  {"id":"bd_owl","name":"Сова мудрости","price":445,"level":10,"rarity":"epic","desc":"Мудрая сова замечает каждую закономерность."},
+  {"id":"bd_sundial","name":"Солнечные часы","price":575,"level":11,"rarity":"epic","desc":"Точный расчёт времени по лучам солнца."},
+  {"id":"bd_rune","name":"Руна равновесия","price":890,"level":15,"rarity":"legendary","desc":"Знак равновесия математических сил."}
+ );
+ /* UX-08 phase 7: five new purchasable badges; original 16 records untouched. */
+ SHOP_CATALOG.badges.push(
+  {"id":"bd_crystal","name":"Кристалл логики","price":270,"level":7,"rarity":"uncommon","desc":"Чистая структура мыслей в сияющем кристалле."},
+  {"id":"bd_satellite","name":"Спутник знаний","price":395,"level":9,"rarity":"rare","desc":"Исследователь передаёт знания за пределы Земли."},
+  {"id":"bd_archimedes","name":"Рычаг Архимеда","price":475,"level":10,"rarity":"epic","desc":"Сила точного расчёта и равновесия."},
+  {"id":"bd_galaxy","name":"Галактика формул","price":615,"level":12,"rarity":"epic","desc":"Великая галактика математических закономерностей."},
+  {"id":"bd_aurora","name":"Полярное сияние","price":950,"level":16,"rarity":"legendary","desc":"Редкая вершина мастерства — сияние знаний."}
+ );
+ const artworkIds=new Set(["bd_star", "bd_diamond", "bd_pi", "bd_root", "bd_sigma", "bd_fraction", "bd_infinity", "bd_div_master", "bd_fraction_master", "bd_perfect", "bd_control", "bd_errors", "bd_grade4", "bd_grade5", "bd_thousand", "bd_equations", "bd_comet", "bd_geometry", "bd_logic", "bd_sprint", "bd_orbit", "bd_compass", "bd_clock", "bd_puzzle", "bd_crown", "bd_prism", "bd_rocket", "bd_chess", "bd_spiral", "bd_telescope", "bd_abacus", "bd_hourglass", "bd_atom", "bd_matrix", "bd_phoenix", "bd_magnet", "bd_gear", "bd_mountain", "bd_key", "bd_dragonfly", "bd_lighthouse", "bd_book", "bd_owl", "bd_sundial", "bd_rune", "bd_crystal", "bd_satellite", "bd_archimedes", "bd_galaxy", "bd_aurora"]);
+ const itemList=SHOP_CATALOG.badges||[];
+ for(const item of itemList){
+  if(!artworkIds.has(item.id))continue;
+  const file='assets/source/badges/prototypes/'+item.id+'.svg';
+  item.icon='<img class="mk-ux-badge-image" alt="" loading="eager" decoding="async" src="'+file+'">';
+ }
+})();
+
+/* UX-94: original matching sticker decals. Preserve catalog ID, price, rarity and unlock. */
+(function(){
+ const ids=new Set(["st_pi","st_star","st_rocket","st_lightning","st_cube","st_planet","st_trophy","st_crown"]);
+ for(const item of SHOP_CATALOG.stickers){
+  if(!ids.has(item.id))continue;
+  item.icon='<img class="mk-ux94-sticker-image" alt="" loading="eager" decoding="async" src="assets/source/stickers/'+item.id+'.svg">';
+ }
+})();
+
+/* UX-95: matching math decals — vector-only visual override, zero economy changes. */
+(function(){
+ const ids=new Set(["st_sigma","st_root","st_percent","st_divide","st_times","st_equals","st_delta","st_pi2"]);
+ for(const item of SHOP_CATALOG.stickers){
+  if(!ids.has(item.id))continue;
+  item.icon='<img class="mk-ux94-sticker-image" alt="" loading="eager" decoding="async" src="assets/source/stickers/'+item.id+'.svg">';
+ }
+})();
 function catalogItem(type,id){return SHOP_CATALOG[type]?.find(x=>x.id===id)||null}
 function normalizeProfileCosmetics(p){
  p=p||{};const inv=p.inventory||{},eq=p.equipped||{};
@@ -7380,7 +7470,7 @@ function isEquipped(type,id){
 }
 function avatarHtml(p=state,size=""){
  const c=normalizeProfileCosmetics(p),frame=c.frame?.css||"frame-none",pet=c.pet?.icon||"";
- return `<span class="avatar-badge ${size} ${frame}">${c.avatar?.icon||"🙂"}${pet?`<span class="pet-mini">${pet}</span>`:""}</span>`;
+ return `<span class="avatar-badge ${size} ${frame}" data-mk-avatar-id="${c.avatar?.id||"av_default"}">${c.avatar?.icon||"🙂"}${pet?`<span class="pet-mini">${pet}</span>`:""}</span>`;
 }
 function favoriteStickersHtml(p=state,size=""){
  const c=normalizeProfileCosmetics(p),items=c.favoriteStickers||[];
@@ -34590,6 +34680,9 @@ if(mkV877CorruptProfiles){
   const petIcon=node.closest('.mk19g-pet-choice .shop-icon,.mk19g-pet-choice .mk19g-pet-art,.shop-card[data-type="pets"] .shop-icon,.shop-card[data-shop-type="pets"] .shop-icon');
   if(petIcon)return {kind:'pet',node:petIcon};
   // Shop cards do not store their type in data-*; use the active tab.
+  // A catalog placeholder is not artwork; never zoom the empty-pet option.
+  const emptyPetCard=node.closest('.shop-grid .shop-card');
+  if(emptyPetCard?.querySelector('strong')?.textContent?.trim()==='Без питомца')return null;
   const shopIcon=node.closest('.shop-card .shop-icon');
   if(shopIcon){
     const cardName=shopIcon.closest('.shop-card')?.querySelector('strong')?.textContent?.trim();
@@ -34633,7 +34726,9 @@ if(mkV877CorruptProfiles){
     (p.icon===orig.innerHTML||p.icon===orig.textContent.trim())) : null;
   title.textContent=item.kind==='pet'
     ? (name?.textContent?.trim()||petFromCatalog?.name||'Питомец')
-    : (name?.textContent?.trim()||img?.alt?.trim()||'Аватар');
+    : (name?.textContent?.trim()
+       ||SHOP_CATALOG.avatars.find(x=>x.id===(orig.dataset.mkAvatarId||orig.querySelector('[data-mk-avatar-id]')?.dataset.mkAvatarId))?.name
+       ||img?.alt?.trim()||'Аватар');
   popup.setAttribute('aria-label',item.kind==='pet'?'Просмотр питомца':'Просмотр аватара');
   previousFocus=document.activeElement;
   popup.classList.add('mk872-open');popup.setAttribute('aria-hidden','false');
@@ -34711,6 +34806,436 @@ if(mkV877CorruptProfiles){
   else modal.querySelector('.mtop')?.insertAdjacentElement('afterend',line);
   return result;
  };
+})();
+</script>
+
+<style id="mk-ux91-mobile-shop-ui">
+@media(max-width:480px){
+ #modal .mtop:has(.mk872-help-heading){
+   display:flex;align-items:center;justify-content:space-between;gap:8px;
+   min-width:0;flex-wrap:nowrap;
+ }
+ #modal .mtop .mk872-help-heading{
+   flex:1 1 auto;min-width:0;margin:0;display:flex;align-items:center;
+   gap:6px;white-space:nowrap;font-size:clamp(15px,4.5vw,19px);
+   line-height:1.22;letter-spacing:-.35px;
+ }
+ #modal .mtop .mk872-help-heading .mk872-help-trigger{
+   display:inline-grid;place-items:center;flex:0 0 30px;
+   width:30px;height:30px;min-width:30px;margin:0;white-space:nowrap;
+ }
+ #modal .mtop .x{
+   flex:0 0 36px;min-width:36px;width:36px;height:36px;
+   margin:0;display:grid;place-items:center;
+ }
+ #modal .mk-ux91-category-label{
+   display:grid;grid-template-columns:1fr;gap:5px;
+   margin:8px 0 12px;font-weight:800;font-size:13px;
+   color:var(--ink);min-width:0;
+ }
+ #modal .mk-ux91-category-select{
+   width:100%;min-width:0;max-width:100%;box-sizing:border-box;
+   min-height:44px;padding:10px 38px 10px 13px;border-radius:12px;
+   border:1px solid #a5c5b4;background:#f8fbf9;color:var(--ink);
+   font:800 15px/1.25 system-ui,sans-serif;
+ }
+ #modal .mk-ux91-category-select:focus-visible{
+   outline:3px solid #3b916b;outline-offset:2px;
+ }
+ #modal .shop-tabs:has(+ .mk-ux91-category-label),
+ #modal .shop-tabs:has(~ .mk-ux91-category-label){display:none}
+}
+@media(min-width:481px){#modal .mk-ux91-category-label{display:none}}
+</style>
+<script id="mk-ux91-mobile-shop-ui-script">
+(function(){
+ 'use strict';
+ const modal=document.getElementById('modal');
+ if(!modal)return;
+ let pending=false;
+ function enhance(){
+  pending=false;
+  const tabs=modal.querySelector('.shop-tabs');
+  const heading=modal.querySelector('.mtop .mk872-help-heading');
+  if(!tabs||!heading||!heading.textContent.includes('Магазин наград'))return;
+  if(tabs.nextElementSibling?.classList.contains('mk-ux91-category-label'))return;
+  const buttons=[...tabs.querySelectorAll('.shop-tab')].filter(b=>b.getAttribute('onclick'));
+  if(!buttons.length)return;
+  const label=document.createElement('label');
+  label.className='mk-ux91-category-label';
+  label.append(document.createTextNode('Раздел магазина'));
+  const select=document.createElement('select');
+  select.className='mk-ux91-category-select';
+  select.setAttribute('aria-label','Раздел магазина');
+  buttons.forEach((button,i)=>{
+   const option=document.createElement('option');
+   option.value=String(i);
+   option.textContent=button.textContent.trim();
+   option.selected=button.classList.contains('active');
+   select.append(option);
+  });
+  select.addEventListener('change',()=>{
+   const i=Number(select.value);
+   const target=buttons[i];
+   if(target)target.click();
+  });
+  label.append(select);
+  tabs.insertAdjacentElement('afterend',label);
+ }
+ function queue(){
+  if(pending)return;
+  pending=true;
+  requestAnimationFrame(enhance);
+ }
+ new MutationObserver(queue).observe(modal,{childList:true,subtree:true});
+ queue();
+})();
+</script>
+
+<!-- UX-92: enlarged real pets show the artwork, not a second shop tile. -->
+<style id="mk-ux92-pet-viewer-finish">
+#mk872AvatarViewer .mk30-visual.mk30-pet > .shop-icon,
+#mk872AvatarViewer .mk30-visual.mk30-pet > .mk872-col-art > .shop-icon{
+  background:transparent!important;border:0!important;box-shadow:none!important;
+  border-radius:0!important;overflow:visible!important;
+}
+#mk872AvatarViewer .mk30-visual.mk30-pet > .shop-icon > img,
+#mk872AvatarViewer .mk30-visual.mk30-pet > .mk872-col-art > .shop-icon > img{
+  width:94%!important;height:94%!important;
+  max-width:94%!important;max-height:94%!important;
+  object-fit:contain!important;aspect-ratio:1!important;
+}
+#mk872AvatarViewer .mk30-visual.mk30-pet{
+  overflow:visible!important;
+}
+</style>
+
+<style id="mk-ux93-stack-avatar-css">
+/* Historic award avatars combine trophy image and numeric tag. Both must scale together. */
+#mk872AvatarViewer .mk30-visual.mk30-avatar .stack-icon{
+ box-sizing:border-box!important;display:grid!important;place-items:center!important;
+ position:relative!important;width:92%!important;height:92%!important;
+ max-width:92%!important;max-height:92%!important;
+ font-size:inherit!important;line-height:1!important;
+ overflow:visible!important;transform:none!important;
+}
+#mk872AvatarViewer .mk30-visual.mk30-avatar .stack-base{
+ display:grid!important;place-items:center!important;
+ width:100%!important;height:100%!important;
+ max-width:100%!important;max-height:100%!important;
+}
+#mk872AvatarViewer .mk30-visual.mk30-avatar .stack-base>img,
+#mk872AvatarViewer .mk30-visual.mk30-avatar .stack-base>svg{
+ width:100%!important;height:100%!important;
+ max-width:100%!important;max-height:100%!important;
+ object-fit:contain!important;
+}
+#mk872AvatarViewer .mk30-visual.mk30-avatar .stack-badge{
+ display:grid!important;place-items:center!important;
+ position:absolute!important;right:1%!important;bottom:1%!important;
+ width:auto!important;height:auto!important;max-width:65%!important;
+ font-size:clamp(18px,5vw,27px)!important;font-weight:900!important;
+ line-height:1.2!important;padding:3px 7px!important;
+ color:#16362d!important;background:#fffdf0!important;
+ border:2px solid #b4cdbd!important;border-radius:10px!important;
+ box-shadow:0 3px 9px #15292140!important;
+ transform:none!important;
+}
+</style>
+
+<script id="mk-ux93-avatar-catalog-identity">
+(function(){
+ 'use strict';
+ // The final avatarHtml implementation is wrapped only after later cosmetic
+ // decorators have loaded. Keep its existing artwork and add a stable item id.
+ if(typeof avatarHtml!=='function'||typeof normalizeProfileCosmetics!=='function')return;
+ const previous=avatarHtml;
+ avatarHtml=function(p,size){
+  const html=previous(p,size);
+  const id=normalizeProfileCosmetics(p).avatar?.id;
+  if(!id||typeof html!=='string')return html;
+  return html.replace(/(<span\b[^>]*\bclass="avatar-badge[^"]*")/,
+   '$1 data-mk-avatar-id="'+id+'"');
+ };
+})();
+</script>
+
+<style id="mk-ux94-sticker-style">
+/* Sticker slots must be equal regardless of whether the source is text, PNG or SVG. */
+.favorite-stickers{min-width:0;display:inline-flex;align-items:center;gap:5px;flex-wrap:wrap}
+.favorite-sticker,.favorite-stickers.large .favorite-sticker{
+ box-sizing:border-box;display:inline-grid;place-items:center;flex:0 0 34px;
+ width:34px!important;min-width:34px!important;max-width:34px!important;
+ height:34px!important;min-height:34px!important;max-height:34px!important;
+ padding:3px!important;margin:0;border-radius:10px;
+ font-size:clamp(12px,3.4vw,17px);font-weight:900;line-height:1;
+ overflow:hidden;white-space:nowrap;text-align:center;
+}
+.favorite-sticker>.mk-ux94-sticker-image,
+.favorite-sticker>.emoji-fallback-img,
+.favorite-stickers.large .favorite-sticker>.emoji-fallback-img,
+.favorite-sticker>img{
+ display:block!important;box-sizing:border-box;width:100%!important;
+ height:100%!important;max-width:100%!important;max-height:100%!important;
+ object-fit:contain!important;vertical-align:middle!important;
+}
+.profile-sticker-line,.leader-stickers{min-width:0;max-width:100%}
+.profile-sticker-line{flex-wrap:wrap}
+.shop-icon>.mk-ux94-sticker-image,.sticker-slot .sticker>.mk-ux94-sticker-image,
+.mk872-col-art .mk-ux94-sticker-image{
+ display:block;width:90%;height:90%;max-width:100%;max-height:100%;
+ margin:auto;object-fit:contain;aspect-ratio:1;
+}
+@media(max-width:380px){
+ .favorite-stickers{gap:4px}
+ .leader-table .favorite-sticker{flex-basis:30px;width:30px!important;
+  min-width:30px!important;max-width:30px!important;height:30px!important;
+  min-height:30px!important;max-height:30px!important}
+}
+</style>
+<!-- UX-95: 16/31 original vector stickers --><meta id="mk-ux95-sticker-stage" data-series="16"/>
+<script id="mk-ux96-final-sticker-art">
+/* UX-96: matching math decals — vector-only visual override, zero economy changes. */
+(function(){
+ const ids=new Set(["st_x2","st_approx","st_fraction","st_degree","st_orbit","st_fire","st_crystal","st_bolt2"]);
+ for(const item of SHOP_CATALOG.stickers){
+  if(!ids.has(item.id))continue;
+  item.icon='<img class="mk-ux94-sticker-image" alt="" loading="eager" decoding="async" src="assets/source/stickers/'+item.id+'.svg">';
+ }
+})();
+</script>
+<!-- UX-96: 24/31 original vector stickers --><meta id="mk-ux96-sticker-stage" data-series="24"/>
+<script id="mk-ux97-final-sticker-art">
+/* UX-97: matching math decals — vector-only visual override, zero economy changes. */
+(function(){
+ const ids=new Set(["st_star2","st_royal","st_infinity","st_golden_pi","st_master10","st_grade4","st_control_perfect"]);
+ for(const item of SHOP_CATALOG.stickers){
+  if(!ids.has(item.id))continue;
+  item.icon='<img class="mk-ux94-sticker-image" alt="" loading="eager" decoding="async" src="assets/source/stickers/'+item.id+'.svg">';
+ }
+})();
+</script>
+<!-- UX-97: 31/31 original vector stickers --><meta id="mk-ux97-sticker-stage" data-series="31"/>
+
+<style id="mk-ux98-leader-mobile">
+/* Use a compact vertical identity rather than truncating the badge beside the name.
+   Keep the larger leaderboard grid horizontally scrollable for data columns. */
+@media(max-width:480px){
+ #modal .leader-table .leader-identity{
+   display:grid!important;grid-template-columns:52px minmax(0,1fr)!important;
+   grid-auto-rows:min-content!important;column-gap:9px!important;row-gap:4px!important;
+   align-content:center!important;align-items:center!important;
+   width:220px!important;max-width:calc(100vw - 97px)!important;
+   min-width:0!important;box-sizing:border-box!important;
+ }
+ #modal .leader-table .leader-identity > .avatar-badge{
+   grid-column:1!important;grid-row:1 / span 5!important;
+   align-self:center!important;justify-self:center!important;
+ }
+ #modal .leader-table .leader-identity > :not(.avatar-badge){
+   grid-column:2!important;min-width:0!important;max-width:100%!important;
+   margin-left:0!important;margin-right:0!important;
+ }
+ #modal .leader-table .leader-identity > .nickname-style{
+   grid-row:1!important;white-space:normal!important;
+   overflow-wrap:anywhere!important;text-overflow:clip!important;
+   line-height:1.25!important;max-height:none!important;
+ }
+ #modal .leader-table .leader-identity > .profile-badge-empty{
+   grid-row:2!important;display:block!important;white-space:normal!important;
+   overflow-wrap:anywhere!important;font-size:11px!important;line-height:1.25!important;
+ }
+ #modal .leader-table .leader-identity > .leader-stickers{
+   grid-row:3!important;display:block!important;
+   width:100%!important;max-width:100%!important;overflow:visible!important;
+ }
+ /* Nickname and empty-badge live in the SAME nested wrapper in real rows. */
+ #modal .leader-table .leader-identity .nickname-style{
+   display:block!important;white-space:normal!important;
+   max-height:none!important;margin:0 0 5px!important;line-height:1.3!important;
+   overflow-wrap:anywhere!important;
+ }
+ #modal .leader-table .leader-identity .profile-badge-empty{
+   display:block!important;position:static!important;float:none!important;
+   clear:both!important;width:auto!important;max-width:100%!important;
+   white-space:normal!important;overflow-wrap:anywhere!important;
+   margin:0 0 6px!important;font-size:11px!important;line-height:1.25!important;
+ }
+ #modal .leader-table .leader-identity > .leader-mobile-level{
+   grid-row:4!important;display:block!important;
+   width:auto!important;max-width:100%!important;
+   font-size:11px!important;line-height:1.25!important;
+ }
+}
+</style>
+
+<style id="mk-ux99-leader-scroll-hint">
+#modal .mk-ux99-scroll-hint{display:none}
+@media(max-width:480px){
+ #modal .mk-ux99-scroll-hint{
+   display:flex;align-items:center;gap:7px;
+   margin:5px 0 9px;padding:7px 9px;
+   border:1px solid #a0d3c2;border-radius:10px;
+   background:#e7f6f1;color:#184c3f;
+   font:700 11px/1.3 system-ui,sans-serif;
+   max-width:100%;box-sizing:border-box;min-width:0;
+ }
+ #modal .mk-ux99-scroll-hint span{white-space:normal;overflow-wrap:anywhere}
+ #modal .leader-table-parent-scroll{
+   overscroll-behavior-inline:contain;
+   -webkit-overflow-scrolling:touch;
+   scroll-snap-type:none;
+ }
+}
+</style>
+<script id="mk-ux99-leader-scroll-hint-script">
+(function(){
+ 'use strict';
+ const modal=document.getElementById('modal');
+ if(!modal)return;
+ let pending=false;
+ function enhance(){
+  pending=false;
+  const table=modal.querySelector('.leader-table');
+  if(!table)return;
+  const wrap=table.parentElement;
+  if(!wrap||wrap.querySelector('.mk-ux99-scroll-hint'))return;
+  if(wrap.previousElementSibling?.classList.contains('mk-ux99-scroll-hint'))return;
+  if(wrap.scrollWidth<=wrap.clientWidth+12)return;
+  wrap.classList.add('leader-table-parent-scroll');
+  wrap.setAttribute('aria-label','Таблица лидеров — прокручивается горизонтально');
+  wrap.setAttribute('tabindex','0');
+  const hint=document.createElement('div');
+  hint.className='mk-ux99-scroll-hint';
+  hint.setAttribute('role','status');
+  hint.innerHTML='<span></span>';
+  const label=hint.querySelector('span');
+  function update(){
+   const max=wrap.scrollWidth-wrap.clientWidth;
+   label.textContent=max<=0?''
+      :wrap.scrollLeft>max/2?'← Листайте вправо, чтобы вернуться к ученику'
+      :'Листайте таблицу влево → XP, монеты, коллекция';
+  }
+  wrap.addEventListener('scroll',update,{passive:true});
+  update();
+  wrap.before(hint);
+ }
+ function queue(){
+  if(pending)return;
+  pending=true;
+  requestAnimationFrame(enhance);
+ }
+ new MutationObserver(queue).observe(modal,{childList:true,subtree:true});
+ queue();
+})();
+</script>
+<script id="mk-ux101-sticker-catalog">
+/* UX-101: nine original, purchasable stickers. Original 31 and all reward conditions are immutable. */
+(function(){
+ const fresh=[{"id":"st_pencil","name":"Карандаш","price":28,"level":1,"rarity":"common","desc":"Для первых аккуратных решений.","icon":"<img class=\"mk-ux94-sticker-image\" alt=\"\" loading=\"eager\" decoding=\"async\" src=\"assets/source/stickers/st_pencil.svg\">"},{"id":"st_heart","name":"Сердце","price":33,"level":2,"rarity":"common","desc":"Любовь к математическим открытиям.","icon":"<img class=\"mk-ux94-sticker-image\" alt=\"\" loading=\"eager\" decoding=\"async\" src=\"assets/source/stickers/st_heart.svg\">"},{"id":"st_target","name":"Точная цель","price":36,"level":2,"rarity":"common","desc":"Попадание точно в ответ.","icon":"<img class=\"mk-ux94-sticker-image\" alt=\"\" loading=\"eager\" decoding=\"async\" src=\"assets/source/stickers/st_target.svg\">"},{"id":"st_hourglass","name":"Песочные часы","price":46,"level":3,"rarity":"uncommon","desc":"Терпение и внимание к каждой минуте.","icon":"<img class=\"mk-ux94-sticker-image\" alt=\"\" loading=\"eager\" decoding=\"async\" src=\"assets/source/stickers/st_hourglass.svg\">"},{"id":"st_magnifier","name":"Лупа исследователя","price":47,"level":3,"rarity":"uncommon","desc":"Находить закономерности интересно.","icon":"<img class=\"mk-ux94-sticker-image\" alt=\"\" loading=\"eager\" decoding=\"async\" src=\"assets/source/stickers/st_magnifier.svg\">"},{"id":"st_joystick","name":"Геймпад","price":61,"level":5,"rarity":"rare","desc":"Задачи как увлекательная игра.","icon":"<img class=\"mk-ux94-sticker-image\" alt=\"\" loading=\"eager\" decoding=\"async\" src=\"assets/source/stickers/st_joystick.svg\">"},{"id":"st_robot","name":"Робот-помощник","price":63,"level":5,"rarity":"rare","desc":"Технологичный спутник тренировки.","icon":"<img class=\"mk-ux94-sticker-image\" alt=\"\" loading=\"eager\" decoding=\"async\" src=\"assets/source/stickers/st_robot.svg\">"},{"id":"st_portal","name":"Портал знаний","price":82,"level":7,"rarity":"epic","desc":"Новый мир сложных математических задач.","icon":"<img class=\"mk-ux94-sticker-image\" alt=\"\" loading=\"eager\" decoding=\"async\" src=\"assets/source/stickers/st_portal.svg\">"},{"id":"st_phoenix","name":"Феникс победы","price":125,"level":10,"rarity":"legendary","desc":"Возрождение после сложных испытаний.","icon":"<img class=\"mk-ux94-sticker-image\" alt=\"\" loading=\"eager\" decoding=\"async\" src=\"assets/source/stickers/st_phoenix.svg\">"}];
+ if(SHOP_CATALOG.stickers.length!==31)throw Error("UX-101 expected 31 existing stickers");
+ const existing=new Set(SHOP_CATALOG.stickers.map(item=>item.id));
+ for(const item of fresh){
+   if(existing.has(item.id))throw Error("UX-101 sticker ID collision "+item.id);
+   if(!Number.isInteger(item.price)||item.price<1)throw Error("UX-101 invalid shop price");
+   SHOP_CATALOG.stickers.push(item);
+   existing.add(item.id);
+ }
+ if(SHOP_CATALOG.stickers.length!==40||existing.size!==40)throw Error("UX-101 catalog not 40 unique stickers");
+})();
+</script>
+<style id="mk-ux103-pet-style">
+/* Transparent artwork, never a tile or an ornamental puddle. */
+.shop-icon>img.mk-ux103-pet-image,.mk872-col-art img.mk-ux103-pet-image{
+  box-sizing:border-box;display:block;width:90%;height:90%;max-width:100%;max-height:100%;
+  margin:auto;object-fit:contain;aspect-ratio:1;background:none!important;border:0!important;
+}
+#mk872AvatarViewer .mk30-visual.mk30-pet img.mk-ux103-pet-image{
+  display:block;box-sizing:border-box;width:94%!important;height:94%!important;
+  max-width:94%!important;max-height:94%!important;object-fit:contain!important;
+  margin:auto;background:transparent!important;border:0!important;
+}
+</style>
+<script id="mk-ux103-pet-art">
+/* Late art-only override: keep stable ID, rarity, price, level, ownership and achievements. */
+(function(){
+ const expected={
+  pet_phoenix:{price:820,rarity:'epic'},
+  pet_orb:{price:1050,rarity:'legendary'},
+  pet_ghost:{price:1500,rarity:'legendary'}
+ };
+ for(const [id,check] of Object.entries(expected)){
+  const pet=SHOP_CATALOG.pets.find(item=>item.id===id);
+  if(!pet||pet.price!==check.price||pet.rarity!==check.rarity)
+    throw new Error('UX-103 pet catalog mismatch '+id);
+  pet.icon='<img class="emoji-fallback-img mk-ux103-pet-image" alt="" loading="eager" decoding="async" src="assets/source/pets/'+id+'.svg">';
+ }
+})();
+</script>
+<script id="mk-ux103r-premium-pets">
+/* UX-103 premium art correction: the old flat SVGs were not production quality. */
+(function(){
+ const originals={
+   pet_phoenix:{price:820,rarity:"epic"},
+   pet_orb:{price:1050,rarity:"legendary"},
+   pet_ghost:{price:1500,rarity:"legendary"}
+ };
+ for(const [id,existing] of Object.entries(originals)){
+   const matches=SHOP_CATALOG.pets.filter(x=>x.id===id);
+   if(matches.length!==1||matches[0].price!==existing.price||matches[0].rarity!==existing.rarity)
+     throw new Error("UX-103 premium pet identity/economy mismatch "+id);
+   matches[0].icon='<img class="emoji-fallback-img mk-ux103-pet-image mk-ux103-premium-image" alt="" loading="eager" decoding="async" src="assets/source/pets/'+id+'.webp">';
+ }
+})();
+</script>
+<script id="mk-ux104-premium-pets-1">
+/* UX-104: premium unique art for 3 original pets; preserve all historic item/economy fields. */
+(function(){
+ const checks={"pet_bot":{"price":240,"rarity":"uncommon","level":3},"pet_owl":{"price":270,"rarity":"uncommon","level":4},"pet_penguin":{"price":300,"rarity":"rare","level":5}};
+ const sources={"pet_bot":"assets/source/pets/pet_bot.webp","pet_owl":"assets/source/pets/pet_owl.webp","pet_penguin":"assets/source/pets/pet_penguin.webp"};
+ for(const [id,requirements] of Object.entries(checks)){
+  const matches=SHOP_CATALOG.pets.filter(item=>item.id===id);
+  if(matches.length!==1)throw Error("UX-104 missing/duplicate pet "+id);
+  const item=matches[0];
+  for(const [field,expected] of Object.entries(requirements))
+   if(item[field]!==expected)throw Error("UX-104 economic/level mismatch "+id+"."+field);
+  const oldSource=String(item.icon||"");
+  if(oldSource.includes('assets/source/pets/'+id+'.webp'))
+   throw Error("UX-104 pet art already linked "+id);
+  item.icon='<img class="emoji-fallback-img mk-ux103-pet-image mk-ux103-premium-image mk-ux104-premium-image" alt="" loading="eager" decoding="async" src="'+sources[id]+'">';
+ }
+})();
+</script>
+<script id="mk-ux104-premium-pets-2">
+/* UX-104 second approved premium art batch: no economy, progress or ID mutations. */
+(function(){
+ const checks={"pet_dino":{"price":360,"rarity":"rare","level":6},"pet_cat":{"price":390,"rarity":"rare","level":7},"pet_dragon":{"price":500,"rarity":"epic","level":9}};
+ const sources={"pet_dino":"assets/source/pets/pet_dino.webp","pet_cat":"assets/source/pets/pet_cat.webp","pet_dragon":"assets/source/pets/pet_dragon.webp"};
+ for(const [id,requirements] of Object.entries(checks)){
+  const matches=SHOP_CATALOG.pets.filter(x=>x.id===id);
+  if(matches.length!==1)throw Error("UX104 batch2 missing/duplicate pet "+id);
+  const pet=matches[0];
+  for(const [key,expected] of Object.entries(requirements))
+   if(pet[key]!==expected)
+     throw Error("UX104 batch2 price/level/rarity mismatch "+id+"."+key);
+  pet.icon='<img class="emoji-fallback-img mk-ux103-pet-image mk-ux103-premium-image mk-ux104-premium-image" alt="" loading="eager" decoding="async" src="'+sources[id]+'">';
+ }
+})();
+</script>
+<script id="mk-ux104-premium-pets-3">
+/* UX-104 third approved premium art batch: no economy, progress or ID mutations. */
+(function(){
+ const checks={"pet_fox":{"price":260,"rarity":"uncommon","level":3},"pet_turtle":{"price":280,"rarity":"uncommon","level":4},"pet_tiger":{"price":340,"rarity":"rare","level":6},"pet_astronaut":{"price":450,"rarity":"epic","level":8}};
+ const sources={"pet_fox":"assets/source/pets/pet_fox.webp","pet_turtle":"assets/source/pets/pet_turtle.webp","pet_tiger":"assets/source/pets/pet_tiger.webp","pet_astronaut":"assets/source/pets/pet_astronaut.webp"};
+ for(const [id,requirements] of Object.entries(checks)){
+  const matches=SHOP_CATALOG.pets.filter(x=>x.id===id);
+  if(matches.length!==1)throw Error("UX104 batch3 missing/duplicate pet "+id);
+  const pet=matches[0];
+  for(const [key,expected] of Object.entries(requirements))
+   if(pet[key]!==expected)
+     throw Error("UX104 batch3 price/level/rarity mismatch "+id+"."+key);
+  pet.icon='<img class="emoji-fallback-img mk-ux103-pet-image mk-ux103-premium-image mk-ux104-premium-image" alt="" loading="eager" decoding="async" src="'+sources[id]+'">';
+ }
 })();
 </script>
 </body></html>

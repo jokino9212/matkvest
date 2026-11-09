@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="Сфера знаний — дружелюбный левитирующий кристальный спутник с книгой и кольцом знаний"><defs>
+<radialGradient id="crystal" cx=".32" cy=".23" r=".92"><stop stop-color="#E7FDFF"/><stop offset=".32" stop-color="#8DE7EB"/><stop offset=".67" stop-color="#50A3CE"/><stop offset="1" stop-color="#3B438F"/></radialGradient>
+<linearGradient id="rim" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#FFF7D2"/><stop offset=".5" stop-color="#D9A7F9"/><stop offset="1" stop-color="#6458B4"/></linearGradient>
+<linearGradient id="book" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#FFFDF3"/><stop offset="1" stop-color="#B4E9F1"/></linearGradient>
+</defs>
+<!-- book with two separate wings; not a background tile -->
+<path d="M89 363q71-38 164 0 74-38 170-2l-16 78c-61-28-118-22-154 6-45-30-98-34-157-8Z" fill="#E9C782" stroke="#6E5285" stroke-width="11" stroke-linejoin="round"/>
+<path d="M91 360q84-30 162 12v72q-73-43-155-20Z" fill="url(#book)" stroke="#6E5285" stroke-width="10" stroke-linejoin="round"/>
+<path d="M418 358q-90-25-165 14v72q69-43 153-20Z" fill="url(#book)" stroke="#6E5285" stroke-width="10" stroke-linejoin="round"/>
+<path d="M253 373v69M116 384q51-4 111 21m-105-1q48 2 99 22m174-42q-50-4-113 21m110 1q-43 0-99 22" fill="none" stroke="#80B6D4" stroke-width="6" stroke-linecap="round" opacity=".7"/>
+<!-- orbit ring behind orb, rotated to an oval -->
+<ellipse cx="256" cy="236" rx="196" ry="85" transform="rotate(-29 256 236)" fill="none" stroke="#6456A9" stroke-width="23" opacity=".84"/>
+<ellipse cx="256" cy="236" rx="196" ry="85" transform="rotate(-29 256 236)" fill="none" stroke="url(#rim)" stroke-width="13"/>
+<!-- hovering orb character -->
+<circle cx="255" cy="223" r="146" fill="url(#crystal)" stroke="#5A529E" stroke-width="15"/>
+<circle cx="255" cy="223" r="131" fill="none" stroke="#E2F8FF" stroke-width="7" opacity=".72"/>
+<path d="M165 137q49-48 96-35" fill="none" stroke="#F6FFFF" stroke-width="19" stroke-linecap="round" opacity=".8"/>
+<path d="M213 116q-27 1-47 23" fill="none" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round" opacity=".8"/>
+<!-- inner geometric wisdom crystal -->
+<path d="m255 144 55 41-16 82-39 30-44-30-11-82Z" fill="#6F9CDD" opacity=".42" stroke="#D6EEFF" stroke-width="6"/>
+<path d="m255 144-4 153-40-30-11-82Z" fill="#B6F4F4" opacity=".6"/>
+<path d="m255 145 55 40-16 82-39 30Z" fill="#977BD6" opacity=".48"/>
+<!-- expression above the prism but visible at 48px -->
+<ellipse cx="205" cy="232" rx="17" ry="22" fill="#253558"/>
+<ellipse cx="301" cy="232" rx="17" ry="22" fill="#253558"/>
+<circle cx="210" cy="224" r="7" fill="#FFFFFF"/><circle cx="306" cy="224" r="7" fill="#FFFFFF"/>
+<path d="M235 281q22 24 43 0" fill="none" stroke="#2F4872" stroke-width="8" stroke-linecap="round"/>
+<ellipse cx="182" cy="273" rx="16" ry="8" fill="#F3C1D7" opacity=".67"/><ellipse cx="330" cy="273" rx="16" ry="8" fill="#F3C1D7" opacity=".67"/>
+<!-- front segment of orbit creates 3d depth -->
+<path d="M77 280C132 335 275 332 395 230" fill="none" stroke="#D5BBF5" stroke-width="17" stroke-linecap="round" opacity=".95"/>
+<path d="M87 282q68 53 166 29" fill="none" stroke="#FEF7DA" stroke-width="7" stroke-linecap="round" opacity=".87"/>
+<!-- secondary knowledge motifs -->
+<path d="m96 116 8-24 8 24 24 8-24 8-8 24-8-24-24-8Z" fill="#F9E9A9" stroke="#CBA6C4" stroke-width="4"/>
+<path d="m409 91 9-22 9 22 20 8-20 8-9 22-9-22-20-8Z" fill="#DCF9FF" stroke="#8BD7ED" stroke-width="4"/>
+<circle cx="412" cy="332" r="11" fill="#F9D99D"/>
+</svg>

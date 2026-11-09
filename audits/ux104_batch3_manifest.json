@@ -1,0 +1,139 @@
+{
+  "phase": "UX-104",
+  "batch": 3,
+  "status": "owner_requested_release_sha256_approved",
+  "staging": "v102",
+  "production": "v81",
+  "note": "Existing pet artwork only; no new products, no economy migration. Never publish without human art approval.",
+  "immutable_fields": [
+    "id",
+    "name",
+    "rarity",
+    "price",
+    "level",
+    "rewardOnly",
+    "achievement",
+    "inventory",
+    "equipped",
+    "shopStats"
+  ],
+  "items": [
+    {
+      "id": "pet_fox",
+      "avatar_duplicate": "av_fox",
+      "name": "Лисёнок",
+      "rarity": "uncommon",
+      "level": 3,
+      "price": 260,
+      "asset": "assets/candidates/pets/pet_fox.webp",
+      "sha256": "84159441a3a024ac11a040f3b1e2e33c434e921927822412c6df2cf74c96c294",
+      "visual_brief": "Отдельный пушистый рыжий лисёнок-исследователь с большим хвостом, маленьким телескопом и тёплым освещением; объёмная светотень, настоящий прозрачный фон, узнаваемый силуэт в 48 px, никакого повторения av_fox.",
+      "size": 58462,
+      "alpha_bbox": [
+        82,
+        31,
+        551,
+        602
+      ]
+    },
+    {
+      "id": "pet_turtle",
+      "avatar_duplicate": "av_turtle",
+      "name": "Черепашка",
+      "rarity": "uncommon",
+      "level": 4,
+      "price": 280,
+      "asset": "assets/candidates/pets/pet_turtle.webp",
+      "sha256": "67781335a573bccab5708700241270c6d53943816f8da3a14f3b1d576080e49c",
+      "visual_brief": "Добрая самостоятельная зелёная черепашка с выразительной мордочкой, сложным расписным панцирем и математической мини-картой; премиальный 2.5D объем, прозрачный фон, не av_turtle.",
+      "size": 60586,
+      "alpha_bbox": [
+        64,
+        37,
+        576,
+        592
+      ]
+    },
+    {
+      "id": "pet_tiger",
+      "avatar_duplicate": "av_tiger",
+      "name": "Тигрёнок",
+      "rarity": "rare",
+      "level": 6,
+      "price": 340,
+      "asset": "assets/candidates/pets/pet_tiger.webp",
+      "sha256": "56355847109bc7311d8928ce8c04ed82fb04556e5dc04b97b087b98e34b2b989",
+      "visual_brief": "Игривый пушистый тигрёнок с объёмными оранжевыми полосками и аккуратным школьным снаряжением, оригинальная поза, видны лапы и хвост; 2.5D WebP RGBA, не av_tiger.",
+      "size": 80298,
+      "alpha_bbox": [
+        63,
+        31,
+        570,
+        606
+      ]
+    },
+    {
+      "id": "pet_astronaut",
+      "avatar_duplicate": "av_astronaut",
+      "name": "Космо-напарник",
+      "rarity": "epic",
+      "level": 8,
+      "price": 450,
+      "asset": "assets/candidates/pets/pet_astronaut.webp",
+      "sha256": "2702b1b8a9d9d4aa88960939aaf5b9c49086a1322f3e701811272c7a974a388e",
+      "visual_brief": "Космо-напарник — самостоятельный маленький космический спутник в объёмном скафандре с прозрачным шлемом, реактивным ранцем и деликатным свечением, без фона-лужи, не av_astronaut и не копия av_robot.",
+      "size": 53760,
+      "alpha_bbox": [
+        149,
+        34,
+        491,
+        603
+      ]
+    }
+  ],
+  "art_acceptance": {
+    "required": true,
+    "status": "approved",
+    "accepted_sha256": {
+      "pet_fox": "84159441a3a024ac11a040f3b1e2e33c434e921927822412c6df2cf74c96c294",
+      "pet_turtle": "67781335a573bccab5708700241270c6d53943816f8da3a14f3b1d576080e49c",
+      "pet_tiger": "56355847109bc7311d8928ce8c04ed82fb04556e5dc04b97b087b98e34b2b989",
+      "pet_astronaut": "2702b1b8a9d9d4aa88960939aaf5b9c49086a1322f3e701811272c7a974a388e"
+    },
+    "approval_basis": "Owner asked to see all ten pre-reviewed premium pet artworks on production, 2026-11-09. Exact original WebP bytes are SHA-256 locked.",
+    "review_artifact": "audits/UX104_ALL10_VISUAL_REVIEW.md"
+  },
+  "acceptance_checks": [
+    "four distinct WebP RGBA 640x640 with transparent corners",
+    "individual 48/128/384px light/dark contact sheets",
+    "real 320/390px shop, collection, leaderboard and fullscreen screenshots",
+    "zero truncated ears/wings/paws, no baked background tiles",
+    "SHA-256 of approved exact bytes required before staging publish"
+  ],
+  "next_stage_requires": "UX-104 batch1 approval and staging v103, batch2 sequential art gate, then batch3; no production release.",
+  "artifact": {
+    "library": "/МАТКВЕСТ/UX104/matkvest_ux104_batch3_candidates.zip",
+    "contact_sheet": "/МАТКВЕСТ/UX104/UX104_batch3_contact_sheet.png",
+    "note": "Exact SHA256 of all 4 originals now in GitHub; not used by current app",
+    "git_source": "assets/candidates/pets/pet_fox.webp etc (4 source files committed)"
+  },
+  "actual_in_repository": {
+    "candidate_files": 4,
+    "active_pet_replacements": 0,
+    "staging": "v102",
+    "production": "v81"
+  },
+  "local_qa": {
+    "images": 4,
+    "unique_sha256": 4,
+    "format": "WEBP RGBA",
+    "dimensions": "640x640",
+    "alpha_corners": 0,
+    "contact_sizes": [
+      48,
+      128,
+      384
+    ],
+    "browser_qa": "not_run_until_assets_exist_in_GitHub"
+  }
+}
