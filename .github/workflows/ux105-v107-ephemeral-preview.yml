@@ -1,0 +1,70 @@
+name: UX105 isolated v107 full 30-pet integration preview (NO DEPLOY)
+on:
+  push:
+    branches: [feature/ux105-ten-new-pets-20261110]
+    paths:
+      - 'audits/ux105_new_pets_manifest.json'
+      - 'audits/ux105_v107_browser.cjs'
+      - 'audits/ux105_stage_v107.py'
+      - '.github/workflows/ux105-v107-ephemeral-preview.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  simulated-approval-tests-only-no-release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - name: Confirm original manifests are NOT owner-approved and nothing is published
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import json
+          m=json.loads(Path("audits/ux105_new_pets_manifest.json").read_text("utf8"))
+          assert m["artwork"]["candidate_count"]==10
+          assert m["artwork"]["art_approval"]=="pending" and m["artwork"]["accepted_count"]==0
+          assert all(x["status"]=="candidate_art_created_pending_review" and x["approved_sha256"] is None for x in m["items"])
+          assert not any(Path(x["source_asset"]).exists() for x in m["items"])
+          assert "matkvest-iphone-v106" in Path("sw.js").read_text()
+          print("UX105_ACTUAL_REPO_REMAINS_UNAPPROVED_AND_UNPUBLISHED")
+          PY
+      - name: Isolated CI-only artwork approval SIMULATION, never commit or publish
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import json
+          p=Path("audits/ux105_new_pets_manifest.json")
+          m=json.loads(p.read_text("utf8"))
+          m["artwork"]["art_approval"]="approved"
+          m["artwork"]["accepted_count"]=10
+          m["test_only_not_owner_approved"]=True
+          for x in m["items"]:
+              x["status"]="approved"
+              x["approved_sha256"]=x["sha256"]
+          p.write_text(json.dumps(m,ensure_ascii=False,indent=2)+"\n",encoding="utf8")
+          print("UX105_CI_ONLY_SIMULATION_NOT_A_REAL_ART_APPROVAL")
+          PY
+      - name: Build actual v107 HTML/PWA and ten real assets in disposable CI filesystem
+        run: |
+          python3 audits/ux105_stage_v107.py --apply
+          grep -q 'matkvest-iphone-v107' sw.js
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Full v107 real browser UI gate at 320 390 768 1280 - 30 pets + 30 alpha tests
+        run: timeout 240s node audits/ux105_v107_browser.cjs
+      - name: Existing profiles remain isolated in upgraded temporary build
+        run: timeout 150s node audits/stage25_profile_isolation_browser.cjs
+      - name: Offline reload, existing training and coins intact in temporary build
+        run: timeout 150s node audits/stage28_offline_pwa_browser.cjs
+      - name: Prove no deployment permissions and note local-only changes
+        run: |
+          git status --short | head -25
+          echo 'No git commit, push, merge, production release or owner approval was performed.'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ux105-v107-temporary-30-pets-full-browser-qa
+          path: audits/ux105_v107_output/
+          retention-days: 60
