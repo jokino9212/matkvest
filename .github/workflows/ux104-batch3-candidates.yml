@@ -1,0 +1,41 @@
+name: UX-104 premium pet candidates batch 3 - fox turtle tiger astronaut
+on:
+  push:
+    branches: [ux-final/ux00-inventory-20261108]
+    paths:
+      - '.github/workflows/ux104-batch3-candidates.yml'
+      - 'audits/ux104_batch3_candidates_browser.cjs'
+      - 'assets/candidates/pets/pet_fox.webp'
+      - 'assets/candidates/pets/pet_turtle.webp'
+      - 'assets/candidates/pets/pet_tiger.webp'
+      - 'assets/candidates/pets/pet_astronaut.webp'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  premium-candidate-art:
+    name: Real original WebP art, transparency and browser viewing
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - name: Preserve production branch and stage
+        run: grep -q 'matkvest-iphone-v102' sw.js
+      - name: Browser dependency
+        run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Test exact 4 hashes, alpha, 48/128/384, metadata identity and shop/collection/leaderboard/zoom 320/390/768/1280
+        run: timeout 200s node audits/ux104_batch3_candidates_browser.cjs
+      - name: Ensure no candidate leaked into actual release
+        run: |
+          if grep -E 'assets/candidates/pets/(pet_fox|pet_turtle|pet_tiger|pet_astronaut)\.webp' index.html sw.js; then
+            echo 'Unapproved art must not enter main app or offline cache'
+            exit 1
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ux104-batch3-premium-4-pet-visual-review
+          path: audits/ux104_batch3_candidate_output/
+          retention-days: 60
