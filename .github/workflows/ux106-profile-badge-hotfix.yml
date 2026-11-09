@@ -1,0 +1,57 @@
+name: UX106 fix oversized badge art in profiles and leaderboard
+on:
+  push:
+    branches: [fix/ux106-profile-badge-overflow-20261109]
+    paths:
+      - audits/ux106_profile_badge_fix.py
+      - audits/ux106_badge_overflow_browser.cjs
+      - .github/workflows/ux106-profile-badge-hotfix.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  baseline-reproduce-and-fix:
+    runs-on: ubuntu-latest
+    timeout-minutes: 24
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Reproduce real giant 300px badge artwork before fix
+        run: timeout 110s node audits/ux106_badge_overflow_browser.cjs --expect-broken
+      - name: Apply CSS-only badge thumbnail size guard and bump PWA cache to v106
+        run: python3 audits/ux106_profile_badge_fix.py
+      - name: Verify six badges per view at 320 390 900 1280 and test zero spill
+        run: timeout 180s node audits/ux106_badge_overflow_browser.cjs
+      - name: Existing leaderboard, inventory and fullscreen viewer regression
+        run: timeout 180s node audits/stage30_collection_media_browser.cjs
+      - name: Multi-profile storage isolation and saved attempts
+        run: timeout 180s node audits/stage25_profile_isolation_browser.cjs
+      - name: PWA offline reload and preserved coins
+        run: timeout 180s node audits/stage28_offline_pwa_browser.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ux106-profile-badge-320-390-900-1280-qa
+          path: audits/ux106_badge_fix_output/
+          retention-days: 60
+  publish-staging:
+    needs: [baseline-reproduce-and-fix]
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - run: python3 audits/ux106_profile_badge_fix.py
+      - name: Commit only CSS hotfix and service worker fingerprint to isolated fix branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js
+          git commit -m "fix(ux106): clamp all profile badge thumbnails at 30px in modals and PWA v106"
+          git pull --rebase origin fix/ux106-profile-badge-overflow-20261109
+          git push origin HEAD:fix/ux106-profile-badge-overflow-20261109
