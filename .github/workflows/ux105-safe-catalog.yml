@@ -8,6 +8,7 @@ on:
       - 'audits/ux105_stage_v107.py'
       - 'audits/ux105_guard_test.py'
       - 'audits/ux105_contract_browser.cjs'
+      - 'audits/ux105_v107_browser.cjs'
       - '.github/workflows/ux105-safe-catalog.yml'
   workflow_dispatch:
 permissions:
@@ -20,6 +21,8 @@ jobs:
       image: mcr.microsoft.com/playwright:v1.56.1-noble
     steps:
       - uses: actions/checkout@v4
+      - name: Syntax check future approved-art browser gate
+        run: node --check audits/ux105_v107_browser.cjs
       - name: Protect original catalog and saved data / refuse release without unique genuine WebP
         run: |
           python3 -m py_compile audits/ux105_stage_v107.py audits/ux105_guard_test.py
