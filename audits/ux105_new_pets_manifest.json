@@ -5,7 +5,7 @@
   "source_pwa": "v106",
   "staging_branch": "feature/ux105-ten-new-pets-20261110",
   "purpose": "Add exactly ten new purchasable pet IDs to the existing 20 distinct pets; never replace existing items, prices or save structures.",
-  "status": "catalog_and_original_art_briefs_prepared_no_approved_assets_no_app_integration",
+  "status": "six_original_webp_candidates_in_GitHub_four_remaining_not_created",
   "base_counts": {
     "pets": 21,
     "real_pets": 20,
@@ -48,7 +48,7 @@
     "size": "640x640",
     "individual_assets_required": 10,
     "accepted_count": 0,
-    "asset_state": "not_generated",
+    "asset_state": "six_candidates_created_and_sha256_verified_four_remaining_pending",
     "previews": [
       48,
       128,
@@ -62,7 +62,9 @@
       "fullscreen"
     ],
     "render_style": "Premium rounded 2.5D game character figurines with studio shading and distinctive silhouettes, no hard background squares, realistic transparent alpha",
-    "art_approval": "pending"
+    "art_approval": "pending",
+    "candidate_count": 6,
+    "visual_review_artifact": "audits/UX105_SIX_PET_CANDIDATES_REVIEW.md"
   },
   "items": [
     {
@@ -78,10 +80,11 @@
       "achievement": null,
       "asset": "assets/candidates/pets/pet_axolotl.webp",
       "source_asset": "assets/source/pets/pet_axolotl.webp",
-      "sha256": null,
+      "sha256": "ae9fcd8365298a960ed9b84595daa4ffebfcc7949544b2c1413012fc0a811e53",
       "approved_sha256": null,
-      "status": "planned",
-      "order": 1
+      "status": "candidate_art_created_pending_review",
+      "order": 1,
+      "candidate_size_bytes": 94458
     },
     {
       "id": "pet_capybara",
@@ -96,10 +99,11 @@
       "achievement": null,
       "asset": "assets/candidates/pets/pet_capybara.webp",
       "source_asset": "assets/source/pets/pet_capybara.webp",
-      "sha256": null,
+      "sha256": "80cdc06acb616e758ec9a90a268221a620568bd62e1bed92f78d59d007c438e3",
       "approved_sha256": null,
-      "status": "planned",
-      "order": 2
+      "status": "candidate_art_created_pending_review",
+      "order": 2,
+      "candidate_size_bytes": 74708
     },
     {
       "id": "pet_squirrel",
@@ -114,10 +118,11 @@
       "achievement": null,
       "asset": "assets/candidates/pets/pet_squirrel.webp",
       "source_asset": "assets/source/pets/pet_squirrel.webp",
-      "sha256": null,
+      "sha256": "a8dd001a4836eabacac827748690cd9611adab5f65faed72425dc90fc3aa2481",
       "approved_sha256": null,
-      "status": "planned",
-      "order": 3
+      "status": "candidate_art_created_pending_review",
+      "order": 3,
+      "candidate_size_bytes": 93296
     },
     {
       "id": "pet_raccoon",
@@ -132,10 +137,11 @@
       "achievement": null,
       "asset": "assets/candidates/pets/pet_raccoon.webp",
       "source_asset": "assets/source/pets/pet_raccoon.webp",
-      "sha256": null,
+      "sha256": "bf043336646063272167790d93201b83efd8bba0c06fad86ec38adc3c33d4343",
       "approved_sha256": null,
-      "status": "planned",
-      "order": 4
+      "status": "candidate_art_created_pending_review",
+      "order": 4,
+      "candidate_size_bytes": 98720
     },
     {
       "id": "pet_chameleon",
@@ -150,10 +156,11 @@
       "achievement": null,
       "asset": "assets/candidates/pets/pet_chameleon.webp",
       "source_asset": "assets/source/pets/pet_chameleon.webp",
-      "sha256": null,
+      "sha256": "86cc51aca9cff385b8243fcb831bfb7c412596fd445b492512824a975cfa1fae",
       "approved_sha256": null,
-      "status": "planned",
-      "order": 5
+      "status": "candidate_art_created_pending_review",
+      "order": 5,
+      "candidate_size_bytes": 83436
     },
     {
       "id": "pet_mole",
@@ -168,10 +175,11 @@
       "achievement": null,
       "asset": "assets/candidates/pets/pet_mole.webp",
       "source_asset": "assets/source/pets/pet_mole.webp",
-      "sha256": null,
+      "sha256": "f1138549494a0a1e46e14f1b3ab32858f2e842bffbb2d9437566930cdb1c67aa",
       "approved_sha256": null,
-      "status": "planned",
-      "order": 6
+      "status": "candidate_art_created_pending_review",
+      "order": 6,
+      "candidate_size_bytes": 96742
     },
     {
       "id": "pet_moon_rabbit",
