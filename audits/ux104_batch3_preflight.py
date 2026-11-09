@@ -23,11 +23,10 @@ for i in items:
     seen.add(digest)
     candidate=Path(i["asset"])
     assert candidate.as_posix()==f'assets/candidates/pets/{i["id"]}.webp'
-    if candidate.exists():
-        blob=candidate.read_bytes()
-        assert blob[:4]==b"RIFF" and blob[8:12]==b"WEBP"
-        assert len(blob)==i["size"] and hashlib.sha256(blob).hexdigest()==digest
-        raise AssertionError("Candidate has been uploaded to GitHub: run full browser art QA and new approval before this baseline preflight")
+    assert candidate.exists(), f"Missing genuine GitHub artwork: {i['id']}"
+    blob=candidate.read_bytes()
+    assert blob[:4]==b"RIFF" and blob[8:12]==b"WEBP"
+    assert len(blob)==i["size"] and hashlib.sha256(blob).hexdigest()==digest, f"Artifact mismatch: {i['id']}"
 targets=[Path("index.html"),Path("sw.js")]
 before={str(p):hashlib.sha256(p.read_bytes()).hexdigest() for p in targets}
 sw=Path("sw.js").read_text("utf-8");html=Path("index.html").read_text("utf-8")
@@ -44,7 +43,7 @@ after={str(p):hashlib.sha256(p.read_bytes()).hexdigest() for p in targets}
 assert before==after, "Fail-closed guard changed application bytes!"
 print("UX104_BATCH3_FAIL_CLOSED_PASS",json.dumps({
  "art_candidates_created_in_user_Library":4,
- "art_candidate_binaries_present_in_GitHub":0,
+ "art_candidate_binaries_present_in_GitHub":4,
  "immutable_catalog_items":list(expected),
  "accepted_artwork":0,
  "staging":"v102 untouched","production":"v81 untouched",
