@@ -1,0 +1,38 @@
+name: UX105 six original WebP candidates visual browser QA
+on:
+  push:
+    branches: [feature/ux105-ten-new-pets-20261110]
+    paths:
+      - 'assets/candidates/pets/pet_axolotl.webp'
+      - 'assets/candidates/pets/pet_capybara.webp'
+      - 'assets/candidates/pets/pet_squirrel.webp'
+      - 'assets/candidates/pets/pet_raccoon.webp'
+      - 'assets/candidates/pets/pet_chameleon.webp'
+      - 'assets/candidates/pets/pet_mole.webp'
+      - 'audits/ux105_new_pets_manifest.json'
+      - 'audits/ux105_six_art_browser.cjs'
+      - '.github/workflows/ux105-six-art-qa.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  review-6-not-release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: True six-original SHA256; 18 transparency tests; real shop, collection, zoom, leaderboard on 4 responsive widths
+        run: timeout 210s node audits/ux105_six_art_browser.cjs
+      - name: Confirm no unapproved PWA release
+        run: |
+          grep -q 'matkvest-iphone-v106' sw.js
+          ! grep -q 'mk-ux105-ten-original-pets' index.html
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ux105-six-genuine-characters-browser-screenshots
+          path: audits/ux105_six_art_output/
+          retention-days: 60
