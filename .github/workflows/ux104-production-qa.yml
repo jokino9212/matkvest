@@ -1,0 +1,39 @@
+name: UX104 production v105 ten premium pets verification
+on:
+  push:
+    branches: [main]
+    paths:
+      - index.html
+      - sw.js
+      - assets/source/**
+      - audits/ux104_owner_v105_browser.cjs
+      - .github/workflows/ux104-production-qa.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  live-release-regression:
+    name: Production HTML, PWA, 10 actual pet WebPs and user flows
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify v105 version and exact source references
+        run: |
+          grep -q 'const CACHE_NAME = "matkvest-iphone-v105"' sw.js
+          python3 -c 'import pathlib,re,hashlib; h=pathlib.Path("index.html").read_bytes(); w=pathlib.Path("sw.js").read_text(); assert re.search(r"const APP_BUILD_HASH = \"([0-9a-f]{64})\"",w).group(1)==hashlib.sha256(h).hexdigest()'
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: All 10 premium pets in actual production catalog across 4 responsive widths
+        run: timeout 180s node audits/ux104_owner_v105_browser.cjs
+      - name: Leaderboard and full-size avatar/pet with inventory valuation
+        run: timeout 180s node audits/stage30_collection_media_browser.cjs
+      - name: Offline reload and profile balances in published PWA
+        run: timeout 180s node audits/stage28_offline_pwa_browser.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ux104-production-v105-browser-screenshots
+          path: audits/ux104_owner_v105_output/
+          retention-days: 60
