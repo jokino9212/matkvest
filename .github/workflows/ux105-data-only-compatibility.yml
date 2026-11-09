@@ -1,0 +1,25 @@
+name: UX105 ten new pet metadata compatibility (no artwork, no release)
+on:
+  push:
+    branches: [feature/ux105-ten-new-pets-20261110]
+    paths:
+      - 'audits/ux105_in_memory_catalog_browser.cjs'
+      - '.github/workflows/ux105-data-only-compatibility.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  preview-without-publishing:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Inject metadata only into temporary browser memory and check shop collection leaderboard on 4 widths
+        run: timeout 170s node audits/ux105_in_memory_catalog_browser.cjs
+      - name: Ensure no fake artwork or release entered application
+        run: |
+          grep -q 'matkvest-iphone-v106' sw.js
+          ! grep -q 'mk-ux105-ten-original-pets' index.html
