@@ -14,6 +14,13 @@ for(const needle of ['function favoriteStickersHtml(', 'function profileBadgesHt
  }
 }
 
+
+const targets=['.favorite-sticker{','.favorite-sticker >','.favorite-sticker img','.favorite-sticker svg','.profile-badge-chip','mk-ux94-sticker-image'];
+for(const target of targets){
+ let pos=-1,arr=[];while((pos=text.indexOf(target,pos+1))>=0){arr.push(pos)}
+ console.log('CSS_TARGET',target,'TOTAL',arr.length,'TAIL',arr.slice(-6).map(x=>({at:x,snippet:text.slice(Math.max(0,x-120),x+730).replace(/\n/g,' ')})));
+}
+
 (async()=>{
 const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
 try{
@@ -39,6 +46,21 @@ const locate=()=>page.evaluate(()=>{
  return candidates.filter(x=>x.rect[2]>180&&x.rect[3]>90&&x.rect[2]<1100).sort((a,b)=>b.rect[2]*b.rect[3]-a.rect[2]*a.rect[3]).slice(0,28);
 });
 console.log('PROFILES_GIANT',width,JSON.stringify(await locate()));
+
+const isolate=await page.evaluate(()=>{
+ const asNode=(icon,style)=>{const host=document.createElement('div');host.className='ux105-diagnostic-target';host.style.cssText='position:absolute;left:45px;top:40px;z-index:0';
+ host.innerHTML=style==='sticker'?'<div class="profile-sticker-line"><span class="favorite-stickers"><span class="favorite-sticker">'+icon+'</span></span></div>':
+ '<div class="profile-badges compact"><span class="profile-badge-chip">'+icon+'</span></div>';
+ document.body.append(host);
+ const item=host.querySelector(style==='sticker'?'.favorite-sticker':'.profile-badge-chip');
+ const rb=item.getBoundingClientRect(),children=[...item.querySelectorAll('*')].map(el=>{const r=el.getBoundingClientRect(),cs=getComputedStyle(el);return {tag:el.tagName,classes:el.getAttribute('class'),w:+r.width.toFixed(1),h:+r.height.toFixed(1),x:+r.x.toFixed(1),y:+r.y.toFixed(1),position:cs.position,cssWidth:cs.width,cssHeight:cs.height};});
+ const output={w:rb.width,h:rb.height,children,overflow:children.some(q=>q.w>rb.width+3||q.h>rb.height+3),html:item.outerHTML.slice(0,500)};
+ host.remove();return output;};
+ return {stickers:SHOP_CATALOG.stickers.map(x=>({id:x.id,name:x.name,...asNode(x.icon,'sticker')})),
+   badges:SHOP_CATALOG.badges.map(x=>({id:x.id,name:x.name,...asNode(x.icon,'badge')}))};
+});
+console.log('ICON_ISOLATION',width,JSON.stringify({stickerProblem:isolate.stickers.filter(x=>x.overflow),badgeProblem:isolate.badges.filter(x=>x.overflow),stickerSample:isolate.stickers.slice(0,4)}));
+
 await page.evaluate(()=>openLeaderboard());
 console.log('LEADER_GIANT',width,JSON.stringify(await locate()));
 await page.close();
