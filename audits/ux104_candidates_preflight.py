@@ -66,13 +66,11 @@ def main():
         assert digest not in hashes, "Artwork reused for more than one pet: "+pid
         hashes.add(digest)
         found.append(pid)
-    assert all(x in found for x in list(EXPECTED)[:6]), "Previously verified batch1/batch2 candidates went missing"
-    assert not any(x in found for x in list(EXPECTED)[6:]), "Batch3 unexpectedly added: run full visual art Gate first, not only this preflight"
-    assert len(found)==6 and len(missing)==4, "Expected exactly 6 existing candidates and 4 missing"
+    assert len(found)==len(EXPECTED)==10 and not missing, "All ten approved-for-review candidate files must exist; still unapproved for release"
     print(json.dumps({
         "result":"PASS — read-only pipeline preflight, not an art-approval or release",
         "existing_candidate_count":len(found),"existing_candidate_ids":found,
-        "batch3_remaining_ids":missing,"art_approved_count":0,
+        "batch3_candidate_ids":list(EXPECTED)[6:],"missing_ids":missing,"art_approved_count":0,
         "staging":"v102 unchanged","production":"v81 unchanged"
     },ensure_ascii=False,indent=2))
 if __name__=="__main__":
