@@ -88,7 +88,7 @@ for(const width of [320,390,768,1280]){
  const alpha=await page.evaluate(async items=>{
   const ret=[];
   for(const item of items){
-   const image=new Image();image.src=item.source_asset;await image.decode();
+   const image=new Image();image.src=item.data;await image.decode();
    for(const size of [48,128,384]){
     const c=document.createElement('canvas');c.width=c.height=size;
     const ctx=c.getContext('2d',{willReadFrequently:true});ctx.drawImage(image,0,0,size,size);
@@ -100,7 +100,7 @@ for(const width of [320,390,768,1280]){
    }
   }
   return ret;
- },m.items);
+ },m.items.map(item=>({...item,data:'data:image/webp;base64,'+fs.readFileSync(item.source_asset).toString('base64')})));
  assert.equal(alpha.length,30);
  for(const a of alpha){
   assert(a.coverage>.16&&a.coverage<.80,'Transparent art coverage bad '+JSON.stringify(a));
