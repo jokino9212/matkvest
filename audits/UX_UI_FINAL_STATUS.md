@@ -350,3 +350,10 @@
 - Файлы зафиксированы в `audits/ux105_new_pets_manifest.json`, в каждом `status=candidate_art_created_pending_review`, `approved_sha256=null`; арт пока не утверждён. `artwork.candidate_count=10`, `accepted_count=0`.
 - Общий арт-отчёт и перечень точных SHA: `audits/UX105_ALL10_ART_REVIEW.md`. Не возвращаться к производству первых шести. Теперь следующий обязательный шаг: **общий Chromium Gate 10/10**, показать все десять в одной галерее для явной приёмки, затем staging v107.
 - **Production main v106 неизменен**, `index.html` и `sw.js` в ветке UX-105 должны совпадать с production. Не сообщать «30 уже в магазине» до выпуска.
+
+## UX-105 — техническая сборка v107 испытана в CI, но НЕ опубликована (10.11.2026)
+
+- **10/10 новых отдельных WebP готовы** и SHA256 закреплены в `audits/ux105_new_pets_manifest.json`; 0/10 владелец принял. Общий арт-обзор `audits/UX105_ALL10_ART_REVIEW.md`.
+- [Art+browser #42713842281 SUCCESS](https://github.com/jokino9212/matkvest/actions/runs/42713842281), [safety #42713842252 SUCCESS](https://github.com/jokino9212/matkvest/actions/runs/42713842252).
+- [Предварительная верификация полной v107 #42714406421 SUCCESS](https://github.com/jokino9212/matkvest/actions/runs/42714406421): CI-only approval simulation в одноразовом checkout, ни один коммит/merge/deploy не выполнен; 30 реальных питомцев, 10/10 store+collection+leaderboard+fullscreen, 30/30 alpha, Stage25 два профиля/сохранения, Stage28 offline PWA cache v107 — PASS. Скриншоты [artifact](https://github.com/jokino9212/matkvest/actions/runs/42714406421/artifacts/13718130153).
+- **Текущий production:** v106, 20 настоящих питомцев, предыдущие покупки/монеты/XP неизменны. Арт остаётся `pending`, никакого автоматического релиза без явной художественной приёмки.
