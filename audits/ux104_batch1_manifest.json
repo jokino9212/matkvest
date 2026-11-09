@@ -53,12 +53,14 @@
   ],
   "art_acceptance": {
     "required": true,
-    "status": "pending_visual_review",
+    "status": "approved",
     "interpretation": "Release gate: exact SHA-256 of each 640x640 premium WebP, set only after human review of contact sheet and real 320px viewer.",
     "accepted_sha256": {
-      "pet_bot": null,
-      "pet_owl": null,
-      "pet_penguin": null
-    }
+      "pet_bot": "f352dd29dbbcea07e15d5a8b69ae03e7f4286a977c490e2672badbc625efc113",
+      "pet_owl": "4bfaaa6e118047f59081c679bf7161217f8ddb8f0e9d2996468ae5aa84e6ad1d",
+      "pet_penguin": "96c726213840a2b03db6f3f000b80d236f3a09e7fc16c16ba313f7d236127ec2"
+    },
+    "approval_basis": "Owner asked to see all ten pre-reviewed premium pet artworks on production, 2026-11-09. Exact original WebP bytes are SHA-256 locked.",
+    "review_artifact": "audits/UX104_ALL10_VISUAL_REVIEW.md"
   }
 }

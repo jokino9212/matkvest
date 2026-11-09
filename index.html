@@ -35188,4 +35188,54 @@ if(mkV877CorruptProfiles){
  }
 })();
 </script>
+<script id="mk-ux104-premium-pets-1">
+/* UX-104: premium unique art for 3 original pets; preserve all historic item/economy fields. */
+(function(){
+ const checks={"pet_bot":{"price":240,"rarity":"uncommon","level":3},"pet_owl":{"price":270,"rarity":"uncommon","level":4},"pet_penguin":{"price":300,"rarity":"rare","level":5}};
+ const sources={"pet_bot":"assets/source/pets/pet_bot.webp","pet_owl":"assets/source/pets/pet_owl.webp","pet_penguin":"assets/source/pets/pet_penguin.webp"};
+ for(const [id,requirements] of Object.entries(checks)){
+  const matches=SHOP_CATALOG.pets.filter(item=>item.id===id);
+  if(matches.length!==1)throw Error("UX-104 missing/duplicate pet "+id);
+  const item=matches[0];
+  for(const [field,expected] of Object.entries(requirements))
+   if(item[field]!==expected)throw Error("UX-104 economic/level mismatch "+id+"."+field);
+  const oldSource=String(item.icon||"");
+  if(oldSource.includes('assets/source/pets/'+id+'.webp'))
+   throw Error("UX-104 pet art already linked "+id);
+  item.icon='<img class="emoji-fallback-img mk-ux103-pet-image mk-ux103-premium-image mk-ux104-premium-image" alt="" loading="eager" decoding="async" src="'+sources[id]+'">';
+ }
+})();
+</script>
+<script id="mk-ux104-premium-pets-2">
+/* UX-104 second approved premium art batch: no economy, progress or ID mutations. */
+(function(){
+ const checks={"pet_dino":{"price":360,"rarity":"rare","level":6},"pet_cat":{"price":390,"rarity":"rare","level":7},"pet_dragon":{"price":500,"rarity":"epic","level":9}};
+ const sources={"pet_dino":"assets/source/pets/pet_dino.webp","pet_cat":"assets/source/pets/pet_cat.webp","pet_dragon":"assets/source/pets/pet_dragon.webp"};
+ for(const [id,requirements] of Object.entries(checks)){
+  const matches=SHOP_CATALOG.pets.filter(x=>x.id===id);
+  if(matches.length!==1)throw Error("UX104 batch2 missing/duplicate pet "+id);
+  const pet=matches[0];
+  for(const [key,expected] of Object.entries(requirements))
+   if(pet[key]!==expected)
+     throw Error("UX104 batch2 price/level/rarity mismatch "+id+"."+key);
+  pet.icon='<img class="emoji-fallback-img mk-ux103-pet-image mk-ux103-premium-image mk-ux104-premium-image" alt="" loading="eager" decoding="async" src="'+sources[id]+'">';
+ }
+})();
+</script>
+<script id="mk-ux104-premium-pets-3">
+/* UX-104 third approved premium art batch: no economy, progress or ID mutations. */
+(function(){
+ const checks={"pet_fox":{"price":260,"rarity":"uncommon","level":3},"pet_turtle":{"price":280,"rarity":"uncommon","level":4},"pet_tiger":{"price":340,"rarity":"rare","level":6},"pet_astronaut":{"price":450,"rarity":"epic","level":8}};
+ const sources={"pet_fox":"assets/source/pets/pet_fox.webp","pet_turtle":"assets/source/pets/pet_turtle.webp","pet_tiger":"assets/source/pets/pet_tiger.webp","pet_astronaut":"assets/source/pets/pet_astronaut.webp"};
+ for(const [id,requirements] of Object.entries(checks)){
+  const matches=SHOP_CATALOG.pets.filter(x=>x.id===id);
+  if(matches.length!==1)throw Error("UX104 batch3 missing/duplicate pet "+id);
+  const pet=matches[0];
+  for(const [key,expected] of Object.entries(requirements))
+   if(pet[key]!==expected)
+     throw Error("UX104 batch3 price/level/rarity mismatch "+id+"."+key);
+  pet.icon='<img class="emoji-fallback-img mk-ux103-pet-image mk-ux103-premium-image mk-ux104-premium-image" alt="" loading="eager" decoding="async" src="'+sources[id]+'">';
+ }
+})();
+</script>
 </body></html>

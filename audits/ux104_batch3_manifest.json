@@ -1,7 +1,7 @@
 {
   "phase": "UX-104",
   "batch": 3,
-  "status": "four_original_webp_candidates_in_GitHub_pending_human_visual_review",
+  "status": "owner_requested_release_sha256_approved",
   "staging": "v102",
   "production": "v81",
   "note": "Existing pet artwork only; no new products, no economy migration. Never publish without human art approval.",
@@ -93,13 +93,15 @@
   ],
   "art_acceptance": {
     "required": true,
-    "status": "pending_visual_review",
+    "status": "approved",
     "accepted_sha256": {
-      "pet_fox": null,
-      "pet_turtle": null,
-      "pet_tiger": null,
-      "pet_astronaut": null
-    }
+      "pet_fox": "84159441a3a024ac11a040f3b1e2e33c434e921927822412c6df2cf74c96c294",
+      "pet_turtle": "67781335a573bccab5708700241270c6d53943816f8da3a14f3b1d576080e49c",
+      "pet_tiger": "56355847109bc7311d8928ce8c04ed82fb04556e5dc04b97b087b98e34b2b989",
+      "pet_astronaut": "2702b1b8a9d9d4aa88960939aaf5b9c49086a1322f3e701811272c7a974a388e"
+    },
+    "approval_basis": "Owner asked to see all ten pre-reviewed premium pet artworks on production, 2026-11-09. Exact original WebP bytes are SHA-256 locked.",
+    "review_artifact": "audits/UX104_ALL10_VISUAL_REVIEW.md"
   },
   "acceptance_checks": [
     "four distinct WebP RGBA 640x640 with transparent corners",
