@@ -35238,4 +35238,35 @@ if(mkV877CorruptProfiles){
  }
 })();
 </script>
+<style id="mk-ux106-profile-badge-sizes">
+/* UX-106: fixed-size badge thumbnail in profile + leaderboard.
+   Badges are still freely zoomable from the real media viewer.
+   Scope is deliberately restricted to small badges in the modal. */
+#modal .profile-badges{
+  display:flex!important;align-items:center!important;justify-content:flex-start!important;
+  flex-wrap:wrap!important;gap:5px!important;min-width:0!important;max-width:100%!important;
+}
+#modal .profile-badges .profile-badge-chip{
+  box-sizing:border-box!important;display:inline-flex!important;align-items:center!important;
+  justify-content:center!important;flex:0 0 30px!important;
+  width:30px!important;min-width:30px!important;max-width:30px!important;
+  height:30px!important;min-height:30px!important;max-height:30px!important;
+  padding:2px!important;overflow:hidden!important;line-height:1!important;
+  position:relative!important;vertical-align:middle!important;
+}
+#modal .profile-badges.large .profile-badge-chip{
+  flex-basis:38px!important;width:38px!important;min-width:38px!important;max-width:38px!important;
+  height:38px!important;min-height:38px!important;max-height:38px!important;
+  padding:3px!important;
+}
+#modal .profile-badges .profile-badge-chip > img,
+#modal .profile-badges .profile-badge-chip > svg,
+#modal .profile-badges .profile-badge-chip > picture,
+#modal .profile-badges .profile-badge-chip > span{
+  display:block!important;position:static!important;transform:none!important;flex:0 1 auto!important;
+  box-sizing:border-box!important;width:100%!important;height:100%!important;
+  min-width:0!important;min-height:0!important;max-width:100%!important;max-height:100%!important;
+  object-fit:contain!important;aspect-ratio:1/1!important;
+}
+</style>
 </body></html>
