@@ -1,0 +1,20 @@
+name: UX hotfix diagnostic oversized badge / sticker in profiles and leaderboard
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'audits/ux105_badge_overflow_diagnostic.cjs'
+      - '.github/workflows/ux105-badge-diagnostic.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  diagnostic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - run: timeout 160s node audits/ux105_badge_overflow_diagnostic.cjs
