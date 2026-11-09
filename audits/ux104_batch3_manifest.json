@@ -1,7 +1,7 @@
 {
   "phase": "UX-104",
   "batch": 3,
-  "status": "four_original_webp_candidates_created_in_chat_library_pending_git_binary_upload_and_visual_review",
+  "status": "four_original_webp_candidates_in_GitHub_pending_human_visual_review",
   "staging": "v102",
   "production": "v81",
   "note": "Existing pet artwork only; no new products, no economy migration. Never publish without human art approval.",
@@ -75,13 +75,13 @@
     {
       "id": "pet_astronaut",
       "avatar_duplicate": "av_astronaut",
-      "name": "Космонавт",
+      "name": "Космо-напарник",
       "rarity": "epic",
       "level": 8,
       "price": 450,
       "asset": "assets/candidates/pets/pet_astronaut.webp",
       "sha256": "2702b1b8a9d9d4aa88960939aaf5b9c49086a1322f3e701811272c7a974a388e",
-      "visual_brief": "Самостоятельный маленький космический спутник в объёмном скафандре с прозрачным шлемом, реактивным ранцем и деликатным свечением, без фона-лужи, не av_astronaut и не копия av_robot.",
+      "visual_brief": "Космо-напарник — самостоятельный маленький космический спутник в объёмном скафандре с прозрачным шлемом, реактивным ранцем и деликатным свечением, без фона-лужи, не av_astronaut и не копия av_robot.",
       "size": 53760,
       "alpha_bbox": [
         149,
@@ -112,10 +112,11 @@
   "artifact": {
     "library": "/МАТКВЕСТ/UX104/matkvest_ux104_batch3_candidates.zip",
     "contact_sheet": "/МАТКВЕСТ/UX104/UX104_batch3_contact_sheet.png",
-    "note": "Local user Library artifacts, not yet GitHub repository files"
+    "note": "Exact SHA256 of all 4 originals now in GitHub; not used by current app",
+    "git_source": "assets/candidates/pets/pet_fox.webp etc (4 source files committed)"
   },
   "actual_in_repository": {
-    "candidate_files": 0,
+    "candidate_files": 4,
     "active_pet_replacements": 0,
     "staging": "v102",
     "production": "v81"
