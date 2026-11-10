@@ -19,3 +19,6 @@ jobs:
       - uses: actions/checkout@v4
       - name: Locate grade-five catalog and generator pathways
         run: python3 audits/quiz_stage05_probe.py
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Quantify diversity for all grade-five topics and stages
+        run: node audits/quiz_stage05_diversity_browser.cjs
