@@ -24,7 +24,11 @@ jobs:
       - name: Exercise 15,900 questions as real five-item training sessions
         run: timeout 220s node audits/quiz_stage05_sessions_browser.cjs
       - name: Verify anti-repeat in real actual question selection
-        run: timeout 180s node audits/quiz_stage05_fresh_browser.cjs
+        run: |
+          for pass in 1 2 3 4; do
+            echo "STAGE09_STRESS_RUN $pass/4"
+            timeout 180s node audits/quiz_stage05_fresh_browser.cjs
+          done
       - name: Regress fraction forms, input controls, quiz lifecycle and pets
         run: |
           timeout 140s node audits/quiz_stage01_fraction_browser.cjs
