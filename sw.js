@@ -25,6 +25,11 @@ self.addEventListener("activate", event => {
 self.addEventListener("fetch", event => {
   const request = event.request;
   if (request.method !== "GET" || new URL(request.url).origin !== self.location.origin) return;
+  // Stage 9.5: authenticated JSON is network-only, never cached or served as HTML.
+  // The API can be reverse-proxied at /api/v1/ or below the PWA scope (/matkvest/api/v1/).
+  // An Authorization header is another unconditional cache bypass.
+  const pathname = new URL(request.url).pathname;
+  if (/(?:^|\/)api(?:\/|$)/.test(pathname) || request.headers.has("Authorization")) return;
 
   if (request.mode === "navigate") {
     event.respondWith(
