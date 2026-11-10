@@ -1,0 +1,14 @@
+name: Stage09 signature source probe (read only)
+on:
+  push:
+    branches: [audit/g5-content-stage09-20261111]
+    paths: [audits/g5_stage09_signature_probe.py, .github/workflows/g5-stage09-signature-probe.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 audits/g5_stage09_signature_probe.py
