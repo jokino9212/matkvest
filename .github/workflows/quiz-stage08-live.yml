@@ -1,0 +1,21 @@
+name: Stage08 actual production bugs live regression (read only)
+on:
+  push:
+    branches: [audit/production-bugs-stage08-20261111]
+    paths:
+      - audits/quiz_stage08_live_runner.py
+      - .github/workflows/quiz-stage08-live.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  real-site:
+    runs-on: ubuntu-latest
+    timeout-minutes: 32
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Verify official Pages HTML, PWA worker and rerun actual quiz interactions
+        run: python3 audits/quiz_stage08_live_runner.py
