@@ -5,6 +5,7 @@ from pathlib import Path
 import re
 html=Path("index.html").read_text(encoding="utf-8")
 needles=[
+  "function stage18UsesFractionBoxes",
   "function stage18ParseFractionFields",
   "function stage18FractionStudentText",
   "function quizInputEvaluation",
