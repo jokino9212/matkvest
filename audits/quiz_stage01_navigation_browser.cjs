@@ -12,7 +12,7 @@ try{
   for(const topic of ['frac_to_mixed','mixed_to_frac']){
    let startup=await page.evaluate(topic=>{
      if(typeof startG5QuizStage!=='function')return {error:'startG5QuizStage is not available'};
-     startG5QuizStage('g5:'+topic,0);
+     startG5QuizStage(topic,0);
      return {qid,mode:q?.answerMode,question:q?.text?.slice(0,150),started:!!blockSession,
        total:blockSession?.total,next:document.querySelector('#quizNext')?.outerHTML?.slice(0,150),
        check:document.querySelector('#quizCheck')?.outerHTML?.slice(0,150)};
