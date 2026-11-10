@@ -23,3 +23,11 @@ for needle in needles:
   for idx in starts[:3]:
     print("OFFSET",idx)
     print(html[max(0,idx-320):min(len(html),idx+4500)])
+
+print("\\n=== GRADE5 GENERATOR ENCLOSING CONTEXT ===")
+for needle in ['if(id==="frac_to_mixed")','if(id==="mixed_to_frac")','function g5q(']:
+ idx=html.find(needle)
+ if idx<0:continue
+ defs=list(re.finditer(r'(?:function\\s+[A-Za-z_$][\\w$]*\\s*\\(|(?:const|let)\\s+[A-Za-z_$][\\w$]*\\s*=\\s*function)',html[max(0,idx-30000):idx]))
+ print("MARKER",needle,"IDX",idx,"ENCLOSING",defs[-3:] if defs else "NONE")
+ print(html[max(0,idx-1800):idx+400])
