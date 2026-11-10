@@ -25,7 +25,7 @@ try{
      const fract=box.querySelector('.frac'),whole=box.querySelector('.mixed .whole');
      const n=fract?.querySelector('.num')?.textContent?.trim()||'';
      const d=fract?.querySelector('.den')?.textContent?.trim()||'';
-     const w=whole?.textContent?.trim()||(fract?'':(/^[-+]?\\d+$/.test(String(q.correctText||''))?String(q.correctText):''));
+     const w=whole?.textContent?.trim()||(fract?'':(/^[-+]?\d+$/.test(String(q.correctText||''))?String(q.correctText):''));
      return {qid,sourceTopicId:q?.sourceTopicId,text:q?.text,correct:q?.correctText,
        correctHtml:q?.correctHtml,answerMode:q?.answerMode,form:q?.stage18AnswerForm,
        raw:{stage18Fraction:true,whole:w,numerator:n,denominator:d},
