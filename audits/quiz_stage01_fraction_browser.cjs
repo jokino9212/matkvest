@@ -26,14 +26,7 @@ const {chromium}=require('playwright');
     }
     const q26={answerMode:'fraction',answerRat:rational(26,9),correctText:'2 8/9',correctHtml:mixed(2,8,9),stage18AnswerForm:{kind:'mixed'},requireReduced:false};
     check('reported 26/9',q26,{stage18Fraction:true,whole:'2',numerator:'8',denominator:'9'});
-    const generated=[];
-    for(let i=0;i<50;i++){
-      for(const topic of ['frac_to_mixed','mixed_to_frac']){
-        const g=mk5Fractions(topic);
-        generated.push({topic,text:g?.text,correctLabel:g?.correctLabel,correct:g?.correct,keys:g?.choices?.map(c=>c.key),answerMode:g?.answerMode});
-      }
-    }
-    return {total,failures:failures.slice(0,30),failureCount:failures.length,samples,generated:generated.slice(0,6)};
+    return {total,failures:failures.slice(0,30),failureCount:failures.length,samples};
   });
   console.log('STAGE01_BROWSER_RESULT',JSON.stringify(result));
   assert.equal(errors.length,0,'Runtime page errors: '+errors.slice(0,5).join('; '));
