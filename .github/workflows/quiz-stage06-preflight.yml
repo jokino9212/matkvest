@@ -1,0 +1,64 @@
+name: Quiz stage06 integration preflight (no deployment)
+on:
+  push:
+    branches: [fix/quiz-fractions-stage01-20261110]
+    paths:
+      - .github/workflows/quiz-stage06-preflight.yml
+      - audits/quiz_stage06_preflight.py
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        name: Restore previous v106 baseline for real PWA upgrade
+        with:
+          ref: backup/pre-ux107-pets-main-20261110
+          path: baseline_v106
+      - name: Verify v107 assets, PWA digest and clean scope
+        run: python3 audits/quiz_stage06_preflight.py
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Stages 01-02 math, real navigation, fraction fields
+        run: |
+          timeout 150s node audits/quiz_stage01_fraction_browser.cjs
+          timeout 150s node audits/quiz_stage01_navigation_browser.cjs
+          timeout 150s node audits/quiz_stage02_input_browser.cjs
+      - name: Stage 03 skip and final history without rewards
+        run: |
+          timeout 150s node audits/quiz_stage03_skip_browser.cjs
+          timeout 150s node audits/quiz_stage03_completion_browser.cjs
+      - name: Stage 04 pet close protects active attempt and browser Back
+        run: timeout 150s node audits/quiz_stage04_pet_browser.cjs
+      - name: Stage 05 full catalog, variety, difficulty and freshQuiz no repeats
+        run: |
+          timeout 180s node audits/quiz_stage05_sessions_browser.cjs
+          timeout 180s node audits/quiz_stage05_fresh_browser.cjs
+      - name: v107 full 30 pets and their art
+        run: timeout 200s node audits/ux105_v107_browser.cjs
+      - name: v107 cold paint, archive sales and 3 reloads
+        run: timeout 200s node audits/ux107_firstpaint_archive_browser.cjs
+      - name: Avatar badges / viewports
+        run: timeout 180s node audits/ux107_badge_firstpaint_browser.cjs
+      - name: Multi-profile upgrade v106 to v107 and restore active draft
+        run: timeout 290s node audits/ux107_pwa_upgrade_v106_v107_browser.cjs
+      - name: Shop valuations and fullscreen pet / avatar viewers
+        run: timeout 180s node audits/stage30_collection_media_browser.cjs
+      - name: Per-profile data separation and money safety
+        run: timeout 180s node audits/stage25_profile_isolation_browser.cjs
+      - name: Offline PWA and balances
+        run: timeout 180s node audits/stage28_offline_pwa_browser.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: quiz-stage06-no-deploy-preflight
+          path: |
+            audits/ux105_v107_output/
+            audits/ux107_firstpaint_archive_output/
+            audits/ux107_badge_firstpaint_output/
+          retention-days: 30
