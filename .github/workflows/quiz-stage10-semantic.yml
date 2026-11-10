@@ -4,6 +4,7 @@ on:
     branches: [audit/g5-semantic-stage10-20261111]
     paths:
       - audits/g5_stage10_semantic_browser.cjs
+      - audits/g5_stage10_source_probe.py
       - .github/workflows/quiz-stage10-semantic.yml
   workflow_dispatch:
 permissions:
@@ -16,6 +17,8 @@ jobs:
       image: mcr.microsoft.com/playwright:v1.56.1-noble
     steps:
       - uses: actions/checkout@v4
+      - name: Inspect weak topic generator source
+        run: python3 audits/g5_stage10_source_probe.py
       - run: npm install --no-save --no-package-lock playwright@1.56.1
       - name: Audit 23,850 actual questions in 4,770 five-item sessions
         run: timeout 480s node audits/g5_stage10_semantic_browser.cjs
