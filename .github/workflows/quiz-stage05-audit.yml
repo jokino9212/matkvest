@@ -5,6 +5,7 @@ on:
     paths:
       - audits/quiz_stage05_probe.py
       - audits/quiz_stage05_diversity_browser.cjs
+      - audits/quiz_stage05_fingerprint_browser.cjs
       - .github/workflows/quiz-stage05-audit.yml
   workflow_dispatch:
 permissions:
@@ -22,3 +23,5 @@ jobs:
       - run: npm install --no-save --no-package-lock playwright@1.56.1
       - name: Quantify diversity for all grade-five topics and stages
         run: node audits/quiz_stage05_diversity_browser.cjs
+      - name: Full question HTML, answer, and semantic-template fingerprint audit
+        run: node audits/quiz_stage05_fingerprint_browser.cjs
