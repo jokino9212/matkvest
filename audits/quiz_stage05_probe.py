@@ -13,3 +13,8 @@ for id in ["angles","charts","frac_shapes","frac_parts","frac_ray","frac_common_
   pos=s.find(style)
   if pos!=-1:
    print("STAGE05_TARGET",id,style,pos,repr(s[max(0,pos-350):pos+3600]))
+
+for needle in ["function mk5Fractions(", "function mk5Core(", "const mk5Previous", "g5DonorQuestion=function", "const MK5", "function mk5Donor", "function g5DonorQuestion(", "function stage18ConvertG5Fraction("]:
+ matches=[m.start() for m in re.finditer(re.escape(needle),s)]
+ print("STAGE05_BINDING",needle,matches)
+ for pos in matches[-3:]: print("STAGE05_BINDING_SNIP",needle,repr(s[max(0,pos-250):pos+1600]))
