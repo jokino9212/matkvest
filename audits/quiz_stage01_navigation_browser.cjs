@@ -27,7 +27,7 @@ try{
      const d=fract?.querySelector('.den')?.textContent?.trim()||'';
      const w=whole?.textContent?.trim()||(fract?'':(/^[-+]?\d+$/.test(String(q.correctText||''))?String(q.correctText):''));
      return {qid,sourceTopicId:q?.sourceTopicId,text:q?.text,correct:q?.correctText,
-       correctHtml:q?.correctHtml,answerMode:q?.answerMode,form:q?.stage18AnswerForm,
+       correctHtml:q?.correctHtml,answerMode:q?.answerMode,form:q?.stage18AnswerForm,answerRat:q?.answerRat,
        raw:{stage18Fraction:true,whole:w,numerator:n,denominator:d},
        done:blockSession?.done,total:blockSession?.total,finished:blockSession?.finished,
        fieldCount:document.querySelectorAll('#quizFracWhole,#quizFracNum,#quizFracDen').length};
@@ -38,12 +38,12 @@ try{
     await page.locator('#quizFracNum').fill(before.raw.numerator);
     await page.locator('#quizFracDen').fill(before.raw.denominator);
     await page.locator('#quizCheck').click();
-    const after=await page.evaluate(()=>({answered,done:blockSession?.done,finished:blockSession?.finished,
+    const after=await page.evaluate(()=>({evaluation:quizInputEvaluation(q,quizInputRaw(q)),answered,done:blockSession?.done,finished:blockSession?.finished,
       feedback:document.querySelector('#qfb')?.textContent?.slice(0,220),
       checkVisible:document.querySelector('#quizCheck')?.getBoundingClientRect().width>0,
       nextVisible:document.querySelector('#quizNext')?.getBoundingClientRect().width>0,
       qid,question:q?.text?.slice(0,100)}));
-    cases.push({i:i+1,before:{qid:before.qid,topic:before.sourceTopicId,correct:before.correct,raw:before.raw,done:before.done},after});
+    cases.push({i:i+1,before:{qid:before.qid,topic:before.sourceTopicId,correct:before.correct,form:before.form,answerRat:before.answerRat,raw:before.raw,done:before.done},after});
     if(!after.answered)throw Error('Rejected valid answer '+JSON.stringify(cases.at(-1)));
     if(!after.nextVisible)throw Error('Next button missing '+JSON.stringify(cases.at(-1)));
     await page.locator('#quizNext').click();
