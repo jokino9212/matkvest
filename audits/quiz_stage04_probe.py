@@ -18,3 +18,6 @@ for a,b in [(4969000,4980500),(5063500,5067600),(5231750,5234300),(6398000,64010
  print("STAGE04_DETAIL",a,b,repr(s[a:b]))
 for k in ["mk872AvatarViewer","mk872-open","mk872CloseViewer","viewer.addEventListener","function openZoom","imageZoom","asset-viewer","pet-card"]:
  print("STAGE04_EXTRA",k,[m.start() for m in re.finditer(re.escape(k),s,re.I)][:20])
+
+for a,b in [(6393500,6400550),(5007800,5008980)]:
+ print("STAGE04_TARGET",a,b,repr(s[a:b]))
