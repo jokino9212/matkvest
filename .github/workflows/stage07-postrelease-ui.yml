@@ -1,0 +1,25 @@
+name: Stage07 postrelease UI baseline (no deployment)
+on:
+  push:
+    branches: [audit/postrelease-ui-stage07-20261110]
+    paths:
+      - audits/stage07_home_baseline.cjs
+      - .github/workflows/stage07-postrelease-ui.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  postrelease-ui:
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Measure real home card interactions at 320 390 768 1280
+        run: node audits/stage07_home_baseline.cjs
+      - name: Existing compact/mobile regression
+        run: timeout 180s node audits/stage27_compact_mobile_browser.cjs
+      - name: Collection worth and viewers regression
+        run: timeout 180s node audits/stage30_collection_media_browser.cjs
