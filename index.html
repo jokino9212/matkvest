@@ -11046,9 +11046,23 @@ function checkQuizInput(){
 
 function skipNormalQuiz(){
  if(!blockSession||!(["quiz","g1quiz","g2quiz","g3quiz","g5quiz","g6quiz","g7quiz","g8quiz"].includes(blockSession.kind))||answered||!blockSession.currentItem)return false;
- finishAttemptItem(false,false,{skipped:true,studentAnswer:"—"});
+ const answerText=correctChoicePlain(q);
+ const answerHtml=q?.correctHtml||(q?.choices?.find(c=>String(c.key)===String(q.ans))?.label)||esc(answerText);
+ const explanation=q?.ex||"";
+ finishAttemptItem(false,false,{skipped:true,studentAnswer:"—",correctAnswer:answerText,correctAnswerHtml:answerHtml,explanation});
  recordBlockItem(false);answered=true;save();
- if(blockSession.finished)finishBlock();else nextQ();
+ const feedback=document.getElementById("qfb");
+ if(feedback)feedback.innerHTML='⏭ Задание пропущено. Правильный ответ: <b>'+answerHtml+'</b>.'+(explanation?'<div class="quiz-skip-explanation">'+explanation+'</div>':'');
+ document.querySelectorAll("#qstage .answer,#qstage .quiz-input-wrap input,#qstage .quiz-input-wrap textarea").forEach(el=>{el.disabled=true});
+ const skip=document.getElementById("quizSkip"),check=document.getElementById("quizCheck"),next=document.getElementById("quizNext");
+ if(skip)skip.style.display="none";
+ if(check)check.style.display="none";
+ if(next){
+   next.style.display="inline-block";
+   next.classList.add("next-ready");
+   next.textContent=blockSession.finished?"Посмотреть результат →":"Следующий пример →";
+   next.onclick=blockSession.finished?finishBlock:nextQ;
+ }
  return true;
 }
 function nextQ(){
