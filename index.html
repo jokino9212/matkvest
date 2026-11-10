@@ -22537,12 +22537,14 @@ function mk5Fractions(id,tier,mode){
  case 'frac_compare_den':{
   if(mode===2&&tier===2){const numbers=[ri(1,d-1),ri(1,d-1),ri(1,d-1)],best=Math.max(...numbers);return mk5Num(`Три дроби со знаменателем ${d} имеют числители ${numbers.join(', ')}. Какой числитель у самой большой из этих дробей?`,best,`Знаменатели равны ${d}; чем больше числитель, тем больше дробь. Максимум ${best}.`,'compare_den_three',numbers.filter(v=>v!==best));}
   numer=ri(1,d-1);c=ri(1,d-1);if(mode===2)c=numer;
-  return mk5Sign(`Поставь знак между ${mk5Frac(numer,d)} и ${mk5Frac(c,d)}.`,numer,d,c,d,`Одинаковый знаменатель ${d}: сравниваем числители ${numer} и ${c}.`,'compare_same_den_'+mode);
+  const views=[`Поставь знак между ${mk5Frac(numer,d)} и ${mk5Frac(c,d)}.`,`У двух одинаковых полосок закрасили ${mk5Frac(numer,d)} и ${mk5Frac(c,d)}. Сравни закрашенные части знаком.`,`Две дроби со знаменателем ${d}: ${mk5Frac(numer,d)} и ${mk5Frac(c,d)}. Какой знак отношения между ними?`];
+  return mk5Sign(views[blockSession&&blockSession.kind==='g5quiz'?blockSession.done%3:ri(0,2)],numer,d,c,d,`Одинаковый знаменатель ${d}: сравниваем числители ${numer} и ${c}.`,'compare_same_den_'+mode);
  }
  case 'frac_compare_num':{
   numer=ri(1,5+tier*2);den=ri(numer+1,numer+7+tier*3);c=mode===2?den:ri(numer+1,numer+8+tier*4);
   if(mode===2&&tier===2){const dens=[den,ri(numer+1,numer+7+tier*3),ri(numer+1,numer+7+tier*3)],smallest=Math.min(...dens);return mk5Num(`Три дроби с числителем ${numer} имеют знаменатели ${dens.join(', ')}. Какой знаменатель у самой большой дроби?`,smallest,`При равном числителе ${numer} меньший знаменатель даёт большую дробь.`,'compare_num_three',dens.filter(v=>v!==smallest));}
-  return mk5Sign(`Поставь знак между ${mk5Frac(numer,den)} и ${mk5Frac(numer,c)}.`,numer,den,numer,c,`При одинаковом числителе меньший знаменатель означает большую долю.`,'compare_same_num_'+mode);
+  const views=[`Поставь знак между ${mk5Frac(numer,den)} и ${mk5Frac(numer,c)}.`,`От одинаковых пирогов взяли ${mk5Frac(numer,den)} и ${mk5Frac(numer,c)}. Сравни величину взятых частей знаком.`,`Числитель у обеих дробей равен ${numer}. Сравни знаком ${mk5Frac(numer,den)} и ${mk5Frac(numer,c)}.`];
+  return mk5Sign(views[blockSession&&blockSession.kind==='g5quiz'?blockSession.done%3:ri(0,2)],numer,den,numer,c,`При одинаковом числителе меньший знаменатель означает большую долю.`,'compare_same_num_'+mode);
  }
  case 'frac_division':{
   numer=ri(2,14+tier*12);den=ri(2,11+tier*7);
@@ -22574,7 +22576,8 @@ function mk5Fractions(id,tier,mode){
  }
  case 'mixed_compare':{
   const w1=ri(1,5+tier*2),w2=mode===0?w1:ri(1,5+tier*2);numer=ri(1,d-1);c=mode===2?numer:ri(1,d-1);
-  return mk5Sign(`Сравни ${mk5Mixed(w1,numer,d)} и ${mk5Mixed(w2,c,d)}.`,w1*d+numer,d,w2*d+c,d,`Переводим в неправильные дроби со знаменателем ${d}: сравниваем ${w1*d+numer} и ${w2*d+c}.`,'mixed_compare_'+mode);
+  const views=[`Сравни ${mk5Mixed(w1,numer,d)} и ${mk5Mixed(w2,c,d)}.`,`На двух маршрутах прошли ${mk5Mixed(w1,numer,d)} км и ${mk5Mixed(w2,c,d)} км. Поставь знак сравнения для расстояний.`,`У двух отрезков длины ${mk5Mixed(w1,numer,d)} м и ${mk5Mixed(w2,c,d)} м. Сравни их длины знаком.`];
+  return mk5Sign(views[blockSession&&blockSession.kind==='g5quiz'?blockSession.done%3:ri(0,2)],w1*d+numer,d,w2*d+c,d,`Переводим в неправильные дроби со знаменателем ${d}: сравниваем ${w1*d+numer} и ${w2*d+c}.`,'mixed_compare_'+mode);
  }
  case 'mixed_add':{
   const w1=ri(1,4+tier*2),w2=ri(1,3+tier),n1=ri(1,d-1),n2=mode===0?ri(1,Math.max(1,d-n1-1)):ri(Math.max(1,d-n1),d-1);let sum=(w1+w2)*d+n1+n2;
@@ -22582,8 +22585,9 @@ function mk5Fractions(id,tier,mode){
   return mk5MixedAnswer(`Вычисли ${mk5Mixed(w1,n1,d)} + ${mk5Mixed(w2,n2,d)}.`,sum,d,`Целые части ${w1}+${w2}; дробные части ${n1}+${n2} долей со знаменателем ${d}.`,'mixed_add_'+mode,[[sum+d,d],[sum-d,d]]);
  }
  case 'mixed_sub':{
-  const w1=ri(3,6+tier*2),w2=ri(1,w1-2),n2=ri(2,d-1),n1=mode===0?ri(n2,d-1):ri(1,n2-1);const diff=(w1-w2)*d+n1-n2;
-  return mk5MixedAnswer(`Вычисли ${mk5Mixed(w1,n1,d)} − ${mk5Mixed(w2,n2,d)}.`,diff,d,`Разность числителей неправильных дробей: (${w1*d+n1}−${w2*d+n2})/${d} = ${mk5Frac(diff,d)}.`,'mixed_sub_'+mode,[[diff+d,d],[diff-d,d],[diff+n2,d]]);
+  const w1=ri(3,6+tier*2),w2=ri(1,w1-2),n2=ri(2,d-1),n1=(mode===0&&!(blockSession&&blockSession.kind==='g5quiz'&&blockSession.stageIndex===2))?ri(n2,d-1):ri(1,n2-1);const diff=(w1-w2)*d+n1-n2;
+  const views=[`Вычисли ${mk5Mixed(w1,n1,d)} − ${mk5Mixed(w2,n2,d)}.`,`Было ${mk5Mixed(w1,n1,d)} м ленты, отрезали ${mk5Mixed(w2,n2,d)} м. Сколько метров осталось?`,`Первый путь длиной ${mk5Mixed(w1,n1,d)} км, второй короче на неизвестную величину и равен ${mk5Mixed(w2,n2,d)} км. На сколько километров первый путь длиннее?`];
+  return mk5MixedAnswer(views[blockSession&&blockSession.kind==='g5quiz'?blockSession.done%3:ri(0,2)],diff,d,`Разность числителей неправильных дробей: (${w1*d+n1}−${w2*d+n2})/${d} = ${mk5Frac(diff,d)}.`,'mixed_sub_'+mode,[[diff+d,d],[diff-d,d],[diff+n2,d]]);
  }
  case 'frac_equal':{
   den=ri(3,12+tier*4);numer=ri(1,den-1);const factor=ri(2,5+tier*3),up=numer*factor,down=den*factor;

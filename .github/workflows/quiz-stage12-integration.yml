@@ -1,0 +1,78 @@
+name: Stage12 final PR31 integration gate (read only, no deploy)
+on:
+  push:
+    branches: [audit/g5-difficulty-stage11-20261111]
+    paths:
+      - .github/workflows/quiz-stage12-integration.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  final-integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout older v106 PWA for upgrade/restore validation
+        uses: actions/checkout@v4
+        with:
+          ref: backup/pre-ux107-pets-main-20261110
+          path: baseline_v106
+      - name: Verify immutable product HTML, PWA hash, and live PR fixes
+        run: |
+          python3 - <<'PY'
+          import hashlib,re
+          from pathlib import Path
+          h=Path('index.html').read_bytes(); w=Path('sw.js').read_text('utf8')
+          match=re.search(r'const APP_BUILD_HASH = "([0-9a-f]{64})"',w)
+          assert match and match.group(1)==hashlib.sha256(h).hexdigest(), "PWA HTML and SW hash mismatch"
+          assert b'g5quiz' in h and b'mixed_sub' in h
+          assert 'matkvest-iphone-v107' in w
+          print('STAGE12_PRODUCT_INTEGRITY_PASS',match.group(1))
+          PY
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Grade5 core, fractions, advancing difficulty, and semantic distinctness
+        run: |
+          timeout 480s node audits/g5_stage11_difficulty_browser.cjs
+          timeout 480s node audits/g5_stage10_semantic_browser.cjs
+          timeout 240s node audits/quiz_stage05_fresh_browser.cjs
+      - name: Exact fraction answers, navigation, mobile input, skip and completion
+        run: |
+          timeout 180s node audits/quiz_stage01_fraction_browser.cjs
+          timeout 180s node audits/quiz_stage01_navigation_browser.cjs
+          timeout 180s node audits/quiz_stage02_input_browser.cjs
+          timeout 180s node audits/quiz_stage03_skip_browser.cjs
+          timeout 180s node audits/quiz_stage03_completion_browser.cjs
+          timeout 180s node audits/quiz_stage04_pet_browser.cjs
+      - name: 30 pets, badges, archived assets, fullscreen media, cache refresh
+        run: |
+          timeout 220s node audits/ux105_v107_browser.cjs
+          timeout 220s node audits/ux107_firstpaint_archive_browser.cjs
+          timeout 180s node audits/ux107_badge_firstpaint_browser.cjs
+          timeout 200s node audits/stage30_collection_media_browser.cjs
+      - name: Profile isolation, attempts, storage, purchase safety and offline PWA
+        run: |
+          timeout 200s node audits/stage24_attempt_lifecycle_browser.cjs
+          timeout 200s node audits/stage25_profile_isolation_browser.cjs
+          timeout 200s node audits/stage26_verified_recovery_browser.cjs
+          timeout 200s node audits/stage28_offline_pwa_browser.cjs
+          timeout 330s node audits/ux107_pwa_upgrade_v106_v107_browser.cjs
+      - name: Mobile screen 320–1280 and training keyboard
+        run: |
+          timeout 200s node audits/stage21_training_keyboard_audit.cjs
+          timeout 220s node audits/stage27_compact_mobile_browser.cjs
+      - name: Preserve audit artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: matkvest-stage12-final-readonly
+          path: |
+            audits/out/g5_stage11_difficulty_report.json
+            audits/out/g5_stage10_semantic_report.json
+            audits/ux105_v107_output/
+            audits/ux107_firstpaint_archive_output/
+            audits/ux107_badge_firstpaint_output/
+          if-no-files-found: ignore
+          retention-days: 30

@@ -1,0 +1,53 @@
+name: Stage11 grade five arithmetic difficulty and pedagogical progression
+on:
+  push:
+    branches: [audit/g5-difficulty-stage11-20261111]
+    paths:
+      - audits/g5_stage11_difficulty_browser.cjs
+      - audits/g5_stage11_borrow_fix.py
+      - .github/workflows/quiz-stage11-difficulty.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  difficulty:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply isolated final-stage borrowing fix
+        run: python3 audits/g5_stage11_borrow_fix.py
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Test staged arithmetic and topic progression (28,620 real questions)
+        run: timeout 480s node audits/g5_stage11_difficulty_browser.cjs
+      - name: Save full difficulty report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: g5-stage11-difficulty-report
+          path: audits/out/g5_stage11_difficulty_report.json
+          if-no-files-found: ignore
+      - name: Retest semantic diversity and no exact duplicates
+        run: |
+          timeout 480s node audits/g5_stage10_semantic_browser.cjs
+          timeout 240s node audits/quiz_stage05_fresh_browser.cjs
+      - name: Regress fraction forms and lifecycle
+        run: |
+          timeout 180s node audits/quiz_stage01_fraction_browser.cjs
+          timeout 180s node audits/quiz_stage02_input_browser.cjs
+          timeout 180s node audits/quiz_stage03_skip_browser.cjs
+          timeout 180s node audits/quiz_stage04_pet_browser.cjs
+      - name: Commit verified code and PWA digest only to audit branch
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js
+          if ! git diff --cached --quiet; then
+            git commit -m "fix(g5): improve advanced mixed subtraction progression"
+            git fetch origin audit/g5-difficulty-stage11-20261111
+            git rebase origin/audit/g5-difficulty-stage11-20261111
+            git push origin HEAD:audit/g5-difficulty-stage11-20261111
+          fi

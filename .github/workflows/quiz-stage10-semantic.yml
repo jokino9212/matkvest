@@ -1,0 +1,65 @@
+name: Stage10 grade five real-session semantic diversity diagnostic
+on:
+  push:
+    branches: [audit/g5-semantic-stage10-20261111]
+    paths:
+      - audits/g5_stage10_semantic_browser.cjs
+      - audits/g5_stage10_source_probe.py
+      - audits/g5_stage10_pedagogy_fix.py
+      - .github/workflows/quiz-stage10-semantic.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  semantic-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply exact guarded grade5 pedagogical patches
+        run: python3 audits/g5_stage10_pedagogy_fix.py
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Audit 23,850 actual questions in 4,770 five-item sessions
+        run: timeout 480s node audits/g5_stage10_semantic_browser.cjs
+      - name: Enforce stage10 target stem variety
+        run: |
+          python3 - <<'PY'
+          import json
+          a=json.load(open('audits/out/g5_stage10_semantic_report.json'))
+          targets={'frac_compare_den':[0], 'frac_compare_num':[0], 'mixed_compare':[0,1,2], 'mixed_sub':[0,1,2]}
+          rows=[r for r in a['ranking'] if r['id'] in targets and r['stage'] in targets[r['id']]]
+          assert len(rows)==8,rows
+          assert all(r['singleStemSessions']==0 and r['avgStems']>=3 for r in rows),rows
+          print('STAGE10_TARGET_PEDAGOGY_PASS',len(rows))
+          PY
+      - name: Preserve full per-topic ranking
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: g5-stage10-semantic-ranking
+          path: audits/out/g5_stage10_semantic_report.json
+          if-no-files-found: ignore
+      - name: Recheck real anti-repeat
+        run: timeout 200s node audits/quiz_stage05_fresh_browser.cjs
+      - name: Regression fraction checks, answer cells, skip, pets
+        run: |
+          node audits/quiz_stage01_fraction_browser.cjs
+          node audits/quiz_stage02_input_browser.cjs
+          node audits/quiz_stage03_skip_browser.cjs
+          node audits/quiz_stage04_pet_browser.cjs
+      - name: Commit validated HTML and PWA hash in audit branch only
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js
+          if ! git diff --cached --quiet; then
+            git commit -m "fix(g5): diversify meaningful fraction question prompts"
+            git fetch origin audit/g5-semantic-stage10-20261111
+            git rebase origin/audit/g5-semantic-stage10-20261111
+            git push origin HEAD:audit/g5-semantic-stage10-20261111
+          fi
+
+# Source probe revision: inspect generator last occurrences.
