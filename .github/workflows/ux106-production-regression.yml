@@ -1,4 +1,4 @@
-name: UX106 production regression - badge artwork cannot exceed chips
+name: Profile badge artwork cannot exceed chips (v106 and v107)
 on:
   push:
     branches: [main]
@@ -25,14 +25,19 @@ jobs:
           import hashlib,re
           h=Path('index.html').read_bytes()
           w=Path('sw.js').read_text()
-          assert 'matkvest-iphone-v106' in w
+          assert 'matkvest-iphone-v106' in w or 'matkvest-iphone-v107' in w
           assert re.search(r'const APP_BUILD_HASH = "([0-9a-f]{64})"',w).group(1)==hashlib.sha256(h).hexdigest()
           assert h.count(b'id="mk-ux106-profile-badge-sizes"')==1
-          print('UX106_PRODUCTION_BUILD_INTEGRITY_PASS')
+          print('BADGE_RELEASE_BUILD_INTEGRITY_PASS')
           PY
       - run: npm install --no-save --no-package-lock playwright@1.56.1
       - name: All badges fit 30px in profile and leaderboard across 320 390 900 1280
-        run: timeout 170s node audits/ux106_badge_overflow_browser.cjs
+        run: |
+          if grep -q 'matkvest-iphone-v107' sw.js; then
+            timeout 170s node audits/ux107_badge_firstpaint_browser.cjs
+          else
+            timeout 170s node audits/ux106_badge_overflow_browser.cjs
+          fi
       - name: Collection worth, media viewer and full-screen icons
         run: timeout 180s node audits/stage30_collection_media_browser.cjs
       - name: Local data safety with multiple profiles

@@ -20,7 +20,7 @@ jobs:
           import hashlib
           html=Path('index.html').read_bytes()
           sw=Path('sw.js').read_text()
-          assert ('matkvest-iphone-v81' in sw or 'matkvest-iphone-v105' in sw or 'matkvest-iphone-v106' in sw), 'Unexpected production PWA version'
+          assert ('matkvest-iphone-v81' in sw or 'matkvest-iphone-v105' in sw or 'matkvest-iphone-v106' in sw or 'matkvest-iphone-v107' in sw), 'Unexpected production PWA version'
           assert hashlib.sha256(html).hexdigest() in sw
           assert b'mk30CollectionWorth' in html
           print('STAGE30_RELEASE_INTEGRITY_PASS')
