@@ -59,7 +59,7 @@ const {chromium}=require('playwright');
    assert.equal(sub.total,180);
    if(stage===0){assert(sub.nonborrows>0,'easy stage should contain subtraction without borrowing')}
    if(stage===1){assert(sub.nonborrows>0&&sub.borrows>0,'middle stage must mix borrowing and nonborrowing')}
-   if(stage===2){assert(sub.borrows>0,'advanced stage must include borrowing')}
+   if(stage===2){assert.equal(sub.borrows,180,'advanced stage must always include borrowing');assert.equal(sub.nonborrows,0)}
    assert(get('mixed_compare',stage).types>=2,'mixed comparison lacks structural families');
   }
   for(const id of ['frac_compare_den','frac_compare_num']){
