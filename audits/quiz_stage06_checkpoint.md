@@ -1,3 +1,8 @@
+
+## PRODUCTION RELEASE — 10.11.2026
+
+**Этапы 01–06 завершены. PR #29 объединён в main (релизный SHA `b0bf19ea07a0e1615a3fa35a6d13eb379f30579e`).** GitHub Pages опубликовал релиз; реальный HTML/SW и browser desktop/mobile PASS. 17/17 workflow на релизном commit SUCCESS. **НЕ выпускать этот PR повторно.** Полный контрольный документ: `audits/quiz_release_production_checkpoint_2026-11-10.md`. Production: https://jokino9212.github.io/matkvest/ . Live verification: https://github.com/jokino9212/matkvest/actions/runs/42896758268 .
+
 # МатКвест — checkpoint этапа 06 (предрелизная интеграция, 10.11.2026)
 
 ## Статус: предрелизный интеграционный Gate PASS; draft PR открыт. Публикация НЕ проводилась
