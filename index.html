@@ -35506,11 +35506,24 @@ document.addEventListener("keydown",event=>{
    const button=actions[0];
    card.setAttribute('role','button');
    card.setAttribute('tabindex','0');
-   if(!card.hasAttribute('aria-label'))card.setAttribute('aria-label',button.textContent.trim()||'Открыть тренировку');
+   const title=(card.querySelector('strong')?.textContent||'').trim();
+   card.setAttribute('aria-label',title?title+' — '+(button.textContent.trim()||'Открыть тренировку'):'Открыть тренировку');
    // One keyboard target per one-action card; existing pointer button stays active.
    button.setAttribute('tabindex','-1');
   });
  }
+ // The whole visual surface performs the one available action. A click on the
+ // existing button remains native: do not retarget it or call twice.
+ root.addEventListener('click',event=>{
+  const card=event.target?.closest?.('.quick-card[role="button"]');
+  if(!card||!root.contains(card))return;
+  if(event.target.closest('button,a[href],input,select,textarea,[role="button"]:not(.quick-card)'))return;
+  const actions=card.querySelectorAll('button');
+  if(actions.length!==1||actions[0].disabled)return;
+  event.preventDefault();
+  event.stopPropagation();
+  actions[0].click();
+ },true);
  document.addEventListener('keydown',event=>{
   if(event.key!=='Enter'&&event.key!==' ')return;
   const card=event.target;
