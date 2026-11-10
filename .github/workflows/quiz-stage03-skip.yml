@@ -19,3 +19,5 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: python3 audits/quiz_stage03_probe.py
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - run: node audits/quiz_stage03_skip_browser.cjs
