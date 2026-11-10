@@ -31,10 +31,26 @@ const assert=require('node:assert/strict'),path=require('node:path'),{chromium}=
    const report={width,topic,before,after,dialog};reports.push(report);console.log('STAGE03_SKIP_OBSERVE',JSON.stringify(report));
    assert.equal(after.xp,before.xp,'Skip changed XP');
    assert.equal(after.coins,before.coins,'Skip changed coins');
+
+   assert.equal(after.done,before.done+1,'Skip did not record exactly one item');
+   assert.equal(after.correct,before.correct,'Skip incorrectly marked answer correct');
+   assert.equal(after.answered,true,'Skip did not leave original question answered');
+   assert.equal(after.question,before.text,'Skip navigated automatically');
+   assert(after.feedback.includes('Правильный ответ:'),'Missing correct answer on skip');
+   assert(after.feedback.includes('Задание пропущено'),'Missing skip message');
+   assert.equal(after.nextVisible,true,'Next button absent');
+   assert.equal(after.skipVisible,false,'Skip button still visible');
+   assert.equal(after.draft,before.draft,'Draft identity changed');
+   await page.locator('#quizNext').click();
+   const next=await page.evaluate(()=>({answered,qid,done:blockSession.done,finished:blockSession.finished,text:q?.text}));
+   assert.equal(next.answered,false,'Next did not begin new question');
+   assert.equal(next.done,after.done,'Next credited an item unexpectedly');
+   console.log('STAGE03_SKIP_NEXT',JSON.stringify({width,topic,next}));
+
   }
   if(errors.length)throw Error('Browser runtime errors '+errors.slice(0,3).join('; '));
   await ctx.close();
  }
- console.log('STAGE03_SKIP_BASELINE_COMPLETE',reports.length);
+ console.log('STAGE03_SKIP_GATE_PASS',reports.length);
  }finally{await browser.close()}
 })().catch(e=>{console.error(e.stack||e);process.exit(1)});
