@@ -10,6 +10,7 @@ const {chromium}=require('playwright');
   const result=await page.evaluate(()=>{
     const failures=[],samples=[];let total=0;
     const check=(label,question,raw)=>{
+      qid=label.startsWith('improper')?'g5:mixed_to_frac':'g5:frac_to_mixed';
       const out=quizInputEvaluation(question,raw);total++;
       if(!out.valid||!out.ok)failures.push({label,raw,out,expected:question.correctText,answerRat:question.answerRat});
       if(samples.length<8)samples.push({label,valid:out.valid,ok:out.ok,detail:out.detail,form:question.stage18AnswerForm});
