@@ -24,7 +24,7 @@ const assert=require('node:assert/strict'),{chromium}=require('playwright'),path
        mainText:document.getElementById('mainView')?.textContent?.slice(0,200),
        modalText:document.getElementById('modal')?.textContent?.slice(0,200),
        activeElement:document.activeElement?.outerHTML.slice(0,150)}));
-     const titles=['Таблица умножения','Таблица сложения','Квадраты чисел','Таблица деления'];
+     const titles=['Таблица умножения','Таблица сложения','Квадраты чисел','Кубы чисел'];
      assert(after.mainText.includes(titles[n]),'Quick action failed '+JSON.stringify({width,n,mode,after}));
      assert.deepEqual(errs,[],'Browser errors at '+width+'/'+n+'/'+mode);
      if(mode==='background'){
