@@ -1,0 +1,49 @@
+name: Stage09 grade five pedagogy and diversity audit (read only)
+on:
+  push:
+    branches: [audit/g5-content-stage09-20261111]
+    paths: [.github/workflows/quiz-stage09-content.yml, audits/g5_stage09_fix.py]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  pedagogy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply isolated grade5 fraction-types signature fix
+        run: python3 audits/g5_stage09_fix.py
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Inspect 12,720 generated questions across 53 topics and all difficulty levels
+        run: timeout 220s node audits/quiz_stage05_diversity_browser.cjs
+      - name: Inspect semantic wordings in 15,900 independently generated questions
+        run: timeout 220s node audits/quiz_stage05_fingerprint_browser.cjs
+      - name: Exercise 15,900 questions as real five-item training sessions
+        run: timeout 220s node audits/quiz_stage05_sessions_browser.cjs
+      - name: Verify anti-repeat in real actual question selection
+        run: |
+          for pass in 1 2 3 4; do
+            echo "STAGE09_STRESS_RUN $pass/4"
+            timeout 180s node audits/quiz_stage05_fresh_browser.cjs
+          done
+      - name: Regress fraction forms, input controls, quiz lifecycle and pets
+        run: |
+          timeout 140s node audits/quiz_stage01_fraction_browser.cjs
+          timeout 140s node audits/quiz_stage02_input_browser.cjs
+          timeout 140s node audits/quiz_stage03_skip_browser.cjs
+          timeout 140s node audits/quiz_stage04_pet_browser.cjs
+      - name: Commit verified product source and SW hash only to audit branch
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js
+          if ! git diff --cached --quiet; then
+            git commit -m "fix(g5): deduplicate fractions type questions by visible prompt and answer"
+            git fetch origin audit/g5-content-stage09-20261111
+            git rebase origin/audit/g5-content-stage09-20261111
+            git push origin HEAD:audit/g5-content-stage09-20261111
+          fi
