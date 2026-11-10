@@ -10,13 +10,14 @@ try{
   const page=await ctx.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.goto(file,{waitUntil:'domcontentloaded'});
   for(const topic of ['frac_to_mixed','mixed_to_frac']){
-   let startup=await page.evaluate(topic=>{
+  for(let repeat=0;repeat<3;repeat++){
+   let startup=await page.evaluate(({topic,stage})=>{
      if(typeof startG5QuizStage!=='function')return {error:'startG5QuizStage is not available'};
-     startG5QuizStage(topic,0);
+     startG5QuizStage(topic,stage);
      return {qid,mode:q?.answerMode,question:q?.text?.slice(0,150),started:!!blockSession,
        total:blockSession?.total,next:document.querySelector('#quizNext')?.outerHTML?.slice(0,150),
        check:document.querySelector('#quizCheck')?.outerHTML?.slice(0,150)};
-   },topic);
+   },{topic,stage:repeat});
    if(startup.error)throw Error(JSON.stringify(startup));
    const cases=[];
    for(let i=0;i<18;i++){
@@ -51,10 +52,11 @@ try{
     if(after.finished)break;
     if(moved.done<=before.done)throw Error('Next did not move progress '+JSON.stringify({before,after,moved}));
    }
-   const report={width,topic,startup,count:cases.length,checks:cases.map(x=>({i:x.i,ok:x.after.answered,done:x.after.done})),errors:errors.slice(0,4)};
+   const report={width,topic,stage:repeat,startup,count:cases.length,checks:cases.map(x=>({i:x.i,ok:x.after.answered,done:x.after.done})),errors:errors.slice(0,4)};
    reports.push(report);console.log('STAGE01_REAL_NEXT',JSON.stringify(report));
    if(errors.length)throw Error('Browser errors '+JSON.stringify(errors));
    if(cases.length<5)throw Error('Insufficient real navigation '+JSON.stringify(report));
+  }
   }
   await ctx.close();
  }
