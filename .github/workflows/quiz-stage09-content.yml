@@ -1,0 +1,25 @@
+name: Stage09 grade five pedagogy and diversity audit (read only)
+on:
+  push:
+    branches: [audit/g5-content-stage09-20261111]
+    paths: [.github/workflows/quiz-stage09-content.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  pedagogy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Inspect 12,720 generated questions across 53 topics and all difficulty levels
+        run: timeout 220s node audits/quiz_stage05_diversity_browser.cjs
+      - name: Inspect semantic wordings in 15,900 independently generated questions
+        run: timeout 220s node audits/quiz_stage05_fingerprint_browser.cjs
+      - name: Exercise 15,900 questions as real five-item training sessions
+        run: timeout 220s node audits/quiz_stage05_sessions_browser.cjs
+      - name: Verify anti-repeat in real actual question selection
+        run: timeout 180s node audits/quiz_stage05_fresh_browser.cjs
