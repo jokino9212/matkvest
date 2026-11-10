@@ -22,8 +22,13 @@ click=""" // The whole visual surface performs the one available action. A click
   actions[0].click();
  },true);
 """
-assert s.count(anchor)==1,"Stage07 quick card keydown entry point moved"
-if click.strip() not in s:s=s.replace(anchor,click+anchor,1)
+tag='<script id="mk-stage07-quick-card-keyboard">'
+assert s.count(tag)==1,"Missing stage07 quick card script"
+before,remaining=s.split(tag,1)
+viewer,after=remaining.split('</script>',1)
+assert viewer.count(anchor)==1,"Stage07 quick card keydown entry point moved"
+if click.strip() not in viewer:viewer=viewer.replace(anchor,click+anchor,1)
+s=before+tag+viewer+'</script>'+after
 h.write_text(s,"utf8")
 digest=hashlib.sha256(h.read_bytes()).hexdigest()
 sw=w.read_text("utf8")
