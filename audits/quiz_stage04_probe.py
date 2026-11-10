@@ -21,3 +21,5 @@ for k in ["mk872AvatarViewer","mk872-open","mk872CloseViewer","viewer.addEventLi
 
 for a,b in [(6393500,6400550),(5007800,5008980)]:
  print("STAGE04_TARGET",a,b,repr(s[a:b]))
+
+print('STAGE04_CLICK_EXIT_CAPTURE',repr(s[5006850:5008020]))
