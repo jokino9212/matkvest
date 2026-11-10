@@ -4,10 +4,12 @@ on:
     branches: [audit/postrelease-ui-stage07-20261110]
     paths:
       - audits/stage07_home_baseline.cjs
+      - audits/stage07_quick_card_fix.py
+      - audits/stage07_quick_card_keyboard_browser.cjs
       - .github/workflows/stage07-postrelease-ui.yml
   workflow_dispatch:
 permissions:
-  contents: read
+  contents: write
 jobs:
   postrelease-ui:
     runs-on: ubuntu-latest
@@ -16,10 +18,28 @@ jobs:
       image: mcr.microsoft.com/playwright:v1.56.1-noble
     steps:
       - uses: actions/checkout@v4
+      - name: Apply accessible keyboard surface without touching production
+        run: python3 audits/stage07_quick_card_fix.py
       - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Assert 4 quick card controls activate through Enter and Space
+        run: node audits/stage07_quick_card_keyboard_browser.cjs
       - name: Measure real home card interactions at 320 390 768 1280
         run: node audits/stage07_home_baseline.cjs
       - name: Existing compact/mobile regression
         run: timeout 180s node audits/stage27_compact_mobile_browser.cjs
       - name: Collection worth and viewers regression
         run: timeout 180s node audits/stage30_collection_media_browser.cjs
+      - name: Verify training and active pet overlay regressions
+        run: |
+          timeout 180s node audits/stage24_attempt_lifecycle_browser.cjs
+          timeout 180s node audits/quiz_stage04_pet_browser.cjs
+      - name: Commit only tested interface and SW hash to stage07 working branch
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js
+          if ! git diff --cached --quiet; then
+            git commit -m "fix(ui): keyboard accessible one-action quick cards"
+            git push origin HEAD:audit/postrelease-ui-stage07-20261110
+          fi
