@@ -1,0 +1,21 @@
+name: Quiz stage05 grade-five audit
+on:
+  push:
+    branches: [fix/quiz-fractions-stage01-20261110]
+    paths:
+      - audits/quiz_stage05_probe.py
+      - audits/quiz_stage05_diversity_browser.cjs
+      - .github/workflows/quiz-stage05-audit.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - name: Locate grade-five catalog and generator pathways
+        run: python3 audits/quiz_stage05_probe.py
