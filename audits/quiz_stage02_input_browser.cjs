@@ -26,11 +26,23 @@ const assert=require('node:assert/strict'),path=require('node:path'),{chromium}=
     answered,feedback:document.querySelector('#qfb')?.textContent?.slice(0,180),
     classes:['quizFracWhole','quizFracNum','quizFracDen'].map(id=>({id,cls:document.getElementById(id)?.className})),
     ev:quizInputEvaluation(q,quizInputRaw(q))}));
-   const sample={width,focus,wrong};cases.push(sample);
+   await page.locator('#quizFracDen').fill('');
+   await page.locator('#quizFracDen').press('Backspace');
+   const backspace=await page.evaluate(()=>document.activeElement?.id);
+   await page.locator('#quizFracNum').press('Enter');
+   const enter=await page.evaluate(()=>document.activeElement?.id);
+   const sample={width,focus,wrong,backspace,enter};cases.push(sample);
    console.log('STAGE02_BASELINE',JSON.stringify(sample));
    await ctx.close();
   }
   assert(cases.every(x=>!x.wrong.answered),'Incorrect denominator unexpectedly accepted');
+  for(const sample of cases){
+   assert.equal(sample.focus.id,'quizFracNum','Whole part did not move focus to numerator');
+   assert.deepEqual(sample.wrong.classes.map(x=>x.cls.includes('good')?'good':x.cls.includes('bad')?'bad':'neutral'),['good','good','bad'],
+     'Individual fraction cells do not distinguish correct from incorrect digits');
+   assert.equal(sample.backspace,'quizFracNum','Backspace on empty denominator did not return to numerator');
+   assert.equal(sample.enter,'quizFracDen','Enter on numerator did not advance to denominator');
+  }
   console.log('STAGE02_BASELINE_DONE',cases.length);
  }finally{await browser.close()}
 })().catch(e=>{console.error(e.stack||e);process.exit(1)});
