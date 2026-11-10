@@ -18,3 +18,8 @@ for needle in ["function mk5Fractions(", "function mk5Core(", "const mk5Previous
  matches=[m.start() for m in re.finditer(re.escape(needle),s)]
  print("STAGE05_BINDING",needle,matches)
  for pos in matches[-3:]: print("STAGE05_BINDING_SNIP",needle,repr(s[max(0,pos-250):pos+1600]))
+
+for needle in ["function freshQuiz(", "function nextQ(", "function startG5QuizStage(", "function mk5PromptHash(", "function mk5ScoreVariant("]:
+ hits=[m.start() for m in re.finditer(re.escape(needle),s)]
+ print("STAGE05_LIFECYCLE",needle,hits)
+ for at in hits[-2:]: print("STAGE05_LIFECYCLE_SOURCE",needle,repr(s[at:at+4500]))
