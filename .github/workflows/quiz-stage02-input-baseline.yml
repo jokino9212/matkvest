@@ -1,0 +1,21 @@
+name: Quiz stage02 fraction input baseline
+on:
+  push:
+    branches: [fix/quiz-fractions-stage01-20261110]
+    paths:
+      - audits/quiz_stage02_input_browser.cjs
+      - .github/workflows/quiz-stage02-input-baseline.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  baseline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Test actual fraction-box behavior at 390 and 1280px
+        run: node audits/quiz_stage02_input_browser.cjs
