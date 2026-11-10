@@ -20,12 +20,12 @@ try{
       try{
        const item=freshQuiz(qid),name=String(item.templateId||'base');
        const trueSignature=JSON.stringify([item.text,item.correctText,(item.choices||[]).map(c=>c.label).sort()]);
-       items.push({name,signature:trueSignature,level:item.mk5Audit?.level,answer:String(item.correctText)});
+       items.push({name,signature:trueSignature,actualSig:item.sig||item._signature||'',level:item.mk5Audit?.level,answer:String(item.correctText),text:String(item.text||'').slice(0,140)});
       }catch(err){failures.push({topic:topic.id,stage,session,pos,error:String(err).slice(0,200)})}
     }
     const unique=new Set(items.map(x=>x.signature)).size;
     perStage.push({unique,count:items.length,templates:new Set(items.map(x=>x.name)).size});
-    if(unique<items.length)failures.push({topic:topic.id,stage,session,reason:'exact repeated question',unique,items:items.map(x=>x.name)});
+    if(unique<items.length)failures.push({topic:topic.id,stage,session,reason:'exact repeated question',unique,items:items.map(x=>({name:x.name,actualSig:x.actualSig,answer:x.answer,text:x.text}))});
    }
    runs.push({id:topic.id,stage,duplicates:perStage.filter(s=>s.unique<s.count).length,
       avgTemplates:Number((perStage.reduce((s,i)=>s+i.templates,0)/12).toFixed(2)),
