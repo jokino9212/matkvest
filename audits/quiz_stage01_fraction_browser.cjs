@@ -47,6 +47,36 @@ const {chromium}=require('playwright');
     return {generatedTotal,notFraction,generatedFailures:generatedFailures.slice(0,12),generatedFailureCount:generatedFailures.length,generatedSamples,parseDirect:parseRationalInput('26/9'),parseMixed:parseRationalInput('2 8/9'),parseBoxes:stage18ParseFractionFields({whole:'2',numerator:'8',denominator:'9'}),usesBoxes:stage18UsesFractionBoxes({answerMode:'fraction'}),total,failures:failures.slice(0,30),failureCount:failures.length,samples};
   });
   console.log('STAGE01_BROWSER_RESULT',JSON.stringify(result));
+
+  const formEdge=await page.evaluate(()=>{
+    qid='g5:mixed_to_frac';
+    const found=[];
+    for(let i=0;i<450;i++){
+      const item=makeG5Question('mixed_to_frac');
+      if(item.answerMode==='fraction'&&item.answerRat?.d===1&&!item.stage18AnswerForm){
+       const v=String(item.answerRat.n);
+       found.push({question:item.text,correct:item.correctText,accepted:quizInputEvaluation(item,{stage18Fraction:true,whole:v,numerator:'',denominator:''}),
+         incorrect:quizInputEvaluation(item,{stage18Fraction:true,whole:String(item.answerRat.n+1),numerator:'',denominator:''})});
+       if(found.length===6)break;
+      }
+    }
+    qid='g5:frac_to_mixed';
+    const mixedQ={answerMode:'fraction',answerRat:rational(26,9),correctText:'2 8/9',correctHtml:mixed(2,8,9),stage18AnswerForm:{kind:'mixed'},requireReduced:false};
+    const mixedCorrect=quizInputEvaluation(mixedQ,{stage18Fraction:true,whole:'2',numerator:'8',denominator:'9'});
+    const mixedWrongForm=quizInputEvaluation(mixedQ,{stage18Fraction:true,whole:'',numerator:'26',denominator:'9'});
+    qid='g5:mixed_to_frac';
+    const improperQ={answerMode:'fraction',answerRat:rational(26,9),correctText:'26/9',correctHtml:frac(26,9),stage18AnswerForm:{kind:'improper'},requireReduced:false};
+    const improperCorrect=quizInputEvaluation(improperQ,{stage18Fraction:true,whole:'',numerator:'26',denominator:'9'});
+    const improperWrongForm=quizInputEvaluation(improperQ,{stage18Fraction:true,whole:'2',numerator:'8',denominator:'9'});
+    return {numericCount:found.length,numericCases:found.map(x=>({question:x.question,correct:x.correct,accepted:x.accepted.ok,wrongRejected:!x.incorrect.ok,kind:x.accepted.studentText})),
+      mixedCorrect:mixedCorrect.ok,mixedWrongFormRejected:!mixedWrongForm.ok,improperCorrect:improperCorrect.ok,improperWrongFormRejected:!improperWrongForm.ok};
+  });
+  console.log('STAGE01_FORM_EDGE_RESULT',JSON.stringify(formEdge));
+  assert.equal(formEdge.numericCount,6,'Did not generate integer subquestions');
+  assert(formEdge.numericCases.every(x=>x.accepted&&x.wrongRejected),'Integer answer needs value comparison, not improper form');
+  assert(formEdge.mixedCorrect&&formEdge.mixedWrongFormRejected&&formEdge.improperCorrect&&formEdge.improperWrongFormRejected,
+   'Required mixed or improper form regression');
+
   const ui=await page.evaluate(()=>{
     qid='g5:frac_to_mixed';
     q={...makeG5Question('frac_to_mixed'),text:'Выдели целую часть: '+frac(26,9),answerMode:'fraction',answerRat:rational(26,9),
