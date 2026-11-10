@@ -7,6 +7,7 @@ on:
       - audits/quiz_stage05_diversity_browser.cjs
       - audits/quiz_stage05_fingerprint_browser.cjs
       - audits/quiz_stage05_sessions_browser.cjs
+      - audits/quiz_stage05_fresh_browser.cjs
       - .github/workflows/quiz-stage05-audit.yml
   workflow_dispatch:
 permissions:
@@ -28,3 +29,5 @@ jobs:
         run: node audits/quiz_stage05_fingerprint_browser.cjs
       - name: Simulate 20 five-question sessions per topic and difficulty
         run: node audits/quiz_stage05_sessions_browser.cjs
+      - name: Verify no exact repeats using real freshQuiz anti-repeat logic
+        run: node audits/quiz_stage05_fresh_browser.cjs
