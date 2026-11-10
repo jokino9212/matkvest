@@ -32609,7 +32609,7 @@ window.G8_QA8_AUDIT={targets:RAW.slice(),levels:LENGTH.slice(),pools:Object.from
    if(!target||new Set(choices.map(c=>c.key)).size!==choices.length)throw Error('Invalid grade5 fractions classification options');
    return {...base,text,choices,ans:k,ex,answerMode:'choice',correctLabel:target.label,
      correctText:choicePlain(target),templateId:'s18c_types_'+variant,
-     sig:'g5:frac_types:s18c:'+activeDifficulty()+':'+variant+':'+seedParts.join(':'),
+     sig:'g5:frac_types:s18c:'+activeDifficulty()+':'+variant+':'+stripHtmlText(text)+':'+choicePlain(target),
      audit:{type:'s18cFractionTypes',variant,seedParts}};
  }
  function numberChoice(base,text,answer,ex,variant,parts){
