@@ -5,6 +5,7 @@ on:
     paths:
       - audits/quiz_stage01_probe.py
       - audits/quiz_stage01_fraction_browser.cjs
+      - audits/quiz_stage01_navigation_browser.cjs
       - .github/workflows/quiz-stage01-fraction-probe.yml
   workflow_dispatch:
 permissions:
@@ -22,3 +23,5 @@ jobs:
       - run: npm install --no-save --no-package-lock playwright@1.56.1
       - name: Check 161 rational-grading cases in production HTML
         run: node audits/quiz_stage01_fraction_browser.cjs
+      - name: Navigate real grade-5 quiz by clicking Next
+        run: node audits/quiz_stage01_navigation_browser.cjs
