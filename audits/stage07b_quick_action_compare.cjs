@@ -1,5 +1,5 @@
 'use strict';
-const {chromium}=require('playwright'),path=require('node:path');
+const assert=require('node:assert/strict'),{chromium}=require('playwright'),path=require('node:path');
 (async()=>{
  const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
  try{
@@ -24,6 +24,12 @@ const {chromium}=require('playwright'),path=require('node:path');
        mainText:document.getElementById('mainView')?.textContent?.slice(0,200),
        modalText:document.getElementById('modal')?.textContent?.slice(0,200),
        activeElement:document.activeElement?.outerHTML.slice(0,150)}));
+     const titles=['Таблица умножения','Таблица сложения','Квадраты чисел','Таблица деления'];
+     assert(after.mainText.includes(titles[n]),'Quick action failed '+JSON.stringify({width,n,mode,after}));
+     assert.deepEqual(errs,[],'Browser errors at '+width+'/'+n+'/'+mode);
+     if(mode==='background'){
+       assert(before?.html?.includes('role="button"'),'Surface lacks semantic role');
+     }
      console.log('STAGE07B_ACTION_COMPARISON',JSON.stringify({width,n,mode,before:mode==='background'?before:undefined,after,errors:errs}));
      await ctx.close();
     }
