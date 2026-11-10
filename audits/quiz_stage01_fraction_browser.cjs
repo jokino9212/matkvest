@@ -27,17 +27,28 @@ const {chromium}=require('playwright');
     }
     const q26={answerMode:'fraction',answerRat:rational(26,9),correctText:'2 8/9',correctHtml:mixed(2,8,9),stage18AnswerForm:{kind:'mixed'},requireReduced:false};
     check('reported 26/9',q26,{stage18Fraction:true,whole:'2',numerator:'8',denominator:'9'});
-    const donorSamples=[];
+    const generatedFailures=[],generatedSamples=[];let generatedTotal=0,notFraction=0;
     for(const topic of ['frac_to_mixed','mixed_to_frac']){
-      for(let i=0;i<15;i++){
-        const src=g5DonorQuestion(topic);
-        if(i<4) donorSamples.push({topic,text:src.text,correct:src.correct,correctLabel:src.correctLabel,choices:src.choices?.slice(0,3)});
+      qid='g5:'+topic;
+      for(let i=0;i<180;i++){
+        const item=makeG5Question(topic);
+        if(item.answerMode!=='fraction'){notFraction++;if(generatedSamples.length<8)generatedSamples.push({topic,mode:item.answerMode,text:item.text});continue}
+        const elem=document.createElement('div');elem.innerHTML=item.correctHtml||item.correctLabel||'';
+        const fracNode=elem.querySelector('.frac'),wholeNode=elem.querySelector('.mixed .whole');
+        const num=fracNode?.querySelector('.num')?.textContent?.trim();
+        const den=fracNode?.querySelector('.den')?.textContent?.trim();
+        const whole=wholeNode?.textContent?.trim()||'';
+        const raw={stage18Fraction:true,whole,numerator:num||'',denominator:den||''};
+        const out=quizInputEvaluation(item,raw);generatedTotal++;
+        if(!out.valid||!out.ok)generatedFailures.push({topic,text:item.text,raw,correct:item.correctText,answerRat:item.answerRat,form:item.stage18AnswerForm,eval:out});
+        if(generatedSamples.length<8)generatedSamples.push({topic,raw,correct:item.correctText,form:item.stage18AnswerForm,ok:out.ok,valid:out.valid});
       }
     }
-    return {donorSamples,parseDirect:parseRationalInput('26/9'),parseMixed:parseRationalInput('2 8/9'),parseBoxes:stage18ParseFractionFields({whole:'2',numerator:'8',denominator:'9'}),usesBoxes:stage18UsesFractionBoxes({answerMode:'fraction'}),total,failures:failures.slice(0,30),failureCount:failures.length,samples};
+    return {generatedTotal,notFraction,generatedFailures:generatedFailures.slice(0,12),generatedFailureCount:generatedFailures.length,generatedSamples,parseDirect:parseRationalInput('26/9'),parseMixed:parseRationalInput('2 8/9'),parseBoxes:stage18ParseFractionFields({whole:'2',numerator:'8',denominator:'9'}),usesBoxes:stage18UsesFractionBoxes({answerMode:'fraction'}),total,failures:failures.slice(0,30),failureCount:failures.length,samples};
   });
   console.log('STAGE01_BROWSER_RESULT',JSON.stringify(result));
   assert.equal(errors.length,0,'Runtime page errors: '+errors.slice(0,5).join('; '));
+  assert.equal(result.generatedFailureCount,0,'Generated fraction failures: '+JSON.stringify(result.generatedFailures.slice(0,3)));
   assert.equal(result.failureCount,0,'Incorrect fraction grading: '+JSON.stringify(result.failures.slice(0,3)));
   console.log('STAGE01_FRACTION_BROWSER_PASS',result.total);
  }finally{await browser.close()}
