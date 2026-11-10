@@ -1,0 +1,32 @@
+name: Stage11 grade five arithmetic difficulty and pedagogical progression
+on:
+  push:
+    branches: [audit/g5-difficulty-stage11-20261111]
+    paths:
+      - audits/g5_stage11_difficulty_browser.cjs
+      - .github/workflows/quiz-stage11-difficulty.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  difficulty:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Test staged arithmetic and topic progression (28,620 real questions)
+        run: timeout 480s node audits/g5_stage11_difficulty_browser.cjs
+      - name: Save full difficulty report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: g5-stage11-difficulty-report
+          path: audits/out/g5_stage11_difficulty_report.json
+          if-no-files-found: ignore
+      - name: Retest semantic diversity and no exact duplicates
+        run: |
+          timeout 480s node audits/g5_stage10_semantic_browser.cjs
+          timeout 240s node audits/quiz_stage05_fresh_browser.cjs
