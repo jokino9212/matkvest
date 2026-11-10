@@ -1,0 +1,103 @@
+name: UX107 safe staging + real v106 upgrade, archive sale and first-paint regression
+on:
+  push:
+    branches: [release/ux105-v107-hydration-archive-20261110]
+    paths:
+      - 'audits/ux105_new_pets_manifest.json'
+      - 'audits/ux107_stable_first_paint_archive_patch.py'
+      - 'audits/ux107_firstpaint_archive_browser.cjs'
+      - 'audits/ux107_pwa_upgrade_v106_v107_browser.cjs'
+      - '.github/workflows/ux107-approved-staging.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: ux107-approved-staging
+  cancel-in-progress: false
+jobs:
+  full-gate:
+    name: Full 30-pet and archived-purchase regression before staging
+    runs-on: ubuntu-latest
+    timeout-minutes: 38
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        name: Preserve exact production v106 as same-origin upgrade baseline
+        with:
+          ref: main
+          path: baseline_v106
+      - name: Require owner-approved exact ten WebP SHA256 and Python syntax
+        run: |
+          python3 -m py_compile audits/ux105_stage_v107.py audits/ux107_stable_first_paint_archive_patch.py
+          python3 audits/ux105_stage_v107.py --preflight
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          m=json.loads(Path('audits/ux105_new_pets_manifest.json').read_text())
+          assert m['artwork']['art_approval']=='approved' and m['artwork']['accepted_count']==10
+          assert all(x['status']=='approved' and x['approved_sha256']==x['sha256'] for x in m['items'])
+          assert len(set(x['sha256'] for x in m['items']))==10
+          print('UX107_EXACT_SHA_OWNER_ART_APPROVAL_PASS')
+          PY
+      - name: Build real PWA v107 and all ten original pet source files
+        run: |
+          python3 audits/ux105_stage_v107.py --apply
+          python3 audits/ux107_stable_first_paint_archive_patch.py
+      - name: Install real Chromium
+        run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Check both release browser scripts are syntactically valid
+        run: |
+          node --check audits/ux107_firstpaint_archive_browser.cjs
+          node --check audits/ux107_pwa_upgrade_v106_v107_browser.cjs
+      - name: All 30 pets shop collection zoom leaderboard plus exact 30 image alpha checks
+        run: timeout 230s node audits/ux105_v107_browser.cjs
+      - name: 23 old/new images before first paint, 3 reloads, archived bought pet for sale, one refund only, CSS in head
+        run: timeout 210s node audits/ux107_firstpaint_archive_browser.cjs
+      - name: Same origin update v106 to v107 without losing draft/XP/coins on online/offline reload
+        run: timeout 290s node audits/ux107_pwa_upgrade_v106_v107_browser.cjs
+      - name: Check actual multi-profile storage isolation
+        run: timeout 160s node audits/stage25_profile_isolation_browser.cjs
+      - name: Check live service worker offline PWA and balance
+        run: timeout 180s node audits/stage28_offline_pwa_browser.cjs
+      - name: Existing collection worth leaderboard and zoom regression
+        run: timeout 160s node audits/stage30_collection_media_browser.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ux107-original-30-pets-reload-archive-stage-artifacts
+          path: |
+            audits/ux105_v107_output/
+            audits/ux107_firstpaint_archive_output/
+          retention-days: 60
+  commit-staging:
+    name: Commit only tested PWA v107 plus exact ten new files to release branch
+    needs: [full-gate]
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Repeat exact approved build
+        run: |
+          python3 audits/ux105_stage_v107.py --apply
+          python3 audits/ux107_stable_first_paint_archive_patch.py
+      - name: Save release branch only, NO PRODUCTION PUSH
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js
+          python3 - <<'PY'
+          import json,subprocess
+          from pathlib import Path
+          for p in json.loads(Path('audits/ux105_new_pets_manifest.json').read_text())['items']:
+              subprocess.run(['git','add',p['source_asset']],check=True)
+          PY
+          git diff --cached --check
+          git commit -m "release-candidate(ux107): stable first-paint pet art, archive sales and PWA v107"
+          git pull --rebase origin release/ux105-v107-hydration-archive-20261110
+          git push origin HEAD:release/ux105-v107-hydration-archive-20261110
