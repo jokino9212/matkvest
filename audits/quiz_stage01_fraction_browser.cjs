@@ -51,14 +51,12 @@ const {chromium}=require('playwright');
   const formEdge=await page.evaluate(()=>{
     qid='g5:mixed_to_frac';
     const found=[];
-    for(let i=0;i<450;i++){
-      const item=makeG5Question('mixed_to_frac');
-      if(item.answerMode==='fraction'&&item.answerRat?.d===1&&!item.stage18AnswerForm){
-       const v=String(item.answerRat.n);
-       found.push({question:item.text,correct:item.correctText,accepted:quizInputEvaluation(item,{stage18Fraction:true,whole:v,numerator:'',denominator:''}),
-         incorrect:quizInputEvaluation(item,{stage18Fraction:true,whole:String(item.answerRat.n+1),numerator:'',denominator:''})});
-       if(found.length===6)break;
-      }
+    for(const value of [0,1,5,8,12,24]){
+      const item={answerMode:'fraction',answerRat:rational(value,1),correctText:String(value),
+        correctHtml:'<span class="math">'+value+'</span>',stage18AnswerForm:null,requireReduced:false};
+      const v=String(value);
+      found.push({question:'Какой числитель получится?',correct:v,accepted:quizInputEvaluation(item,{stage18Fraction:true,whole:v,numerator:'',denominator:''}),
+        incorrect:quizInputEvaluation(item,{stage18Fraction:true,whole:String(value+1),numerator:'',denominator:''})});
     }
     qid='g5:frac_to_mixed';
     const mixedQ={answerMode:'fraction',answerRat:rational(26,9),correctText:'2 8/9',correctHtml:mixed(2,8,9),stage18AnswerForm:{kind:'mixed'},requireReduced:false};
