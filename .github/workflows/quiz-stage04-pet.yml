@@ -1,0 +1,22 @@
+name: Quiz stage04 pet overlay source probe
+on:
+  push:
+    branches: [fix/quiz-fractions-stage01-20261110]
+    paths:
+      - audits/quiz_stage04_probe.py
+      - audits/quiz_stage04_pet_browser.cjs
+      - audits/quiz_stage04_fix.py
+      - .github/workflows/quiz-stage04-pet.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect pet overlay and exit handlers
+        run: python3 audits/quiz_stage04_probe.py
