@@ -20,7 +20,7 @@ const assert=require('node:assert/strict'),path=require('node:path'),{chromium}=
    const focus=await page.evaluate(()=>({id:document.activeElement?.id,
      values:['quizFracWhole','quizFracNum','quizFracDen'].map(x=>document.getElementById(x)?.value)}));
    await page.locator('#quizFracNum').fill('8');
-   await page.locator('#quizFracDen').fill('7');
+   await page.locator('#quizFracDen').fill('11');
    await page.locator('#quizCheck').click();
    const wrong=await page.evaluate(()=>({
     answered,feedback:document.querySelector('#qfb')?.textContent?.slice(0,180),
