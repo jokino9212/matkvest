@@ -67,8 +67,7 @@ early='''\n/* id="mk-ux107-boot-hydration" — first-paint pet artwork, no econo
   matches[0].icon='<img class="emoji-fallback-img mk-ux103-pet-image mk-ux103-premium-image mk-ux104-premium-image" alt="" loading="eager" decoding="async" src="assets/source/pets/'+id+'.webp">';
  }
 })();
-%s
-'''%(json.dumps(bootstrapIds),body)
+'''%json.dumps(bootstrapIds)
 needle='const SHOP_CATALOG={'
 start=html.index(needle);end=html.find('\n};',start)
 assert start>0 and 35000<end-start<150000,'Catalog object end changed'
@@ -96,6 +95,8 @@ lateCode='''
  }
 })();
 '''
+# Append new SKUs only after all 20 old SKUs; baseline order remains unchanged.
+lateCode+=body+"\n"
 html=html[:endLate+len('\n);')]+lateCode+html[endLate+len('\n);'):]
 
 # Previously UX-104 batch1 threw if the correct art was already connected;
