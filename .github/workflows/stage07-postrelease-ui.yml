@@ -41,5 +41,7 @@ jobs:
           git add index.html sw.js
           if ! git diff --cached --quiet; then
             git commit -m "fix(ui): keyboard accessible one-action quick cards"
+            git fetch origin audit/postrelease-ui-stage07-20261110
+            git rebase origin/audit/postrelease-ui-stage07-20261110
             git push origin HEAD:audit/postrelease-ui-stage07-20261110
           fi
