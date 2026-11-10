@@ -7,3 +7,9 @@ for needle in ["function g5InfoById(", "function makeG5Question(", "function act
 for pat in [r"\bg5InfoById\(",r"\bg5Topic",r"\bg5Info",r"\bfrac_to_mixed\b"]:
  ms=list(re.finditer(pat,s,re.I))
  print("STAGE05_MATCHES",pat,len(ms),[m.start() for m in ms[:15]])
+
+for id in ["angles","charts","frac_shapes","frac_parts","frac_ray","frac_common_lcm","dec_to_common"]:
+ for style in [f'if(id==="{id}")',f"if(id==='{id}')",f'case "{id}"',f'case \'{id}\'']:
+  pos=s.find(style)
+  if pos!=-1:
+   print("STAGE05_TARGET",id,style,pos,repr(s[max(0,pos-350):pos+3600]))
