@@ -9,7 +9,7 @@ const assert=require('node:assert/strict'),path=require('node:path'),{chromium}=
   const page=await ctx.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.goto('file://'+path.resolve('index.html'),{waitUntil:'domcontentloaded'});
   for(const topic of ['frac_to_mixed','mixed_to_frac']){
-   await page.evaluate(topic=>startG5QuizStage(topic,0),topic);
+   await page.evaluate(topic=>{startG5QuizStage(topic,0);mk872PersistDraft()},topic);
    const before=await page.evaluate(()=>({
      xp:state.xp,coins:state.coins,done:blockSession.done,correct:blockSession.correct,
      id:blockSession.attemptId,itemId:blockSession.currentItem?.id,
