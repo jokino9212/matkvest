@@ -1,0 +1,30 @@
+name: Stage10 grade five real-session semantic diversity diagnostic
+on:
+  push:
+    branches: [audit/g5-semantic-stage10-20261111]
+    paths:
+      - audits/g5_stage10_semantic_browser.cjs
+      - .github/workflows/quiz-stage10-semantic.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  semantic-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Audit 23,850 actual questions in 4,770 five-item sessions
+        run: timeout 480s node audits/g5_stage10_semantic_browser.cjs
+      - name: Preserve full per-topic ranking
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: g5-stage10-semantic-ranking
+          path: audits/out/g5_stage10_semantic_report.json
+          if-no-files-found: ignore
+      - name: Recheck real anti-repeat
+        run: timeout 200s node audits/quiz_stage05_fresh_browser.cjs
