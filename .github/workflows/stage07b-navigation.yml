@@ -1,0 +1,21 @@
+name: Stage07B navigation, keyboard and accessibility diagnosis
+on:
+  push:
+    branches: [audit/postrelease-ui-stage07-20261110]
+    paths:
+      - audits/stage07b_navigation_browser.cjs
+      - .github/workflows/stage07b-navigation.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  diagnosis:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Visit all eight class and four quick cards at four widths
+        run: timeout 300s node audits/stage07b_navigation_browser.cjs
