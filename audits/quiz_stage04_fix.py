@@ -65,6 +65,11 @@ new="""  previousFocus=null;
  window.addEventListener('click',e=>{"""
 assert body.count(old)+body.count(new)==1, 'Unknown viewer closing layout'
 body=body.replace(old,new,1)
+# Existing popstate route listener is earlier; intercept via its late-bound function.
+route_needle=" window.addEventListener('click',e=>{"
+route_insert=" // Existing history handler was registered before this viewer. Its late-bound\n // route function must not destroy the active quiz when consuming the zoom entry.\n const previousRestoreRoute=mk854RestoreRoute;\n mk854RestoreRoute=function(route){\n  if(popup.classList.contains('mk872-open')||pendingViewerPop){\n   pendingViewerPop=false;\n   if(popup.classList.contains('mk872-open'))close();\n   return;\n  }\n  return previousRestoreRoute.apply(this,arguments);\n };\n window.addEventListener('click',e=>{"
+assert body.count(route_needle)==1,'Missing pet viewer click handler'
+body=body.replace(route_needle,route_insert,1)
 updated=prefix+tag+body+'</script>'+suffix
 if updated!=s:
  h.write_text(updated,'utf8');print('STAGE04_VIEWER_FIX_APPLIED')
