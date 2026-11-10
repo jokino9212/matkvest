@@ -31,3 +31,5 @@ jobs:
           if-no-files-found: ignore
       - name: Recheck real anti-repeat
         run: timeout 200s node audits/quiz_stage05_fresh_browser.cjs
+
+# Source probe revision: inspect generator last occurrences.
