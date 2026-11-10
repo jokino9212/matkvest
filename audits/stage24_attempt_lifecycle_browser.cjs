@@ -20,22 +20,33 @@ async function restoredCompletion(page){
  const started=await page.evaluate(()=>{
    startG7QuizStage('g7:rational_numbers_forms',0);
    const id=blockSession.attemptId;
-   // First item is skipped. The next gets a valid answer when possible, otherwise it is also skipped.
-   skipNormalQuiz();
+   // Skip is a two-step UX: reveal answer, then click Next. Keep the draft
+   // in progress before reloading instead of accidentally finishing the block.
+   if(!skipNormalQuiz())throw Error('Initial skip failed');
+   const initialFeedback=document.getElementById('qfb')?.textContent||'';
+   if(!initialFeedback.includes('Правильный ответ:'))throw Error('Initial skip did not reveal answer');
+   document.getElementById('quizNext')?.click();
+   if(answered||blockSession.done!==1)throw Error('Initial skip did not advance after Next');
    let firstCorrect=false;
-   for(let i=0;i<18;i++){
-    if(q?.answerMode==='number'&&q.answerRat){
-      const rat=q.answerRat,possibles=[String(q.correctText??''),String(Number(rat.n)/Number(rat.d)),'0'];
-      const ans=possibles.find(v=>{const e=quizInputEvaluation(q,v);return e.valid&&e.ok});
-      if(ans!==undefined){
-       const input=document.getElementById('quizInput');input.value=ans;input.dispatchEvent(new Event('input',{bubbles:true}));
-       document.getElementById('quizCheck')?.click();
-       if(answered){firstCorrect=true;document.getElementById('quizNext')?.click();break}
-      }
-    }
-    skipNormalQuiz();
-    if(blockSession.finished)break;
+   if(q?.answerMode==='number'&&q.answerRat){
+     const rat=q.answerRat,possibles=[String(q.correctText??''),String(Number(rat.n)/Number(rat.d)),'0'];
+     const ans=possibles.find(v=>{const e=quizInputEvaluation(q,v);return e.valid&&e.ok});
+     if(ans!==undefined){
+       const input=document.getElementById('quizInput');
+       if(input){
+         input.value=ans;input.dispatchEvent(new Event('input',{bubbles:true}));
+         document.getElementById('quizCheck')?.click();
+         if(answered){firstCorrect=true;document.getElementById('quizNext')?.click()}
+       }
+     }
    }
+   if(!firstCorrect){
+     if(!skipNormalQuiz())throw Error('Second skip failed');
+     const feedback=document.getElementById('qfb')?.textContent||'';
+     if(!feedback.includes('Правильный ответ:'))throw Error('Second skip did not reveal answer');
+     document.getElementById('quizNext')?.click();
+   }
+   if(blockSession.finished||blockSession.done<2)throw Error('Draft did not remain in progress');
    const draftSaved=mk872PersistDraft(),d=mk872ReadDraft();
    return {id,done:blockSession.done,correct:blockSession.correct,itemCount:blockSession.items.length,
     firstCorrect,draftSaved,draftId:d?.attemptId,historyBefore:state.attemptHistory?.filter(x=>x.id===id).length||0,
@@ -56,11 +67,13 @@ async function restoredCompletion(page){
    while(blockSession && !blockSession.finished && iterations<60){
      const prev=blockSession.done;
      if(!skipNormalQuiz())throw Error('Skip failed in finishing loop');
-     if(blockSession.done<=prev && !blockSession.finished)throw Error('No block progress');
+     if(!document.getElementById('qfb')?.textContent?.includes('Правильный ответ:'))throw Error('Correct skip answer was hidden');
+     if(blockSession.done<=prev)throw Error('No block progress');
+     document.getElementById('quizNext')?.click();
      iterations++;
    }
    if(!blockSession?.finished)throw Error('Did not finish training');
-   // Final skipped item should trigger result rendering via skipNormalQuiz.
+   // Final skipped item reveals its answer; Next explicitly opens the result.
    const history=(state.attemptHistory||[]).filter(x=>x.id===started.id);
    const finalized={history:history.length,status:history[0]?.status,reportId:blockSession.reportId,
     total:blockSession.total,done:blockSession.done,correct:blockSession.correct,
