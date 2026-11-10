@@ -5,6 +5,18 @@ h=Path('index.html'); w=Path('sw.js')
 s=h.read_text('utf8')
 tag='<script id="mk30-artwork-viewer-script">'
 assert s.count(tag)==1, 'Expected exactly one pet viewer'
+# Document capture runs BEFORE the viewer click handler. Treat viewer clicks
+# as internal child-dialog actions rather than top-level training navigation.
+exit_old="""document.addEventListener('click',event=>{
+ if(mk872Dialog)return;
+ if(!mk872HasActiveLearning())return;"""
+exit_new="""document.addEventListener('click',event=>{
+ if(mk872Dialog)return;
+ if(event.target?.closest?.('#mk872AvatarViewer'))return;
+ if(!mk872HasActiveLearning())return;"""
+assert s.count(exit_old)+s.count(exit_new)==1,'Unexpected training click interception layout'
+s=s.replace(exit_old,exit_new,1)
+
 prefix,after=s.split(tag,1)
 body,suffix=after.split('</script>',1)
 assert 'const popup=document.getElementById' in body
