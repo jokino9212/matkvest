@@ -55,6 +55,9 @@ oldArt=['pet_phoenix','pet_orb','pet_ghost','pet_bot','pet_owl','pet_penguin','p
         'pet_cat','pet_dragon','pet_fox','pet_turtle','pet_tiger','pet_astronaut']
 assert len(oldArt)==13
 assert set(oldArt).issubset(set(oldids))
+lateIds=['pet_phoenix','pet_orb','pet_ghost']
+bootstrapIds=[id for id in oldArt if id not in lateIds]
+assert len(bootstrapIds)==10
 early='''\n/* id="mk-ux107-boot-hydration" — first-paint pet artwork, no economy changes. */
 (function(){
  const ids=%s;
@@ -65,7 +68,7 @@ early='''\n/* id="mk-ux107-boot-hydration" — first-paint pet artwork, no econo
  }
 })();
 %s
-'''%(json.dumps(oldArt),body)
+'''%(json.dumps(bootstrapIds),body)
 needle='const SHOP_CATALOG={'
 start=html.index(needle);end=html.find('\n};',start)
 assert start>0 and 35000<end-start<150000,'Catalog object end changed'
@@ -73,6 +76,28 @@ insertAt=end+len('\n};')
 assert 'SHOP_CATALOG.avatars.push' in html[insertAt:insertAt+900]
 html=html[:insertAt]+early+html[insertAt:]
 assert html.index('id="mk-ux107-boot-hydration"')<html.index('function openShop')
+
+# Phoenix, Orb and Ghost are inserted into the original catalog in a LATER
+# script block, after the base pet object. Hydrate them only when those records exist.
+lateNeedle='''SHOP_CATALOG.pets.push(
+ {id:"pet_phoenix",name:"Феникс"'''
+startLate=html.find(lateNeedle)
+assert startLate>=0,"Original premium three registration changed"
+endLate=html.find('\n);',startLate)
+assert 200<endLate-startLate<1000
+lateCode='''
+/* UX107 first-paint premium-three hydration after original SKU creation */
+(function(){
+ const ids=["pet_phoenix","pet_orb","pet_ghost"];
+ for(const id of ids){
+  const pet=SHOP_CATALOG.pets.find(x=>x.id===id);
+  if(!pet)throw Error("UX107 legacy pet registration missing "+id);
+  pet.icon='<img class="emoji-fallback-img mk-ux103-pet-image mk-ux103-premium-image" alt="" loading="eager" decoding="async" src="assets/source/pets/'+id+'.webp">';
+ }
+})();
+'''
+html=html[:endLate+len('\n);')]+lateCode+html[endLate+len('\n);'):]
+
 # Previously UX-104 batch1 threw if the correct art was already connected;
 # the early initialization now makes that a legitimate idempotent state.
 oldLine="if(oldSource.includes('assets/source/pets/'+id+'.webp'))\n   throw Error(\"UX-104 pet art already linked \"+id);"
