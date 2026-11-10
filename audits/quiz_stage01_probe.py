@@ -32,3 +32,7 @@ for needle in ['if(id==="frac_to_mixed")','if(id==="mixed_to_frac")','function g
  defs=[html[prior:prior+110]] if prior>=0 else []
  print("MARKER",needle,"IDX",idx,"ENCLOSING",defs[-3:] if defs else "NONE")
  print(html[max(0,idx-1800):idx+400])
+
+for needle in ['function startG5QuizStage(', 'function openG5Quiz(', 'function nextG5Quiz(', 'function nextG5Q(', 'function startNextQuizQuestion(']:
+ idx=html.find(needle)
+ print('NAV_SOURCE',needle,idx,repr(html[idx:idx+5500] if idx>=0 else ''))
