@@ -28,6 +28,7 @@ print("\\n=== GRADE5 GENERATOR ENCLOSING CONTEXT ===")
 for needle in ['if(id==="frac_to_mixed")','if(id==="mixed_to_frac")','function g5q(']:
  idx=html.find(needle)
  if idx<0:continue
- defs=list(re.finditer(r'function\\s+[A-Za-z_$][\\w$]*\\s*\\(',html[max(0,idx-30000):idx]))
+ prior=html.rfind('function ',max(0,idx-30000),idx)
+ defs=[html[prior:prior+110]] if prior>=0 else []
  print("MARKER",needle,"IDX",idx,"ENCLOSING",defs[-3:] if defs else "NONE")
  print(html[max(0,idx-1800):idx+400])
