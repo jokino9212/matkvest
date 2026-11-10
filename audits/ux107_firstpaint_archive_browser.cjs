@@ -38,7 +38,7 @@ const output='audits/ux107_firstpaint_archive_output';fs.mkdirSync(output,{recur
   }
   // Persist a pre-v107 style purchased old pet, plus another existing pet.
   const seed=await page.evaluate(()=>{
-   const p=ensureProfileIdentity({...EMPTY_STATE,xp:50000,coins:620,
+   const p=ensureProfileIdentity({...EMPTY_STATE,xp:0,coins:620,
     inventory:{...(EMPTY_STATE.inventory||{}),pets:['pet_none','pet_cat','pet_owl']},
     equipped:{...(EMPTY_STATE.equipped||{}),pet:'pet_cat'}});
    mk865SetAcquisition(p,'pets','pet_cat','store',390,Date.now()-900000);
