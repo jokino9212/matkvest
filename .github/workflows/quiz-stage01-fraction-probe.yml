@@ -4,6 +4,7 @@ on:
     branches: [fix/quiz-fractions-stage01-20261110]
     paths:
       - audits/quiz_stage01_probe.py
+      - audits/quiz_stage01_fraction_browser.cjs
       - .github/workflows/quiz-stage01-fraction-probe.yml
   workflow_dispatch:
 permissions:
@@ -11,8 +12,13 @@ permissions:
 jobs:
   diagnose:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
     steps:
       - uses: actions/checkout@v4
       - name: Examine real production quiz handlers
         run: python3 audits/quiz_stage01_probe.py
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Check 161 rational-grading cases in production HTML
+        run: node audits/quiz_stage01_fraction_browser.cjs
