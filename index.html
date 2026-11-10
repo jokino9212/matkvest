@@ -22758,7 +22758,7 @@ makeG5Question=function(id){
  const pos=Math.max(0,Number(blockSession?.done)||0);
  const total=Math.max(3,Number(blockSession?.total)||5);
  const phase=Math.min(2,Math.floor(3*pos/total));
- const level=Math.min(2,Math.floor((stage+phase)/2));
+ const level=Math.min(2,Math.max(0,stage-1+phase));
  const mode=(pos+stage)%3;
  const qq=mk5ScoreVariant(topic,level,mode);
  if(!qq)throw new Error('Нет генератора для темы 5 класса '+topic);
@@ -22768,7 +22768,7 @@ makeG5Question=function(id){
  const promptKey=qq.text.includes('<svg')?`diagram_${mk5PromptHash(qq.text)}`:stripHtmlText(qq.text);
  // Difficulty is deliberately absent from identity: the *same visible task*
  // cannot be accepted twice just because it was generated at another tier.
- const sig=`g5:${raw}:${topic}:${qq.templateId}:${promptKey}:${String(qq.correct)}:${qq.choices.map(c=>academicHtmlPlain(c.label)).sort().join('~')}`;
+ const sig=`g5:${raw}:${topic}:${promptKey}:${String(qq.correct)}:${qq.choices.map(c=>academicHtmlPlain(c.label)).sort().join('~')}`;
  return {text:qq.text,ans:String(qq.correct),choices:qq.choices.map(c=>({label:c.label,key:String(c.key)})),ex:qq.explain,
   correctLabel:correctChoice.label,correctText:answerText,sourceTopicId:topic,templateId:qq.templateId,
   mk5Audit:{...(qq.mk5Audit||{}),level,phase,mode,stage,topic},sig};
