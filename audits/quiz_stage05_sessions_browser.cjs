@@ -55,6 +55,12 @@ try{
  assert.equal(result.topics,53,'grade-5 catalog changed');
  assert.equal(result.generated,15900,'missing generated questions');
  assert.equal(result.errorCount,0,'generator errors');
+ const expected=[[0,0,0,0,1],[0,0,1,1,2],[1,1,2,2,2]];
+ for(const topic of result.byTopic)for(const session of topic.stage){
+  assert.deepEqual(session.levelByPosition,expected[session.stage].map(level=>[level]),
+    'Bad stepwise difficulty '+topic.id+' stage '+session.stage);
+  assert(session.templateDistinct>=2,'Only one type of question '+topic.id+' stage '+session.stage);
+ }
  assert.deepEqual(errors,[],'browser errors');
  console.log('STAGE05_REAL_SESSIONS_PASS',JSON.stringify({topics:result.topics,generated:result.generated,
   minUnique:result.minUnique,duplicateSessions:result.duplicateSessions,weakConfigurations:result.weak.length}));
