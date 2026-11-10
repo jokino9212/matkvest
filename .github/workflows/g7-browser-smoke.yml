@@ -1,0 +1,40 @@
+name: Browser smoke for Matkvest G7 stage3 (corrected input checks)
+on:
+  push:
+    branches:
+      - audit/g7-geometry-stage2-2026-11-03
+    paths:
+      - .github/workflows/g7-browser-smoke.yml
+permissions:
+  contents: write
+jobs:
+  browser_smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit/g7-geometry-stage2-2026-11-03
+          persist-credentials: true
+      - name: Install Chromium via Playwright
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+      - name: Run G7 and G8 Chromium smoke
+        run: node tools/test_g7_browser.js
+      - name: Persist JSON audit report in audit branch
+        if: always()
+        run: |
+          if [ -f reports/g7_stage3_browser_result.json ]; then
+            git config user.name "matkvest-browser-audit"
+            git config user.email "matkvest-browser-audit@users.noreply.github.com"
+            git add reports/g7_stage3_browser_result.json
+            git diff --cached --quiet || git commit -m "Record G7 and G8 real browser audit"
+            git push origin HEAD:audit/g7-geometry-stage2-2026-11-03
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: g7-stage3-browser-report
+          path: reports/g7_stage3_browser_result.json
+          if-no-files-found: warn

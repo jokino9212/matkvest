@@ -35362,4 +35362,178 @@ if(mkV877CorruptProfiles){
  };
 })();
 </script>
+<script>
+(function g7Stage2Patch(){
+ const prev=makeG7Question;
+ const ids=new Set(["geo_triangle_elements","geo_isosceles_equilateral","geo_isosceles_properties_criteria","geo_triangle_inequality","geo_side_angle_relation"]);
+ const one=a=>a[ri(0,a.length-1)];
+ const pic=(kind="scalene")=>g7TriangleData(kind,kind==="isosceles"?{sideMarks:[{side:"AB",count:1},{side:"AC",count:1}]}:kind==="equilateral"?{sideMarks:[{side:"AB",count:1},{side:"BC",count:1},{side:"AC",count:1}]}:{});
+ const N=(id,d,v,t,a,e,nums,p,u="")=>g7GeoNumber(t,a,e,g7QuestionSig(id,d,"audit2_"+v,nums),{type:"g7Stage2",variant:v,id,d,nums,answer:a},p,"Чертёж схематический; длины заданы условием.",u);
+ const C=(id,d,v,t,a,wrong,e,nums,p)=>{const sig=g7QuestionSig(id,d,"audit2_"+v,nums),meta={type:"g7Stage2",variant:v,id,d,nums,answer:a};return p?g7GeoChoice(t,a,wrong,e,sig,meta,p):g7StrictChoice(t,a,wrong,e,sig,meta)};
+ const bisectorPicture=()=>{const m=g7TriModel("isosceles"),p=g7TriSidePoint(m.points.B,m.points.C,.5);return {kind:"g7-triangle",subtype:"isosceles",points:m.points,sideMarks:[{side:"AB",count:1},{side:"AC",count:1}],cevian:{kind:"bisector",from:"A",point:p,label:"D"},aria:"Равнобедренный треугольник ABC с биссектрисой AD"};};
+ const T=d=>{let a,b,c;for(let i=0;i<99;i++){a=ri(5+d*3,12+d*5);b=ri(5+d*3,12+d*5);c=ri(Math.abs(a-b)+1,a+b-1);if(a!==b&&a!==c&&b!==c)break;}return {a,b,c,P:a+b+c}};
+ function Q(id,d){
+  if(id==="geo_triangle_elements"){
+   const v=one(d===0?["perimeter","sum"]:d===1?["missing","other"]:["linked","reverse","chain"]),{a,b,c,P}=T(d),p=pic();
+   if(v==="perimeter")return N(id,d,v,`AB=${a} см, BC=${b} см, AC=${c} см. Найди периметр △ABC.`,P,`P=${a}+${b}+${c}=<b>${P}</b>.`,[a,b,c],p,"см");
+   if(v==="sum")return N(id,d,v,`В △ABC AB=${a} см, BC=${b} см. Найди AB+BC.`,a+b,`AB+BC=${a}+${b}=<b>${a+b}</b>.`,[a,b],p,"см");
+   if(v==="missing")return N(id,d,v,`P(ABC)=${P} см, AB=${a} см, BC=${b} см. Найди AC.`,c,`AC=${P}−${a}−${b}=<b>${c}</b>.`,[P,a,b],p,"см");
+   if(v==="other")return N(id,d,v,`P(ABC)=${P} см, AB=${a} см. Найди BC+AC.`,b+c,`BC+AC=${P}−${a}=<b>${b+c}</b>.`,[P,a],p,"см");
+   const x=ri(9,19),k=ri(1,5),y=x+k,z=ri(k+3,x+y-1),P2=x+y+z;
+   if(v==="linked")return N(id,d,v,`AB=${x} см, BC на ${k} см длиннее AB, AC=${z} см. Найди P(ABC).`,P2,`BC=${x}+${k}=${y}; P=${x}+${y}+${z}=<b>${P2}</b>.`,[x,k,z],p,"см");
+   if(v==="reverse")return N(id,d,v,`P(ABC)=${P2} см, AB=${x} см, BC на ${k} см больше AB. Найди AC.`,z,`BC=${y}; AC=${P2}−${x}−${y}=<b>${z}</b>.`,[P2,x,k],p,"см");
+   const h=ri(1,4),zz=y+h;
+   return N(id,d,v,`AB=${x} см, BC на ${k} см длиннее AB, AC на ${h} см длиннее BC. Найди периметр.`,x+y+zz,`BC=${y}, AC=${zz}; P=${x}+${y}+${zz}=<b>${x+y+zz}</b>.`,[x,k,h],p,"см");
+  }
+  if(id==="geo_isosceles_equilateral"){
+   const v=one(d===0?["eqP","isoP"]:d===1?["eqS","isoBase","isoLeg"]:["isoBase","isoLeg","gap","recover"]);
+   const s=ri(5+d,14+3*d),leg=ri(7+d*3,19+d*4),base=ri(3,leg-1),P=2*leg+base,k=ri(1,5),P2=3*leg-k;
+   if(v==="eqP")return N(id,d,v,`Равносторонний △ABC имеет сторону ${s} см. Найди периметр.`,3*s,`P=3·${s}=<b>${3*s}</b>.`,[s],pic("equilateral"),"см");
+   if(v==="isoP")return N(id,d,v,`В равнобедренном △ABC AB=AC=${leg} см, BC=${base} см. Найди периметр.`,P,`P=2·${leg}+${base}=<b>${P}</b>.`,[leg,base],pic("isosceles"),"см");
+   if(v==="eqS")return N(id,d,v,`P равностороннего △ABC равен ${3*s} см. Найди сторону.`,s,`Сторона=${3*s}:3=<b>${s}</b>.`,[3*s],pic("equilateral"),"см");
+   if(v==="isoBase")return N(id,d,v,`В равнобедренном △ABC P=${P} см, AB=AC=${leg} см. Найди BC.`,base,`BC=${P}−2·${leg}=<b>${base}</b>.`,[P,leg],pic("isosceles"),"см");
+   if(v==="isoLeg")return N(id,d,v,`В равнобедренном △ABC P=${P} см, BC=${base} см. Найди AB.`,leg,`AB=(${P}−${base}):2=<b>${leg}</b>.`,[P,base],pic("isosceles"),"см");
+   if(v==="gap")return N(id,d,v,`AB=AC=${leg} см, основание BC на ${k} см короче AB. Найди P(ABC).`,P2,`P=3·${leg}−${k}=<b>${P2}</b>.`,[leg,k],pic("isosceles"),"см");
+   return N(id,d,v,`В равнобедренном △ABC P=${P2} см, BC на ${k} см короче AB=AC. Найди AB.`,leg,`3AB−${k}=${P2}; AB=(${P2}+${k}):3=<b>${leg}</b>.`,[P2,k],pic("isosceles"),"см");
+  }
+  if(id==="geo_isosceles_properties_criteria"){
+   const v=one(d===0?["copy","vertex"]:d===1?["vertex","base","half"]:["half","reverse_half","linear"]),b=ri(32,77),A=180-2*b;
+   if(v==="copy")return N(id,d,v,`AB=AC и ∠B=${b}°. Найди ∠C.`,b,`Углы при основании равны, ∠C=<b>${b}°</b>.`,[b],pic("isosceles"),"°");
+   if(v==="vertex")return N(id,d,v,`AB=AC и ∠B=${b}°. Найди ∠A.`,A,`∠A=180−2·${b}=<b>${A}°</b>.`,[b],pic("isosceles"),"°");
+   if(v==="base")return N(id,d,v,`AB=AC и ∠A=${A}°. Найди ∠B.`,b,`∠B=(180−${A}):2=<b>${b}°</b>.`,[A],pic("isosceles"),"°");
+   if(v==="half")return N(id,d,v,`AB=AC, ∠B=${b}°, AD — биссектриса ∠A. Найди ∠BAD.`,90-b,`∠A=180−2·${b}=${A}°, значит ∠BAD=${A}:2=<b>${90-b}°</b>.`,[b],bisectorPicture(),"°");
+   if(v==="reverse_half"){
+    const h=ri(15,55);
+    return N(id,d,v,`AB=AC, AD — биссектриса ∠A, ∠BAD=${h}°. Найди ∠B.`,90-h,`∠A=${2*h}°, ∠B=(180−${2*h}):2=<b>${90-h}°</b>.`,[h],bisectorPicture(),"°");
+   }
+   const base=ri(61,78),delta=3*base-180;
+   return N(id,d,v,`В равнобедренном △ABC угол при основании на ${delta}° больше угла при вершине. Найди угол при основании.`,base,`Если искомый угол x, то 2x+(x−${delta})=180, x=(180+${delta}):3=<b>${base}°</b>.`,[delta],pic("isosceles"),"°");
+  }
+  if(id==="geo_triangle_inequality"){
+   const v=one(d===0?["exists","max"]:d===1?["min","max","count"]:["even","multiple3","sum"]),a=ri(4+d*3,12+d*4),b=ri(4+d*3,12+d*4),lo=Math.abs(a-b)+1,hi=a+b-1,total=hi-lo+1;
+   if(v==="exists"){
+    const valid=Math.random()<.5,x=valid?ri(lo,hi):a+b+ri(0,4),ans=valid?"да":"нет";
+    return C(id,d,v,`Могут ли стороны треугольника быть равны ${a}, ${b}, ${x} см?`,ans,[valid?"нет":"да"],valid?`Выполнено |${a}−${b}|<${x}<${a}+${b}.`:`${x}≥${a}+${b}, треугольник не существует.`,[a,b,x,valid?1:0],null);
+   }
+   if(v==="max")return N(id,d,v,`Стороны треугольника ${a} и ${b} см. Найди наибольшую целую третью сторону.`,hi,`x<${a}+${b}, значит x≤<b>${hi}</b>.`,[a,b],pic(),"см");
+   if(v==="min")return N(id,d,v,`Стороны треугольника ${a} и ${b} см. Найди наименьшую целую третью сторону.`,lo,`x>|${a}−${b}|, значит x≥<b>${lo}</b>.`,[a,b],pic(),"см");
+   if(v==="count")return N(id,d,v,`Две стороны треугольника ${a} и ${b} см. Сколько целых значений может иметь третья сторона?`,total,`x от ${lo} до ${hi}; вариантов ${hi}−${lo}+1=<b>${total}</b>.`,[a,b],pic());
+   if(v==="even"){
+    const ans=Math.floor(hi/2)-Math.floor((lo-1)/2);
+    return N(id,d,v,`Две стороны ${a} и ${b} см. Сколько чётных целых длин возможно у третьей стороны?`,ans,`x от ${lo} до ${hi}; чётных значений ⌊${hi}/2⌋−⌊${lo-1}/2⌋=<b>${ans}</b>.`,[a,b],pic());
+   }
+   if(v==="multiple3"){
+    const ans=Math.floor(hi/3)-Math.floor((lo-1)/3);
+    return N(id,d,v,`Две стороны ${a} и ${b} см. Сколько целых длин третьей стороны кратны 3?`,ans,`x от ${lo} до ${hi}; кратных 3: ⌊${hi}/3⌋−⌊${lo-1}/3⌋=<b>${ans}</b>.`,[a,b],pic());
+   }
+   const ans=(lo+hi)*total/2;
+   return N(id,d,v,`Две стороны ${a} и ${b} см. Найди сумму всех возможных целых длин третьей стороны.`,ans,`Числа от ${lo} до ${hi}; сумма (${lo}+${hi})·${total}:2=<b>${ans}</b>.`,[a,b],pic());
+  }
+  if(id==="geo_side_angle_relation"){
+   const v=one(d===0?["largest","smallest"]:d===1?["largest","smallest","compare"]:["order","from_angles_max","from_angles_min"]);
+   if(v==="largest"||v==="smallest"||v==="compare"){
+    const {a,b,c}=T(d),rows=[{s:"AB",n:a,ang:"∠C"},{s:"BC",n:b,ang:"∠A"},{s:"AC",n:c,ang:"∠B"}];
+    if(v==="compare"){
+     const ans=a>c?"∠C > ∠B":"∠B > ∠C";
+     return C(id,d,v,`В △ABC AB=${a} см, AC=${c} см. Сравни ∠B и ∠C.`,ans,["∠C > ∠B","∠B > ∠C","∠B = ∠C"].filter(x=>x!==ans),`Большей стороне противолежит больший угол: <b>${ans}</b>.`,[a,c],pic());
+    }
+    rows.sort((x,y)=>x.n-y.n);const row=v==="largest"?rows[2]:rows[0];
+    return C(id,d,v,`AB=${a} см, BC=${b} см, AC=${c} см. Какой угол ${v==="largest"?"наибольший":"наименьший"}?`,row.ang,["∠A","∠B","∠C"].filter(x=>x!==row.ang),`Стороне ${row.s}=${row.n} см противолежит <b>${row.ang}</b>.`,[a,b,c],pic());
+   }
+   let A=45,B=55,Cc=80;
+   for(let i=0;i<100;i++){let a=ri(31,83),b=ri(31,83),c=180-a-b;if(c>12&&a!==b&&a!==c&&b!==c){A=a;B=b;Cc=c;break;}}
+   const sorted=[{a:"A",n:A,s:"BC"},{a:"B",n:B,s:"AC"},{a:"C",n:Cc,s:"AB"}].sort((x,y)=>x.n-y.n);
+   if(v==="order"){
+    const ans=sorted.map(x=>x.s).join(" < "),all=["AB","AC","BC"],wrong=[];
+    for(const x of all)for(const y of all)for(const z of all)if(x!==y&&y!==z&&x!==z&&[x,y,z].join(" < ")!==ans)wrong.push([x,y,z].join(" < "));
+    return C(id,d,v,`∠A=${A}°, ∠B=${B}°. Расположи стороны △ABC по возрастанию.`,ans,wrong,`∠C=180−${A}−${B}=${Cc}°. По возрастанию углов: <b>${ans}</b>.`,[A,B],pic());
+   }
+   const row=v==="from_angles_max"?sorted[2]:sorted[0];
+   return C(id,d,v,`В △ABC ∠A=${A}°, ∠B=${B}°. Какая сторона ${v==="from_angles_max"?"наибольшая":"наименьшая"}?`,row.s,["AB","AC","BC"].filter(x=>x!==row.s),`∠C=${Cc}°. Углу ${row.a}=${row.n}° противолежит <b>${row.s}</b>.`,[A,B],pic());
+  }
+  return null;
+ }
+ makeG7Question=function(id,stageOverride=null){
+  const raw=rawCourseId(id),d=Math.max(0,Math.min(2,Number.isInteger(stageOverride)?stageOverride:activeDifficulty()));
+  if(!ids.has(raw))return prev(id,stageOverride);
+  const q=Q(raw,d);return q?gPolishQuestionObject(q):prev(id,stageOverride);
+ };
+})();
+</script>
+<script>
+(function g7AlgebraStage3(){
+ const originalModel=g7CommonFactorModel,originalGrouping=g7GroupingModel,originalQuestion=makeG7Question;
+ const pick=a=>a[ri(0,a.length-1)];
+ g7CommonFactorModel=function(level=0){
+  const d=Math.max(0,Math.min(2,level)),coef=pick(d===0?[2,3,4,5,6,7]:[4,6,8,9,10,12,15]),gx=d===0?ri(0,1):ri(1,3),gy=d===2?ri(0,2):0;
+  const g={coef,powers:{...(gx?{x:gx}:{}),...(gy?{y:gy}:{})}};
+  const primitive=pick([[2,3,5],[3,-4,5],[4,5,-7],[2,-5,7],[3,5,8],[5,-6,7],[7,8,-9]]);
+  let residual;
+  if(d===0){
+   const power=ri(1,2);
+   residual=[{coef:primitive[0],powers:{x:power}},{coef:primitive[1],powers:{}}];
+  }else if(d===1){
+   const top=ri(2,3);
+   residual=[{coef:primitive[0],powers:{x:top}},{coef:primitive[1],powers:{x:1}},{coef:primitive[2],powers:{}}];
+  }else{
+   const xPow=ri(1,3),yPow=ri(1,3);
+   residual=[{coef:primitive[0],powers:{x:xPow,y:yPow}},{coef:primitive[1],powers:{x:ri(1,3)}},{coef:primitive[2],powers:{y:ri(1,3)}}];
+  }
+  return {g,residual,original:g7PolynomialScale(residual,g)};
+ };
+ g7GroupingModel=function(level=0){
+  const d=Math.max(0,Math.min(2,level));
+  const ca=pick(d===0?[1,2]:[1,2,3,4]),cb=pick(d===0?[1,2,-1]:[-4,-3,-2,1,2,3,4]);
+  const cx=pick(d===0?[1,2]:[1,2,3,4]),cy=pick(d===0?[1,2,-1]:[-4,-3,-2,-1,1,2,3]);
+  const left=[{coef:ca,powers:{a:1}},{coef:cb,powers:{b:1}}],right=[{coef:cx,powers:{x:1}},{coef:cy,powers:{y:1}}];
+  const expanded=[];for(const a of left)for(const b of right)expanded.push(g7MonomialMul(a,b));
+  const sum=g7PolynomialNormalize(expanded);
+  return {left,right,expanded:sum,displayTerms:d===2?shuffleOptions(sum):sum};
+ };
+ function recDirect(raw,d){
+  const ratio=ri(2,4),rword=ratio===2?"2 раза":ratio===3?"3 раза":"4 раза",up=Math.random()<.5;
+  const scenario=pick([
+   {a:"При неизменной цене число купленных тетрадей",b:"общая стоимость покупки",desc:"При неизменной цене стоимость прямо пропорциональна количеству."},
+   {a:"При неизменной цене количество билетов",b:"стоимость билетов",desc:"Стоимость прямо пропорциональна количеству билетов."},
+   {a:"При одинаковой цене за метр длину купленной ткани",b:"стоимость ткани",desc:"Цена одного метра постоянна, стоимость прямо пропорциональна длине."},
+   {a:"При одной цене за коробку количество купленных коробок",b:"сумма покупки",desc:"Стоимость прямо пропорциональна числу коробок."}
+  ]);
+  const answer=(up?"увеличится":"уменьшится")+" в "+rword,opposite=(up?"уменьшится":"увеличится")+" в "+rword;
+  return g7StrictChoice(`${scenario.a} ${up?"увеличили":"уменьшили"} в ${rword}. Как изменится ${scenario.b}?`,answer,[opposite,"не изменится",up?"увеличится в 8 раз":"уменьшится в 8 раз"],`${scenario.desc} Следовательно, ${scenario.b} ${up?"увеличится":"уменьшится"} в ${rword}.`,g7QuestionSig(raw,d,"audit3_direct",[ratio,up?1:0,scenario.a]),{type:"g7Audit3Direct",ratio,up,expected:answer});
+ }
+ function recInverse(raw,d){
+  const ratio=ri(2,4),rword=ratio===2?"2 раза":ratio===3?"3 раза":"4 раза",up=Math.random()<.5;
+  const context=pick([
+   {a:"число рабочих",b:"время выполнения того же заказа",what:"одинаковая производительность каждого рабочего"},
+   {a:"число одинаковых насосов",b:"время перекачивания того же объёма воды",what:"одинаковая производительность каждого насоса"},
+   {a:"скорость движения",b:"время прохождения того же пути",what:"постоянное расстояние"}
+  ]);
+  const answer=(up?"уменьшится":"увеличится")+" в "+rword,opposite=(up?"увеличится":"уменьшится")+" в "+rword;
+  return g7StrictChoice(`Если ${context.a} ${up?"увеличить":"уменьшить"} в ${rword}, как изменится ${context.b}? Условия: ${context.what}.`,answer,[opposite,"не изменится",up?"уменьшится в 8 раз":"увеличится в 8 раз"],`При постоянном объёме работы или пути величины обратно пропорциональны: ${context.b} ${up?"уменьшится":"увеличится"} в ${rword}.`,g7QuestionSig(raw,d,"audit3_inverse",[ratio,up?1:0,context.a]),{type:"g7Audit3Inverse",ratio,up,expected:answer});
+ }
+ function groupChoice(raw,d){
+  const m=g7GroupingModel(d),right=m.right,correct=g7PolynomialHtml(right);
+  const swapped=[right[0],{coef:-right[1].coef,powers:{...right[1].powers}}],wrong=[
+   g7PolynomialHtml(m.left),
+   g7PolynomialHtml(swapped),
+   g7PolynomialHtml([{coef:right[0].coef+1,powers:{...right[0].powers}},{...right[1]}])
+  ];
+  return g7StrictChoice(`Разложение способом группировки: ${g7PolynomialSequenceHtml(m.displayTerms)}. Какая общая скобка получается при группировке?`,correct,wrong,`Записываем многочлен как ${g7FactorizationHtml([m.left,m.right])}. Общая скобка: ${correct}.`,g7QuestionSig(raw,d,"audit3_group_common",[g7PolynomialKey(m.expanded)]),{type:"g7Audit3Grouping",variant:"group_common",model:m,expected:correct});
+ }
+ function groupEvaluate(raw,d){
+  const m=g7GroupingModel(d),vals={a:ri(-3,3),b:ri(-3,3),x:ri(-3,3),y:ri(-3,3)};
+  const evaluate=poly=>(poly||[]).reduce((sum,term)=>sum+term.coef*Object.entries(term.powers||{}).reduce((p,[key,power])=>p*vals[key]**power,1),0);
+  const left=evaluate(m.left),right=evaluate(m.right),expected=left*right;
+  return g7Number(`Многочлен ${g7PolynomialSequenceHtml(m.displayTerms)} разложи группировкой и найди его значение при a=${vals.a}, b=${vals.b}, x=${vals.x}, y=${vals.y}.`,expected,`После группировки: ${g7FactorizationHtml([m.left,m.right])}. Значения скобок: ${left} и ${right}. Их произведение <b>${expected}</b>.`,g7QuestionSig(raw,d,"audit3_group_evaluate",[g7PolynomialKey(m.expanded),...Object.values(vals)]),{audit:{type:"g7Audit3GroupEval",variant:"group_evaluate",model:m,values:vals,expected}});
+ }
+ makeG7Question=function(id,stageOverride=null){
+  const raw=rawCourseId(id),d=Math.max(0,Math.min(2,Number.isInteger(stageOverride)?stageOverride:activeDifficulty()));
+  if(raw==="direct_inverse_proportion"&&d===0)return pick([0,1,2,3])<2?recDirect(raw,d):recInverse(raw,d);
+  if(raw==="factorization_grouping"&&d===0&&Math.random()<.33)return gPolishQuestionObject(groupChoice(raw,d));
+  if(raw==="factorization_grouping"&&d===1&&Math.random()<.28)return gPolishQuestionObject(groupChoice(raw,d));
+  if(raw==="factorization_grouping"&&d===2&&Math.random()<.35)return gPolishQuestionObject(groupEvaluate(raw,d));
+  return originalQuestion(id,stageOverride);
+ };
+})();
+</script>
 </body></html>
