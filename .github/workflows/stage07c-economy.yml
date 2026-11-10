@@ -1,0 +1,21 @@
+name: Stage07C shop collection and wealth baseline (read only)
+on:
+  push:
+    branches: [audit/postrelease-ui-stage07-20261110]
+    paths:
+      - audits/stage07c_economy_audit.cjs
+      - .github/workflows/stage07c-economy.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  shop:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Measure current catalog, mobile shop, inventory and leaderboard
+        run: node audits/stage07c_economy_audit.cjs
