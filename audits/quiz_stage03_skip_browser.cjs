@@ -15,7 +15,12 @@ const assert=require('node:assert/strict'),path=require('node:path'),{chromium}=
      id:blockSession.attemptId,itemId:blockSession.currentItem?.id,
      qid,text:q.text,correctText:String(q.correctText||correctChoicePlain(q)),
      correctHtml:q.correctHtml||'',ex:q.ex||'',draft:mk872ReadDraft()?.attemptId}));
-   await page.locator('#quizSkip').click();
+   await page.locator('#quizSkip').click({timeout:5000});
+   const dialog=await page.evaluate(()=>[...document.querySelectorAll('.mk872-training-dialog, [role="dialog"]')].map(el=>({text:el.textContent?.slice(0,380),buttons:[...el.querySelectorAll('button')].map(b=>b.textContent?.trim())})));
+   if(dialog.length){console.log('STAGE03_SKIP_CONFIRM_DIALOG',JSON.stringify({width,topic,dialog}));
+     const confirm=page.locator('.mk872-training-dialog button').filter({hasText:/Пропустить|Подтвердить|Да,|Пропускаю|Продолжить|Все равно/i}).last();
+     if(await confirm.count())await confirm.click({timeout:4000});
+   }
    const after=await page.evaluate(()=>({
      xp:state.xp,coins:state.coins,done:blockSession?.done,correct:blockSession?.correct,answered,
      question:q?.text,feedback:document.querySelector('#qfb')?.textContent||'',
@@ -23,7 +28,7 @@ const assert=require('node:assert/strict'),path=require('node:path'),{chromium}=
      skipVisible:!!document.querySelector('#quizSkip')?.offsetParent,
      currentItem:blockSession?.currentItem,
      draft:mk872ReadDraft()?.attemptId}));
-   const report={width,topic,before,after};reports.push(report);console.log('STAGE03_SKIP_OBSERVE',JSON.stringify(report));
+   const report={width,topic,before,after,dialog};reports.push(report);console.log('STAGE03_SKIP_OBSERVE',JSON.stringify(report));
    assert.equal(after.xp,before.xp,'Skip changed XP');
    assert.equal(after.coins,before.coins,'Skip changed coins');
   }
