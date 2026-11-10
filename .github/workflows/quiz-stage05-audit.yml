@@ -1,0 +1,54 @@
+name: Quiz stage05 grade-five audit
+on:
+  push:
+    branches: [fix/quiz-fractions-stage01-20261110]
+    paths:
+      - audits/quiz_stage05_probe.py
+      - audits/quiz_stage05_diversity_browser.cjs
+      - audits/quiz_stage05_fingerprint_browser.cjs
+      - audits/quiz_stage05_sessions_browser.cjs
+      - audits/quiz_stage05_fresh_browser.cjs
+      - audits/quiz_stage05_fix.py
+      - .github/workflows/quiz-stage05-audit.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - name: Locate grade-five catalog and generator pathways
+        run: python3 audits/quiz_stage05_probe.py
+      - name: Correct visible question identity and stage difficulty ramp
+        run: python3 audits/quiz_stage05_fix.py
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Quantify diversity for all grade-five topics and stages
+        run: node audits/quiz_stage05_diversity_browser.cjs
+      - name: Full question HTML, answer, and semantic-template fingerprint audit
+        run: node audits/quiz_stage05_fingerprint_browser.cjs
+      - name: Simulate 20 five-question sessions per topic and difficulty
+        run: node audits/quiz_stage05_sessions_browser.cjs
+      - name: Verify no exact repeats using real freshQuiz anti-repeat logic
+        run: node audits/quiz_stage05_fresh_browser.cjs
+      - name: Regress learning lifecycle and stages 01 through 04
+        run: |
+          node audits/quiz_stage01_fraction_browser.cjs
+          node audits/quiz_stage01_navigation_browser.cjs
+          node audits/quiz_stage02_input_browser.cjs
+          node audits/quiz_stage03_skip_browser.cjs
+          node audits/quiz_stage03_completion_browser.cjs
+          node audits/quiz_stage04_pet_browser.cjs
+      - name: Commit only validated HTML and PWA hash to working branch
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js
+          if ! git diff --cached --quiet; then
+            git commit -m "fix(g5): prevent visually identical repeat tasks and improve challenge ramp"
+            git push origin HEAD:fix/quiz-fractions-stage01-20261110
+          fi

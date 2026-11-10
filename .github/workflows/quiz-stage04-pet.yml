@@ -1,0 +1,45 @@
+name: Quiz stage04 pet overlay source probe
+on:
+  push:
+    branches: [fix/quiz-fractions-stage01-20261110]
+    paths:
+      - audits/quiz_stage04_probe.py
+      - audits/quiz_stage04_pet_browser.cjs
+      - audits/quiz_stage04_fix.py
+      - audits/quiz_stage03_skip_browser.cjs
+      - .github/workflows/quiz-stage04-pet.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect pet overlay and exit handlers
+        run: python3 audits/quiz_stage04_probe.py
+      - name: Apply viewer fix and refresh PWA integrity
+        run: python3 audits/quiz_stage04_fix.py
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Exercise full-screen pet close controls
+        run: node audits/quiz_stage04_pet_browser.cjs
+      - name: Regress training lifecycle and stages 01-03
+        run: |
+          node audits/quiz_stage01_fraction_browser.cjs
+          node audits/quiz_stage01_navigation_browser.cjs
+          node audits/quiz_stage02_input_browser.cjs
+          node audits/quiz_stage03_skip_browser.cjs
+          node audits/quiz_stage03_completion_browser.cjs
+      - name: Commit only validated HTML/PWA to working branch
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js
+          if ! git diff --cached --quiet; then
+            git commit -m "fix(pets): overlay close and Android Back preserve training"
+            git push origin HEAD:fix/quiz-fractions-stage01-20261110
+          fi

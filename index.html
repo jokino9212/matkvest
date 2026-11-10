@@ -11046,9 +11046,23 @@ function checkQuizInput(){
 
 function skipNormalQuiz(){
  if(!blockSession||!(["quiz","g1quiz","g2quiz","g3quiz","g5quiz","g6quiz","g7quiz","g8quiz"].includes(blockSession.kind))||answered||!blockSession.currentItem)return false;
- finishAttemptItem(false,false,{skipped:true,studentAnswer:"—"});
+ const answerText=correctChoicePlain(q);
+ const answerHtml=q?.correctHtml||(q?.choices?.find(c=>String(c.key)===String(q.ans))?.label)||esc(answerText);
+ const explanation=q?.ex||"";
+ finishAttemptItem(false,false,{skipped:true,studentAnswer:"—",correctAnswer:answerText,correctAnswerHtml:answerHtml,explanation});
  recordBlockItem(false);answered=true;save();
- if(blockSession.finished)finishBlock();else nextQ();
+ const feedback=document.getElementById("qfb");
+ if(feedback)feedback.innerHTML='⏭ Задание пропущено. Правильный ответ: <b>'+answerHtml+'</b>.'+(explanation?'<div class="quiz-skip-explanation">'+explanation+'</div>':'');
+ document.querySelectorAll("#qstage .answer,#qstage .quiz-input-wrap input,#qstage .quiz-input-wrap textarea").forEach(el=>{el.disabled=true});
+ const skip=document.getElementById("quizSkip"),check=document.getElementById("quizCheck"),next=document.getElementById("quizNext");
+ if(skip)skip.style.display="none";
+ if(check)check.style.display="none";
+ if(next){
+   next.style.display="inline-block";
+   next.classList.add("next-ready");
+   next.textContent=blockSession.finished?"Посмотреть результат →":"Следующий пример →";
+   next.onclick=blockSession.finished?finishBlock:nextQ;
+ }
  return true;
 }
 function nextQ(){
@@ -21397,6 +21411,7 @@ document.addEventListener('input',()=>mk872ScheduleSave(),true);
 document.addEventListener('change',()=>mk872ScheduleSave(),true);
 document.addEventListener('click',event=>{
  if(mk872Dialog)return;
+ if(event.target?.closest?.('#mk872AvatarViewer'))return;
  if(!mk872HasActiveLearning())return;
  if(event.target===overlay)return;
  if(mk872BlockActive()&&overlay.contains(event.target)){
@@ -22743,7 +22758,7 @@ makeG5Question=function(id){
  const pos=Math.max(0,Number(blockSession?.done)||0);
  const total=Math.max(3,Number(blockSession?.total)||5);
  const phase=Math.min(2,Math.floor(3*pos/total));
- const level=Math.min(2,Math.floor((stage+phase)/2));
+ const level=Math.min(2,Math.max(0,stage-1+phase));
  const mode=(pos+stage)%3;
  const qq=mk5ScoreVariant(topic,level,mode);
  if(!qq)throw new Error('Нет генератора для темы 5 класса '+topic);
@@ -22753,7 +22768,7 @@ makeG5Question=function(id){
  const promptKey=qq.text.includes('<svg')?`diagram_${mk5PromptHash(qq.text)}`:stripHtmlText(qq.text);
  // Difficulty is deliberately absent from identity: the *same visible task*
  // cannot be accepted twice just because it was generated at another tier.
- const sig=`g5:${raw}:${topic}:${qq.templateId}:${promptKey}:${String(qq.correct)}:${qq.choices.map(c=>academicHtmlPlain(c.label)).sort().join('~')}`;
+ const sig=`g5:${raw}:${topic}:${promptKey}:${String(qq.correct)}:${qq.choices.map(c=>academicHtmlPlain(c.label)).sort().join('~')}`;
  return {text:qq.text,ans:String(qq.correct),choices:qq.choices.map(c=>({label:c.label,key:String(c.key)})),ex:qq.explain,
   correctLabel:correctChoice.label,correctText:answerText,sourceTopicId:topic,templateId:qq.templateId,
   mk5Audit:{...(qq.mk5Audit||{}),level,phase,mode,stage,topic},sig};
@@ -32512,7 +32527,7 @@ window.G8_QA8_AUDIT={targets:RAW.slice(),levels:LENGTH.slice(),pools:Object.from
        r={...r,answerMode:'fraction',answerRat:parsed.rat,preferMixed:expectMixed,
          correctText:expectMixed?rationalPlain(parsed.rat,true):rationalPlain(parsed.rat,false),
          correctHtml:rationalHtml(parsed.rat,expectMixed),
-         stage18AnswerForm:{kind:expectMixed?'mixed':'improper'}};
+         stage18AnswerForm:(parsed.rat.d===1&&!/class=["'](?:frac|mixed)["']/.test(String(r.correctLabel||r.correctHtml||'')))?null:{kind:expectMixed?'mixed':'improper'}};
      }
    }
    return r;
@@ -34747,6 +34762,7 @@ if(mkV877CorruptProfiles){
  const title=document.getElementById('mk872ViewerTitle');
  const closeButton=popup.querySelector('.mk872-viewer-close');
  let previousFocus=null;
+ let pendingViewerPop=false;
  function select(node){
   if(!node?.closest||node.closest('#mk872AvatarViewer'))return null;
   const pet=node.closest('.pet-mini,.study-pet,.mk19g-pet-icon');
@@ -34807,6 +34823,9 @@ if(mkV877CorruptProfiles){
   previousFocus=document.activeElement;
   popup.classList.add('mk872-open');popup.setAttribute('aria-hidden','false');
   closeButton.focus({preventScroll:true});
+  if(!history.state?.__mk30PetViewer){
+   try{history.pushState({...history.state,__mk30PetViewer:true},'')}catch(e){}
+  }
  }
  function close(){
   if(!popup.classList.contains('mk872-open'))return;
@@ -34814,7 +34833,37 @@ if(mkV877CorruptProfiles){
   visual.replaceChildren();
   if(previousFocus?.isConnected)previousFocus.focus({preventScroll:true});
   previousFocus=null;
+  if(history.state?.__mk30PetViewer){
+   pendingViewerPop=true;
+   try{history.back()}catch(e){pendingViewerPop=false}
+  }
  }
+ // Capture on the zoom surface prevents old avatar handlers or training-exit
+ // handlers from treating a close/backdrop click as closing the learning modal.
+ popup.addEventListener('click',e=>{
+  if(e.target===popup||e.target===closeButton||closeButton.contains(e.target)){
+   e.preventDefault();e.stopImmediatePropagation();close();
+  }
+ },true);
+ // Browser/Android Back closes only zoom, never the underlying active attempt.
+ // Capturing popstate must run before the pre-existing route restoration handler.
+ window.addEventListener('popstate',e=>{
+  if(!popup.classList.contains('mk872-open')&&!pendingViewerPop)return;
+  e.stopImmediatePropagation();
+  pendingViewerPop=false;
+  if(popup.classList.contains('mk872-open'))close();
+ },true);
+ // Existing history handler was registered before this viewer. Its late-bound
+ // route function must not destroy the active quiz when consuming the zoom entry.
+ const previousRestoreRoute=mk854RestoreRoute;
+ mk854RestoreRoute=function(route){
+  if(popup.classList.contains('mk872-open')||pendingViewerPop){
+   pendingViewerPop=false;
+   if(popup.classList.contains('mk872-open'))close();
+   return;
+  }
+  return previousRestoreRoute.apply(this,arguments);
+ };
  window.addEventListener('click',e=>{
   if(popup.contains(e.target))return;
   const target=select(e.target);
@@ -35362,4 +35411,82 @@ if(mkV877CorruptProfiles){
  };
 })();
 </script>
+
+<script id="mk-stage02-fraction-input">
+/* Grade-5/6 fraction cells: per-field feedback and predictable keyboard progression. */
+(function(){
+"use strict";
+const fieldIds=["quizFracWhole","quizFracNum","quizFracDen"];
+const getField=id=>document.getElementById(id);
+function applicable(){
+  return typeof stage18UsesFractionBoxes==="function" && stage18UsesFractionBoxes(q);
+}
+function desiredParts(question){
+  if(!question)return null;
+  const tmp=document.createElement("div");
+  tmp.innerHTML=String(question.correctHtml||"");
+  const fraction=tmp.querySelector(".frac");
+  const wholeNode=tmp.querySelector(".mixed .whole");
+  if(fraction){
+    return {
+      quizFracWhole:wholeNode?String(wholeNode.textContent||"").trim():"",
+      quizFracNum:String(fraction.querySelector(".num")?.textContent||"").trim(),
+      quizFracDen:String(fraction.querySelector(".den")?.textContent||"").trim()
+    };
+  }
+  const text=String(question.correctText||"").trim();
+  if(/^[+-]?\d+$/.test(text))return {quizFracWhole:text,quizFracNum:"",quizFracDen:""};
+  return null;
+}
+function clearClasses(el){el?.classList.remove("good","bad")}
+function sameCell(a,b){
+  if(a===""||b==="")return a===b;
+  return /^[+-]?\d+$/.test(a)&&/^[+-]?\d+$/.test(b)?Number(a)===Number(b):a===b;
+}
+function markCells(){
+  if(!applicable()||answered)return;
+  const expected=desiredParts(q);
+  if(!expected)return;
+  for(const id of fieldIds){
+    const el=getField(id);if(!el)continue;
+    const got=String(el.value||"").trim(),target=String(expected[id]||"").trim();
+    clearClasses(el);
+    if(!got&&!target)continue;
+    el.classList.add(sameCell(got,target)?"good":"bad");
+  }
+}
+const previousCheck=checkQuizInput;
+checkQuizInput=function(){
+  const result=previousCheck.apply(this,arguments);
+  if(!answered&&applicable())markCells();
+  return result;
+};
+document.addEventListener("input",event=>{
+  const el=event.target;
+  if(!fieldIds.includes(el?.id)||!applicable())return;
+  clearClasses(el);
+  const expected=desiredParts(q),value=String(el.value||"").trim();
+  if(!expected||!value||!/^[+-]?\d+$/.test(value))return;
+  const next=el.id==="quizFracWhole"?"quizFracNum":el.id==="quizFracNum"?"quizFracDen":null;
+  if(!next)return;
+  const correct=String(expected[el.id]||"").replace(/^[+-]/,"");
+  const typed=value.replace(/^[+-]/,"");
+  if(correct&&typed.length>=correct.length)getField(next)?.focus();
+});
+document.addEventListener("keydown",event=>{
+  const el=event.target,idx=fieldIds.indexOf(el?.id);
+  if(idx<0||!applicable())return;
+  if(event.key==="Backspace"&&!String(el.value||"").length&&idx>0){
+    event.preventDefault();getField(fieldIds[idx-1])?.focus();return;
+  }
+  if((event.key==="Enter"||event.key==="ArrowRight")&&idx<2){
+    event.preventDefault();getField(fieldIds[idx+1])?.focus();
+  }
+  if(event.key==="ArrowLeft"&&idx>0&&el.selectionStart===0){
+    event.preventDefault();getField(fieldIds[idx-1])?.focus();
+  }
+});
+})();
+</script>
+
 </body></html>
