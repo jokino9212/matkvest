@@ -104,7 +104,7 @@ archive_js=r'''<script id="mk-ux107-legacy-pet-archive">
    const owned=Array.isArray(state.inventory?.pets)&&state.inventory.pets.includes(id);
    const sold=(state.saleHistory||[]).some(x=>x?.type==='pets'&&x.id===id);
    const label=e.ok?'Куплен ранее · продажа по сохранённой цене':owned?'Питомец сохранён · '+(e.reason||'Требуется подтверждение покупки'):sold?'Уже продан':'Историческая запись владения';
-   const action=e.ok?'<button type="button" class="mk872-col-action primary mk873-archive-action" onclick="mk865OpenSellDialog(\\'pets\\',\\''+id+'\\')">Продать питомца</button>':'';
+   const action=e.ok?`<button type="button" class="mk872-col-action primary mk873-archive-action" onclick="mk865OpenSellDialog('pets','${id}')">Продать питомца</button>`:'';
    return '<div class="mk872-col-card mk873-archive-card"><div class="mk872-col-art"><span class="shop-icon" style="height:100%;width:100%;margin:0">'+(item.icon||'🐾')+'</span></div><strong>'+esc(item.name)+'</strong><span class="mk872-col-meta">Ранее приобретённый питомец</span><div class="mk873-archive-price">'+esc(label)+'</div>'+action+'</div>';
   }).join('');
   return base+'<section class="mk-ux107-old-pets"><h3>🐾 История старых питомцев</h3><p>Ранее приобретённые питомцы остаются за учеником. Их можно продать по прежним правилам: 40% сразу или 80% после полезной тренировки. Сумма берётся из подтверждённой покупки, повторная продажа исключена. Новые питомцы не заменяют старые.</p><div class="mk872-col-grid">'+cards+'</div></section>';
