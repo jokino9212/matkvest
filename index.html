@@ -21411,6 +21411,7 @@ document.addEventListener('input',()=>mk872ScheduleSave(),true);
 document.addEventListener('change',()=>mk872ScheduleSave(),true);
 document.addEventListener('click',event=>{
  if(mk872Dialog)return;
+ if(event.target?.closest?.('#mk872AvatarViewer'))return;
  if(!mk872HasActiveLearning())return;
  if(event.target===overlay)return;
  if(mk872BlockActive()&&overlay.contains(event.target)){
@@ -34761,6 +34762,7 @@ if(mkV877CorruptProfiles){
  const title=document.getElementById('mk872ViewerTitle');
  const closeButton=popup.querySelector('.mk872-viewer-close');
  let previousFocus=null;
+ let pendingViewerPop=false;
  function select(node){
   if(!node?.closest||node.closest('#mk872AvatarViewer'))return null;
   const pet=node.closest('.pet-mini,.study-pet,.mk19g-pet-icon');
@@ -34821,6 +34823,9 @@ if(mkV877CorruptProfiles){
   previousFocus=document.activeElement;
   popup.classList.add('mk872-open');popup.setAttribute('aria-hidden','false');
   closeButton.focus({preventScroll:true});
+  if(!history.state?.__mk30PetViewer){
+   try{history.pushState({...history.state,__mk30PetViewer:true},'')}catch(e){}
+  }
  }
  function close(){
   if(!popup.classList.contains('mk872-open'))return;
@@ -34828,7 +34833,37 @@ if(mkV877CorruptProfiles){
   visual.replaceChildren();
   if(previousFocus?.isConnected)previousFocus.focus({preventScroll:true});
   previousFocus=null;
+  if(history.state?.__mk30PetViewer){
+   pendingViewerPop=true;
+   try{history.back()}catch(e){pendingViewerPop=false}
+  }
  }
+ // Capture on the zoom surface prevents old avatar handlers or training-exit
+ // handlers from treating a close/backdrop click as closing the learning modal.
+ popup.addEventListener('click',e=>{
+  if(e.target===popup||e.target===closeButton||closeButton.contains(e.target)){
+   e.preventDefault();e.stopImmediatePropagation();close();
+  }
+ },true);
+ // Browser/Android Back closes only zoom, never the underlying active attempt.
+ // Capturing popstate must run before the pre-existing route restoration handler.
+ window.addEventListener('popstate',e=>{
+  if(!popup.classList.contains('mk872-open')&&!pendingViewerPop)return;
+  e.stopImmediatePropagation();
+  pendingViewerPop=false;
+  if(popup.classList.contains('mk872-open'))close();
+ },true);
+ // Existing history handler was registered before this viewer. Its late-bound
+ // route function must not destroy the active quiz when consuming the zoom entry.
+ const previousRestoreRoute=mk854RestoreRoute;
+ mk854RestoreRoute=function(route){
+  if(popup.classList.contains('mk872-open')||pendingViewerPop){
+   pendingViewerPop=false;
+   if(popup.classList.contains('mk872-open'))close();
+   return;
+  }
+  return previousRestoreRoute.apply(this,arguments);
+ };
  window.addEventListener('click',e=>{
   if(popup.contains(e.target))return;
   const target=select(e.target);
