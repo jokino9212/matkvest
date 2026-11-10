@@ -32512,7 +32512,7 @@ window.G8_QA8_AUDIT={targets:RAW.slice(),levels:LENGTH.slice(),pools:Object.from
        r={...r,answerMode:'fraction',answerRat:parsed.rat,preferMixed:expectMixed,
          correctText:expectMixed?rationalPlain(parsed.rat,true):rationalPlain(parsed.rat,false),
          correctHtml:rationalHtml(parsed.rat,expectMixed),
-         stage18AnswerForm:{kind:expectMixed?'mixed':'improper'}};
+         stage18AnswerForm:(parsed.rat.d===1&&!/class=["'](?:frac|mixed)["']/.test(String(r.correctLabel||r.correctHtml||'')))?null:{kind:expectMixed?'mixed':'improper'}};
      }
    }
    return r;
