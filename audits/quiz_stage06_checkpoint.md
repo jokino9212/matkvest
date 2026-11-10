@@ -1,6 +1,6 @@
 # МатКвест — checkpoint этапа 06 (предрелизная интеграция, 10.11.2026)
 
-## Статус: В РАБОТЕ. Публикация НЕ проводилась
+## Статус: предрелизный интеграционный Gate PASS; draft PR открыт. Публикация НЕ проводилась
 - Репозиторий: `jokino9212/matkvest`.
 - Рабочая ветка: `fix/quiz-fractions-stage01-20261110`.
 - Production `main` (проверен перед этапом): `6810c922cf3fe7ae21ef7c181cfee4ab24909d2a` (v107).
@@ -9,7 +9,9 @@
 - Stage05 Gate: https://github.com/jokino9212/matkvest/actions/runs/42880273462 — PASS.
 - Сравнение `main...fix/quiz-fractions-stage01-20261110` перед запуском stage06: **100 коммитов впереди, 0 позади**, основные продуктовые изменения **`index.html` (+/-137 строк) и `sw.js` (+/-2 строки)**, остальные изменения — тесты, workflow, audit/checkpoint.
 - Новый независимый **read-only** workflow `.github/workflows/quiz-stage06-preflight.yml`; статический guard `audits/quiz_stage06_preflight.py`.
-- Первый интеграционный запуск: https://github.com/jokino9212/matkvest/actions/runs/42881161957. **На момент создания checkpoint статус ещё не подтверждён PASS**.
+- Интеграционный Gate: https://github.com/jokino9212/matkvest/actions/runs/42881161957 — **SUCCESS (все шаги)**. Включены реальные браузерные проверки всех пяти этапов, v107 30 питомцев, архивных продаж, миграции v106→v107, профилей, балансов и офлайн PWA.
+- Открыт **draft PR #29**: https://github.com/jokino9212/matkvest/pull/29 — ветка → `main`, без merge/deploy.
+- Review кода PR подтверждает, что из продуктовых файлов изменены только `index.html` (137 добавлений/удалений) и `sw.js` (обновление SHA256 в build hash), другие изменения — исходники тестов, workflows и checkpoints.
 - Это отдельная проверка: workflow имеет `permissions: contents: read`, не делает `git push`, не выполняет деплой и не меняет `main`.
 
 ## Полный состав preflight
@@ -26,7 +28,7 @@
 11. Артефакты визуальных проверок загружаются в GitHub Actions, если они созданы.
 
 ## Следующие действия
-- Прочитать результат https://github.com/jokino9212/matkvest/actions/runs/42881161957 и по шагам диагностировать любые FAIL. Исправлять только подтверждённые ошибки в рабочей ветке, не менять production.
-- Если PASS, проверить свежие SHA двух веток и соответствие build hash; создать итоговый release readiness report, PR/чек-лист деплоя.
-- Не объявлять опубликованным, пока production `main` реально не обновлён и сайт не проверен.
+- Preflight PASS; PR #29 создан как draft. Проверить актуальность `main`, рабочей ветки и PR непосредственно **перед** release merge. Не переносить устаревший SHA в production вслепую.
+- Подготовить финальный release readiness report и дождаться решения о слиянии/выпуске; в рамках текущего checkpoint **никакой merge или deploy не выполнялся**.
+- После разрешённого merge/deploy проверить действующий сайт и PWA на обычном мобильном устройстве, активной тренировке и всех новых/архивных питомцах. Только затем отметить Production PASS.
 - Перенос контекста: по «Продолжи» открыть этот файл и дорожную карту в GitHub и продолжить этап 06 с текущего результата Actions.
