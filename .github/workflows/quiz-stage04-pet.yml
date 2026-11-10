@@ -20,3 +20,6 @@ jobs:
       - uses: actions/checkout@v4
       - name: Inspect pet overlay and exit handlers
         run: python3 audits/quiz_stage04_probe.py
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Exercise full-screen pet close controls
+        run: node audits/quiz_stage04_pet_browser.cjs
