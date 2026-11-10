@@ -59,7 +59,7 @@ try{
  for(const topic of result.byTopic)for(const session of topic.stage){
   assert.deepEqual(session.levelByPosition,expected[session.stage].map(level=>[level]),
     'Bad stepwise difficulty '+topic.id+' stage '+session.stage);
-  assert(session.templateDistinct>=2,'Only one type of question '+topic.id+' stage '+session.stage);
+  assert(session.variants>=2,'Only one type of question '+topic.id+' stage '+session.stage);
  }
  assert.deepEqual(errors,[],'browser errors');
  console.log('STAGE05_REAL_SESSIONS_PASS',JSON.stringify({topics:result.topics,generated:result.generated,
