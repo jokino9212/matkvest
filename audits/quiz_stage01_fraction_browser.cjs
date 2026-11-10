@@ -65,6 +65,33 @@ const {chromium}=require('playwright');
   assert.equal(ui.exception,null,'checkQuizInput threw');
   assert.equal(ui.answered,true,'26/9 not accepted on actual check handler');
 
+  const series=await page.evaluate(()=>{
+    document.getElementById('stage01RealUICheck')?.remove();
+    const failures=[];let checks=0;
+    for(let i=0;i<90;i++){
+      const topic=i%2?'mixed_to_frac':'frac_to_mixed';
+      qid='g5:'+topic;q=makeG5Question(topic);answered=false;quizPenalty=false;
+      const sample=document.createElement('div');sample.innerHTML=q.correctHtml||q.correctLabel||'';
+      const fracNode=sample.querySelector('.frac'),wholeNode=sample.querySelector('.mixed .whole');
+      const n=fracNode?.querySelector('.num')?.textContent?.trim()||'';
+      const d=fracNode?.querySelector('.den')?.textContent?.trim()||'';
+      const w=wholeNode?.textContent?.trim()||'';
+      const panel=document.createElement('div');panel.id='stage01SerialPanel';panel.innerHTML=quizAnswerMarkup('startNextQuizQuestion','skipQuizQuestion');
+      document.body.appendChild(panel);
+      document.getElementById('quizFracWhole').value=w;
+      document.getElementById('quizFracNum').value=n;
+      document.getElementById('quizFracDen').value=d;
+      let err=null;try{checkQuizInput()}catch(e){err=String(e?.stack||e)}
+      checks++;
+      if(!answered||err)failures.push({i:i+1,topic,qid,text:q.text,correct:q.correctText,w,n,d,err,feedback:document.getElementById('qfb')?.textContent});
+      panel.remove();
+    }
+    return {checks,failures:failures.slice(0,12),failureCount:failures.length};
+  });
+  console.log('STAGE01_SERIAL_REAL_UI',JSON.stringify(series));
+  assert.equal(series.failureCount,0,'Serial every-third-check regression '+JSON.stringify(series.failures.slice(0,3)));
+
+
   assert.equal(errors.length,0,'Runtime page errors: '+errors.slice(0,5).join('; '));
   assert.equal(result.generatedFailureCount,0,'Generated fraction failures: '+JSON.stringify(result.generatedFailures.slice(0,3)));
   assert.equal(result.failureCount,0,'Incorrect fraction grading: '+JSON.stringify(result.failures.slice(0,3)));
