@@ -4,7 +4,7 @@ const assert=require('node:assert/strict'),path=require('node:path'),{chromium}=
  const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
  try{
   const cases=[];
-  for(const width of [390,1280]){
+  for(const width of [320,390,768,1280]){
    const ctx=await browser.newContext({viewport:{width,height:840},isMobile:width<500,hasTouch:width<500});
    const page=await ctx.newPage();
    await page.goto('file://'+path.resolve('index.html'),{waitUntil:'domcontentloaded'});
@@ -20,6 +20,7 @@ const assert=require('node:assert/strict'),path=require('node:path'),{chromium}=
    const focus=await page.evaluate(()=>({id:document.activeElement?.id,
      values:['quizFracWhole','quizFracNum','quizFracDen'].map(x=>document.getElementById(x)?.value)}));
    await page.locator('#quizFracNum').fill('8');
+   const numeratorFocus=await page.evaluate(()=>document.activeElement?.id);
    await page.locator('#quizFracDen').fill('11');
    await page.locator('#quizCheck').click();
    const wrong=await page.evaluate(()=>({
@@ -31,13 +32,14 @@ const assert=require('node:assert/strict'),path=require('node:path'),{chromium}=
    const backspace=await page.evaluate(()=>document.activeElement?.id);
    await page.locator('#quizFracNum').press('Enter');
    const enter=await page.evaluate(()=>document.activeElement?.id);
-   const sample={width,focus,wrong,backspace,enter};cases.push(sample);
+   const sample={width,focus,numeratorFocus,wrong,backspace,enter};cases.push(sample);
    console.log('STAGE02_BASELINE',JSON.stringify(sample));
    await ctx.close();
   }
   assert(cases.every(x=>!x.wrong.answered),'Incorrect denominator unexpectedly accepted');
   for(const sample of cases){
    assert.equal(sample.focus.id,'quizFracNum','Whole part did not move focus to numerator');
+   assert.equal(sample.numeratorFocus,'quizFracDen','Numerator did not move focus to denominator');
    assert.deepEqual(sample.wrong.classes.map(x=>x.cls.includes('good')?'good':x.cls.includes('bad')?'bad':'neutral'),['good','good','bad'],
      'Individual fraction cells do not distinguish correct from incorrect digits');
    assert.equal(sample.backspace,'quizFracNum','Backspace on empty denominator did not return to numerator');
