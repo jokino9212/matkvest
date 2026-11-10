@@ -47,6 +47,24 @@ const {chromium}=require('playwright');
     return {generatedTotal,notFraction,generatedFailures:generatedFailures.slice(0,12),generatedFailureCount:generatedFailures.length,generatedSamples,parseDirect:parseRationalInput('26/9'),parseMixed:parseRationalInput('2 8/9'),parseBoxes:stage18ParseFractionFields({whole:'2',numerator:'8',denominator:'9'}),usesBoxes:stage18UsesFractionBoxes({answerMode:'fraction'}),total,failures:failures.slice(0,30),failureCount:failures.length,samples};
   });
   console.log('STAGE01_BROWSER_RESULT',JSON.stringify(result));
+  const ui=await page.evaluate(()=>{
+    qid='g5:frac_to_mixed';
+    q={...makeG5Question('frac_to_mixed'),text:'Выдели целую часть: '+frac(26,9),answerMode:'fraction',answerRat:rational(26,9),
+       correctText:'2 8/9',correctHtml:mixed(2,8,9),stage18AnswerForm:{kind:'mixed'},requireReduced:false,ex:'26 : 9 = 2 (ост. 8).'};
+    answered=false;quizPenalty=false;
+    const panel=document.createElement('div');panel.id='stage01RealUICheck';panel.innerHTML=quizAnswerMarkup('startNextQuizQuestion','skipQuizQuestion');document.body.appendChild(panel);
+    const fields=stage18FractionFields();const ids=['quizFracWhole','quizFracNum','quizFracDen'];
+    const vals=['2','8','9'];ids.forEach((id,i)=>document.getElementById(id).value=vals[i]);
+    const before=quizInputEvaluation(q,stage18FractionFields());
+    let exception=null;try{checkQuizInput()}catch(e){exception=String(e?.stack||e)}
+    return {qid,form:q.stage18AnswerForm,fields:stage18FractionFields(),before,answered,exception,
+      feedback:document.getElementById('qfb')?.textContent,fieldClasses:ids.map(id=>document.getElementById(id)?.className)};
+  });
+  console.log('STAGE01_REAL_UI_26_OVER_9',JSON.stringify(ui));
+  assert.equal(ui.before.ok,true,'26/9 failed pre-check');
+  assert.equal(ui.exception,null,'checkQuizInput threw');
+  assert.equal(ui.answered,true,'26/9 not accepted on actual check handler');
+
   assert.equal(errors.length,0,'Runtime page errors: '+errors.slice(0,5).join('; '));
   assert.equal(result.generatedFailureCount,0,'Generated fraction failures: '+JSON.stringify(result.generatedFailures.slice(0,3)));
   assert.equal(result.failureCount,0,'Incorrect fraction grading: '+JSON.stringify(result.failures.slice(0,3)));
