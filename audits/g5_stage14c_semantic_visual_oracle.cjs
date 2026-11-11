@@ -90,7 +90,7 @@ function independent(q){
  let checked=0;const matched=new Map(),skipped=new Map(),faults=[],unhandled=new Map(),realMissingExamples=new Map();
  for(const q of rows){
   const key=q.topic+'::'+q.template;
-  if(!/^(angles::angle_protractor|frac_shapes::shape_|frac_types::|powers::|frac_parts::parts_complement|frac_ray::ray_shift_fraction|dec_add::decimal_add_context_three|dec_sub::decimal_sub_context_three|units::unit_direct|frac_read::read_from_words)/.test(key))continue;
+  if(!/^(angles::angle_protractor|frac_shapes::shape_|frac_types::|powers::|frac_parts::parts_complement|frac_ray::ray_shift_fraction|dec_add::decimal_add_context_three|dec_sub::decimal_sub_context_three|units::unit_direct|frac_read::read_(?:from_words|to_words)|percent_whole::percent_restore|dec_sub::decimal_sub_context)/.test(key))continue;
   let exp;
   if(key==='angles::angle_protractor'){
    const match=q.html.match(/<line\s+x1="([^"]+)"\s+y1="([^"]+)"\s+x2="([^"]+)"\s+y2="([^"]+)"\s+class="g5-protractor-ray"/);
@@ -155,6 +155,21 @@ function independent(q){
    }
    else if(k.startsWith('read_from_words_')){
     const m=t.match(/«([^»]+)»/);if(m){const a=m[1].split(/\s+/);if(W[a[0]]&&D[a[1]])exp=numeric(W[a[0]]/D[a[1]])}
+   }
+   else if(k==='read_to_words'&&f.length){
+    const [n,d]=f[0].split('/').map(Number);
+    const numerWords={1:'одна',2:'две',3:'три',4:'четыре',5:'пять',6:'шесть',7:'семь',8:'восемь',9:'девять',10:'десять',11:'одиннадцать',12:'двенадцать'};
+    const singular={2:'вторая',3:'третья',4:'четвёртая',5:'пятая',6:'шестая',7:'седьмая',8:'восьмая',9:'девятая',10:'десятая',11:'одиннадцатая',12:'двенадцатая'};
+    const plural={2:'вторых',3:'третьих',4:'четвёртых',5:'пятых',6:'шестых',7:'седьмых',8:'восьмых',9:'девятых',10:'десятых',11:'одиннадцатых',12:'двенадцатых'};
+    if(numerWords[n]&&(n===1?singular[d]:plural[d]))exp=word(numerWords[n]+' '+(n===1?singular[d]:plural[d]));
+   }
+   else if(k.startsWith('percent_restore')){
+    const m=t.match(/(\d+(?:,\d+)?)%[^\d]+?(\d+(?:,\d+)?)/);
+    if(m)exp=numeric(Number(m[2].replace(',','.'))*100/Number(m[1].replace(',','.')));
+   }
+   else if(k==='decimal_sub_context'){
+    const m=t.match(/Было\s+(\d+(?:,\d+)?)\s+л\s+сока\.\s+Выпили\s+(\d+(?:,\d+)?)\s+л/);
+    if(m)exp=numeric(Number(m[1].replace(',','.'))-Number(m[2].replace(',','.')));
    }
   }
   if(!exp){unhandled.set(key,(unhandled.get(key)||0)+1);if(!realMissingExamples.has(key))realMissingExamples.set(key,{key,text:q.text,answer:q.answer,choices:q.choices});continue}
