@@ -4,6 +4,7 @@ on:
     branches: [audit/g5-math-content-stage14-20261111]
     paths:
       - audits/g5_stage14b_math_oracle.cjs
+      - audits/g5_stage14b_numerator_disambiguation.py
       - .github/workflows/quiz-stage14b-math-oracle.yml
   workflow_dispatch:
 permissions:
@@ -16,6 +17,8 @@ jobs:
       image: mcr.microsoft.com/playwright:v1.56.1-noble
     steps:
       - uses: actions/checkout@v4
+      - name: Apply precise denominator in mixed numerator prompts
+        run: python3 audits/g5_stage14b_numerator_disambiguation.py
       - run: npm install --no-save --no-package-lock playwright@1.56.1
       - name: Independently recompute answers from question text and rank gaps
         run: timeout 900s node audits/g5_stage14b_math_oracle.cjs
