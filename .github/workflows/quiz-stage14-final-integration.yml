@@ -85,3 +85,5 @@ jobs:
         run: |
           timeout 220s node audits/stage21_training_keyboard_audit.cjs
           timeout 240s node audits/stage27_compact_mobile_browser.cjs
+
+# Recheck strict union of stage14B and stage14C semantic templates after rare decimal context coverage.
