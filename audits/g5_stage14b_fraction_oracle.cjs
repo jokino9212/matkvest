@@ -64,7 +64,7 @@ const mathOracle=x=>{
   else {expected=fr[0];format='mixed'}
  }
  if(t==='mixed_to_frac'&&ns.length>=1){
-  if(k==='mixed_numerator')expected=rat(ns[0][0]);
+  if(k==='mixed_numerator'){const m=text.match(/(\d+)\s+(\d+)\/(\d+)/);if(m)expected=rat(BigInt(m[1])*BigInt(m[3])+BigInt(m[2]))}
   else {expected=ns[0];format='improper'}
  }
  if(t==='frac_reduce'&&fr.length>=1){
@@ -116,13 +116,13 @@ const mathOracle=x=>{
  }
  if(t==='frac_ray'){
   if(k==='ray_count_ticks'&&fr.length)expected=rat(fr[0][0]); // denominator is unit step; tick index equals numerator
-  if(k==='ray_steps'&&ns.length>=2)expected=div(ns[1],ns[0]);
-  if(k==='ray_beyond_one'&&ns.length>=2)expected=div(ns[1],ns[0]);
-  if(k==='ray_shift_fraction'&&fr.length>=2)expected=plus(fr[0],times(ns[2],fr[1]));
+  if(k==='ray_steps'){const m=text.match(/сделали (\d+) равных шагов.*после (\d+)-го/);if(m)expected=rat(m[2],m[1])}
+  if(k==='ray_beyond_one'){const m=text.match(/разделили на (\d+) частей.*на (\d+)-й/);if(m)expected=rat(m[2],m[1])}
+  if(k==='ray_shift_fraction'&&fr.length>=2)expected=plus(fr[0],times(ns[1],fr[1]));
  }
  if(!expected&&!format)return {check:false,reason:'unsupported-template'};
  if(expected&&!C)return {check:false,reason:'unparseable-answer'};
- const ok=format!==null?an.trim()===format:eq(expected,C);
+ const ok=format==='mixed'?/^\d+\s+\d+\/\d+$/.test(an)&&eq(expected,C):format==='improper'?/^\d+\/\d+$/.test(an)&&eq(expected,C):format!==null?an.trim()===format:eq(expected,C);
  return {check:true,ok,expected:format??toString(expected)};
 };
 (async()=>{
