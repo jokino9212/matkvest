@@ -66,9 +66,9 @@ const oracle=q=>{
  }
  if(t==='dec_place'&&id==='decimal_digits_count'){const m=x.match(/\d+,(\d+)/);if(m)expected=rat(m[1].length)}
  if(t==='dec_round'){
-  const m=x.match(/Округли число (\d+),(\d+) до (целых|десятых|сотых)/);
+  const m=x.match(/Округли число (\d+)(?:,(\d+))? до (целых|десятых|сотых)/);
   if(m){
-   const place={целых:0,десятых:1,сотых:2}[m[3]],digits=m[2],value=BigInt(m[1]+digits);
+   const place={целых:0,десятых:1,сотых:2}[m[3]],digits=m[2]||'',value=BigInt(m[1]+digits);
    const scale=10n**BigInt(digits.length),target=10n**BigInt(place);
    expected=rat((value*target*2n+scale)/(2n*scale),target);
   }
