@@ -13,7 +13,7 @@ const targets=new Set(['angle_protractor','shape_radius_difference','power_in_ex
  if(!out[key])out[key]=[];
  if(out[key].length<3){
   const el=document.createElement('div');el.innerHTML=q.text||'';
-  out[key].push({text:stripHtmlText(q.text||''),html:(q.text||'').slice(0,1700),answer:String(q.correctText||''),ex:stripHtmlText(q.ex||''),template:q.templateId,stage});
+  out[key].push({text:stripHtmlText(q.text||''),html:(q.text||'').slice(0,7500),answer:String(q.correctText||''),ex:stripHtmlText(q.ex||''),template:q.templateId,stage});
  }}
  }
  return {out,seen};
