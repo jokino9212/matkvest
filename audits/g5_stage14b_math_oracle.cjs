@@ -71,10 +71,10 @@ function expected(q){
  if(k==='improper_whole_part')return mk(integer(Math.floor(take(0)/take(1))));
  if(k.startsWith('improper_to_mixed'))return mk(frac(f[0]));
  if(k.startsWith('mixed_to_improper'))return mk(frac(mixed[0]));
- if(k==='mixed_numerator'){const v=plain(mixed[0]);return mk(integer(v.n))}
+ if(k==='mixed_numerator'){const m=mixed[0].match(/(\d+)\s+(\d+)\/(\d+)/);return mk(integer(Number(m[1])*Number(m[3])+Number(m[2])))}
  if(k==='equal_fraction')return mk(frac(f[0]));
- if(k==='equal_missing_numerator'){const [a,b]=f.map(frac);return mk(integer(a.n*b.d/a.d))}
- if(k==='equal_missing_denominator'){const a=frac(f[0]);const num=take(2);return mk(rat(num*a.d,a.n))}
+ if(k==='equal_missing_numerator'){const a=frac(f[0]);const den=t.match(/=\s*\?\/(\d+)/)?.[1];if(den)return mk(rat(a.n*bg(den),a.d))}
+ if(k==='equal_missing_denominator'){const a=frac(f[0]);const num=t.match(/=\s*(\d+)\/\?/)?.[1];if(num)return mk(rat(bg(num)*a.d,a.n))}
  if(k==='reduce_fraction'||k==='common_fraction')return mk(frac(f[0]));
  if(k==='reduce_gcd'){const [a,b]=f[0].split('/');return mk(integer(gcd(bg(a),bg(b))))}
  if(k==='reduce_new_numerator')return mk(integer(frac(f[0]).n));
@@ -91,13 +91,14 @@ function expected(q){
  if(k==='decimal_digit'){const m=t.match(/числе ([\d,]+) .*разряде (десятых|сотых|тысячных)/);if(m){const d=m[1].split(',')[1]||'',idx={десятых:0,сотых:1,тысячных:2}[m[2]];return mk(integer(Number(d[idx]||0)))}}
  if(k==='decimal_digits_count'){const m=t.match(/дроби ([\d,]+)/);if(m)return mk(integer((m[1].split(',')[1]||'').length))}
  if(k==='decimal_replace_digit'){const m=t.match(/числе ([\d,]+) цифру (десятых|сотых|тысячных) заменили на (\d+)/);if(m){const [w,d='']=m[1].split(',');const idx={десятых:0,сотых:1,тысячных:2}[m[2]],a=d.split('');a[idx]=m[3];return mk(plain(w+'.'+a.join('')))}}
- if(k==='decimal_compare_sign'||k==='decimal_compare_zeroes'){const a=plain(t.match(/\d+,\d+/g)[0]),b=plain(t.match(/\d+,\d+/g)[1]);return ss(a.n*b.d>b.n*a.d?'>':a.n*b.d<b.n*a.d?'<':'=')}
+ if(k==='decimal_compare_sign'||k==='decimal_compare_zeroes'){const mm=t.match(/\d+(?:,\d+)?/g)||[];const a=plain(mm[0]),b=plain(mm[1]);return ss(a.n*b.d>b.n*a.d?'>':a.n*b.d<b.n*a.d?'<':'=')}
  if(k==='decimal_max_three'){const arr=(t.match(/\d+,\d+/g)||[]).map(plain);return mk(arr.reduce((a,b)=>a.n*b.d>b.n*a.d?a:b))}
- if(k.startsWith('decimal_round')){const a=plain(t.match(/\d+,\d+/)[0]);const dp=t.includes('до целых')?0:t.includes('до десятых')?1:2;const p=10n**BigInt(dp);const rounded=(2n*a.n*p+a.d)/(2n*a.d);return mk(rat(rounded,p))}
+ if(k.startsWith('decimal_round')){const a=plain(t.match(/\d+(?:,\d+)?/)[0]);const dp=t.includes('до целых')?0:t.includes('до десятых')?1:2;const p=10n**BigInt(dp);const rounded=(2n*a.n*p+a.d)/(2n*a.d);return mk(rat(rounded,p))}
  if(k.startsWith('decimal_shift')){const m=t.match(/([\d,]+)\s*[·:]\s*(10|100|1000)(?:\s*[·:]\s*(10|100|1000))?/);if(m){const x=plain(m[1]);const result=m[0].includes('·')?mul(x,integer(m[3]?Number(m[2])*Number(m[3]):Number(m[2]))):div(x,integer(m[3]?Number(m[2])*Number(m[3]):Number(m[2])));return mk(result)}
   const inv=t.match(/(?:умножили на|разделили на) (\d+) и получили ([\d,]+)/);if(inv){const val=plain(inv[2]);return mk(t.includes('умножили')?div(val,integer(inv[1])):mul(val,integer(inv[1])))}
  }
- if(k==='convert_dec_to_fraction'||k==='convert_by_denominator')return mk(plain(t.match(/\d+,\d+/)[0]));
+ if(k==='convert_dec_to_fraction')return mk(plain(t.match(/\d+,\d+/)[0]));
+ if(k==='convert_by_denominator')return mk(frac(f[0]));
  if(k==='convert_fraction_to_dec')return mk(frac(f[0]));
  if(k==='percent_of_number')return mk(rat(take(0)*take(1),100));
  if(k==='percent_discount_amount')return mk(rat(take(0)*take(1),100));
@@ -142,6 +143,8 @@ try{
   independentlyCheckedTopics:covered.size,independentlyCheckedTemplates:checkedTemplates.size,
   unhandledTemplates:Object.keys(unsupported).length,unhandled:Object.entries(unsupported).sort((a,b)=>b[1]-a[1]).slice(0,120),
   errorGroups:Object.entries(mistakes.reduce((acc,x)=>(acc[x.topic+'::'+x.tpl]=(acc[x.topic+'::'+x.tpl]||0)+1,acc),{})).sort((a,b)=>b[1]-a[1]),
+  errorGroupExamples:[...new Map(mistakes.map(x=>[x.topic+'::'+x.tpl,x])).values()].map(x=>({topic:x.topic,tpl:x.tpl,text:x.text,answer:x.answer,ex:x.ex,expected:x.expect})),
+  parsingGroupExamples:[...new Map(parsing.map(x=>[x.topic+'::'+x.tpl,x])).values()].map(x=>({topic:x.topic,tpl:x.tpl,text:x.text,error:x.error})),
   parsingGroups:Object.entries(parsing.reduce((acc,x)=>(acc[x.topic+'::'+x.tpl]=(acc[x.topic+'::'+x.tpl]||0)+1,acc),{})).sort((a,b)=>b[1]-a[1]),
   generationFaults:batch.faults.slice(0,10),parsingFailures:parsing.slice(0,30),parsingCount:parsing.length,
   arithmeticErrors:mistakes.slice(0,40),arithmeticErrorCount:mistakes.length,errors};
