@@ -110,7 +110,7 @@ const oracle=q=>{
   if(k==='unit_mixed_length'&&ns.length>=2)expected=plus(times(n(0),rat(100)),n(1));
   if(k==='unit_mixed_time'&&ns.length>=2)expected=plus(times(n(0),rat(60)),n(1));
   if(k==='unit_direct'){
-   const m=text.match(/^(\d+)\s*(км|м|см|мм|т|ц|кг|г|ч|мин|с)\s*=\s*\?\s*(км|м|см|мм|т|ц|кг|г|ч|мин|с)/);
+   const m=text.match(/^(\d+)\s*(км|мин|см|мм|кг|ч|т|ц|г|м|с)\s*=\s*\?\s*(км|мин|см|мм|кг|ч|т|ц|г|м|с)(?=\s|$)/);
    const factors={'км':1000000n,'м':1000n,'см':10n,'мм':1n,'т':1000000n,'ц':100000n,'кг':1000n,'г':1n,'ч':3600n,'мин':60n,'с':1n};
    if(m)expected=rat(BigInt(m[1])*factors[m[2]],factors[m[3]]);
   }
@@ -144,20 +144,36 @@ const oracle=q=>{
   }
  }
  if(topic==='frac_types'){
-  if(k==='s18c_types_0'||k==='s18c_types_1'){
-   const count=fractions.filter(f=>{const [a,b]=f.split('/').map(BigInt);return k==='s18c_types_0'?a<b:a>=b}).length;
-   expected=rat(count);
+  const isProper=f=>{const [n,d]=f.split('/').map(BigInt);return n<d};
+  if(/^Сколько правильных дробей среди/.test(text))expected=rat(fractions.filter(isProper).length);
+  else if(/^Сколько неправильных дробей среди/.test(text))expected=rat(fractions.filter(f=>!isProper(f)).length);
+  else if(/Из дробей со знаменателем (\d+) выбери правильную/.test(text)){
+   const m=text.match(/знаменателем (\d+)/),ans=q.answer.match(/^(\d+)\/(\d+)$/);
+   return {check:true,ok:!!ans&&BigInt(ans[2])===BigInt(m[1])&&BigInt(ans[1])<BigInt(ans[2]),expected:'proper fraction with denominator '+m[1]};
   }
-  if(k==='s18c_types_2'&&fractions.length){const [a,b]=fractions[0].split('/').map(BigInt);expected=rat(b-a)}
-  if(k==='s18c_types_3'&&ns.length)expected=minus(n(0),rat(1));
-  if(k==='s18c_types_5'&&ns.length)expected=n(0);
-  if(k==='s18c_types_4'){
+  else if(/Из дробей со знаменателем (\d+) найди ту, которая больше единицы/.test(text)){
+   const m=text.match(/знаменателем (\d+)/),ans=q.answer.match(/^(\d+)\/(\d+)$/);
+   return {check:true,ok:!!ans&&BigInt(ans[2])===BigInt(m[1])&&BigInt(ans[1])>BigInt(ans[2]),expected:'improper fraction greater than 1 with denominator '+m[1]};
+  }
+  else if(/Числитель дроби .*увеличивают на натуральное число/.test(text)||/Дробь .* правильная.*На сколько минимум/.test(text)){
+   if(fractions.length){const [u,d]=fractions[0].split('/').map(BigInt);expected=rat(d-u)}
+  }
+  else if(/^Если знаменатель дроби равен/.test(text)&&ns.length)expected=minus(n(0),rat(1));
+  else if(/^У неправильной дроби числитель/.test(text)&&ns.length)expected=n(0);
+  else if(/^В какой паре обе дроби неправильные/.test(text)){
    const choices=q.choices||[],valid=choices.filter(o=>{
-    const fr=o.label.match(/\d+\/\d+/g)||[];
-    return fr.length===2&&fr.every(f=>{const [a,b]=f.split('/').map(BigInt);return a>=b});
+    const fs=o.label.match(/\d+\/\d+/g)||[];
+    return fs.length===2&&fs.every(f=>!isProper(f));
    });
    if(valid.length!==1)return {check:true,ok:false,expected:'exactly one pair of improper fractions'};
    label=valid[0].label;
+  }
+  else if(/^Какая из перечисленных дробей правильная/.test(text)){
+   const a=q.answer.match(/^(\d+)\/(\d+)$/);return {check:true,ok:!!a&&BigInt(a[1])<BigInt(a[2]),expected:'proper fraction'};
+  }
+  else if(/наименьшее натуральное число в числителе сделает дробь неправильной/.test(text)&&ns.length)expected=n(0);
+  else if(/Определи вид дроби/.test(text)&&fractions.length){
+   label=isProper(fractions[0])?'правильная':'неправильная';
   }
  }
  if(topic==='frac_word'){
@@ -185,19 +201,19 @@ const oracle=q=>{
    }
    return {topics:ids.length,items,problems};
   });
-  const issues=[],unsupported={},verified={};
+  const issues=[],unsupported={},unsupportedExamples={},verified={};
   for(const q of samples.items){
    try{
     const x=oracle(q);
-    if(!x.check){const key=q.topic+'/'+q.template;unsupported[key]=(unsupported[key]||0)+1}
+    if(!x.check){const key=q.topic+'/'+q.template;unsupported[key]=(unsupported[key]||0)+1;if(!unsupportedExamples[key])unsupportedExamples[key]={question:q.text,answer:q.answer}}
     else{verified[q.topic]=(verified[q.topic]||0)+1;if(!x.ok)issues.push({topic:q.topic,stage:q.stage,template:q.template,question:q.text,actual:q.answer,expected:x.expected})}
    }catch(e){issues.push({topic:q.topic,stage:q.stage,template:q.template,question:q.text,error:String(e)})}
   }
   issues.push(...samples.problems,...errors.map(e=>({topic:'browser',error:e})));
   const grouped={};for(const x of issues){const id=x.topic+'/'+x.template;const a=grouped[id]||(grouped[id]={count:0,examples:[]});a.count++;if(a.examples.length<2)a.examples.push(x)}
-  const report={topics:samples.topics,sampled:samples.items.length,verified:Object.values(verified).reduce((a,b)=>a+b,0),verifiedByTopic:verified,unsupported,problemCount:issues.length,grouped,problems:issues.slice(0,40)};
+  const report={topics:samples.topics,sampled:samples.items.length,verified:Object.values(verified).reduce((a,b)=>a+b,0),verifiedByTopic:verified,unsupported,unsupportedExamples,problemCount:issues.length,grouped,problems:issues.slice(0,40)};
   fs.mkdirSync('audits/out',{recursive:true});fs.writeFileSync('audits/out/g5_stage14b_core_oracle.json',JSON.stringify(report,null,2));
-  console.log('STAGE14B_CORE_AUDIT',JSON.stringify({...report,unsupported:Object.entries(unsupported).slice(0,30),problems:report.problems.slice(0,8)}));
+  console.log('STAGE14B_CORE_AUDIT',JSON.stringify({...report,unsupported:Object.entries(unsupported).slice(0,30),unsupportedExamples:Object.entries(unsupportedExamples).slice(0,15),problems:report.problems.slice(0,8)}));
   assert.equal(report.sampled,16*3*40*5);assert.equal(report.problemCount,0,'Independent natural and geometry math mismatch');
   assert(report.verified>8500,'Independent natural/math coverage too small');
   console.log('STAGE14B_CORE_ORACLE_PASS',JSON.stringify({topics:report.topics,sampled:report.sampled,verified:report.verified,problems:report.problemCount}));
