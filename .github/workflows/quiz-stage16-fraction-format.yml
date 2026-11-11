@@ -1,0 +1,28 @@
+name: Stage16 canonical math answer formatting audit
+on:
+  push:
+    branches: [audit/g5-pedagogy-stage16-20261111]
+    paths:
+      - audits/g5_stage16_fraction_format.cjs
+      - .github/workflows/quiz-stage16-fraction-format.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Inspect 27825 actual fraction-answer formats
+        run: timeout 600s node audits/g5_stage16_fraction_format.cjs
+      - name: Store pedagogy audit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: g5-stage16-fraction-format
+          path: audits/out/g5_stage16_fraction_display.json
+          if-no-files-found: warn
