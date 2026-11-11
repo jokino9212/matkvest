@@ -22559,7 +22559,7 @@ function mk5Fractions(id,tier,mode){
  }
  case 'mixed_to_frac':{
   den=mk5FracDen(tier);const whole=ri(1,3+tier*3),rem=ri(1,den-1);numer=whole*den+rem;
-  if(mode===1)return mk5Num(`Какой числитель будет у неправильной дроби, равной ${mk5Mixed(whole,rem,den)}?`,numer,`${whole}·${den}+${rem}=${numer}.`,'mixed_numerator',[whole+rem,whole*den]);
+  if(mode===1)return mk5Num(`Какой числитель у неправильной дроби со знаменателем ${den}, равной ${mk5Mixed(whole,rem,den)}?`,numer,`${whole}·${den}+${rem}=${numer}.`,'mixed_numerator',[whole+rem,whole*den]);
   return mk5Rational(`Переведи ${mk5Mixed(whole,rem,den)} в неправильную дробь.`,numer,den,`Числитель ${whole}·${den}+${rem}=${numer}, знаменатель ${den}.`,'mixed_to_improper_'+mode,[[whole+rem,den],[numer,den+1]]);
  }
  case 'frac_add':{
