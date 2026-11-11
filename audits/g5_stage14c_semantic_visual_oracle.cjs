@@ -4,7 +4,7 @@ const {chromium}=require('playwright');
 const frac=s=>{const m=String(s||'').replace(/,/g,'.').match(/^(-?\d+)\/(\d+)$/);return m?Number(m[1])/Number(m[2]):Number(String(s||'').replace(',','.'))};
 const close=(a,b)=>Number.isFinite(a)&&Number.isFinite(b)&&Math.abs(a-b)<1e-7;
 const W={'одна':1,'одну':1,'две':2,'два':2,'три':3,'четыре':4,'пять':5,'шесть':6,'семь':7,'восемь':8,'девять':9,'десять':10};
-const D={'вторая':2,'вторых':2,'треть':3,'третья':3,'третьих':3,'четвёртая':4,'четвёртых':4,'четвертых':4,'пятая':5,'пятых':5,'шестых':6,'седьмых':7,'восьмых':8,'девятых':9,'десятых':10};
+const D={'вторая':2,'вторых':2,'треть':3,'третья':3,'третьих':3,'четвёртая':4,'четвёртых':4,'четвертых':4,'пятая':5,'пятых':5,'шестая':6,'шестых':6,'седьмая':7,'восьмая':8,'девятая':9,'десятая':10,'седьмых':7,'восьмых':8,'девятых':9,'десятых':10};
 function independent(q){
  const t=q.text,k=q.template,nums=(t.match(/\d+(?:,\d+)?/g)||[]).map(x=>Number(x.replace(',','.'))),
  f=t.match(/\d+\/\d+/g)||[], ans=q.answer;
@@ -109,7 +109,7 @@ function independent(q){
    else if(k==='ray_shift_fraction'){const m=t.match(/(\d+)\/(\d+).*ещё (\d+) делений по (\d+)\/(\d+)/);if(m)exp=numeric(Number(m[1])/Number(m[2])+Number(m[3])*Number(m[4])/Number(m[5]))}
    else if(k==='decimal_add_context_three'||k==='decimal_sub_context_three'){const v=nums; if(v.length===3)exp=numeric(k.startsWith('decimal_add')?v[0]+v[1]+v[2]:v[0]-v[1]-v[2])}
    else if(k==='power_in_expression'){const m=t.match(/(\d+)²\s*([+−-])\s*(\d+)/);if(m)exp=numeric(Number(m[1])**2+(m[2]==='+'?1:-1)*Number(m[3]))}
-   else if(k==='unit_direct'){const m=t.match(/(\d+)\s*(км|м|дм|см|мм|т|ц|кг|г|сут|ч|мин|с)\s*=\s*\?\s*(км|м|дм|см|мм|т|ц|кг|г|сут|ч|мин|с)/);
+   else if(k==='unit_direct'){const m=t.match(/(\d+)\s*(км|м|дм|см|мм|т|ц|кг|г|сут|ч|мин|с)\s*=\s*\?\s*(км|м|дм|см|мм|т|ц|кг|г|сут|ч|мин|с)\s*$/);
     const factor={км:1000000,м:1000,дм:100,см:10,мм:1,т:1000000,ц:100000,кг:1000,г:1,сут:86400,ч:3600,мин:60,с:1},family={км:1,м:1,дм:1,см:1,мм:1,т:2,ц:2,кг:2,г:2,сут:3,ч:3,мин:3,с:3};if(m&&family[m[2]]===family[m[3]])exp=numeric(Number(m[1])*factor[m[2]]/factor[m[3]])}
    else if(k.startsWith('s18b_power')||k==='power_square'||k==='power_cube'){
     let m=t.match(/Квадрат какого натурального числа равен (\d+)/);if(m)exp=numeric(Math.sqrt(Number(m[1])));
