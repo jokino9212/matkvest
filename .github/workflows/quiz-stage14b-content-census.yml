@@ -1,0 +1,28 @@
+name: Stage14B grade five remaining topics semantic content census
+on:
+  push:
+    branches: [audit/g5-math-content-stage14-20261111]
+    paths:
+      - audits/g5_stage14b_content_census.cjs
+      - .github/workflows/quiz-stage14b-content-census.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  census:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Generate content examples from all remaining 49 topics
+        run: timeout 500s node audits/g5_stage14b_content_census.cjs
+      - name: Save complete content census
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: g5-stage14b-content-census
+          path: audits/out/g5_stage14b_census.json
+          if-no-files-found: warn
