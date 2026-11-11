@@ -23,5 +23,6 @@ const targets=new Set(['angle_protractor','shape_radius_difference','power_in_ex
  if(/^(angles::angle_protractor|frac_shapes::shape_|frac_types::|powers::|frac_parts::parts_complement|frac_ray::ray_shift_fraction|dec_add::decimal_add_context_three|dec_sub::decimal_sub_context_three|units::unit_direct|frac_read::read_from_words)/.test(key))
  console.log('STAGE14C_TEMPLATE',JSON.stringify({key,n:data.seen[key],samples:items.map(q=>({text:q.text.slice(0,190),answer:q.answer,ex:q.ex.slice(0,180),html:q.html.slice(0,300)}))}));
  }
+ console.log('STAGE14C_ANGLE_SVG',JSON.stringify((data.out['angles::angle_protractor']||[]).slice(0,2)));
  console.log('STAGE14C_PROBE_PASS',Object.keys(data.out).length);
 }finally{await browser.close()}})().catch(e=>{console.error('STAGE14C_PROBE_FAIL',e.stack||e);process.exit(1)});
