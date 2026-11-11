@@ -22608,7 +22608,7 @@ function mk5Fractions(id,tier,mode){
   den=mk5Pick(tier===0?[3,4,5,6]:tier===1?[4,6,8,9,10]:[6,8,9,10,12,15]);c=mk5Pick(tier===0?[4,5,6]:tier===1?[5,8,9,12]:[8,10,12,14,15]);if(den===c)c+=2;numer=ri(1,den-1);const common=mk5Lcm(den,c),mul=common/den;
   if(mode===0)return mk5Num(`Найди наименьший общий знаменатель дробей ${mk5Frac(numer,den)} и ${mk5Frac(1,c)}.`,common,`НОК(${den},${c})=${common}.`,'common_find_lcm',[den*c,den+c]);
   if(mode===1)return mk5Num(`Дробь ${mk5Frac(numer,den)} привели к знаменателю ${common}. Каким стал числитель?`,numer*mul,`Дополнительный множитель ${mul}: ${numer}·${mul}=${numer*mul}.`,'common_find_numerator',[numer,numer+mul]);
-  return mk5Rational(`Приведи ${mk5Frac(numer,den)} к общему знаменателю ${common} и выбери получившуюся дробь.`,numer*mul,common,`Умножаем оба члена на ${mul}: ${mk5Frac(numer*mul,common)}.`,'common_fraction',[[numer+1,common],[numer*mul,common+1]]);
+  return mk5Choose(`Приведи ${mk5Frac(numer,den)} к общему знаменателю ${common} и выбери получившуюся дробь.`,mk5Frac(numer*mul,common),[mk5Frac(numer*mul+1,common),mk5Frac(numer*mul,common+1),mk5Frac(numer*mul+2,common)],`Умножаем числитель и знаменатель на ${mul}: ${mk5Frac(numer,den)} = ${mk5Frac(numer*mul,common)}. Ответ: ${mk5Frac(numer*mul,common)}.`,'common_fraction');
  }
  case 'frac_compare_diff':{
   den=mk5Pick([3,4,5,6,8,9,10,12]);c=mk5Pick([4,5,6,7,8,10,12,15]);if(c===den)c+=1;numer=ri(1,den-1);e=ri(1,c-1);
