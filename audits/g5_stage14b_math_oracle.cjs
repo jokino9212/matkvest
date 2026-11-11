@@ -39,7 +39,7 @@ function expected(q){
  m=t.match(/^(?:Вычисли|Сложи|Найди)\s*([()\d,\s+/·×:−*-]+)(?:\s*=\s*\?|\.|$)/);
  if(m&&/[+·×:−*-]/.test(m[1]))return mk(expression(m[1]));
  m=t.match(/^([()\d,\s+/·×:−*-]+)\s*=\s*\?/);
- if(m)return mk(expression(m[1]));
+ if(m&&!k.startsWith('equal_missing'))return mk(expression(m[1]));
  if(k==='natural_compare')return mk(integer(Math.max(...nums)));
  if(k==='natural_digit'){const digits={единиц:1,десятков:10,сотен:100,тысяч:1000,'десятков тысяч':10000};const place=Object.keys(digits).sort((a,b)=>b.length-a.length).find(s=>t.includes('разряде '+s));if(place)return mk(integer(Math.floor(take(0)/digits[place])%10))}
  if(k==='natural_round'){const units={десятков:10,сотен:100,тысяч:1000,'десятков тысяч':10000};const key=Object.keys(units).sort((a,b)=>b.length-a.length).find(x=>t.includes('до '+x));if(key){const n=units[key];return mk(integer(Math.floor((take(0)+n/2)/n)*n))}}
@@ -92,7 +92,7 @@ function expected(q){
  if(k==='decimal_digits_count'){const m=t.match(/дроби ([\d,]+)/);if(m)return mk(integer((m[1].split(',')[1]||'').length))}
  if(k==='decimal_replace_digit'){const m=t.match(/числе ([\d,]+) цифру (десятых|сотых|тысячных) заменили на (\d+)/);if(m){const [w,d='']=m[1].split(',');const idx={десятых:0,сотых:1,тысячных:2}[m[2]],a=d.split('');a[idx]=m[3];return mk(plain(w+'.'+a.join('')))}}
  if(k==='decimal_compare_sign'||k==='decimal_compare_zeroes'){const mm=t.match(/\d+(?:,\d+)?/g)||[];const a=plain(mm[0]),b=plain(mm[1]);return ss(a.n*b.d>b.n*a.d?'>':a.n*b.d<b.n*a.d?'<':'=')}
- if(k==='decimal_max_three'){const arr=(t.match(/\d+,\d+/g)||[]).map(plain);return mk(arr.reduce((a,b)=>a.n*b.d>b.n*a.d?a:b))}
+ if(k==='decimal_max_three'){const arr=(t.match(/самое большое:\s*(.+)\?/i)?.[1]||'').split(';').map(x=>plain(x.trim())).filter(Boolean);if(arr.length===3)return mk(arr.reduce((a,b)=>a.n*b.d>b.n*a.d?a:b))}
  if(k.startsWith('decimal_round')){const a=plain(t.match(/\d+(?:,\d+)?/)[0]);const dp=t.includes('до целых')?0:t.includes('до десятых')?1:2;const p=10n**BigInt(dp);const rounded=(2n*a.n*p+a.d)/(2n*a.d);return mk(rat(rounded,p))}
  if(k.startsWith('decimal_shift')){const m=t.match(/([\d,]+)\s*[·:]\s*(10|100|1000)(?:\s*[·:]\s*(10|100|1000))?/);if(m){const x=plain(m[1]);const result=m[0].includes('·')?mul(x,integer(m[3]?Number(m[2])*Number(m[3]):Number(m[2]))):div(x,integer(m[3]?Number(m[2])*Number(m[3]):Number(m[2])));return mk(result)}
   const inv=t.match(/(?:умножили на|разделили на) (\d+) и получили ([\d,]+)/);if(inv){const val=plain(inv[2]);return mk(t.includes('умножили')?div(val,integer(inv[1])):mul(val,integer(inv[1])))}
@@ -103,7 +103,7 @@ function expected(q){
  if(k==='percent_of_number')return mk(rat(take(0)*take(1),100));
  if(k==='percent_discount_amount')return mk(rat(take(0)*take(1),100));
  if(k==='percent_price_increase')return mk(rat(take(0)*(100+take(1)),100));
- if(k.startsWith('percent_restore'))return mk(rat(take(1)*100,take(0)));
+ if(k.startsWith('percent_restore')){const v=plain(String(nums[1]));if(v)return mk(div(mul(v,integer(100)),integer(nums[0])))}
  if(k==='average_three'||k==='average_four'){const arr=t.match(/чисел?[: ]+([\d,\s]+)\./)?.[1]?.split(',').map(Number);if(arr)return mk(rat(arr.reduce((a,b)=>a+b,0),arr.length))}
  if(k==='average_missing')return mk(integer(take(0)*3-take(1)-take(2)));
  return null;
