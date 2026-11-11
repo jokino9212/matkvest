@@ -24,6 +24,7 @@ const sign=(a,b)=>{const d=a[0]*b[1]-b[0]*a[1];return d>0n?'>':d<0n?'<':'='};
 const exactExpr=e=>{
  e=String(e).trim().replace(/[\s]*[.?]$/,'');
  e=e.replace(/(\d+)\s+(\d+)\/(\d+)/g,'($1+$2/$3)');
+ e=e.replace(/(\d+)\/(\d+)/g,'($1/$2)');
  e=e.replace(/(\d+),(\d+)/g,'$1.$2').replace(/[·×]/g,'*').replace(/[÷:]/g,'/').replace(/−/g,'-').replace(/²/g,'^2').replace(/³/g,'^3');
  const tokens=e.match(/\d+(?:\.\d+)?|[()+\-*/^]/g)||[];
  if(tokens.join('')!==e.replace(/\s+/g,''))throw Error('unsupported expression '+e);
