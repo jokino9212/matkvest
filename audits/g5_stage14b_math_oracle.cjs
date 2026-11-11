@@ -127,8 +127,8 @@ function expected(q){
  if(k==='types_classify'){const a=f[0]?.split('/').map(Number);if(a)return ss(a[0]<a[1]?'правильная':'неправильная')}
  if(k==='types_boundary')return mk(integer(Number(t.match(/знаменателе (\d+)/)?.[1])));
  if(k==='parts_complement'){if(f.length)return mk(sub(integer(1),frac(f[0])))}
- if(k==='frac_add_story'||k==='frac_add_different_story'){if(f.length>=2)return mk(add(frac(f[0]),frac(f[1])))}
- if(k==='frac_sub_story'||k==='frac_sub_different_story'){if(f.length>=2)return mk(sub(frac(f[0]),frac(f[1])))}
+ if(k==='frac_add_story'||k==='frac_add_different_story'){if(f.length>=2)return mk(f.map(frac).reduce(add))}
+ if(k==='frac_sub_story'||k==='frac_sub_different_story'){if(f.length>=2)return mk(f.slice(1).map(frac).reduce((acc,v)=>sub(acc,v),frac(f[0])))}
  if(k==='frac_mul_integer'){if(f.length){const a=t.match(/от\s+(\d+)/);if(a)return mk(mul(frac(f[0]),integer(a[1])))}}
  if(k==='unit_direct'){
   const a=t.match(/(\d+)\s*(кг|г|т|м|см|мм|км|ч|мин|с)\s*=\s*\?\s*(кг|г|т|м|см|мм|км|ч|мин|с)/);
@@ -165,7 +165,9 @@ function expected(q){
   if(k==='read_to_words'&&f.length){
    const [n,d]=f[0].split('/').map(Number);
    const words=Object.keys(numerWords).find(x=>numerWords[x]===n);
+   const singular={2:'вторая',3:'третья',4:'четвёртая',5:'пятая',6:'шестая',7:'седьмая',8:'восьмая',9:'девятая',10:'десятая',11:'одиннадцатая',12:'двенадцатая'};
    const genitive=Object.keys(denomWords).find(x=>denomWords[x]===d&&x.endsWith('ых'));
+   if(n===1&&singular[d])return ss('одна '+singular[d]);
    if(words&&genitive)return ss(words+' '+genitive);
   }
  }
