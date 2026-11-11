@@ -91,9 +91,7 @@ function independent(q){
  for(const q of rows){
   const key=q.topic+'::'+q.template;
   if(!/^(angles::angle_protractor|frac_shapes::shape_|frac_types::|powers::|frac_parts::parts_complement|frac_ray::ray_shift_fraction|dec_add::decimal_add_context_three|dec_sub::decimal_sub_context_three|units::unit_direct|frac_read::read_from_words)/.test(key))continue;
-  let exp;try{exp=await page.evaluate(independent.toString()+';');}catch(_){}
-  // Independent evaluator runs in the test harness, outside the application, via this function.
-  const DOM={createElement:()=>null}; // non-DOM cases use deterministic numeric or conceptual validators
+  let exp;
   if(key==='angles::angle_protractor'){
    const match=q.html.match(/<line\s+x1="([^"]+)"\s+y1="([^"]+)"\s+x2="([^"]+)"\s+y2="([^"]+)"\s+class="g5-protractor-ray"/);
    const center=q.html.match(/<circle\s+cx="([^"]+)"\s+cy="([^"]+)"\s+r="([^"]+)"\s+class="g5-protractor-center"/);
