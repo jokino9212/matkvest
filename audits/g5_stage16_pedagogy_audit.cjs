@@ -51,6 +51,7 @@ highMonotemplate:ranked.filter(x=>x.monoTemplateSessions>=24),
 ranked:ranked.slice(0,60)};
 fs.mkdirSync('audits/out',{recursive:true});fs.writeFileSync('audits/out/g5_stage16_pedagogy_audit.json',JSON.stringify(result,null,2));
 console.log('STAGE16_PEDAGOGY_SUMMARY',JSON.stringify({topics:result.topics,questions:result.questions,monotemplateConfigs:result.monotemplateConfigs,highMonotemplate:result.highMonotemplate.map(x=>({topic:x.topic,stage:x.stage,mono:x.monoTemplateSessions,avgTypes:x.avgTemplates,examples:Object.values(x.examples).slice(0,3)})).slice(0,50)}));
+console.log('STAGE16_PEDAGOGY_LOWEST_20',JSON.stringify(result.ranked.slice(0,20).map(x=>({topic:x.topic,stage:x.stage,avgStems:x.avgStems,avgFamilies:x.avgFamilies,avgTemplates:x.avgTemplates,monoFamilySessions:x.monoFamilySessions,monoTemplateSessions:x.monoTemplateSessions,types:x.types,examples:x.examples}))));
 console.log('STAGE16_PEDAGOGY_PASS');
 }finally{await browser.close()}
 })().catch(e=>{console.error('STAGE16_PEDAGOGY_FAIL',e.stack||e);process.exit(1)});
