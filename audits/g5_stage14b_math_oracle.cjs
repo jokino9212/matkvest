@@ -168,7 +168,7 @@ function expected(q){
    const singular={2:'вторая',3:'третья',4:'четвёртая',5:'пятая',6:'шестая',7:'седьмая',8:'восьмая',9:'девятая',10:'десятая',11:'одиннадцатая',12:'двенадцатая'};
    const genitive=Object.keys(denomWords).find(x=>denomWords[x]===d&&x.endsWith('ых'));
    if(n===1&&singular[d])return ss('одна '+singular[d]);
-   if(words&&genitive)return ss(words+' '+genitive);
+   if(words&&genitive)return ss(words+' '+(genitive==='четвертых'?'четвёртых':genitive));
   }
  }
  return null;
