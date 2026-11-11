@@ -77,8 +77,14 @@ const mathOracle=x=>{
  }
  if(t==='frac_equal'){
   if(k==='equal_fraction'&&fr.length>=1)expected=fr[0];
-  if(k==='equal_missing_numerator'&&fr.length>=2)expected=times(fr[0],rat(BigInt(f[1].split('/')[1]||1))); // handled below if missing
-  if(k==='equal_missing_denominator')expected=null;
+  if(k==='equal_missing_numerator'){
+   const m=text.match(/^(\d+)\/(\d+)\s*=\s*\?\/(\d+)/);
+   if(m)expected=rat(BigInt(m[1])*BigInt(m[3]),BigInt(m[2]));
+  }
+  if(k==='equal_missing_denominator'){
+   const m=text.match(/^(\d+)\/(\d+)\s*=\s*(\d+)\/\?/);
+   if(m)expected=rat(BigInt(m[2])*BigInt(m[3]),BigInt(m[1]));
+  }
  }
  if(t==='frac_common_lcm'){
   if(k==='common_find_lcm'&&fr.length===2){
