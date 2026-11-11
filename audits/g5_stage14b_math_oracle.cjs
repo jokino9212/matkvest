@@ -52,7 +52,7 @@ function expected(q){
  if(k==='volume_box')return mk(integer(take(0)*take(1)*take(2)));
  if(k==='volume_missing_edge')return mk(integer(take(0)/(take(1)*take(2))));
  if(k==='volume_unit_cubes')return mk(integer(nums.reduce((a,b)=>a*b,1)));
- if(k==='angle_complement')return mk(integer(90-take(1)));
+ if(k==='angle_complement')return mk(integer(90-take(0)));
  if(k==='chart_one_sector')return mk(integer(360/take(0)));
  if(k==='chart_fraction_to_angle')return mk(mul(frac(f[0]),integer(360)));
  if(k==='chart_angle_fraction')return mk(rat(take(0),360));
@@ -64,7 +64,7 @@ function expected(q){
  if(k==='parts_numerator')return mk(integer(take(0)));
  if(k==='parts_denominator')return mk(integer(take(1)));
  if(k==='parts_story')return mk(rat(take(1),take(0)));
- if(k==='ray_steps')return mk(rat(take(2),take(1)));
+ if(k==='ray_steps'){const v=t.match(/сделали (\d+) равных шагов.*после (\d+)-го шага/);if(v)return mk(rat(v[2],v[1]))}
  if(k==='ray_beyond_one')return mk(rat(take(2),take(1)));
  if(k==='ray_count_ticks')return mk(integer(take(2)));
  if(k==='quotient_as_fraction'||k==='division_story')return mk(rat(take(0),take(1)));
@@ -76,7 +76,7 @@ function expected(q){
  if(k==='equal_missing_numerator'){const [a,b]=f.map(frac);return mk(integer(a.n*b.d/a.d))}
  if(k==='equal_missing_denominator'){const a=frac(f[0]);const num=take(2);return mk(rat(num*a.d,a.n))}
  if(k==='reduce_fraction'||k==='common_fraction')return mk(frac(f[0]));
- if(k==='reduce_gcd'){const a=frac(f[0]);return mk(integer(gcd(a.n,a.d)))}
+ if(k==='reduce_gcd'){const [a,b]=f[0].split('/');return mk(integer(gcd(bg(a),bg(b))))}
  if(k==='reduce_new_numerator')return mk(integer(frac(f[0]).n));
  if(k==='common_find_lcm'){const a=frac(f[0]),b=frac(f[1]);const da=BigInt(f[0].split('/')[1]),db=BigInt(f[1].split('/')[1]);return mk(rat(da*db/gcd(da,db)))}
  if(k==='common_find_numerator'){const a=frac(f[0]),target=BigInt(t.match(/знаменателю (\d+)/)?.[1]);return mk(rat(a.n*target,a.d))}
@@ -141,6 +141,8 @@ try{
  const result={topics:batch.topics,questions:batch.all.length,independentlyChecked:checks.length,
   independentlyCheckedTopics:covered.size,independentlyCheckedTemplates:checkedTemplates.size,
   unhandledTemplates:Object.keys(unsupported).length,unhandled:Object.entries(unsupported).sort((a,b)=>b[1]-a[1]).slice(0,120),
+  errorGroups:Object.entries(mistakes.reduce((acc,x)=>(acc[x.topic+'::'+x.tpl]=(acc[x.topic+'::'+x.tpl]||0)+1,acc),{})).sort((a,b)=>b[1]-a[1]),
+  parsingGroups:Object.entries(parsing.reduce((acc,x)=>(acc[x.topic+'::'+x.tpl]=(acc[x.topic+'::'+x.tpl]||0)+1,acc),{})).sort((a,b)=>b[1]-a[1]),
   generationFaults:batch.faults.slice(0,10),parsingFailures:parsing.slice(0,30),parsingCount:parsing.length,
   arithmeticErrors:mistakes.slice(0,40),arithmeticErrorCount:mistakes.length,errors};
  fs.mkdirSync('audits/out',{recursive:true});
