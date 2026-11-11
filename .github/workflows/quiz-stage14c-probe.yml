@@ -1,0 +1,28 @@
+name: Stage14C uncovered grade-five semantic and visual template probe
+on:
+  push:
+    branches: [audit/g5-math-content-stage14-20261111]
+    paths:
+      - audits/g5_stage14c_template_probe.cjs
+      - .github/workflows/quiz-stage14c-probe.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Probe uncovered templates with actual examples and SVG
+        run: timeout 450s node audits/g5_stage14c_template_probe.cjs
+      - name: Save detailed examples
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: stage14c-uncovered-templates
+          path: audits/out/g5_stage14c_unresolved_samples.json
+          if-no-files-found: warn
