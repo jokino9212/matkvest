@@ -36,7 +36,7 @@ const expr=e=>{
  const v=sum();if(p!==t.length)throw Error('unparsed expression');return v
 };
 const rawExpr=t=>{
- const m=t.match(/^(?:Вычисли|Найди значение)\s*:?\s*([\d\s.,()+−·×:^+-]+)(?:\s*=\s*\?|[.]|$)/);
+ const m=t.match(/^(?:Вычисли|Найди значение)\s*:?\s*([\d\s.,()+−·×:^²³+-]+)(?:\s*=\s*\?|[.]|$)/);
  if(m)return m[1];
  const n=t.match(/^([\d\s.,()+−·×:^+-]+)\s*=\s*\?/);
  return n?n[1]:null;
