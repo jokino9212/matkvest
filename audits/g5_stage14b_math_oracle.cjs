@@ -106,6 +106,69 @@ function expected(q){
  if(k.startsWith('percent_restore')){const v=plain(String(nums[1]));if(v)return mk(div(mul(v,integer(100)),integer(nums[0])))}
  if(k==='average_three'||k==='average_four'){const arr=t.match(/чисел?[: ]+([\d,\s]+)\./)?.[1]?.split(',').map(Number);if(arr)return mk(rat(arr.reduce((a,b)=>a+b,0),arr.length))}
  if(k==='average_missing')return mk(integer(take(0)*3-take(1)-take(2)));
+ // Additional independently-derived operations, never using the generated answer.
+ if(k==='equation_one_step'){
+  let a=t.match(/x\s*\+\s*(\d+)\s*=\s*(\d+)/);if(a)return mk(integer(Number(a[2])-Number(a[1])));
+  a=t.match(/x\s*−\s*(\d+)\s*=\s*(\d+)/);if(a)return mk(integer(Number(a[2])+Number(a[1])));
+  a=t.match(/x\s*:\s*(\d+)\s*=\s*(\d+)/);if(a)return mk(integer(Number(a[2])*Number(a[1])));
+ }
+ if(k==='equation_product'){
+  const a=t.match(/(\d+)\s*[·×]\s*x\s*=\s*(\d+)/)||t.match(/x\s*[·×]\s*(\d+)\s*=\s*(\d+)/);
+  if(a)return mk(rat(a[2],a[1]));
+ }
+ if(k==='equation_two_actions'){
+  const a=t.match(/(\d+)\s*[·×]\s*x\s*\+\s*(\d+)\s*=\s*(\d+)/);
+  if(a)return mk(rat(Number(a[3])-Number(a[2]),Number(a[1])));
+ }
+ if(k==='natural_max_three')return mk(integer(Math.max(...nums)));
+ if(k==='angle_classify'){const d=take(0);return ss(d===90?'прямой':d===180?'развёрнутый':d<90?'острый':'тупой')}
+ if(k==='shape_diameter'){const a=t.match(/Радиус круга равен (\d+)/);if(a)return mk(integer(2*Number(a[1])))}
+ if(k==='shape_cylinder')return ss('Цилиндр');
+ if(k==='types_classify'){const a=f[0]?.split('/').map(Number);if(a)return ss(a[0]<a[1]?'правильная':'неправильная')}
+ if(k==='types_boundary')return mk(integer(Number(t.match(/знаменателе (\d+)/)?.[1])));
+ if(k==='parts_complement'){if(f.length)return mk(sub(integer(1),frac(f[0])))}
+ if(k==='frac_add_story'||k==='frac_add_different_story'){if(f.length>=2)return mk(add(frac(f[0]),frac(f[1])))}
+ if(k==='frac_sub_story'||k==='frac_sub_different_story'){if(f.length>=2)return mk(sub(frac(f[0]),frac(f[1])))}
+ if(k==='frac_mul_integer'){if(f.length){const a=t.match(/от\s+(\d+)/);if(a)return mk(mul(frac(f[0]),integer(a[1])))}}
+ if(k==='unit_direct'){
+  const a=t.match(/(\d+)\s*(кг|г|т|м|см|мм|км|ч|мин|с)\s*=\s*\?\s*(кг|г|т|м|см|мм|км|ч|мин|с)/);
+  const scales={кг:1000,г:1,т:1000000,м:1000,см:10,мм:1,км:1000000,ч:3600,мин:60,с:1};
+  const family={кг:1,г:1,т:1,м:2,см:2,мм:2,км:2,ч:3,мин:3,с:3};
+  if(a&&family[a[2]]===family[a[3]])return mk(rat(BigInt(a[1])*BigInt(scales[a[2]]),scales[a[3]]));
+ }
+ if(k==='dec_add_context'||k==='dec_sub_context'||k==='decimal_add_context'||k==='decimal_sub_context'){
+  const vals=(t.match(/\d+,\d+/g)||[]).map(plain);
+  if(vals.length>=2)return mk(k.includes('sub')?sub(vals[0],vals[1]):add(vals[0],vals[1]));
+ }
+ if(k==='decimal_mul_int_context'){const m=t.match(/Цена тетради ([\d,]+).*?(\d+) таких/);if(m)return mk(mul(plain(m[1]),integer(m[2])))}
+ if(k==='decimal_div_int_price'){const m=t.match(/За (\d+) одинаковых.*заплатили ([\d,]+)/);if(m)return mk(div(plain(m[2]),integer(m[1])))}
+ if(k==='decimal_mul_area'){const m=t.match(/Стороны прямоугольника ([\d,]+) м и ([\d,]+)/);if(m)return mk(mul(plain(m[1]),plain(m[2])))}
+ if(k==='decimal_div_decimal_context'){const m=t.match(/За ([\d,]+) кг.*заплатили ([\d,]+)/);if(m)return mk(div(plain(m[2]),plain(m[1])))}
+ if(k==='decimal_compare_three'||k==='decimal_max_three'){
+  const vals=(t.match(/\d+(?:,\d+)?/g)||[]).map(plain);
+  if(vals.length>=3)return mk(vals.reduce((a,b)=>a.n*b.d>b.n*a.d?a:b));
+ }
+ if(k==='fraction_as_quotient'){if(f.length)return ss(f[0].replace('/',' : '))}
+ if(k.startsWith('power_')||k.startsWith('s18b_power_')){
+  const a=t.match(/(?:квадрат числа|со стороной|В квадрате)\s*(\d+)/);
+  if(a&&(/квадрат|клеток/.test(t)))return mk(integer(Number(a[1])**2));
+  const b=t.match(/(?:куб числа|Куб числа)\s*(\d+)/);if(b)return mk(integer(Number(b[1])**3));
+  const c=t.match(/Квадрат какого натурального числа равен (\d+)/);if(c)return mk(integer(Math.sqrt(Number(c[1]))));
+  const expr=t.match(/Сколько будет\s+([()\d\s·×+-]+)\?/);if(expr)return mk(expression(expr[1]));
+ }
+ if(k.startsWith('read_from_words')||k==='read_to_words'){
+  const numerWords={'одна':1,'одну':1,'две':2,'два':2,'три':3,'четыре':4,'пять':5,'шесть':6,'семь':7,'восемь':8,'девять':9,'десять':10};
+  const denomWords={'вторая':2,'вторых':2,'треть':3,'третьих':3,'четверть':4,'четвертых':4,'четвёртых':4,'пятых':5,'шестых':6,'седьмых':7,'восьмых':8,'девятых':9,'десятых':10,'одиннадцатых':11,'двенадцатых':12};
+  if(k.startsWith('read_from_words')){
+   const m=t.match(/«([^»]+)»/);if(m){const parts=m[1].toLowerCase().split(/\s+/);if(numerWords[parts[0]]&&denomWords[parts[1]])return mk(rat(numerWords[parts[0]],denomWords[parts[1]]))}
+  }
+  if(k==='read_to_words'&&f.length){
+   const [n,d]=f[0].split('/').map(Number);
+   const words=Object.keys(numerWords).find(x=>numerWords[x]===n);
+   const genitive=Object.keys(denomWords).find(x=>denomWords[x]===d&&x.endsWith('ых'));
+   if(words&&genitive)return ss(words+' '+genitive);
+  }
+ }
  return null;
 }
 (async()=>{
