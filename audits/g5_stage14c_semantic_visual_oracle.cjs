@@ -87,7 +87,7 @@ function independent(q){
  const tracked=new Set(['angles::angle_protractor','frac_shapes::shape_radius_difference',
  'powers::power_in_expression','frac_parts::parts_complement','frac_ray::ray_shift_fraction',
  'frac_types::types_choose_proper','dec_add::decimal_add_context_three','dec_sub::decimal_sub_context_three','units::unit_direct']);
- let checked=0;const matched=new Map(),skipped=new Map(),faults=[],unhandled=new Map();
+ let checked=0;const matched=new Map(),skipped=new Map(),faults=[],unhandled=new Map(),realMissingExamples=new Map();
  for(const q of rows){
   const key=q.topic+'::'+q.template;
   if(!/^(angles::angle_protractor|frac_shapes::shape_|frac_types::|powers::|frac_parts::parts_complement|frac_ray::ray_shift_fraction|dec_add::decimal_add_context_three|dec_sub::decimal_sub_context_three|units::unit_direct|frac_read::read_from_words)/.test(key))continue;
@@ -157,7 +157,7 @@ function independent(q){
     const m=t.match(/«([^»]+)»/);if(m){const a=m[1].split(/\s+/);if(W[a[0]]&&D[a[1]])exp=numeric(W[a[0]]/D[a[1]])}
    }
   }
-  if(!exp){unhandled.set(key,(unhandled.get(key)||0)+1);continue}
+  if(!exp){unhandled.set(key,(unhandled.get(key)||0)+1);if(!realMissingExamples.has(key))realMissingExamples.set(key,{key,text:q.text,answer:q.answer,choices:q.choices});continue}
   matched.set(key,(matched.get(key)||0)+1);checked++;
   const ok=exp.word!==undefined?q.answer===exp.word:close(frac(q.answer),exp.value);
   if(!ok)faults.push({key,text:q.text,answer:q.answer,expected:exp,choices:q.choices});
@@ -166,9 +166,9 @@ function independent(q){
  errorGroups:Object.entries(faults.reduce((a,x)=>(a[x.key]=(a[x.key]||0)+1,a),{})).sort((a,b)=>b[1]-a[1]),
  missingSamples:[...new Map(rows.filter(x=>unhandled.has(x.topic+'::'+x.template)).map(x=>[x.topic+'::'+x.template,{key:x.topic+'::'+x.template,text:x.text,answer:x.answer}])).values()],
  matched:Object.fromEntries(matched),remaining:Object.fromEntries(unhandled),failures:faults.slice(0,40),failureCount:faults.length,
- pageErrors:errs};
+ missingReal:[...realMissingExamples.values()],pageErrors:errs};
  fs.mkdirSync('audits/out',{recursive:true});fs.writeFileSync('audits/out/g5_stage14c_semantic_visual_report.json',JSON.stringify(report,null,2));
- console.log('STAGE14C_REMAINING_EXAMPLES',JSON.stringify(report.missingSamples));
+ console.log('STAGE14C_UNCHECKED_ACTUAL',JSON.stringify(report.missingReal));
  console.log('STAGE14C_MATCHED_KEYS',JSON.stringify(report.matched));
  console.log('STAGE14C_VALIDATION',JSON.stringify({questions:report.questions,checked:checked,templates:matched.size,remaining:report.remaining,errors:faults.length,errorSamples:faults.slice(0,12)}));
  assert.equal(rows.length,49*3*36*5);
