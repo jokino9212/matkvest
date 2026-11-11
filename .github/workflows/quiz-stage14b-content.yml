@@ -5,11 +5,13 @@ on:
     paths:
       - audits/g5_stage14b_topic_inventory.cjs
       - audits/g5_stage14b_source_probe.py
+      - audits/g5_stage14b_fraction_oracle.cjs
+      - audits/g5_stage14b_common_denominator_fix.py
       - audits/g5_stage14b_content_oracle.cjs
       - .github/workflows/quiz-stage14b-content.yml
   workflow_dispatch:
 permissions:
-  contents: read
+  contents: write
 jobs:
   audit:
     runs-on: ubuntu-latest
@@ -18,15 +20,37 @@ jobs:
       image: mcr.microsoft.com/playwright:v1.56.1-noble
     steps:
       - uses: actions/checkout@v4
+      - name: Fix incorrect common-denominator answer representation
+        run: python3 audits/g5_stage14b_common_denominator_fix.py
       - run: npm install --no-save --no-package-lock playwright@1.56.1
       - name: Inspect original mathematical helper implementations
         run: python3 audits/g5_stage14b_source_probe.py
       - name: Inventory real 5-class task families across 49 topics
         run: timeout 420s node audits/g5_stage14b_topic_inventory.cjs
+      - name: Independently compute fraction answers in 18 topics
+        run: timeout 480s node audits/g5_stage14b_fraction_oracle.cjs
+      - name: Regression original stage14A math explanations
+        run: timeout 480s node audits/g5_stage14_math_oracle.cjs
+      - name: Confirm base grade5 session anti-repeat
+        run: timeout 300s node audits/quiz_stage05_fresh_browser.cjs
       - name: Save math inventory JSON
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: g5-stage14b-49topic-inventory
-          path: audits/out/g5_stage14b_topic_inventory.json
+          path: |
+            audits/out/g5_stage14b_topic_inventory.json
+            audits/out/g5_stage14b_fraction_oracle.json
           if-no-files-found: warn
+      - name: Commit validated candidate HTML and PWA digest to audit branch only
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js
+          if ! git diff --cached --quiet; then
+            git commit -m "fix(g5): preserve common denominator in fraction-choice answers"
+            git fetch origin audit/g5-math-content-stage14-20261111
+            git rebase origin/audit/g5-math-content-stage14-20261111
+            git push origin HEAD:audit/g5-math-content-stage14-20261111
+          fi
