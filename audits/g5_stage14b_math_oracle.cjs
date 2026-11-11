@@ -220,7 +220,11 @@ try{
  assert.equal(batch.all.length,22050);
  assert.equal(batch.faults.length,0);
  assert.equal(errors.length,0);
- // This is diagnostic until enough distinct mathematical topics are verified.
+ assert.equal(result.parsingCount,0,'Unparsed mathematical question forms');
+ assert.equal(result.arithmeticErrorCount,0,'Independent arithmetic mismatch');
+ assert.equal(result.independentlyCheckedTopics,49,'Missing independently validated grade-five topic');
+ assert(result.independentlyChecked>=20000,'Insufficient independently verified mathematical coverage');
+ // Explicit unhandled templates remain listed; visual/conceptual questions need other oracles.
  console.log('STAGE14B_ORACLE_DIAGNOSTIC_COMPLETE',JSON.stringify({questions:result.questions,
   independentlyChecked:result.independentlyChecked,checkedTopics:result.independentlyCheckedTopics,
   checkedTemplates:result.independentlyCheckedTemplates,unhandledTemplates:result.unhandledTemplates,
