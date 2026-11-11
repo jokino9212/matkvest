@@ -79,6 +79,24 @@ const oracle=q=>{
   if(k==='power_cube'&&ns.length)expected=times(times(n(0),n(0)),n(0));
   if(k==='power_in_expression'){const e=rawExpr(text);if(e)expected=expr(e)}
  }
+ if(topic==='powers'&&expected===null){
+  if(/^Сколько будет/.test(text)&&ns.length>=2)expected=times(n(0),n(1));
+  else if(/Найди квадрат числа/.test(text)&&ns.length)expected=times(n(0),n(0));
+  else if(/Сторона квадрата/.test(text)&&ns.length)expected=times(n(0),n(0));
+  else if(/единичных квадратов поместится/.test(text)&&ns.length)expected=times(n(0),n(0));
+  else if(/В квадрате .* рядов по/.test(text)&&ns.length>=2)expected=times(n(0),n(1));
+  else if(/Куб сложили из/.test(text)&&ns.length>=2)expected=times(n(0),n(1));
+  else if(/Найди произведение/.test(text)&&ns.length>=3)expected=times(times(n(0),n(1)),n(2));
+  else if(/Найди куб числа/.test(text)&&ns.length)expected=times(times(n(0),n(0)),n(0));
+  else if(/В одном ряду .* рядов .* слоёв/.test(text)&&ns.length>=3)expected=times(times(n(0),n(1)),n(2));
+  else if(/Ребро куба/.test(text)&&ns.length)expected=times(times(n(0),n(0)),n(0));
+  else if(/Квадрат какого натурального числа равен/.test(text)&&ns.length){
+   for(let i=1n;i<=500n;i++)if(i*i===n(0)[0]){expected=rat(i);break}
+  }
+  else if(/Куб какого натурального числа равен/.test(text)&&ns.length){
+   for(let i=1n;i<=500n;i++)if(i*i*i===n(0)[0]){expected=rat(i);break}
+  }
+ }
  if(topic==='equations'){
   const m=text.match(/уравнение:\s*(.*?)\s*=\s*([\d,]+)/);
   if(m){
@@ -213,7 +231,7 @@ const oracle=q=>{
   const grouped={};for(const x of issues){const id=x.topic+'/'+x.template;const a=grouped[id]||(grouped[id]={count:0,examples:[]});a.count++;if(a.examples.length<2)a.examples.push(x)}
   const report={topics:samples.topics,sampled:samples.items.length,verified:Object.values(verified).reduce((a,b)=>a+b,0),verifiedByTopic:verified,unsupported,unsupportedExamples,problemCount:issues.length,grouped,problems:issues.slice(0,40)};
   fs.mkdirSync('audits/out',{recursive:true});fs.writeFileSync('audits/out/g5_stage14b_core_oracle.json',JSON.stringify(report,null,2));
-  console.log('STAGE14B_CORE_AUDIT',JSON.stringify({...report,unsupported:Object.entries(unsupported).slice(0,30),unsupportedExamples:Object.entries(unsupportedExamples).slice(0,15),problems:report.problems.slice(0,8)}));
+  console.log('STAGE14B_CORE_AUDIT',JSON.stringify({...report,unsupported:Object.entries(unsupported).slice(0,30),unsupportedExamples:Object.entries(unsupportedExamples).slice(0,50),problems:report.problems.slice(0,8)}));
   assert.equal(report.sampled,16*3*40*5);assert.equal(report.problemCount,0,'Independent natural and geometry math mismatch');
   assert(report.verified>8500,'Independent natural/math coverage too small');
   console.log('STAGE14B_CORE_ORACLE_PASS',JSON.stringify({topics:report.topics,sampled:report.sampled,verified:report.verified,problems:report.problemCount}));
