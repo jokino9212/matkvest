@@ -10,8 +10,12 @@ new2="""const [simpleNum,simpleDen]=g5NewRat(diff,d),whole=Math.floor(simpleNum/
   const conversion=reducedText===finalText?reducedText:`${reducedText} = ${finalText}`;
   return mk5MixedAnswer(views[blockSession&&blockSession.kind==='g5quiz'?blockSession.done%3:ri(0,2)],diff,d,`Разность числителей неправильных дробей: (${w1*d+n1}−${w2*d+n2})/${d} = ${mk5Frac(diff,d)}. Сокращаем дробь, при необходимости выделяем целую часть: ${conversion}. Ответ: ${finalText}.`,'mixed_sub_'+mode,[[diff+d,d],[diff-d,d],[diff+n2,d]]);"""
 for old,new in [(old1,new1),(old2,new2)]:
- if s.count(old)!=1:raise RuntimeError('Expected exactly one guarded math explanation generator: '+str(s.count(old))+' '+old[:70])
- s=s.replace(old,new,1)
+ if s.count(old)==1 and s.count(new)==0:
+  s=s.replace(old,new,1)
+ elif s.count(old)==0 and s.count(new)==1:
+  print('STAGE14_EXPLANATION_FIX_ALREADY_PRESENT')
+ else:
+  raise RuntimeError('Unexpected ambiguous generator count: '+str((s.count(old),s.count(new)))+' '+old[:70])
 html.write_text(s,'utf-8')
 sha=hashlib.sha256(html.read_bytes()).hexdigest()
 w=sw.read_text('utf-8')
