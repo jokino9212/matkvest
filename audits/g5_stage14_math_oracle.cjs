@@ -102,6 +102,7 @@ const sign=(a,b)=>a[0]*b[1]===b[0]*a[1]?'=':a[0]*b[1]>b[0]*a[1]?'>':'<';
   console.log('STAGE14_ORACLE_RESULT',JSON.stringify({...result,flaws:result.flaws.slice(0,12),warnings:result.warnings.slice(0,7)}));
   assert.equal(result.questions,7200);
   assert.equal(result.flawCount,0,'Independent grade 5 math oracle found incorrect answers/options/explanations');
+  assert.equal(result.warningCount,0,'Pedagogical explanations omit the explicit final answer');
   console.log('STAGE14_MATH_ORACLE_PASS',JSON.stringify({questions:result.questions,flaws:result.flawCount,warnings:result.warningCount}));
  }finally{await browser.close()}
 })().catch(e=>{console.error('STAGE14_ORACLE_FAIL',e.stack||e);process.exit(1)});
