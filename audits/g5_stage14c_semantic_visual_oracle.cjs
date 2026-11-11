@@ -160,6 +160,8 @@ function independent(q){
  matched:Object.fromEntries(matched),remaining:Object.fromEntries(unhandled),failures:faults.slice(0,40),failureCount:faults.length,
  pageErrors:errs};
  fs.mkdirSync('audits/out',{recursive:true});fs.writeFileSync('audits/out/g5_stage14c_semantic_visual_report.json',JSON.stringify(report,null,2));
+ console.log('STAGE14C_REMAINING_EXAMPLES',JSON.stringify(report.missingSamples));
+ console.log('STAGE14C_MATCHED_KEYS',JSON.stringify(report.matched));
  console.log('STAGE14C_VALIDATION',JSON.stringify({questions:report.questions,checked:checked,templates:matched.size,remaining:report.remaining,errors:faults.length,errorSamples:faults.slice(0,12)}));
  assert.equal(rows.length,49*3*36*5);
  assert.deepEqual(errs,[]);
