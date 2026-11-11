@@ -21,6 +21,6 @@ for(const topic of topics)for(let stage=0;stage<3;stage++)for(let run=0;run<35;r
 return {total:53*3*35*5,examples:bad.slice(0,80),problemConfigs:Object.keys(seen).length,instances:Object.values(seen).reduce((a,b)=>a+b,0),byKey:[...new Map(bad.map(x=>[x.key,x])).values()]};
 });
 fs.mkdirSync('audits/out',{recursive:true});fs.writeFileSync('audits/out/g5_stage16_fraction_display.json',JSON.stringify(samples,null,2));
-console.log('STAGE16_FRACTION_FORMAT',JSON.stringify(samples));
+console.log('STAGE16_FRACTION_FORMAT_SUMMARY',JSON.stringify({total:samples.total,instances:samples.instances,problemConfigs:samples.problemConfigs,byKey:samples.byKey.slice(0,25)}));
 assert.equal(samples.total,27825);console.log('STAGE16_FRACTION_FORMAT_AUDIT_PASS');
 }finally{await browser.close()}})().catch(e=>{console.error(e.stack||e);process.exit(1)});
