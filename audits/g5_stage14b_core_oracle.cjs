@@ -146,7 +146,12 @@ const oracle=q=>{
    shape_concept_0:'Круг содержит внутреннюю область, а окружность — его граница',
    shape_concept_1:'Окружность',
    shape_concept_2:'Круг',
-   shape_concept_3:'Радиус'
+   shape_concept_3:'Радиус',
+   shape_concept_4:'Диаметр',
+   shape_concept_5:'Шар',
+   shape_concept_6:'Круг',
+   shape_concept_7:'Два равных круга',
+   shape_cylinder:'Цилиндр'
   };
   if(k in c)label=c[k];
  }
@@ -178,6 +183,12 @@ const oracle=q=>{
   }
   else if(/^Если знаменатель дроби равен/.test(text)&&ns.length)expected=minus(n(0),rat(1));
   else if(/^У неправильной дроби числитель/.test(text)&&ns.length)expected=n(0);
+  else if(/Из дробей со знаменателем (\d+) выбери ту, которая равна единице/.test(text)){
+   const m=text.match(/знаменателем (\d+)/);label=m[1]+'/'+m[1];
+  }
+  else if(/При знаменателе (\d+) найди наибольший натуральный числитель правильной дроби/.test(text)){
+   const m=text.match(/знаменателе (\d+)/);expected=rat(BigInt(m[1])-1n);
+  }
   else if(/^В какой паре обе дроби неправильные/.test(text)){
    const choices=q.choices||[],valid=choices.filter(o=>{
     const fs=o.label.match(/\d+\/\d+/g)||[];
