@@ -64,7 +64,7 @@ const oracle=q=>{
    }
   }
  }
- if(t==='dec_place'&&id==='decimal_digits_count'){const m=x.match(/дроби (\d+),(\d+)/);if(m)expected=rat(m[2].length)}
+ if(t==='dec_place'&&id==='decimal_digits_count'){const m=x.match(/\d+,(\d+)/);if(m)expected=rat(m[1].length)}
  if(t==='dec_round'){
   const m=x.match(/Округли число (\d+),(\d+) до (целых|десятых|сотых)/);
   if(m){
