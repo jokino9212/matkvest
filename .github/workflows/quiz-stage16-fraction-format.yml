@@ -19,10 +19,8 @@ jobs:
       - run: npm install --no-save --no-package-lock playwright@1.56.1
       - name: Inspect 27825 actual fraction-answer formats
         run: timeout 600s node audits/g5_stage16_fraction_format.cjs
-      - name: Store pedagogy audit report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: g5-stage16-fraction-format
-          path: audits/out/g5_stage16_fraction_display.json
-          if-no-files-found: warn
+      - name: Confirm report is present locally
+        if: success()
+        run: |
+          test -s audits/out/g5_stage16_fraction_display.json
+          echo "Stage16 fraction-format audit report generated successfully" >> "$GITHUB_STEP_SUMMARY"
