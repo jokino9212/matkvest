@@ -115,7 +115,7 @@ const mathOracle=x=>{
   if(k==='parts_complement'&&ns.length>=2)expected=div(minus(ns[0],ns[1]),ns[0]);
  }
  if(t==='frac_ray'){
-  if(k==='ray_count_ticks'&&fr.length)expected=rat(fr[0][0]); // denominator is unit step; tick index equals numerator
+  if(k==='ray_count_ticks'){const m=text.match(/точка (\d+)\/(\d+)/);if(m)expected=rat(m[1]);} // count original subdivisions, do NOT simplify coordinate
   if(k==='ray_steps'){const m=text.match(/сделали (\d+) равных шагов.*после (\d+)-го/);if(m)expected=rat(m[2],m[1])}
   if(k==='ray_beyond_one'){const m=text.match(/разделили на (\d+) частей.*на (\d+)-й/);if(m)expected=rat(m[2],m[1])}
   if(k==='ray_shift_fraction'&&fr.length>=2)expected=plus(fr[0],times(ns[1],fr[1]));
@@ -151,9 +151,10 @@ const mathOracle=x=>{
    }catch(e){bad.push({topic:q.topic,template:q.template,question:q.text,error:String(e)})}
   }
   bad.push(...samples.problems);bad.push(...errors.map(e=>({type:'browser-error',message:e})));
-  const report={topics:samples.topics,sampled:total,verified:Object.values(verified).reduce((a,b)=>a+b,0),verifiedByTopic:verified,unsupported,problemCount:bad.length,problems:bad.slice(0,80)};
+  const grouped={};for(const q of bad){const id=(q.topic||'runtime')+'/'+(q.template||q.type||'unknown');const a=grouped[id]||(grouped[id]={count:0,examples:[]});a.count++;if(a.examples.length<2)a.examples.push(q)}
+  const report={topics:samples.topics,sampled:total,verified:Object.values(verified).reduce((a,b)=>a+b,0),verifiedByTopic:verified,unsupported,problemCount:bad.length,grouped,problems:bad.slice(0,80)};
   fs.mkdirSync('audits/out',{recursive:true});fs.writeFileSync('audits/out/g5_stage14b_fraction_oracle.json',JSON.stringify(report,null,2));
-  console.log('STAGE14B_FRACTION_AUDIT',JSON.stringify({...report,unsupported:Object.entries(unsupported).sort((a,b)=>b[1]-a[1]).slice(0,30),problems:report.problems.slice(0,10)}));
+  console.log('STAGE14B_FRACTION_AUDIT',JSON.stringify({...report,unsupported:Object.entries(unsupported).sort((a,b)=>b[1]-a[1]).slice(0,30),grouped:report.grouped,problems:report.problems.slice(0,10)}));
   assert.equal(report.sampled,18*3*36*5);assert.equal(report.problemCount,0,'Independent fraction math mismatch');
   assert((verified.frac_common_lcm||0)>400,'Common denominator oracle did not exercise intended cases');
   assert(report.verified>5000,'Too few independently calculated fraction questions');
