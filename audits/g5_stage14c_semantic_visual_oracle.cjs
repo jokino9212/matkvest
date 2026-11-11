@@ -90,7 +90,7 @@ function independent(q){
  let checked=0;const matched=new Map(),skipped=new Map(),faults=[],unhandled=new Map(),realMissingExamples=new Map();
  for(const q of rows){
   const key=q.topic+'::'+q.template;
-  if(!/^(angles::angle_protractor|frac_shapes::shape_|frac_types::|powers::|frac_parts::parts_complement|frac_ray::ray_shift_fraction|dec_add::decimal_add_context_three|dec_sub::decimal_sub_context_three|units::unit_direct|frac_read::read_(?:from_words|to_words)|percent_whole::percent_restore|dec_sub::decimal_sub_context)/.test(key))continue;
+  if(!/^(angles::angle_protractor|frac_shapes::shape_|frac_types::|powers::|frac_parts::parts_complement|frac_ray::ray_shift_fraction|dec_add::decimal_add_context_three|dec_sub::decimal_sub_context_three|units::unit_direct|frac_read::read_(?:from_words|to_words)|percent_whole::percent_restore|dec_sub::decimal_sub_context|dec_add::decimal_add_context)/.test(key))continue;
   let exp;
   if(key==='angles::angle_protractor'){
    const match=q.html.match(/<line\s+x1="([^"]+)"\s+y1="([^"]+)"\s+x2="([^"]+)"\s+y2="([^"]+)"\s+class="g5-protractor-ray"/);
@@ -170,6 +170,10 @@ function independent(q){
    else if(k==='decimal_sub_context'){
     const m=t.match(/Было\s+(\d+(?:,\d+)?)\s+л\s+сока\.\s+Выпили\s+(\d+(?:,\d+)?)\s+л/);
     if(m)exp=numeric(Number(m[1].replace(',','.'))-Number(m[2].replace(',','.')));
+   }
+   else if(k==='decimal_add_context'){
+    const m=t.match(/К верёвке длиной\s+(\d+(?:,\d+)?)\s+м\s+привязали(?: ещё)?\s+(\d+(?:,\d+)?)\s+м/);
+    if(m)exp=numeric(Number(m[1].replace(',','.'))+Number(m[2].replace(',','.')));
    }
   }
   if(!exp){unhandled.set(key,(unhandled.get(key)||0)+1);if(!realMissingExamples.has(key))realMissingExamples.set(key,{key,text:q.text,answer:q.answer,choices:q.choices});continue}
