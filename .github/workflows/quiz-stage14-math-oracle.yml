@@ -5,10 +5,11 @@ on:
     paths:
       - audits/g5_stage14_math_probe.cjs
       - audits/g5_stage14_math_oracle.cjs
+      - audits/g5_stage14_explanation_fix.py
       - .github/workflows/quiz-stage14-math-oracle.yml
   workflow_dispatch:
 permissions:
-  contents: read
+  contents: write
 jobs:
   audit:
     runs-on: ubuntu-latest
@@ -17,6 +18,8 @@ jobs:
       image: mcr.microsoft.com/playwright:v1.56.1-noble
     steps:
       - uses: actions/checkout@v4
+      - name: Apply guarded pedagogical explanation fix
+        run: python3 audits/g5_stage14_explanation_fix.py
       - run: npm install --no-save --no-package-lock playwright@1.56.1
       - name: Independent recomputation of 7200 real fraction questions
         run: timeout 480s node audits/g5_stage14_math_oracle.cjs
@@ -27,3 +30,22 @@ jobs:
           name: g5-stage14-independent-math-report
           path: audits/out/g5_stage14_math_oracle.json
           if-no-files-found: warn
+      - name: Retest all grade five difficulty and fraction scenario invariants
+        run: |
+          timeout 480s node audits/g5_stage11_difficulty_browser.cjs
+          timeout 480s node audits/g5_stage10_semantic_browser.cjs
+          timeout 240s node audits/quiz_stage05_fresh_browser.cjs
+          timeout 180s node audits/quiz_stage01_fraction_browser.cjs
+          timeout 180s node audits/quiz_stage03_skip_browser.cjs
+      - name: Commit validated HTML and PWA fingerprint in audit branch only
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js
+          if ! git diff --cached --quiet; then
+            git commit -m "fix(g5): complete mathematical explanations to explicit answers"
+            git fetch origin audit/g5-math-content-stage14-20261111
+            git rebase origin/audit/g5-math-content-stage14-20261111
+            git push origin HEAD:audit/g5-math-content-stage14-20261111
+          fi
