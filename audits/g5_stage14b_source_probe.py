@@ -1,6 +1,6 @@
 from pathlib import Path
 s=Path('index.html').read_text('utf-8')
-for key in ["case 'frac_common_lcm':","function mk5Rational(","function mk5MixedAnswer(","function mk5Num(","function mk5Choose(","case 'frac_add':","case 'frac_sub':","case 'angles':","angle_protractor","function mk5Angle"]:
+for key in ["case 'frac_common_lcm':","function mk5Rational(","function mk5MixedAnswer(","function mk5Num(","function mk5Choose(","case 'frac_add':","case 'frac_sub':","case 'angles':","angle_protractor","function g5ProtractorSvg"]:
  p=0; positions=[]
  while True:
   i=s.find(key,p)
