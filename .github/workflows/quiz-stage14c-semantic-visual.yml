@@ -1,0 +1,28 @@
+name: Stage14C independent visual geometry and semantic correctness gate
+on:
+  push:
+    branches: [audit/g5-math-content-stage14-20261111]
+    paths:
+      - audits/g5_stage14c_semantic_visual_oracle.cjs
+      - .github/workflows/quiz-stage14c-semantic-visual.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  visual-semantic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Independently recompute SVG protractor angles and semantic template answers
+        run: timeout 850s node audits/g5_stage14c_semantic_visual_oracle.cjs
+      - name: Save coverage gaps and mathematical findings
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: g5-stage14c-semantic-visual-report
+          path: audits/out/g5_stage14c_semantic_visual_report.json
+          if-no-files-found: warn
