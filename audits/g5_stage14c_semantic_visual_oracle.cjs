@@ -129,8 +129,15 @@ function independent(q){
     else if(k==='s18c_types_3'){const m=t.match(/знаменателе (\d+)/);if(m)exp=numeric(Number(m[1])-1)}
     else if(k==='s18c_types_4'&&f.length){const [a,b]=f[0].split('/').map(Number);exp=numeric(b-a)}
     else if(k==='s18c_types_5'){const m=t.match(/числитель (\d+)/);if(m)exp=numeric(Number(m[1]))}
+    else if(k==='s18c_types_2'&&/увеличивают|увеличить/.test(t)&&f.length){const [a,b]=f[0].split('/').map(Number);exp=numeric(b-a)}
+    else if((k==='s18c_types_0'||k==='s18c_types_1')&&/Сколько (?:неправильных|правильных) дробей/.test(t)){
+      const values=f.map(v=>v.split('/').map(Number));
+      exp=numeric(values.filter(v=>k==='s18c_types_0'?v[0]<v[1]:v[0]>=v[1]).length);
+    }else if(k==='s18c_types_3'&&/сколько существует правильных/.test(t)){const m=t.match(/знаменатель дроби равен (\d+)/);if(m)exp=numeric(Number(m[1])-1)}
     else{
-     const test=k==='s18c_types_1'?v=>Number(v.m[1])>Number(v.m[2]):k==='s18c_types_2'?v=>Number(v.m[1])===Number(v.m[2]):k==='s18c_types_0'||k==='types_choose_proper'?v=>Number(v.m[1])<Number(v.m[2]):null;
+     const test=k==='s18c_types_1'?v=>Number(v.m[1])>Number(v.m[2]):
+      k==='s18c_types_2'?v=>Number(v.m[1])===Number(v.m[2]):
+      k==='s18c_types_0'||k==='types_choose_proper'?v=>Number(v.m[1])<Number(v.m[2]):null;
      if(test&&options.length){
       const qualifying=options.filter(o=>o.m&&test(o));
       if(qualifying.length!==1)faults.push({key,reason:'non-unique correct option',found:qualifying.map(o=>o.label),text:t});
@@ -148,6 +155,8 @@ function independent(q){
   if(!ok)faults.push({key,text:q.text,answer:q.answer,expected:exp,choices:q.choices});
  }
  const report={questions:rows.length,independentCount:checked,distinctCheckedTemplates:matched.size,
+ errorGroups:Object.entries(faults.reduce((a,x)=>(a[x.key]=(a[x.key]||0)+1,a),{})).sort((a,b)=>b[1]-a[1]),
+ missingSamples:[...new Map(rows.filter(x=>unhandled.has(x.topic+'::'+x.template)).map(x=>[x.topic+'::'+x.template,{key:x.topic+'::'+x.template,text:x.text,answer:x.answer}])).values()],
  matched:Object.fromEntries(matched),remaining:Object.fromEntries(unhandled),failures:faults.slice(0,40),failureCount:faults.length,
  pageErrors:errs};
  fs.mkdirSync('audits/out',{recursive:true});fs.writeFileSync('audits/out/g5_stage14c_semantic_visual_report.json',JSON.stringify(report,null,2));
