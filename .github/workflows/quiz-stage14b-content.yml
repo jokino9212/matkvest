@@ -1,0 +1,29 @@
+name: Stage14B grade5 remaining 49-topic mathematical inventory
+on:
+  push:
+    branches: [audit/g5-math-content-stage14-20261111]
+    paths:
+      - audits/g5_stage14b_topic_inventory.cjs
+      - audits/g5_stage14b_content_oracle.cjs
+      - .github/workflows/quiz-stage14b-content.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Inventory real 5-class task families across 49 topics
+        run: timeout 420s node audits/g5_stage14b_topic_inventory.cjs
+      - name: Save math inventory JSON
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: g5-stage14b-49topic-inventory
+          path: audits/out/g5_stage14b_topic_inventory.json
+          if-no-files-found: warn
