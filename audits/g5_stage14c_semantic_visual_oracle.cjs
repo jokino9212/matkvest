@@ -4,7 +4,7 @@ const {chromium}=require('playwright');
 const frac=s=>{const m=String(s||'').replace(/,/g,'.').match(/^(-?\d+)\/(\d+)$/);return m?Number(m[1])/Number(m[2]):Number(String(s||'').replace(',','.'))};
 const close=(a,b)=>Number.isFinite(a)&&Number.isFinite(b)&&Math.abs(a-b)<1e-7;
 const W={'одна':1,'одну':1,'две':2,'два':2,'три':3,'четыре':4,'пять':5,'шесть':6,'семь':7,'восемь':8,'девять':9,'десять':10};
-const D={'вторая':2,'вторых':2,'треть':3,'третьих':3,'четвёртых':4,'четвертых':4,'пятых':5,'шестых':6,'седьмых':7,'восьмых':8,'девятых':9,'десятых':10};
+const D={'вторая':2,'вторых':2,'треть':3,'третья':3,'третьих':3,'четвёртая':4,'четвёртых':4,'четвертых':4,'пятая':5,'пятых':5,'шестых':6,'седьмых':7,'восьмых':8,'девятых':9,'десятых':10};
 function independent(q){
  const t=q.text,k=q.template,nums=(t.match(/\d+(?:,\d+)?/g)||[]).map(x=>Number(x.replace(',','.'))),
  f=t.match(/\d+\/\d+/g)||[], ans=q.answer;
@@ -104,11 +104,13 @@ function independent(q){
    const numeric=value=>({value}),word=value=>({word:value});
    if(k==='shape_radius_difference')exp=numeric(nums[0]/2);
    else if(k==='parts_complement')exp=numeric((nums[0]-nums[1])/nums[0]);
+   else if(k==='shape_diameter')exp=numeric(nums[0]*2);
+   else if(k==='types_boundary')exp=numeric(Number(t.match(/знаменателе (\d+)/)?.[1]));
    else if(k==='ray_shift_fraction'){const m=t.match(/(\d+)\/(\d+).*ещё (\d+) делений по (\d+)\/(\d+)/);if(m)exp=numeric(Number(m[1])/Number(m[2])+Number(m[3])*Number(m[4])/Number(m[5]))}
-   else if(k==='dec_add_context_three'||k==='dec_sub_context_three'){const v=nums; if(v.length===3)exp=numeric(k.startsWith('dec_add')?v[0]+v[1]+v[2]:v[0]-v[1]-v[2])}
+   else if(k==='decimal_add_context_three'||k==='decimal_sub_context_three'){const v=nums; if(v.length===3)exp=numeric(k.startsWith('decimal_add')?v[0]+v[1]+v[2]:v[0]-v[1]-v[2])}
    else if(k==='power_in_expression'){const m=t.match(/(\d+)²\s*([+−-])\s*(\d+)/);if(m)exp=numeric(Number(m[1])**2+(m[2]==='+'?1:-1)*Number(m[3]))}
-   else if(k==='unit_direct'){const m=t.match(/(\d+)\s*(км|м|см|мм|т|кг|г|ч|мин|с)\s*=\s*\?\s*(км|м|см|мм|т|кг|г|ч|мин|с)/);
-    const factor={км:1000000,м:1000,см:10,мм:1,т:1000000,кг:1000,г:1,ч:3600,мин:60,с:1},family={км:1,м:1,см:1,мм:1,т:2,кг:2,г:2,ч:3,мин:3,с:3};if(m&&family[m[2]]===family[m[3]])exp=numeric(Number(m[1])*factor[m[2]]/factor[m[3]])}
+   else if(k==='unit_direct'){const m=t.match(/(\d+)\s*(км|м|дм|см|мм|т|ц|кг|г|сут|ч|мин|с)\s*=\s*\?\s*(км|м|дм|см|мм|т|ц|кг|г|сут|ч|мин|с)/);
+    const factor={км:1000000,м:1000,дм:100,см:10,мм:1,т:1000000,ц:100000,кг:1000,г:1,сут:86400,ч:3600,мин:60,с:1},family={км:1,м:1,дм:1,см:1,мм:1,т:2,ц:2,кг:2,г:2,сут:3,ч:3,мин:3,с:3};if(m&&family[m[2]]===family[m[3]])exp=numeric(Number(m[1])*factor[m[2]]/factor[m[3]])}
    else if(k.startsWith('s18b_power')||k==='power_square'||k==='power_cube'){
     let m=t.match(/Квадрат какого натурального числа равен (\d+)/);if(m)exp=numeric(Math.sqrt(Number(m[1])));
     else if((m=t.match(/Куб какого натурального числа равен (\d+)/)))exp=numeric(Math.round(Math.cbrt(Number(m[1]))));
@@ -126,8 +128,14 @@ function independent(q){
    else if(k==='types_choose_proper'||k.startsWith('s18c_types_')||k==='types_classify'){
     const options=q.choices.map(o=>({...o,m:o.label.match(/^(\d+)\/(\d+)$/)}));
     if(k==='types_classify'&&f.length){const [a,b]=f[0].split('/').map(Number);exp=word(a<b?'правильная':'неправильная')}
-    else if(k==='s18c_types_3'){const m=t.match(/знаменателе (\d+)/);if(m)exp=numeric(Number(m[1])-1)}
-    else if(k==='s18c_types_4'&&f.length){const [a,b]=f[0].split('/').map(Number);exp=numeric(b-a)}
+    else if(k==='s18c_types_3'){const m=t.match(/(?:знаменателе|знаменатель дроби равен) (\d+)/);if(m)exp=numeric(Number(m[1])-1)}
+    else if(k==='s18c_types_4'&&/увеличить/.test(t)&&f.length){const [a,b]=f[0].split('/').map(Number);exp=numeric(b-a)}
+    else if(k==='s18c_types_4'&&/В какой паре/.test(t)){
+      const candidates=options.map(o=>({label:o.label,fs:o.label.match(/(\d+)\/(\d+)/g)||[]}));
+      const valid=candidates.filter(o=>o.fs.length===2&&o.fs.every(v=>{const [a,b]=v.split('/').map(Number);return a>=b}));
+      if(valid.length!==1)faults.push({key,reason:'nonunique improper fraction pair',choices:candidates,correct:valid.map(x=>x.label)});
+      else exp=word(valid[0].label);
+    }
     else if(k==='s18c_types_5'){const m=t.match(/числитель (\d+)/);if(m)exp=numeric(Number(m[1]))}
     else if(k==='s18c_types_2'&&/увеличивают|увеличить/.test(t)&&f.length){const [a,b]=f[0].split('/').map(Number);exp=numeric(b-a)}
     else if((k==='s18c_types_0'||k==='s18c_types_1')&&/Сколько (?:неправильных|правильных) дробей/.test(t)){
