@@ -1,0 +1,51 @@
+name: Stage16 safe canonical rational answer candidate
+on:
+  push:
+    branches: [audit/g5-pedagogy-stage16-20261111]
+    paths:
+      - audits/g5_stage16_canonical_rational_fix.py
+      - audits/g5_stage16_canonical_rational_browser.cjs
+      - .github/workflows/quiz-stage16-canonical.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply guarded label-only patch and update PWA fingerprint
+        run: python3 audits/g5_stage16_canonical_rational_fix.py
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Verify canonical labels and unchanged grading keys
+        run: timeout 450s node audits/g5_stage16_canonical_rational_browser.cjs
+      - name: Independently validate all mathematical answers and progression
+        run: |
+          timeout 450s node audits/g5_stage14_math_oracle.cjs
+          timeout 450s node audits/g5_stage14b_math_oracle.cjs
+          timeout 450s node audits/g5_stage14c_semantic_visual_oracle.cjs
+          timeout 450s node audits/g5_stage11_difficulty_browser.cjs
+          timeout 450s node audits/g5_stage10_semantic_browser.cjs
+          timeout 250s node audits/quiz_stage05_fresh_browser.cjs
+      - name: Verify fraction entry, saved attempts, skipping and PWA
+        run: |
+          timeout 220s node audits/quiz_stage01_fraction_browser.cjs
+          timeout 220s node audits/quiz_stage02_input_browser.cjs
+          timeout 220s node audits/quiz_stage03_skip_browser.cjs
+          timeout 220s node audits/stage24_attempt_lifecycle_browser.cjs
+          timeout 220s node audits/stage28_offline_pwa_browser.cjs
+      - name: Persist validated code on audit branch only
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js
+          if ! git diff --cached --quiet; then
+            git commit -m "fix(g5): display whole-number rational answers as integers"
+            git fetch origin audit/g5-pedagogy-stage16-20261111
+            git rebase origin/audit/g5-pedagogy-stage16-20261111
+            git push origin HEAD:audit/g5-pedagogy-stage16-20261111
+          fi
