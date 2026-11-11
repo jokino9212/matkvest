@@ -6,6 +6,7 @@ on:
       - audits/g5_stage14b_topic_inventory.cjs
       - audits/g5_stage14b_source_probe.py
       - audits/g5_stage14b_fraction_oracle.cjs
+      - audits/g5_stage14b_decimal_oracle.cjs
       - audits/g5_stage14b_common_denominator_fix.py
       - audits/g5_stage14b_content_oracle.cjs
       - .github/workflows/quiz-stage14b-content.yml
@@ -29,6 +30,8 @@ jobs:
         run: timeout 420s node audits/g5_stage14b_topic_inventory.cjs
       - name: Independently compute fraction answers in 18 topics
         run: timeout 480s node audits/g5_stage14b_fraction_oracle.cjs
+      - name: Independently compute decimal answers across 15 topics
+        run: timeout 480s node audits/g5_stage14b_decimal_oracle.cjs
       - name: Regression original stage14A math explanations
         run: timeout 480s node audits/g5_stage14_math_oracle.cjs
       - name: Confirm base grade5 session anti-repeat
@@ -41,6 +44,7 @@ jobs:
           path: |
             audits/out/g5_stage14b_topic_inventory.json
             audits/out/g5_stage14b_fraction_oracle.json
+            audits/out/g5_stage14b_decimal_oracle.json
           if-no-files-found: warn
       - name: Commit validated candidate HTML and PWA digest to audit branch only
         run: |
