@@ -1,0 +1,89 @@
+name: Stage14 final independent math and product integration (PR32, read-only)
+on:
+  push:
+    branches: [audit/g5-math-content-stage14-20261111]
+    paths:
+      - .github/workflows/quiz-stage14-final-integration.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  math-content:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Assert PWA fingerprint and no code mismatch
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re,hashlib
+          html=Path('index.html').read_bytes()
+          sw=Path('sw.js').read_text('utf8')
+          m=re.search(r'const APP_BUILD_HASH = "([0-9a-f]{64})"',sw)
+          assert m and m.group(1)==hashlib.sha256(html).hexdigest()
+          print('STAGE14_FINAL_DIGEST_PASS',m.group(1))
+          PY
+      - name: Independently recalculate fractions, all 49 remaining topics and SVG protractors
+        run: |
+          timeout 300s node audits/g5_stage14_math_oracle.cjs
+          timeout 900s node audits/g5_stage14b_math_oracle.cjs
+          timeout 900s node audits/g5_stage14c_semantic_visual_oracle.cjs
+      - name: Validate all topic levels, diversity, anti-repeat and fraction input
+        run: |
+          timeout 400s node audits/g5_stage11_difficulty_browser.cjs
+          timeout 400s node audits/g5_stage10_semantic_browser.cjs
+          timeout 200s node audits/quiz_stage05_fresh_browser.cjs
+          timeout 180s node audits/quiz_stage01_fraction_browser.cjs
+      - name: Preserve independent math reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: stage14-final-independent-math
+          path: |
+            audits/out/g5_stage14_math_oracle.json
+            audits/out/g5_stage14b_math_oracle.json
+            audits/out/g5_stage14c_semantic_visual_report.json
+            audits/out/g5_stage11_difficulty_report.json
+          if-no-files-found: warn
+  product:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          ref: backup/pre-ux107-pets-main-20261110
+          path: baseline_v106
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Validate exact fraction answers, navigation, skip, completion and pets
+        run: |
+          timeout 180s node audits/quiz_stage01_navigation_browser.cjs
+          timeout 180s node audits/quiz_stage02_input_browser.cjs
+          timeout 180s node audits/quiz_stage03_skip_browser.cjs
+          timeout 180s node audits/quiz_stage03_completion_browser.cjs
+          timeout 180s node audits/quiz_stage04_pet_browser.cjs
+      - name: 30 pets, original art, badges, collection, archived assets and first paint
+        run: |
+          timeout 220s node audits/ux105_v107_browser.cjs
+          timeout 220s node audits/ux107_firstpaint_archive_browser.cjs
+          timeout 180s node audits/ux107_badge_firstpaint_browser.cjs
+          timeout 200s node audits/stage30_collection_media_browser.cjs
+      - name: Profiles, storage safety, attempts, purchases, PWA and v106-to-v107
+        run: |
+          timeout 220s node audits/stage24_attempt_lifecycle_browser.cjs
+          timeout 220s node audits/stage25_profile_isolation_browser.cjs
+          timeout 220s node audits/stage26_verified_recovery_browser.cjs
+          timeout 220s node audits/stage28_offline_pwa_browser.cjs
+          timeout 340s node audits/ux107_pwa_upgrade_v106_v107_browser.cjs
+      - name: Mobile layouts and keyboard
+        run: |
+          timeout 220s node audits/stage21_training_keyboard_audit.cjs
+          timeout 240s node audits/stage27_compact_mobile_browser.cjs
+
+# Recheck strict union of stage14B and stage14C semantic templates after rare decimal context coverage.

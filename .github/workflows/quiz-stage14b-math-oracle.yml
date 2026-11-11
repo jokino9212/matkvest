@@ -1,0 +1,50 @@
+name: Stage14B independent mathematical correctness across remaining 49 grade-five topics
+on:
+  push:
+    branches: [audit/g5-math-content-stage14-20261111]
+    paths:
+      - audits/g5_stage14b_math_oracle.cjs
+      - audits/g5_stage14b_numerator_disambiguation.py
+      - .github/workflows/quiz-stage14b-math-oracle.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  oracle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply precise denominator in mixed numerator prompts
+        run: python3 audits/g5_stage14b_numerator_disambiguation.py
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Independently recompute answers from question text and rank gaps
+        run: timeout 900s node audits/g5_stage14b_math_oracle.cjs
+      - name: Save math errors and missing coverage by topic and template
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: g5-stage14b-math-oracle
+          path: audits/out/g5_stage14b_math_oracle.json
+          if-no-files-found: ignore
+      - name: Cross-check stage14A plus full 53-topic progression and exact anti-repeat
+        run: |
+          timeout 480s node audits/g5_stage14_math_oracle.cjs
+          timeout 480s node audits/g5_stage11_difficulty_browser.cjs
+          timeout 480s node audits/g5_stage10_semantic_browser.cjs
+          timeout 240s node audits/quiz_stage05_fresh_browser.cjs
+          timeout 180s node audits/quiz_stage01_fraction_browser.cjs
+      - name: Commit verified corrected question wording to audit branch only
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js
+          if ! git diff --cached --quiet; then
+            git commit -m "fix(g5): clarify numerator with fixed denominator"
+            git fetch origin audit/g5-math-content-stage14-20261111
+            git rebase origin/audit/g5-math-content-stage14-20261111
+            git push origin HEAD:audit/g5-math-content-stage14-20261111
+          fi
