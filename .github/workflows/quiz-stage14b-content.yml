@@ -4,6 +4,7 @@ on:
     branches: [audit/g5-math-content-stage14-20261111]
     paths:
       - audits/g5_stage14b_topic_inventory.cjs
+      - audits/g5_stage14b_source_probe.py
       - audits/g5_stage14b_content_oracle.cjs
       - .github/workflows/quiz-stage14b-content.yml
   workflow_dispatch:
@@ -18,6 +19,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Inspect original mathematical helper implementations
+        run: python3 audits/g5_stage14b_source_probe.py
       - name: Inventory real 5-class task families across 49 topics
         run: timeout 420s node audits/g5_stage14b_topic_inventory.cjs
       - name: Save math inventory JSON
