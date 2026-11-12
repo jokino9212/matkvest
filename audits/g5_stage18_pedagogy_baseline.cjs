@@ -29,8 +29,8 @@ function genre(t){
       try{
        const q=freshQuiz(qid),text=stripHtmlText(String(q.text||'')),answer=String(q.correctText||''),
          template=String(q.templateId||'base');
-       assert(text.trim().length>0,'empty task');
-       assert(answer.trim().length>0,'empty answer');
+       if(!text.trim())throw new Error('empty task');
+       if(!answer.trim())throw new Error('empty answer');
        templates[template]=(templates[template]||0)+1;
        if(!examples[template])examples[template]={text:text.slice(0,230),answer:answer.slice(0,100)};
        samples.push({text,answer,template});
