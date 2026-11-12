@@ -7,6 +7,13 @@ on:
       - scripts/activate-g5-conversion-ux.py
       - audits/g5_conversion_ux_smoke.cjs
       - .github/workflows/g5-conversion-ux.yml
+  pull_request:
+    branches: [main]
+    paths:
+      - g5-conversion-ux.js
+      - scripts/activate-g5-conversion-ux.py
+      - audits/g5_conversion_ux_smoke.cjs
+      - .github/workflows/g5-conversion-ux.yml
   workflow_dispatch:
 permissions:
   contents: write
@@ -18,6 +25,8 @@ jobs:
       image: mcr.microsoft.com/playwright:v1.56.1-noble
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: fix/g5-conversion-ux-20261112
       - name: Activate external UX script in branch HTML
         run: python3 scripts/activate-g5-conversion-ux.py
       - name: Check source syntax
