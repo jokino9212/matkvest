@@ -86,6 +86,7 @@ document.addEventListener('input',function(event){
  if(keyGrade(qid)!==5||!q?.stage18ConversionType)return;
  const id=event.target?.id;
  if(id!=='quizFracWhole'&&id!=='quizFracNum')return;
+ event.target.classList.remove('good','bad');
  event.stopPropagation();
  if(id==='quizFracWhole'&&/^\d+$/.test(event.target.value))document.getElementById('quizFracNum')?.focus();
 },true);
