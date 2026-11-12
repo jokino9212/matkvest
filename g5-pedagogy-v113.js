@@ -9,6 +9,7 @@ const familyIndex=()=>Math.max(0,Number(blockSession?.done)||0)%5;
 function number(text,value,why,name,steps,values=[]){
  if(!Number.isSafeInteger(value)||steps<1)throw Error('v113 invalid computed answer '+name+' '+value);
  const q=g5q(text,g5nums(value,values.filter(Number.isSafeInteger)),String(value),why,name);
+ q.mk5Audit={type:'numeric',expected:value,level:stage()};
  q.mk5Pedagogy={stage:stage(),steps,family:name,expected:value};
  return q;
 }
@@ -16,6 +17,7 @@ function choice(text,correct,distractors,why,name,steps=1){
  const distinct=[...new Set([correct,...distractors])];
  if(distinct.length<3)throw Error('v113 duplicate alternatives '+name);
  const q=g5q(text,distinct.map((label,i)=>({key:i===0?'ok':'no'+i,label})), 'ok',why,name);
+ q.mk5Audit={type:'choice',expected:correct,level:stage()};
  q.mk5Pedagogy={stage:stage(),steps,family:name,expected:correct};
  return q;
 }
