@@ -30,7 +30,7 @@ function expectedFromVisible(q) {
  }
  if(q.template==='frac_div_integer'){
   assert.equal(parts.length,1,'integer division fractions: '+visible);
-  const m=visible.match(/:\s*(\d+)(?:\D|$)/);
+  const m=visible.match(/:\s*(\d+)(?:\D|$)/) || visible.match(/\s(?:на|в)\s+(\d+)\s+(?:част|стакан)/i);
   assert(m,'whole-number divisor missing: '+visible);
   return divide(parts[0],rational(m[1]));
  }
@@ -72,7 +72,7 @@ function displayedAnswer(s) {
       unique.add(signature);
       items.push({stage,run,pos,text,answer,template,
         context:!(/^(?:Вычисли|Сложи|Найди значение)\b/i.test(text)) &&
-          /(?:площад|ширин|длин|лент|бутылк|стакан|полос|грядк|м²|метр|литр|часть)/i.test(text)});
+          /(?:площад|ширин|длин|лент|бутылк|стакан|полос|грядк|м²|метр|литр|часть|турист|скорост|прошёл|пути|сосуд|воды)/i.test(text)});
      }
      uniqueSessions.push(unique.size);
     }
