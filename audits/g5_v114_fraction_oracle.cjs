@@ -46,7 +46,7 @@ const {chromium}=require('playwright');
       const v=parse(q),n=v.nums,f=v.fr,w=v.words,m=v.marks,d=v.unit;
       const N=x=>({kind:'numeric',value:x}),F=(x,y)=>({kind:'fraction',value:x+'/'+y}),S=x=>({kind:'choice',value:x});
       if(id==='frac_parts'){
-       if(t===0)return [()=>(N(f[0]?.n)),()=>(N(f[0]?.d)),()=>(N(n[0])),()=>(N(v.shaded)),()=>(N(f[0]?.d-f[0]?.n))][p]();
+       if(t===0)return [()=>(N(f[0]?.n)),()=>(N(f[0]?.d)),()=>(N(n[0])),()=>(N(v.shaded)),()=>(N(n[1]-n[0]))][p]();
        if(t===1)return [()=>(N(n[0]+v.shaded)),()=>(N(n[0]-n[1])),()=>(N(f[0].n+f[1].n)),()=>(N(f[1].n-f[0].n)),()=>(F(n[1]+n[2],n[0]))][p]();
        return [()=>(N(n[1]+n[2]-n[3])),()=>(N(n[1]-n[2]+n[3])),()=>(F(n[2],n[0])),()=>(N(f[0].n-f[1].n-f[2].n)),()=>(N(n[0]*n[1]-n[2]-n[3]))][p]();
       }
@@ -58,7 +58,7 @@ const {chromium}=require('playwright');
       if(id==='frac_ray'){
        if(t===0)return [()=>(F(m[0],d)),()=>(N(m[0])),()=>(N(m[0])),()=>(N(d)),()=>(N(d-m[0]))][p]();
        if(t===1)return [()=>(N(m[1]-m[0])),()=>(N(m[0]+n[0])),()=>(F(m[0],d)),()=>(N(m[0])),()=>(N(d-m[1]))][p]();
-       return [()=>(F(m[0]+n[0]-n[1],d)),()=>(F(m[1]+n[0],d)),()=>(F(m[1]-m[0],d)),()=>(N(m[1]-n[0])),()=>(N(m[1]+n[0]))][p]();
+       return [()=>(F(m[0]+n[0]-n[1],d)),()=>(F(m[1]+n[0],d)),()=>(F(m[1]-m[0],d)),()=>(N(m[1]-n[0])),()=>(N(m[1]+n[n.length-1]))][p]();
       }
       if(id==='frac_types'){
        if(t===0)return [()=>(S('Правильная')),()=>(S('Неправильная')),()=>(S('Меньше 1')),()=>(N(n[0])),()=>(N(n[1]-n[0]))][p]();
