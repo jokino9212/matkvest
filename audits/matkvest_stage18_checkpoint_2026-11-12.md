@@ -17,3 +17,10 @@
 2. Выбрать реально слабые темы по примерам, не подменять смысловую проверку лексической эвристикой.
 3. Писать узкий патч **одной** темы на отдельной ветке или продолжить Stage18 audit branch, независимый математический oracle + педагогика, затем Stage14A/B/C, Stage11/10/05, Grade5 fraction inputs, skip, persistence, PWA, mobile, pets and shop regression.
 4. До PASS/PR/production gate ничего не сливать в main.
+
+## Продолжение 12.11, 17:13 MSK — evidence workflow
+- Audit branch 3 коммита впереди main, без отставания на момент сверки; main всё ещё faf5b1a.
+- Проверены GitHub status для db6ac1b: statuses пуст; `fetch_commit_workflow_runs` для db6ac1b и 332b56d тоже вернул пусто. **Это не доказательство отсутствия запусков**, поскольку метод возвращает только PR-triggered runs. PASS не подтверждён.
+- Никакого отчёта `audits/reports/g5_stage18_pedagogy_summary.json` пока нет (404).
+- Дополнен CI workflow коммитом `70cc7f271022f80fa0ae8f15c55731af0c2cfcd0`: после успешного read-only аудита проверяет sampleSize=15900, topics=53, configs=159; сохраняет компактный `audits/reports/g5_stage18_pedagogy_summary.json` в audit-ветке. Ветка main и продуктовые HTML/SW не затрагиваются. Единственный git write — диагностический JSON после PASS.
+- Следующее «Продолжи»: первым делом fetch_file отчёта `audits/reports/g5_stage18_pedagogy_summary.json` из audit branch. При 404 нужен реальный статус workflow из GitHub Actions UI/API с учетом того, что connector fetch_commit_workflow_runs НЕ перечисляет push runs. До подтверждения PASS не ранжировать темы как найденные ошибки и не изменять генераторы.
