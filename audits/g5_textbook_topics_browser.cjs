@@ -41,7 +41,10 @@ const {chromium}=require('playwright');
     renderGrade5();
     const cards=[...document.querySelectorAll('.g5-card')].map(x=>x.textContent);
     for(const id of expected){const title=all.find(x=>x.id===id).title;if(!cards.some(x=>x.includes(title)))throw Error('Invisible card '+title)}
-    return {topics:all.length,checks:checks.length,questions:checks.length*5};
+    const grade5Page={inputs:[...mainView.querySelectorAll('input')].map(e=>({placeholder:e.placeholder,type:e.type})),cards:mainView.querySelectorAll('.g5-card').length};
+    const grade6Page={renderAvailable:typeof renderGrade6==='function'};
+    if(grade6Page.renderAvailable){renderGrade6();grade6Page.inputs=[...mainView.querySelectorAll('input')].map(e=>({placeholder:e.placeholder,type:e.type}));grade6Page.cards=[...mainView.querySelectorAll('.topic')].slice(0,4).map(e=>({class:e.className,html:e.outerHTML.slice(0,200)}));grade6Page.sections=[...mainView.querySelectorAll('section')].slice(0,5).map(e=>({class:e.className,html:e.outerHTML.slice(0,120)}));}
+    return {topics:all.length,checks:checks.length,questions:checks.length*5,grade5Page,grade6Page};
   });
   assert.deepEqual(errors,[]);
   console.log('G5_TEXTBOOK_3_TOPIC_GATE_PASS',JSON.stringify(report));
