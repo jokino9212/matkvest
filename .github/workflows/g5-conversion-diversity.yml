@@ -1,0 +1,35 @@
+name: Grade 5 mixed/improper conversion diversity
+on:
+  push:
+    branches: [fix/g5-conversion-diversity-20261112]
+    paths:
+      - g5-conversion-ux.js
+      - audits/g5_conversion_diversity_smoke.cjs
+      - .github/workflows/g5-conversion-diversity.yml
+  pull_request:
+    branches: [main]
+    paths:
+      - g5-conversion-ux.js
+      - audits/g5_conversion_diversity_smoke.cjs
+      - .github/workflows/g5-conversion-diversity.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  mathematical-pedagogical-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate conversion generator and tests
+        run: |
+          node --check g5-conversion-ux.js
+          node --check audits/g5_conversion_diversity_smoke.cjs
+      - name: Install browser runner
+        run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Guard correct input layout and original reported regressions
+        run: node audits/g5_conversion_ux_smoke.cjs
+      - name: Verify mathematics, varied families, increasing difficulty and 44 questions
+        run: node audits/g5_conversion_diversity_smoke.cjs
