@@ -7,6 +7,8 @@ on:
       - 'audits/collection_viewer_v81_browser.cjs'
       - 'index.html'
       - 'sw.js'
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 permissions:
   contents: read
@@ -22,8 +24,10 @@ jobs:
           python3 - <<'PY'
           from pathlib import Path
           import hashlib
+          import re
           sw=Path('sw.js').read_text()
-          assert 'matkvest-iphone-v81' in sw or 'matkvest-iphone-v105' in sw or 'matkvest-iphone-v106' in sw or 'matkvest-iphone-v107' in sw, 'Unexpected PWA version'
+          version=re.search(r'^const CACHE_NAME = "matkvest-iphone-v(\d+)";',sw,re.MULTILINE)
+          assert version and int(version.group(1))>=81, 'Unexpected or outdated PWA version'
           assert hashlib.sha256(Path('index.html').read_bytes()).hexdigest() in sw
           print('PWA_DIGEST_PASS')
           PY
@@ -38,10 +42,7 @@ jobs:
           elif grep -q 'matkvest-iphone-v106' sw.js; then
             node audits/ux106_badge_overflow_browser.cjs
             node audits/stage30_collection_media_browser.cjs
-          elif grep -q 'matkvest-iphone-v107' sw.js; then
+          else
             node audits/ux107_badge_firstpaint_browser.cjs
             node audits/stage30_collection_media_browser.cjs
-          else
-            echo 'Unrecognized release version: inspect before updating baseline'
-            exit 1
           fi

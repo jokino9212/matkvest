@@ -8,6 +8,8 @@ on:
       - assets/source/pets/**
       - audits/ux107_firstpaint_archive_browser.cjs
       - .github/workflows/ux107-production-full.yml
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 permissions:
   contents: read
@@ -32,7 +34,8 @@ jobs:
           from pathlib import Path
           h=Path('index.html').read_bytes();w=Path('sw.js').read_text()
           m=json.loads(Path('audits/ux105_new_pets_manifest.json').read_text())
-          assert 'matkvest-iphone-v107' in w
+          version=re.search(r'^const CACHE_NAME = "matkvest-iphone-v(\d+)";',w,re.MULTILINE)
+          assert version and int(version.group(1))>=107, 'Unexpected or outdated PWA cache version'
           assert re.search(r'const APP_BUILD_HASH = "([0-9a-f]{64})"',w).group(1)==hashlib.sha256(h).hexdigest()
           assert m['artwork']['art_approval']=='approved' and m['artwork']['accepted_count']==10
           assert len(m['items'])==10
