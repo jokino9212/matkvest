@@ -52,7 +52,7 @@ function simplify(){
  if(p===2)return multiple('Вынеси общий множитель за скобки: '+k+'a + '+k+'b.',k+'(a + b)',[k+'(a · b)','a + '+k+'b',k+'a + b'],'Общий множитель '+k+': '+k+'a + '+k+'b = '+k+'(a + b).','simplify_factor');
  if(p===3){const x=int(2,8+tier*5);return mk5Num('Упрости '+k+'a + '+m+'a и найди значение при a = '+x+'.',(k+m)*x,'('+k+' + '+m+')a = '+(k+m)+'a; при a = '+x+': '+(k+m)+' · '+x+' = '+((k+m)*x)+'.','simplify_evaluate',[k*m*x,(k+m)+x,k*x+m]);}
  const n=int(2,5+tier*5);
- return multiple('Упрости выражение: '+k+'(a + b) + '+m+'a − '+n+'b.',(k+m)+'a + '+(k-n)+'b',[(k+m)+'a + '+(k+n)+'b',k+'a + '+(m-n)+'b',(k+m+n)+'ab'],'Раскрываем скобки: '+k+'a + '+k+'b + '+m+'a − '+n+'b = '+(k+m)+'a + '+(k-n)+'b.','simplify_multistep');
+ return multiple('Упрости выражение: '+k+'(a + b) + '+m+'a − '+n+'b.',(k+m)+'a'+(k-n===0?'':k-n>0?' + '+(k-n)+'b':' − '+(n-k)+'b'),[(k+m)+'a + '+(k+n)+'b',k+'a + '+(m-n)+'b',(k+m+n)+'ab'],'Раскрываем скобки: '+k+'a + '+k+'b + '+m+'a − '+n+'b = '+(k+m)+'a + '+(k-n)+'b.','simplify_multistep');
 }
 g5DonorQuestion=function(id){
  if(id==='division_remainder')return division();
