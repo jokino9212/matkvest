@@ -16,6 +16,12 @@ const previousDonor=g5DonorQuestion,previousLesson=g5Lesson;
 function int(a,b){return ri(a,b)}
 function position(){return Math.max(0,Number(blockSession&&blockSession.done)||0)%5}
 function difficulty(){return Math.max(0,Math.min(2,Number(activeDifficulty())||0))}
+function mk5Num(text,correct,why,family,extras=[]){
+ const n=Number(correct);
+ const q=g5q(text,g5nums(n,extras.filter(x=>Number.isFinite(Number(x))).map(Number)),String(n),why,family);
+ q.mk5Audit={type:'numeric',expected:n};
+ return q;
+}
 function multiple(text,correct,incorrect,why,family){
  const choices=[{label:correct,key:'ok'}];
  incorrect.filter(x=>x!==correct).forEach((v,i)=>{if(!choices.some(c=>c.label===v))choices.push({label:v,key:'bad'+i})});
