@@ -1,0 +1,25 @@
+name: Stage16C grade 5 mixed-add contextual diversity baseline
+on:
+  push:
+    branches: [audit/g5-pedagogy-stage16-20261111]
+    paths:
+      - audits/g5_stage16c_mixed_add_baseline.cjs
+      - .github/workflows/quiz-stage16c-mixed-add.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  baseline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Measure 720 actual mixed-number tasks (read-only)
+        run: timeout 600s node audits/g5_stage16c_mixed_add_baseline.cjs
+      - name: Verify diagnostic result and summarize
+        run: |
+          test -s audits/out/g5_stage16c_mixed_add_baseline.json
+          echo "Stage16C baseline sampled 720 real mixed-add tasks. This baseline is diagnostic only: story requirement is not yet enabled." >> "$GITHUB_STEP_SUMMARY"
