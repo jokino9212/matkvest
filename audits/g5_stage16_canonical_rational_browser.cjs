@@ -20,7 +20,9 @@ const assert=require('node:assert/strict'),path=require('node:path'),{chromium}=
      if(!correct)bad.push({topic:topic.id,problem:'missing answer key',correctKey,choices:q.choices});
      if(d===1){integer++;
       if(correct&&stripHtmlText(correct.label)!==String(n))bad.push({topic:topic.id,problem:'noncanonical integer label',expected:String(n),label:correct.label});
-      if(String(q.correct)!==correctKey)bad.push({topic:topic.id,problem:'modified grading key',expected:correctKey,correct:q.correct});
+      if(String(q.ans)!==correctKey)bad.push({topic:topic.id,problem:'modified grading key',expected:correctKey,actual:q.ans});
+      if(q.answerMode!=='fraction')bad.push({topic:topic.id,problem:'fraction input mode lost',answerMode:q.answerMode,correctKey});
+      if(String(q.mk5Audit.expected)!==correctKey)bad.push({topic:topic.id,problem:'math audit key mismatch',expected:correctKey,audit:q.mk5Audit.expected});
      }
      for(const c of q.choices){const m=String(c.key).match(/^(\d+)\/1$/);
       if(m){choiceWholes++;if(stripHtmlText(c.label)!==m[1])bad.push({topic:topic.id,problem:'noncanonical wrong answer',key:c.key,label:c.label})}
