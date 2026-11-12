@@ -11,13 +11,13 @@ const {chromium}=require('playwright');
   page.on('pageerror',e=>errors.push(e.message));
   await page.goto('file://'+path.resolve('index.html'),{waitUntil:'domcontentloaded'});
   const report=await page.evaluate(()=>{
-    const expected=['division_remainder','expand_brackets','simplify_expressions'];
+    const expected=['division_remainder','expand_brackets','simplify_expressions','natural_add','natural_subtract','natural_multiply','natural_divide','numeric_literal_expressions'];
     const all=g5AllTopics();
     for(const id of expected){
       if(all.filter(x=>x.id===id).length!==1)throw Error('Topic missing/duplicate '+id);
       if(!g5Lesson(id).trim())throw Error('Missing lesson '+id);
     }
-    if(all.length!==56)throw Error('Expected 56 fifth-grade topics, got '+all.length);
+    if(all.length!==61)throw Error('Expected 61 fifth-grade topics, got '+all.length);
     const checks=[];
     for(const id of expected)for(let stage=0;stage<3;stage++)for(let session=0;session<12;session++){
       const families=new Set(),stems=new Set();
@@ -43,13 +43,13 @@ const {chromium}=require('playwright');
     for(const id of expected){const title=all.find(x=>x.id===id).title;if(!cards.some(x=>x.includes(title)))throw Error('Invisible card '+title)}
     const search5=mainView.querySelector('#mk-textbook-search-input-5');
     if(!search5)throw Error('Grade 5 textbook search missing');
-    for(const [term,title] of [['деление с остатком','Деление с остатком'],['раскрыть скобки','Раскрытие скобок'],['упростить выражение','Упрощение выражений']]){
+    for(const [term,title] of [['деление с остатком','Деление с остатком'],['раскрыть скобки','Раскрытие скобок'],['упростить выражение','Упрощение выражений'],['числовые и буквенные выражения','Числовые и буквенные выражения'],['деление натуральных чисел','Деление натуральных чисел']]){
       search5.value=term;search5.dispatchEvent(new Event('input',{bubbles:true}));
       const found=[...mainView.querySelectorAll('.g5-card')].filter(c=>!c.hidden);
       if(found.length!==1||!found[0].textContent.includes(title))throw Error('Grade 5 search failure: '+term+' => '+found.length);
     }
     search5.value='';search5.dispatchEvent(new Event('input',{bubbles:true}));
-    if([...mainView.querySelectorAll('.g5-card')].filter(c=>!c.hidden).length!==56)throw Error('Grade 5 search reset failed');
+    if([...mainView.querySelectorAll('.g5-card')].filter(c=>!c.hidden).length!==61)throw Error('Grade 5 search reset failed');
     const grade5Page={inputs:[...mainView.querySelectorAll('input')].map(e=>({placeholder:e.placeholder,type:e.type})),cards:mainView.querySelectorAll('.g5-card').length};
     const grade6Page={renderAvailable:typeof renderGrade6==='function'};
     if(grade6Page.renderAvailable){renderGrade6();
