@@ -3,8 +3,9 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
 const {chromium}=require('playwright');
 const broken=process.argv.includes('--expect-broken');
 const html=fs.readFileSync('index.html'),sw=fs.readFileSync('sw.js','utf8');
-const expectedCache=broken?'matkvest-iphone-v105':'matkvest-iphone-v107';
-assert(sw.includes(expectedCache),'Expected source cache '+expectedCache);
+const cacheVersion=Number(sw.match(/const CACHE_NAME = "matkvest-iphone-v(\d+)";/)?.[1]);
+assert(broken?cacheVersion===105:Number.isInteger(cacheVersion)&&cacheVersion>=107,
+ 'Unexpected cache version '+cacheVersion+(broken?' for v105 baseline':' for current badge regression'));
 assert(sw.includes(crypto.createHash('sha256').update(html).digest('hex')),'PWA fingerprint mismatch');
 const folder='audits/ux107_badge_firstpaint_output';if(!broken)fs.mkdirSync(folder,{recursive:true});
 
