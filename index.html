@@ -10839,7 +10839,9 @@ function stage18FocusFractionMissing(raw){
 }
 function stage18ConvertG5Fraction(result,source){
  const k=String(source?.correct??""),label=String(result.correctLabel||"");
- if(!/class="(?:frac|mixed)"/.test(label))return result;
+ const wholeKey=k.endsWith('/1')?k.slice(0,-2):'';
+ const wholeLabel=/^[+-]?[0-9]+$/.test(wholeKey)&&label.trim()===wholeKey;
+ if(!/class="(?:frac|mixed)"/.test(label)&&!wholeLabel)return result;
  const simple=k.match(/^([+-]?\d+)\/([1-9]\d*)$/),mix=k.match(/^([+-]?\d+)_([0-9]+)_([1-9]\d*)$/);
  let a=null;
  if(simple)a=rational(Number(simple[1]),Number(simple[2]));
@@ -22372,7 +22374,12 @@ function mk5Num(text,ans,why,variant,extras=[]){
  q.mk5Audit={type:'numeric',expected:ans};return q;
 }
 function mk5Rational(text,n,d,why,variant,errors=[]){
- const [a,b]=g5NewRat(n,d),q=g5q(text,g5NewChoiceSet(n,d,errors),`${a}/${b}`,why,variant);
+ const [a,b]=g5NewRat(n,d);
+ const options=g5NewChoiceSet(n,d,errors).map(item=>{
+  const asWhole=String(item.key).match(/^(\d+)\/1$/);
+  return asWhole?{...item,label:asWhole[1]}:item;
+ });
+ const q=g5q(text,options,`${a}/${b}`,why,variant);
  q.mk5Audit={type:'rational',numerator:n,denominator:d,expected:`${a}/${b}`};return q;
 }
 function mk5Sign(text,leftN,leftD,rightN,rightD,why,variant){
