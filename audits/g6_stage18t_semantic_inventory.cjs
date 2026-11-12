@@ -25,6 +25,7 @@ const {chromium}=require('playwright'),path=require('path'),fs=require('fs');
        texts.push(stem);stems.push(pattern);templates.push(id);
        types.set(id,(types.get(id)||0)+1);
        if(!stem||!String(q?.correctText||q?.ans||'').trim())issues.push({kind:'empty_prompt_or_answer',session,pos});
+       if(q?.sig)blockSession.usedSignatures.push(q.sig);
       }catch(e){issues.push({kind:'generation_error',session,pos,error:String(e)})}
      }
      const distinct=new Set(texts).size,semantic=new Set(stems).size,families=new Set(templates).size;
