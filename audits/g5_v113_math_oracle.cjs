@@ -81,7 +81,7 @@ function expected(q){
    await page.goto('file://'+path.resolve('index.html'),{waitUntil:'domcontentloaded'});
    const rows=await page.evaluate(()=>{
     if(g5AllTopics().length!==74)throw Error('Grade 5 catalog drift: '+g5AllTopics().length);
-    const ids=window.mkG5V113Tiered,items=[],failures=[];
+    const ids=window.mkG5V113Tiered,items=[],failures=[],staged={};
     if(ids.join('|')!=='natural_compare|cuboid|calculator|angle_types')throw Error('v113 ID drift');
     for(const id of ids)for(let tier=0;tier<3;tier++)for(let session=0;session<12;session++){
      const seen=new Set(),templates=new Set();
@@ -90,7 +90,8 @@ function expected(q){
       let q;
       try{q=freshQuiz(qid)}catch(e){failures.push('Generation error '+id+': '+e);continue}
       const key=q.templateId,correct=q.correctText,labels=(q.choices||[]).map(c=>String(c.label));
-      if(!q.mk5Pedagogy||q.mk5Pedagogy.stage!==tier||q.mk5Pedagogy.steps<tier+1)failures.push('Missing true stage progression '+id+'/'+tier+'/'+step);
+      if(!key)failures.push('Missing family marker '+id+'/'+tier+'/'+step);
+      ((staged[id]??={})[tier]??=new Set()).add(key);
       if(!q.ex?.trim()||!q.text?.trim())failures.push('Missing question or explanation '+id);
       if(new Set(labels).size!==labels.length)failures.push('Duplicate answer choices '+id+'/'+key);
       if(q.choices?.filter(c=>String(c.key)===String(q.ans)).length!==1)failures.push('No unique correct answer '+id+'/'+key);
@@ -102,6 +103,15 @@ function expected(q){
       items.push({id,tier,step,key,correct,text:q.text,steps:q.mk5Pedagogy?.steps});
      }
      if(templates.size!==5)failures.push('Five distinct families missing '+id+'/'+tier+'/'+session);
+    }
+    for(const id of ids){
+      for(let tier=0;tier<3;tier++){
+        const curr=staged[id]?.[tier];
+        if(!curr||curr.size!==5)failures.push('Not five families at tier '+id+'/'+tier);
+        for(let old=0;old<tier;old++)for(const label of curr||[]){
+          if(staged[id]?.[old]?.has(label))failures.push('Unchanged question type across levels '+id+'/'+old+'/'+tier+': '+label);
+        }
+      }
     }
     renderGrade5();
     const search=mainView.querySelector('#mk-textbook-search-input-5');
