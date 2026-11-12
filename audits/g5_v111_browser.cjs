@@ -34,7 +34,6 @@ const {chromium}=require('playwright'),fs=require('fs'),path=require('path'),ass
         signatures.add(sign);templateIds.add(String(q.templateId));
        }
        if(templateIds.size!==5)issues.push('Five families absent: '+id+'/'+stage+'/'+[...templateIds]);
-       total++;
       }
       families[id][stage]=12;
      }
