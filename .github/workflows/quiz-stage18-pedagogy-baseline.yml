@@ -19,6 +19,14 @@ jobs:
       - run: npm install --no-save --no-package-lock playwright@1.56.1
       - name: Sample 15,900 real Grade 5 questions without modifying production
         run: timeout 1000s node audits/g5_stage18_pedagogy_baseline.cjs
+      - name: Preserve diagnostic logs and full audit sample
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: stage18-g5-diagnostic-${{ github.run_id }}
+          path: audits/out/g5_stage18_pedagogy_baseline.json
+          if-no-files-found: warn
+          retention-days: 14
       - name: Validate report and save compact evidence
         run: |
           test -s audits/out/g5_stage18_pedagogy_baseline.json
