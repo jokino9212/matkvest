@@ -1,0 +1,27 @@
+name: Stage18T Grade 6 semantic diversity read-only audit
+on:
+  push:
+    branches: [audit/g5-g6-textbook-coverage-20261112]
+    paths:
+      - audits/g6_stage18t_semantic_inventory.cjs
+      - .github/workflows/g6-stage18t-semantic.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Measure Grade 6 actual 5-question session diversity across all 58 topics
+        run: node audits/g6_stage18t_semantic_inventory.cjs
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: grade6-semantic-inventory-stage18t
+          path: audits/out/g6_stage18t_semantic_inventory.json
+          if-no-files-found: warn
