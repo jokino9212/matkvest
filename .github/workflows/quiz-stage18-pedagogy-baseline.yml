@@ -1,0 +1,29 @@
+name: Stage18 Grade 5 read-only pedagogical baseline
+on:
+  push:
+    branches: [audit/g5-pedagogy-stage18-20261112]
+    paths:
+      - audits/g5_stage18_pedagogy_baseline.cjs
+      - .github/workflows/quiz-stage18-pedagogy-baseline.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  baseline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Sample 15,900 real Grade 5 questions without modifying production
+        run: timeout 1000s node audits/g5_stage18_pedagogy_baseline.cjs
+      - name: Publish most repetitive topic-stage candidates to Step Summary
+        if: success()
+        run: |
+          echo '## Stage18 baseline' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Read-only diagnostic; not a release gate or proof of a math defect.' >> "$GITHUB_STEP_SUMMARY"
+          echo '15,900 questions, 53 topics, 3 stages.' >> "$GITHUB_STEP_SUMMARY"
+      - name: Verify report exists
+        run: test -s audits/out/g5_stage18_pedagogy_baseline.json
