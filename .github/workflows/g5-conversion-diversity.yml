@@ -4,12 +4,14 @@ on:
     branches: [fix/g5-conversion-diversity-20261112]
     paths:
       - g5-conversion-ux.js
+      - sw.js
       - audits/g5_conversion_diversity_smoke.cjs
       - .github/workflows/g5-conversion-diversity.yml
   pull_request:
     branches: [main]
     paths:
       - g5-conversion-ux.js
+      - sw.js
       - audits/g5_conversion_diversity_smoke.cjs
       - .github/workflows/g5-conversion-diversity.yml
   workflow_dispatch:
