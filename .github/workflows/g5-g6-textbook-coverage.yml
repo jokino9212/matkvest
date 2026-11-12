@@ -4,6 +4,7 @@ on:
     branches: [audit/g5-g6-textbook-coverage-20261112]
     paths:
       - audits/g5_g6_textbook_coverage.cjs
+      - audits/g5_g6_source_probe.py
       - .github/workflows/g5-g6-textbook-coverage.yml
   workflow_dispatch:
 permissions:
