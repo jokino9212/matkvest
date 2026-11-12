@@ -24,3 +24,9 @@
 - Никакого отчёта `audits/reports/g5_stage18_pedagogy_summary.json` пока нет (404).
 - Дополнен CI workflow коммитом `70cc7f271022f80fa0ae8f15c55731af0c2cfcd0`: после успешного read-only аудита проверяет sampleSize=15900, topics=53, configs=159; сохраняет компактный `audits/reports/g5_stage18_pedagogy_summary.json` в audit-ветке. Ветка main и продуктовые HTML/SW не затрагиваются. Единственный git write — диагностический JSON после PASS.
 - Следующее «Продолжи»: первым делом fetch_file отчёта `audits/reports/g5_stage18_pedagogy_summary.json` из audit branch. При 404 нужен реальный статус workflow из GitHub Actions UI/API с учетом того, что connector fetch_commit_workflow_runs НЕ перечисляет push runs. До подтверждения PASS не ранжировать темы как найденные ошибки и не изменять генераторы.
+
+## Продолжение 12.11, 20:xx MSK — Stage18 auditor fix
+- В `audits/g5_stage18_pedagogy_baseline.cjs` обнаружен подтверждённый дефект тестового кода: `assert(...)` из Node.js использовался внутри `page.evaluate(...)`, где этот объект недоступен. Каждый вопрос попадал в `bad` с `ReferenceError` вместо настоящей проверки.
+- Исправлено на браузерные `if (!text.trim()) throw new Error(...)` и аналогично для ответа. Коммит `3b7afa72da2af796e1e6e340ca33d35863ce5b27` в `audit/g5-pedagogy-stage18-20261112`.
+- GitHub Actions запуск должен быть проверен по workflow runs (push), поскольку коннектор `fetch_commit_workflow_runs` видит только PR-triggered runs. Отчёт до данного коммита отсутствовал (404). PASS и 15 900 проверенных вопросов НЕ подтверждены; оценки слабых тем пока запрещены.
+- Следующий шаг: проверить отчёт `audits/reports/g5_stage18_pedagogy_summary.json`, stdout и реальный статус Actions после коммита; при PASS оценить примеры и выбрать педагогически слабую тему, без изменений production до release gate.
