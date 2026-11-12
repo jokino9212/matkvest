@@ -6,6 +6,7 @@ on:
       - audits/g5_stage16c_mixed_add_patch.py
       - audits/g5_stage16c_mixed_add_baseline.cjs
       - audits/g5_stage16_canonical_rational_browser.cjs
+      - audits/g5_stage16_canonical_rational_fix.py
       - .github/workflows/quiz-stage16c-mixed-add.yml
   workflow_dispatch:
 permissions:
@@ -49,10 +50,19 @@ jobs:
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # The standalone Stage16B check can commit the same label fix first.
+          # Rebuild on latest branch HEAD, and publish ONLY if both rebuilt
+          # artifacts are byte-identical to the ones already fully tested.
+          verified_html=$(sha256sum index.html | cut -d ' ' -f 1)
+          verified_sw=$(sha256sum sw.js | cut -d ' ' -f 1)
+          git fetch origin audit/g5-pedagogy-stage16-20261111
+          git reset --hard origin/audit/g5-pedagogy-stage16-20261111
+          python3 audits/g5_stage16_canonical_rational_fix.py
+          python3 audits/g5_stage16c_mixed_add_patch.py
+          test "$verified_html" = "$(sha256sum index.html | cut -d ' ' -f 1)"
+          test "$verified_sw" = "$(sha256sum sw.js | cut -d ' ' -f 1)"
           git add index.html sw.js
           if ! git diff --cached --quiet; then
             git commit -m "fix(g5): canonical whole-number labels and contextual mixed-add"
-            git fetch origin audit/g5-pedagogy-stage16-20261111
-            git rebase origin/audit/g5-pedagogy-stage16-20261111
             git push origin HEAD:audit/g5-pedagogy-stage16-20261111
           fi
