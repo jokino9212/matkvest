@@ -30,3 +30,9 @@
 - Исправлено на браузерные `if (!text.trim()) throw new Error(...)` и аналогично для ответа. Коммит `3b7afa72da2af796e1e6e340ca33d35863ce5b27` в `audit/g5-pedagogy-stage18-20261112`.
 - GitHub Actions запуск должен быть проверен по workflow runs (push), поскольку коннектор `fetch_commit_workflow_runs` видит только PR-triggered runs. Отчёт до данного коммита отсутствовал (404). PASS и 15 900 проверенных вопросов НЕ подтверждены; оценки слабых тем пока запрещены.
 - Следующий шаг: проверить отчёт `audits/reports/g5_stage18_pedagogy_summary.json`, stdout и реальный статус Actions после коммита; при PASS оценить примеры и выбрать педагогически слабую тему, без изменений production до release gate.
+
+## Продолжение 12.11 — надёжность Stage18 диагностики
+- Коммит `f5be007db75a26d7ce029b4bf5847c29f6c154a5`: добавлена публикация полного аудиторского JSON в GitHub Actions artifacts с `if: always()` и хранением 14 дней; публикация diagnostic summary в ветку по-прежнему только после PASS.
+- Коммит `72b3c836ba8aae9da95d11f84e8ffdf6adb38d28`: при ошибках `page.evaluate`/генератора сохраняет `audits/out/g5_stage18_pedagogy_baseline.json` с первым 200 ошибками, общим количеством ошибок, исключениями страницы и фактическим объёмом генерации до финальных assert.
+- Ветка на 9 коммитов впереди `main`, без отставания при проверке. Публичный summary `audits/reports/g5_stage18_pedagogy_summary.json` всё ещё 404; combined statuses последнего коммита пусты и НЕ подтверждают ни успех, ни отсутствие push workflow runs.
+- Для следующего запуска сначала читать summary из audit branch. Если нет, открыть вкладку Actions или artifacts workflow `quiz-stage18-pedagogy-baseline.yml` и проверить ошибки. До PASS не исправлять продуктовые генераторы и не выпускать релиз.
