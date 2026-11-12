@@ -7,7 +7,7 @@ on:
       - .github/workflows/quiz-stage18-pedagogy-baseline.yml
   workflow_dispatch:
 permissions:
-  contents: read
+  contents: write
 jobs:
   baseline:
     runs-on: ubuntu-latest
@@ -19,11 +19,32 @@ jobs:
       - run: npm install --no-save --no-package-lock playwright@1.56.1
       - name: Sample 15,900 real Grade 5 questions without modifying production
         run: timeout 1000s node audits/g5_stage18_pedagogy_baseline.cjs
-      - name: Publish most repetitive topic-stage candidates to Step Summary
-        if: success()
+      - name: Validate report and save compact evidence
+        run: |
+          test -s audits/out/g5_stage18_pedagogy_baseline.json
+          mkdir -p audits/reports
+          node - <<'NODE'
+          const fs=require('node:fs');
+          const d=JSON.parse(fs.readFileSync('audits/out/g5_stage18_pedagogy_baseline.json'));
+          if(d.sampleSize!==15900 || d.topics!==53 || d.configs!==159)throw Error('unexpected audit scope');
+          fs.writeFileSync('audits/reports/g5_stage18_pedagogy_summary.json',JSON.stringify({
+            version:d.version,topics:d.topics,configs:d.configs,
+            sampleSize:d.sampleSize,note:d.note,reviewFirst:d.reviewFirst
+          },null,2)+'\n');
+          console.log('STAGE18_REPORT_READY',d.sampleSize,d.configs);
+          NODE
+      - name: Publish diagnostic JSON to audit branch ONLY after PASS
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add audits/reports/g5_stage18_pedagogy_summary.json
+          if ! git diff --cached --quiet; then
+            git commit -m "audit(g5): persist Stage18 read-only diagnostic evidence"
+            git push origin HEAD:audit/g5-pedagogy-stage18-20261112
+          fi
+      - name: Summarize result
         run: |
           echo '## Stage18 baseline' >> "$GITHUB_STEP_SUMMARY"
-          echo 'Read-only diagnostic; not a release gate or proof of a math defect.' >> "$GITHUB_STEP_SUMMARY"
-          echo '15,900 questions, 53 topics, 3 stages.' >> "$GITHUB_STEP_SUMMARY"
-      - name: Verify report exists
-        run: test -s audits/out/g5_stage18_pedagogy_baseline.json
+          echo '15,900 sampled questions across 53 topics and three stages. No production files changed.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'The diagnostic evidence lives in audits/reports/g5_stage18_pedagogy_summary.json on the audit branch.' >> "$GITHUB_STEP_SUMMARY"
