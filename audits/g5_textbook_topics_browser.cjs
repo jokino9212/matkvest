@@ -41,9 +41,28 @@ const {chromium}=require('playwright');
     renderGrade5();
     const cards=[...document.querySelectorAll('.g5-card')].map(x=>x.textContent);
     for(const id of expected){const title=all.find(x=>x.id===id).title;if(!cards.some(x=>x.includes(title)))throw Error('Invisible card '+title)}
+    const search5=mainView.querySelector('#mk-textbook-search-input-5');
+    if(!search5)throw Error('Grade 5 textbook search missing');
+    for(const [term,title] of [['деление с остатком','Деление с остатком'],['раскрыть скобки','Раскрытие скобок'],['упростить выражение','Упрощение выражений']]){
+      search5.value=term;search5.dispatchEvent(new Event('input',{bubbles:true}));
+      const found=[...mainView.querySelectorAll('.g5-card')].filter(c=>!c.hidden);
+      if(found.length!==1||!found[0].textContent.includes(title))throw Error('Grade 5 search failure: '+term+' => '+found.length);
+    }
+    search5.value='';search5.dispatchEvent(new Event('input',{bubbles:true}));
+    if([...mainView.querySelectorAll('.g5-card')].filter(c=>!c.hidden).length!==56)throw Error('Grade 5 search reset failed');
     const grade5Page={inputs:[...mainView.querySelectorAll('input')].map(e=>({placeholder:e.placeholder,type:e.type})),cards:mainView.querySelectorAll('.g5-card').length};
     const grade6Page={renderAvailable:typeof renderGrade6==='function'};
-    if(grade6Page.renderAvailable){renderGrade6();grade6Page.inputs=[...mainView.querySelectorAll('input')].map(e=>({placeholder:e.placeholder,type:e.type}));grade6Page.cards=[...mainView.querySelectorAll('.topic')].slice(0,4).map(e=>({class:e.className,html:e.outerHTML.slice(0,200)}));grade6Page.sections=[...mainView.querySelectorAll('section')].slice(0,5).map(e=>({class:e.className,html:e.outerHTML.slice(0,120)}));}
+    if(grade6Page.renderAvailable){renderGrade6();
+      const search6=mainView.querySelector('#mk-textbook-search-input-6');
+      if(!search6)throw Error('Grade 6 textbook search missing');
+      for(const [term,title] of [['раскрыть скобки','Раскрытие скобок'],['упростить выражение','Упрощение выражений']]){
+        search6.value=term;search6.dispatchEvent(new Event('input',{bubbles:true}));
+        const found=[...mainView.querySelectorAll('.g6-card')].filter(c=>!c.hidden);
+        if(found.length!==1||!found[0].textContent.includes(title))throw Error('Grade 6 search failure: '+term+' => '+found.length);
+      }
+      search6.value='';search6.dispatchEvent(new Event('input',{bubbles:true}));
+      if([...mainView.querySelectorAll('.g6-card')].filter(c=>!c.hidden).length!==58)throw Error('Grade 6 search reset failed');
+      grade6Page.inputs=[...mainView.querySelectorAll('input')].map(e=>({placeholder:e.placeholder,type:e.type}));grade6Page.cards=[...mainView.querySelectorAll('.topic')].slice(0,4).map(e=>({class:e.className,html:e.outerHTML.slice(0,200)}));grade6Page.sections=[...mainView.querySelectorAll('section')].slice(0,5).map(e=>({class:e.className,html:e.outerHTML.slice(0,120)}));}
     return {topics:all.length,checks:checks.length,questions:checks.length*5,grade5Page,grade6Page};
   });
   assert.deepEqual(errors,[]);
