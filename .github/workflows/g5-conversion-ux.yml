@@ -1,0 +1,41 @@
+name: Grade 5 conversion UX — branch-only verification
+on:
+  push:
+    branches: [fix/g5-conversion-ux-20261112]
+    paths:
+      - g5-conversion-ux.js
+      - scripts/activate-g5-conversion-ux.py
+      - audits/g5_conversion_ux_smoke.cjs
+      - .github/workflows/g5-conversion-ux.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  activate-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - name: Activate external UX script in branch HTML
+        run: python3 scripts/activate-g5-conversion-ux.py
+      - name: Check source syntax
+        run: node --check g5-conversion-ux.js
+      - name: Install Playwright test runner
+        run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Check real browser question generation and input validation
+        run: node audits/g5_conversion_ux_smoke.cjs
+      - name: Publish HTML change to WORKING BRANCH after PASS
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          if ! git diff --cached --quiet; then
+            git commit -m "fix(g5): activate conversion UX after browser smoke PASS"
+            git push origin HEAD:fix/g5-conversion-ux-20261112
+          fi
+      - name: Summary
+        run: |
+          echo 'Grade 5 conversion UI, four browser smoke cases verified. Only working branch modified.' >> "$GITHUB_STEP_SUMMARY"
