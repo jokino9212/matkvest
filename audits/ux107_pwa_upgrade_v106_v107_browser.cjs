@@ -9,7 +9,10 @@ const crypto = require('node:crypto');
 const stagingDir = process.cwd();
 const baselineDir = path.resolve(stagingDir, 'baseline_v106');
 const CACHE_OLD = 'matkvest-iphone-v106';
-const CACHE_NEW = 'matkvest-iphone-v107';
+const currentWorker = fs.readFileSync(path.join(stagingDir, 'sw.js'), 'utf8');
+const currentVersion = Number(currentWorker.match(/const CACHE_NAME = "matkvest-iphone-v(\d+)";/)?.[1]);
+assert(Number.isInteger(currentVersion)&&currentVersion>=107,'Upgrade target must be an approved PWA v107+');
+const CACHE_NEW = 'matkvest-iphone-v'+currentVersion;
 let activeDir = baselineDir;
 let server;
 
@@ -98,7 +101,7 @@ async function scenario(browser, origin, width) {
       if(!registration)throw Error('Existing service worker not found');
       await registration.update();
     });
-    await page.waitForFunction(async()=> (await caches.keys()).includes('matkvest-iphone-v107'),null,{timeout:90000});
+    await page.waitForFunction(async expected=> (await caches.keys()).includes(expected),CACHE_NEW,{timeout:90000});
     await page.waitForFunction(async()=> !(await caches.keys()).includes('matkvest-iphone-v106'),null,{timeout:90000});
     await page.reload({waitUntil:'domcontentloaded'});
     const online = await inspect(page);
