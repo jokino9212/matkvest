@@ -1,0 +1,68 @@
+name: Stage17 guarded contextual division candidate and full Gate
+on:
+  push:
+    branches: [audit/g5-context-stage17-20261112]
+    paths:
+      - audits/g5_stage17_division_context_patch.py
+      - audits/g5_stage17_division_pedagogy.cjs
+      - .github/workflows/quiz-stage17-guarded-context.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  guarded-context:
+    runs-on: ubuntu-latest
+    timeout-minutes: 110
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply anchored Stage17 changes ONLY in workflow working copy
+        run: |
+          python3 audits/g5_stage17_division_context_patch.py
+          python3 audits/g5_stage17_division_context_patch.py
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Check all 900 generated division tasks with independent exact arithmetic
+        env:
+          STAGE17_REQUIRE_CONTEXT: '1'
+        run: timeout 600s node audits/g5_stage17_division_pedagogy.cjs
+      - name: Recompute mathematical content, protractor geometry and pedagogy
+        run: |
+          timeout 600s node audits/g5_stage14_math_oracle.cjs
+          timeout 900s node audits/g5_stage14b_math_oracle.cjs
+          timeout 900s node audits/g5_stage14c_semantic_visual_oracle.cjs
+          timeout 500s node audits/g5_stage11_difficulty_browser.cjs
+          timeout 500s node audits/g5_stage10_semantic_browser.cjs
+          timeout 350s node audits/quiz_stage05_fresh_browser.cjs
+      - name: Check Grade 5 fraction inputs, skipping and attempt recovery
+        run: |
+          timeout 200s node audits/quiz_stage01_fraction_browser.cjs
+          timeout 200s node audits/quiz_stage02_input_browser.cjs
+          timeout 200s node audits/quiz_stage03_skip_browser.cjs
+          timeout 200s node audits/quiz_stage03_completion_browser.cjs
+          timeout 260s node audits/stage24_attempt_lifecycle_browser.cjs
+      - name: Protect pets, player profiles, purchases, PWA and mobile layouts
+        run: |
+          timeout 240s node audits/stage25_profile_isolation_browser.cjs
+          timeout 240s node audits/stage26_verified_recovery_browser.cjs
+          timeout 240s node audits/stage28_offline_pwa_browser.cjs
+          timeout 240s node audits/stage30_collection_media_browser.cjs
+          timeout 260s node audits/stage27_compact_mobile_browser.cjs
+          timeout 260s node audits/stage21_training_keyboard_audit.cjs
+      - name: Commit only the byte-identical, tested HTML and SW to Stage17 audit branch
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          html_sha=$(sha256sum index.html | cut -d ' ' -f 1)
+          sw_sha=$(sha256sum sw.js | cut -d ' ' -f 1)
+          git fetch origin audit/g5-context-stage17-20261112
+          git reset --hard origin/audit/g5-context-stage17-20261112
+          python3 audits/g5_stage17_division_context_patch.py
+          test "$html_sha" = "$(sha256sum index.html | cut -d ' ' -f 1)"
+          test "$sw_sha" = "$(sha256sum sw.js | cut -d ' ' -f 1)"
+          git add index.html sw.js
+          if ! git diff --cached --quiet; then
+            git commit -m "fix(g5): contextual division questions without math or input changes"
+            git push origin HEAD:audit/g5-context-stage17-20261112
+          fi
