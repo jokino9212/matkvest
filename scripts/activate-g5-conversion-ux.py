@@ -21,7 +21,7 @@ print("G5_CONVERSION_UX_ACTIVATED")
 # PWA must cache the new external script and invalidate the previous HTML version.
 sw_path=Path("sw.js")
 sw=sw_path.read_text(encoding="utf-8")
-sw=sw.replace('"./index.html",', '"./index.html", "./g5-conversion-ux.js",') if '"./g5-conversion-ux.js"' not in sw else sw
+sw=sw.replace('"./index.html",', '"./index.html", "./g5-conversion-ux.js",', 1) if '"./g5-conversion-ux.js"' not in sw else sw
 digest=hashlib.sha256(text.encode("utf-8")).hexdigest()
 sw,hash_count=re.subn(r'(const APP_BUILD_HASH = ")[0-9a-f]{64}(";)',lambda m:m.group(1)+digest+m.group(2),sw)
 if hash_count!=1: raise SystemExit("PWA hash not found")
