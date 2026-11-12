@@ -43,6 +43,14 @@ function genre(t){
    }
    return {topics:topics.length,rows,bad};
   });
+  if(raw.bad.length || pageErrors.length){
+   fs.mkdirSync('audits/out',{recursive:true});
+   const failure={version:'stage18-failed-sampling',topics:raw.topics,configs:raw.rows.length,
+     generated:raw.rows.reduce((n,r)=>n+r.samples.length,0),
+     failedCount:raw.bad.length,bad:raw.bad.slice(0,200),pageErrors};
+   fs.writeFileSync('audits/out/g5_stage18_pedagogy_baseline.json',JSON.stringify(failure,null,2));
+   console.error('STAGE18_FAILURE_EVIDENCE',JSON.stringify({failedCount:failure.failedCount,bad:failure.bad.slice(0,10),pageErrors}));
+  }
   assert.deepEqual(pageErrors,[],'browser errors');
   assert.equal(raw.topics,53,'number of grade-five topics changed');
   assert.equal(raw.rows.length,159);
