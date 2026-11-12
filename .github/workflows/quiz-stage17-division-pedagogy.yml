@@ -1,0 +1,27 @@
+name: Stage17 grade-five fraction division pedagogy audit
+on:
+  push:
+    branches: [audit/g5-context-stage17-20261112]
+    paths:
+      - audits/g5_stage17_division_pedagogy.cjs
+      - .github/workflows/quiz-stage17-division-pedagogy.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  division-pedagogy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Independently solve 900 real fraction-division questions and audit narratives
+        run: timeout 600s node audits/g5_stage17_division_pedagogy.cjs
+      - name: Display audit results in workflow summary
+        if: success()
+        run: |
+          test -s audits/out/g5_stage17_division_pedagogy.json
+          echo "Stage17 fraction-division pedagogy audit: 900 independently solved questions" >> "$GITHUB_STEP_SUMMARY"
+          cat audits/out/g5_stage17_division_pedagogy.json >> "$GITHUB_STEP_SUMMARY"
