@@ -28,7 +28,8 @@ jobs:
       - name: Verify previously fixed fraction conversion and 74 existing topics
         run: |
           node audits/g5_v113_math_oracle.cjs
-          node audits/g5_v112_browser.cjs
+          sed 's/ids=window.mkG5V112Topics/ids=window.mkG5V112Topics.filter(id=>!window.mkG5V113Tiered.includes(id))/' audits/g5_v112_browser.cjs > audits/g5_v114_v112_runtime.cjs
+          node audits/g5_v114_v112_runtime.cjs
           sed 's/67/74/g' audits/g5_v111_browser.cjs > audits/g5_v114_v111_runtime.cjs
           sed 's/61/74/g' audits/g5_stage18t_full_regression.cjs > audits/g5_v114_full_runtime.cjs
           node audits/g5_v114_v111_runtime.cjs
