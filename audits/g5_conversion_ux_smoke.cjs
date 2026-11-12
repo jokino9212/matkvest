@@ -43,6 +43,23 @@ const {chromium}=require('playwright');
     }
     checked.push({topic,pos,mode:expectedMode});
    }
+   // Explicit regression examples from classroom reports.
+   const improper={answerMode:'fraction',answerRat:rational(28,8),correctText:'28/8',
+     correctHtml:frac(28,8),stage18AnswerForm:{kind:'exact',n:28,d:8},
+     stage18FixedDenominator:8,stage18ConversionType:'improper'};
+   qid='g5:mixed_to_frac';q=improper;
+   const cleanImproper=quizInputEvaluation(improper,{stage18Fraction:true,whole:'',numerator:'28',denominator:'8'});
+   if(!cleanImproper.valid||!cleanImproper.ok)throw Error('3 4/8 → 28/8 rejected');
+   if(quizInputEvaluation(improper,{stage18Fraction:true,whole:'3',numerator:'28',denominator:'8'}).ok)
+     throw Error('Accepted whole 3 alongside 28/8');
+   const mixedQuestion={answerMode:'fraction',answerRat:rational(26,9),correctText:'2 8/9',
+     correctHtml:mixed(2,8,9),stage18AnswerForm:{kind:'mixed'},
+     stage18FixedDenominator:9,stage18ConversionType:'mixed'};
+   qid='g5:frac_to_mixed';q=mixedQuestion;
+   const cleanMixed=quizInputEvaluation(mixedQuestion,{stage18Fraction:true,whole:'2',numerator:'8',denominator:'9'});
+   if(!cleanMixed.valid||!cleanMixed.ok)throw Error('26/9 → 2 8/9 rejected');
+   if(quizInputEvaluation(mixedQuestion,{stage18Fraction:true,whole:'',numerator:'26',denominator:'9'}).ok)
+     throw Error('Accepted improper form instead of requested mixed number');
    return checked;
   });
   assert.deepEqual(errors,[]);
