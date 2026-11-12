@@ -2,7 +2,8 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
 const {chromium}=require('playwright');
 const html=fs.readFileSync('index.html','utf8'),sw=fs.readFileSync('sw.js','utf8');
-assert(sw.includes('matkvest-iphone-v107'));
+const cacheVersion=Number(sw.match(/const CACHE_NAME = "matkvest-iphone-v(\d+)";/)?.[1]);
+assert(Number.isInteger(cacheVersion)&&cacheVersion>=107,'First-paint and archive regression requires PWA v107 or newer');
 assert(sw.includes(crypto.createHash('sha256').update(html).digest('hex')));
 const head=html.indexOf('</head>'),catalog=html.indexOf('const SHOP_CATALOG='),render=html.indexOf('function openShop(');
 assert(head>0&&catalog>head&&render>catalog);
