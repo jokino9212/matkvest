@@ -92,11 +92,12 @@ function enableTextbookSearch(grade){
  const input=document.createElement('input');input.type='search';input.id=label.htmlFor;input.placeholder='Например: деление с остатком, раскрытие скобок';input.autocomplete='off';
  const status=document.createElement('div');status.className='mk-search-status';status.setAttribute('role','status');status.setAttribute('aria-live','polite');
  wrap.append(label,input,status);hero.insertAdjacentElement('afterend',wrap);
- const rows=cards.map((card,i)=>{const topic=catalog[i],words=[topic.title,topic.sub,topic.shortTitle,topic.group,topic.section,...(aliases[topic.id]||[])];return {card,text:normalizeSearch(words.filter(Boolean).join(' '))}});
+ const rows=cards.map((card,i)=>{const topic=catalog[i],words=[topic.title,topic.sub,topic.shortTitle,topic.group,topic.section,...(aliases[topic.id]||[])];return {card,title:normalizeSearch(topic.title),text:normalizeSearch(words.filter(Boolean).join(' '))}});
  function update(){
   const value=normalizeSearch(input.value),terms=value.split(' ').filter(Boolean);
   let count=0;
-  for(const row of rows){const visible=terms.every(term=>row.text.includes(term));row.card.hidden=!visible;row.card.style.display=visible?'':'none';if(visible)count++}
+  const exact=value?rows.filter(row=>row.title===value):[];
+  for(const row of rows){const visible=exact.length?exact.includes(row):terms.every(term=>row.text.includes(term));row.card.hidden=!visible;row.card.style.display=visible?'':'none';if(visible)count++}
   for(const group of mainView.querySelectorAll(grade===5?'.g5-group':'.g6-group')){
    const shown=[...group.querySelectorAll(selector)].some(card=>!card.hidden);
    group.hidden=!shown;group.style.display=shown?'':'none';
