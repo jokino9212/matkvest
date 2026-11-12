@@ -1,0 +1,17 @@
+name: Stage16 focused source inspection
+on:
+  push:
+    branches: [audit/g5-pedagogy-stage16-20261111]
+    paths:
+      - audits/g5_stage16_source_probe.cjs
+      - .github/workflows/quiz-stage16-source-probe.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - run: node audits/g5_stage16_source_probe.cjs

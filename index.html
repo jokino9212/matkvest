@@ -10839,7 +10839,9 @@ function stage18FocusFractionMissing(raw){
 }
 function stage18ConvertG5Fraction(result,source){
  const k=String(source?.correct??""),label=String(result.correctLabel||"");
- if(!/class="(?:frac|mixed)"/.test(label))return result;
+ const wholeKey=k.endsWith('/1')?k.slice(0,-2):'';
+ const wholeLabel=/^[+-]?[0-9]+$/.test(wholeKey)&&label.trim()===wholeKey;
+ if(!/class="(?:frac|mixed)"/.test(label)&&!wholeLabel)return result;
  const simple=k.match(/^([+-]?\d+)\/([1-9]\d*)$/),mix=k.match(/^([+-]?\d+)_([0-9]+)_([1-9]\d*)$/);
  let a=null;
  if(simple)a=rational(Number(simple[1]),Number(simple[2]));
@@ -22372,7 +22374,12 @@ function mk5Num(text,ans,why,variant,extras=[]){
  q.mk5Audit={type:'numeric',expected:ans};return q;
 }
 function mk5Rational(text,n,d,why,variant,errors=[]){
- const [a,b]=g5NewRat(n,d),q=g5q(text,g5NewChoiceSet(n,d,errors),`${a}/${b}`,why,variant);
+ const [a,b]=g5NewRat(n,d);
+ const options=g5NewChoiceSet(n,d,errors).map(item=>{
+  const asWhole=String(item.key).match(/^(\d+)\/1$/);
+  return asWhole?{...item,label:asWhole[1]}:item;
+ });
+ const q=g5q(text,options,`${a}/${b}`,why,variant);
  q.mk5Audit={type:'rational',numerator:n,denominator:d,expected:`${a}/${b}`};return q;
 }
 function mk5Sign(text,leftN,leftD,rightN,rightD,why,variant){
@@ -22581,8 +22588,8 @@ function mk5Fractions(id,tier,mode){
  }
  case 'mixed_add':{
   const w1=ri(1,4+tier*2),w2=ri(1,3+tier),n1=ri(1,d-1),n2=mode===0?ri(1,Math.max(1,d-n1-1)):ri(Math.max(1,d-n1),d-1);let sum=(w1+w2)*d+n1+n2;
-  if(mode===2){const n3=ri(1,d-1);sum+=n3;return mk5MixedAnswer(`Сложи ${mk5Mixed(w1,n1,d)} + ${mk5Mixed(w2,n2,d)} + ${mk5Frac(n3,d)}.`,sum,d,`Общее число долей ${w1*d+n1}+${w2*d+n2}+${n3}=${sum}; переводим в смешанное число.`,'mixed_add_three',[[sum+d,d],[sum-d,d]]);}
-  return mk5MixedAnswer(`Вычисли ${mk5Mixed(w1,n1,d)} + ${mk5Mixed(w2,n2,d)}.`,sum,d,`Целые части ${w1}+${w2}; дробные части ${n1}+${n2} долей со знаменателем ${d}.`,'mixed_add_'+mode,[[sum+d,d],[sum-d,d]]);
+  if(mode===2){const n3=ri(1,d-1);sum+=n3;const views=[`В первый день турист прошёл ${mk5Mixed(w1,n1,d)} км, во второй — ${mk5Mixed(w2,n2,d)} км, в третий — ${mk5Frac(n3,d)} км. Сколько километров он прошёл за три дня?`,`Для трёх изделий использовали ${mk5Mixed(w1,n1,d)} м, ${mk5Mixed(w2,n2,d)} м и ${mk5Frac(n3,d)} м ткани. Сколько метров ткани использовали всего?`,`Сложи ${mk5Mixed(w1,n1,d)} + ${mk5Mixed(w2,n2,d)} + ${mk5Frac(n3,d)}.`];const view=views[blockSession&&blockSession.kind==='g5quiz'?blockSession.done%3:ri(0,2)];return mk5MixedAnswer(view,sum,d,`Общее число долей ${w1*d+n1}+${w2*d+n2}+${n3}=${sum}; переводим в смешанное число.`,'mixed_add_three',[[sum+d,d],[sum-d,d]]);}
+  const views=[`В первый день турист прошёл ${mk5Mixed(w1,n1,d)} км, во второй — ${mk5Mixed(w2,n2,d)} км. Сколько километров он прошёл за два дня?`,`На две поделки понадобилось ${mk5Mixed(w1,n1,d)} м и ${mk5Mixed(w2,n2,d)} м ленты. Сколько метров ленты понадобилось всего?`,`Вычисли ${mk5Mixed(w1,n1,d)} + ${mk5Mixed(w2,n2,d)}.`];const view=views[blockSession&&blockSession.kind==='g5quiz'?blockSession.done%3:ri(0,2)];return mk5MixedAnswer(view,sum,d,`Целые части ${w1}+${w2}; дробные части ${n1}+${n2} долей со знаменателем ${d}.`,'mixed_add_'+mode,[[sum+d,d],[sum-d,d]]);
  }
  case 'mixed_sub':{
   const w1=ri(3,6+tier*2),w2=ri(1,w1-2),n2=ri(2,d-1),n1=(mode===0&&!(blockSession&&blockSession.kind==='g5quiz'&&blockSession.stageIndex===2))?ri(n2,d-1):ri(1,n2-1);const diff=(w1-w2)*d+n1-n2;
