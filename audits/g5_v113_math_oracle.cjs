@@ -2,7 +2,7 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
 const {chromium}=require('playwright');
 function expected(q){
- const name=String(q.templateId), s=String(q.text), n=(s.match(/\d+/g)||[]).map(Number);
+ const name=String(q.templateId), s=String(q.text), n=(s.replace(/см[²³]/g,'см').match(/\d+/g)||[]).map(Number);
  const sum=xs=>xs.reduce((a,b)=>a+b,0), max=Math.max,min=Math.min, abs=Math.abs;
  switch(name){
   case 'cmp_max':return max(n[0],n[1]);
@@ -56,13 +56,13 @@ function expected(q){
   case 'angle_straight_gap':return 180-n[0];
   case 'angle_square':return 'Прямой';
   case 'angle_sum_parts':return sum(n.slice(0,3));
-  case 'angle_missing_right':return 90-n[0]+n[1];
+  case 'angle_missing_right':return 90-n[1]+n[2];
   case 'angle_compare_parts':return abs((n[0]-n[1])-n[1]);
-  case 'angle_adjacent':return 180-n[0]+n[1];
+  case 'angle_adjacent':return 180-n[1]+n[2];
   case 'angle_around_point':return 360-sum(n.slice(0,3));
-  case 'angle_three_parts':return 180-sum(n.slice(0,2));
+  case 'angle_three_parts':return 180-sum(n.slice(1,3));
   case 'angle_four_parts':return 360-sum(n.slice(0,3));
-  case 'angle_supplement_compare':return 180-sum(n.slice(0,3));
+  case 'angle_supplement_compare':return 180-sum(n.slice(1,4));
   case 'angle_two_subtractions':return n[0]-n[2];
   case 'angle_rebalance':return n[0]+n[1]-n[2];
   default:throw Error('No independent oracle for '+name+': '+s);
