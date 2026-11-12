@@ -17,7 +17,8 @@ function renderTotal(n,d){
 function question(id,t,p,kind,text,d,terms,ops,ex,meta={}){
  const key='v115_'+id+'_L'+t+'_F'+p;
  if(!Array.isArray(terms)||!terms.length||ops.length!==terms.length-1||!Number.isSafeInteger(d)||d<1)throw Error('Invalid plan '+key);
- const total=terms.reduce((v,x,i)=>i?ops[i-1]==='+'?v+x:v-x:x,0);
+ const raw=terms.reduce((v,x,i)=>i?ops[i-1]==='+'?v+x:v-x:x,0);
+ const total=meta.absolute?Math.abs(raw):raw;
  if(!Number.isSafeInteger(total)||total<0)throw Error('Negative/invalid plan '+key+': '+JSON.stringify({terms,ops}));
  let choices,correct,answerLabel;
  if(kind==='fraction'){
@@ -54,7 +55,7 @@ function choose(id,t,p,text,choice,wrong,ex,meta){
 }
 function relation(x,y){return x>y?'>':x<y?'<':'='}
 function denCompare(t,p){
- const id='frac_compare_den',d=pickD(),a=rnd(1,d-3),b=rnd(a+1,d-1),c=rnd(1,3),e=rnd(1,3);
+ const id='frac_compare_den',d=pickD(),a=rnd(1,d-3),b=rnd(a+1,d-1),c=rnd(1,3),e=rnd(1,Math.min(3,b));
  if(t===0){
   if(p===0)return compare(id,t,p,'Сравни '+F(a,d)+' и '+F(b,d)+'.',d,[a],[],[b],[],'Знаменатели одинаковые, сравни числители '+a+' и '+b+'.');
   if(p===1)return question(id,t,p,'numeric','Какой числитель у большей дроби: '+F(a,d)+' или '+F(b,d)+'?',1,[b],[],'Большая дробь имеет больший числитель '+b+'.');
@@ -65,7 +66,7 @@ function denCompare(t,p){
  if(t===1){
   if(p===0)return compare(id,t,p,'К дроби '+F(a,d)+' прибавили '+F(c,d)+'. Сравни результат с '+F(b,d)+'.',d,[a,c],['+'],[b],[],'После сложения получаем '+F(a+c,d)+' и сравниваем числители '+(a+c)+' и '+b+'.');
   if(p===1)return compare(id,t,p,'К обеим дробям '+F(a,d)+' и '+F(b,d)+' прибавили '+F(e,d)+'. Сравни полученные дроби.',d,[a,e],['+'],[b,e],['+'],'Одинаковое слагаемое не меняет порядок дробей: '+(a+e)+' и '+(b+e)+'.');
-  if(p===2)return compare(id,t,p,'Из '+F(b,d)+' вычли '+F(c,d)+'. Сравни с '+F(a,d)+'.',d,[b,c],['-'],[a],[],'Получили '+F(b-c,d)+', теперь сравним числители '+(b-c)+' и '+a+'.');
+  if(p===2){const k=Math.min(c,b-1);return compare(id,t,p,'Из '+F(b,d)+' вычли '+F(k,d)+'. Сравни с '+F(a,d)+'.',d,[b,k],['-'],[a],[],'Получили '+F(b-k,d)+', теперь сравним числители '+(b-k)+' и '+a+'.');}
   if(p===3)return question(id,t,p,'numeric','У дробей '+F(a,d)+' и '+F(b,d)+' одинаковый знаменатель. Сколько ещё долей '+F(1,d)+' надо прибавить к первой, чтобы они стали равны?',1,[b,a],['-'],'Нужно увеличить числитель на '+b+' − '+a+' = '+(b-a)+'.');
   return question(id,t,p,'numeric','Найди средний по величине числитель для дробей '+F(a,d)+', '+F(b,d)+' и '+F(a+1,d)+'.',1,[a+1],[],'Нумераторы по возрастанию: '+a+', '+(a+1)+', '+b+' (при совпадении средний всё равно '+(a+1)+').');
  }
@@ -122,7 +123,7 @@ function addFraction(t,p){
  return question(id,t,p,'fraction','Две корзины: в первой сложили '+F(a,d)+' и '+F(b,d)+' кг, во второй '+F(c,d)+' и '+F(e,d)+' кг. Сколько килограммов вместе?',d,[a,b,c,e],['+','+','+'],'Вес всех четырёх частей '+F(a+b+c+e,d)+' кг.');
 }
 function subFraction(t,p){
- const id='frac_sub',d=pickD(),a=rnd(4,d+4),b=rnd(1,Math.min(3,a-1)),c=rnd(1,Math.min(2,a-b)),e=rnd(1,2);
+ const id='frac_sub',d=pickD(),a=rnd(4,t===0?d-1:d+4),b=rnd(1,Math.min(3,a-1)),c=rnd(1,Math.min(2,a-b)),e=rnd(1,2);
  if(t===0){
   if(p===0)return question(id,t,p,'fraction','Вычисли '+F(a,d)+' − '+F(b,d)+'.',d,[a,b],['-'],'Разность числителей '+a+' − '+b+' = '+(a-b)+'.');
   if(p===1)return question(id,t,p,'numeric','Какой числитель получится при вычитании '+F(a,d)+' − '+F(b,d)+' без изменения знаменателя?',1,[a,b],['-'],'Вычитаем числители: '+a+' − '+b+' = '+(a-b)+'.');
@@ -169,7 +170,7 @@ function mixCompare(t,p){
  return compare(id,t,p,'Сравни выражения '+M(w,a,d)+' + '+F(c,d)+' − '+F(1,d)+' и '+M(w,b,d)+' − '+F(c,d)+' + '+F(1,d)+'.',d,[A,c,1],['+','-'],[B,c,1],['-','+'],'Сравни суммы в долях: '+(A+c-1)+' и '+(B-c+1)+'.');
 }
 function mixedAdd(t,p){
- const id='mixed_add',d=pickD(),w=rnd(1,3),v=rnd(1,3),a=rnd(1,d-3),b=rnd(1,d-a-1),c=rnd(1,Math.min(3,d-1));
+ const id='mixed_add',d=pickD(),w=rnd(1,3),v=rnd(1,3),a=rnd(2,Math.max(2,d-3)),b=rnd(1,d-a-1),c=rnd(1,Math.min(3,d-1));
  const A=whole(w,a,d),B=whole(v,b,d),carry=d-a+1,BB=whole(v,carry,d);
  if(t===0){
   if(p===0)return question(id,t,p,'mixed','Вычисли '+M(w,a,d)+' + '+M(v,b,d)+'.',d,[A,B],['+'],'Целые: '+w+' + '+v+'. Дроби: '+a+' + '+b+' = '+(a+b)+' долей; итог '+renderTotal(A+B,d)+'.');
