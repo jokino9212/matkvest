@@ -10,46 +10,126 @@ function displayedParts(html){
  const denominator=Number(f.querySelector('.den')?.textContent);
  const w=el.querySelector('.mixed .whole');
  const whole=w?Number(w.textContent):null;
- if(!Number.isSafeInteger(numerator)||!Number.isSafeInteger(denominator)||denominator<1)return null;
+ if(!Number.isSafeInteger(numerator)||!Number.isSafeInteger(denominator)||denominator<2)return null;
  return {numerator,denominator,whole};
+}
+// The former three-mode generator had only two mathematical actions. Each
+// five-question cycle now has five intentionally different cognitive tasks.
+function conversionQuestion(base,topic,given){
+ const pos=Math.max(0,Number(blockSession?.done)||0),stage=Math.max(0,Math.min(2,Number(activeDifficulty())||0));
+ const familyIndex=pos%5,advanced=pos>=5,den=given.denominator;
+ const whole=topic==='frac_to_mixed'?Math.floor(given.numerator/den):given.whole;
+ const rem=topic==='frac_to_mixed'?given.numerator%den:given.numerator;
+ if(!Number.isSafeInteger(whole)||whole<1||!Number.isSafeInteger(rem)||rem<1||rem>=den)return base;
+ const originalN=whole*den+rem;
+ const shown=topic==='frac_to_mixed'?frac(originalN,den):mixed(whole,rem,den);
+ const level=Number(base.mk5Audit?.level)||0;
+ let family,question,kind,answerN,explanation,label;
+ if(topic==='frac_to_mixed'){
+   const division=originalN+' = '+whole+' · '+den+' + '+rem+'.';
+   if(familyIndex===0){
+     family=advanced?'full_recheck':'full_conversion';
+     question=advanced?'Представь дробь '+shown+' смешанным числом. Проверь, что остаток меньше знаменателя.':'Представь дробь '+shown+' смешанным числом.';
+     kind='mixed';answerN=originalN;explanation=division+' Целая часть '+whole+', остаток '+rem+'.';
+   }else if(familyIndex===1){
+     family=advanced?'whole_after_plus_one':'whole_part';
+     const plus=advanced?1:0;
+     question=plus?'К дроби '+shown+' прибавили 1. Сколько целых частей стало? Введи только число.':'Сколько целых содержится в дроби '+shown+'? Введи только число.';
+     kind='number';answerN=whole+plus;label='Количество целых';
+     explanation=division+(plus?' После прибавления единицы целых стало '+answerN+'.':' Частное равно '+whole+'.');
+   }else if(familyIndex===2){
+     family=advanced?'remainder_after_unit_fraction':'remainder';
+     const change=advanced?1:0;
+     question=change?'К дроби '+shown+' прибавили '+frac(1,den)+'. Какой остаток получится при делении нового числителя на '+den+'? Введи только остаток.':'Раздели '+originalN+' на '+den+' с остатком. Каков остаток? Введи только число.';
+     kind='number';answerN=(rem+change)%den;label='Остаток';
+     explanation=division+(change?' Новый числитель '+(originalN+1)+', остаток '+answerN+'.':' Остаток '+rem+'.');
+   }else if(familyIndex===3){
+     family=advanced?'context_plus_one':'context_conversion';
+     const plus=advanced?1:0;
+     question=plus?'Лента имеет длину '+shown+' м. К ней добавили ещё 1 м. Запиши новую длину смешанным числом.':'Отрезок ленты имеет длину '+shown+' м. Запиши эту длину смешанным числом.';
+     kind='mixed';answerN=originalN+plus*den;
+     explanation=division+(plus?' Прибавляем '+den+'/'+den+', значит целых станет '+(whole+1)+'.':' Получаем '+whole+' целых и '+rem+'/'+den+'.');
+   }else{
+     const plus=advanced?2:1;
+     family=advanced?'plus_two_wholes':'plus_one_whole';
+     question='К дроби '+shown+' прибавили '+plus+(plus===1?' целую':' целых')+'. Запиши результат смешанным числом.';
+     kind='mixed';answerN=originalN+plus*den;
+     explanation=division+' Прибавили '+plus+' целых: целая часть '+(whole+plus)+', остаток '+rem+'/'+den+'.';
+   }
+ }else{
+   const product=whole+' · '+den+' + '+rem+' = '+originalN+'.';
+   if(familyIndex===0){
+     family=advanced?'full_recheck':'full_conversion';
+     question=advanced?'Запиши смешанное число '+shown+' неправильной дробью, сохранив знаменатель.':'Запиши '+shown+' неправильной дробью.';
+     kind='improper';answerN=originalN;
+     explanation=product+' Знаменатель '+den+' не меняется.';
+   }else if(familyIndex===1){
+     const plus=advanced?1:0;
+     family=advanced?'numerator_after_plus_one':'new_numerator';
+     question=plus?'К смешанному числу '+shown+' прибавили 1. Какой станет числитель неправильной дроби со знаменателем '+den+'? Введи только числитель.':'Переведи '+shown+' в неправильную дробь. Какой получится числитель? Введи только число.';
+     kind='number';answerN=originalN+plus*den;label='Новый числитель';
+     explanation=product+(plus?' Добавили '+den+' долей, числитель стал '+answerN+'.':' Это новый числитель.');
+   }else if(familyIndex===2){
+     family=advanced?'context_fraction':'context_conversion';
+     question=advanced?'На изготовление модели ушло '+shown+' м проволоки. Вырази эту длину неправильной дробью.':'Для изделия нужно '+shown+' м ленты. Запиши длину неправильной дробью.';
+     kind='improper';answerN=originalN;
+     explanation=product+' Длина равна '+answerN+'/'+den+' м.';
+   }else if(familyIndex===3){
+     const plus=advanced?den:0;
+     family=advanced?'count_parts_after_plus_one':'count_fractional_units';
+     question=plus?'Было '+shown+' м ленты, добавили ещё 1 м. Сколько отрезков длиной '+frac(1,den)+' м получится из всей ленты? Введи только число.':'Сколько долей по '+frac(1,den)+' содержится в числе '+shown+'? Введи только число.';
+     kind='number';answerN=originalN+plus;label='Количество долей';
+     explanation=product+(plus?' Ещё 1 целая — это '+den+' долей. Всего '+answerN+' долей.':' Всего '+answerN+' долей по 1/'+den+'.');
+   }else{
+     const plus=advanced?den+1:1;
+     family=advanced?'plus_whole_and_fraction':'plus_one_fractional_unit';
+     question='К смешанному числу '+shown+' прибавили '+frac(plus,den)+'. Запиши сумму неправильной дробью со знаменателем '+den+'.';
+     kind='improper';answerN=originalN+plus;
+     explanation=product+' Прибавляем '+plus+' долей: '+originalN+' + '+plus+' = '+answerN+'. Знаменатель '+den+'.';
+   }
+ }
+ if(!Number.isSafeInteger(answerN)||answerN<0)return base;
+ let answerMode,answerRat,correctText,correctHtml,correctLabel,choices,ans,form,conversionType;
+ if(kind==='number'){
+   answerMode='number';answerRat=rational(answerN,1);correctText=String(answerN);correctHtml=correctText;
+   correctLabel=correctText;ans=correctText;choices=g5nums(answerN,[answerN+1,Math.max(0,answerN-1),answerN+den]);
+ }else if(kind==='mixed'){
+   const w=Math.floor(answerN/den),r=answerN%den;
+   if(w<1||r<1)return base;
+   answerMode='fraction';answerRat=rational(answerN,den);correctText=w+' '+r+'/'+den;
+   correctHtml=mixed(w,r,den);correctLabel=correctHtml;ans='ok';conversionType='mixed';form={kind:'mixed'};
+   const variants=[{label:correctHtml,key:'ok'},{label:mixed(w+1,r,den),key:'a'},
+     {label:mixed(w+2,r,den),key:'b'},{label:mixed(w+3,r,den),key:'c'}];
+   choices=g5q(question,variants,'ok',explanation,family).choices;
+ }else{
+   answerMode='fraction';answerRat=rational(answerN,den);correctText=answerN+'/'+den;
+   correctHtml=frac(answerN,den);correctLabel=correctHtml;conversionType='improper';
+   form={kind:'exact',n:answerN,d:den};
+   const [reducedN,reducedD]=g5NewRat(answerN,den);
+   ans=reducedN+'/'+reducedD;
+   choices=g5NewChoiceSet(answerN,den,[[answerN+1,den],[Math.max(0,answerN-1),den],[answerN,den+1]]);
+ }
+ const audit={...(base.mk5Audit||{}),type:kind==='number'?'numeric':'rational',
+   expected:kind==='number'?answerN:(()=>{const x=g5NewRat(answerN,den);return x[0]+'/'+x[1]})(),
+   numerator:kind==='number'?undefined:answerN,denominator:kind==='number'?undefined:den,
+   level,stage,topic,pedagogicalFamily:family};
+ const signature='g5:'+topic+':'+topic+':'+family+':'+stripHtmlText(question)+':'+correctText;
+ return {...base,text:question,ans,choices,ex:explanation,templateId:'g5_conversion_'+family,
+   sig:signature,answerMode,answerRat,correctText,correctHtml,correctLabel,preferMixed:kind==='mixed',
+   stage18AnswerForm:form||null,stage18FixedDenominator:kind==='number'?undefined:den,
+   stage18ConversionType:conversionType||null,stage18SingleFieldLabel:kind==='number'?label:null,
+   inputHint:kind==='number'?'Введи одно число. Другие поля не нужны.':'',
+   mk5Audit:audit,conversionAudit:{topic,family,position:pos,stage,level,whole,rem,den,
+     originalNumerator:originalN,answerNumerator:answerN,answerKind:kind}};
 }
 makeG5Question=function(id){
  const base=previousMake.apply(this,arguments);
  if(!base)return base;
- const topic=String(base.sourceTopicId||id||''),variant=String(base.templateId||'');
+ const topic=String(base.sourceTopicId||id||'');
  if(topic!=='frac_to_mixed'&&topic!=='mixed_to_frac')return base;
  const given=displayedParts(base.text);
  if(!given)return base;
- if(topic==='frac_to_mixed'&&given.whole===null&&(variant==='improper_whole_part'||(Number(blockSession?.done||0)+activeDifficulty())%3===1)){
-   const whole=Math.floor(given.numerator/given.denominator);
-   return {...base,text:'Сколько целых содержится в дроби '+frac(given.numerator,given.denominator)+'? Введи только число целых.',
-     answerMode:'number',answerRat:rational(whole,1),correctText:String(whole),correctHtml:String(whole),
-     stage18SingleFieldLabel:'Количество целых',inputHint:'Одно число. Дробные клетки не нужны.'};
- }
- if(topic==='mixed_to_frac'&&given.whole!==null&&(variant==='mixed_numerator'||(Number(blockSession?.done||0)+activeDifficulty())%3===1)){
-   const numerator=given.whole*given.denominator+given.numerator;
-   return {...base,text:'Переведи '+mixed(given.whole,given.numerator,given.denominator)+' в неправильную дробь. Какой получится числитель?',
-     answerMode:'number',answerRat:rational(numerator,1),correctText:String(numerator),correctHtml:String(numerator),
-     stage18SingleFieldLabel:'Новый числитель',inputHint:'Введи только числитель. Знаменатель не меняется.'};
- }
- if(topic==='mixed_to_frac'&&given.whole!==null){
-   const numerator=given.whole*given.denominator+given.numerator;
-   return {...base,text:'Запиши '+mixed(given.whole,given.numerator,given.denominator)+' неправильной дробью.',
-     answerMode:'fraction',answerRat:rational(numerator,given.denominator),preferMixed:false,
-     correctText:numerator+'/'+given.denominator,correctHtml:frac(numerator,given.denominator),
-     stage18AnswerForm:{kind:'exact',n:numerator,d:given.denominator},
-     stage18FixedDenominator:given.denominator,stage18ConversionType:'improper'};
- }
- if(topic==='frac_to_mixed'&&given.whole===null){
-   const whole=Math.floor(given.numerator/given.denominator),rem=given.numerator%given.denominator;
-   if(whole<1||rem<1)return base;
-   return {...base,text:'Представь '+frac(given.numerator,given.denominator)+' смешанным числом.',
-     answerMode:'fraction',answerRat:rational(given.numerator,given.denominator),preferMixed:true,
-     correctText:whole+' '+rem+'/'+given.denominator,correctHtml:mixed(whole,rem,given.denominator),
-     stage18AnswerForm:{kind:'mixed'},stage18FixedDenominator:given.denominator,
-     stage18ConversionType:'mixed'};
- }
- return base;
+ return conversionQuestion(base,topic,given);
 };
 const previousMarkup=stage18FractionMarkup;
 stage18FractionMarkup=function(nextHandler,skipHandler,hint){
