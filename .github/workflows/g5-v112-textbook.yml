@@ -1,0 +1,48 @@
+name: Grade 5 Vilenkin sections and lessons v112
+on:
+  push:
+    branches: [feat/g5-v112-textbook-sections-20261113]
+    paths:
+      - g5-textbook-v112.js
+      - audits/g5_v112_patch.py
+      - audits/g5_v112_browser.cjs
+      - .github/workflows/g5-v112-textbook.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  release-candidate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - name: Activate textbook navigation and PWA integrity
+        run: python3 audits/g5_v112_patch.py
+      - name: Validate JS syntax
+        run: node --check g5-textbook-v112.js
+      - name: Install pinned Playwright
+        run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Verify seven new lessons with independent math oracles and responsive navigation
+        run: node audits/g5_v112_browser.cjs
+      - name: Recheck all existing topics and fraction-conversion UX
+        run: |
+          sed 's/67/74/g' audits/g5_v111_browser.cjs > audits/g5_v112_v111_runtime.cjs
+          sed 's/61/74/g' audits/g5_stage18t_full_regression.cjs > audits/g5_v112_full_runtime.cjs
+          node audits/g5_v112_v111_runtime.cjs
+          node audits/g5_v112_full_runtime.cjs
+          node audits/g5_conversion_diversity_smoke.cjs
+          node audits/g5_conversion_ux_smoke.cjs
+      - name: Commit verified HTML and PWA to staging only
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js
+          if ! git diff --cached --quiet; then
+            git commit -m "feat(g5): activate textbook geometry, instruments and chapter sections v112"
+            git fetch origin feat/g5-v112-textbook-sections-20261113
+            git rebase origin/feat/g5-v112-textbook-sections-20261113
+            git push origin HEAD:feat/g5-v112-textbook-sections-20261113
+          fi
