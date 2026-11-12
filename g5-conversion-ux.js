@@ -20,13 +20,13 @@ makeG5Question=function(id){
  if(topic!=='frac_to_mixed'&&topic!=='mixed_to_frac')return base;
  const given=displayedParts(base.text);
  if(!given)return base;
- if(variant==='improper_whole_part'){
+ if(topic==='frac_to_mixed'&&given.whole===null&&(variant==='improper_whole_part'||(Number(blockSession?.done||0)+activeDifficulty())%3===1)){
    const whole=Math.floor(given.numerator/given.denominator);
    return {...base,text:'Сколько целых содержится в дроби '+frac(given.numerator,given.denominator)+'? Введи только число целых.',
      answerMode:'number',answerRat:rational(whole,1),correctText:String(whole),correctHtml:String(whole),
      stage18SingleFieldLabel:'Количество целых',inputHint:'Одно число. Дробные клетки не нужны.'};
  }
- if(variant==='mixed_numerator'&&given.whole!==null){
+ if(topic==='mixed_to_frac'&&given.whole!==null&&(variant==='mixed_numerator'||(Number(blockSession?.done||0)+activeDifficulty())%3===1)){
    const numerator=given.whole*given.denominator+given.numerator;
    return {...base,text:'Переведи '+mixed(given.whole,given.numerator,given.denominator)+' в неправильную дробь. Какой получится числитель?',
      answerMode:'number',answerRat:rational(numerator,1),correctText:String(numerator),correctHtml:String(numerator),
