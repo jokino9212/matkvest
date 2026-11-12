@@ -88,6 +88,12 @@ function displayedAnswer(s) {
     modes[q.template]=(modes[q.template]||0)+1;
     if(!samples[q.template])samples[q.template]={text:q.text,answer:q.answer};
     if(q.context) {contexts[q.template]=(contexts[q.template]||0)+1;}
+    const decl=q.text.match(/разделили поровну на\s+(\d+)\s+([А-Яа-яЁё]+)/i);
+    if(decl){
+     const n=Number(decl[1]);
+     const word=(n%100!==11&&n%10===1)?'часть':(n%100<12||n%100>14)&&n%10>=2&&n%10<=4?'части':'частей';
+     if(decl[2]!==word)bad.push({stage:q.stage,text:q.text,error:'Wrong numeral declension: expected '+word});
+    }
     try{
      const expected=expectedFromVisible(q),actual=displayedAnswer(q.answer);
      if(expected[0]!==actual[0]||expected[1]!==actual[1])bad.push({stage:q.stage,template:q.template,text:q.text,answer:q.answer,expected:expected.join('/')});
