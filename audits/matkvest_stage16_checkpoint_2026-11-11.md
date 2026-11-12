@@ -62,3 +62,12 @@
 - На момент PASS production `main` ещё `488b29d7a715a2d03bdbc03613d00439247752ac`. **Изменения на сайте ещё не опубликованы.** Никакие пост-релизные утверждения делать до merge + Pages + 17 Gate + live smoke нельзя.
 - Ссылки: https://github.com/jokino9212/matkvest/actions/runs/43167576011 ; https://github.com/jokino9212/matkvest/actions/runs/43167878557 .
 - Следующий безопасный этап: подготовить PR ветка→`main` после diff review; после утверждения и merge проверить 17/17 post-release Gate и живой сайт на desktop/mobile, включая cache/PWA. Не восстанавливать предыдущую ошибочную проверку `q.correct`, не терять Stage18 fraction entry. При сбое не утверждать production SUCCESS.
+
+## Production Stage16 RELEASE CONFIRMED — 12.11.2026 (UTC 06:35)
+- Release PR [#33](https://github.com/jokino9212/matkvest/pull/33) merged with squash commit `35fa6d58780e0fc1f2bbc16afe0451cd654cdf97`.
+- Before merge: **11/11 PR checks SUCCESS** on HEAD `e7822ac491c0bec9bdcdcf92736af88fd7b66f1a`.
+- After merge: **17/17 production GitHub Actions SUCCESS** on `35fa6d58780e0fc1f2bbc16afe0451cd654cdf97`, including Pages deployment [43168725200](https://github.com/jokino9212/matkvest/actions/runs/43168725200), real production verifier [43168726660](https://github.com/jokino9212/matkvest/actions/runs/43168726660), mobile, profile, pets, shop, attempts, PWA and storage.
+- Stage16B+16C `index.html`/SW SHA-256 fingerprint: `e7def1507e770d7d5e02dc0a2ccf902b23026ef11aca886a41d229b12944ac49`; exact audited artifacts were released.
+- External URL fetch was blocked by the browser tool, so live verification claim relies on GitHub Pages and dedicated production browser workflow SUCCESS, **not** on personal/manual inspection.
+- This file's documentation-only follow-up update, if committed to `main`, may spawn a new CI batch; do not confuse it with the already proven release gate of `35fa6d5`.
+- The **next development stage** should focus on remaining Grade 5 pedagogy only after verifying no newer issues. Avoid reopening closed Stage01–16. Prefer separate branch + narrowly scoped candidate + broad Gate + checkpoint; continue using direct GitHub tools. No changes to profiles, pets, shop, subscriptions or 6–8 grade content without a defect.
