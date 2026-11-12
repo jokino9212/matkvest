@@ -1,25 +1,57 @@
-name: Stage16C grade 5 mixed-add contextual diversity baseline
+name: Stage16C grade 5 contextual mixed-add candidate and guarded Gate
 on:
   push:
     branches: [audit/g5-pedagogy-stage16-20261111]
     paths:
+      - audits/g5_stage16c_mixed_add_patch.py
       - audits/g5_stage16c_mixed_add_baseline.cjs
       - .github/workflows/quiz-stage16c-mixed-add.yml
   workflow_dispatch:
 permissions:
-  contents: read
+  contents: write
 jobs:
-  baseline:
+  guarded-stage16c:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 100
     container:
       image: mcr.microsoft.com/playwright:v1.56.1-noble
     steps:
       - uses: actions/checkout@v4
-      - run: npm install --no-save --no-package-lock playwright@1.56.1
-      - name: Measure 720 actual mixed-number tasks (read-only)
-        run: timeout 600s node audits/g5_stage16c_mixed_add_baseline.cjs
-      - name: Verify diagnostic result and summarize
+      - name: Apply guarded canonical label and contextual question candidates
         run: |
-          test -s audits/out/g5_stage16c_mixed_add_baseline.json
-          echo "Stage16C baseline sampled 720 real mixed-add tasks. This baseline is diagnostic only: story requirement is not yet enabled." >> "$GITHUB_STEP_SUMMARY"
+          python3 audits/g5_stage16_canonical_rational_fix.py
+          python3 audits/g5_stage16c_mixed_add_patch.py
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Verify 720 contextual mixed-add questions across 3 stages
+        env:
+          STAGE16C_REQUIRE_STORIES: '1'
+        run: timeout 600s node audits/g5_stage16c_mixed_add_baseline.cjs
+      - name: Verify 19875 rational choice labels and unchanged grading keys
+        run: timeout 600s node audits/g5_stage16_canonical_rational_browser.cjs
+      - name: Independently test mathematical answers, semantics and progression
+        run: |
+          timeout 600s node audits/g5_stage14_math_oracle.cjs
+          timeout 600s node audits/g5_stage14b_math_oracle.cjs
+          timeout 600s node audits/g5_stage14c_semantic_visual_oracle.cjs
+          timeout 600s node audits/g5_stage11_difficulty_browser.cjs
+          timeout 600s node audits/g5_stage10_semantic_browser.cjs
+          timeout 350s node audits/quiz_stage05_fresh_browser.cjs
+      - name: Check input, skip, saved attempts and offline PWA
+        run: |
+          timeout 350s node audits/quiz_stage01_fraction_browser.cjs
+          timeout 350s node audits/quiz_stage02_input_browser.cjs
+          timeout 350s node audits/quiz_stage03_skip_browser.cjs
+          timeout 350s node audits/stage24_attempt_lifecycle_browser.cjs
+          timeout 350s node audits/stage28_offline_pwa_browser.cjs
+      - name: Persist validated index.html and sw.js to audit branch only
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js
+          if ! git diff --cached --quiet; then
+            git commit -m "fix(g5): canonical whole-number labels and contextual mixed-add"
+            git fetch origin audit/g5-pedagogy-stage16-20261111
+            git rebase origin/audit/g5-pedagogy-stage16-20261111
+            git push origin HEAD:audit/g5-pedagogy-stage16-20261111
+          fi
