@@ -22,7 +22,7 @@ const assert=require('node:assert/strict'),path=require('node:path'),{chromium}=
       if(correct&&stripHtmlText(correct.label)!==String(n))bad.push({topic:topic.id,problem:'noncanonical integer label',expected:String(n),label:correct.label});
       if(String(q.correct)!==correctKey)bad.push({topic:topic.id,problem:'modified grading key',expected:correctKey,correct:q.correct});
      }
-     for(const c of q.choices){const m=String(c.key).match(/^(\\d+)\\/1$/);
+     for(const c of q.choices){const m=String(c.key).match(/^(\d+)\/1$/);
       if(m){choiceWholes++;if(stripHtmlText(c.label)!==m[1])bad.push({topic:topic.id,problem:'noncanonical wrong answer',key:c.key,label:c.label})}
      }
     }
