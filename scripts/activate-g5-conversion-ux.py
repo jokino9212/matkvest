@@ -25,7 +25,7 @@ sw=sw.replace('"./index.html",', '"./index.html", "./g5-conversion-ux.js",') if 
 digest=hashlib.sha256(text.encode("utf-8")).hexdigest()
 sw,hash_count=re.subn(r'(const APP_BUILD_HASH = ")[0-9a-f]{64}(";)',lambda m:m.group(1)+digest+m.group(2),sw)
 if hash_count!=1: raise SystemExit("PWA hash not found")
-sw,cache_count=re.subn(r'(const CACHE_NAME = "matkvest-iphone-v)\\d+(";)',lambda m:m.group(1)+'108'+m.group(2),sw)
+sw,cache_count=re.subn(r'(const CACHE_NAME = "matkvest-iphone-v)\d+(";)',lambda m:m.group(1)+'108'+m.group(2),sw)
 if cache_count!=1: raise SystemExit("PWA cache name not found")
 assert sw.count('"./g5-conversion-ux.js"')==1
 sw_path.write_text(sw,encoding="utf-8")
