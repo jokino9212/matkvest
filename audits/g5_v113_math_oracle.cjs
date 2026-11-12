@@ -2,7 +2,7 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
 const {chromium}=require('playwright');
 function expected(q){
- const name=String(q.templateId), s=String(q.text), n=(s.replace(/см[²³]/g,'см').match(/\d+/g)||[]).map(Number);
+ const name=String(q.key), s=String(q.text), n=(s.replace(/см[²³]/g,'см').match(/\d+/g)||[]).map(Number);
  const sum=xs=>xs.reduce((a,b)=>a+b,0), max=Math.max,min=Math.min, abs=Math.abs;
  switch(name){
   case 'cmp_max':return max(n[0],n[1]);
