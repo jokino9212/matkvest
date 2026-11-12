@@ -8,6 +8,8 @@ on:
       - assets/source/**
       - audits/ux104_owner_v105_browser.cjs
       - .github/workflows/ux104-production-qa.yml
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 permissions:
   contents: read
@@ -22,12 +24,18 @@ jobs:
       - uses: actions/checkout@v4
       - name: Verify v105 version and exact source references
         run: |
-          grep -Eq 'const CACHE_NAME = "matkvest-iphone-v(105|107)"' sw.js
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          sw=Path('sw.js').read_text()
+          version=re.search(r'^const CACHE_NAME = "matkvest-iphone-v(\d+)";',sw,re.MULTILINE)
+          assert version and int(version.group(1))>=105, 'Unexpected or outdated PWA cache version'
+          PY
           python3 -c 'import pathlib,re,hashlib; h=pathlib.Path("index.html").read_bytes(); w=pathlib.Path("sw.js").read_text(); assert re.search(r"const APP_BUILD_HASH = \"([0-9a-f]{64})\"",w).group(1)==hashlib.sha256(h).hexdigest()'
       - run: npm install --no-save --no-package-lock playwright@1.56.1
       - name: All 10 premium pets in actual production catalog across 4 responsive widths
         run: |
-          if grep -q 'matkvest-iphone-v107' sw.js; then
+          if ! grep -q 'matkvest-iphone-v105"' sw.js; then
             timeout 180s node audits/ux105_v107_browser.cjs
             timeout 180s node audits/ux107_firstpaint_archive_browser.cjs
           else
