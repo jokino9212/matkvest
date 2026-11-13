@@ -96,7 +96,7 @@ function expectTable(q){
    }else throw Error('Missing numerical verification plan '+k);
    if(q.id==='natural'&&q.level<2&&q.trial!==0&&/\b\d*0\d*\b/.test(q.text))zeroDigit++;
    if(q.id==='number_tables'){
-    assert(q.caption&&/продаж/i.test(q.caption),'Missing table caption '+k);
+    assert(q.caption&&/продаж|продано/i.test(q.caption),'Missing table caption '+k);
     assert(q.colHeaders[0]===(q.level===0?'Показатель':'Издание'),'Wrong first column name '+k);
     expectTable(q);tableChecks++;
    }
