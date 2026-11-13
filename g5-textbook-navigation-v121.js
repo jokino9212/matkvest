@@ -183,7 +183,7 @@ function mount(){
   openG5Topic(id);
  }
  function button(text,card,number,secondary,id){
-   const b=document.createElement('button');b.type='button';b.className='mk-g5-toc-link';
+   const b=document.createElement('button');b.type='button';b.className='mk-g5-toc-link';b.dataset.topicId=id;
    const num=document.createElement('span');num.className='mk-g5-toc-item-number';num.textContent=secondary?'↳':String(number);
    num.setAttribute('aria-hidden','true');
    const title=document.createElement('span');title.className='mk-g5-toc-item-title';title.textContent=text;
