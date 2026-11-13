@@ -1,0 +1,25 @@
+name: Grade 5 comprehensive 74-topic actual question diversity audit
+on:
+  push:
+    branches: [audit/g5-full-curriculum-v132-20261113]
+    paths:
+      - audits/g5_v132_all_topics_diversity.cjs
+      - .github/workflows/g5-v132-audit.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  all-74-topics:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - run: node audits/g5_v132_all_topics_diversity.cjs
+      - name: Archive per-topic JSON report
+        uses: actions/upload-artifact@v4
+        with:
+          name: g5-all-74-reality-audit
+          path: audits/g5_v132_full_curriculum_inventory.json
