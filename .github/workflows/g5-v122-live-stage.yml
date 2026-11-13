@@ -1,0 +1,48 @@
+name: Grade 5 actual learner-facing cognitive difficulty v122
+on:
+  push:
+    branches: [fix/g5-full-pedagogy-v122-20261113]
+    paths:
+      - g5-live-pedagogy-v122.js
+      - audits/g5_v122_patch.py
+      - audits/g5_v122_live_stage_browser.cjs
+      - .github/workflows/g5-v122-live-stage.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  live-pedagogy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - name: Activate v122 and sync HTML/PWA cache
+        run: python3 audits/g5_v122_patch.py
+      - name: Validate JavaScript and Python syntax
+        run: |
+          node --check g5-live-pedagogy-v122.js
+          node --check audits/g5_v122_live_stage_browser.cjs
+          python3 -m py_compile audits/g5_v122_patch.py
+      - name: Install pinned Playwright
+        run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Verify actual user-facing quiz tiers, 74 topics, four viewports
+        run: node audits/g5_v122_live_stage_browser.cjs
+      - name: Existing donor mathematical oracles
+        run: |
+          node audits/g5_v115_arithmetic_oracle.cjs
+          node audits/g5_conversion_diversity_smoke.cjs
+          node audits/g5_conversion_ux_smoke.cjs
+      - name: Commit activated HTML and service worker only after PASS
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js
+          if ! git diff --cached --quiet; then
+            git commit -m "build(g5): activate live tiered quiz generators v122"
+            git fetch origin fix/g5-full-pedagogy-v122-20261113
+            git rebase origin/fix/g5-full-pedagogy-v122-20261113
+            git push origin HEAD:fix/g5-full-pedagogy-v122-20261113
+          fi
