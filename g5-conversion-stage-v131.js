@@ -26,7 +26,7 @@ function spec(id,t,p,N,D,W,R){
  if(id==='frac_to_mixed'){
   if(t===1){
    if(p===0)data=['После увеличения числителя дроби '+improper+' на '+D+' запиши результат смешанным числом.',A(V(N),V(D)),'mixed',2,'Увеличение числителя на знаменатель добавляет одну целую.'];
-   if(p===1)data=['К дроби '+improper+' прибавили '+frac(gap,D)+'. Сколько целых получилось? Введи только число.',D===0?V(0):Dfn(A(V(N),V(gap)),V(D)),'number',3,'Сначала сложим числители, затем выполним деление на знаменатель.'];
+   if(p===1)data=['К дроби '+improper+' прибавили '+frac(gap,D)+'. Сколько целых получилось? Введи только число.',Dfn(A(V(N),V(gap)),V(D)),'number',3,'Сначала сложим числители, затем выполним деление на знаменатель.'];
    if(p===2)data=['Числитель дроби '+improper+' увеличили вдвое, затем прибавили 1. Найди остаток от деления нового числителя на '+D+'. Введи только остаток.',Mod(A(M(V(N),V(2)),V(1)),V(D)),'number',3,'Новый числитель равен 2·'+N+' + 1; найдём его остаток при делении.'];
    if(p===3)data=['Лента длиной '+improper+' м стала длиннее на 1 м и ещё на '+frac(gap+1,D)+' м. Запиши новую длину смешанным числом.',A(V(N),V(D),V(gap+1)),'mixed',4,'Выразим прибавленные метры в долях знаменателя '+D+' и выделим целую часть.'];
    if(p===4)data=['Сложи две неправильные дроби '+improper+' и '+frac(extra,D)+'. Ответ запиши смешанным числом.',A(V(N),V(extra)),'mixed',3,'Складываем числители при общем знаменателе, затем выделяем целую часть.'];
@@ -70,7 +70,7 @@ function generate(base,id){
  let choices,ans,rat,correctText,correctHtml,answerMode,conversionType=null,fixedForm=null,singleLabel=null;
  if(d.kind==='number'){
   ans=String(ansN);rat=rational(ansN,1);correctText=ans;correctHtml=ans;answerMode='number';
-  singleLabel=p===1?'Количество целых или числитель':'Остаток или количество долей';
+  singleLabel=id==='frac_to_mixed'?(p===1?'Количество целых':'Остаток'):(p===1?'Числитель':'Количество долей');
   choices=g5nums(ansN,[ansN+1,ansN+2,Math.max(0,ansN-1)]);
  }else if(d.kind==='mixed'){
   const whole=Math.floor(ansN/den),rem=ansN%den;
