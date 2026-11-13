@@ -52,6 +52,17 @@ function coordRay(points,options={}){
  return '<div class="mk-g5-coordinate-diagram" style="width:100%;max-width:580px;overflow:hidden;margin:9px auto"><svg role="img" aria-label="'+(startsAtZero?'Координатный луч от нуля':'Фрагмент координатного луча')+', деления через одну единицу, точки '+entries.map(x=>x.name).join(', ')+'" viewBox="0 0 525 '+svgHeight+'" width="100%" style="height:auto;display:block">'+html+'</svg></div>';
 }
 
+function instrumentGraduation(price){
+ if(!Number.isSafeInteger(price)||price<2||price>12)throw Error('Invalid ruler price');
+ let ticks='';
+ for(let i=0;i<=6;i++){
+  const x=75+61*i,tall=i===0||i===4;
+  ticks+='<line class="mk-g5-instrument-tick" data-step="'+i+'" x1="'+x+'" y1="68" x2="'+x+'" y2="'+(tall?112:96)+'" stroke="#436e9e" stroke-width="'+(tall?3:2)+'"/>';
+  if(tall)ticks+='<text class="mk-g5-instrument-label" x="'+x+'" y="135" text-anchor="middle" font-size="21" fill="currentColor">'+(i===0?'0':4*price)+'</text>';
+ }
+ return '<div class="mk-g5-instrument-scale" style="width:100%;max-width:560px;overflow:hidden;margin:9px auto"><svg role="img" aria-label="Шкала измерительного прибора: четыре равных деления между отметками ноль и '+(4*price)+'" viewBox="0 0 520 171" width="100%" style="height:auto;display:block"><rect x="54" y="63" width="406" height="58" rx="8" fill="#edf4fc" stroke="#436e9e" stroke-width="2"/>'+ticks+'<text x="259" y="31" text-anchor="middle" font-size="18" fill="currentColor">Шкала измерительного прибора</text></svg></div>';
+}
+
 function spec(id,t,p){
  const a=rnd(4,14+5*t),b=rnd(3,11+4*t),c=rnd(2,7+3*t),d=rnd(2,6+2*t),e=rnd(2,6+2*t),k=rnd(3,8+4*t);
  let rows;
@@ -85,7 +96,7 @@ function spec(id,t,p){
    ['На координатном луче отмечена точка A. Определи её координату по шкале: одно деление равно единице. '+coordRay([point('A',a)],{startAtZero:true,hide:[a]}),V(a),'Считаем единичные деления от 0 до точки A. Получаем '+a+'.',1],
    ['Точки A('+a+') и B('+(a+b)+') отмечены на координатном луче. Сколько единичных делений между A и B? '+coordRay([point('A',a),point('B',a+b)]),S(V(a+b),V(a)),'Из большей координаты вычитаем меньшую: '+(a+b)+' − '+a+' = '+b+'.',2],
    ['Из точки A('+a+') прошли '+c+' единичных делений вправо и оказались в точке B. Какая координата B? '+coordRay([point('A',a),point('B',a+c)],{hide:[a+c]}),A(V(a),V(c)),'При движении вправо увеличиваем координату на '+c+': '+a+' + '+c+' = '+(a+c)+'.',1],
-   ['Из точки C('+(a+b)+') прошли '+b+' делений влево и оказались в точке D. Назови координату D. '+coordRay([point('C',a+b),point('D',a)],{hide:[a]}),S(V(a+b),V(b)),'При движении влево уменьшаем координату: '+(a+b)+' − '+b+' = '+a+'.',1],
+   ['На шкале прибора между 0 и отметкой '+(4*k)+' находятся четыре равных деления. Определи цену одного деления. '+instrumentGraduation(k),D(V(4*k),V(4)),'Разделим изменение значения '+(4*k)+' − 0 = '+(4*k)+' на четыре равных деления: '+(4*k)+' : 4 = '+k+'.',1],
    ['На координатном луче A('+a+'), B('+(a+2*b)+'), а M — середина отрезка AB. Какова координата M? '+coordRay([point('A',a),point('M',a+b),point('B',a+2*b)],{hide:[a+b]}),A(V(a),V(b)),'Между A и B '+(2*b)+' делений, половина — '+b+'. Прибавляем к '+a+' и получаем '+(a+b)+'.',2]
   ];
   else if(t===1){
