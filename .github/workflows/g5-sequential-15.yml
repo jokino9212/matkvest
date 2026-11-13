@@ -28,4 +28,5 @@ jobs:
         run: node audits/g5_sequential_paragraph15_browser_oracle.cjs
       - name: Regression sequential paragraphs 1-14
         run: |
-          for f in audits/g5_sequential_paragraphs01_03_browser.cjs audits/g5_sequential_paragraph{04,05,06,07,08,09,10,11,12,13,14}_browser_oracle.cjs; do node "$f"; done
+          node audits/g5_sequential_paragraphs01_03_browser.cjs
+          for n in 04 05 06 07 08 09 10 11 12 13 14; do node "audits/g5_sequential_paragraph${n}_browser_oracle.cjs"; done
