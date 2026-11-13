@@ -41,7 +41,15 @@ try{
         await page.setViewport({width:mode.width,height:mode.height,isMobile:mode.mobile,hasTouch:mode.mobile,deviceScaleFactor:1});
         const response=await page.goto(base,{waitUntil:'domcontentloaded',timeout:120000});
         if(!response?.ok())throw Error('Production browser navigation HTTP '+response?.status());
-        await page.waitForFunction(()=>!!navigator.serviceWorker?.controller,{timeout:30000});
+        try {
+          await page.waitForFunction(()=>!!navigator.serviceWorker?.controller,{timeout:12000});
+        } catch (_) {
+          // Fresh isolated mobile contexts may install the PWA without controlling
+          // their first page. Reload once after registration to claim the client.
+          console.log('PRODUCTION SW FIRST VISIT NOT YET CONTROLLED',mode.name,'retrying after reload');
+          await page.reload({waitUntil:'domcontentloaded',timeout:120000});
+          await page.waitForFunction(()=>!!navigator.serviceWorker?.controller,{timeout:30000});
+        }
         const state=await page.evaluate(async()=>{
           const cachesNow=await caches.keys();
           startG7QuizStage('g7:geo_primitives',0);
