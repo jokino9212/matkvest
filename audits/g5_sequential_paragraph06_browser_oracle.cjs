@@ -69,7 +69,7 @@ function fromQuestion(q){
   assert.equal(result.rows.length,600,'15 topic families × 40 real variants');
   assert.equal(result.navLinks,1,'§6 needs precisely one textbook menu link');
   assert(/возрастанию/.test(result.lesson)&&/убыванию/.test(result.lesson)&&/цифр/.test(result.lesson),'§6 lesson must explain inequalities and ordering');
-  const slots=new Map(),variety=new Map(),steps=[[],[],[]],symbolForms=new Set(),equalitySamples=0;
+  const slots=new Map(),variety=new Map(),steps=[[],[],[]],symbolForms=new Set();let equalitySamples=0;
   for(const q of result.rows){
    const ctx=q.level+'/'+q.family+'/'+q.trial,expected=fromQuestion(q),m=q.meta;
    assert(m&&m.id==='natural_compare'&&m.stage===q.level&&m.family===q.family,'Published donor lost topic steps or family metadata '+ctx);
