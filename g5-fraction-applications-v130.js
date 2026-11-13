@@ -28,7 +28,7 @@ function spec(id,t,p){
  const d1=rnd(3,9+t*2),d2=rnd(3,10+t*2),d3=rnd(3,9+t*2);
  const a=rnd(1,d1-1),b=rnd(1,d2-1),c=rnd(1,d3-1),h=rnd(2,6+t*2),k=rnd(2,7+t*2);
  const X=Q(a,d1),Y=Q(b,d2),Z=Q(c,d3),one=Q(1),two=Q(2);
- const total=d1*d2*h,part=total*a/d1;
+ const total=12*d1*d2*h,part=total*a/d1;
  let cases;
  if(id==='frac_division'){
   const n=rnd(3,16+t*7),den=rnd(3,12+t*4),boxes=rnd(2,7+t*3);
