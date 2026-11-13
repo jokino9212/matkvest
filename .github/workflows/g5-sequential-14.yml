@@ -1,0 +1,63 @@
+name: Grade 5 sequential textbook audit §14 division with remainder
+on:
+  push:
+    branches:
+      - audit/g5-sequential-paragraph14-remainders-20261114
+    paths:
+      - 'g5-textbook-tiers-v124.js'
+      - 'g5-textbook-topics.js'
+      - 'audits/g5_sequential_paragraph14_browser_oracle.cjs'
+      - '.github/workflows/g5-sequential-14.yml'
+      - 'sw.js'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'g5-textbook-tiers-v124.js'
+      - 'g5-textbook-topics.js'
+      - 'audits/g5_sequential_paragraph14_browser_oracle.cjs'
+jobs:
+  sequential-paragraph14:
+    runs-on: ubuntu-latest
+    timeout-minutes: 36
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - name: Syntax check learner generator and independent remainder oracle
+        run: |
+          node --check g5-textbook-tiers-v124.js
+          node --check g5-textbook-topics.js
+          node --check audits/g5_sequential_paragraph14_browser_oracle.cjs
+      - name: Install Playwright browser runtime
+        run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Verify 600 genuine remainder questions with independent q-r arithmetic
+        run: node audits/g5_sequential_paragraph14_browser_oracle.cjs
+      - name: Preserve sequential textbook paragraphs 1 through 13
+        run: |
+          node audits/g5_sequential_paragraphs01_03_browser.cjs
+          node audits/g5_sequential_paragraph04_browser_oracle.cjs
+          node audits/g5_sequential_paragraph05_browser_oracle.cjs
+          node audits/g5_sequential_paragraph06_browser_oracle.cjs
+          node audits/g5_sequential_paragraph07_browser_oracle.cjs
+          node audits/g5_sequential_paragraph08_browser_oracle.cjs
+          node audits/g5_sequential_paragraph09_browser_oracle.cjs
+          node audits/g5_sequential_paragraph10_browser_oracle.cjs
+          node audits/g5_sequential_paragraph11_browser_oracle.cjs
+          node audits/g5_sequential_paragraph12_browser_oracle.cjs
+          node audits/g5_sequential_paragraph13_browser_oracle.cjs
+      - name: Protect all 74 topics, 1110 learning slots and contextual clarity
+        run: |
+          node audits/g5_v132_74_real_cognitive_inventory.cjs
+          node audits/g5_stage38_percent_context_check.cjs
+      - name: Protect independent fractions and visual geometry
+        run: |
+          node audits/g5_stage43_factorization_real_math_oracle.cjs
+          node audits/g5_stage42_mixed_fraction_oracle.cjs
+          node audits/g5_stage41_fractions_angles_browser_oracle.cjs
+          node audits/g5_stage40_paragraph25_browser_oracle.cjs
+          node audits/g5_stage39_fraction_independent_oracle.cjs
+      - name: Protect actual conversion and input UI
+        run: |
+          node audits/g5_conversion_diversity_smoke.cjs
+          node audits/g5_conversion_ux_smoke.cjs

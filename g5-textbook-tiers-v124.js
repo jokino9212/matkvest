@@ -131,28 +131,51 @@ function spec(id,t,p){
  const k=rnd(3,8+3*t),m=rnd(2,6+2*t),u=rnd(2,5+2*t);
  let cases;
  if(id==='division_remainder'){
-  const divisor=rnd(4,10+3*t),q=rnd(5+2*t,15+7*t),rem=rnd(1,divisor-1),n=q*divisor+rem;
-  const plus=rnd(2,5);
+  // §14: a=b*q+r, 0<=r<b; the displayed text determines the answer.
+  const divisor=rnd(4,19+4*t),q=rnd(5+3*t,18+6*t),rem=rnd(1,divisor-1),n=q*divisor+rem;
+  const extra=rnd(1,divisor+3),added=n+extra,addedQ=Math.floor(added/divisor),addedR=added%divisor;
+  const groupAdd=rnd(2,6+t),leaveGroups=rnd(1,Math.min(q-1,5+t));
+  const rem2=rnd(0,divisor-1),otherQ=rnd(4,14+5*t),other=otherQ*divisor+rem2;
+  const joint=n+other,jointQ=Math.floor(joint/divisor),jointR=joint%divisor;
+  const desired=rnd(0,divisor-1),delta=(desired-rem+divisor)%divisor||divisor,changed=n+delta,changedQ=Math.floor(changed/divisor);
+  const newDivisor=divisor+rnd(1,4+t),removed=rnd(2,Math.min(n-1,20+4*t));
+  const changedN=n+divisor*groupAdd-removed,changedR=changedN%newDivisor,changedQ2=Math.floor(changedN/newDivisor);
+  const secondItems=rnd(4,divisor+11),secondDivisor=rnd(3,divisor+3),lastR=(rem+secondItems)%secondDivisor,lastQ=Math.floor((rem+secondItems)/secondDivisor);
   if(t===0)cases=[
-   ['Остаток от деления '+n+' на '+divisor+' равен чему?',V(rem),'Проверка: '+n+' = '+divisor+' · '+q+' + '+rem+'. Остаток меньше делителя.',2],
-   ['Какое неполное частное получается при делении '+n+' на '+divisor+'?',V(q),'В числе '+n+' содержится '+q+' полных групп по '+divisor+'.',2],
-   ['Найди делимое, если делитель '+divisor+', неполное частное '+q+', остаток '+rem+'.',A(M(V(divisor),V(q)),V(rem)),'Делимое = делитель · частное + остаток.',2],
-   ['Какой наибольший возможный остаток при делении на '+divisor+'?',S(V(divisor),V(1)),'Остаток всегда строго меньше делителя.',1],
-   ['В коробке '+n+' бусин. Их раскладывают по '+divisor+' штук. Сколько бусин останется?',R(V(n),V(divisor)),'Разложим '+q+' полных упаковок и найдём остаток.',2]
+   ['Найди остаток от деления '+n+' на '+divisor+'.',R(V(n),V(divisor)),
+    'Неполное частное '+q+': '+divisor+' · '+q+' = '+(divisor*q)+'. Остаток '+n+' − '+(divisor*q)+' = '+rem+'. Проверка: '+n+' = '+divisor+' · '+q+' + '+rem+', причём 0 ≤ '+rem+' < '+divisor+'.',2],
+   ['Какое неполное частное при делении '+n+' на '+divisor+'?',V(q),
+    'Берём '+q+' полных групп по '+divisor+': '+divisor+' · '+q+' = '+(divisor*q)+'. После них осталось '+rem+' предметов. Проверка: '+n+' = '+divisor+' · '+q+' + '+rem+' и '+rem+' < '+divisor+'.',2],
+   ['Найди делимое, если делитель '+divisor+', неполное частное '+q+' и остаток '+rem+'.',A(M(V(divisor),V(q)),V(rem)),
+    'По правилу деления с остатком делимое = делитель · неполное частное + остаток. '+divisor+' · '+q+' = '+(divisor*q)+', '+(divisor*q)+' + '+rem+' = '+n+'. Проверка: 0 ≤ '+rem+' < '+divisor+'.',2],
+   ['Какой наибольший возможный остаток при делении на '+divisor+'?',S(V(divisor),V(1)),
+    'Остаток должен удовлетворять 0 ≤ r < '+divisor+'. Наибольшее целое число меньше '+divisor+' — '+(divisor-1)+'. Проверка: '+(divisor-1)+' < '+divisor+'.',1],
+   ['Разложили '+n+' пуговиц в пакеты по '+divisor+' штук. Сколько пуговиц не вошло в полные пакеты?',R(V(n),V(divisor)),
+    'Полных пакетов '+q+': '+q+' · '+divisor+' = '+(q*divisor)+' пуговиц. Вне пакетов '+n+' − '+(q*divisor)+' = '+rem+'. Проверка: '+n+' = '+divisor+' · '+q+' + '+rem+' (остаток меньше '+divisor+').',2]
   ];
   else if(t===1)cases=[
-   ['К '+n+' прибавили '+(plus*divisor)+' и разделили на '+divisor+'. Найди новое неполное частное.',D(S(A(V(n),V(plus*divisor)),V(rem)),V(divisor)),'Добавление '+plus+' полных делителей увеличит частное на '+plus+'.',3],
-   ['Сколько минимум прибавить к '+n+', чтобы число делилось на '+divisor+' без остатка?',S(V(divisor),V(rem)),'Следующее кратное '+((q+1)*divisor)+'; до него не хватает '+(divisor-rem)+'.',3],
-   ['Из '+n+' карандашей убрали остаток '+rem+'. Сколько полных групп по '+divisor+' получилось?',D(S(V(n),V(rem)),V(divisor)),'Вычтем остаток, затем разделим на '+divisor+'.',3],
-   ['К '+n+' добавили '+(plus*divisor)+' предметов. Найди остаток от деления нового количества на '+divisor+'.',R(A(V(n),M(V(plus),V(divisor))),V(divisor)),'Добавили целое число групп. Остаток остался '+rem+'.',3],
-   ['Из '+n+' предметов забрали '+(divisor*plus+rem)+'. Сколько полных групп по '+divisor+' осталось?',D(S(V(n),A(M(V(divisor),V(plus)),V(rem))),V(divisor)),'Убрали '+plus+' полных групп и исходный остаток.',4]
+   ['К '+n+' прибавили '+extra+' и разделили сумму на '+divisor+'. Сколько получилось полных групп?',D(S(V(added),V(addedR)),V(divisor)),
+    'Новое делимое: '+n+' + '+extra+' = '+added+'. В нём '+addedQ+' полных групп: '+divisor+' · '+addedQ+' = '+(divisor*addedQ)+'. Остаток '+added+' − '+(divisor*addedQ)+' = '+addedR+'. Проверка: '+added+' = '+divisor+' · '+addedQ+' + '+addedR+'; 0 ≤ '+addedR+' < '+divisor+'.',3],
+   ['Сколько минимум прибавить к '+n+', чтобы число делилось на '+divisor+' без остатка?',S(V(divisor),V(rem)),
+    'Ближайшее большее кратное '+divisor+': '+divisor+' · '+(q+1)+' = '+((q+1)*divisor)+'. Добавить нужно '+((q+1)*divisor)+' − '+n+' = '+(divisor-rem)+'. Проверка: '+(n+divisor-rem)+' = '+divisor+' · '+(q+1)+' + 0.',3],
+   ['Из '+n+' жетонов убрали '+rem+' жетонов и ещё '+leaveGroups+' полных групп по '+divisor+' жетонов. Сколько полных групп по '+divisor+' осталось?',D(S(S(V(n),V(rem)),M(V(leaveGroups),V(divisor))),V(divisor)),
+    'Вначале убираем остаток: '+n+' − '+rem+' = '+(q*divisor)+'. Убираем '+leaveGroups+' группы: '+leaveGroups+' · '+divisor+' = '+(leaveGroups*divisor)+'. Остаётся '+(q*divisor)+' − '+(leaveGroups*divisor)+' = '+((q-leaveGroups)*divisor)+'. Полных групп '+(q-leaveGroups)+', остаток 0. Проверка: '+((q-leaveGroups)*divisor)+' = '+divisor+' · '+(q-leaveGroups)+' + 0.',4],
+   ['Сложили '+n+' и '+other+' предметов. Какой остаток будет при делении суммы на '+divisor+'?',R(A(V(n),V(other)),V(divisor)),
+    'Первое число: '+n+' = '+divisor+' · '+q+' + '+rem+'. Второе: '+other+' = '+divisor+' · '+otherQ+' + '+rem2+'. Сумма '+n+' + '+other+' = '+joint+'. Неполное частное '+jointQ+', остаток '+jointR+'. Проверка: '+joint+' = '+divisor+' · '+jointQ+' + '+jointR+'; 0 ≤ '+jointR+' < '+divisor+'.',4],
+   ['К '+n+' прибавили несколько предметов так, чтобы получить '+(q+groupAdd)+' полных групп по '+divisor+' и остаток '+desired+'. Сколько предметов добавили?',S(A(M(V(q+groupAdd),V(divisor)),V(desired)),V(n)),
+    'Нужное количество: '+divisor+' · '+(q+groupAdd)+' + '+desired+' = '+((q+groupAdd)*divisor+desired)+'. Уже есть '+n+'. Добавляем '+((q+groupAdd)*divisor+desired)+' − '+n+' = '+(groupAdd*divisor+desired-rem)+'. Проверка: '+((q+groupAdd)*divisor+desired)+' = '+divisor+' · '+(q+groupAdd)+' + '+desired+', 0 ≤ '+desired+' < '+divisor+'.',4]
   ];
   else cases=[
-   ['В двух пакетах '+n+' и '+(divisor*u+c)+' предметов. Сложили вместе. Какой остаток при делении всей суммы на '+divisor+'?',R(A(V(n),V(divisor*u+c)),V(divisor)),'Сложим содержимое, найдём неполное частное и остаток.',4],
-   ['На сколько минимум увеличить число '+n+', чтобы неполное частное от деления на '+divisor+' стало ровно '+(q+plus)+'?',S(M(V(q+plus),V(divisor)),V(n)),'Минимальное число с таким частным равно '+((q+plus)*divisor)+'. Вычитаем исходное.',4],
-   ['Из '+n+' яблок убрали '+rem+' штук и разложили по '+divisor+' в пакет. Затем отдали '+plus+' пакетов. Сколько пакетов осталось?',S(D(S(V(n),V(rem)),V(divisor)),V(plus)),'Сначала вычтем остаток, разделим и вычтем отданные пакеты.',4],
-   ['Товаров '+n+'. Первоначально их делили на группы по '+divisor+'. Сколько останется предметов, если изменить размер группы на '+(divisor+1)+'?',R(V(n),V(divisor+1)),'Вычислим новое неполное частное для групп по '+(divisor+1)+'. Остаток изменится.',4],
-   ['К числу '+n+' прибавили '+(divisor*plus)+', затем вычли '+e+'. Найди остаток от деления результата на '+divisor+'.',R(S(A(V(n),V(divisor*plus)),V(e)),V(divisor)),'Сначала изменим делимое, затем вычислим остаток.',5]
+   ['В одной партии '+n+' предметов, во второй '+other+'. Сколько полных упаковок по '+divisor+' получится из обеих партий вместе?',D(S(A(V(n),V(other)),V(jointR)),V(divisor)),
+    'Общее количество: '+n+' + '+other+' = '+joint+'. Из него '+jointQ+' полных упаковок: '+divisor+' · '+jointQ+' = '+(divisor*jointQ)+'. Остаток '+jointR+'. Проверка: '+joint+' = '+divisor+' · '+jointQ+' + '+jointR+'; 0 ≤ '+jointR+' < '+divisor+'.',5],
+   ['Привезли '+n+' и '+other+' карандашей. Их раскладывают по '+divisor+' в коробку. Сколько коробок потребуется, если последнюю неполную коробку тоже нужно взять?',A(D(S(V(joint),V(jointR)),V(divisor)),V(jointR?1:0)),
+    'Всего '+n+' + '+other+' = '+joint+' карандашей. Полных коробок '+jointQ+', остаток '+jointR+'. Проверка: '+joint+' = '+divisor+' · '+jointQ+' + '+jointR+'.'+(jointR?' Для остальных '+jointR+' карандашей нужна ещё одна коробка. Всего '+(jointQ+1)+'.':' Все коробки полные, дополнительных не требуется. Всего '+jointQ+'.'),5],
+   ['Число '+n+' при делении на '+divisor+' даёт остаток '+rem+'. Сколько минимально положительных единиц нужно добавить, чтобы новый остаток стал '+desired+'?',V(delta),
+    'Чтобы остаток сменился с '+rem+' на '+desired+', нужно добавить '+delta+' (только положительное число). Получим '+n+' + '+delta+' = '+changed+'. Проверка: '+changed+' = '+divisor+' · '+changedQ+' + '+desired+', 0 ≤ '+desired+' < '+divisor+'. Меньшее положительное прибавление не даёт нужного остатка.',5],
+   ['Было '+n+' предметов, добавили '+(divisor*groupAdd)+', затем забрали '+removed+'. Оставшееся разделили в группы по '+newDivisor+'. Сколько предметов останется вне полных групп?',R(S(A(V(n),V(divisor*groupAdd)),V(removed)),V(newDivisor)),
+    'После поступления и выдачи: '+n+' + '+(divisor*groupAdd)+' − '+removed+' = '+changedN+'. Размер группы '+newDivisor+'. Неполное частное '+changedQ2+', остаток '+changedR+'. Проверка: '+changedN+' = '+newDivisor+' · '+changedQ2+' + '+changedR+'; 0 ≤ '+changedR+' < '+newDivisor+'.',5],
+   ['После раскладывания '+n+' шариков по '+divisor+' в коробку осталось '+rem+' шариков. Их объединили с ещё '+secondItems+' шариками и разложили по '+secondDivisor+' в пакет. Сколько шариков останется после второго раскладывания?',R(A(V(rem),V(secondItems)),V(secondDivisor)),
+    'Первый шаг: '+n+' = '+divisor+' · '+q+' + '+rem+'. Для второй раздачи '+rem+' + '+secondItems+' = '+(rem+secondItems)+' шариков. Неполное частное '+lastQ+', остаток '+lastR+'. Проверка: '+(rem+secondItems)+' = '+secondDivisor+' · '+lastQ+' + '+lastR+'; 0 ≤ '+lastR+' < '+secondDivisor+'.',5]
   ];
  }
  if(id==='simplify_expressions'){
