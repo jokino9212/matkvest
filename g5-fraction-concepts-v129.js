@@ -37,6 +37,78 @@ function solve(node){
  throw Error('Unknown fraction expression '+op);
 }
 const format=(a,b)=>frac(a,b);
+const primeFactors=n=>{
+ if(!Number.isSafeInteger(n)||n<1)throw Error('Invalid factorization '+n);
+ const f=[],original=n;
+ for(let p=2;p*p<=n;p++)while(n%p===0){f.push(p);n/=p;}
+ if(n>1)f.push(n);
+ return {original,f};
+};
+function showFactors(n){
+ const x=primeFactors(n);return n+' = '+(x.f.length?x.f.join(' · '):'1');
+}
+function workedLCM(denoms){
+ const xs=[...new Set(denoms)].sort((a,b)=>a-b);
+ if(xs.length===0||xs.some(x=>!Number.isSafeInteger(x)||x<=0))throw Error('Invalid denominator factors');
+ const counts=new Map();
+ for(const value of xs){
+  const local=new Map();
+  for(const p of primeFactors(value).f)local.set(p,(local.get(p)||0)+1);
+  for(const [p,c] of local)counts.set(p,Math.max(counts.get(p)||0,c));
+ }
+ const terms=[...counts.entries()].sort((a,b)=>a[0]-b[0]).flatMap(([p,c])=>Array(c).fill(p));
+ const common=terms.reduce((v,p)=>v*p,1);
+ const factors=terms.length?terms.join(' · '):'1';
+ const additional=xs.map(d=>common+' : '+d+' = '+common/d).join('; ');
+ return {common,steps:'Разложим знаменатели на простые множители: '+xs.map(showFactors).join('; ')+'. Берём простые множители в наибольших количествах: '+factors+' = '+common+'. Дополнительные множители: '+additional+'.'};
+}
+function displayedArithmeticSteps(plan){
+ const sequence=[];
+ function visit(node){
+  const op=node[0],args=node.slice(1);
+  if(op==='rat')return reduce(args[0],args[1]);
+  if(op==='abs'){
+   const raw=visit(args[0]),positive=reduce(Math.abs(raw.n),raw.d);
+   sequence.push('Берём положительное значение разности: |'+raw.n+'/'+raw.d+'| = '+positive.n+'/'+positive.d+'.');
+   return positive;
+  }
+  if(!['add','sub','mul','div','max','min'].includes(op))return solve(node);
+  if(op==='mul'||op==='div'){
+   const left=visit(args[0]),right=visit(args[1]),result=solve(node),operation=op==='mul'?'·':':';
+   sequence.push('Вычисляем '+left.n+'/'+left.d+' '+operation+' '+right.n+'/'+right.d+': '+(op==='mul'
+    ?left.n+' · '+right.n+' / ('+left.d+' · '+right.d+')'
+    :left.n+'/'+left.d+' · '+right.d+'/'+right.n)+'. Получаем '+result.n+'/'+result.d+'.');
+   return result;
+  }
+  if(op==='max'||op==='min'){
+   const values=args.map(visit),common=workedLCM(values.map(v=>v.d)),nums=values.map(v=>v.n*(common.common/v.d));
+   const answer=solve(node);
+   sequence.push(common.steps+' Сравним числители '+nums.join(', ')+' при знаменателе '+common.common+'. '+(op==='max'?'Наибольшее':'Наименьшее')+' значение '+answer.n+'/'+answer.d+'.');
+   return answer;
+  }
+  const values=args.map(visit);
+  let acc=values[0];
+  for(let i=1;i<values.length;i++){
+   const next=values[i],worked=workedLCM([acc.d,next.d]),common=worked.common;
+   const left=acc.n*(common/acc.d),right=next.n*(common/next.d);
+   const numerator=op==='add'?left+right:left-right;
+   const res=reduce(numerator,common);
+   const symbol=op==='add'?'+':'−';
+   sequence.push(worked.steps+' Приводим дроби: '+acc.n+'/'+acc.d+' = '+left+'/'+common+', '+next.n+'/'+next.d+' = '+right+'/'+common+'. ('+left+' '+symbol+' '+right+')/'+common+' = '+numerator+'/'+common+'.'+(res.d!==common?' Сокращаем до '+res.n+'/'+res.d+'.':''));
+   acc=res;
+  }
+  return acc;
+ }
+ visit(plan);
+ return sequence.join(' ');
+}
+function reductionSteps(values){
+ return values.map(([a,b])=>{
+  const divisor=gcd(a,b),n=a/divisor,d=b/divisor;
+  return 'Разложим числитель и знаменатель: '+showFactors(a)+'; '+showFactors(b)+'. Общие простые множители дают НОД '+divisor+'. Делим оба числа на '+divisor+': '+a+'/'+b+' = '+n+'/'+d+'.';
+ }).join(' ');
+}
+
 function safeFractionChoices(n,d){
  // The legacy helper sometimes leaves only two choices after deduplication.
  // Construct four mathematically distinct, properly rendered alternatives.
@@ -213,7 +285,34 @@ function makeSpec(id,t,p){
  }
  if(!tasks||tasks.length!==5)throw Error('v129 no task family '+id+' '+t);
  const [text,plan,why,steps,mode]=tasks[p];
- return {id,t,p,text,plan,why,steps,mode};
+ let worked='',factorAudit=null;
+ if(id==='frac_common_lcm'){
+  const byTier=[
+   [[d,e],[d,d*k],[d,d*k],[d,d*k],[d,d*m]],
+   [[d,e,d*k],[d,e],[d,e],[d,e],[d*k,e]],
+   [[d,e,d*m],[d,e,d*m],[d,e,e*k],[d,e,d*e],[d*k,e*m,d]]
+  ];
+  const detail=workedLCM(byTier[t][p]);worked=detail.steps;factorAudit={denominators:byTier[t][p],lcm:detail.common};
+ }else if(id==='frac_add_diff'||id==='frac_sub_diff'){
+  worked=displayedArithmeticSteps(plan);
+ }else if(id==='frac_compare_diff'){
+  const denominators=[];
+  const explore=node=>{
+   if(!Array.isArray(node))return;
+   if(node[0]==='rat')denominators.push(node[2]);
+   else for(const child of node.slice(1))if(Array.isArray(child))explore(child);
+  };
+  explore(plan);
+  worked=workedLCM(denominators).steps;
+ }else if(id==='frac_reduce'){
+  const primary=(t===0?(p===1?[b*m,e*m]:[a*k,d*k]):t===1?(p<2?[a*k*m,d*k*m]:[a*k,d*k]):p===2?[a*k*m,d*k*m]:[a*k,d*k]);
+  const inputs=[primary];
+  if(t===2&&(p===0||p===1||p===4))inputs.push([b*m,e*m]);
+  worked=reductionSteps(inputs);
+ }else if(id==='frac_equal'&&((t===0&&p===2)||((t===1||t===2)&&p===4))){
+  worked=reductionSteps([t===0?[a*k,d*k]:[a*k*m,d*k*m]]);
+ }
+ return {id,t,p,text,plan,why:why+(worked?' '+worked:''),steps,mode,factorAudit};
 }
 function question(id){
  const t=T(),p=F();
@@ -241,7 +340,7 @@ function question(id){
  return {text:q.text,ans:String(q.correct),choices:q.choices,ex:q.explain,
   sourceTopicId:id,templateId:q.templateId,sig:['g5',id,'v129',t,p,q.text,correct].join(':'),
   correctLabel:String(keys[0].label),correctText:String(keys[0].label),
-  mk129:{id,t,p,steps:data.steps,mode,plan:data.plan,expected:v}};
+  mk129:{id,t,p,steps:data.steps,mode,plan:data.plan,expected:v,factorAudit:data.factorAudit}};
 }
 makeG5Question=function(id){return covered.has(id)?question(id):previous.apply(this,arguments)};
 window.mkG5V129Tiered=IDS.slice();
