@@ -1,0 +1,22 @@
+name: Grade 5 audit - 74 real learner topic families v132
+on:
+  push:
+    branches: [audit/g5-real-74-depth-v132-20261113]
+    paths:
+      - audits/g5_v132_74_real_cognitive_inventory.cjs
+      - .github/workflows/g5-v132-inventory.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inventory:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Playwright
+        run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Inventory 74 learner-facing topic families and stage difficulty
+        run: node audits/g5_v132_74_real_cognitive_inventory.cjs
