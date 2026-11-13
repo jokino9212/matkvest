@@ -34,7 +34,7 @@ function make(id){
  const t=tier(),p=step(),a=rand(4,12+12*t),b=rand(3,10+10*t),c=rand(2,7+7*t);
  if(id==='number_tables'){
    const data=[a,b,c],sum=a+b+c;
-   const table='<table><thead><tr><th>День</th><th>Пн</th><th>Вт</th><th>Ср</th></tr></thead><tbody><tr><th>Продано</th><td>'+a+'</td><td>'+b+'</td><td>'+c+'</td></tr></tbody></table>';
+   const table='<div style="max-width:100%;overflow-x:auto"><table style="width:100%;border-collapse:collapse;text-align:center"><caption style="text-align:left;padding:4px 0">Продажи товаров за три дня, шт.</caption><thead><tr><th scope="col">Показатель</th><th scope="col">Пн</th><th scope="col">Вт</th><th scope="col">Ср</th></tr></thead><tbody><tr><th scope="row">Продано</th><td>'+a+'</td><td>'+b+'</td><td>'+c+'</td></tr></tbody></table></div>';
    if(p===0)return numeric('Сколько товаров продали в понедельник? '+table,a,'В таблице в столбце «Пн» записано '+a+'.','table_read',[b,c,sum]);
    if(p===1)return numeric('Сколько товаров продали за понедельник и вторник? '+table,a+b,'Складываем '+a+' + '+b+' = '+(a+b)+'.','table_two_days',[a,b,sum]);
    if(p===2)return numeric('Сколько товаров продали за три дня? '+table,sum,'Сумма '+a+' + '+b+' + '+c+' = '+sum+'.','table_total',[a+b,b+c,a+c]);

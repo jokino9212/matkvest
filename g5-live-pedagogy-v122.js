@@ -33,26 +33,51 @@ function lengthQuestion(t,p,text,plan,explain,steps){
  q.mk122={id,t,p,steps,plan,expected:n};
  return q;
 }
+function segmentDiagram(a,b){
+ const left=38,right=488,x=left+(right-left)*a/(a+b);
+ return '<div style="width:100%;max-width:540px;overflow:hidden;margin:6px auto"><svg role="img" aria-label="Отрезок AB, точка C делит его на части '+a+' и '+b+' сантиметров" viewBox="0 0 530 110" width="100%" style="height:auto"><line x1="'+left+'" y1="60" x2="'+right+'" y2="60" stroke="#3974b5" stroke-width="4"/>'+[left,x,right].map(k=>'<circle cx="'+k.toFixed(2)+'" cy="60" r="4" fill="#3974b5"/>').join('')+'<text x="'+left+'" y="83" text-anchor="middle" font-size="18" fill="currentColor">A</text><text x="'+x.toFixed(2)+'" y="83" text-anchor="middle" font-size="18" fill="currentColor">C</text><text x="'+right+'" y="83" text-anchor="middle" font-size="18" fill="currentColor">B</text><text x="'+((left+x)/2).toFixed(2)+'" y="42" text-anchor="middle" font-size="18" fill="currentColor">'+a+' см</text><text x="'+((x+right)/2).toFixed(2)+'" y="42" text-anchor="middle" font-size="18" fill="currentColor">'+b+' см</text></svg></div>';
+}
+function polylineDiagram(lengths,hidden=[]){
+ const total=lengths.reduce((a,b)=>a+b,0),scale=425/(total*Math.cos(Math.PI/15));
+ let x=35,y=106,paths='',texts='',dots='<circle cx="35" cy="106" r="4" fill="#3974b5"/>';
+ lengths.forEach((length,i)=>{
+  const dx=length*scale*Math.cos(Math.PI/15),dy=length*scale*Math.sin(Math.PI/15)*(i%2===0?-1:1);
+  const nx=x+dx,ny=y+dy;
+  paths+='<line x1="'+x.toFixed(2)+'" y1="'+y.toFixed(2)+'" x2="'+nx.toFixed(2)+'" y2="'+ny.toFixed(2)+'" stroke="#3974b5" stroke-width="4" stroke-linecap="round"/>';
+  texts+='<text x="'+((x+nx)/2).toFixed(2)+'" y="'+((y+ny)/2+(i%2===0?-14:23)).toFixed(2)+'" font-size="17" font-weight="600" text-anchor="middle" fill="currentColor">'+(hidden.includes(i)?'?':length+' см')+'</text>';
+  dots+='<circle cx="'+nx.toFixed(2)+'" cy="'+ny.toFixed(2)+'" r="4" fill="#3974b5"/>';
+  x=nx;y=ny;
+ });
+ return '<div style="width:100%;max-width:540px;overflow:hidden;margin:6px auto"><svg role="img" aria-label="Ломаная из '+lengths.length+' звеньев" data-lengths="'+lengths.join(',')+'" viewBox="0 0 530 220" width="100%" style="height:auto">'+paths+dots+texts+'</svg></div>';
+}
+function triangleDiagram(ab,bc,ac,hidden=[]){
+ const x=(ab*ab+ac*ac-bc*bc)/(2*ac),height=Math.sqrt(Math.max(0,ab*ab-x*x));
+ const scale=Math.min(380/ac,145/height),ax=65,ay=201,bx=ax+ac*scale,by=201,cx=ax+x*scale,cy=ay-height*scale;
+ const coords=[[ax,ay,bx,by],[ax,ay,cx,cy],[cx,cy,bx,by]];
+ const sides=[ac,ab,bc];
+ const labels=coords.map(([x1,y1,x2,y2],i)=>'<text x="'+((x1+x2)/2+(i===1?-17:i===2?17:0)).toFixed(2)+'" y="'+((y1+y2)/2+(i===0?25:-9)).toFixed(2)+'" font-size="17" font-weight="600" text-anchor="middle" fill="currentColor">'+(hidden.includes(i)?'?':sides[i]+' см')+'</text>').join('');
+ return '<div style="width:100%;max-width:540px;overflow:hidden;margin:6px auto"><svg role="img" aria-label="Треугольник со сторонами '+ab+', '+bc+', '+ac+' сантиметров" data-sides="'+ab+','+bc+','+ac+'" viewBox="0 0 530 245" width="100%" style="height:auto"><path d="M '+ax+' '+ay+' L '+bx.toFixed(2)+' '+by+' L '+cx.toFixed(2)+' '+cy.toFixed(2)+' Z" fill="#e3effb" stroke="#3974b5" stroke-width="3"/>'+labels+'</svg></div>';
+}
 function segment(t,p){
  const a=rnd(5,12+t*4),b=rnd(4,10+t*4),c=rnd(3,9+t*4),d=rnd(2,7+t*4);
  // A triangle built as (a+b,b+c,c+a) ALWAYS meets the strict triangle inequalities.
  const x=a+b,y=b+c,z=c+a,P=x+y+z;
  if(t===0){
-  if(p===0)return lengthQuestion(t,p,'Отрезок AB разбили точкой C на части '+a+' см и '+b+' см. Найди длину AB.',add(val(a),val(b)),'Длина отрезка — сумма двух его частей: '+a+' + '+b+'.',1);
-  if(p===1)return lengthQuestion(t,p,'Ломаная имеет три звена: '+a+', '+b+' и '+c+' см. Чему равна её длина?',add(val(a),val(b),val(c)),'Сложим длины всех звеньев: '+a+' + '+b+' + '+c+'.',2);
-  if(p===2)return lengthQuestion(t,p,'Найди периметр треугольника со сторонами '+x+', '+y+' и '+z+' см.',add(val(x),val(y),val(z)),'Периметр треугольника равен сумме трёх сторон.',2);
+  if(p===0)return lengthQuestion(t,p,'Отрезок AB разбили точкой C на части '+a+' см и '+b+' см. Найди длину AB.'+segmentDiagram(a,b),add(val(a),val(b)),'Длина отрезка — сумма двух его частей: '+a+' + '+b+'.',1);
+  if(p===1)return lengthQuestion(t,p,'Ломаная имеет три звена: '+a+', '+b+' и '+c+' см. Чему равна её длина?'+polylineDiagram([a,b,c]),add(val(a),val(b),val(c)),'Сложим длины всех звеньев: '+a+' + '+b+' + '+c+'.',2);
+  if(p===2)return lengthQuestion(t,p,'Найди периметр треугольника со сторонами '+x+', '+y+' и '+z+' см.'+triangleDiagram(x,y,z),add(val(x),val(y),val(z)),'Периметр треугольника равен сумме трёх сторон.',2);
   if(p===3)return lengthQuestion(t,p,'У прямоугольника стороны '+a+' и '+b+' см. Найди периметр.',mul(val(2),add(val(a),val(b))),'Две стороны равны '+a+' см, другие две равны '+b+' см. P = 2 · ('+a+' + '+b+').',2);
   return lengthQuestion(t,p,'У квадрата сторона '+a+' см. Найди периметр.',mul(val(4),val(a)),'Все четыре стороны равны: P = 4 · '+a+'.',1);
  }
  if(t===1){
-  if(p===0){const total=a+b+c;return lengthQuestion(t,p,'Длина ломаной из трёх звеньев '+total+' см. Два звена имеют длины '+a+' и '+b+' см. Найди третье.',sub(sub(val(total),val(a)),val(b)),'От общей длины последовательно вычтем известные звенья.',2)}
-  if(p===1)return lengthQuestion(t,p,'Периметр треугольника '+P+' см. Две его стороны равны '+x+' и '+y+' см. Найди третью сторону.',sub(sub(val(P),val(x)),val(y)),'Третья сторона равна периметру минус две известные стороны.',2);
+  if(p===0){const total=a+b+c;return lengthQuestion(t,p,'Длина ломаной из трёх звеньев '+total+' см. Два звена имеют длины '+a+' и '+b+' см. Найди третье.'+polylineDiagram([a,b,c],[2]),sub(sub(val(total),val(a)),val(b)),'От общей длины последовательно вычтем известные звенья.',2)}
+  if(p===1)return lengthQuestion(t,p,'Периметр треугольника '+P+' см. Две его стороны равны '+x+' и '+y+' см. Найди третью сторону.'+triangleDiagram(x,y,z,[0]),sub(sub(val(P),val(x)),val(y)),'Третья сторона равна периметру минус две известные стороны.',2);
   if(p===2)return lengthQuestion(t,p,'Ломаная состоит из четырёх звеньев: два по '+a+' см, одно '+b+' см и одно '+c+' см. Найди длину.',add(mul(val(2),val(a)),val(b),val(c)),'Сначала считаем два одинаковых звена, затем прибавляем оставшиеся.',3);
   if(p===3){const total=2*(a+b);return lengthQuestion(t,p,'Периметр прямоугольника '+total+' см. Одна сторона равна '+a+' см. Найди другую.',sub(val(a+b),val(a)),'Полупериметр равен '+(a+b)+' см. Вычтем известную сторону.',2)}
   return lengthQuestion(t,p,'У пятиугольника три стороны по '+a+' см, четвёртая '+b+' см, пятая '+c+' см. Найди периметр.',add(mul(val(3),val(a)),val(b),val(c)),'Три равные стороны дают '+(3*a)+' см. Прибавим остальные две.',3);
  }
- if(p===0){const total=sum(a,b,c,d),increase=rnd(2,6);return lengthQuestion(t,p,'Ломаная состоит из четырёх звеньев длиной '+a+', '+b+', '+c+', '+d+' см. Второе звено удлинили на '+increase+' см, четвёртое укоротили на 1 см. Найди новую длину.',sub(add(val(a),val(b),val(c),val(d),val(increase)),val(1)),'Сначала сумма четырёх звеньев '+total+' см; прибавим удлинение '+increase+' см и вычтем укорочение 1 см.',5)}
- if(p===1){const inc=rnd(2,5);return lengthQuestion(t,p,'Треугольник имеет стороны '+x+', '+y+' и '+z+' см. Каждую сторону увеличили на '+inc+' см. Чему равен новый периметр?',add(add(val(x),val(y),val(z)),mul(val(3),val(inc))),'Найдём исходный периметр '+P+' см и прибавим три увеличения по '+inc+' см.',4)}
+ if(p===0){const total=sum(a,b,c,d),increase=rnd(2,6);return lengthQuestion(t,p,'Ломаная состоит из четырёх звеньев длиной '+a+', '+b+', '+c+', '+d+' см. Второе звено удлинили на '+increase+' см, четвёртое укоротили на 1 см. Найди новую длину.'+polylineDiagram([a,b,c,d]),sub(add(val(a),val(b),val(c),val(d),val(increase)),val(1)),'Сначала сумма четырёх звеньев '+total+' см; прибавим удлинение '+increase+' см и вычтем укорочение 1 см.',5)}
+ if(p===1){const inc=rnd(2,5);return lengthQuestion(t,p,'Треугольник имеет стороны '+x+', '+y+' и '+z+' см. Каждую сторону увеличили на '+inc+' см. Чему равен новый периметр?'+triangleDiagram(x,y,z),add(add(val(x),val(y),val(z)),mul(val(3),val(inc))),'Найдём исходный периметр '+P+' см и прибавим три увеличения по '+inc+' см.',4)}
  if(p===2){const a1=a+b,b1=a+c;const old=2*(a1+b1),newP=2*((a1+d)+(b1+c));return lengthQuestion(t,p,'Стороны прямоугольника '+a1+' и '+b1+' см. Длину увеличили на '+d+' см, ширину на '+c+' см. На сколько сантиметров вырос периметр?',sub(mul(val(2),add(add(val(a1),val(d)),add(val(b1),val(c)))),val(old)),'Сначала P₁ = 2 · ('+a1+' + '+b1+') = '+old+' см. Затем P₂ = 2 · ('+(a1+d)+' + '+(b1+c)+') = '+newP+' см. Разность P₂ − P₁.',5)}
  if(p===3){const leg=a+b,halfBase=Math.min(c,leg-1),base=2*halfBase,per=2*leg+base;return lengthQuestion(t,p,'Равнобедренный треугольник имеет периметр '+per+' см. Основание равно '+base+' см, а боковые стороны равны. Найди длину боковой стороны.',sub(val(per/2),val(halfBase)),'Из периметра '+per+' вычтем основание '+base+' и разделим остаток на 2: '+leg+' см.',3)}
  const lengthA=a+b+c,lengthB=b+c+d,extra=rnd(2,5),start=lengthA+lengthB;

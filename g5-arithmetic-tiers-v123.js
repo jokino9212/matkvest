@@ -20,7 +20,7 @@ function oracle(node){
 }
 function table(a,b,c,d,extra){
  const row=(title,values)=>'<tr><th scope="row">'+title+'</th>'+values.map(n=>'<td>'+n+'</td>').join('')+'</tr>';
- return '<div class="mk-g5-v123-table" style="width:100%;overflow-x:auto"><table style="width:100%;border-collapse:collapse;text-align:center"><thead><tr><th scope="col">День</th><th scope="col">Пн</th><th scope="col">Вт</th><th scope="col">Ср</th><th scope="col">Чт</th></tr></thead><tbody>'+row('Книги',[a,b,c,d])+(extra?row('Журналы',extra):'')+'</tbody></table></div>';
+ return '<div class="mk-g5-v123-table" style="width:100%;overflow-x:auto"><table style="width:100%;border-collapse:collapse;text-align:center"><caption style="text-align:left;padding:4px 0">Продано изданий, шт.</caption><thead><tr><th scope="col">Издание</th><th scope="col">Пн</th><th scope="col">Вт</th><th scope="col">Ср</th><th scope="col">Чт</th></tr></thead><tbody>'+row('Книги',[a,b,c,d])+(extra?row('Журналы',extra):'')+'</tbody></table></div>';
 }
 function bars(a,b,c,d,extra){
  const names=['Пн','Вт','Ср','Чт'],values=[a,b,c,d],scale=110/Math.max(...values,...(extra||[]));
@@ -128,7 +128,7 @@ function specification(id,t,p){
    ['На сколько отличаются суммарные продажи за вторник и среду от продажи четверга? '+display,AB(A(V(b),V(c)),V(d)),'Вычислим сумму двух дней и найдём положительную разницу с четвергом.',3]
   ];
   else data=[
-   ['По таблице сложи число книг за четыре дня и вычти книги за вторник. '+display,S(A(V(a),V(b),V(c),V(d)),V(b)),'Сумма всех четырёх дней минус один показатель.',4],
+   ['По таблице найди продажи книг за четыре дня. В пятницу продали столько же, сколько во вторник и среду вместе. Сколько книг продали за пять дней? '+display,A(V(a),V(b),V(c),V(d),A(V(b),V(c))),'Складываем данные за первые четыре дня, затем добавляем продажи пятницы — сумму вторника и среды.',4],
    ['В таблице есть книги и журналы. Сколько всего печатных изданий продано в понедельник и четверг? '+alt,A(V(a),V(b),V(d),V(e)),'Для Пн и Чт складываем обе категории.',4],
    ['Чем отличается суммарная продажа книг в Пн и Ср от продажи журналов во Вт и Ср? '+alt,AB(A(V(a),V(c)),A(V(c),V(d))),'Сложим два показателя каждой категории и найдём разность.',5],
    ['За пять дней продали '+(a+b+c+d+e)+' книг. В таблице показаны первые четыре дня. Сколько книг продали в пятый? '+display,S(V(a+b+c+d+e),A(V(a),V(b),V(c),V(d))),'Из недельного итога вычтем сумму первых четырёх дней.',4],
