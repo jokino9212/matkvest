@@ -37,6 +37,16 @@ function shapeGallery(order){
  const artwork=order.map((kind,i)=>'<g transform="translate('+(i*130)+',0)">'+pics[kind]+'<text x="65" y="134" font-size="22" font-weight="700" text-anchor="middle" fill="currentColor">'+(i+1)+'</text></g>').join('');
  return '<div style="width:100%;max-width:620px;overflow:hidden"><svg viewBox="0 0 520 145" width="100%" role="img" aria-label="Четыре фигуры под номерами от одного до четырёх" style="height:auto"><defs><radialGradient id="mk5sphere" cx="35%" cy="25%" r="80%"><stop offset="0%" stop-color="#f4fbff"/><stop offset="100%" stop-color="#468fc4"/></radialGradient></defs>'+artwork+'</svg></div>';
 }
+function circleFeatureGallery(order){
+ const pictures={
+  chord:'<circle cx="65" cy="62" r="37" fill="none" stroke="#34649a" stroke-width="2"/><line x1="38" y1="37" x2="38" y2="87" stroke="#d8792d" stroke-width="5"/>',
+  diameter:'<circle cx="65" cy="62" r="37" fill="none" stroke="#34649a" stroke-width="2"/><line x1="28" y1="62" x2="102" y2="62" stroke="#d8792d" stroke-width="5"/>',
+  arc:'<circle cx="65" cy="62" r="37" fill="none" stroke="#34649a" stroke-width="2"/><path d="M65 25 A37 37 0 0 1 102 62" fill="none" stroke="#d8792d" stroke-width="5"/>',
+  sector:'<circle cx="65" cy="62" r="37" fill="none" stroke="#34649a" stroke-width="2"/><path d="M65 62 L65 25 A37 37 0 0 1 102 62 Z" fill="#ffcf87" stroke="#d8792d" stroke-width="3"/>'
+ };
+ const items=order.map((kind,i)=>'<g transform="translate('+(i*130)+',0)">'+pictures[kind]+'<text x="65" y="134" text-anchor="middle" fill="currentColor" font-size="22" font-weight="700">'+(i+1)+'</text></g>').join('');
+ return '<div style="width:100%;max-width:620px;overflow:hidden"><svg viewBox="0 0 520 145" width="100%" role="img" aria-label="Четыре окружности с разными выделенными элементами под номерами" style="height:auto">'+items+'</svg></div>';
+}
 function radiusDiagram(){
  return '<div style="width:100%;max-width:360px;overflow:hidden"><svg viewBox="0 0 300 180" width="100%" role="img" aria-label="Окружность с центром O и радиусом OA" style="height:auto"><circle cx="140" cy="87" r="64" fill="none" stroke="#34649a" stroke-width="3"/><circle cx="140" cy="87" r="3" fill="#34649a"/><line x1="140" y1="87" x2="204" y2="87" stroke="#db7830" stroke-width="3"/><text x="129" y="80" font-size="17" fill="currentColor">O</text><text x="210" y="86" font-size="17" fill="currentColor">A</text></svg></div>';
 }
@@ -248,6 +258,9 @@ function spec(id,t,p){
   const order=['ring','disk','sphere','cylinder'];
   for(let i=order.length-1;i>0;i--){const j=r(0,i);[order[i],order[j]]=[order[j],order[i]];}
   const gallery=shapeGallery(order),find=kind=>V(order.indexOf(kind)+1);
+  const features=['chord','diameter','arc','sector'];
+  for(let i=features.length-1;i>0;i--){const j=r(0,i);[features[i],features[j]]=[features[j],features[i]];}
+  const featureGallery=circleFeatureGallery(features),featureNumber=kind=>V(features.indexOf(kind)+1);
   if(t===0)rows=[
    ['Под каким номером изображена окружность — только замкнутая линия, ограничивающая круг? '+gallery,find('ring'),'Окружность — линия, ограничивающая круг; внутренняя область не закрашена.',1],
    ['Под каким номером изображён круг — плоская фигура вместе с внутренней областью? '+gallery,find('disk'),'Круг включает окружность и все точки внутри неё.',1],
@@ -259,8 +272,8 @@ function spec(id,t,p){
    ['Диаметр окружности '+(2*radius)+' см. На рисунке OA — радиус. Найди длину отрезка OA. '+radiusDiagram(),D(V(2*radius),V(2)),'Радиус равен половине диаметра.',2],
    ['Диаметр круга '+(2*radius)+' см. Радиус увеличили на '+increase+' см. Каким стал диаметр?',M(V(2),A(D(V(2*radius),V(2)),V(increase))),'Сначала найдём радиус из диаметра, затем увеличим его и удвоим.',3],
    ['Диаметры двух кругов '+(2*radius)+' см и '+(2*other)+' см. На сколько сантиметров различаются их радиусы?',Abs(D(V(2*radius),V(2)),D(V(2*other),V(2))),'Радиусы равны половинам диаметров; сравним результаты.',3],
-   ['У каждого цилиндра два круглых основания. Сколько круглых оснований у '+count+' цилиндров?',M(V(2),V(count)),'Два основания у каждого цилиндра; умножаем на число цилиндров.',2],
-   ['Два одинаковых шара радиусом '+radius+' см стоят вплотную друг к другу в ряд. Какова длина ряда вдоль прямой, проходящей через их центры?',M(M(V(2),V(radius)),V(2)),'Найдём диаметр каждого шара и сложим два диаметра.',3]
+   ['На каком рисунке цветом выделен сектор круга — область, ограниченная двумя радиусами и дугой? '+featureGallery,featureNumber('sector'),'Сектор — часть круга между двумя радиусами и соединяющей их дугой.',2],
+   ['На каком рисунке цветом выделена дуга окружности — часть линии между двумя её точками? '+featureGallery,featureNumber('arc'),'Дуга — часть окружности, а сектор — часть круга.',2]
   ];
   else rows=[
    ['Радиус первого круга '+radius+' см, радиус второго на '+increase+' см больше. Найди сумму их диаметров.',A(M(V(2),V(radius)),M(V(2),A(V(radius),V(increase)))),'Найдём радиус второго круга, вычислим оба диаметра и сложим.',4],
