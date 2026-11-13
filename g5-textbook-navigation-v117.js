@@ -83,7 +83,15 @@ function mount(){
  const byTitle=new Map();
  for(const topic of topics){
   const matches=cards.filter(c=>norm(c.textContent).includes(norm(topic.title)));
-  if(matches.length===1)byTitle.set(topic.id,matches[0]);
+  if(matches.length){
+   // Other lessons may mention this title inside their descriptions; prefer the card
+   // whose own heading occurs earliest, rather than rejecting all ambiguous matches.
+   matches.sort((a,b)=>{
+    const x=norm(a.textContent),y=norm(b.textContent),needle=norm(topic.title);
+    return x.indexOf(needle)-y.indexOf(needle)||x.length-y.length;
+   });
+   byTitle.set(topic.id,matches[0]);
+  }
  }
  const root=document.createElement('section');root.id='mk-g5-textbook-nav';root.className='mk-g5-toc';
  const heading=document.createElement('h2');heading.textContent='Темы по учебнику Виленкина — 5 класс';
