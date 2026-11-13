@@ -37,6 +37,25 @@ function solve(node){
  throw Error('Unknown fraction expression '+op);
 }
 const format=(a,b)=>frac(a,b);
+function safeFractionChoices(n,d){
+ // The legacy helper sometimes leaves only two choices after deduplication.
+ // Construct four mathematically distinct, properly rendered alternatives.
+ const list=[],seen=new Set();
+ function add(x,y,key){
+  if(!Number.isSafeInteger(x)||!Number.isSafeInteger(y)||x<0||y<2)return;
+  const z=reduce(x,y),canonical=z.n+'/'+z.d;
+  if(z.d<2||seen.has(canonical))return;
+  list.push({key,label:format(z.n,z.d)});seen.add(canonical);
+ }
+ add(n,d,n+'/'+d);
+ const variants=[
+  [n+1,d],[n+2,d],[n,d+1],[n+1,d+1],[n,d+2],[Math.max(1,n-1),d],
+  [n+3,d],[n+2,d+1],[n+1,d+2],[Math.max(1,n-2),d+1],[n+1,d+3]
+ ];
+ for(let i=0;i<variants.length&&list.length<4;i++)add(variants[i][0],variants[i][1],'wrong_v129_'+i);
+ if(list.length!==4||list[0].key!==n+'/'+d)throw Error('v129 cannot construct distinct fraction distractors');
+ return list;
+}
 function makeSpec(id,t,p){
  const d=r(4,9+t*2),e=r(3,10+t*2),a=r(1,d-1),b=r(1,e-1),k=r(2,5+t),m=r(2,4+t),c=r(2,5+t),h=r(2,5+t);
  const f1=Q(a,d),f2=Q(b,e),f3=Q(1,d+1),u=Q(1,d),v=Q(1,d+e),two=Q(2,d+e+2);
@@ -211,7 +230,7 @@ function question(id){
  let options,correct,mode=data.mode;
  if(mode==='frac'){
   if(v.d===1)throw Error('v129 unexpectedly integer fraction '+key);
-  options=g5FractionChoices(v.n,v.d);correct=v.n+'/'+v.d;
+  options=safeFractionChoices(v.n,v.d);correct=v.n+'/'+v.d;
  }else{
   if(v.d!==1)throw Error('v129 integer family produced fraction '+key);
   options=g5nums(v.n,[v.n+1,v.n+2,v.n+3]);correct=String(v.n);
