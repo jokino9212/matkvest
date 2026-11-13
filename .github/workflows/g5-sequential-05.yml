@@ -31,7 +31,7 @@ jobs:
           node --check audits/g5_sequential_paragraph05_browser_oracle.cjs
       - name: Install pinned browser
         run: npm install --no-save --no-package-lock playwright@1.56.1
-      - name: Validate 600 actual coordinate questions, scale and unknown positions
+      - name: Validate 560 coordinate rays and 40 instrument scales in 600 real questions
         run: node audits/g5_sequential_paragraph05_browser_oracle.cjs
       - name: Preserve sequential paragraphs 1 through 4
         run: |
