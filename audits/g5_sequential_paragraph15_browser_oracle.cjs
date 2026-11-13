@@ -70,7 +70,7 @@ function printedCoeffs(ex){
    assert.equal(row.source,row.topic,'Broken source identity '+ctx);
    assert(m&&m.kind==='symbol'&&m.id===row.topic,'Expected true live symbolic family '+ctx);
    assert.deepEqual(expected,m.expected,'Generator polynomial differs from independently evaluated task '+ctx);
-   const normalized=String(row.answer).replace(/\s/g,'');
+   const normalized=String(row.answer).replace(/−/g,'-').replace(/\s/g,'');
    function fmt(xs){
     const parts=[];['a','b',''].forEach((name,i)=>{
      const v=xs[i];if(!v)return;
