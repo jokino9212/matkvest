@@ -113,9 +113,12 @@ async function main(){
             {whole:String(Math.floor(n/d)),num:String(n%d),den:String(d)}
            ];
            for(const form of candidates){
-            document.getElementById('quizFracWhole').value=form.whole;
-            document.getElementById('quizFracNum').value=form.num;
-            document.getElementById('quizFracDen').value=form.den;
+            const wholeCell=document.getElementById('quizFracWhole');
+            const numCell=document.getElementById('quizFracNum'),denCell=document.getElementById('quizFracDen');
+            if(!numCell||!denCell||(!wholeCell&&form.whole!==''))continue;
+            if(wholeCell)wholeCell.value=form.whole;
+            numCell.value=form.num;
+            denCell.value=form.den;
             const ev=quizInputEvaluation(q,stage18FractionFields());
             if(ev.valid&&ev.ok){found={topic:topic.id,stage,form,kind:'fraction'};break outer}
            }
@@ -135,7 +138,9 @@ async function main(){
       const scoreBefore=blockSession.correct;
       if(found.kind==='fraction'){
         for(const [id,value] of [['quizFracWhole',found.form.whole],['quizFracNum',found.form.num],['quizFracDen',found.form.den]]){
-         const el=document.getElementById(id);el.value=value;el.dispatchEvent(new Event('input',{bubbles:true}));
+         const el=document.getElementById(id);
+         if(!el){if(id==='quizFracWhole'&&value==='')continue;throw Error('Missing required fraction input '+id)}
+         el.value=value;el.dispatchEvent(new Event('input',{bubbles:true}));
         }
       }else{input.value=String(found.ans);input.dispatchEvent(new Event('input',{bubbles:true}))}
       check.click();
