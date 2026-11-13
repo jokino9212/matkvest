@@ -9,8 +9,9 @@ for(const good of ["кг муки. Продали 20% муки","участни�
  assert(src.includes(good),'Missing corrected percentage context: '+good);
 }
 const arithmetic=fs.readFileSync('g5-arithmetic-tiers-v123.js','utf8');
-assert(arithmetic.includes("'В школьный склад привезли '+b+' партий коробок."),'Missing clear multiplication context');
-assert(arithmetic.includes("'В одной партии '+d+' коробок по '+a+' предметов"),'Missing clear comparison context');
+assert(arithmetic.includes("'На склад привезли '+pbox+' коробок по '+pack+' карандашей и '+qbox+' коробок по '+pack+' карандашей."),'Missing clear multiplication context for equivalent box sizes');
+assert(arithmetic.includes("'В каждом из '+k+' одинаковых наборов по '+pbox+' карандашей и '+qbox+' фломастеров."),'Missing clear two-item-kit distributive context');
+assert(arithmetic.includes("'После этого доставили ещё '+more+' наборов по 10 карандашей."),'Missing additional separate shipment in advanced multiplication');
 assert(arithmetic.includes("'Число x разделили на '+b+', затем на '+pack+' и получили '+a+'. Найди первоначальное число x.'"),'Inverse division family not found');
 assert(!arithmetic.includes("В каждом большом ящике '+d+' маленьких"),'Original ambiguous multiplication remains');
 const fractions=fs.readFileSync('g5-fraction-concepts-v129.js','utf8');
