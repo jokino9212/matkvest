@@ -40,6 +40,17 @@ function showPoly(coef){
  return parts.join('')||'0';
 }
 
+// §15: show the actual coefficients and intermediate distributions, not only a generic rule.
+function symbolProof(plan,computed){
+ const terms=plan[0]==='psum'?plan.slice(1):[plan];
+ const expanded=terms.map(x=>polynomial(x));
+ const written=expanded.map(showPoly).map(x=>'('+x+')').join(' + ');
+ const a=expanded.map(x=>x[0]).join(' + '),b=expanded.map(x=>x[1]).join(' + '),c=expanded.map(x=>x[2]).join(' + ');
+ return 'Раскрываем скобки и записываем полученные слагаемые: '+written+'. '
+   +'Складываем коэффициенты отдельно: при a — '+a+' = '+computed[0]
+   +'; при b — '+b+' = '+computed[1]
+   +'; свободные числа — '+c+' = '+computed[2]+'.';
+}
 function g4Figure(art,alt,height=170){
  return '<div class="mk-g4-figure" style="width:100%;max-width:560px;overflow:hidden;margin:8px auto"><svg role="img" aria-label="'+alt+'" viewBox="0 0 520 '+height+'" width="100%" style="height:auto;display:block">'+art+'</svg></div>';
 }
@@ -128,7 +139,8 @@ function g4FourPointSegments(a,b,c){
 
 function spec(id,t,p){
  const a=rnd(4,12+4*t),b=rnd(3,10+4*t),c=rnd(2,8+3*t),e=rnd(2,6+2*t);
- const k=rnd(3,8+3*t),m=rnd(2,6+2*t),u=rnd(2,5+2*t);
+ const symbolic=id==='simplify_expressions'||id==='expand_brackets';
+ const k=rnd(3,symbolic?24+7*t:8+3*t),m=rnd(2,symbolic?19+5*t:6+2*t),u=rnd(2,5+2*t);
  let cases;
  if(id==='division_remainder'){
   // §14: a=b*q+r, 0<=r<b; the displayed text determines the answer.
@@ -180,7 +192,7 @@ function spec(id,t,p){
  }
  if(id==='simplify_expressions'){
   if(t===0)cases=[
-   ['Собери подобные слагаемые: a + a + a.',P(3,0,0),'Три одинаковых слагаемых дают 3a.',1],
+   ['Собери подобные слагаемые: '+k+'a + '+m+'a.',PA(P(k),P(m)),'Сумма одинаковых буквенных слагаемых: ('+k+' + '+m+')a.',1],
    ['Упрости: '+k+'a + '+m+'a.',PA(P(k),P(m)),'Складываем коэффициенты перед буквой a.',1],
    ['Упрости: '+k+'b + '+m+'b.',PA(P(0,k),P(0,m)),'Одинаковая буквенная часть b позволяет сложить коэффициенты.',1],
    ['Упрости: '+k+'a + a + '+m+'a.',PA(P(k),P(1),P(m)),'Сложим все коэффициенты перед a.',2],
@@ -320,7 +332,8 @@ function make(id){
  ?[{label:answer,key:'ok'},...[[1,0,0],[0,1,0],[0,0,1]].map((d,i)=>({label:showPoly(computed.map((v,j)=>v+d[j])),key:'bad'+i}))]
  :g5nums(computed,[computed+1,computed+2,Math.max(0,computed-1)]);
  const key='v124_'+id+'_L'+t+'_F'+p;
- const q=g5q(data.text,options,kind==='symbol'?'ok':String(computed),data.explain+' Ответ: '+answer+'.',key);
+ const explanation=kind==='symbol'?data.explain+' '+symbolProof(data.plan,computed):data.explain;
+ const q=g5q(data.text,options,kind==='symbol'?'ok':String(computed),explanation+' Ответ: '+answer+'.',key);
  const matching=q.choices.filter(c=>String(c.key)===String(q.correct));
  if(matching.length!==1||new Set(q.choices.map(c=>String(c.label))).size!==q.choices.length)throw Error('v124 answer options are not unique '+key);
  const meta={id,t,p,kind,steps:data.steps,plan:data.plan,expected:computed,answer};
