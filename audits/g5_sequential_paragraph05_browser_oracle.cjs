@@ -60,11 +60,11 @@ function expectedByQuestion(q){
     requireVisual(!/NaN|undefined|Infinity/.test(svg.outerHTML),'Invalid SVG geometry '+key);
     const ticks=[...svg.querySelectorAll('.mk-g5-coord-tick')].map(e=>({at:Number(e.getAttribute('data-at')),x:Number(e.getAttribute('x1'))}));
     requireVisual(ticks.length>=6,'Too few actual coordinate graduations '+key);
-    const scale=ticks[1].x-ticks[0].x;
+    const scale=(ticks.at(-1).x-ticks[0].x)/(ticks.length-1);
     requireVisual(scale>0,'Coordinate scale must increase from left to right '+key);
     for(let j=1;j<ticks.length;j++){
      requireVisual(ticks[j].at===ticks[j-1].at+1,'Axis jumps over a unit coordinate '+key);
-     requireVisual(Math.abs(ticks[j].x-ticks[0].x-j*scale)<.04,'Non-uniform interval widths '+key);
+     requireVisual(Math.abs(ticks[j].x-ticks[0].x-j*scale)<.015,'Non-uniform interval widths '+key);
     }
     const numericLabels=[...svg.querySelectorAll('.mk-g5-coord-label')].map(e=>({number:Number(e.textContent),x:Number(e.getAttribute('x'))}));
     for(const label of numericLabels){
