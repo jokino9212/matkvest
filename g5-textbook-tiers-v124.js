@@ -96,7 +96,7 @@ function g4Crossing(a=0,b=0,c=0,d=0){
   rays+='<line x1="'+cx+'" y1="'+cy+'" x2="'+x+'" y2="'+y+'" stroke="#37689b" stroke-width="3"/><circle cx="'+x+'" cy="'+y+'" r="4" fill="#37689b"/><text x="'+x+'" y="'+y+'" dy="'+(o.vy>0?22:-11)+'" text-anchor="middle" font-size="19" fill="currentColor">'+o.name+'</text>';
  }
  rays+='<circle cx="'+cx+'" cy="'+cy+'" r="5" fill="#37689b"/><text x="'+(cx+10)+'" y="'+(cy-8)+'" font-size="19" fill="currentColor">O</text>';
- return g4Figure(rays,'Прямые AB и CD пересекаются в точке O'+(a?' с размерами AO '+a+', OB '+b+', CO '+c+', OD '+d:'') ,245);
+ return g4Figure(rays,'Прямые AB и CD пересекаются в точке O, лежащей внутри обоих отрезков',245);
 }
 function g4FourPointSegments(a,b,c){
  const x=[50,50+a*410/(a+b+c),50+(a+b)*410/(a+b+c),460];
