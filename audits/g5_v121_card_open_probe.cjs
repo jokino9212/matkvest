@@ -7,5 +7,5 @@ const {chromium}=require('playwright'),path=require('path');
  const cardInfo={html:card?.outerHTML.slice(0,3000),tag:card?.tagName,onclick:typeof card?.onclick,props:card?Object.keys(card).slice(0,40):[],child:card?[...card.querySelectorAll('button,a')].slice(0,4).map(x=>({tag:x.tagName,html:x.outerHTML.slice(0,500)})):[]};
  card?.click();
  const after={qid:typeof qid==='undefined'?null:qid,blockSession:typeof blockSession==='undefined'?null:blockSession&&blockSession.kind,head:mainView.textContent.slice(0,280),viewCards:mainView.querySelectorAll('.g5-card').length,quizCandidates:mainView.querySelectorAll('.quiz-card,.question-box,[class*="question"],[class*="training"]').length,location:location.hash};
- return {before,cardInfo,after,errors};
+ return {before,cardInfo,after};
 });console.log('G5_CARD_DIRECT_NAV_PROBE '+JSON.stringify(x));}finally{await b.close()}})().catch(e=>{console.error(e.stack||e);process.exit(1)});
