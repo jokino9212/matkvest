@@ -40,11 +40,11 @@ function exact(node){
  if(op==='abs'){const a=E(args[0]);return a<0n?-a:a;}
  throw Error('Unrecognized exact math operation '+op);
 }
-function allNonnegative(node){
+function allNonnegative(node,underAbs=false){
  if(!Array.isArray(node))return;
  const [op,...args]=node;
- args.filter(Array.isArray).forEach(allNonnegative);
- if(op==='sub')assert(exact(node)>=0n,'Negative subtraction sub-expression in natural-number task '+JSON.stringify(node));
+ args.filter(Array.isArray).forEach(child=>allNonnegative(child,underAbs||op==='abs'));
+ if(op==='sub'&&!underAbs)assert(exact(node)>=0n,'Negative subtraction sub-expression in natural-number task '+JSON.stringify(node));
 }
 (async()=>{
  const navigation=fs.readFileSync('g5-textbook-navigation-v121.js','utf8');
