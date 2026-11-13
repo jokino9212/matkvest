@@ -89,8 +89,10 @@ function expectedConversion(a){
      assert.equal(value.toString(),String(a.expected),'Incorrect generator arithmetic '+id);
      if(a.kind==='numeric')assert.equal(q.ans,value.toString(),'Wrong numeric answer '+id);
      else{
-      assert(q.answerParts&&q.answerParts.d>0&&q.answerParts.n>=0,'Wrong fraction format '+id);
-      const display=rat(BigInt(q.answerParts.whole)*BigInt(q.answerParts.d)+BigInt(q.answerParts.n),q.answerParts.d);
+      const display=q.answerParts&&q.answerParts.d>0&&q.answerParts.n>=0
+       ?rat(BigInt(q.answerParts.whole)*BigInt(q.answerParts.d)+BigInt(q.answerParts.n),q.answerParts.d)
+       :/^\d+$/.test(q.rightLabel.trim())?rat(BigInt(q.rightLabel.trim())):null;
+      assert(display,'Wrong displayed mixed-number or integer format '+id);
       const exact=rat(value,a.d);
       assert.deepEqual(display,exact,'Wrong displayed mixed fraction '+id);
      }
