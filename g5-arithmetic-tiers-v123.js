@@ -205,7 +205,7 @@ function specification(id,t,p){
   // §10: evaluate numeric expressions, substitute letters and translate real
   // verbal operations to algebraic expressions, with different tier families.
   const x=ri(5+t*2,15+t*5),y=ri(3,11+t*3),z=ri(2,9+t*3),
-    n=ri(9,29),p=ri(4,13),r=ri(12,36),factor=ri(3,7),factor2=ri(2,5);
+    n=ri(9,29),p=ri(4,13),r=ri(12,36),factor=ri(3,14),factor2=ri(2,6);
   if(t===0)data=[
    ['Найди значение числового выражения '+(x+n)+' + '+y+' − '+z+'.',
     S(A(V(x+n),V(y)),V(z)),
