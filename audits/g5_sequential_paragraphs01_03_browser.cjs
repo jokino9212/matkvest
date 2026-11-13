@@ -29,7 +29,8 @@ function expectTable(q){
   const values=[Math.abs(d-b),a+b+c,b+d,Math.abs(a+c-b),Math.abs(b+c-d)];
   assert.equal(String(values[q.family]),q.ans,'§1 training table not aligned with answer');
  }else{
-  const journal=rows[1];
+  const journal=rows[1]||[0,0,0,0];
+  if(q.family===1||q.family===2)assert(rows[1]?.length===4,'Master exercise needs both book and magazine rows');
   const values=[
    a+2*b+2*c+d,
    a+d+journal[0]+journal[3],
