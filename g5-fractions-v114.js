@@ -52,7 +52,7 @@ function cQ(text,correct,others,ex,id,t,p){
  const opts=[correct,...others.filter(x=>x!==correct)],distinct=[...new Set(opts)];
  if(distinct.length<3)throw Error('Insufficient distinct options '+id+'/'+t+'/'+p);
  const q=g5q(text,distinct.map((label,i)=>({label,key:i===0?'ok':'wrong'+i})),'ok',ex,family(id,t,p));
- return q;
+ q.mk5Audit={type:'choice',expected:correct};return q;
 }
 function strip(n,d){
  const x=String(n);return frac(n,d); // fraction HTML is the existing classroom renderer
