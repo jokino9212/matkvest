@@ -1,0 +1,56 @@
+name: Grade 5 sequential textbook audit §9 subtraction and its properties
+on:
+  push:
+    branches:
+      - audit/g5-sequential-paragraph09-subtraction-20261113
+    paths:
+      - 'g5-arithmetic-tiers-v123.js'
+      - 'g5-textbook-core.js'
+      - 'audits/g5_sequential_paragraph09_browser_oracle.cjs'
+      - '.github/workflows/g5-sequential-09.yml'
+      - 'sw.js'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'g5-arithmetic-tiers-v123.js'
+      - 'g5-textbook-core.js'
+      - 'audits/g5_sequential_paragraph09_browser_oracle.cjs'
+jobs:
+  sequential-paragraph09:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check new §9 source and independent mathematical oracle syntax
+        run: |
+          node --check g5-arithmetic-tiers-v123.js
+          node --check g5-textbook-core.js
+          node --check audits/g5_sequential_paragraph09_browser_oracle.cjs
+      - name: Install pinned Playwright
+        run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Independently check 600 real subtraction questions and all natural intermediate results
+        run: node audits/g5_sequential_paragraph09_browser_oracle.cjs
+      - name: Repeat preceding sequential textbook paragraphs 1 through 8
+        run: |
+          node audits/g5_sequential_paragraphs01_03_browser.cjs
+          node audits/g5_sequential_paragraph04_browser_oracle.cjs
+          node audits/g5_sequential_paragraph05_browser_oracle.cjs
+          node audits/g5_sequential_paragraph06_browser_oracle.cjs
+          node audits/g5_sequential_paragraph07_browser_oracle.cjs
+          node audits/g5_sequential_paragraph08_browser_oracle.cjs
+      - name: Protect 74 grade-five topics and 1110 family slots
+        run: node audits/g5_v132_74_real_cognitive_inventory.cjs
+      - name: Protect exact rational arithmetic and diagrams
+        run: |
+          node audits/g5_stage43_factorization_real_math_oracle.cjs
+          node audits/g5_stage42_mixed_fraction_oracle.cjs
+          node audits/g5_stage41_fractions_angles_browser_oracle.cjs
+          node audits/g5_stage40_paragraph25_browser_oracle.cjs
+          node audits/g5_stage39_fraction_independent_oracle.cjs
+      - name: Protect mixed-fraction conversion and answer entry
+        run: |
+          node audits/g5_conversion_diversity_smoke.cjs
+          node audits/g5_conversion_ux_smoke.cjs
