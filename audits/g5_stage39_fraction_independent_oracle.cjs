@@ -50,11 +50,10 @@ function solve(p){
    checks++;
   }
   const addition=rows.filter(q=>q.id==='frac_add_diff'&&q.t===1);
-  for(let j=0;j<10;j++){
-   const base=addition.find(q=>q.f===0&&addition.indexOf(q)>=0),alt=addition.find(q=>q.f===4&&addition.indexOf(q)>=0);
-   assert(base&&alt,'Missing fraction-addition variants');
-   break;
-  }
+  assert.equal(addition.filter(q=>q.f===0).length,10,'Missing original addition samples');
+  assert.equal(addition.filter(q=>q.f===4).length,10,'Missing revised addition samples');
+  assert(addition.filter(q=>q.f===0).every(q=>q.meta.plan[0]==='add'),'Expected direct addition family');
+  assert(addition.filter(q=>q.f===4).every(q=>q.meta.plan[0]==='mul'),'New family must be genuinely two-stage');
   console.log('G5_STAGE39_INDEPENDENT_ORACLE_PASS '+JSON.stringify({topics:ids.length,samples:checks,uniqueFamilySlots:ids.length*15}));
  }finally{await browser.close()}
 })().catch(e=>{console.error('G5_STAGE39_INDEPENDENT_ORACLE_FAIL',e.stack||e);process.exit(1)});
