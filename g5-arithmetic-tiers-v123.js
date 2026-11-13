@@ -222,11 +222,11 @@ function specification(id,t,p){
  if(id==='natural_divide'){
   // §13: exact natural-number division, components, inverse operations,
   // equal shares and grouping. 15 distinct tasks with rising cognitive depth.
-  const per=ri(9,33),groups=ri(3,12),other=ri(8,27),
+  const pack=d,per=ri(9,33),groups=ri(3,12),other=ri(8,27),
     divisor=ri(3,9),less=ri(2,7),extra=ri(3,12),
-    first=ri(3,11),second=ri(2,9),offset=ri(11,38),
+    offset=ri(11,38),
     boxes=ri(4,13),newBoxes=ri(2,9),
-    totalPacks=ri(4,11),give=ri(2,7),
+    totalPacks=ri(4,11),
     perSet=ri(10,29),books=ri(4,12),rest=ri(3,8);
   const whole=per*groups;
   if(t===0)data=[
@@ -259,9 +259,9 @@ function specification(id,t,p){
    ['Для '+groups+' классов выделили '+(groups*(per+extra))+' тетрадей поровну. Из доли каждого класса отложили '+extra+' тетрадей в запас. Сколько тетрадей осталось в каждом классе?',
     S(D(V(groups*(per+extra)),V(groups)),V(extra)),
     'Вначале на один класс '+(groups*(per+extra))+' : '+groups+' = '+(per+extra)+' тетрадей. После откладывания '+(per+extra)+' − '+extra+' = '+per+'. Проверка: '+groups+' · '+(per+extra)+' = '+(groups*(per+extra))+'.',3],
-   ['Число x разделили на '+b+', затем на '+d+' и получили '+a+'. Найди первоначальное число x.',
-    M(M(V(a),V(b)),V(d)),
-    'Идём обратными действиями: после первого деления было '+a+' · '+d+' = '+(a*d)+'. Первоначальное число x = '+(a*d)+' · '+b+' = '+(a*b*d)+'. Проверка: '+(a*b*d)+' : '+b+' = '+(a*d)+', затем '+(a*d)+' : '+d+' = '+a+'.',4]
+   ['Число x разделили на '+b+', затем на '+pack+' и получили '+a+'. Найди первоначальное число x.',
+    M(M(V(a),V(b)),V(pack)),
+    'Идём обратными действиями: после первого деления было '+a+' · '+pack+' = '+(a*pack)+'. Первоначальное число x = '+(a*pack)+' · '+b+' = '+(a*b*pack)+'. Проверка: '+(a*b*pack)+' : '+b+' = '+(a*pack)+', затем '+(a*pack)+' : '+pack+' = '+a+'.',4]
   ];
   else data=[
    ['Вычисли ('+(groups*per)+' + '+(groups*other)+') : '+groups+' + '+(extra*divisor)+' : '+divisor+'.',
