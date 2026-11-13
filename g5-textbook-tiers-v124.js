@@ -74,8 +74,9 @@ function g4FanRays(n){
  const cx=255,cy=210,r=147,span=142;
  const rays=Array.from({length:n},(_,i)=>{
   const angle=(19+i*span/(n-1))*Math.PI/180,dx=Math.cos(angle),dy=Math.sin(angle),x=(cx+r*dx).toFixed(2),y=(cy-r*dy).toFixed(2);
-  const arrowX=(cx+(r-14)*dx).toFixed(2),arrowY=(cy-(r-14)*dy).toFixed(2);
-  return '<line x1="'+cx+'" y1="'+cy+'" x2="'+x+'" y2="'+y+'" stroke="#37689b" stroke-width="3"/><circle cx="'+arrowX+'" cy="'+arrowY+'" r="3" fill="#37689b"/><text x="'+x+'" y="'+y+'" font-size="19" fill="currentColor" text-anchor="middle" dy="-8">'+String.fromCharCode(65+i)+'</text>';
+  const baseX=cx+(r-13)*dx,baseY=cy-(r-13)*dy;
+  const arrow=[[cx+r*dx,cy-r*dy],[baseX+6*dy,baseY+6*dx],[baseX-6*dy,baseY-6*dx]].map(point=>point.map(v=>v.toFixed(2)).join(',')).join(' ');
+  return '<line x1="'+cx+'" y1="'+cy+'" x2="'+x+'" y2="'+y+'" stroke="#37689b" stroke-width="3"/><polygon points="'+arrow+'" fill="#37689b"/><text x="'+x+'" y="'+y+'" font-size="19" fill="currentColor" text-anchor="middle" dy="-8">'+String.fromCharCode(65+i)+'</text>';
  }).join('');
  return g4Figure(rays+'<circle cx="'+cx+'" cy="'+cy+'" r="5" fill="#37689b"/><text x="'+(cx+14)+'" y="'+(cy+24)+'" fill="currentColor" font-size="20">O</text>',
  'Из точки O выходят '+n+' различных '+g4RaysWord(n)+', изображённых в одной полуплоскости',245);
