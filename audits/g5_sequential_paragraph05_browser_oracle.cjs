@@ -78,6 +78,7 @@ function expectedByQuestion(q){
     requireVisual(!/NaN|undefined|Infinity/.test(svg.outerHTML),'Invalid SVG geometry '+key);
     const ticks=[...svg.querySelectorAll('.mk-g5-coord-tick')].map(e=>({at:Number(e.getAttribute('data-at')),x:Number(e.getAttribute('x1'))}));
     requireVisual(ticks.length>=6,'Too few actual coordinate graduations '+key);
+    if(level===0)requireVisual(ticks[0].at===0,'Warmup must teach actual coordinate origin 0, not a clipped fragment '+key);
     const scale=(ticks.at(-1).x-ticks[0].x)/(ticks.length-1);
     requireVisual(scale>0,'Coordinate scale must increase from left to right '+key);
     for(let j=1;j<ticks.length;j++){
