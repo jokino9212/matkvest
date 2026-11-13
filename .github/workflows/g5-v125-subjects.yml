@@ -1,0 +1,47 @@
+name: Grade 5 second six-subject full three-tier diversity v125
+on:
+  push:
+    branches: [fix/g5-natural-units-v125-20261113]
+    paths:
+      - g5-natural-units-v125.js
+      - audits/g5_v125_activate.py
+      - audits/g5_v125_real_stage_oracle_browser.cjs
+      - .github/workflows/g5-v125-subjects.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  six-new-graded-topics:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - name: Activate v125 and versioned PWA
+        run: python3 audits/g5_v125_activate.py
+      - name: Syntax validation
+        run: |
+          node --check g5-natural-units-v125.js
+          node --check audits/g5_v125_real_stage_oracle_browser.cjs
+          python3 -m py_compile audits/g5_v125_activate.py
+      - name: Install pinned Playwright
+        run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Test student-facing 90 challenge families and independent mathematical oracle
+        run: node audits/g5_v125_real_stage_oracle_browser.cjs
+      - name: Preserve fraction entry and conversions
+        run: |
+          node audits/g5_conversion_diversity_smoke.cjs
+          node audits/g5_conversion_ux_smoke.cjs
+      - name: Commit tested HTML and PWA only after PASS
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js
+          if ! git diff --cached --quiet; then
+            git commit -m "build(g5): activate all three levels for six more subjects v125"
+            git fetch origin fix/g5-natural-units-v125-20261113
+            git rebase origin/fix/g5-natural-units-v125-20261113
+            git push origin HEAD:fix/g5-natural-units-v125-20261113
+          fi
