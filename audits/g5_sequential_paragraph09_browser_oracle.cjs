@@ -18,7 +18,7 @@ function fromText(q){
   if(p===1){x=vals(s,/способом: \((\d+) \+ (\d+)\) − (\d+)/,ctx);assert(x[1]>=x[2]);return x[0]+x[1]-x[2];}
   if(p===2){x=vals(s,/Вычисли: (\d+) − \((\d+) \+ (\d+) \+ (\d+)\)/,ctx);assert.equal(x[1]+x[2],100,'Must group one complete hundred');return x[0]-sum(x.slice(1));}
   if(p===3){x=vals(s,/числа x последовательно вычли (\d+) и (\d+) и получили (\d+)/,ctx);return sum(x);}
-  if(p===4){x=vals(s,/было (\d+) яблок, во втором (\d+) яблок.*взяли (\d+), из второго (\d+)/,ctx);return Math.abs(x[0]-x[2]-(x[1]-x[3]));}
+  if(p===4){x=vals(s,/было (\d+) яблок, во втором (\d+)(?: яблок)?.*взяли (\d+), из второго (\d+)/,ctx);return Math.abs(x[0]-x[2]-(x[1]-x[3]));}
  }
  if(t===2){
   if(p===0){x=vals(s,/группировкой: (\d+) − \((\d+) \+ (\d+)\) − \((\d+) \+ (\d+)\)/,ctx);assert.equal(x[1]+x[2],100);assert.equal(x[3]+x[4],100);return x[0]-200;}
