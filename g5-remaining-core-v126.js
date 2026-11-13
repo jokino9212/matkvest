@@ -27,6 +27,19 @@ function barGraph(values){
  const bars=values.map((v,i)=>{const x=33+i*104,h=(v*scale).toFixed(1),y=(134-v*scale).toFixed(1);return '<rect x="'+x+'" y="'+y+'" width="51" height="'+h+'" rx="4" fill="#318fbd"/><text x="'+(x+25)+'" y="'+(134-v*scale-5).toFixed(1)+'" fill="currentColor" font-size="13" text-anchor="middle">'+v+'</text><text x="'+(x+25)+'" y="155" fill="currentColor" font-size="14" text-anchor="middle">'+names[i]+'</text>'}).join('');
  return '<div style="width:100%;max-width:590px;overflow:hidden"><svg role="img" aria-label="Столбчатая диаграмма по дням недели" viewBox="0 0 460 170" width="100%" style="height:auto"><line x1="15" y1="134" x2="453" y2="134" stroke="currentColor" stroke-width="2"/>'+bars+'</svg></div>';
 }
+function shapeGallery(order){
+ const pics={
+  ring:'<circle cx="65" cy="62" r="37" fill="none" stroke="#34649a" stroke-width="5"/>',
+  disk:'<circle cx="65" cy="62" r="37" fill="#80bde8" stroke="#34649a" stroke-width="3"/>',
+  sphere:'<circle cx="65" cy="62" r="37" fill="url(#mk5sphere)" stroke="#34649a" stroke-width="2"/><ellipse cx="59" cy="61" rx="17" ry="36" fill="none" stroke="#34649a" stroke-width="1.7" opacity=".45"/><ellipse cx="52" cy="48" rx="8" ry="5" fill="#fff" opacity=".65"/>',
+  cylinder:'<path d="M33 42 V95 A32 12 0 0 0 97 95 V42" fill="#a9d5ed" stroke="#34649a" stroke-width="2"/><ellipse cx="65" cy="42" rx="32" ry="12" fill="#e4f4fc" stroke="#34649a" stroke-width="2"/><path d="M33 95 A32 12 0 0 0 97 95" fill="none" stroke="#34649a" stroke-width="2"/>'
+ };
+ const artwork=order.map((kind,i)=>'<g transform="translate('+(i*130)+',0)">'+pics[kind]+'<text x="65" y="134" font-size="22" font-weight="700" text-anchor="middle" fill="currentColor">'+(i+1)+'</text></g>').join('');
+ return '<div style="width:100%;max-width:620px;overflow:hidden"><svg viewBox="0 0 520 145" width="100%" role="img" aria-label="Четыре фигуры под номерами от одного до четырёх" style="height:auto"><defs><radialGradient id="mk5sphere" cx="35%" cy="25%" r="80%"><stop offset="0%" stop-color="#f4fbff"/><stop offset="100%" stop-color="#468fc4"/></radialGradient></defs>'+artwork+'</svg></div>';
+}
+function radiusDiagram(){
+ return '<div style="width:100%;max-width:360px;overflow:hidden"><svg viewBox="0 0 300 180" width="100%" role="img" aria-label="Окружность с центром O и радиусом OA" style="height:auto"><circle cx="140" cy="87" r="64" fill="none" stroke="#34649a" stroke-width="3"/><circle cx="140" cy="87" r="3" fill="#34649a"/><line x1="140" y1="87" x2="204" y2="87" stroke="#db7830" stroke-width="3"/><text x="129" y="80" font-size="17" fill="currentColor">O</text><text x="210" y="86" font-size="17" fill="currentColor">A</text></svg></div>';
+}
 function gridShape(total,filled){
  const cols=5,rows=Math.ceil(total/cols),sz=30;
  let rects='';
@@ -229,27 +242,32 @@ function spec(id,t,p){
   ];
  }
  if(id==='frac_shapes'){
-  const total=20,filled=r(4,9),more=r(2,5),pic=gridShape(total,filled);
+  // Vilenkin, Grade 5, Part 2, §25: circle/circumference/sphere/cylinder.
+  // Filled-square fraction questions belong to §26, not §25.
+  const radius=r(4,10+t*3),other=r(3,9+t*3),increase=r(2,5+t*2),height=r(5,12+t*3),count=r(2,7+t*2);
+  const order=['ring','disk','sphere','cylinder'];
+  for(let i=order.length-1;i>0;i--){const j=r(0,i);[order[i],order[j]]=[order[j],order[i]];}
+  const gallery=shapeGallery(order),find=kind=>V(order.indexOf(kind)+1);
   if(t===0)rows=[
-   ['На рисунке прямоугольник из '+total+' клеток. Сколько клеток закрашено? '+pic,V(filled),'Посчитаем закрашенные клетки.',1],
-   ['На рисунке прямоугольник из '+total+' клеток. Сколько клеток не закрашено? '+pic,S(V(total),V(filled)),'От общего числа клеток вычтем закрашенные.',2],
-   ['На сколько закрашенных клеток меньше, чем незакрашенных? '+pic,S(S(V(total),V(filled)),V(filled)),'Сравним количество клеток двух цветов.',2],
-   ['У закрашенной части рисунка знаменатель дроби равен чему? '+pic,V(total),'Знаменатель — общее число равных клеток.',1],
-   ['Числитель дроби закрашенной части на рисунке равен чему? '+pic,V(filled),'Числитель — количество закрашенных клеток.',1]
+   ['Под каким номером изображена окружность — только замкнутая линия, ограничивающая круг? '+gallery,find('ring'),'Окружность — линия, ограничивающая круг; внутренняя область не закрашена.',1],
+   ['Под каким номером изображён круг — плоская фигура вместе с внутренней областью? '+gallery,find('disk'),'Круг включает окружность и все точки внутри неё.',1],
+   ['Под каким номером изображён шар — объёмное круглое тело? '+gallery,find('sphere'),'Шар — объёмное тело, а круг — плоская фигура.',1],
+   ['Под каким номером изображён цилиндр — тело с двумя круглыми основаниями? '+gallery,find('cylinder'),'Цилиндр имеет два круглых основания.',1],
+   ['Радиус окружности '+radius+' см. Найди диаметр в сантиметрах. '+radiusDiagram(),M(V(2),V(radius)),'Диаметр состоит из двух радиусов: d = 2r.',2]
   ];
   else if(t===1)rows=[
-   ['Сколько клеток надо закрасить на рисунке, чтобы закрашена была половина? '+pic,S(V(10),V(filled)),'Половина из 20 — 10 клеток. Вычтем уже закрашенные.',3],
-   ['Сколько незакрашенных клеток надо закрасить, чтобы закрашено было 3/4 фигуры? '+pic,S(V(15),V(filled)),'Три четверти от 20 = 15, найдём разность.',3],
-   ['Сколько закрашенных клеток получится, если дополнительно закрасить '+more+' клетки? '+pic,A(V(filled),V(more)),'Добавим новые клетки к закрашенным.',2],
-   ['Если стереть закраску у 2 клеток, сколько станет незакрашенных? '+pic,A(S(V(total),V(filled)),V(2)),'Незакрашенных станет больше на 2.',3],
-   ['Фигура на рисунке имеет '+filled+' закрашенных клеток из 20. Сколько надо дополнительно закрасить, чтобы осталось ровно 5 незакрашенных? '+pic,S(V(15),V(filled)),'Цель — 15 закрашенных клеток, вычтем имеющиеся.',3]
+   ['На рисунке OA — радиус окружности, равный '+radius+' см. Найди её диаметр. '+radiusDiagram(),M(V(2),V(radius)),'Диаметр вдвое больше радиуса.',2],
+   ['Диаметр круга '+(2*radius)+' см. Радиус увеличили на '+increase+' см. Каким стал диаметр?',M(V(2),A(D(V(2*radius),V(2)),V(increase))),'Сначала найдём радиус из диаметра, затем увеличим его и удвоим.',3],
+   ['Диаметры двух кругов '+(2*radius)+' см и '+(2*other)+' см. На сколько сантиметров различаются их радиусы?',Abs(D(V(2*radius),V(2)),D(V(2*other),V(2))),'Радиусы равны половинам диаметров; сравним результаты.',3],
+   ['У каждого цилиндра два круглых основания. Сколько круглых оснований у '+count+' цилиндров?',M(V(2),V(count)),'Два основания у каждого цилиндра; умножаем на число цилиндров.',2],
+   ['Два одинаковых шара радиусом '+radius+' см стоят вплотную друг к другу в ряд. Какова длина ряда вдоль прямой, проходящей через их центры?',M(M(V(2),V(radius)),V(2)),'Найдём диаметр каждого шара и сложим два диаметра.',3]
   ];
   else rows=[
-   ['С рисунка дополнительно закрасили '+more+' клеток, затем стерли закраску у 2 клеток. Сколько закрашенных клеток осталось? '+pic,S(A(V(filled),V(more)),V(2)),'Прибавим новые закрашенные и вычтем две стертые.',4],
-   ['Чтобы получить 3/4 закрашенных клеток, сначала докрасили '+more+'. Сколько ещё нужно докрасить после этого? '+pic,S(S(V(15),V(filled)),V(more)),'Три четверти от 20 — 15, вычтем исходные и уже докрашенные.',4],
-   ['У двух одинаковых фигур по 20 клеток. На первой закрашено как на рисунке, на второй — '+(filled+more)+' клеток. Сколько всего закрашенных клеток на двух фигурах? '+pic,A(V(filled),A(V(filled),V(more))),'Первую и вторую закраски складываем.',4],
-   ['У трёх одинаковых фигур закраска такая же, как на рисунке. Сколько всего клеток нужно дополнительно закрасить, чтобы на каждой была закрашена ровно половина? '+pic,M(V(3),S(V(10),V(filled))),'Сначала разность до половины, затем умножение на 3.',4],
-   ['После закраски ещё '+more+' клеток и стирания закраски с 1 клетки сколько клеток остаются незакрашенными? '+pic,A(S(V(total),A(V(filled),V(more))),V(1)),'Из 20 вычтем число закрашенных после добавления, затем прибавим одну снова незакрашенную.',4]
+   ['Радиус первого круга '+radius+' см, радиус второго на '+increase+' см больше. Найди сумму их диаметров.',A(M(V(2),V(radius)),M(V(2),A(V(radius),V(increase)))),'Найдём радиус второго круга, вычислим оба диаметра и сложим.',4],
+   ['У трёх окружностей радиусы '+radius+', '+other+' и '+increase+' см. Найди сумму длин их диаметров в сантиметрах.',A(M(V(2),V(radius)),M(V(2),V(other)),M(V(2),V(increase))),'Каждый диаметр — два радиуса. Складываем все три диаметра.',4],
+   ['Четыре одинаковых цилиндра высотой '+height+' см поставили друг на друга. Сверху поставили пятый цилиндр высотой на '+increase+' см больше остальных. Какова общая высота башни?',A(M(V(4),V(height)),A(V(height),V(increase))),'Четыре высоты равны 4h, пятая — h + прибавка. Складываем.',4],
+   ['У двух окружностей радиусы '+radius+' см и '+other+' см. Радиус первой увеличили на '+increase+' см, второй — на '+count+' см. На сколько увеличилась сумма их диаметров?',S(A(M(V(2),A(V(radius),V(increase))),M(V(2),A(V(other),V(count)))),A(M(V(2),V(radius)),M(V(2),V(other)))),'Вычисляем обе новые длины диаметров, вычитаем исходную сумму.',4],
+   ['Радиусы трёх шаров равны '+radius+' см, '+(radius+increase)+' см и '+(radius+2*increase)+' см. Найди сумму их диаметров.',A(M(V(2),V(radius)),M(V(2),A(V(radius),V(increase))),M(V(2),A(V(radius),M(V(2),V(increase))))),'Для каждого шара найдём диаметр, затем сложим три результата.',5]
   ];
  }
  if(!rows||rows.length!==5)throw Error('v126 missing topic families '+id);
