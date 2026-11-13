@@ -11,6 +11,6 @@ for(const good of ["кг муки. Продали 20% муки","участни�
 const arithmetic=fs.readFileSync('g5-arithmetic-tiers-v123.js','utf8');
 assert(arithmetic.includes("'В школьный склад привезли '+b+' партий коробок."),'Missing clear multiplication context');
 assert(arithmetic.includes("'В одной партии '+d+' коробок по '+a+' предметов"),'Missing clear comparison context');
-assert(arithmetic.includes("Чему равен результат?"),'Incorrect division prompt grammar');
+assert(arithmetic.includes("'Число x разделили на '+b+', затем на '+pack+' и получили '+a+'. Найди первоначальное число x.'"),'Inverse division family not found');
 assert(!arithmetic.includes("В каждом большом ящике '+d+' маленьких"),'Original ambiguous multiplication remains');
 console.log('Stage 38 methodological context regressions: PASS (6 learner-facing families)');
