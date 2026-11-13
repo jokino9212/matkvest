@@ -80,8 +80,26 @@ function g4FanRays(n){
  return g4Figure(rays+'<circle cx="'+cx+'" cy="'+cy+'" r="5" fill="#37689b"/><text x="'+(cx+14)+'" y="'+(cy+24)+'" fill="currentColor" font-size="20">O</text>',
  'Из точки O выходят '+n+' различных '+g4RaysWord(n)+', изображённых в одной полуплоскости',245);
 }
-function g4AngleSketch(){
- return g4FanRays(2);
+function g4AngleSketch(opening){
+ const cx=225,cy=185,r=125,ang=opening*Math.PI/180;
+ const x=(cx+r*Math.cos(ang)).toFixed(2),y=(cy-r*Math.sin(ang)).toFixed(2);
+ return g4Figure('<line x1="'+cx+'" y1="'+cy+'" x2="'+(cx+r)+'" y2="'+cy+'" stroke="#37689b" stroke-width="3"/><line x1="'+cx+'" y1="'+cy+'" x2="'+x+'" y2="'+y+'" stroke="#37689b" stroke-width="3"/><circle cx="'+cx+'" cy="'+cy+'" r="5" fill="#37689b"/><text x="'+(cx-12)+'" y="'+(cy+23)+'" fill="currentColor" font-size="19">O</text><text x="'+(cx+r+7)+'" y="'+(cy+7)+'" fill="currentColor" font-size="19">A</text><text x="'+x+'" y="'+y+'" dy="-10" fill="currentColor" font-size="19">B</text>', 'Угол AOB из двух лучей с общей вершиной O',245);
+}
+function g4LinesThroughO(n){
+ const cx=260,cy=119,r=93;
+ let art='';
+ for(let i=0;i<n;i++){
+  const rad=(20+i*132/(n-1))*Math.PI/180,vx=Math.cos(rad),vy=Math.sin(rad);
+  const x1=cx-r*vx,y1=cy-r*vy,x2=cx+r*vx,y2=cy+r*vy;
+  art+='<line x1="'+x1.toFixed(2)+'" y1="'+y1.toFixed(2)+'" x2="'+x2.toFixed(2)+'" y2="'+y2.toFixed(2)+'" stroke="#37689b" stroke-width="3"/>';
+  for(const sign of [-1,1]){
+   const x=cx+sign*r*vx,y=cy+sign*r*vy,nx=-vy,ny=vx,back=12;
+   const points=[[x,y],[x-sign*back*vx+nx*6,y-sign*back*vy+ny*6],[x-sign*back*vx-nx*6,y-sign*back*vy-ny*6]].map(p=>p.map(k=>k.toFixed(2)).join(',')).join(' ');
+   art+='<polygon points="'+points+'" fill="#37689b"/>';
+  }
+ }
+ art+='<circle cx="'+cx+'" cy="'+cy+'" r="5" fill="#d37b35"/><text x="'+(cx+10)+'" y="'+(cy+24)+'" font-size="20" fill="currentColor">O</text>';
+ return g4Figure(art,'На плоскости '+n+' различные прямые пересекаются в точке O',245);
 }
 function g4Crossing(a=0,b=0,c=0,d=0){
  const cx=260,cy=122;
@@ -188,14 +206,14 @@ function spec(id,t,p){
   const order=['line','ray','segment','angle'];
   for(let i=order.length-1;i>0;i--){const j=rnd(0,i);[order[i],order[j]]=[order[j],order[i]];}
   const pick=kind=>V(order.indexOf(kind)+1),gallery=g4ChoicePicture(order);
-  const a1=rnd(5,11+3*t),b1=rnd(4,10+3*t),c1=rnd(3,9+3*t),d1=rnd(2,8+3*t);
+  const a1=rnd(5,11+3*t),b1=rnd(4,10+3*t),c1=rnd(3,9+3*t),d1=rnd(2,8+3*t),throughLines=rnd(2,3),initialRays=rnd(2,5),opening=rnd(32,146);
   const n=t===1?rnd(4,6):rnd(5,7);
   if(t===0)cases=[
    ['На каком рисунке показана прямая — линия без начала и конца? '+gallery,pick('line'),'Прямая бесконечна в обе стороны. Среди рисунков выбираем линию со стрелками на обоих концах.',1],
-   ['Сколько начальных точек у луча OA? '+g4RaySketch(),V(1),'У луча есть одно начало O; другого конца у него нет.',1],
+   ['Из одной точки O выходят '+initialRays+' '+g4RaysWord(initialRays)+'. Сколько различных начальных точек у этих лучей? '+g4FanRays(initialRays),V(1),'Все изображённые лучи имеют одну и ту же начальную точку O.',1],
    ['Точка C лежит внутри отрезка AB. На сколько частей она делит отрезок? '+g4SplitSegment(a1,b1),V(2),'Точка C делит отрезок AB на AC и CB.',1],
-   ['Сколько сторон-лучей образуют угол AOB? '+g4AngleSketch(),V(2),'Угол состоит из двух лучей OA и OB с общей вершиной O.',1],
-   ['На рисунке две пересекающиеся в O прямые. Сколько лучей с началом O лежит на этих прямых? '+g4Crossing(),V(4),'На каждой прямой из точки O выходят два противоположных луча: 2 + 2 = 4.',1]
+   ['Сколько сторон-лучей образуют угол AOB? '+g4AngleSketch(opening),V(2),'Угол состоит из двух лучей OA и OB с общей вершиной O.',1],
+   ['На плоскости через точку O проходят '+throughLines+' различные прямые. Сколько лучей с началом O образуют эти прямые? '+g4LinesThroughO(throughLines),M(V(2),V(throughLines)),'Каждая прямая задаёт два противоположных луча. Всего 2 · '+throughLines+' = '+(throughLines*2)+'.',1]
   ];
   else if(t===1){
    const rayCount=rnd(3,5);
@@ -204,7 +222,7 @@ function spec(id,t,p){
     ['На отрезке AB длиной '+(a1+b1)+' см точка C расположена между A и B. AC = '+a1+' см. Найди CB. '+g4SplitSegment(a1,b1,true),S(V(a1+b1),V(a1)),'Из длины AB вычитаем AC: '+(a1+b1)+' − '+a1+' = '+b1+' см.',2],
     ['На прямой отмечено '+n+' различных точек. Сколько отрезков соединяют соседние точки? '+g4MarkedLine(n),S(V(n),V(1)),'Между '+n+' последовательно отмеченными точками '+(n-1)+' промежутков.',2],
     ['Из точки O выходят '+rayCount+' '+g4RaysWord(rayCount)+' в одной полуплоскости. Сколько углов расположено между соседними лучами на рисунке? '+g4FanRays(rayCount),S(V(rayCount),V(1)),'Углы между соседними лучами: '+rayCount+' − 1 = '+(rayCount-1)+'.',2],
-    ['На рисунке две пересекающиеся прямые AB и CD. Сколько пар противоположных лучей с началом O образуют эти прямые? '+g4Crossing(),V(2),'Каждая из двух прямых задаёт одну пару противоположных лучей: OA и OB, OC и OD.',2]
+    ['На рисунке '+throughLines+' различные прямые проходят через точку O. Сколько пар противоположных лучей с началом O они задают? '+g4LinesThroughO(throughLines),V(throughLines),'Одна прямая задаёт ровно одну пару противоположных лучей. Пар столько же, сколько прямых: '+throughLines+'.',2]
    ];
   }else{
    const rayCount=rnd(4,6),marks=rnd(5,7);
