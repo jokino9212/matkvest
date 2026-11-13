@@ -1,6 +1,6 @@
 'use strict';
 const {chromium}=require('playwright'),path=require('node:path'),assert=require('node:assert/strict');
-const ids=['frac_parts','frac_ray','mixed_compare','angle_types','angles'];
+const ids=['frac_parts','frac_ray','frac_compare_den','frac_compare_num','mixed_compare','angle_types','angles'];
 function numericPlan(plan){
  const [op,...a]=plan,E=numericPlan;
  if(op==='v')return BigInt(a[0]);
@@ -35,7 +35,7 @@ function compareOps(xs,ops){
    return {topics:topics.length,rows};
   },ids);
   assert.equal(samples.topics,74,'Existing 74 Grade 5 topics must remain stable');
-  assert.equal(samples.rows.length,1500,'5 topics × 15 families × 20 variations');
+  assert.equal(samples.rows.length,2100,'7 topics × 15 families × 20 variations');
   const uniqueFamilies=new Map(),titles=new Map();
   for(const q of samples.rows){
    const right=q.choices.filter(c=>c.key===q.ans);
@@ -48,7 +48,7 @@ function compareOps(xs,ops){
     if(!titles.has(q.id))titles.set(q.id,new Set());
     titles.get(q.id).add(q.template);
    } else assert.equal(q.template,uniqueFamilies.get(k),'Family ID drift '+k);
-   if(q.id==='mixed_compare'){
+   if(q.id==='mixed_compare'||q.id==='frac_compare_den'||q.id==='frac_compare_num'){
     assert(q.mixed&&q.mixed.id===q.id,'Missing comparison metadata');
     if(q.mixed.kind==='compare'){
      const l=compareOps(q.mixed.left,q.mixed.opsLeft),r=compareOps(q.mixed.right,q.mixed.opsRight);
@@ -58,8 +58,11 @@ function compareOps(xs,ops){
      const x=compareOps(q.mixed.terms,q.mixed.ops);
      const abs=q.mixed.absolute?(x<0n?-x:x):x;
      assert.equal(q.ans,String(abs),'Independent numeric mixed comparison mismatch');
-     if(q.level===1&&q.family===4)assert(BigInt(q.mixed.terms[0])>BigInt(q.mixed.terms[1]),'Negative mixed-number numerator after subtraction');
-    }else throw Error('Unexpected mixed comparison task '+q.mixed.kind);
+     if(q.id==='mixed_compare'&&q.level===1&&q.family===4)assert(BigInt(q.mixed.terms[0])>BigInt(q.mixed.terms[1]),'Negative mixed-number numerator after subtraction');
+     if(q.id==='frac_compare_den'&&q.level===2&&q.family===3)assert(BigInt(q.mixed.left[0])>=BigInt(q.mixed.left[1]),'Negative intermediate fraction in §27 subtraction');
+    }else if(q.mixed.kind==='choice'){
+     assert.equal(right[0].label,String(q.mixed.expected),'Wrong equal-numerator answer choice');
+    }else throw Error('Unexpected fraction comparison task '+q.mixed.kind);
    }
    if(q.id==='angles'){
     assert(q.angles&&q.angles.id===q.id,'Missing §51 arithmetic plan');
@@ -150,10 +153,10 @@ function compareOps(xs,ops){
   assert.equal(visual.coordinateChecks,40);
   const links=await page.evaluate(()=>{
    renderGrade5();
-   const ids=['frac_parts','frac_ray','mixed_compare','angle_types','angles'];
+   const ids=['frac_parts','frac_ray','frac_compare_den','frac_compare_num','mixed_compare','angle_types','angles'];
    return ids.map(id=>({id,found:[...document.querySelectorAll('#mk-g5-textbook-nav .mk-g5-toc-link')].filter(x=>x.dataset.topicId===id).length}));
   });
   for(const v of links)assert.equal(v.found,1,'Broken textbook link '+v.id);
-  console.log('G5_STAGE41_REAL_BROWSER_PASS '+JSON.stringify({topics:ids.length,questions:samples.rows.length,families:75,visual,links:links.length}));
+  console.log('G5_STAGE41_REAL_BROWSER_PASS '+JSON.stringify({topics:ids.length,questions:samples.rows.length,families:105,visual,links:links.length}));
  }finally{await browser.close();}
 })().catch(e=>{console.error('G5_STAGE41_REAL_BROWSER_FAIL',e.stack||e);process.exit(1)});
