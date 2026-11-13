@@ -1,22 +1,53 @@
-name: Grade 5 audit - 74 real learner topic families v132
+name: Grade 5 v132 real 74-topic quality and PWA gate
 on:
   push:
     branches: [audit/g5-real-74-depth-v132-20261113]
     paths:
+      - g5-arithmetic-tiers-v123.js
+      - g5-decimal-tiers-v127.js
+      - g5-decimal-percent-v128.js
+      - g5-fraction-concepts-v129.js
+      - audits/g5_v132_activate.py
       - audits/g5_v132_74_real_cognitive_inventory.cjs
       - .github/workflows/g5-v132-inventory.yml
   workflow_dispatch:
 permissions:
-  contents: read
+  contents: write
 jobs:
-  inventory:
+  grade-five-full-curriculum:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     container:
       image: mcr.microsoft.com/playwright:v1.56.1-noble
     steps:
       - uses: actions/checkout@v4
+      - name: Refresh PWA v132
+        run: python3 audits/g5_v132_activate.py
+      - name: Validate source and cache fingerprint
+        run: |
+          node --check audits/g5_v132_74_real_cognitive_inventory.cjs
+          node --check g5-arithmetic-tiers-v123.js
+          node --check g5-decimal-tiers-v127.js
+          node --check g5-decimal-percent-v128.js
+          node --check g5-fraction-concepts-v129.js
+          python3 audits/g7_stage12_sync_pwa.py --check
       - name: Install pinned Playwright
         run: npm install --no-save --no-package-lock playwright@1.56.1
-      - name: Inventory 74 learner-facing topic families and stage difficulty
+      - name: Verify all 74 real student-facing topic families and increasing difficulty
         run: node audits/g5_v132_74_real_cognitive_inventory.cjs
+      - name: Preserve mixed-number input and conversion regressions
+        run: |
+          node audits/g5_conversion_diversity_smoke.cjs
+          node audits/g5_conversion_ux_smoke.cjs
+      - name: Commit verified service-worker cache invalidation
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add sw.js
+          if ! git diff --cached --quiet; then
+            git commit -m "build(g5): refresh content assets and offline cache v132"
+            git fetch origin audit/g5-real-74-depth-v132-20261113
+            git rebase origin/audit/g5-real-74-depth-v132-20261113
+            git push origin HEAD:audit/g5-real-74-depth-v132-20261113
+          fi
