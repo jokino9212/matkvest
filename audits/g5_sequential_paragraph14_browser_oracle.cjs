@@ -109,7 +109,7 @@ function verifyExplanations(row){
   },{topic:ID,repeats:REPEATS});
   assert.equal(out.topics,74,'Keep all 74 existing Grade 5 topics');
   assert.equal(out.links,1,'Missing or duplicated §14 direct textbook link');
-  assert(out.lesson.includes('0 ≤ r < b')&&out.lesson.includes('делитель · неполное частное + остаток')&&out.lesson.includes('последнюю неполную коробку'),'Student theory must explain arithmetic invariant and full-versus-required boxes');
+  assert(out.lesson.includes('0 ≤ r < b')&&out.lesson.includes('делитель · неполное частное + остаток')&&/неполную последнюю коробку|последнюю неполную коробку/.test(out.lesson),'Student theory must explain arithmetic invariant and full-versus-required boxes');
   assert.equal(out.rows.length,600,'Must generate 3 × 5 × 40 real questions');
   const templates=new Map(),variety=new Map(),steps=[[],[],[]],coverage={zeroRemainders:0,quotientVersusRequiredBoxes:0,largestRemainder:0,smallestPositiveAddition:0,twoBatchMerges:0,secondPacking:0,realNumericProofs:0};
   for(const row of out.rows){
