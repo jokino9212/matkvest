@@ -89,18 +89,33 @@ function calc(p,t){
  if(p===3){const A=(a+b)*c,B=a*c+b*d;return number('Найди разницу результатов двух вычислений: ('+a+' + '+b+') · '+c+' и '+a+' · '+c+' + '+b+' · '+d+'.',Math.abs(A-B),'Результаты '+A+' и '+B+'. Разность '+Math.abs(A-B)+'.','calc_compare_formulas',4,[A,B]);}
  const total=a+b*c;return number('Для '+c+' одинаковых групп купили по '+b+' тетрадей, а отдельно ещё '+a+' тетрадей. Затем '+d+' тетрадей отдали. Сколько осталось?',total-d,'Всего '+c+' · '+b+' + '+a+' = '+total+'. После передачи осталось '+(total-d)+'.','calc_multistep_story',3,[total,a+b+c]);
 }
+function g5AngleSketch(degrees){
+ const rad=degrees*Math.PI/180,cx=210,cy=177,r=115,ar=46;
+ const endX=(cx+r*Math.cos(rad)).toFixed(2),endY=(cy-r*Math.sin(rad)).toFixed(2);
+ const arcX=(cx+ar*Math.cos(rad)).toFixed(2),arcY=(cy-ar*Math.sin(rad)).toFixed(2);
+ const labelX=(cx+73*Math.cos(rad/2)).toFixed(2),labelY=(cy-73*Math.sin(rad/2)-6).toFixed(2);
+ return '<div style="width:100%;max-width:450px;overflow:hidden;margin:6px auto"><svg role="img" aria-label="Чертёж угла '+degrees+' градусов" viewBox="0 0 420 225" width="100%" style="height:auto"><line x1="'+cx+'" y1="'+cy+'" x2="345" y2="'+cy+'" stroke="#35629b" stroke-width="3"/><line x1="'+cx+'" y1="'+cy+'" x2="'+endX+'" y2="'+endY+'" stroke="#35629b" stroke-width="3"/><path d="M '+(cx+ar)+' '+cy+' A '+ar+' '+ar+' 0 0 0 '+arcX+' '+arcY+'" fill="none" stroke="#e07d37" stroke-width="3"/><circle cx="'+cx+'" cy="'+cy+'" r="4" fill="#35629b"/><text x="'+labelX+'" y="'+labelY+'" text-anchor="middle" font-size="21" fill="currentColor">'+degrees+'°</text></svg></div>';
+}
+function g5RightTriangleSketch(){
+ return '<div style="max-width:450px;width:100%;overflow:hidden;margin:6px auto"><svg role="img" aria-label="Чертёжный треугольник с обозначением прямого угла" viewBox="0 0 420 225" width="100%" style="height:auto"><path d="M 105 178 L 105 34 L 320 178 Z" fill="#d4e9fb" stroke="#35629b" stroke-width="3"/><path d="M 105 157 L 126 157 L 126 178" fill="none" stroke="#d97735" stroke-width="3"/><circle cx="105" cy="178" r="3" fill="#35629b"/></svg></div>';
+}
+function g5RightSplitSketch(degrees){
+ const theta=degrees*Math.PI/180,cx=165,cy=175;
+ const x=(cx+120*Math.cos(theta)).toFixed(2),y=(cy-120*Math.sin(theta)).toFixed(2);
+ return '<div style="max-width:420px;width:100%;overflow:hidden;margin:6px auto"><svg role="img" aria-label="Прямой угол разделён на '+degrees+' градусов и неизвестный угол x" viewBox="0 0 420 220" width="100%" style="height:auto"><path d="M '+cx+' 40 L '+cx+' '+cy+' L 315 '+cy+'" fill="none" stroke="#35629b" stroke-width="3"/><line x1="'+cx+'" y1="'+cy+'" x2="'+x+'" y2="'+y+'" stroke="#de7e35" stroke-width="3"/><path d="M '+cx+' 157 L 183 157 L 183 '+cy+'" fill="none" stroke="#35629b" stroke-width="2"/><text x="255" y="134" font-size="19" fill="currentColor">'+degrees+'°</text><text x="180" y="76" font-size="22" fill="currentColor">x°</text></svg></div>';
+}
 function angles(p,t){
  const a=ri5(20,67),b=ri5(15,45),c=ri5(12,36);
  if(t===0){
-  if(p===0)return choice('Как называется угол '+a+'°?','Острый',['Прямой','Тупой','Развёрнутый'],'Угол '+a+'° меньше 90°. Он острый.','angle_classify_acute');
-  if(p===1)return choice('Как называется угол '+(a+90)+'°?','Тупой',['Острый','Прямой','Развёрнутый'],'Между 90° и 180° — тупой угол.','angle_classify_obtuse');
+  if(p===0)return choice('Как называется изображённый угол?'+g5AngleSketch(a),'Острый',['Прямой','Тупой','Развёрнутый'],'Угол '+a+'° меньше 90°. Он острый.','angle_classify_acute');
+  if(p===1)return choice('Как называется изображённый угол?'+g5AngleSketch(a+90),'Тупой',['Острый','Прямой','Развёрнутый'],'Между 90° и 180° — тупой угол.','angle_classify_obtuse');
   if(p===2)return number('Сколько градусов не хватает углу '+a+'° до прямого?',90-a,'Прямой угол равен 90°, значит 90 − '+a+' = '+(90-a)+'°.','angle_right_gap',1,[a,180-a]);
   if(p===3)return number('Сколько градусов не хватает углу '+(a+90)+'° до развёрнутого?',90-a,'Развёрнутый угол 180°; 180 − '+(a+90)+' = '+(90-a)+'°.','angle_straight_gap',1,[a,180-a]);
-  return choice('Какой угол можно построить чертёжным треугольником без транспортира?','Прямой',['Развёрнутый','Тупой','Полный'],'У чертёжного треугольника есть прямой угол 90°.','angle_square');
+  return choice('Какой угол отмечен на чертёжном треугольнике?'+g5RightTriangleSketch(),'Прямой',['Развёрнутый','Тупой','Полный'],'У чертёжного треугольника есть прямой угол 90°.','angle_square');
  }
  if(t===1){
   if(p===0)return number('Угол составили из двух частей '+a+'° и '+b+'°, затем увеличили на '+c+'°. Чему равен новый угол?',a+b+c,'Сначала '+a+' + '+b+' = '+(a+b)+'°, затем '+(a+b)+' + '+c+' = '+(a+b+c)+'°.','angle_sum_parts',2,[a+b,a+c]);
-  if(p===1)return number('Прямой угол 90° разделили на углы '+a+'° и x°. Найди x и прибавь к нему '+c+'°.',90-a+c,'Недостающая часть 90 − '+a+' = '+(90-a)+'°. Затем прибавим '+c+'° и получим '+(90-a+c)+'°.','angle_missing_right',2,[a,90-a]);
+  if(p===1)return number('Прямой угол на рисунке разделили на '+a+'° и x°. Найди x и прибавь к нему '+c+'°.'+g5RightSplitSketch(a),90-a+c,'Недостающая часть 90 − '+a+' = '+(90-a)+'°. Затем прибавим '+c+'° и получим '+(90-a+c)+'°.','angle_missing_right',2,[a,90-a]);
   if(p===2)return number('Угол '+(a+b)+'° разделили на две части. Первая '+a+'°. На сколько градусов вторая часть отличается от первой?',Math.abs(b-a),'Вторая часть '+b+'°. Разность между частями '+Math.abs(a-b)+'°.','angle_compare_parts',3,[a,b,a+b]);
   if(p===3)return number('Смежные углы дают 180°. Один из них '+(a+90)+'°. Второй увеличили на '+c+'°. Чему равен новый угол?',90-a+c,'Второй угол равен 180 − '+(a+90)+' = '+(90-a)+'°. После увеличения на '+c+'° получаем '+(90-a+c)+'°.','angle_adjacent',2,[a,180-a]);
   return number('Вокруг точки четыре угла: '+a+'°, '+b+'°, '+c+'° и x°. Найди x.',360-a-b-c,'Вокруг точки 360°. Оставшийся угол 360 − '+a+' − '+b+' − '+c+' = '+(360-a-b-c)+'°.','angle_around_point',3,[a+b+c,180-a-b]);
