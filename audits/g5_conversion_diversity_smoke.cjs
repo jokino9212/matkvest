@@ -62,12 +62,15 @@ const {chromium}=require('playwright');
           throw Error('Repeated visible task in this stage '+topic+' '+stage);
         if(levels[levels.length-1]<levels[0])
           throw Error('Difficulty decreases in stage '+stage+' '+topic+': '+levels.join(','));
-        if(stage===2&&(!families.includes('plus_two_wholes')&&topic==='frac_to_mixed'||
-           !families.includes('plus_whole_and_fraction')&&topic==='mixed_to_frac'))
+        if(stage===2&&(!families.includes('master_plus_four_minus_one')&&topic==='frac_to_mixed'||
+           !families.includes('master_plus_whole_and_two_parts')&&topic==='mixed_to_frac'))
           throw Error('Master lacks multi-step challenge for '+topic);
         stageReports.push({stage,questions:questions.length,families:[...new Set(families)],
           levels,kinds});
       }
+      const tierFamilies=stageReports.flatMap(x=>x.families);
+      if(new Set(tierFamilies).size!==15)
+        throw Error('Conversion exercise families repeat between difficulty tiers '+topic+': '+tierFamilies.join(','));
       byTopic[topic]=stageReports;
     }
     // Existing reported examples must continue to work exactly, including unsimplified denominator.
