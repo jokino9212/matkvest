@@ -88,6 +88,8 @@ function conversionQuestion(base,topic,given){
      explanation=product+' Прибавляем '+plus+' долей: '+originalN+' + '+plus+' = '+answerN+'. Знаменатель '+den+'.';
    }
  }
+ const divisionText=originalN+' = '+whole+' · '+den+' + '+rem+'.';
+ const productText=whole+' · '+den+' + '+rem+' = '+originalN+'.';
  if(master){
    // The Master tier has new multi-step cognitive tasks rather than repeating the
    // warmup five or relying on session.done >= 5 for progression.
@@ -96,12 +98,12 @@ function conversionQuestion(base,topic,given){
        family='master_add_two_sub_one';
        question='К дроби '+shown+' прибавили 2 целых, затем вычли 1 целую. Запиши результат смешанным числом.';
        kind='mixed';answerN=originalN+den;
-       explanation=division+' Сначала прибавляем 2 · '+den+' долей, затем вычитаем '+den+'. Остаётся '+(whole+1)+' целых и '+rem+'/'+den+'.';
+       explanation=divisionText+' Сначала прибавляем 2 · '+den+' долей, затем вычитаем '+den+'. Остаётся '+(whole+1)+' целых и '+rem+'/'+den+'.';
      }else if(familyIndex===1){
        family='master_whole_after_two_changes';
        question='К дроби '+shown+' прибавили 3 целых, затем вычли 1 целую. Сколько целых частей получилось? Введи только число.';
        kind='number';answerN=whole+2;label='Количество целых';
-       explanation=division+' Целых станет '+whole+' + 3 − 1 = '+answerN+'.';
+       explanation=divisionText+' Целых станет '+whole+' + 3 − 1 = '+answerN+'.';
      }else if(familyIndex===2){
        family='master_remainder_after_numerator_changes';
        question='Числитель дроби '+shown+' увеличили на '+(den+2)+', затем уменьшили на 1. Какой остаток получится при делении нового числителя на '+den+'?';
@@ -116,7 +118,7 @@ function conversionQuestion(base,topic,given){
        family='master_plus_four_minus_one';
        question='К неправильной дроби '+shown+' прибавили 4 целых, а затем вычли 1 целую. Запиши результат смешанным числом.';
        kind='mixed';answerN=originalN+3*den;
-       explanation=division+' Изменение составляет 4 − 1 = 3 целых. Новая целая часть '+(whole+3)+'.';
+       explanation=divisionText+' Изменение составляет 4 − 1 = 3 целых. Новая целая часть '+(whole+3)+'.';
      }
    }else{
      if(familyIndex===0){
