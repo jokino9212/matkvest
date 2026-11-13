@@ -55,7 +55,7 @@ function choose(id,t,p,text,choice,wrong,ex,meta){
 }
 function relation(x,y){return x>y?'>':x<y?'<':'='}
 function denCompare(t,p){
- const id='frac_compare_den',d=pickD(),a=rnd(1,d-3),b=rnd(a+1,d-1),c=rnd(1,3),e=rnd(1,Math.min(3,b));
+ const id='frac_compare_den',d=pickD(),a=rnd(1,d-3),b=rnd(a+1,d-1),c=rnd(1,Math.min(3,b)),e=rnd(1,Math.min(3,b));
  if(t===0){
   if(p===0)return compare(id,t,p,'Сравни '+F(a,d)+' и '+F(b,d)+'.',d,[a],[],[b],[],'Знаменатели одинаковые, сравни числители '+a+' и '+b+'.');
   if(p===1)return question(id,t,p,'numeric','Какой числитель у большей дроби: '+F(a,d)+' или '+F(b,d)+'?',1,[b],[],'Большая дробь имеет больший числитель '+b+'.');
