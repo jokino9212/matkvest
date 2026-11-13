@@ -76,7 +76,7 @@ function expectTable(q){
   assert.equal(output.count,74,'74-topic catalog must remain unchanged');
   assert.equal(output.questions.length,900,'Expected 3×3×5×20 real questions');
   assert(output.links.every(x=>x.number===1),'Textbook links missing or duplicated '+JSON.stringify(output.links));
-  const families=new Map(),difficulty=new Map(),pictures={segment:0,polyline:0,triangle:0},zeroDigit=0,tableChecks=0;
+  const families=new Map(),difficulty=new Map(),pictures={segment:0,polyline:0,triangle:0};let zeroDigit=0,tableChecks=0;
   for(const q of output.questions){
    const k=q.id+' '+q.level+' '+q.family+' '+q.trial;
    assert.equal(q.choices.filter(x=>x.key===q.ans).length,1,'Correct choice missing '+k);
