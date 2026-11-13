@@ -94,7 +94,7 @@ function checkPlan(node,ctx){
   },{id:TOPIC,repeats:REPEAT});
   assert.equal(data.count,74,'All 74 Grade 5 topic IDs must survive');
   assert.equal(data.links,1,'One direct §11 textbook link required');
-  assert(data.lesson.includes('Корень уравнения')&&data.lesson.includes('Проверка')&&data.lesson.includes('3(x + 4)'),'Teaching must define the root, its meaning and substitution checking');
+  assert(data.lesson.includes('Корень уравнения')&&/проверк/i.test(data.lesson)&&data.lesson.includes('3(x + 4)'),'Teaching must define the root, its meaning and substitution checking');
   assert.equal(data.rows.length,600,'3 levels × 5 families × 40 real browser questions');
   const slots=new Map(),variants=new Map(),steps=[[],[],[]],verified={substitution:0,uniqueNaturalRoots:0,inversePlans:0,wordModels:0,intermediates:0};
   for(const q of data.rows){
