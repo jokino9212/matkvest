@@ -1,0 +1,48 @@
+name: Grade 5 eight subject-specific multistep topics v123
+on:
+  push:
+    branches: [fix/g5-arithmetic-tiers-v123-20261113]
+    paths:
+      - g5-arithmetic-tiers-v123.js
+      - audits/g5_v123_patch.py
+      - audits/g5_v123_arithmetic_oracle_browser.cjs
+      - .github/workflows/g5-v123-core-tiers.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  core-tier-release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - name: Activate Grade 5 new cognitive families and PWA v123
+        run: python3 audits/g5_v123_patch.py
+      - name: Validate files
+        run: |
+          node --check g5-arithmetic-tiers-v123.js
+          node --check audits/g5_v123_arithmetic_oracle_browser.cjs
+          python3 -m py_compile audits/g5_v123_patch.py
+      - name: Install pinned Playwright
+        run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Check real quiz questions, independent arithmetic oracle, 4 screens
+        run: node audits/g5_v123_arithmetic_oracle_browser.cjs
+      - name: Check previous quiz generator and conversion regressions
+        run: |
+          sed 's/matkvest-iphone-v122/matkvest-iphone-v123/g' audits/g5_v122_live_stage_browser.cjs > audits/g5_v123_v122_runtime.cjs
+          node audits/g5_conversion_diversity_smoke.cjs
+          node audits/g5_conversion_ux_smoke.cjs
+      - name: Commit activated HTML and PWA after quality gates
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js
+          if ! git diff --cached --quiet; then
+            git commit -m "build(g5): activate more real multistep practice in v123"
+            git fetch origin fix/g5-arithmetic-tiers-v123-20261113
+            git rebase origin/fix/g5-arithmetic-tiers-v123-20261113
+            git push origin HEAD:fix/g5-arithmetic-tiers-v123-20261113
+          fi
