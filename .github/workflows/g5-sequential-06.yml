@@ -4,7 +4,7 @@ on:
     branches:
       - audit/g5-sequential-paragraph06-comparison-20261113
     paths:
-      - 'g5-textbook-v112.js'
+      - 'g5-pedagogy-v113.js'
       - 'audits/g5_sequential_paragraph06_browser_oracle.cjs'
       - '.github/workflows/g5-sequential-06.yml'
       - 'sw.js'
@@ -12,7 +12,7 @@ on:
     branches:
       - main
     paths:
-      - 'g5-textbook-v112.js'
+      - 'g5-pedagogy-v113.js'
       - 'audits/g5_sequential_paragraph06_browser_oracle.cjs'
 jobs:
   grade5-sequential-06:
@@ -24,7 +24,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Check reviewed source and oracle syntax
         run: |
-          node --check g5-textbook-v112.js
+          node --check g5-pedagogy-v113.js
           node --check audits/g5_sequential_paragraph06_browser_oracle.cjs
       - name: Install browser runtime
         run: npm install --no-save --no-package-lock playwright@1.56.1
