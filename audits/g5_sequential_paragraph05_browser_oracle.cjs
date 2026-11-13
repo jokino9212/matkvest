@@ -19,7 +19,7 @@ function expectedByQuestion(q){
   if(f===0)return n('A'); // Read the ACTUAL visible x-location on an independently graduated axis.
   if(f===1){const [a,b]=capture(s,/A\((\d+)\).*B\((\d+)\)/,'0/1');assert.equal(n('A'),a);assert.equal(n('B'),b);return b-a;}
   if(f===2){const [a,c]=capture(s,/A\((\d+)\).*прошли (\d+) единичных делений вправо/,'0/2');assert.equal(n('A'),a);assert.equal(n('B'),a+c);return a+c;}
-  if(f===3){const [c,b]=capture(s,/C\((\d+)\).*прошли (\d+) делений влево/,'0/3');assert.equal(n('C'),c);assert.equal(n('D'),c-b);return c-b;}
+  if(f===3){const [max]=capture(s,/между 0 и отметкой (\d+) находятся четыре равных деления/,'0/3');assert.equal(max%4,0);return max/4;}
   if(f===4){const [a,b]=capture(s,/A\((\d+)\), B\((\d+)\)/,'0/4');assert.equal(n('A'),a);assert.equal(n('B'),b);assert.equal(n('M')*2,a+b);return (a+b)/2;}
  }
  if(t===1){
@@ -47,13 +47,31 @@ function expectedByQuestion(q){
   await page.goto('file://'+path.resolve('index.html'),{waitUntil:'domcontentloaded'});
   const result=await page.evaluate(({id,repeats})=>{
    let seed=2026111305;Math.random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296};
-   const rows=[],details={ticks:0,pointChecks:0,axisChecks:0,hiddenChecks:0,fragments:0,zeroOrigin:0};
+   const rows=[],details={ticks:0,pointChecks:0,axisChecks:0,hiddenChecks:0,fragments:0,zeroOrigin:0,instrumentChecks:0};
    const requireVisual=(cond,message)=>{if(!cond)throw Error('§5 visual geometry: '+message)};
    for(let level=0;level<3;level++)for(let family=0;family<5;family++)for(let trial=0;trial<repeats;trial++){
     qid='g5:'+id;blockSession={kind:'g5quiz',key:qid,stageIndex:level,done:family,total:10,usedSignatures:[],items:[],finished:false};
     const q=makeG5Question(id),root=document.createElement('div');root.innerHTML=String(q.text);
     const question=root.childNodes[0]?.textContent||'';
-    const svg=root.querySelector('.mk-g5-coordinate-diagram svg'),key=level+'/'+family+'/'+trial;
+    const svg=root.querySelector('.mk-g5-coordinate-diagram svg'),instrument=root.querySelector('.mk-g5-instrument-scale svg'),key=level+'/'+family+'/'+trial;
+    if(instrument){
+     requireVisual(level===0&&family===3,'Instrument scale must belong to the §5 scale-reading warmup '+key);
+     requireVisual(instrument.getAttribute('role')==='img'&&instrument.getAttribute('width')==='100%'&&instrument.getAttribute('viewBox'),'Instrument scale must be mobile responsive '+key);
+     requireVisual(!instrument.querySelector('.mk-g5-coord-axis'),'Instrument scale should not be presented as an infinite ray '+key);
+     const marks=[...instrument.querySelectorAll('.mk-g5-instrument-tick')];
+     requireVisual(marks.length===7,'Instrument must display exactly seven graduated marks '+key);
+     const xs=marks.map(mark=>Number(mark.getAttribute('x1')));
+     requireVisual(xs.every((x,i)=>i===0||Math.abs(x-xs[0]-(xs.at(-1)-xs[0])*i/6)<.02),'Instrument tick marks not evenly spaced '+key);
+     const numbers=[...instrument.querySelectorAll('.mk-g5-instrument-label')].map(el=>Number(el.textContent));
+     const max=Number((question.match(/между 0 и отметкой (\d+)/)||[])[1]);
+     requireVisual(numbers.length===2&&numbers[0]===0&&numbers[1]===max,'Visual mark values differ from written question '+key);
+     requireVisual(!numbers.includes(max/4),'Instrument answer leaked into marked graduation '+key);
+     requireVisual(Number(marks[4].getAttribute('data-step'))===4,'Known graduation not four intervals from zero '+key);
+     details.instrumentChecks++;
+     rows.push({level,family,trial,question,ans:String(q.ans),choices:q.choices.map(e=>({label:String(e.label),key:String(e.key)})),
+      template:q.templateId,meta:q.mk125,points:{},questionHtml:String(q.text),ex:String(q.ex)});
+     continue;
+    }
     requireVisual(svg?.getAttribute('role')==='img'&&svg.getAttribute('width')==='100%'&&svg.getAttribute('viewBox'),'Missing responsive accessible coordinate ray '+key);
     requireVisual(svg.querySelector('.mk-g5-coord-axis')&&svg.querySelector('polygon'),'Missing coordinate ray with direction arrow '+key);
     requireVisual(svg.getAttribute('aria-label').includes('деления через одну единицу'),'No unit scale declaration '+key);
@@ -87,7 +105,7 @@ function expectedByQuestion(q){
      }
     }
     const hidden=level===0
-      ?(family===0?'A':family===2?'B':family===3?'D':family===4?'M':null)
+      ?(family===0?'A':family===2?'B':family===4?'M':null)
       :level===1
        ?(family===0?'K':family===1?'M':family===2?'A':family===3?'K':null)
        :[null,'B','K',null,null][family];
@@ -128,8 +146,9 @@ function expectedByQuestion(q){
   for(const [slot,set]of variety)assert(set.size>=5,'Numerical and geometric variety too low '+slot+': '+set.size);
   const avg=complexity.map(a=>a.reduce((x,y)=>x+y,0)/a.length);
   assert(avg[0]<avg[1]&&avg[1]<avg[2],'Unrealistic difficulty progression '+avg);
-  assert.equal(result.details.axisChecks,600);
-  assert.equal(result.details.hiddenChecks,400,'Some secret coordinates are not protected'); // 4+4+2 hidden families × 40 = 400
+  assert.equal(result.details.axisChecks,560,'Every coordinate-ray family must have an honest graduated axis');
+  assert.equal(result.details.instrumentChecks,40,'Missing independent price-of-one-division questions');
+  assert.equal(result.details.hiddenChecks,360,'Some secret coordinates are not protected'); // 3+4+2 hidden families × 40 = 360
   assert(result.details.fragments>0&&result.details.zeroOrigin>0,'Must teach both original ray and fragment');
   assert.deepEqual(errors,[],'Uncaught browser runtime error');
   console.log('G5_SEQUENTIAL_PARAGRAPH_05_PASS '+JSON.stringify({paragraph:5,topics:1,questions:result.rows.length,families:slots.size,meanSteps:avg,geometry:result.details,links:result.links}));
