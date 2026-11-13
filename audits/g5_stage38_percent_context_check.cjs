@@ -22,4 +22,7 @@ for(const required of [
 ])assert(fractions.includes(required),'Missing fraction pedagogy improvement: '+required);
 assert(!fractions.includes('На какой общий множитель гарантированно делятся'),'Ambiguous divisor question remains');
 assert(!fractions.includes('Вычтем оба общих множителя'),'Incorrect reduction explanation remains');
-console.log('Stage 38-39 methodological context regressions: PASS (10 families and wording changes)');
+const remaining=fs.readFileSync('g5-remaining-core-v126.js','utf8');
+assert(remaining.includes('У трёх одинаковых фигур закраска такая же, как на рисунке.'),'Missing meaningful three-figure grid task');
+assert(!remaining.includes('Сколько разность между половиной фигуры'),'Original confusing task remains');
+console.log('Stage 38-39 methodological context regressions: PASS (fraction and geometry improvements)');
