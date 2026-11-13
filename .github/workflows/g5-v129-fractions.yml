@@ -1,0 +1,48 @@
+name: Grade 5 five fraction math topics actual learner levels v129
+on:
+  push:
+    branches: [fix/g5-fractions-stage-v129-20261113]
+    paths:
+      - g5-fraction-progress-v129.js
+      - g5-decimal-percent-v128.js
+      - audits/g5_v129_activate.py
+      - audits/g5_v129_real_fraction_oracle_browser.cjs
+      - .github/workflows/g5-v129-fractions.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  learner-fractions:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - name: Wire five subjects into quiz + PWA v129
+        run: python3 audits/g5_v129_activate.py
+      - name: JavaScript syntax
+        run: |
+          node --check g5-fraction-progress-v129.js
+          node --check g5-decimal-percent-v128.js
+          node --check audits/g5_v129_real_fraction_oracle_browser.cjs
+      - name: Install browser testing library
+        run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Verify 75 real fraction families and independent rational answers
+        run: node audits/g5_v129_real_fraction_oracle_browser.cjs
+      - name: Preserve mixed-number input
+        run: |
+          node audits/g5_conversion_diversity_smoke.cjs
+          node audits/g5_conversion_ux_smoke.cjs
+      - name: Commit approved HTML and service worker
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js
+          if ! git diff --cached --quiet; then
+            git commit -m "build(g5): wire 75 ordinary fraction problem types v129"
+            git fetch origin fix/g5-fractions-stage-v129-20261113
+            git rebase origin/fix/g5-fractions-stage-v129-20261113
+            git push origin HEAD:fix/g5-fractions-stage-v129-20261113
+          fi
