@@ -39,6 +39,73 @@ function showPoly(coef){
  });
  return parts.join('')||'0';
 }
+
+function g4Figure(art,alt,height=170){
+ return '<div class="mk-g4-figure" style="width:100%;max-width:560px;overflow:hidden;margin:8px auto"><svg role="img" aria-label="'+alt+'" viewBox="0 0 520 '+height+'" width="100%" style="height:auto;display:block">'+art+'</svg></div>';
+}
+function g4LineArt(){
+ return '<line x1="55" y1="74" x2="465" y2="74" stroke="#37689b" stroke-width="3"/><path d="M55 74 l13 -7 v14 Z M465 74 l-13 -7 v14 Z" fill="#37689b"/>';
+}
+function g4ChoicePicture(order){
+ const pieces={
+  line:'<line x1="17" y1="58" x2="113" y2="58" stroke="#37689b" stroke-width="3"/><path d="M17 58 l10 -6 v12 Z M113 58 l-10 -6 v12 Z" fill="#37689b"/>',
+  ray:'<line x1="29" y1="58" x2="113" y2="58" stroke="#37689b" stroke-width="3"/><circle cx="29" cy="58" r="4" fill="#37689b"/><path d="M113 58 l-10 -6 v12 Z" fill="#37689b"/>',
+  segment:'<line x1="25" y1="58" x2="105" y2="58" stroke="#37689b" stroke-width="3"/><circle cx="25" cy="58" r="4" fill="#37689b"/><circle cx="105" cy="58" r="4" fill="#37689b"/>',
+  angle:'<line x1="33" y1="82" x2="107" y2="82" stroke="#37689b" stroke-width="3"/><line x1="33" y1="82" x2="78" y2="13" stroke="#37689b" stroke-width="3"/><circle cx="33" cy="82" r="4" fill="#37689b"/><path d="M107 82 l-10 -6 v12 Z M78 13 l-10 8 l10 5 Z" fill="#37689b"/>'
+ };
+ const nodes=order.map((kind,i)=>'<g transform="translate('+(i*130)+',0)" data-kind="'+kind+'">'+pieces[kind]+'<text x="65" y="123" font-size="22" text-anchor="middle" font-weight="700" fill="currentColor">'+(i+1)+'</text></g>').join('');
+ return g4Figure(nodes,'Фигуры под номерами 1, 2, 3, 4: прямая, луч, отрезок и угол в разном порядке',145);
+}
+function g4RaySketch(){
+ return g4Figure('<line x1="100" y1="85" x2="432" y2="85" stroke="#37689b" stroke-width="3"/><circle cx="100" cy="85" r="5" fill="#37689b"/><path d="M432 85 l-13 -7 v14 Z" fill="#37689b"/><text x="100" y="116" text-anchor="middle" fill="currentColor" font-size="20">O</text><text x="312" y="68" text-anchor="middle" fill="currentColor" font-size="20">A</text>','Луч OA с началом O');
+}
+function g4SplitSegment(a,b,hide=false){
+ const left=45,right=475,x=left+(right-left)*a/(a+b);
+ return g4Figure('<line x1="'+left+'" y1="83" x2="'+right+'" y2="83" stroke="#37689b" stroke-width="3"/>'+[left,x,right].map(v=>'<circle cx="'+v.toFixed(2)+'" cy="83" r="5" fill="#37689b"/>').join('')+'<text x="'+left+'" y="116" font-size="20" text-anchor="middle" fill="currentColor">A</text><text x="'+x.toFixed(2)+'" y="116" font-size="20" text-anchor="middle" fill="currentColor">C</text><text x="'+right+'" y="116" font-size="20" text-anchor="middle" fill="currentColor">B</text><text x="'+((left+x)/2).toFixed(2)+'" y="60" font-size="17" text-anchor="middle" fill="currentColor">'+a+' см</text><text x="'+((right+x)/2).toFixed(2)+'" y="60" font-size="17" text-anchor="middle" fill="currentColor">'+(hide?'?':b+' см')+'</text>',
+ 'Отрезок AB, C между A и B; AC равно '+a+' см, CB '+(hide?'неизвестно':b+' см'));
+}
+function g4MarkedLine(n){
+ const points=Array.from({length:n},(_,i)=>65+i*390/(n-1));
+ const dots=points.map((v,i)=>'<circle cx="'+v.toFixed(2)+'" cy="74" r="5" fill="#37689b"/><text x="'+v.toFixed(2)+'" y="108" font-size="18" text-anchor="middle" fill="currentColor">'+String.fromCharCode(65+i)+'</text>').join('');
+ return g4Figure(g4LineArt()+dots,'Прямая с '+n+' различными отмеченными точками A, B и далее по алфавиту');
+}
+function g4FanRays(n){
+ const cx=255,cy=210,r=147,span=142;
+ const rays=Array.from({length:n},(_,i)=>{
+  const angle=(19+i*span/(n-1))*Math.PI/180,dx=Math.cos(angle),dy=Math.sin(angle),x=(cx+r*dx).toFixed(2),y=(cy-r*dy).toFixed(2);
+  const arrowX=(cx+(r-14)*dx).toFixed(2),arrowY=(cy-(r-14)*dy).toFixed(2);
+  return '<line x1="'+cx+'" y1="'+cy+'" x2="'+x+'" y2="'+y+'" stroke="#37689b" stroke-width="3"/><circle cx="'+arrowX+'" cy="'+arrowY+'" r="3" fill="#37689b"/><text x="'+x+'" y="'+y+'" font-size="19" fill="currentColor" text-anchor="middle" dy="-8">'+String.fromCharCode(65+i)+'</text>';
+ }).join('');
+ return g4Figure(rays+'<circle cx="'+cx+'" cy="'+cy+'" r="5" fill="#37689b"/><text x="'+(cx+14)+'" y="'+(cy+24)+'" fill="currentColor" font-size="20">O</text>',
+ 'Из точки O выходят '+n+' различных лучей, изображённых в одной полуплоскости',245);
+}
+function g4AngleSketch(){
+ return g4FanRays(2);
+}
+function g4Crossing(a=0,b=0,c=0,d=0){
+ const cx=260,cy=122;
+ const values=[a,b,c,d].every(x=>x>0)?[a,b,c,d]:[1,1,1,1],unit=Math.min(150/Math.max(...values),55);
+ const labels=[
+  {name:'A',length:values[0],vx:-.87,vy:-.49},{name:'B',length:values[1],vx:.87,vy:.49},
+  {name:'C',length:values[2],vx:.87,vy:-.49},{name:'D',length:values[3],vx:-.87,vy:.49}
+ ];
+ let rays='';
+ for(const o of labels){
+  const x=(cx+o.length*unit*o.vx).toFixed(2),y=(cy+o.length*unit*o.vy).toFixed(2);
+  rays+='<line x1="'+cx+'" y1="'+cy+'" x2="'+x+'" y2="'+y+'" stroke="#37689b" stroke-width="3"/><circle cx="'+x+'" cy="'+y+'" r="4" fill="#37689b"/><text x="'+x+'" y="'+y+'" dy="'+(o.vy>0?22:-11)+'" text-anchor="middle" font-size="19" fill="currentColor">'+o.name+'</text>';
+ }
+ rays+='<circle cx="'+cx+'" cy="'+cy+'" r="5" fill="#37689b"/><text x="'+(cx+10)+'" y="'+(cy-8)+'" font-size="19" fill="currentColor">O</text>';
+ return g4Figure(rays,'Прямые AB и CD пересекаются в точке O'+(a?' с размерами AO '+a+', OB '+b+', CO '+c+', OD '+d:'') ,245);
+}
+function g4FourPointSegments(a,b,c){
+ const x=[50,50+a*410/(a+b+c),50+(a+b)*410/(a+b+c),460];
+ const labs=['A','B','C','D'],lengths=[a,b,c];
+ let html=g4LineArt();
+ for(let i=0;i<4;i++)html+='<circle cx="'+x[i].toFixed(2)+'" cy="74" r="5" fill="#37689b"/><text x="'+x[i].toFixed(2)+'" y="108" text-anchor="middle" font-size="18" fill="currentColor">'+labs[i]+'</text>';
+ for(let i=0;i<3;i++)html+='<text x="'+((x[i]+x[i+1])/2).toFixed(2)+'" y="51" text-anchor="middle" font-size="17" fill="currentColor">'+lengths[i]+' см</text>';
+ return g4Figure(html,'Точки A, B, C, D по порядку на прямой, AB '+a+', BC '+b+', CD '+c+' сантиметров');
+}
+
 function spec(id,t,p){
  const a=rnd(4,12+4*t),b=rnd(3,10+4*t),c=rnd(2,8+3*t),e=rnd(2,6+2*t);
  const k=rnd(3,8+3*t),m=rnd(2,6+2*t),u=rnd(2,5+2*t);
@@ -115,28 +182,39 @@ function spec(id,t,p){
   ];
  }
  if(id==='plane_line_ray'){
-  const ab=a+b,bc=b+c;
+  // §4 Vilenkin: point, plane, line, segment, ray, angle, intersections.
+  // §5 coordinate-scale questions are deliberately not generated here.
+  const order=['line','ray','segment','angle'];
+  for(let i=order.length-1;i>0;i--){const j=rnd(0,i);[order[i],order[j]]=[order[j],order[i]];}
+  const pick=kind=>V(order.indexOf(kind)+1),gallery=g4ChoicePicture(order);
+  const a1=rnd(5,11+3*t),b1=rnd(4,10+3*t),c1=rnd(3,9+3*t),d1=rnd(2,8+3*t);
+  const n=t===1?rnd(4,6):rnd(5,7);
   if(t===0)cases=[
-   ['Сколько концов имеет отрезок?',V(2),'У отрезка два конца.',1],
-   ['Сколько начал имеет луч?',V(1),'Луч имеет одно начало и продолжается неограниченно в одном направлении.',1],
-   ['Сколько прямых проходит через две различные заданные точки?',V(1),'Через две различные точки проходит ровно одна прямая.',1],
-   ['Внутри отрезка AB отмечена точка C. На сколько частей она разделила отрезок?',V(2),'Получились отрезки AC и CB.',1],
-   ['У треугольника сколько сторон-отрезков?',V(3),'Граница треугольника состоит из трёх отрезков.',1]
+   ['На каком рисунке показана прямая — линия без начала и конца? '+gallery,pick('line'),'Прямая бесконечна в обе стороны. Среди рисунков выбираем линию со стрелками на обоих концах.',1],
+   ['Сколько начальных точек у луча OA? '+g4RaySketch(),V(1),'У луча есть одно начало O; другого конца у него нет.',1],
+   ['Точка C лежит внутри отрезка AB. На сколько частей она делит отрезок? '+g4SplitSegment(a1,b1),V(2),'Точка C делит отрезок AB на AC и CB.',1],
+   ['Сколько сторон-лучей образуют угол AOB? '+g4AngleSketch(),V(2),'Угол состоит из двух лучей OA и OB с общей вершиной O.',1],
+   ['На рисунке две пересекающиеся в O прямые. Сколько лучей с началом O лежит на этих прямых? '+g4Crossing(),V(4),'На каждой прямой из точки O выходят два противоположных луча: 2 + 2 = 4.',1]
   ];
-  else if(t===1)cases=[
-   ['Точка C расположена внутри отрезка AB длиной '+ab+' см. AC = '+a+' см. Найди CB.',S(V(ab),V(a)),'Из длины всего отрезка вычтем известную часть.',2],
-   ['На координатном луче точка A имеет координату '+a+', точка B — '+(a+b)+'. Найди расстояние AB.',S(V(a+b),V(a)),'Расстояние равно разности координат.',2],
-   ['На прямой отмечены четыре различные точки. Сколько разных отрезков с концами в этих точках?',D(M(V(4),V(3)),V(2)),'Каждую пару точек считаем один раз: 4 · 3 : 2.',3],
-   ['Из одной точки выходят три различные луча (нет совпадающих). Сколько углов определяется парами этих лучей?',D(M(V(3),V(2)),V(2)),'Каждая пара из трёх лучей образует угол.',3],
-   ['Две различные пересекающиеся прямые делят плоскость на сколько углов с общей вершиной?',V(4),'Две пересекающиеся прямые образуют четыре угла.',2]
-  ];
-  else cases=[
-   ['Точки A, B, C расположены на прямой, B между A и C. AB = '+ab+' см, BC = '+bc+' см. Найди AC.',A(V(ab),V(bc)),'Длина AC равна AB + BC; выполняем два сложения данных частей.',3],
-   ['На прямой отмечено пять различных точек. Сколько отрезков можно получить, выбирая две точки концами?',D(M(V(5),V(4)),V(2)),'У каждой из 5 точек можно выбрать 4 вторые, каждую пару считаем дважды.',3],
-   ['Из одной точки вышли пять различных лучей; все углы между выбранными парами считаются. Сколько пар лучей?',D(M(V(5),V(4)),V(2)),'Пары из 5 лучей: 5 · 4 : 2.',3],
-   ['На координатном луче A('+a+'), B('+(a+b)+'). Точка A сдвинулась вправо на '+c+', а B — вправо на '+e+'. Найди расстояние между новыми точками.',Abs(A(V(a),V(c)),A(V(a+b),V(e))),'Сначала новые координаты, затем модуль их разности.',4],
-   ['Точка B лежит между A и C. AB = '+ab+' см, AC = '+(ab+bc)+' см. Известно, что BD = '+Math.min(e,bc-1)+' см, D лежит между B и C. Найди DC.',S(S(V(ab+bc),V(ab)),V(Math.min(e,bc-1))),'Сначала BC = AC − AB, затем DC = BC − BD.',3]
-  ];
+  else if(t===1){
+   const rayCount=rnd(3,5);
+   cases=[
+    ['На отрезке AB точка C находится между A и B. AC = '+a1+' см, CB = '+b1+' см. Найди AB. '+g4SplitSegment(a1,b1),A(V(a1),V(b1)),'Целый отрезок состоит из AC и CB: '+a1+' + '+b1+' = '+(a1+b1)+' см.',2],
+    ['На отрезке AB длиной '+(a1+b1)+' см точка C расположена между A и B. AC = '+a1+' см. Найди CB. '+g4SplitSegment(a1,b1,true),S(V(a1+b1),V(a1)),'Из длины AB вычитаем AC: '+(a1+b1)+' − '+a1+' = '+b1+' см.',2],
+    ['На прямой отмечено '+n+' различных точек. Сколько отрезков соединяют соседние точки? '+g4MarkedLine(n),S(V(n),V(1)),'Между '+n+' последовательно отмеченными точками '+(n-1)+' промежутков.',2],
+    ['Из точки O выходят '+rayCount+' луча в одной полуплоскости. Сколько углов расположено между соседними лучами на рисунке? '+g4FanRays(rayCount),S(V(rayCount),V(1)),'Углы между соседними лучами: '+rayCount+' − 1 = '+(rayCount-1)+'.',2],
+    ['На рисунке две пересекающиеся прямые AB и CD. Сколько пар противоположных лучей с началом O образуют эти прямые? '+g4Crossing(),V(2),'Каждая из двух прямых задаёт одну пару противоположных лучей: OA и OB, OC и OD.',2]
+   ];
+  }else{
+   const rayCount=rnd(4,6),marks=rnd(5,7);
+   cases=[
+    ['Из точки O выходят '+rayCount+' лучей, расположенных в одной полуплоскости. Сколько углов с вершиной O задают все различные пары лучей? '+g4FanRays(rayCount),D(M(V(rayCount),S(V(rayCount),V(1))),V(2)),'Из '+rayCount+' лучей можно составить '+(rayCount*(rayCount-1)/2)+' пар: '+rayCount+' · '+(rayCount-1)+' : 2.',4],
+    ['На одной прямой отмечено '+marks+' различных точек. Сколько разных отрезков с концами в этих точках можно построить? '+g4MarkedLine(marks),D(M(V(marks),S(V(marks),V(1))),V(2)),'У каждой из '+marks+' точек есть '+(marks-1)+' партнёров; каждый отрезок посчитан дважды. Ответ: '+marks+' · '+(marks-1)+' : 2.',4],
+    ['На прямой отмечено '+marks+' точек. Сколько различных лучей можно задать, если начало луча должно быть в отмеченной точке и луч проходит хотя бы через одну другую отмеченную точку? '+g4MarkedLine(marks),A(M(V(2),S(V(marks),V(2))),V(2)),'Из двух крайних точек выходит по одному такому лучу; из '+(marks-2)+' внутренних точек — по два: 2 · '+(marks-2)+' + 2.',4],
+    ['Прямые AB и CD пересекаются в O; O находится между A и B и между C и D. AB = '+(a1+b1)+' см, AO = '+a1+' см, CD = '+(c1+d1)+' см, CO = '+c1+' см. Найди OB + OD. '+g4Crossing(a1,b1,c1,d1),A(S(V(a1+b1),V(a1)),S(V(c1+d1),V(c1))),'Найдём OB = AB − AO = '+b1+' см; OD = CD − CO = '+d1+' см. Сумма '+(b1+d1)+' см.',4],
+    ['На прямой точки A, B, C, D расположены по порядку. AB = '+a1+' см, BC = '+b1+' см, CD = '+c1+' см. Найди сумму AC + BD. '+g4FourPointSegments(a1,b1,c1),A(A(V(a1),V(b1)),A(V(b1),V(c1))),'AC = AB + BC = '+(a1+b1)+' см; BD = BC + CD = '+(b1+c1)+' см. Складываем: '+(a1+2*b1+c1)+' см.',4]
+   ];
+  }
  }
  if(id==='area_rectangle'){
   const area=a*b,short=Math.min(c,a-1),smallWidth=Math.min(e,b-1);
