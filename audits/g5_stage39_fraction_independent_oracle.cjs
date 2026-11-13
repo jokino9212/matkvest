@@ -1,6 +1,6 @@
 'use strict';
 const {chromium}=require('playwright'),path=require('node:path'),assert=require('node:assert/strict');
-const ids=['frac_equal','frac_reduce','frac_common_lcm','frac_compare_diff','frac_add_diff','frac_sub_diff','frac_mul_common'];
+const ids=['frac_equal','frac_reduce','frac_common_lcm','frac_compare_diff','frac_add_diff','frac_sub_diff','frac_mul_common','frac_division','frac_part_number','frac_div_common','frac_restore','frac_word'];
 const gcd=(a,b)=>{a=a<0n?-a:a;b=b<0n?-b:b;while(b){[a,b]=[b,a%b]}return a};
 const rat=(a,b=1n)=>{a=BigInt(a);b=BigInt(b);assert(b!==0n,'Zero denominator');if(b<0n){a=-a;b=-b}const g=gcd(a,b);return [a/g,b/g]};
 function solve(p){
@@ -32,7 +32,7 @@ function solve(p){
     blockSession={kind:'g5quiz',key:'g5:'+id,stageIndex:t,done:f,total:10,usedSignatures:[],items:[],finished:false};
     qid='g5:'+id;
     const q=makeG5Question(id);
-    out.push({id,t,f,text:String(q.text),answer:String(q.ans),choices:q.choices.map(c=>({key:String(c.key),label:String(c.label)})),meta:q.mk129});
+    out.push({id,t,f,text:String(q.text),answer:String(q.ans),choices:q.choices.map(c=>({key:String(c.key),label:String(c.label)})),meta:q.mk129||q.mk130});
    }
    return out;
   },ids);
@@ -42,7 +42,7 @@ function solve(p){
    const [n,d]=solve(q.meta.plan),expected=q.meta.expected;
    assert.equal(n.toString(),String(expected.n),'Oracle numerator '+q.id);
    assert.equal(d.toString(),String(expected.d),'Oracle denominator '+q.id);
-   const answer=q.meta.mode==='frac'?n+'/'+d:n.toString();
+   const answer=q.meta.mode==='frac'||(q.meta.mode===undefined&&d!==1n)?n+'/'+d:n.toString();
    assert.equal(q.answer,answer,'Incorrect answer shown '+q.id);
    assert.equal(q.choices.filter(c=>c.key===q.answer).length,1,'Missing correct option '+q.id);
    assert.equal(new Set(q.choices.map(c=>c.label)).size,q.choices.length,'Duplicate visible choices '+q.id);
@@ -54,6 +54,6 @@ function solve(p){
   assert.equal(addition.filter(q=>q.f===4).length,10,'Missing revised addition samples');
   assert(addition.filter(q=>q.f===0).every(q=>q.meta.plan[0]==='add'),'Expected direct addition family');
   assert(addition.filter(q=>q.f===4).every(q=>q.meta.plan[0]==='mul'),'New family must be genuinely two-stage');
-  console.log('G5_STAGE39_INDEPENDENT_ORACLE_PASS '+JSON.stringify({topics:ids.length,samples:checks,uniqueFamilySlots:ids.length*15}));
+  console.log('G5_STAGE39_1800_INDEPENDENT_ORACLE_PASS '+JSON.stringify({topics:ids.length,samples:checks,uniqueFamilySlots:ids.length*15}));
  }finally{await browser.close()}
 })().catch(e=>{console.error('G5_STAGE39_INDEPENDENT_ORACLE_FAIL',e.stack||e);process.exit(1)});
