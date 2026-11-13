@@ -111,7 +111,7 @@ function independentAnswer(q){
      ensure(Math.max(...ratio)-Math.min(...ratio)<.01,'Four-point segments must be proportional '+key);
      counters.fourPoints++;
     }else throw Error('No visual validation case '+key);
-    rows.push({level,family,trial,ans:String(q.ans),plain,choices:q.choices.map(c=>({key:String(c.key),label:String(c.label)})),template:q.templateId,meta:q.mk124,order,ex:String(q.ex)});
+    rows.push({level,family,trial,ans:String(q.ans),plain,choices:q.choices.map(c=>({key:String(c.key),label:String(c.label)})),template:q.templateId,meta:q.mk124,order,visualKey:level===0?(family===0?order.join(','):family===2?points.map(p=>p.getAttribute('cx')).join(','):family===3?lines.map(l=>l.getAttribute('x2')).join(','):null):null,ex:String(q.ex)});
    }
    renderGrade5();
    const links=[...document.querySelectorAll('#mk-g5-textbook-nav .mk-g5-toc-link[data-topic-id="plane_line_ray"]')];
@@ -134,7 +134,7 @@ function independentAnswer(q){
    const slot=q.level+'/'+q.family;
    if(!bySlot.has(slot)){bySlot.set(slot,q.template);familyKeys.add(q.template)}
    else assert.equal(bySlot.get(slot),q.template,'Unstable family slot '+context);
-   const set=variations.get(slot)||new Set();set.add(q.plain);variations.set(slot,set);
+   const set=variations.get(slot)||new Set();set.add(q.plain+'|'+(q.visualKey||''));variations.set(slot,set);
   }
   assert.equal(familyKeys.size,15,'§4 must contain 15 distinct cognitive families');
   const avg=means.map(a=>a.reduce((x,y)=>x+y,0)/a.length);
