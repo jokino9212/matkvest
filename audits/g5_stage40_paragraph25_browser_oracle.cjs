@@ -32,7 +32,7 @@ function intPlan(node){
   });
   assert.equal(data.count,74,'Must preserve all 74 Grade 5 topics');
   assert.equal(data.title,'Окружность, круг, шар, цилиндр','Grade 5 topic card must match §25');
-  assert(/радиус|Радиус/.test(data.lesson)&&/Цилиндр/.test(data.lesson),'§25 explanation missing');
+  assert(/радиус|Радиус/.test(data.lesson)&&/Цилиндр/.test(data.lesson)&&/Дуга/.test(data.lesson)&&/Сектор/.test(data.lesson),'§25 geometry explanation incomplete');
   const families=new Set(),levels=[[],[],[]],varied=new Set();
   for(const q of data.rows){
    const tag='L'+q.level+' F'+q.family;
@@ -70,9 +70,24 @@ function intPlan(node){
     if(Number(q.ans)!==kinds.indexOf(labels[q.family])+1)throw Error('Wrong correct figure '+q.family+': '+q.ans+' vs '+kinds);
     checked++;
    }
-   return checked;
+   let detailChecks=0;
+   for(const q of rows.filter(x=>x.level===1&&(x.family===3||x.family===4))){
+    const container=document.createElement('div');container.innerHTML=q.text;
+    const svg=container.querySelector('svg'),groups=[...svg.querySelectorAll('g')];
+    if(groups.length!==4)throw Error('Arc/sector SVG must show four different geometry elements');
+    const identify=el=>el.querySelector('path[fill="#ffcf87"]')?'sector':
+      el.querySelector('path[fill="none"][stroke="#d8792d"]')?'arc':
+      el.querySelector('line[x1="28"]')?'diameter':
+      el.querySelector('line[x1="38"]')?'chord':'unknown';
+    const kinds=groups.map(identify);
+    if(new Set(kinds).size!==4||kinds.includes('unknown'))throw Error('Missing geometry element '+kinds);
+    if(Number(q.ans)!==kinds.indexOf(q.family===3?'sector':'arc')+1)throw Error('Wrong arc/sector key');
+    detailChecks++;
+   }
+   return {basic:checked,details:detailChecks};
   },data.rows);
-  assert.equal(semantic,80,'Must validate all shuffled SVG figures');
+  assert.equal(semantic.basic,80,'Must validate all shuffled basic SVG figures');
+  assert.equal(semantic.details,40,'Must validate every shuffled arc and sector SVG');
   const nav=await page.evaluate(()=>{
    renderGrade5();
    const links=[...document.querySelectorAll('#mk-g5-textbook-nav .mk-g5-toc-link[data-topic-id="frac_shapes"]')];
@@ -80,6 +95,6 @@ function intPlan(node){
   });
   assert.equal(nav.links,1,'§25 textbook navigation must render one live corrected topic');
   assert(nav.text.includes('Окружность, круг, шар, цилиндр'),'§25 button must have textbook title');
-  console.log('G5_STAGE40_CIRCLES_PASS '+JSON.stringify({topics:data.count,samples:data.rows.length,families:families.size,meanSteps:means.map(x=>Math.round(x*100)/100),svgShapeChecks:semantic,paragraph25Links:nav.links}));
+  console.log('G5_STAGE40_CIRCLES_PASS '+JSON.stringify({topics:data.count,samples:data.rows.length,families:families.size,meanSteps:means.map(x=>Math.round(x*100)/100),svgShapeChecks:semantic.basic,arcSectorChecks:semantic.details,paragraph25Links:nav.links}));
  }finally{await browser.close();}
 })().catch(e=>{console.error('G5_STAGE40_CIRCLES_FAIL',e.stack||e);process.exit(1)});
