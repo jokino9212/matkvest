@@ -21,6 +21,47 @@ function calc(n){
 }
 const count=(l,r,k)=>Math.floor(r/k)-Math.floor((l-1)/k);
 const digits=(base,k)=>Array.from({length:10},(_,x)=>base+x).filter(n=>n%k===0);
+function g5ScaleRay(points,options={}){
+ const unit=Number(options.unit||1),moves=options.moves||[];
+ if(!Number.isSafeInteger(unit)||unit<1||unit>10)throw Error('§5 invalid scale division');
+ const allValues=[0,unit,...points.map(p=>p.at),...moves.flatMap(m=>[m.from,m.to])];
+ if(allValues.some(v=>!Number.isSafeInteger(v)||v<0))throw Error('§5 coordinate outside natural ray');
+ const maxValue=Math.max(...allValues);
+ const limit=Math.ceil((maxValue+Math.max(2,unit*2))/unit)*unit;
+ const intervals=limit/unit;
+ if(intervals>120)throw Error('§5 coordinate scale too dense');
+ const left=48,right=674,baseline=84,width=right-left;
+ const xOf=v=>left+width*v/limit;
+ const px=v=>xOf(v).toFixed(3);
+ const every=Math.max(1,Math.ceil(intervals/12));
+ let ticks='',labels='';
+ for(let i=0;i<=intervals;i++){
+  const value=i*unit,x=px(value),long=i%every===0||i===1||i===intervals;
+  ticks+='<line class="g5-coordinate-tick" data-value="'+value+'" x1="'+x+'" y1="'+(baseline-(long?10:5))+'" x2="'+x+'" y2="'+(baseline+7)+'" stroke="#6084ab" stroke-width="'+(long?2:1)+'"/>';
+  if(i===0||i===1||i===intervals||(i%every===0&&i%2===0)){
+   labels+='<text class="g5-coordinate-number" data-value="'+value+'" x="'+x+'" y="'+(baseline+27)+'" font-size="16" text-anchor="middle" fill="currentColor">'+value+'</text>';
+  }
+ }
+ const idSet=new Set(),pLabels=[];
+ for(let i=0;i<points.length;i++){
+  const p=points[i];if(!/^[A-ZА-ЯМО]$/.test(p.name)||idSet.has(p.name))throw Error('§5 ambiguous point name '+p.name);
+  idSet.add(p.name);
+  if(p.at>limit)throw Error('§5 point outside visual scale');
+  pLabels.push('<circle class="g5-coordinate-point" data-name="'+p.name+'" data-at="'+p.at+'" cx="'+px(p.at)+'" cy="'+baseline+'" r="5.5" fill="#d97935"/><text x="'+px(p.at)+'" y="'+(i%2===0?baseline-19:baseline-33)+'" font-size="19" font-weight="700" text-anchor="middle" fill="currentColor">'+p.name+'</text>');
+ }
+ let moveMarkup='';
+ for(let i=0;i<moves.length;i++){
+  const m=moves[i];if(![m.from,m.to].every(Number.isSafeInteger)||m.from<0||m.to<0||m.from>limit||m.to>limit)throw Error('§5 bad move');
+  if(m.from===m.to)throw Error('§5 zero-length move');
+  const y=135+i*38,tip=m.to>m.from?1:-1,arrowX=xOf(m.to),bodyEnd=arrowX-tip*10;
+  moveMarkup+='<line class="g5-coordinate-move" data-from="'+m.from+'" data-to="'+m.to+'" x1="'+px(m.from)+'" y1="'+y+'" x2="'+bodyEnd.toFixed(3)+'" y2="'+y+'" stroke="#d97935" stroke-width="3"/><polygon points="'+arrowX.toFixed(3)+','+y+' '+(arrowX-tip*12).toFixed(3)+','+(y-7)+' '+(arrowX-tip*12).toFixed(3)+','+(y+7)+'" fill="#d97935"/><text x="'+((xOf(m.from)+arrowX)/2).toFixed(3)+'" y="'+(y-10)+'" font-size="18" text-anchor="middle" fill="currentColor">'+(m.label||'')+'</text>';
+ }
+ const height=165+moves.length*38;
+ const caption=unit===1?'Единичный отрезок равен 1':'Цена деления шкалы: '+unit+' единиц';
+ const unitBar='<line x1="'+px(0)+'" y1="119" x2="'+px(unit)+'" y2="119" stroke="#598d3e" stroke-width="4"/><circle cx="'+px(0)+'" cy="119" r="3" fill="#598d3e"/><circle cx="'+px(unit)+'" cy="119" r="3" fill="#598d3e"/>';
+ return '<div class="mk-g5-coordinate-figure" style="width:100%;max-width:720px;overflow:hidden;margin:7px auto"><svg role="img" aria-label="Координатный луч и шкала. '+caption+'. Отмечены точки: '+points.map(p=>p.name).join(', ')+'. Цифровые ответы на рисунке не подписаны." data-unit="'+unit+'" data-limit="'+limit+'" data-left="'+left+'" data-right="'+right+'" viewBox="0 0 720 '+height+'" width="100%" style="height:auto;display:block"><line x1="'+left+'" y1="'+baseline+'" x2="'+right+'" y2="'+baseline+'" stroke="#376d9d" stroke-width="3"/><polygon points="'+right+','+baseline+' '+(right-15)+','+(baseline-8)+' '+(right-15)+','+(baseline+8)+'" fill="#376d9d"/>'+ticks+labels+pLabels.join('')+unitBar+moveMarkup+'<text x="'+(left+8)+'" y="'+(height-12)+'" font-size="16" text-anchor="start" fill="currentColor">'+caption+'</text></svg></div>';
+}
+
 function spec(id,t,p){
  const a=rnd(4,14+5*t),b=rnd(3,11+4*t),c=rnd(2,7+3*t),d=rnd(2,6+2*t),e=rnd(2,6+2*t),k=rnd(3,8+4*t);
  let rows;
@@ -50,27 +91,36 @@ function spec(id,t,p){
  }
  if(id==='coordinate'){
   const begin=a+b+e,end=begin+c+d;
-  if(t===0)rows=[
-   ['На координатном луче A('+a+'). Сколько единичных делений от 0 до A?',V(a),'Координата равна числу единичных шагов от 0.',1],
-   ['Точки A('+a+') и B('+(a+b)+') лежат на одном луче. Найди AB.',S(V(a+b),V(a)),'Расстояние равно разности координат.',2],
-   ['Из точки A('+a+') сдвинулись на '+c+' единичных делений вправо. Какая координата стала?',A(V(a),V(c)),'При сдвиге вправо прибавляем количество делений.',1],
-   ['Из точки C('+(a+b)+') сдвинулись на '+b+' единичных делений влево. Какая новая координата?',S(V(a+b),V(b)),'При сдвиге влево вычитаем.',1],
-   ['Между A('+a+') и B('+(a+2*b)+') отмечена середина M. Назови координату M.',A(V(a),V(b)),'К исходной координате прибавим половину расстояния.',2]
-  ];
-  else if(t===1)rows=[
-   ['Из точки A('+begin+') прошли вправо '+c+' делений, затем влево '+d+'. Найди конечную координату.',S(A(V(begin),V(c)),V(d)),'Сначала прибавим сдвиг вправо, затем вычтем сдвиг влево.',2],
-   ['Точка A('+begin+'), B('+(begin+2*c)+'). Найди координату середины отрезка AB.',D(A(V(begin),V(begin+2*c)),V(2)),'Координата середины — полусумма координат концов.',2],
-   ['Координата точки B равна '+end+'. От точки A вправо до B прошли '+(c+d)+' делений. Найди координату A.',S(V(end),A(V(c),V(d))),'Нужно вычесть пройденные шаги из конечной координаты.',2],
-   ['Из координаты '+begin+' сначала вычли '+b+', затем прибавили '+c+'. Найди новую координату.',A(S(V(begin),V(b)),V(c)),'Два перемещения на координатной прямой.',2],
-   ['Точки A('+begin+'), B('+(begin+b)+'), C('+(begin+b+c)+') идут по порядку. Найди длину AC.',A(S(V(begin+b),V(begin)),S(V(begin+b+c),V(begin+b))),'Длина всей части AC равна AB + BC.',3]
-  ];
-  else rows=[
-   ['Точки A('+begin+') и B('+end+'). Первую сдвинули влево на '+b+', вторую вправо на '+c+'. Найди новое расстояние.',Abs(S(V(begin),V(b)),A(V(end),V(c))),'Вычислим обе координаты и их положительную разность.',4],
-   ['Точка M('+(begin+c)+') — середина AB, A('+begin+'). Какова координата B?',S(M(V(2),V(begin+c)),V(begin)),'Из 2M вычтем координату A.',3],
-   ['Из точки A('+begin+') прошли '+b+' вправо, затем '+c+' вправо, после чего '+d+' влево. Найди координату.',S(A(V(begin),V(b),V(c)),V(d)),'Три перемещения с учётом направлений.',4],
-   ['Точки A('+begin+'), B('+(begin+b)+'), C('+(begin+b+c)+'). Найди на сколько AC длиннее AB.',S(S(V(begin+b+c),V(begin)),S(V(begin+b),V(begin))),'Вычислим две длины и их разность.',4],
-   ['От точки A('+begin+') прошли неизвестное число делений вправо, потом вернулись влево на '+d+' и оказались в точке '+(begin+c)+'. Найди первый сдвиг.',S(A(V(begin+c),V(d)),V(begin)),'К конечной координате прибавим обратный сдвиг и вычтем начальную.',3]
-  ];
+  const show=(points,max=0,unit=1,moves=[])=>g5ScaleRay(points,{unit,moves});
+  const pos=n=>[{name:'A',at:n}];
+  if(t===0){
+   const unit=rnd(2,5),steps=rnd(3,7),scaleValue=unit*steps;
+   rows=[
+    ['Точка A отмечена на координатном луче. Определи её координату, считая единичные деления от нуля. '+show(pos(a)),V(a),'От начала луча O(0) до A — '+a+' единичных отрезков, значит A('+a+').',1],
+    ['На координатном луче отмечены точки A('+a+') и B('+(a+b)+'). Найди расстояние AB. '+show([{name:'A',at:a},{name:'B',at:a+b}]),S(V(a+b),V(a)),'Из координаты правой точки вычтем координату левой: '+(a+b)+' − '+a+' = '+b+'.',2],
+    ['Точка A('+a+') сдвинулась на '+c+' единичных делений вправо. Какова её новая координата? '+show(pos(a),0,1,[{from:a,to:a+c,label:'+'+c}]),A(V(a),V(c)),'Сдвиг вправо означает прибавить '+c+': '+a+' + '+c+' = '+(a+c)+'.',1],
+    ['На шкале цена одного деления '+unit+' единицы. Точка C находится на '+steps+'-м делении после нуля. Какое число она показывает? '+show([{name:'C',at:scaleValue}],0,unit),M(V(unit),V(steps)),'Каждое деление равно '+unit+', от нуля пройдено '+steps+' делений: '+unit+' · '+steps+' = '+scaleValue+'.',2],
+    ['На луче A('+a+') и B('+(a+2*b)+'). Отмечена середина M между ними. Найди координату M. '+show([{name:'A',at:a},{name:'M',at:a+b},{name:'B',at:a+2*b}]),A(V(a),V(b)),'Между A и B '+(2*b)+' единичных шагов. Половина расстояния — '+b+', значит M('+(a+b)+').',2]
+   ];
+  }else if(t===1){
+   const unit=rnd(2,5),start=begin*unit,last=(begin-b+c)*unit;
+   rows=[
+    ['Из точки A('+begin+') прошли вправо '+c+' делений, затем влево '+d+'. Найди конечную координату. '+show(pos(begin),0,1,[{from:begin,to:begin+c,label:'+'+c},{from:begin+c,to:begin+c-d,label:'−'+d}]),S(A(V(begin),V(c)),V(d)),'Сначала прибавляем '+c+', затем вычитаем '+d+': '+begin+' + '+c+' − '+d+' = '+(begin+c-d)+'.',3],
+    ['Точки A('+begin+') и B('+(begin+2*c)+') отмечены на луче. Найди координату середины M отрезка AB. '+show([{name:'A',at:begin},{name:'B',at:begin+2*c}]),D(A(V(begin),V(begin+2*c)),V(2)),'Найдём половину расстояния: ('+(2*c)+') : 2 = '+c+'. Середина: '+begin+' + '+c+' = '+(begin+c)+'.',2],
+    ['Координата точки B равна '+end+'. От точки A до B вправо прошли '+(c+d)+' единичных делений. Найди координату A. '+show([{name:'B',at:end}],0,1,[{from:end,to:begin,label:'−'+(c+d)}]),S(V(end),A(V(c),V(d))),'Чтобы найти начало пути, вычтем оба сдвига: '+end+' − ('+c+' + '+d+') = '+begin+'.',3],
+    ['На шкале каждое деление равно '+unit+' единицам. От точки A('+start+') прошли '+b+' делений влево, затем '+c+' делений вправо. Какое число показывает конечная отметка? '+show([{name:'A',at:start}],0,unit,[{from:start,to:(begin-b)*unit,label:'−'+b+' дел.'},{from:(begin-b)*unit,to:last,label:'+'+c+' дел.'}]),M(A(S(V(begin),V(b)),V(c)),V(unit)),'Сначала '+begin+' − '+b+' + '+c+' = '+(begin-b+c)+' делений от нуля. Цена деления '+unit+', значит координата '+(begin-b+c)+' · '+unit+' = '+last+'.',3],
+    ['Точки A('+begin+'), B('+(begin+b)+'), C('+(begin+b+c)+') отмечены по порядку. Найди длину AC. '+show([{name:'A',at:begin},{name:'B',at:begin+b},{name:'C',at:begin+b+c}]),A(S(V(begin+b),V(begin)),S(V(begin+b+c),V(begin+b))),'AB = '+b+', BC = '+c+'. Тогда AC = AB + BC = '+(b+c)+'.',3]
+   ];
+  }else{
+   const unit=rnd(2,5),initial=begin*unit,finish=(begin+b+c-d)*unit;
+   rows=[
+    ['Точки A('+begin+') и B('+end+') отметили на луче. A сдвинули влево на '+b+' делений, B вправо на '+c+'. Найди расстояние между новыми точками. '+show([{name:'A',at:begin},{name:'B',at:end}],0,1,[{from:begin,to:begin-b,label:'−'+b},{from:end,to:end+c,label:'+'+c}]),Abs(S(V(begin),V(b)),A(V(end),V(c))),'Новые координаты: A = '+(begin-b)+', B = '+(end+c)+'. Расстояние равно '+(end+c)+' − '+(begin-b)+' = '+(end+c-begin+b)+'.',4],
+    ['Точка M('+(begin+c)+') — середина AB, A('+begin+'). Какова координата B? '+show([{name:'A',at:begin},{name:'M',at:begin+c}]),S(M(V(2),V(begin+c)),V(begin)),'AM = '+(begin+c)+' − '+begin+' = '+c+'. Поскольку M середина, MB = AM. B = '+(begin+c)+' + '+c+' = '+(begin+2*c)+'.',3],
+    ['Цена деления шкалы '+unit+' единиц. От точки A('+initial+') прошли '+b+' делений вправо, затем '+c+' вправо и '+d+' влево. Какое число показывает конечная отметка? '+show([{name:'A',at:initial}],0,unit,[{from:initial,to:(begin+b)*unit,label:'+'+b+' дел.'},{from:(begin+b)*unit,to:(begin+b+c)*unit,label:'+'+c+' дел.'},{from:(begin+b+c)*unit,to:finish,label:'−'+d+' дел.'}]),M(S(A(V(begin),V(b),V(c)),V(d)),V(unit)),'Сдвиги по делениям: '+begin+' + '+b+' + '+c+' − '+d+' = '+(begin+b+c-d)+'. Одно деление равно '+unit+' единицам; число '+(begin+b+c-d)+' · '+unit+' = '+finish+'.',5],
+    ['На координатном луче A('+begin+'), B('+(begin+2*b)+'), C('+(begin+2*b+c)+'). M — середина AB. Найди расстояние MC. '+show([{name:'A',at:begin},{name:'B',at:begin+2*b},{name:'C',at:begin+2*b+c}]),S(V(begin+2*b+c),D(A(V(begin),V(begin+2*b)),V(2))),'Сначала середина AB: '+begin+' + '+b+' = '+(begin+b)+'. Теперь MC = '+(begin+2*b+c)+' − '+(begin+b)+' = '+(b+c)+'.',4],
+    ['Из точки A('+begin+') прошли неизвестное число делений вправо, затем вернулись влево на '+d+' и оказались в точке C('+(begin+c)+'). Найди первый сдвиг. '+show([{name:'A',at:begin},{name:'C',at:begin+c}],0,1,[{from:begin+c+d,to:begin+c,label:'−'+d}]),S(A(V(begin+c),V(d)),V(begin)),'До возврата точка была в положении '+(begin+c)+' + '+d+' = '+(begin+c+d)+'. Первый сдвиг '+(begin+c+d)+' − '+begin+' = '+(c+d)+' делений.',4]
+   ];
+  }
  }
  if(id==='divisors_multiples_g5'){
   const factor=rnd(2,9),q=rnd(3,10+t*4),n=factor*q,primes=[2,3,5,7,11],pr=primes[rnd(0,4)],two=primes[(primes.indexOf(pr)+rnd(1,4))%5],prod=pr*two;
