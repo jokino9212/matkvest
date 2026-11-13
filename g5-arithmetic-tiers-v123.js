@@ -202,21 +202,65 @@ function specification(id,t,p){
   ];
  }
  if(id==='numeric_literal_expressions'){
-  const x=ri(3,12+t*4),y=ri(2,9+t*4),z=ri(2,7+t*3);
-  if(t===1)data=[
-   ['При a = '+x+' и b = '+y+' найди значение 3a + 2b.',A(M(V(3),V(x)),M(V(2),V(y))),'Подставим обе переменные и вычислим два произведения и сумму.',3],
-   ['При a = '+x+' и b = '+y+' вычисли 4(a + b).',M(V(4),A(V(x),V(y))),'Сначала сумма в скобках, затем умножение.',2],
-   ['Если x + '+y+' = '+(x+y)+', найдите 3x.',M(V(3),S(V(x+y),V(y))),'Выделим x и умножим на 3.',2],
-   ['При a = '+x+' и b = '+y+' вычисли 10a − 2b.',S(M(V(10),V(x)),M(V(2),V(y))),'Подставляем и вычисляем два произведения и разность.',3],
-   ['При a = '+x+' вычисли значение 3(a + '+z+') − '+y+'.',S(M(V(3),A(V(x),V(z))),V(y)),'Сначала скобки, затем умножение и вычитание.',3]
+  // §10: evaluate numeric expressions, substitute letters and translate real
+  // verbal operations to algebraic expressions, with different tier families.
+  const x=ri(5+t*2,15+t*5),y=ri(3,11+t*3),z=ri(2,9+t*3),
+    n=ri(9,29),p=ri(4,13),r=ri(12,36),factor=ri(3,14),factor2=ri(2,6);
+  if(t===0)data=[
+   ['Найди значение числового выражения '+(x+n)+' + '+y+' − '+z+'.',
+    S(A(V(x+n),V(y)),V(z)),
+    'Сначала складываем: '+(x+n)+' + '+y+' = '+(x+n+y)+'. Затем вычитаем '+z+': '+(x+n+y)+' − '+z+' = '+(x+n+y-z)+'.',2],
+   ['При a = '+x+' найди значение буквенного выражения a + '+n+'.',
+    A(V(x),V(n)),
+    'Подставим a = '+x+': a + '+n+' = '+x+' + '+n+' = '+(x+n)+'.',1],
+   ['Выбери буквенное выражение для суммы числа a и числа '+n+'.',
+    ['expr','a + '+n,n+'a','a − '+n,'a : '+n],
+    'Сумма записывается знаком плюс. Ответ: a + '+n+'.',1],
+   ['При a = '+x+' вычисли значение буквенного выражения 3a.',
+    M(V(3),V(x)),
+    'Запись 3a означает произведение 3 · a. Подставим '+x+': 3 · '+x+' = '+(3*x)+'.',2],
+   ['Выбери выражение для разности удвоенного числа a и числа '+p+'.',
+    ['expr','2a − '+p,'2(a − '+p+')','a − 2'+p,'2a + '+p],
+    'Сначала число a удваивают — 2a; затем вычитают '+p+'. Ответ: 2a − '+p+'.',2]
   ];
-  else data=[
-   ['При a = '+x+', b = '+y+', c = '+z+' вычисли 6(a + b) − 2c.',S(M(V(6),A(V(x),V(y))),M(V(2),V(z))),'Сначала сумма, затем два произведения и разность.',4],
-   ['При a = '+x+' и b = '+y+' найди разность значений 5(a + b) и 2(a + 2b).',S(M(V(5),A(V(x),V(y))),M(V(2),A(V(x),M(V(2),V(y))))),'Подставляем обе переменные, вычисляем две суммы, произведения и разность.',5],
-   ['Реши уравнение 3x + '+(2*y)+' = '+(3*x+2*y)+'. Найди x и затем вычисли 2x + '+z+'.',A(M(V(2),D(S(V(3*x+2*y),V(2*y)),V(3))),V(z)),'Из правой части вычтем '+(2*y)+', разделим на 3, затем подставим x.',4],
-   ['При a = '+x+', b = '+y+' вычисли 3(a + b) + 2(a − b).',A(M(V(3),A(V(x),V(y))),M(V(2),S(V(x),V(y)))),'Сначала действия в обеих скобках, затем умножения и сумма.',5],
-   ['Если a = '+x+', b = '+y+', c = '+z+', вычисли (a + b)(b + c) − a(b − 1).',S(M(A(V(x),V(y)),A(V(y),V(z))),M(V(x),S(V(y),V(1)))),'Вычисляем суммы и разности, два произведения и итог.',5]
+  else if(t===1)data=[
+   ['При a = '+x+' и b = '+y+' вычисли значение 3a + 2b.',
+    A(M(V(3),V(x)),M(V(2),V(y))),
+    'Подстановка даёт 3 · '+x+' + 2 · '+y+'. Произведения '+(3*x)+' и '+(2*y)+'; сумма '+(3*x)+' + '+(2*y)+' = '+(3*x+2*y)+'.',3],
+   ['Числа a и b сначала сложили, затем сумму умножили на '+factor+'. Выбери выражение для результата.',
+    ['expr',factor+'(a + b)',factor+'a + b','a + '+factor+'b',factor+'a − b'],
+    'Действие сложения выполняется первым, поэтому сумма заключена в скобки: '+factor+'(a + b).',3],
+   ['При a = '+x+' и b = '+y+' вычисли 4(a + b) − b.',
+    S(M(V(4),A(V(x),V(y))),V(y)),
+    'Сначала скобки: '+x+' + '+y+' = '+(x+y)+'. Затем умножение: 4 · '+(x+y)+' = '+(4*(x+y))+'. Наконец вычитаем '+y+': '+(4*(x+y)-y)+'.',3],
+   ['При a = '+(x+7)+' и b = '+y+' вычисли 7a − 2b.',
+    S(M(V(7),V(x+7)),M(V(2),V(y))),
+    'Подставляем: 7 · '+(x+7)+' − 2 · '+y+'. Произведения '+(7*(x+7))+' и '+(2*y)+'. Разность '+(7*(x+7)-2*y)+'.',3],
+   ['В каждом из трёх пакетов находится по a наклеек, дополнительно есть b наклеек. При a = '+x+' и b = '+y+' сколько всего наклеек?',
+    A(M(V(3),V(x)),V(y)),
+    'Буквенное выражение: 3a + b. Подставляем: 3 · '+x+' + '+y+' = '+(3*x)+' + '+y+' = '+(3*x+y)+' наклеек.',3]
   ];
+  else {
+   const a=ri(9,22),b=ri(4,17),c=ri(3,13),
+     pencils=ri(5,12),pPrice=ri(12,23),albums=ri(4,9),aPrice=ri(13,29),discount=ri(10,40);
+   data=[
+    ['Выбери буквенное выражение для разности произведения числа '+factor+' и суммы a + b и произведения числа '+factor2+' и c.',
+     ['expr',factor+'(a + b) − '+factor2+'c',factor+'a + b − '+factor2+'c',factor+'(a + b − '+factor2+'c)',factor+'(a + b) + '+factor2+'c'],
+     'Сначала сумма a + b, затем умножение на '+factor+'. Из результата вычитаем '+factor2+'c: '+factor+'(a + b) − '+factor2+'c.',4],
+    ['При a = '+a+' и b = '+b+' вычисли 5(a + b) − 2(a + 2b).',
+     S(M(V(5),A(V(a),V(b))),M(V(2),A(V(a),M(V(2),V(b))))),
+     'Первая скобка: '+a+' + '+b+' = '+(a+b)+', 5 · '+(a+b)+' = '+(5*(a+b))+'. Вторая: '+a+' + 2 · '+b+' = '+(a+2*b)+', 2 · '+(a+2*b)+' = '+(2*(a+2*b))+'. Разность '+(5*(a+b))+' − '+(2*(a+2*b))+' = '+(3*a+b)+'.',5],
+    ['При a = '+a+' и b = '+b+' на сколько значение выражения 4(a + b) больше значения выражения 3a + 2b?',
+     S(M(V(4),A(V(a),V(b))),A(M(V(3),V(a)),M(V(2),V(b)))),
+     'Первое выражение: 4 · ('+a+' + '+b+') = '+(4*(a+b))+'. Второе: 3 · '+a+' + 2 · '+b+' = '+(3*a+2*b)+'. Разность '+(4*(a+b))+' − '+(3*a+2*b)+' = '+(a+2*b)+'.',5],
+    ['При a = '+a+', b = '+b+', c = '+c+' вычисли (a + b)(b + c) − a(b − 1).',
+     S(M(A(V(a),V(b)),A(V(b),V(c))),M(V(a),S(V(b),V(1)))),
+     'Вычислим обе суммы: '+a+' + '+b+' = '+(a+b)+', '+b+' + '+c+' = '+(b+c)+'. Первое произведение '+(a+b)+' · '+(b+c)+' = '+((a+b)*(b+c))+'. Второе '+a+' · ('+b+' − 1) = '+(a*(b-1))+'. Разность '+((a+b)*(b+c))+' − '+(a*(b-1))+' = '+((a+b)*(b+c)-a*(b-1))+'.',5],
+    ['Для класса купили '+pencils+' карандашей по '+pPrice+' рублей и '+albums+' альбомов по '+aPrice+' рублей. На общую покупку сделали скидку '+discount+' рублей. Сколько рублей заплатили?',
+     S(A(M(V(pencils),V(pPrice)),M(V(albums),V(aPrice))),V(discount)),
+     'Буквенная модель: ap + bc − d, где a — число карандашей, p — цена карандаша, b — число альбомов, c — цена альбома, d — скидка. Подставим: '+pencils+' · '+pPrice+' = '+(pencils*pPrice)+', '+albums+' · '+aPrice+' = '+(albums*aPrice)+'. До скидки '+(pencils*pPrice)+' + '+(albums*aPrice)+' = '+(pencils*pPrice+albums*aPrice)+', после скидки '+(pencils*pPrice+albums*aPrice)+' − '+discount+' = '+(pencils*pPrice+albums*aPrice-discount)+' рублей.',5]
+   ];
+  }
  }
  if(id==='number_tables'){
   const display=tab,alt=table(a,b,c,d,[b,c,d,e]);
@@ -288,18 +332,22 @@ function specification(id,t,p){
 }
 function make(id){
  const t=level(),p=slot();
- if(t===0&&id!=='column_charts'&&id!=='natural_add'&&id!=='natural_subtract')return previous.apply(this,arguments);
+ if(t===0&&id!=='column_charts'&&id!=='natural_add'&&id!=='natural_subtract'&&id!=='numeric_literal_expressions')return previous.apply(this,arguments);
  const data=specification(id,t,p);
- const answer=oracle(data.plan);
- if(!Number.isSafeInteger(answer)||answer<0)throw Error('v123 impossible result '+id+' L'+t+' F'+p+' = '+answer);
- const opts=g5nums(answer,[answer+1,answer+2,Math.max(0,answer-1)]);
+ const expr=Array.isArray(data.plan)&&data.plan[0]==='expr';
+ const answer=expr?String(data.plan[1]):oracle(data.plan);
+ if(!expr&&(!Number.isSafeInteger(answer)||answer<0))throw Error('v123 impossible result '+id+' L'+t+' F'+p+' = '+answer);
+ if(expr&&new Set(data.plan.slice(1)).size!==4)throw Error('v123 duplicate symbolic expression options');
+ const opts=expr?[{label:answer,key:'yes'},...data.plan.slice(2).map((label,i)=>({label:String(label),key:'no'+(i+1)}))]:
+  g5nums(answer,[answer+1,answer+2,Math.max(0,answer-1)]);
  const key='v123_'+id+'_L'+t+'_F'+p;
- const q=g5q(data.text,opts,String(answer),data.explain+' Ответ: '+answer+'.',key);
+ const correctKey=expr?'yes':String(answer);
+ const q=g5q(data.text,opts,correctKey,data.explain+' Ответ: '+answer+'.',key);
  const correct=q.choices.filter(c=>String(c.key)===String(q.correct));
  if(correct.length!==1)throw Error('v123 cannot select a unique correct answer '+key);
  return {text:q.text,ans:String(q.correct),choices:q.choices,correctLabel:String(correct[0].label),
   correctText:String(correct[0].label),ex:q.explain,sourceTopicId:id,templateId:q.templateId,
-  sig:['g5',id,t,p,q.text,String(q.correct)].join(':'),mk123:{id,t,p,steps:data.steps,plan:data.plan,expected:answer}};
+  sig:['g5',id,t,p,q.text,String(q.correct)].join(':'),mk123:{id,t,p,steps:data.steps,plan:data.plan,expected:answer,kind:expr?'expression':'number'}};
 }
 makeG5Question=function(id){return roster.has(id)?make.apply(this,arguments):previous.apply(this,arguments)};
 window.mkG5V123Tiered=IDS.slice();
