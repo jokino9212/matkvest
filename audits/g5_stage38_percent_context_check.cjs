@@ -13,4 +13,13 @@ assert(arithmetic.includes("'В школьный склад привезли '+b
 assert(arithmetic.includes("'В одной партии '+d+' коробок по '+a+' предметов"),'Missing clear comparison context');
 assert(arithmetic.includes("'Число x разделили на '+b+', затем на '+pack+' и получили '+a+'. Найди первоначальное число x.'"),'Inverse division family not found');
 assert(!arithmetic.includes("В каждом большом ящике '+d+' маленьких"),'Original ambiguous multiplication remains');
-console.log('Stage 38 methodological context regressions: PASS (6 learner-facing families)');
+const fractions=fs.readFileSync('g5-fraction-concepts-v129.js','utf8');
+for(const required of [
+ 'Найди НОД числителя и знаменателя дроби',
+ 'и удвой полученную сумму.',
+ 'Вторую сторону уменьшили в 2 раза.',
+ 'Последовательно разделим числитель и знаменатель на '
+])assert(fractions.includes(required),'Missing fraction pedagogy improvement: '+required);
+assert(!fractions.includes('На какой общий множитель гарантированно делятся'),'Ambiguous divisor question remains');
+assert(!fractions.includes('Вычтем оба общих множителя'),'Incorrect reduction explanation remains');
+console.log('Stage 38-39 methodological context regressions: PASS (10 families and wording changes)');
