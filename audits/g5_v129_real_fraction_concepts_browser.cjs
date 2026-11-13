@@ -44,7 +44,7 @@ const {chromium}=require('playwright');
         const q=makeG5Question(id),meta=q?.mk129;
         if(!meta)throw Error('Old generator shown to learner');
         if(meta.id!==id||meta.t!==t||meta.p!==family||meta.steps<t+1)throw Error('Wrong level or topic');
-        if(!q.text||!q.ex||!q.templateId||!q.sig||q.choices?.length<3)throw Error('Incomplete task fields');
+        if(!q.text||!q.ex||!q.templateId||!q.sig||q.choices?.length<3)throw Error('Incomplete task fields '+JSON.stringify({text:!!q.text,ex:!!q.ex,template:!!q.templateId,sig:!!q.sig,length:q.choices?.length,ans:q.ans}));
         const rational=E(meta.plan);
         if(BigInt(meta.expected.n)!==rational.n||BigInt(meta.expected.d)!==rational.d)throw Error('Independent rational calculation mismatch');
         const right=q.choices.filter(a=>String(a.key)===String(q.ans));
