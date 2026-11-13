@@ -95,6 +95,18 @@ function expectTable(q){
     // expectTable() independently computes the answer from the visible table DOM.
    }else throw Error('Missing numerical verification plan '+k);
    if(q.id==='natural'&&q.level<2&&q.trial!==0&&/\b\d*0\d*\b/.test(q.text))zeroDigit++;
+   if(q.id==='natural'&&q.level===1&&q.family===3){
+    const parsed=q.text.match(/В числе (\d+) заменили цифру десятков на (\d+)/);
+    assert(parsed,'Missing replace-tens instructional task '+k);
+    const number=Number(parsed[1]),digit=Number(parsed[2]);
+    assert(digit>=0&&digit<=9,'A decimal digit cannot equal 10 or more '+k);
+    assert.equal(q.ans,String(Math.floor(number/100)*100+digit*10+number%10),'Wrong tens replacement '+k);
+   }
+   if(q.id==='natural'&&q.level===2&&q.family===1){
+    const parsed=q.text.match(/затем вычли (\d+) десятков/);
+    assert(parsed&&Number(parsed[1])>0,'Master must actually subtract at least one ten '+k);
+   }
+
    if(q.id==='number_tables'){
     assert(q.caption&&/продаж|продано/i.test(q.caption),'Missing table caption '+k);
     assert(q.colHeaders[0]===(q.level===0?'Показатель':'Издание'),'Wrong first column name '+k);
