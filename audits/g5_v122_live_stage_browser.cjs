@@ -37,7 +37,7 @@ const {chromium}=require('playwright');
        try{
         const q=makeG5Question(id);
         generated++;
-        check(Boolean(q?.text&&q.ex&&q.choices?.length>=3&&q.sig),id+'/'+t+'/'+p+' missing learner question fields');
+        check(Boolean(q?.text&&q.ex&&q.choices?.length>=3&&q.sig),id+'/'+t+'/'+p+' missing learner question fields '+JSON.stringify({txt:!!q?.text,ex:!!q?.ex,n:q?.choices?.length,sig:!!q?.sig,meta:q?.mk5Audit||null}));
         check(q.sourceTopicId===id,id+'/'+t+'/'+p+' routed to wrong topic');
         const correct=q.choices.filter(c=>String(c.key)===String(q.ans));
         check(correct.length===1,id+'/'+t+'/'+p+' ambiguous answer key');
