@@ -184,13 +184,23 @@ function conversionQuestion(base,topic,given){
      originalNumerator:originalN,answerNumerator:answerN,answerKind:kind}};
 }
 makeG5Question=function(id){
- const base=previousMake.apply(this,arguments);
- if(!base)return base;
- const topic=String(base.sourceTopicId||id||'');
- if(topic!=='frac_to_mixed'&&topic!=='mixed_to_frac')return base;
- const given=displayedParts(base.text);
- if(!given)return base;
- return conversionQuestion(base,topic,given);
+ // Repeated conversion families must still have different visible numbers.
+ // The session stores signatures of already shown tasks; reroll both the
+ // source fraction and the conversion, not only the final answer.
+ const requested=String(id||'');
+ if(requested!=='frac_to_mixed'&&requested!=='mixed_to_frac')return previousMake.apply(this,arguments);
+ const used=Array.isArray(blockSession?.usedSignatures)?blockSession.usedSignatures:[];
+ for(let attempt=0;attempt<32;attempt++){
+  const base=previousMake.apply(this,arguments);
+  if(!base)return base;
+  const topic=String(base.sourceTopicId||requested);
+  if(topic!==requested)return base;
+  const given=displayedParts(base.text);
+  if(!given)return base;
+  const converted=conversionQuestion(base,topic,given);
+  if(!used.includes(converted.sig))return converted;
+ }
+ throw Error('No unique visible Grade 5 conversion task after 32 draws: '+requested);
 };
 const previousMarkup=stage18FractionMarkup;
 stage18FractionMarkup=function(nextHandler,skipHandler,hint){

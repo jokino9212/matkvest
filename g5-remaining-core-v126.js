@@ -122,27 +122,60 @@ function spec(id,t,p){
   ];
  }
  if(id==='equations'){
-  const unknown=r(11,26),mult=r(2,8),add=r(4,15),extra=r(3,9);
+  // §11 Vilenkin: equation equality, inverse operations, and substitution check.
+  // The learner sees 15 separate families, all with a unique natural root.
+  const root=r(14,56),mult=r(2,9),add=r(4,23),extra=r(3,12),
+    rhsSum=root+add,rhsProduct=mult*root,more=r(2,13),take=r(3,15);
   if(t===0)rows=[
-   ['Реши уравнение x + '+add+' = '+(unknown+add)+'.',S(V(unknown+add),V(add)),'Вычтем слагаемое из суммы.',1],
-   ['Реши уравнение x − '+add+' = '+unknown+'.',A(V(unknown),V(add)),'Прибавим вычитаемое к разности.',1],
-   ['Реши уравнение '+mult+'x = '+(unknown*mult)+'.',D(V(unknown*mult),V(mult)),'Разделим произведение на известный множитель.',1],
-   ['Реши уравнение x : '+mult+' = '+unknown+'.',M(V(unknown),V(mult)),'Умножим частное на делитель.',1],
-   ['Реши уравнение '+(unknown+add)+' − x = '+add+'.',S(V(unknown+add),V(add)),'Вычитаемое равно уменьшаемому минус разность.',1]
+   ['Реши уравнение x + '+add+' = '+rhsSum+'.',
+    S(V(rhsSum),V(add)),
+    'Неизвестное слагаемое: x = '+rhsSum+' − '+add+' = '+root+'. Проверка: '+root+' + '+add+' = '+rhsSum+'.',1],
+   ['Реши уравнение x − '+add+' = '+root+'.',
+    A(V(root),V(add)),
+    'Чтобы найти уменьшаемое, прибавим вычитаемое к разности: x = '+root+' + '+add+' = '+rhsSum+'. Проверка: '+rhsSum+' − '+add+' = '+root+'.',1],
+   ['Реши уравнение '+mult+'x = '+rhsProduct+'.',
+    D(V(rhsProduct),V(mult)),
+    'Неизвестный множитель: x = '+rhsProduct+' : '+mult+' = '+root+'. Проверка: '+mult+' · '+root+' = '+rhsProduct+'.',1],
+   ['Реши уравнение x : '+mult+' = '+root+'.',
+    M(V(root),V(mult)),
+    'Неизвестное делимое: x = '+root+' · '+mult+' = '+rhsProduct+'. Проверка: '+rhsProduct+' : '+mult+' = '+root+'.',1],
+   ['Реши уравнение '+rhsSum+' − x = '+add+'.',
+    S(V(rhsSum),V(add)),
+    'Неизвестное вычитаемое: x = '+rhsSum+' − '+add+' = '+root+'. Проверка: '+rhsSum+' − '+root+' = '+add+'.',1]
   ];
   else if(t===1)rows=[
-   ['Найди x: '+mult+'x + '+add+' = '+(mult*unknown+add)+'.',D(S(V(mult*unknown+add),V(add)),V(mult)),'Сначала вычтем свободное слагаемое, затем разделим.',2],
-   ['Найди x: '+mult+'(x + '+add+') = '+(mult*(unknown+add))+'.',S(D(V(mult*(unknown+add)),V(mult)),V(add)),'Разделим обе части, затем вычтем '+add+'.',2],
-   ['Найди x: '+(mult*unknown+add)+' − '+mult+'x = '+add+'.',D(S(V(mult*unknown+add),V(add)),V(mult)),'Переносим вычитание и выполняем деление.',2],
-   ['Реши уравнение x : '+mult+' + '+extra+' = '+(unknown+extra)+'.',M(S(V(unknown+extra),V(extra)),V(mult)),'Сначала вычтем, затем умножим.',2],
-   ['Уравнение x + '+mult+' · '+add+' = '+(unknown+mult*add)+'. Найди x.',S(V(unknown+mult*add),M(V(mult),V(add))),'Вычислим произведение и вычтем.',2]
+   ['Реши уравнение '+mult+'x + '+add+' = '+(rhsProduct+add)+'.',
+    D(S(V(rhsProduct+add),V(add)),V(mult)),
+    'Сначала найдём неизвестное слагаемое: '+mult+'x = '+(rhsProduct+add)+' − '+add+' = '+rhsProduct+'. Затем x = '+rhsProduct+' : '+mult+' = '+root+'. Проверка: '+mult+' · '+root+' + '+add+' = '+(rhsProduct+add)+'.',3],
+   ['Реши уравнение '+mult+'(x + '+add+') = '+(mult*rhsSum)+'.',
+    S(D(V(mult*rhsSum),V(mult)),V(add)),
+    'Неизвестный множитель в скобках: x + '+add+' = '+(mult*rhsSum)+' : '+mult+' = '+rhsSum+'. Затем x = '+rhsSum+' − '+add+' = '+root+'. Проверка: '+mult+' · ('+root+' + '+add+') = '+(mult*rhsSum)+'.',3],
+   ['Реши уравнение '+(rhsProduct+add)+' − '+mult+'x = '+add+'.',
+    D(S(V(rhsProduct+add),V(add)),V(mult)),
+    'Найдём неизвестное вычитаемое: '+mult+'x = '+(rhsProduct+add)+' − '+add+' = '+rhsProduct+'. Затем x = '+rhsProduct+' : '+mult+' = '+root+'. Проверка: '+(rhsProduct+add)+' − '+mult+' · '+root+' = '+add+'.',3],
+   ['Реши уравнение x : '+mult+' + '+extra+' = '+(root+extra)+'.',
+    M(S(V(root+extra),V(extra)),V(mult)),
+    'Неизвестное слагаемое: x : '+mult+' = '+(root+extra)+' − '+extra+' = '+root+'. Делимое x = '+root+' · '+mult+' = '+rhsProduct+'. Проверка: '+rhsProduct+' : '+mult+' + '+extra+' = '+(root+extra)+'.',3],
+   ['Реши уравнение x − '+mult+' · '+add+' = '+root+'.',
+    A(V(root),M(V(mult),V(add))),
+    'Сначала произведение: '+mult+' · '+add+' = '+(mult*add)+'. Чтобы найти уменьшаемое: x = '+root+' + '+(mult*add)+' = '+(root+mult*add)+'. Проверка: '+(root+mult*add)+' − '+mult+' · '+add+' = '+root+'.',3]
   ];
   else rows=[
-   ['Найди x: '+mult+'(x + '+add+') − '+extra+' = '+(mult*(unknown+add)-extra)+'.',S(D(A(V(mult*(unknown+add)-extra),V(extra)),V(mult)),V(add)),'Восстановим сумму в скобках обратными действиями.',4],
-   ['Реши уравнение '+mult+'(x − '+extra+') + '+add+' = '+(mult*(unknown-extra)+add)+'.',A(D(S(V(mult*(unknown-extra)+add),V(add)),V(mult)),V(extra)),'Сначала вычтем свободное число, разделим, прибавим.',4],
-   ['К некоторому числу x прибавили '+add+', умножили на '+mult+' и вычли '+extra+'. Получили '+(mult*(unknown+add)-extra)+'. Найди x.',S(D(A(V(mult*(unknown+add)-extra),V(extra)),V(mult)),V(add)),'Три обратных действия восстановят исходное число.',4],
-   ['Уравнение '+mult+'x + '+extra+'x = '+((mult+extra)*unknown)+'. Найди x.',D(V((mult+extra)*unknown),A(V(mult),V(extra))),'Вынесем x, сложим коэффициенты и разделим.',3],
-   ['Найди x: ('+mult+'x + '+add+') · '+extra+' = '+((mult*unknown+add)*extra)+'.',D(S(D(V((mult*unknown+add)*extra),V(extra)),V(add)),V(mult)),'Сначала делим обе части на множитель, вычитаем свободное слагаемое, затем делим на коэффициент x.',4]
+   ['Реши уравнение '+mult+'(x + '+add+') − '+extra+' = '+(mult*rhsSum-extra)+'.',
+    S(D(A(V(mult*rhsSum-extra),V(extra)),V(mult)),V(add)),
+    'Сначала вернём вычитание: '+mult+'(x + '+add+') = '+(mult*rhsSum-extra)+' + '+extra+' = '+(mult*rhsSum)+'. Затем x + '+add+' = '+(mult*rhsSum)+' : '+mult+' = '+rhsSum+'. Поэтому x = '+rhsSum+' − '+add+' = '+root+'. Проверка: '+mult+' · ('+root+' + '+add+') − '+extra+' = '+(mult*rhsSum-extra)+'.',5],
+   ['Реши уравнение '+mult+'(x − '+extra+') + '+add+' = '+(mult*(root-extra)+add)+'.',
+    A(D(S(V(mult*(root-extra)+add),V(add)),V(mult)),V(extra)),
+    'Сначала вычтем '+add+': '+mult+'(x − '+extra+') = '+(mult*(root-extra)+add)+' − '+add+' = '+(mult*(root-extra))+'. Разделим: x − '+extra+' = '+(mult*(root-extra))+' : '+mult+' = '+(root-extra)+'. Поэтому x = '+(root-extra)+' + '+extra+' = '+root+'. Проверка: '+mult+' · ('+root+' − '+extra+') + '+add+' = '+(mult*(root-extra)+add)+'.',5],
+   ['К некоторому числу x прибавили '+add+', затем умножили полученную сумму на '+mult+' и вычли '+extra+'. Получили '+(mult*rhsSum-extra)+'. Найди исходное число x.',
+    S(D(A(V(mult*rhsSum-extra),V(extra)),V(mult)),V(add)),
+    'Составим уравнение: (x + '+add+') · '+mult+' − '+extra+' = '+(mult*rhsSum-extra)+'. Вернём '+extra+': '+(mult*rhsSum-extra)+' + '+extra+' = '+(mult*rhsSum)+'. Разделим на '+mult+': x + '+add+' = '+rhsSum+'. Вычтем '+add+': x = '+rhsSum+' − '+add+' = '+root+'. Проверка: ('+root+' + '+add+') · '+mult+' − '+extra+' = '+(mult*rhsSum-extra)+'.',5],
+   ['Реши уравнение '+mult+'x + '+extra+'x = '+((mult+extra)*root)+'.',
+    D(V((mult+extra)*root),A(V(mult),V(extra))),
+    'Сначала объединим одинаковые слагаемые с x: ('+mult+' + '+extra+')x = '+((mult+extra)*root)+'. Сложим коэффициенты: '+(mult+extra)+'x = '+((mult+extra)*root)+'. Разделим на '+(mult+extra)+': x = '+((mult+extra)*root)+' : '+(mult+extra)+' = '+root+'. Проверка: '+mult+' · '+root+' + '+extra+' · '+root+' = '+((mult+extra)*root)+'.',4],
+   ['Реши уравнение ('+mult+'x + '+add+') · '+extra+' = '+((rhsProduct+add)*extra)+'.',
+    D(S(D(V((rhsProduct+add)*extra),V(extra)),V(add)),V(mult)),
+    'Разделим обе части на '+extra+': '+mult+'x + '+add+' = '+((rhsProduct+add)*extra)+' : '+extra+' = '+(rhsProduct+add)+'. Вычтем '+add+': '+mult+'x = '+rhsProduct+'. Разделим на '+mult+': x = '+rhsProduct+' : '+mult+' = '+root+'. Проверка: ('+mult+' · '+root+' + '+add+') · '+extra+' = '+((rhsProduct+add)*extra)+'.',5]
   ];
  }
  if(id==='volume'){
@@ -313,5 +346,7 @@ function build(id){
   mk126:{id,t,p,steps:data.steps,plan:data.plan,expected:value}};
 }
 makeG5Question=function(id){return covered.has(id)?build(id):previous.apply(this,arguments)};
+const priorLesson=g5Lesson;
+g5Lesson=function(id){return id==='equations'?'Уравнение — равенство с неизвестным числом, которое обозначают буквой x. Корень уравнения — значение x, при котором левая и правая части равны. Решать уравнение помогают обратные действия: x + a = b ⇒ x = b − a; x − a = b ⇒ x = b + a; a − x = b ⇒ x = a − b; ax = b ⇒ x = b : a; x : a = b ⇒ x = a · b. Если несколько действий, восстанавливай неизвестное с последнего действия и записывай каждое промежуточное равенство. Например, 3(x + 4) = 30 ⇒ x + 4 = 10 ⇒ x = 6. Обязательная проверка: 3 · (6 + 4) = 30, обе стороны равны. Всегда проверяй корень подстановкой в исходное уравнение.':priorLesson(id)};
 window.mkG5V126Tiered=TOPICS.slice();
 })();

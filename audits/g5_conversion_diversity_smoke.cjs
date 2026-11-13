@@ -12,12 +12,15 @@ const {chromium}=require('playwright');
     for(const topic of ['frac_to_mixed','mixed_to_frac']){
       const stageReports=[];
       for(let stage=0;stage<3;stage++){
-        const kinds=[],families=[],levels=[],questions=[];
+        const kinds=[],families=[],levels=[],questions=[],usedSignatures=[];
         for(let pos=0;pos<stages[stage];pos++){
           blockSession={kind:'g5quiz',key:'g5:'+topic,stageIndex:stage,done:pos,total:stages[stage],
-            usedSignatures:[],items:[],finished:false};
+            usedSignatures,items:[],finished:false};
           qid='g5:'+topic;
           const sample=makeG5Question(topic);
+          if(usedSignatures.includes(sample.sig))
+            throw Error('Conversion generator repeated a used signature '+topic+' '+stage+' '+pos);
+          usedSignatures.push(sample.sig);
           if(!sample.conversionAudit)throw Error('Missing conversion audit '+topic+' '+stage+' '+pos);
           const a=sample.conversionAudit;
           const actual=Number(a.answerNumerator),n=Number(a.originalNumerator),d=Number(a.den);
