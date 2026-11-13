@@ -8,4 +8,9 @@ for(const bad of ["'На складе '+base+' кг.","'Из '+base+' учени
 for(const good of ["кг муки. Продали 20% муки","участников городской спортивной программы","На районном спортивном празднике 40% участников"]){
  assert(src.includes(good),'Missing corrected percentage context: '+good);
 }
-console.log('Stage 38 percentage-context regression: PASS (3 real question families)');
+const arithmetic=fs.readFileSync('g5-arithmetic-tiers-v123.js','utf8');
+assert(arithmetic.includes("'В школьный склад привезли '+b+' партий коробок."),'Missing clear multiplication context');
+assert(arithmetic.includes("'В одной партии '+d+' коробок по '+a+' предметов"),'Missing clear comparison context');
+assert(arithmetic.includes("Чему равен результат?"),'Incorrect division prompt grammar');
+assert(!arithmetic.includes("В каждом большом ящике '+d+' маленьких"),'Original ambiguous multiplication remains');
+console.log('Stage 38 methodological context regressions: PASS (6 learner-facing families)');
