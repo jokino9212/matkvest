@@ -220,20 +220,65 @@ function specification(id,t,p){
   ];
  }
  if(id==='natural_divide'){
-  const pack=d,all=(a+b+c)*pack;
-  if(t===1)data=[
-   ['Вычисли ('+a+' + '+b+') · '+pack+' : '+pack+'.',D(M(A(V(a),V(b)),V(pack)),V(pack)),'Сначала сумма, затем умножение и обратное деление.',3],
-   [''+(a*b*pack)+' предметов разделили на '+b+' равных групп, затем каждую на '+pack+' равных частей. Сколько в части?',D(D(V(a*b*pack),V(b)),V(pack)),'Два последовательных деления.',2],
-   ['В '+pack+' одинаковых пачках '+(pack*(a+b))+' листов. В каждую пачку положили ещё '+c+' листов. Сколько теперь в одной?',A(D(V(pack*(a+b)),V(pack)),V(c)),'Сначала найдём прежнее число в пачке, затем прибавим.',2],
-   ['Вычисли ('+(a*pack)+' + '+(b*pack)+') : '+pack+'.',D(A(V(a*pack),V(b*pack)),V(pack)),'Сложим два произведения и разделим сумму.',2],
-   ['Число x разделили на '+b+', затем на '+pack+' и получили '+a+'. Найди первоначальное число x.',M(M(V(a),V(b)),V(pack)),'Восстановим исходное число двумя обратными умножениями: сначала на '+pack+', затем на '+b+'.',3]
+  // §13: exact natural-number division, components, inverse operations,
+  // equal shares and grouping. 15 distinct tasks with rising cognitive depth.
+  const per=ri(9,33),groups=ri(3,12),other=ri(8,27),
+    divisor=ri(3,9),less=ri(2,7),extra=ri(3,12),
+    first=ri(3,11),second=ri(2,9),offset=ri(11,38),
+    boxes=ri(4,13),newBoxes=ri(2,9),
+    totalPacks=ri(4,11),give=ri(2,7),
+    perSet=ri(10,29),books=ri(4,12),rest=ri(3,8);
+  const whole=per*groups;
+  if(t===0)data=[
+   ['Найди частное '+whole+' : '+groups+'.',
+    D(V(whole),V(groups)),
+    'Делимое '+whole+', делитель '+groups+'. Так как '+groups+' · '+per+' = '+whole+', частное '+whole+' : '+groups+' = '+per+'.',1],
+   ['В равенстве '+whole+' : □ = '+per+' найди неизвестный делитель.',
+    D(V(whole),V(per)),
+    'Неизвестный делитель равен делимому, делённому на частное: '+whole+' : '+per+' = '+groups+'. Проверка: '+per+' · '+groups+' = '+whole+'.',2],
+   ['В равенстве x : '+groups+' = '+per+' найди неизвестное делимое x.',
+    M(V(groups),V(per)),
+    'Чтобы найти делимое, умножаем частное на делитель: x = '+per+' · '+groups+' = '+whole+'. Проверка: '+whole+' : '+groups+' = '+per+'.',2],
+   ['Вычисли, используя свойства деления: '+per+' : 1 + '+per+' : '+per+' + 0 : '+groups+'.',
+    A(D(V(per),V(1)),D(V(per),V(per)),D(V(0),V(groups))),
+    'При делении на единицу: '+per+' : 1 = '+per+'. Число, отличное от нуля, при делении само на себя даёт 1: '+per+' : '+per+' = 1. Нуль делим только на ненулевое число: 0 : '+groups+' = 0. Сумма '+per+' + 1 + 0 = '+(per+1)+'.',2],
+   [''+whole+' тетрадей разложили поровну в '+groups+' коробок. Сколько тетрадей в одной коробке?',
+    D(V(whole),V(groups)),
+    'Делим все тетради поровну: '+whole+' : '+groups+' = '+per+'. Проверка: '+groups+' коробок по '+per+' тетрадей дают '+whole+' тетрадей.',2]
+  ];
+  else if(t===1)data=[
+   ['Найди сумму частных '+(per*groups)+' : '+groups+' и '+(other*divisor)+' : '+divisor+'.',
+    A(D(V(per*groups),V(groups)),D(V(other*divisor),V(divisor))),
+    'Первое частное: '+(per*groups)+' : '+groups+' = '+per+'. Второе: '+(other*divisor)+' : '+divisor+' = '+other+'. Сумма '+per+' + '+other+' = '+(per+other)+'. Проверка: '+groups+' · '+per+' = '+(per*groups)+' и '+divisor+' · '+other+' = '+(other*divisor)+'.',3],
+   ['Вычисли ('+(groups*per)+' + '+(groups*other)+') : '+groups+'.',
+    D(A(V(groups*per),V(groups*other)),V(groups)),
+    'Сначала сложим: '+(groups*per)+' + '+(groups*other)+' = '+(groups*(per+other))+'. Делим на '+groups+': '+(groups*(per+other))+' : '+groups+' = '+(per+other)+'. Проверка: '+groups+' · '+(per+other)+' = '+(groups*(per+other))+'.',3],
+   ['Вычисли ('+(groups*per)+' − '+(groups*less)+') : '+groups+'.',
+    D(S(V(groups*per),V(groups*less)),V(groups)),
+    'Сначала разность: '+(groups*per)+' − '+(groups*less)+' = '+(groups*(per-less))+'. Частное '+(groups*(per-less))+' : '+groups+' = '+(per-less)+'. Проверка: '+groups+' · '+(per-less)+' = '+(groups*(per-less))+'.',3],
+   ['Для '+groups+' классов выделили '+(groups*(per+extra))+' тетрадей поровну. Из доли каждого класса отложили '+extra+' тетрадей в запас. Сколько тетрадей осталось в каждом классе?',
+    S(D(V(groups*(per+extra)),V(groups)),V(extra)),
+    'Вначале на один класс '+(groups*(per+extra))+' : '+groups+' = '+(per+extra)+' тетрадей. После откладывания '+(per+extra)+' − '+extra+' = '+per+'. Проверка: '+groups+' · '+(per+extra)+' = '+(groups*(per+extra))+'.',3],
+   ['Число x разделили на '+b+', затем на '+d+' и получили '+a+'. Найди первоначальное число x.',
+    M(M(V(a),V(b)),V(d)),
+    'Идём обратными действиями: после первого деления было '+a+' · '+d+' = '+(a*d)+'. Первоначальное число x = '+(a*d)+' · '+b+' = '+(a*b*d)+'. Проверка: '+(a*b*d)+' : '+b+' = '+(a*d)+', затем '+(a*d)+' : '+d+' = '+a+'.',4]
   ];
   else data=[
-   ['Вычисли ('+a+' + '+b+' + '+c+') · '+pack+' : '+pack+' − '+b+'.',S(D(M(A(V(a),V(b),V(c)),V(pack)),V(pack)),V(b)),'Сумма трёх, умножение, деление и вычитание.',5],
-   ['Вычисли (('+a+' · '+b+' + '+c+' · '+b+') · '+pack+') : ('+b+' · '+pack+').',D(M(A(M(V(a),V(b)),M(V(c),V(b))),V(pack)),M(V(b),V(pack))),'Вычислим числитель и знаменатель, затем разделим.',5],
-   ['В коробках по '+pack+' предметов было '+(a*pack)+' вещей. Принесли ещё '+(b*pack)+' вещей и всё разложили поровну по '+pack+' штук. Сколько полных коробок получилось?',D(A(V(a*pack),V(b*pack)),V(pack)),'Складываем две партии и делим на вместимость.',3],
-   ['Некоторое число умножили на '+pack+', затем разделили на '+b+' и получили '+(a*pack)+'. Найди первоначальное число.',D(M(V(a*pack),V(b)),V(pack)),'Обратными действиями умножаем на '+b+' и делим на '+pack+'.',3],
-   ['Вычисли разность частных ('+(a*pack)+' + '+(b*pack)+') : '+pack+' и '+(c*pack)+' : '+pack+'.',S(D(A(V(a*pack),V(b*pack)),V(pack)),D(V(c*pack),V(pack))),'Найдём оба частных, затем вычтем.',4]
+   ['Вычисли ('+(groups*per)+' + '+(groups*other)+') : '+groups+' + '+(extra*divisor)+' : '+divisor+'.',
+    A(D(A(V(groups*per),V(groups*other)),V(groups)),D(V(extra*divisor),V(divisor))),
+    'Первая сумма: '+(groups*per)+' + '+(groups*other)+' = '+(groups*(per+other))+'. Делим: '+(groups*(per+other))+' : '+groups+' = '+(per+other)+'. Второе частное '+(extra*divisor)+' : '+divisor+' = '+extra+'. Общая сумма '+(per+other)+' + '+extra+' = '+(per+other+extra)+'.',5],
+   ['Вычисли ('+(groups*per)+' − '+(groups*less)+') : '+groups+' + '+(other*divisor)+' : '+divisor+'.',
+    A(D(S(V(groups*per),V(groups*less)),V(groups)),D(V(other*divisor),V(divisor))),
+    'Разность '+(groups*per)+' − '+(groups*less)+' = '+(groups*(per-less))+'. Первое частное '+(groups*(per-less))+' : '+groups+' = '+(per-less)+'. Второе частное '+(other*divisor)+' : '+divisor+' = '+other+'. Итого '+(per-less)+' + '+other+' = '+(per-less+other)+'.',5],
+   ['В школьную библиотеку привезли '+(groups*(per+extra)+offset)+' книг. '+offset+' книг оставили в читальном зале. Остальные поровну распределили между '+groups+' классами. В каждом классе '+extra+' книг поставили на отдельную полку. Сколько книг осталось на других полках одного класса?',
+    S(D(S(V(groups*(per+extra)+offset),V(offset)),V(groups)),V(extra)),
+    'Сначала отложим '+offset+' книг: '+(groups*(per+extra)+offset)+' − '+offset+' = '+(groups*(per+extra))+'. Делим на '+groups+' классов: '+(groups*(per+extra))+' : '+groups+' = '+(per+extra)+'. В классе оставили на других полках '+(per+extra)+' − '+extra+' = '+per+' книг. Проверка: '+groups+' · '+(per+extra)+' + '+offset+' = '+(groups*(per+extra)+offset)+'.',5],
+   ['В '+boxes+' больших коробках было по '+(divisor*per)+' карандашей, а в '+newBoxes+' других коробках — по '+(divisor*other)+' карандашей. Все карандаши разложили поровну в '+divisor+' новых наборов. Сколько карандашей в одном новом наборе?',
+    D(A(M(V(boxes),V(divisor*per)),M(V(newBoxes),V(divisor*other))),V(divisor)),
+    'В первой партии '+boxes+' · '+(divisor*per)+' = '+(boxes*divisor*per)+'. Во второй '+newBoxes+' · '+(divisor*other)+' = '+(newBoxes*divisor*other)+'. Всего '+(boxes*divisor*per)+' + '+(newBoxes*divisor*other)+' = '+(divisor*(boxes*per+newBoxes*other))+'. Делим на '+divisor+' наборов: '+(divisor*(boxes*per+newBoxes*other))+' : '+divisor+' = '+(boxes*per+newBoxes*other)+' карандашей.',5],
+   ['Вычисли частное ('+(totalPacks*perSet)+' + '+(totalPacks*books)+' − '+(totalPacks*rest)+') : '+totalPacks+'.',
+    D(S(A(V(totalPacks*perSet),V(totalPacks*books)),V(totalPacks*rest)),V(totalPacks)),
+    'Первая сумма '+(totalPacks*perSet)+' + '+(totalPacks*books)+' = '+(totalPacks*(perSet+books))+'. Вычитаем '+(totalPacks*rest)+': '+(totalPacks*(perSet+books))+' − '+(totalPacks*rest)+' = '+(totalPacks*(perSet+books-rest))+'. Делим на '+totalPacks+': '+(totalPacks*(perSet+books-rest))+' : '+totalPacks+' = '+(perSet+books-rest)+'. Проверка: '+totalPacks+' · '+(perSet+books-rest)+' = '+(totalPacks*(perSet+books-rest))+'.',5]
   ];
  }
  if(id==='numeric_literal_expressions'){
@@ -367,7 +412,7 @@ function specification(id,t,p){
 }
 function make(id){
  const t=level(),p=slot();
- if(t===0&&id!=='column_charts'&&id!=='natural_add'&&id!=='natural_subtract'&&id!=='natural_multiply'&&id!=='numeric_literal_expressions')return previous.apply(this,arguments);
+ if(t===0&&id!=='column_charts'&&id!=='natural_add'&&id!=='natural_subtract'&&id!=='natural_multiply'&&id!=='natural_divide'&&id!=='numeric_literal_expressions')return previous.apply(this,arguments);
  const data=specification(id,t,p);
  const expr=Array.isArray(data.plan)&&data.plan[0]==='expr';
  const answer=expr?String(data.plan[1]):oracle(data.plan);
