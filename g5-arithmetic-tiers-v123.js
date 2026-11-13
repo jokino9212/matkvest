@@ -22,19 +22,42 @@ function table(a,b,c,d,extra){
  const row=(title,values)=>'<tr><th scope="row">'+title+'</th>'+values.map(n=>'<td>'+n+'</td>').join('')+'</tr>';
  return '<div class="mk-g5-v123-table" style="width:100%;overflow-x:auto"><table style="width:100%;border-collapse:collapse;text-align:center"><caption style="text-align:left;padding:4px 0">Продано изданий, шт.</caption><thead><tr><th scope="col">Издание</th><th scope="col">Пн</th><th scope="col">Вт</th><th scope="col">Ср</th><th scope="col">Чт</th></tr></thead><tbody>'+row('Книги',[a,b,c,d])+(extra?row('Журналы',extra):'')+'</tbody></table></div>';
 }
-function bars(a,b,c,d,extra){
- const names=['Пн','Вт','Ср','Чт'],values=[a,b,c,d],scale=110/Math.max(...values,...(extra||[]));
- let marks='';
- values.forEach((n,i)=>{
-  const x=40+i*115,y=143-n*scale,h=n*scale;
-  marks+='<rect x="'+x+'" y="'+y.toFixed(1)+'" width="55" height="'+h.toFixed(1)+'" rx="3" fill="#4a94c9"/><text x="'+(x+27)+'" y="'+(y-5).toFixed(1)+'" text-anchor="middle" font-size="15" fill="currentColor">'+n+'</text><text x="'+(x+27)+'" y="165" text-anchor="middle" font-size="15" fill="currentColor">'+names[i]+'</text>';
-  if(extra){const v=extra[i],yy=143-v*scale;marks+='<rect x="'+(x+57)+'" y="'+yy.toFixed(1)+'" width="17" height="'+(v*scale).toFixed(1)+'" fill="#d38a41"/>';}
+function bars(primary,secondary=null){
+ const days=['Пн','Вт','Ср','Чт'],cols=4,series=[{name:'Тетради',key:'books',values:primary,color:'#3678bf'}];
+ if(secondary)series.push({name:'Альбомы',key:'albums',values:secondary,color:'#cc7a33'});
+ if(series.some(row=>row.values.length!==cols||row.values.some(v=>!Number.isInteger(v)||v<=0||v>100||v%10)))throw Error('Invalid meaningful chart unit or range');
+ const upper=100,left=66,baseline=248,height=190,pxPerValue=height/upper;
+ let grid='',barsSvg='',legend='';
+ for(let value=0;value<=upper;value+=10){
+  const y=(baseline-pxPerValue*value).toFixed(2),major=value%20===0;
+  grid+='<line class="mk-g5-chart-grid" data-unit="'+value+'" x1="'+left+'" y1="'+y+'" x2="585" y2="'+y+'" stroke="#a8bed4" stroke-opacity="'+(major?'0.54':'0.22')+'" stroke-width="'+(major?'1.2':'0.8')+'"/>';
+  if(major)grid+='<text class="mk-g5-chart-tick-label" data-unit="'+value+'" x="'+(left-13)+'" y="'+(Number(y)+5).toFixed(2)+'" text-anchor="end" font-size="16" fill="currentColor">'+value+'</text>';
+ }
+ days.forEach((day,i)=>{
+  const cx=125+i*130;
+  series.forEach((row,j)=>{
+   const value=row.values[i],y=baseline-pxPerValue*value,h=pxPerValue*value;
+   const width=secondary?34:60,x=secondary?cx-36+j*41:cx-30;
+   barsSvg+='<rect class="mk-g5-chart-bar" data-day="'+day+'" data-series="'+row.key+'" data-value="'+value+'" x="'+x+'" y="'+y.toFixed(2)+'" width="'+width+'" height="'+h.toFixed(2)+'" rx="3" fill="'+row.color+'" aria-label="'+row.name+' '+day+', '+value+' штук"><title>'+row.name+', '+day+': '+value+' шт.</title></rect>';
+  });
+  barsSvg+='<text class="mk-g5-chart-day" x="'+cx+'" y="276" text-anchor="middle" font-size="21" fill="currentColor">'+day+'</text>';
  });
- return '<div style="width:100%;overflow:hidden"><svg role="img" aria-label="Столбчатая диаграмма за четыре дня" viewBox="0 0 515 185" width="100%" style="max-width:650px;height:auto"><line x1="24" y1="143" x2="504" y2="143" stroke="currentColor" stroke-width="2"/>'+marks+'</svg></div>';
+ if(secondary){
+  legend=series.map((row,j)=>{
+   const x=130+j*205;
+   return '<rect x="'+x+'" y="315" width="18" height="14" rx="2" fill="'+row.color+'"/><text x="'+(x+25)+'" y="328" font-size="16" fill="currentColor">'+row.name+'</text>';
+  }).join('');
+ }
+ const html='<text x="19" y="26" font-size="17" fill="currentColor">Количество, шт.</text>'+
+  '<line x1="'+left+'" y1="50" x2="'+left+'" y2="'+baseline+'" stroke="#56728c" stroke-width="2"/>'+
+  grid+barsSvg+
+  '<line x1="'+left+'" y1="'+baseline+'" x2="590" y2="'+baseline+'" stroke="#56728c" stroke-width="2"/>'+
+  legend;
+ return '<div class="mk-g5-chart-figure" style="width:100%;max-width:740px;overflow:hidden;margin:10px auto"><svg role="img" aria-label="Столбчатая диаграмма с равномерной шкалой количества от 0 до 100 штук, деления по 10 штук, дни Пн, Вт, Ср, Чт'+(secondary?'; синие столбцы — тетради, оранжевые — альбомы':'')+'" data-chart-max="100" data-chart-baseline="'+baseline+'" viewBox="0 0 620 '+(secondary?358:300)+'" width="100%" style="height:auto;display:block">'+html+'</svg></div>';
 }
 function specification(id,t,p){
  const a=ri(20,70+t*18),b=ri(6,24+t*8),c=ri(3,15+t*5),d=ri(2,9+t*3),e=ri(2,8+t*3);
- const total=a+b+c+d, tab=table(a,b,c,d),chart=bars(a,b,c,d);
+ const total=a+b+c+d,tab=table(a,b,c,d);
  let data;
  if(id==='natural_add'){
   if(t===1)data=[
@@ -136,20 +159,33 @@ function specification(id,t,p){
   ];
  }
  if(id==='column_charts'){
-  const display=chart,twobars=bars(a,b,c,d,[b,c,d,e]);
-  if(t===1)data=[
-   ['Найди сумму значений столбцов понедельника, вторника и среды. '+display,A(V(a),V(b),V(c)),'По высотам столбцов считываем числа и складываем.',2],
-   ['На сколько столбец понедельника выше столбца четверга? '+display,S(V(a),V(d)),'Считываем значения и вычитаем.',2],
-   ['Какова сумма второго и четвёртого столбцов? '+display,A(V(b),V(d)),'Выберем два столбца и сложим.',2],
-   ['Насколько сумма первых двух столбцов больше третьего? '+display,S(A(V(a),V(b)),V(c)),'Сумма Пн и Вт минус Ср.',3],
-   ['Сколько всего единиц дают первый, третий и четвёртый столбцы? '+display,A(V(a),V(c),V(d)),'Сложим значения трёх дней.',2]
+  // §7: a chart really carries the data. Values aren't copied into the prompt.
+  const aa=ri(3,9)*10,bb=ri(2,8)*10,cc=ri(2,7)*10,dd=ri(1,6)*10;
+  const primary=[aa,bb,cc,dd],secondary=[ri(2,8)*10,ri(1,7)*10,ri(2,8)*10,ri(1,7)*10];
+  const chart=bars(primary),dual=bars(primary,secondary),count=primary.reduce((x,y)=>x+y,0);
+  const countExtra=secondary.reduce((x,y)=>x+y,0),sorted=[...primary].sort((x,y)=>y-x),small=[...primary].sort((x,y)=>x-y);
+  const gap=(x,y)=>Math.abs(x-y);
+  const fifth=ri(2,12)*5,added=ri(2,8)*5,loss=ri(1,5)*5;
+  if(t===0)data=[
+   ['По диаграмме определи, сколько тетрадей продали во вторник. '+chart,V(bb),'Сравним верхнюю границу столбца Вт со шкалой: она стоит на уровне '+bb+' шт.',1],
+   ['Прочитай диаграмму. Каково наибольшее число проданных тетрадей за один из четырёх дней? '+chart,V(sorted[0]),'Находим самый высокий столбец и читаем по вертикальной шкале: '+sorted[0]+' шт.',1],
+   ['На сколько тетрадей различаются продажи в понедельник и среду? '+chart,AB(V(aa),V(cc)),'По шкале: Пн — '+aa+', Ср — '+cc+'. Положительная разность: '+Math.max(aa,cc)+' − '+Math.min(aa,cc)+' = '+gap(aa,cc)+'.',2],
+   ['Сколько тетрадей продали во вторник и четверг вместе? '+chart,A(V(bb),V(dd)),'По шкале: Вт — '+bb+', Чт — '+dd+'. Складываем: '+bb+' + '+dd+' = '+(bb+dd)+'.',2],
+   ['Какова разница между самым высоким и самым низким столбцами диаграммы? '+chart,S(V(sorted[0]),V(small[0])),'Самое большое значение '+sorted[0]+', самое маленькое '+small[0]+'. Вычитаем: '+sorted[0]+' − '+small[0]+' = '+(sorted[0]-small[0])+'.',2]
+  ];
+  else if(t===1)data=[
+   ['Сколько всего тетрадей продали за понедельник, вторник, среду и четверг? '+chart,A(...primary.map(V)),'Читаем столбцы: '+primary.join(' + ')+' = '+count+' шт.',3],
+   ['Насколько различаются суммы продаж за понедельник и вторник и за среду и четверг? '+chart,AB(A(V(aa),V(bb)),A(V(cc),V(dd))),'Первая сумма '+aa+' + '+bb+' = '+(aa+bb)+'. Вторая '+cc+' + '+dd+' = '+(cc+dd)+'. Разность положительная: '+gap(aa+bb,cc+dd)+'.',4],
+   ['За пять дней продали '+(count+fifth)+' тетрадей. Диаграмма показывает первые четыре дня. Сколько тетрадей продали в пятницу? '+chart,S(V(count+fifth),A(...primary.map(V))),'За четыре дня: '+primary.join(' + ')+' = '+count+'. Пятница: '+(count+fifth)+' − '+count+' = '+fifth+' шт.',4],
+   ['На диаграмме синие столбцы — тетради, оранжевые — альбомы. Сколько всего тетрадей и альбомов продали в среду? '+dual,A(V(cc),V(secondary[2])),'В среду: тетрадей '+cc+', альбомов '+secondary[2]+'. Всего '+cc+' + '+secondary[2]+' = '+(cc+secondary[2])+' шт.',3],
+   ['Сколько вместе составляют два наибольших значения продаж тетрадей на диаграмме? '+chart,A(V(sorted[0]),V(sorted[1])),'Два наибольших показателя: '+sorted[0]+' и '+sorted[1]+'. Сумма '+sorted[0]+' + '+sorted[1]+' = '+(sorted[0]+sorted[1])+' шт.',3]
   ];
   else data=[
-   ['Сложи четыре значения диаграммы, затем вычти второй столбец. '+display,S(A(V(a),V(b),V(c),V(d)),V(b)),'Сумма четырёх столбцов минус второй.',4],
-   ['Диаграмма показывает две категории. Найди сумму основной категории (синие столбцы) и дополнительной (коричневые) за понедельник и четверг. '+twobars,A(V(a),V(b),V(d),V(e)),'Для двух дней суммируем значения обоих рядов.',4],
-   ['Сравни суммы синих столбцов Пн и Ср с коричневыми Вт и Ср. Найди разность. '+twobars,AB(A(V(a),V(c)),A(V(c),V(d))),'Сначала две суммы, затем модуль разности.',5],
-   ['Всего за пять дней '+(total+e)+' единиц. На диаграмме четыре дня. Сколько приходится на пятый день? '+display,S(V(total+e),A(V(a),V(b),V(c),V(d))),'Вычтем четыре известные величины из общего итога.',4],
-   ['Диаграмма показывает значения за Пн, Вт, Ср, Чт. Сколько единиц получится, если увеличить вторник на '+e+', а среду уменьшить на '+Math.min(d,c-1)+'?',A(V(b),V(e),S(V(c),V(Math.min(d,c-1)))),'Применим оба изменения и сложим два результата.',4]
+   ['В пятницу продали столько же тетрадей, сколько в два дня с наименьшими показателями вместе. Сколько всего продали за пять дней? '+chart,A(A(...primary.map(V)),V(small[0]),V(small[1])),'Четыре дня: '+count+' шт. Два самых низких показателя: '+small[0]+' и '+small[1]+'. Пятница '+(small[0]+small[1])+'. За пять дней '+(count+small[0]+small[1])+' шт.',5],
+   ['Два вида товаров: синие столбцы — тетради, оранжевые — альбомы. Сколько всего товаров обоих видов продали за четыре дня? '+dual,A(...primary.concat(secondary).map(V)),'Тетради: '+primary.join(' + ')+' = '+count+'. Альбомы: '+secondary.join(' + ')+' = '+countExtra+'. Всего '+count+' + '+countExtra+' = '+(count+countExtra)+' шт.',6],
+   ['На диаграмме синие столбцы показывают тетради, оранжевые — альбомы. На сколько различаются общие продажи двух видов за четыре дня? '+dual,AB(A(...primary.map(V)),A(...secondary.map(V))),'Сумма тетрадей: '+primary.join(' + ')+' = '+count+'. Сумма альбомов: '+secondary.join(' + ')+' = '+countExtra+'. Разность '+gap(count,countExtra)+' шт.',6],
+   ['В магазине записали продажи тетрадей (синий) и альбомов (оранжевый) за четыре дня. В пятницу дополнительно продали '+added+' тетрадей, а из покупок альбомов за предыдущие дни вернули '+loss+' штук. Сколько товаров числится проданными после этих изменений? '+dual,S(A(A(...primary.concat(secondary).map(V)),V(added)),V(loss)),'Проданные товары обоих видов: '+count+' + '+countExtra+' = '+(count+countExtra)+'. С учётом поступления и возврата: '+(count+countExtra)+' + '+added+' − '+loss+' = '+(count+countExtra+added-loss)+'.',5],
+   ['На диаграмме показаны тетради (синий) и альбомы (оранжевый). На сколько отличается сумма тетрадей за вторник и четверг от суммы альбомов за понедельник и среду? '+dual,AB(A(V(bb),V(dd)),A(V(secondary[0]),V(secondary[2]))),'Синие Вт + Чт: '+bb+' + '+dd+' = '+(bb+dd)+'. Оранжевые Пн + Ср: '+secondary[0]+' + '+secondary[2]+' = '+(secondary[0]+secondary[2])+'. Разность: '+gap(bb+dd,secondary[0]+secondary[2])+' шт.',4]
   ];
  }
  if(id==='formulas_g5'){
@@ -175,7 +211,7 @@ function specification(id,t,p){
 }
 function make(id){
  const t=level(),p=slot();
- if(t===0)return previous.apply(this,arguments);
+ if(t===0&&id!=='column_charts')return previous.apply(this,arguments);
  const data=specification(id,t,p);
  const answer=oracle(data.plan);
  if(!Number.isSafeInteger(answer)||answer<0)throw Error('v123 impossible result '+id+' L'+t+' F'+p+' = '+answer);
