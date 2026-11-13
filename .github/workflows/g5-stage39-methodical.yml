@@ -1,0 +1,48 @@
+name: G5 stage39 mathematical methodology and independent fraction oracle
+on:
+  push:
+    branches:
+      - audit/g5-methodical-quality-stage38-20261113
+    paths:
+      - 'g5-arithmetic-tiers-v123.js'
+      - 'g5-decimal-percent-v128.js'
+      - 'g5-fraction-concepts-v129.js'
+      - 'audits/g5_stage38_percent_context_check.cjs'
+      - 'audits/g5_stage39_fraction_independent_oracle.cjs'
+      - '.github/workflows/g5-stage39-methodical.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'g5-arithmetic-tiers-v123.js'
+      - 'g5-decimal-percent-v128.js'
+      - 'g5-fraction-concepts-v129.js'
+      - 'audits/g5_stage38_percent_context_check.cjs'
+      - 'audits/g5_stage39_fraction_independent_oracle.cjs'
+jobs:
+  grade5-stage39:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate syntax
+        run: |
+          node --check g5-arithmetic-tiers-v123.js
+          node --check g5-decimal-percent-v128.js
+          node --check g5-fraction-concepts-v129.js
+          node --check audits/g5_stage38_percent_context_check.cjs
+          node --check audits/g5_stage39_fraction_independent_oracle.cjs
+      - name: Methodical formulation regressions
+        run: node audits/g5_stage38_percent_context_check.cjs
+      - name: Install pinned Playwright
+        run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Independent mathematical oracle on real Grade 5 browser generators
+        run: node audits/g5_stage39_fraction_independent_oracle.cjs
+      - name: Preserve all real 74 Grade 5 topic families
+        run: node audits/g5_v132_74_real_cognitive_inventory.cjs
+      - name: Preserve mixed-number input and conversion behavior
+        run: |
+          node audits/g5_conversion_diversity_smoke.cjs
+          node audits/g5_conversion_ux_smoke.cjs
