@@ -172,7 +172,7 @@ function spec(id,t,p){
     'Составим уравнение: (x + '+add+') · '+mult+' − '+extra+' = '+(mult*rhsSum-extra)+'. Вернём '+extra+': '+(mult*rhsSum-extra)+' + '+extra+' = '+(mult*rhsSum)+'. Разделим на '+mult+': x + '+add+' = '+rhsSum+'. Вычтем '+add+': x = '+rhsSum+' − '+add+' = '+root+'. Проверка: ('+root+' + '+add+') · '+mult+' − '+extra+' = '+(mult*rhsSum-extra)+'.',5],
    ['Реши уравнение '+mult+'x + '+extra+'x = '+((mult+extra)*root)+'.',
     D(V((mult+extra)*root),A(V(mult),V(extra))),
-    'Одинаковые неизвестные слагаемые объединяем: ('+mult+' + '+extra+')x = '+((mult+extra)*root)+'. Коэффициент '+(mult+extra)+', поэтому x = '+((mult+extra)*root)+' : '+(mult+extra)+' = '+root+'. Проверка: '+mult+' · '+root+' + '+extra+' · '+root+' = '+((mult+extra)*root)+'.',4],
+    'Сначала объединим одинаковые слагаемые с x: ('+mult+' + '+extra+')x = '+((mult+extra)*root)+'. Сложим коэффициенты: '+(mult+extra)+'x = '+((mult+extra)*root)+'. Разделим на '+(mult+extra)+': x = '+((mult+extra)*root)+' : '+(mult+extra)+' = '+root+'. Проверка: '+mult+' · '+root+' + '+extra+' · '+root+' = '+((mult+extra)*root)+'.',4],
    ['Реши уравнение ('+mult+'x + '+add+') · '+extra+' = '+((rhsProduct+add)*extra)+'.',
     D(S(D(V((rhsProduct+add)*extra),V(extra)),V(add)),V(mult)),
     'Разделим обе части на '+extra+': '+mult+'x + '+add+' = '+((rhsProduct+add)*extra)+' : '+extra+' = '+(rhsProduct+add)+'. Вычтем '+add+': '+mult+'x = '+rhsProduct+'. Разделим на '+mult+': x = '+rhsProduct+' : '+mult+' = '+root+'. Проверка: ('+mult+' · '+root+' + '+add+') · '+extra+' = '+((rhsProduct+add)*extra)+'.',5]
