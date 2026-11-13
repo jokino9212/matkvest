@@ -1,0 +1,52 @@
+name: Grade 5 sequential textbook audit paragraph 5 scales and coordinate rays
+on:
+  push:
+    branches:
+      - audit/g5-sequential-paragraph05-20261113
+    paths:
+      - 'g5-natural-units-v125.js'
+      - 'g5-textbook-v112.js'
+      - 'audits/g5_sequential_paragraph05_browser_oracle.cjs'
+      - '.github/workflows/g5-sequential-05.yml'
+      - 'sw.js'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'g5-natural-units-v125.js'
+      - 'g5-textbook-v112.js'
+      - 'audits/g5_sequential_paragraph05_browser_oracle.cjs'
+jobs:
+  grade-five-sequential-paragraph05:
+    runs-on: ubuntu-latest
+    timeout-minutes: 28
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify source and independent mathematical oracle syntax
+        run: |
+          node --check g5-natural-units-v125.js
+          node --check g5-textbook-v112.js
+          node --check audits/g5_sequential_paragraph05_browser_oracle.cjs
+      - name: Install pinned Playwright
+        run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Independent 600-question paragraph 5 scale geometry gate
+        run: node audits/g5_sequential_paragraph05_browser_oracle.cjs
+      - name: Preserve prior sequential paragraph 4
+        run: node audits/g5_sequential_paragraph04_browser_oracle.cjs
+      - name: Preserve prior sequential paragraphs 1 through 3
+        run: node audits/g5_sequential_paragraphs01_03_browser.cjs
+      - name: Preserve 74-topic catalog
+        run: node audits/g5_v132_74_real_cognitive_inventory.cjs
+      - name: Preserve fractional arithmetic and previous geometry
+        run: |
+          node audits/g5_stage43_factorization_real_math_oracle.cjs
+          node audits/g5_stage42_mixed_fraction_oracle.cjs
+          node audits/g5_stage41_fractions_angles_browser_oracle.cjs
+          node audits/g5_stage40_paragraph25_browser_oracle.cjs
+          node audits/g5_stage39_fraction_independent_oracle.cjs
+      - name: Preserve conversion keyboard and touch input
+        run: |
+          node audits/g5_conversion_diversity_smoke.cjs
+          node audits/g5_conversion_ux_smoke.cjs
