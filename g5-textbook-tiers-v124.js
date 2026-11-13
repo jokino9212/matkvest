@@ -132,7 +132,7 @@ function spec(id,t,p){
  let cases;
  if(id==='division_remainder'){
   // §14: a=b*q+r, 0<=r<b; the displayed text determines the answer.
-  const divisor=rnd(4,12+4*t),q=rnd(5+3*t,18+6*t),rem=rnd(1,divisor-1),n=q*divisor+rem;
+  const divisor=rnd(4,19+4*t),q=rnd(5+3*t,18+6*t),rem=rnd(1,divisor-1),n=q*divisor+rem;
   const extra=rnd(1,divisor+3),added=n+extra,addedQ=Math.floor(added/divisor),addedR=added%divisor;
   const groupAdd=rnd(2,6+t),leaveGroups=rnd(1,Math.min(q-1,5+t));
   const rem2=rnd(0,divisor-1),otherQ=rnd(4,14+5*t),other=otherQ*divisor+rem2;
