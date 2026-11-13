@@ -67,6 +67,11 @@ function displayedArithmeticSteps(plan){
  function visit(node){
   const op=node[0],args=node.slice(1);
   if(op==='rat')return reduce(args[0],args[1]);
+  if(op==='abs'){
+   const raw=visit(args[0]),positive=reduce(Math.abs(raw.n),raw.d);
+   sequence.push('Берём положительное значение разности: |'+raw.n+'/'+raw.d+'| = '+positive.n+'/'+positive.d+'.');
+   return positive;
+  }
   if(!['add','sub','mul','div','max','min'].includes(op))return solve(node);
   if(op==='mul'||op==='div'){
    const left=visit(args[0]),right=visit(args[1]),result=solve(node),operation=op==='mul'?'·':':';
