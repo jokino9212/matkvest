@@ -1,0 +1,47 @@
+name: Grade 5 real decimal difficulty and variety v127
+on:
+  push:
+    branches: [fix/g5-decimal-part1-v127-20261113]
+    paths:
+      - g5-decimal-tiers-v127.js
+      - audits/g5_v127_activate.py
+      - audits/g5_v127_real_decimal_oracle_browser.cjs
+      - .github/workflows/g5-v127-decimal.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  decimal-learner-tiers:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - name: Activate learner-facing decimals and PWA v127
+        run: python3 audits/g5_v127_activate.py
+      - name: Verify syntax
+        run: |
+          node --check g5-decimal-tiers-v127.js
+          node --check audits/g5_v127_real_decimal_oracle_browser.cjs
+          python3 -m py_compile audits/g5_v127_activate.py
+      - name: Install pinned Playwright
+        run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Test 75 real problem families, independent fixed-point oracle, four screens
+        run: node audits/g5_v127_real_decimal_oracle_browser.cjs
+      - name: Preserve previous fractional inputs
+        run: |
+          node audits/g5_conversion_diversity_smoke.cjs
+          node audits/g5_conversion_ux_smoke.cjs
+      - name: Commit approved HTML and service worker
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js
+          if ! git diff --cached --quiet; then
+            git commit -m "build(g5): activate differentiated decimals v127"
+            git fetch origin fix/g5-decimal-part1-v127-20261113
+            git rebase origin/fix/g5-decimal-part1-v127-20261113
+            git push origin HEAD:fix/g5-decimal-part1-v127-20261113
+          fi
