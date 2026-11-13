@@ -1,0 +1,16 @@
+name: Grade5 direct card navigation probe v121
+on:
+  push:
+    branches: [fix/g5-direct-open-v121-20261113]
+    paths: [audits/g5_v121_card_open_probe.cjs, .github/workflows/g5-v121-card-probe.yml]
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - run: node audits/g5_v121_card_open_probe.cjs
