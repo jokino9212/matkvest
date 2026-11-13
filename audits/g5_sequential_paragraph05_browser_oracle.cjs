@@ -127,7 +127,7 @@ function expectedByQuestion(q){
   const avg=complexity.map(a=>a.reduce((x,y)=>x+y,0)/a.length);
   assert(avg[0]<avg[1]&&avg[1]<avg[2],'Unrealistic difficulty progression '+avg);
   assert.equal(result.details.axisChecks,600);
-  assert.equal(result.details.hiddenChecks,360,'Some secret coordinates are not protected'); // 4+4+2 hidden families × 40 = 400
+  assert.equal(result.details.hiddenChecks,400,'Some secret coordinates are not protected'); // 4+4+2 hidden families × 40 = 400
   assert(result.details.fragments>0&&result.details.zeroOrigin>0,'Must teach both original ray and fragment');
   assert.deepEqual(errors,[],'Uncaught browser runtime error');
   console.log('G5_SEQUENTIAL_PARAGRAPH_05_PASS '+JSON.stringify({paragraph:5,topics:1,questions:result.rows.length,families:slots.size,meanSteps:avg,geometry:result.details,links:result.links}));
