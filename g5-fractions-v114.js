@@ -20,6 +20,10 @@ for(const [id,[title,sub]] of Object.entries(updated)){
  const t=G5_FRACTIONS.find(x=>x.id===id);if(!t)throw Error('Missing fraction topic '+id);
  t.sub=sub+'; '+oldTitles[id];t.title=title;
 }
+const circleTopic=G5_FRACTIONS.find(topic=>topic.id==='frac_shapes');
+if(!circleTopic)throw Error('Missing §25 circle, disk, sphere and cylinder topic');
+circleTopic.title='Окружность, круг, шар, цилиндр';
+circleTopic.sub='Различие плоских фигур и тел; радиус, диаметр и круглые основания цилиндра';
 // Existing topic IDs and learned progress remain untouched. Textbook paragraph order only.
 const ordered=[
  'frac_shapes','frac_parts','frac_read','frac_ray','frac_compare_den','frac_compare_num',
@@ -183,6 +187,7 @@ function make(id){
 }
 g5DonorQuestion=function(id){return IDs.includes(id)?make(id):oldDonor(id)};
 const lessons={
+frac_shapes:'Окружность — линия границы круга. Круг — плоская фигура вместе с внутренней областью. Шар — объёмное тело. Цилиндр имеет два круглых основания. Радиус соединяет центр окружности с её точкой, диаметр проходит через центр и соединяет две точки окружности. Диаметр равен двум радиусам: d = 2r.',
 frac_parts:'Обыкновенная дробь показывает равные доли целого. Знаменатель — сколько равных частей в целой единице, числитель — сколько таких долей взято. Если доли прибавили или убрали, следи за числителем, а знаменатель сохраняй.',
 frac_read:'Читать дробь начинаем с числителя: одна, две, три, четыре и т. д. Знаменатель называем видом частей: одна третья, две пятых, семь восьмых. Запись и чтение дроби должны означать одни и те же доли.',
 frac_ray:'Координатная прямая показывает единицу, разделённую на равные части. Чтобы узнать координату точки, считаем деления от нуля: сколько делений прошли — числитель, сколько делений в единице — знаменатель. При сдвигах учитывай направление.',
