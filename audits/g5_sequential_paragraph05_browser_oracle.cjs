@@ -86,9 +86,11 @@ function expectedByQuestion(q){
       points[name]=on.at;details.pointChecks++;
      }
     }
-    const hidden=level===0?[family===0?'A':family===2?'B':family===3?'D':family===4?'M':null]:
-      level===1?[family===0?'K':family===1?'M':family===2?'A':family===3?'K':null]:
-      [null,'B','K',null,null][family];
+    const hidden=level===0
+      ?(family===0?'A':family===2?'B':family===3?'D':family===4?'M':null)
+      :level===1
+       ?(family===0?'K':family===1?'M':family===2?'A':family===3?'K':null)
+       :[null,'B','K',null,null][family];
     if(hidden){
      requireVisual(points[hidden]!==undefined,'Missing hidden unknown point '+key);
      requireVisual(!numericLabels.some(l=>l.number===points[hidden]),'Unknown point coordinate is explicitly printed next to its tick '+key);
