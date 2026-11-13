@@ -5,7 +5,7 @@ const numbers=(text,re)=>{const m=text.match(re);assert(m,'Cannot parse actual �
 function independent(q){
  const p=q.plain;
  if(q.level===0){
-  if(q.family===0)return q.points.find(x=>x.name==='A')?.at;
+  if(q.family===0)return q.fig.points.find(x=>x.name==='A')?.at;
   if(q.family===1){const [a,b]=numbers(p,/A\((\d+)\) и B\((\d+)\)/);return b-a}
   if(q.family===2){const [a,c]=numbers(p,/A\((\d+)\) сдвинулась на (\d+) единичных/);return a+c}
   if(q.family===3){const [unit,n]=numbers(p,/Цена деления шкалы — (\d+) ед\. Точка C находится на (\d+)-м/);return n*unit}
