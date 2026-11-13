@@ -1,0 +1,47 @@
+name: Grade 5 full curriculum conversion tiers v131
+on:
+  push:
+    branches: [fix/g5-conversion-stage-depth-v131-20261113]
+    paths:
+      - g5-conversion-stage-v131.js
+      - audits/g5_v131_activate.py
+      - audits/g5_v131_conversion_stages_browser.cjs
+      - .github/workflows/g5-v131-conversion-stages.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  all-three-conversion-stages:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - name: Activate v131 and update service worker
+        run: python3 audits/g5_v131_activate.py
+      - name: Verify JavaScript and Python syntax
+        run: |
+          node --check g5-conversion-stage-v131.js
+          node --check audits/g5_v131_conversion_stages_browser.cjs
+          python3 -m py_compile audits/g5_v131_activate.py
+      - name: Install pinned Playwright
+        run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Check actual student questions and fixed-denominator answer fields
+        run: node audits/g5_v131_conversion_stages_browser.cjs
+      - name: Preserve existing conversion and input regression suites
+        run: |
+          node audits/g5_conversion_diversity_smoke.cjs
+          node audits/g5_conversion_ux_smoke.cjs
+      - name: Commit validated HTML and PWA if checks pass
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js
+          if ! git diff --cached --quiet; then
+            git commit -m "build(g5): activate real conversion tier escalation v131"
+            git fetch origin fix/g5-conversion-stage-depth-v131-20261113
+            git rebase origin/fix/g5-conversion-stage-depth-v131-20261113
+            git push origin HEAD:fix/g5-conversion-stage-depth-v131-20261113
+          fi
