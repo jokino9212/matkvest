@@ -25,4 +25,15 @@ assert(!fractions.includes('Вычтем оба общих множителя'),
 const remaining=fs.readFileSync('g5-remaining-core-v126.js','utf8');
 assert(remaining.includes('У трёх одинаковых фигур закраска такая же, как на рисунке.'),'Missing meaningful three-figure grid task');
 assert(!remaining.includes('Сколько разность между половиной фигуры'),'Original confusing task remains');
-console.log('Stage 38-39 methodological context regressions: PASS (fraction and geometry improvements)');
+const applied=fs.readFileSync('g5-fraction-applications-v130.js','utf8');
+for(const literal of [
+ 'В школьной библиотеке ',
+ 'classSize=2*rnd(9,16)',
+ 'Половина школьного туристического отряда',
+ 'На сколько книг различаются число отправленных и число оставшихся?',
+ 'затем умножь результат на '
+])assert(applied.includes(literal),'Missing fixed fraction-application text: '+literal);
+assert(!applied.includes("'Половина класса — '+(total/2)"),'Oversized class remains');
+assert(!applied.includes("'В классе '+total+' учебников"),'Oversized classroom library remains');
+assert(!applied.includes('делят на части длиной'),'Fractional pieces may not fit physical segment');
+console.log('Stage 38-39 methodological context regressions: PASS (12 grade-five topics inspected)');
