@@ -1,0 +1,38 @@
+name: Grade 5 final two fraction conversions - all three tiers v131
+on:
+  push:
+    branches: [fix/g5-final-conversion-tiers-v131-20261113]
+    paths:
+      - g5-conversion-ux.js
+      - sw.js
+      - audits/g5_conversion_diversity_smoke.cjs
+      - audits/g5_v131_conversion_tiers_browser.cjs
+      - .github/workflows/g5-v131-conversions.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  conversion-stage-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - name: Syntax of conversion engines and tests
+        run: |
+          node --check g5-conversion-ux.js
+          node --check audits/g5_conversion_diversity_smoke.cjs
+          node --check audits/g5_v131_conversion_tiers_browser.cjs
+      - name: Install browser library
+        run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Verify all 30 conversion task families through live forms
+        run: node audits/g5_v131_conversion_tiers_browser.cjs
+      - name: Existing conversion and 26/9 input regression
+        run: |
+          node audits/g5_conversion_diversity_smoke.cjs
+          node audits/g5_conversion_ux_smoke.cjs
+      - name: PWA v131 and assets
+        run: |
+          grep -q 'matkvest-iphone-v131' sw.js
+          grep -q '"./g5-conversion-ux.js"' sw.js
