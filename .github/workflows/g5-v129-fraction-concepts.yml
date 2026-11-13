@@ -1,0 +1,47 @@
+name: Grade 5 full fraction concepts cognitive tiers v129
+on:
+  push:
+    branches: [fix/g5-fraction-concepts-v129-20261113]
+    paths:
+      - g5-fraction-concepts-v129.js
+      - audits/g5_v129_activate.py
+      - audits/g5_v129_real_fraction_concepts_browser.cjs
+      - .github/workflows/g5-v129-fraction-concepts.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  fraction-concepts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - name: Activate 7 fraction topics and cache
+        run: python3 audits/g5_v129_activate.py
+      - name: Syntax validation
+        run: |
+          node --check g5-fraction-concepts-v129.js
+          node --check audits/g5_v129_real_fraction_concepts_browser.cjs
+          python3 -m py_compile audits/g5_v129_activate.py
+      - name: Install pinned Playwright
+        run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Verify real learner-facing fractions, correct rational arithmetic, four widths
+        run: node audits/g5_v129_real_fraction_concepts_browser.cjs
+      - name: Regression for mixed number conversion UX
+        run: |
+          node audits/g5_conversion_diversity_smoke.cjs
+          node audits/g5_conversion_ux_smoke.cjs
+      - name: Commit activated HTML and worker only after PASS
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js
+          if ! git diff --cached --quiet; then
+            git commit -m "build(g5): activate 105 new fraction cognitive families v129"
+            git fetch origin fix/g5-fraction-concepts-v129-20261113
+            git rebase origin/fix/g5-fraction-concepts-v129-20261113
+            git push origin HEAD:fix/g5-fraction-concepts-v129-20261113
+          fi
