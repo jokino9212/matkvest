@@ -6,6 +6,7 @@ const {chromium}=require('playwright'),path=require('path');
  const p=await b.newPage({viewport:{width:1280,height:810}});
  await p.goto('file://'+path.resolve('index.html'),{waitUntil:'domcontentloaded'});
  const data=await p.evaluate(()=>{
+  let seed=20261113;Math.random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296;};
   const result=[],list=g5AllTopics();
   for(const entry of list){
    const issues=[],stages=[],allFamilies=new Set(),sampleText=[];
@@ -51,5 +52,6 @@ const {chromium}=require('playwright'),path=require('path');
   console.log('G5_V132_TOPIC '+JSON.stringify({id:x.id,title:x.title,families:x.allFamilyCount,steps:deps,issues:x.issues.slice(0,9),samples:x.stages.map(y=>y.sample.map(x=>({family:x.template,kind:x.kind,steps:x.steps,prompt:x.prompt.slice(0,90)})))}));
  }
  console.log('G5_V132_SUMMARY '+JSON.stringify({topics:data.count,topicsWithIssues:errors,topicsWithRepeatedFamilies:duplicate,topicsWithNonIncreasingMetadata:nonGrowing,numberOfQuestionFamilies:data.items.reduce((s,x)=>s+x.allFamilyCount,0)}));
+ if(data.count!==74||errors>0||duplicate>0)throw Error('Grade-five QA gate failed: '+errors+' malformed topic(s), '+duplicate+' topic(s) with repeated families');
  }finally{await b.close()}
 })().catch(e=>{console.error('G5_V132_AUDIT_CRASH',e.stack||e);process.exit(1)});
