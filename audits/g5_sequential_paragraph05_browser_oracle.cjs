@@ -8,7 +8,7 @@ function independent(q){
   if(q.family===0)return q.points.find(x=>x.name==='A')?.at;
   if(q.family===1){const [a,b]=numbers(p,/A\((\d+)\) и B\((\d+)\)/);return b-a}
   if(q.family===2){const [a,c]=numbers(p,/A\((\d+)\) сдвинулась на (\d+) единичных/);return a+c}
-  if(q.family===3){const [unit,n]=numbers(p,/цена одного деления (\d+) единицы\. Точка C находится на (\d+)-м/);return n*unit}
+  if(q.family===3){const [unit,n]=numbers(p,/Цена деления шкалы — (\d+) ед\. Точка C находится на (\d+)-м/);return n*unit}
   if(q.family===4){const [a,b]=numbers(p,/A\((\d+)\) и B\((\d+)\)/);assert((b-a)%2===0);return(a+b)/2}
  }
  if(q.level===1){
@@ -21,7 +21,7 @@ function independent(q){
  if(q.level===2){
   if(q.family===0){const [a,b,db,dc]=numbers(p,/A\((\d+)\) и B\((\d+)\).*влево на (\d+) делений, B вправо на (\d+)/);return b+dc-a+db}
   if(q.family===1){const [m,a]=numbers(p,/M\((\d+)\).* A\((\d+)\)/);return 2*m-a}
-  if(q.family===2){const [u,a,b,c,d]=numbers(p,/Цена деления шкалы (\d+) единиц\. От точки A\((\d+)\) прошли (\d+) делений вправо, затем (\d+) вправо и (\d+) влево/);return a+(b+c-d)*u}
+  if(q.family===2){const [u,a,b,c,d]=numbers(p,/Цена деления шкалы — (\d+) ед\. От точки A\((\d+)\) прошли (\d+) делений вправо, затем (\d+) вправо и (\d+) влево/);return a+(b+c-d)*u}
   if(q.family===3){const [a,b,c]=numbers(p,/A\((\d+)\), B\((\d+)\), C\((\d+)\)/);assert((a+b)%2===0);return c-(a+b)/2}
   if(q.family===4){const [a,d,c]=numbers(p,/A\((\d+)\) прошли неизвестное число делений вправо, затем вернулись влево на (\d+) и оказались в точке C\((\d+)\)/);return c+d-a}
  }
@@ -63,7 +63,7 @@ function checkSvg(q){
  if(q.level===1&&q.family===2)assert(!m.points.some(p=>p.name==='A'),'Unknown initial coordinate must not be explicitly marked');
  if(q.level===2&&q.family===1)assert(!m.points.some(p=>p.name==='B'),'Unknown B endpoint must not be explicitly revealed');
  if(q.level===2&&q.family===2)assert(m.unit>1&&m.moves.length===3,'Master needs three real jumps on non-unit scale');
- const expectedMoves=[[0,0,0,0,0],[2,0,1,2,0],[2,0,3,0,1]][q.level][q.family];
+ const expectedMoves=[[0,0,1,0,0],[2,0,1,2,0],[2,0,3,0,1]][q.level][q.family];
  assert.equal(m.moves.length,expectedMoves,'Number of shown movements is wrong '+key);
 }
 (async()=>{
