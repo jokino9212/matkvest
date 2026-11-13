@@ -50,6 +50,20 @@ function circleFeatureGallery(order){
 function radiusDiagram(){
  return '<div style="width:100%;max-width:360px;overflow:hidden"><svg viewBox="0 0 300 180" width="100%" role="img" aria-label="Окружность с центром O и радиусом OA" style="height:auto"><circle cx="140" cy="87" r="64" fill="none" stroke="#34649a" stroke-width="3"/><circle cx="140" cy="87" r="3" fill="#34649a"/><line x1="140" y1="87" x2="204" y2="87" stroke="#db7830" stroke-width="3"/><text x="129" y="80" font-size="17" fill="currentColor">O</text><text x="210" y="86" font-size="17" fill="currentColor">A</text></svg></div>';
 }
+function g5Protractor(degrees){
+ const cx=195,cy=189,r=154,rad=degrees*Math.PI/180;
+ const dx=(cx+r*Math.cos(rad)).toFixed(2),dy=(cy-r*Math.sin(rad)).toFixed(2);
+ let ticks='',labels='';
+ for(let deg=0;deg<=180;deg+=10){
+  const a=deg*Math.PI/180,outerX=(cx+r*Math.cos(a)).toFixed(2),outerY=(cy-r*Math.sin(a)).toFixed(2);
+  const innerR=deg%30===0?r-15:r-8,innerX=(cx+innerR*Math.cos(a)).toFixed(2),innerY=(cy-innerR*Math.sin(a)).toFixed(2);
+  ticks+='<line x1="'+outerX+'" y1="'+outerY+'" x2="'+innerX+'" y2="'+innerY+'" stroke="#527b9e" stroke-width="'+(deg%30===0?2:1)+'"/>';
+  if(deg%30===0){const labelR=r-35,lx=(cx+labelR*Math.cos(a)).toFixed(2),ly=(cy-labelR*Math.sin(a)+5).toFixed(2);
+   labels+='<text x="'+lx+'" y="'+ly+'" fill="currentColor" font-size="13" text-anchor="middle">'+deg+'</text>';}
+ }
+ const ar=54,ax=(cx+ar*Math.cos(rad)).toFixed(2),ay=(cy-ar*Math.sin(rad)).toFixed(2);
+ return '<div style="width:100%;max-width:460px;overflow:hidden;margin:7px auto"><svg role="img" aria-label="Транспортир с углом '+degrees+' градусов" viewBox="0 0 400 235" width="100%" style="height:auto"><path d="M 41 189 A 154 154 0 0 1 349 189" fill="none" stroke="#547fa4" stroke-width="3"/><line x1="35" y1="'+cy+'" x2="355" y2="'+cy+'" stroke="#547fa4" stroke-width="2"/>'+ticks+labels+'<line x1="'+cx+'" y1="'+cy+'" x2="349" y2="'+cy+'" stroke="#de853c" stroke-width="3"/><line x1="'+cx+'" y1="'+cy+'" x2="'+dx+'" y2="'+dy+'" stroke="#de853c" stroke-width="3"/><path d="M 249 189 A 54 54 0 '+(degrees>180?1:0)+' 0 '+ax+' '+ay+'" fill="none" stroke="#de853c" stroke-width="2"/><circle cx="'+cx+'" cy="'+cy+'" r="4" fill="#345e8e"/><text x="191" y="215" fill="currentColor" font-size="15" text-anchor="middle">'+degrees+'°</text></svg></div>';
+}
 function gridShape(total,filled){
  const cols=5,rows=Math.ceil(total/cols),sz=30;
  let rects='';
@@ -158,8 +172,8 @@ function spec(id,t,p){
  if(id==='angles'){
   const a1=2*r(10,35),a2=2*r(5,25),a3=r(10,35),right=90,straight=180,full=360;
   if(t===0)rows=[
-   ['Сколько градусов в прямом угле?',V(right),'Прямой угол равен 90°.',1],
-   ['Сколько градусов в развёрнутом угле?',V(straight),'Развёрнутый угол равен 180°.',1],
+   ['Сколько градусов в прямом угле? '+g5Protractor(right),V(right),'Прямой угол равен 90°.',1],
+   ['Сколько градусов в развёрнутом угле? '+g5Protractor(straight),V(straight),'Развёрнутый угол равен 180°.',1],
    ['Два прямых угла вместе образуют угол в сколько градусов?',M(V(2),V(right)),'Сложим два прямых угла.',2],
    ['Угол '+a1+'° увеличили на '+a2+'°. Какова новая градусная мера угла?',A(V(a1),V(a2)),'Сложим градусные меры.',1],
    ['Из прямого угла выделили '+a1+'°. Сколько градусов осталось?',S(V(right),V(a1)),'Вычтем выделенный угол из 90°.',2]
@@ -167,7 +181,7 @@ function spec(id,t,p){
   else if(t===1)rows=[
    ['Из развёрнутого угла вырезали два угла '+a1+'° и '+a2+'°. Найди оставшийся угол.',S(S(V(straight),V(a1)),V(a2)),'Вычтем два известных угла из 180°.',3],
    ['В прямом угле отложили '+a1+'°. Остаток разделили на '+2+' равных угла. Найди каждый.',D(S(V(right),V(a1)),V(2)),'Остаток прямого угла разделим поровну.',3],
-   ['Два смежных угла дают 180°. Один равен '+a1+'°. Чему равен другой?',S(V(straight),V(a1)),'Смежные углы дополняют друг друга до 180°.',2],
+   ['На транспортире показан угол '+a1+'°. Найди градусную меру смежного с ним угла. '+g5Protractor(a1),S(V(straight),V(a1)),'Смежные углы в сумме составляют 180°. Вычитаем известный угол.',2],
    ['Вокруг точки отложили углы '+a1+'°, '+a2+'° и '+a3+'°. Каков четвёртый?',S(V(full),A(V(a1),V(a2),V(a3))),'Сумма углов вокруг точки равна 360°.',3],
    ['Угол '+a1+'° увеличили в два раза, затем уменьшили на '+a3+'°. Чему он стал равен?',S(M(V(2),V(a1)),V(a3)),'Удвоение, затем вычитание.',3]
   ];

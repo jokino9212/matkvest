@@ -1,0 +1,52 @@
+name: G5 stage41 §§26-27 and §§50-51 real content and diagram oracle
+on:
+  push:
+    branches:
+      - audit/g5-stage41-fractions-angles-20261113
+    paths:
+      - 'g5-fractions-v114.js'
+      - 'g5-fraction-arithmetic-v115.js'
+      - 'g5-pedagogy-v113.js'
+      - 'g5-remaining-core-v126.js'
+      - 'audits/g5_stage41_fractions_angles_browser_oracle.cjs'
+      - '.github/workflows/g5-stage41-visual-fractions.yml'
+      - 'sw.js'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'g5-fractions-v114.js'
+      - 'g5-fraction-arithmetic-v115.js'
+      - 'g5-pedagogy-v113.js'
+      - 'g5-remaining-core-v126.js'
+      - 'audits/g5_stage41_fractions_angles_browser_oracle.cjs'
+jobs:
+  stage41-grade5:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check changed source and test syntax
+        run: |
+          node --check g5-fractions-v114.js
+          node --check g5-fraction-arithmetic-v115.js
+          node --check g5-pedagogy-v113.js
+          node --check g5-remaining-core-v126.js
+          node --check audits/g5_stage41_fractions_angles_browser_oracle.cjs
+      - name: Install pinned browser automation
+        run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Verify 2100 live topic tasks and diagram-answer geometry
+        run: node audits/g5_stage41_fractions_angles_browser_oracle.cjs
+      - name: Preserve Grade 5 74-topic coverage and strict difficulty
+        run: node audits/g5_v132_74_real_cognitive_inventory.cjs
+      - name: Preserve exact arithmetic and §25 textbook visuals
+        run: |
+          node audits/g5_stage39_fraction_independent_oracle.cjs
+          node audits/g5_stage40_paragraph25_browser_oracle.cjs
+          node audits/g5_stage38_percent_context_check.cjs
+      - name: Preserve fraction conversion modes and keyboard behavior
+        run: |
+          node audits/g5_conversion_diversity_smoke.cjs
+          node audits/g5_conversion_ux_smoke.cjs
