@@ -17,13 +17,13 @@ function displayedParts(html){
 // five-question cycle now has five intentionally different cognitive tasks.
 function conversionQuestion(base,topic,given){
  const pos=Math.max(0,Number(blockSession?.done)||0),stage=Math.max(0,Math.min(2,Number(activeDifficulty())||0));
- const familyIndex=pos%5,advanced=pos>=5,den=given.denominator;
+ const familyIndex=pos%5,advanced=stage>=1,master=stage===2,den=given.denominator;
  const whole=topic==='frac_to_mixed'?Math.floor(given.numerator/den):given.whole;
  const rem=topic==='frac_to_mixed'?given.numerator%den:given.numerator;
  if(!Number.isSafeInteger(whole)||whole<1||!Number.isSafeInteger(rem)||rem<1||rem>=den)return base;
  const originalN=whole*den+rem;
  const shown=topic==='frac_to_mixed'?frac(originalN,den):mixed(whole,rem,den);
- const level=Number(base.mk5Audit?.level)||0;
+ const level=stage;
  let family,question,kind,answerN,explanation,label;
  if(topic==='frac_to_mixed'){
    const division=originalN+' = '+whole+' · '+den+' + '+rem+'.';
@@ -86,6 +86,65 @@ function conversionQuestion(base,topic,given){
      question='К смешанному числу '+shown+' прибавили '+frac(plus,den)+'. Запиши сумму неправильной дробью со знаменателем '+den+'.';
      kind='improper';answerN=originalN+plus;
      explanation=product+' Прибавляем '+plus+' долей: '+originalN+' + '+plus+' = '+answerN+'. Знаменатель '+den+'.';
+   }
+ }
+ if(master){
+   // The Master tier has new multi-step cognitive tasks rather than repeating the
+   // warmup five or relying on session.done >= 5 for progression.
+   if(topic==='frac_to_mixed'){
+     if(familyIndex===0){
+       family='master_add_two_sub_one';
+       question='К дроби '+shown+' прибавили 2 целых, затем вычли 1 целую. Запиши результат смешанным числом.';
+       kind='mixed';answerN=originalN+den;
+       explanation=division+' Сначала прибавляем 2 · '+den+' долей, затем вычитаем '+den+'. Остаётся '+(whole+1)+' целых и '+rem+'/'+den+'.';
+     }else if(familyIndex===1){
+       family='master_whole_after_two_changes';
+       question='К дроби '+shown+' прибавили 3 целых, затем вычли 1 целую. Сколько целых частей получилось? Введи только число.';
+       kind='number';answerN=whole+2;label='Количество целых';
+       explanation=division+' Целых станет '+whole+' + 3 − 1 = '+answerN+'.';
+     }else if(familyIndex===2){
+       family='master_remainder_after_numerator_changes';
+       question='Числитель дроби '+shown+' увеличили на '+(den+2)+', затем уменьшили на 1. Какой остаток получится при делении нового числителя на '+den+'?';
+       kind='number';answerN=(rem+1)%den;label='Остаток';
+       explanation='Исходный числитель '+originalN+'. Новый числитель '+(originalN+den+1)+'. Остаток '+answerN+'.';
+     }else if(familyIndex===3){
+       family='master_context_add_three_sub_one';
+       question='Лента имеет длину '+shown+' м. К ней добавили 3 м, затем отрезали 1 м. Запиши оставшуюся длину смешанным числом.';
+       kind='mixed';answerN=originalN+2*den;
+       explanation='Прибавление 3 м и вычитание 1 м даёт увеличение на 2 целых. Получаем '+(whole+2)+' '+rem+'/'+den+'.';
+     }else{
+       family='master_plus_four_minus_one';
+       question='К неправильной дроби '+shown+' прибавили 4 целых, а затем вычли 1 целую. Запиши результат смешанным числом.';
+       kind='mixed';answerN=originalN+3*den;
+       explanation=division+' Изменение составляет 4 − 1 = 3 целых. Новая целая часть '+(whole+3)+'.';
+     }
+   }else{
+     if(familyIndex===0){
+       family='master_improper_add_two_sub_one';
+       question='Смешанное число '+shown+' увеличили на 2, затем уменьшили на 1. Представь результат неправильной дробью с исходным знаменателем.';
+       kind='improper';answerN=originalN+den;
+       explanation='Исходный числитель '+originalN+'. Прибавляем 2 · '+den+' и вычитаем '+den+'. Получаем '+answerN+'/'+den+'.';
+     }else if(familyIndex===1){
+       family='master_numerator_add_wholes_sub_part';
+       question='К числу '+shown+' прибавили 2 целых и вычли '+frac(1,den)+'. Какой числитель получится у неправильной дроби со знаменателем '+den+'?';
+       kind='number';answerN=originalN+2*den-1;label='Новый числитель';
+       explanation='Числитель '+originalN+' + 2 · '+den+' − 1 = '+answerN+'.';
+     }else if(familyIndex===2){
+       family='master_context_improper_two_changes';
+       question='Было '+shown+' м ленты. Добавили 1 м, затем отрезали '+frac(1,den)+' м. Запиши оставшуюся длину неправильной дробью со знаменателем '+den+'.';
+       kind='improper';answerN=originalN+den-1;
+       explanation='К исходному числителю '+originalN+' прибавляем '+den+' и вычитаем 1: '+answerN+'/'+den+'.';
+     }else if(familyIndex===3){
+       family='master_count_parts_two_changes';
+       question='Было '+shown+' м ленты. Добавили 3 м, затем отрезали '+frac(2,den)+' м. Сколько долей по '+frac(1,den)+' м осталось? Введи только число.';
+       kind='number';answerN=originalN+3*den-2;label='Количество долей';
+       explanation='Исходно '+originalN+' долей, затем '+(3*den)+' новых долей и 2 доли вычли. Итого '+answerN+'.';
+     }else{
+       family='master_plus_whole_and_two_parts';
+       question='К смешанному числу '+shown+' прибавили 2 целых и '+frac(1,den)+'. Запиши результат неправильной дробью с тем же знаменателем.';
+       kind='improper';answerN=originalN+2*den+1;
+       explanation='Исходный числитель '+originalN+'. Прибавим '+(2*den)+' и ещё 1: '+answerN+'/'+den+'.';
+     }
    }
  }
  if(!Number.isSafeInteger(answerN)||answerN<0)return base;
