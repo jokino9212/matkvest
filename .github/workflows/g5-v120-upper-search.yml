@@ -1,0 +1,47 @@
+name: Grade 5 remove lower duplicate search v120
+on:
+  push:
+    branches: [fix/g5-top-search-only-v120-20261113]
+    paths:
+      - g5-textbook-navigation-v120.js
+      - audits/g5_v120_patch.py
+      - audits/g5_v120_top_only_browser.cjs
+      - .github/workflows/g5-v120-upper-search.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  single-upper-search:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - name: Activate v120 and synchronize PWA
+        run: python3 audits/g5_v120_patch.py
+      - name: Validate JavaScript and Python
+        run: |
+          node --check g5-textbook-navigation-v120.js
+          node --check audits/g5_v120_top_only_browser.cjs
+          python3 -m py_compile audits/g5_v120_patch.py
+      - name: Install pinned Playwright
+        run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Assert exactly one upper search, filtering, accordion and mobile layout
+        run: node audits/g5_v120_top_only_browser.cjs
+      - name: Check fraction entry regression
+        run: |
+          node audits/g5_conversion_diversity_smoke.cjs
+          node audits/g5_conversion_ux_smoke.cjs
+      - name: Commit tested HTML and service worker
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js
+          if ! git diff --cached --quiet; then
+            git commit -m "build(g5): activate only-top-search navigation v120"
+            git fetch origin fix/g5-top-search-only-v120-20261113
+            git rebase origin/fix/g5-top-search-only-v120-20261113
+            git push origin HEAD:fix/g5-top-search-only-v120-20261113
+          fi

@@ -1,0 +1,80 @@
+'use strict';
+const assert=require('node:assert/strict'),fs=require('fs'),path=require('path'),crypto=require('crypto');
+const {chromium}=require('playwright');
+(async()=>{
+ const html=fs.readFileSync('index.html','utf8'),sw=fs.readFileSync('sw.js','utf8');
+ assert(html.includes('<script src="g5-textbook-navigation-v120.js"></script>'));
+ assert(!html.includes('<script src="g5-textbook-navigation-v119.js"></script>'));
+ assert(sw.includes('"./g5-textbook-navigation-v120.js"'));
+ assert(!sw.includes('"./g5-textbook-navigation-v119.js"'));
+ assert(sw.includes('matkvest-iphone-v120'));
+ assert(sw.includes(crypto.createHash('sha256').update(html).digest('hex')));
+ const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
+ const results=[];
+ try{
+ for(const width of [320,390,768,1280]){
+  const page=await browser.newPage({viewport:{width,height:850}}),errors=[];
+  page.on('pageerror',e=>errors.push(e.message));
+  await page.goto('file://'+path.resolve('index.html'),{waitUntil:'domcontentloaded'});
+  const r=await page.evaluate(()=>{
+   renderGrade5();
+   const nav=mainView.querySelector('#mk-g5-textbook-nav'),issues=[];
+   const check=(value,msg)=>{if(!value)issues.push(msg)};
+   if(!nav)return {issues:['No Grade 5 navigation']};
+   const data=window.mkG5TextbookNavigation,rows=[...nav.querySelectorAll('.mk-g5-toc-list li')];
+   const legacy=mainView.querySelector('#mk-textbook-search-input-5');
+   const upperPanel=legacy?.closest('.mk-textbook-search');
+   const toggle=nav.querySelector('.mk-g5-toc-toggle');
+   const visibleInputs=()=>[...mainView.querySelectorAll('input')].filter(el=>el.getClientRects().length>0);
+   const visibleCards=()=>[...mainView.querySelectorAll('.g5-card')].filter(el=>el.getClientRects().length>0);
+   check(data.version===120,'Wrong release version');
+   check(rows.length===51,'Missing textbook paragraphs');
+   check(g5AllTopics().length===74,'Changed catalog count');
+   check(nav.querySelectorAll('input').length===0,'The lower duplicate search has not been removed');
+   check(visibleInputs().length===1,'Anonymous view must contain exactly one top search');
+   check(visibleInputs()[0]===legacy,'Expected old top textbook search as fallback');
+   check(nav.compareDocumentPosition(legacy)&Node.DOCUMENT_POSITION_PRECEDING,'Fallback must be above the menu');
+   check(toggle?.textContent==='К карточкам','Missing collapse control');
+   check(!nav.querySelector('#mk-g5-toc-parts').hidden,'Menu unexpectedly collapsed');
+   legacy.value='деление с остатком';legacy.dispatchEvent(new Event('input',{bubbles:true}));
+   check(rows.filter(li=>!li.hidden).length===1&&!rows[13].hidden,'Fallback search does not filter textbook');
+   check(visibleCards().length>=1&&visibleCards().length<74,'Fallback does not filter cards');
+   legacy.value='';legacy.dispatchEvent(new Event('input',{bubbles:true}));
+   check(rows.every(li=>!li.hidden)&&visibleCards().length===74,'Fallback clear did not restore lists');
+   // Simulate the account-specific native search: in signed-in view this is inserted above the menu.
+   const userBar=document.createElement('section');userBar.id='test-native-search';
+   const native=document.createElement('input');native.placeholder='Найти тему по названию...';native.type='search';
+   userBar.append(native);nav.insertAdjacentElement('beforebegin',userBar);
+   data.refreshSearch();
+   check(upperPanel.hidden,'Fallback search panel was not hidden when native top search appeared');
+   check(nav.querySelectorAll('input').length===0,'Lower input reappeared');
+   check(visibleInputs().length===1&&visibleInputs()[0]===native,'Two visible searches in signed-in view');
+   check(native.compareDocumentPosition(nav)&Node.DOCUMENT_POSITION_FOLLOWING,'Native search not above menu');
+   native.value='упрощение выражений';native.dispatchEvent(new Event('input',{bubbles:true}));
+   check(legacy.value===native.value,'Native search did not synchronize with legacy filtering');
+   check(!rows[14].hidden&&rows.filter(li=>!li.hidden).length===1,'Native search did not filter textbook');
+   check(visibleCards().length>=1&&visibleCards().length<74,'Native search did not filter cards');
+   native.value='';native.dispatchEvent(new Event('input',{bubbles:true}));
+   check(visibleCards().length===74&&rows.every(li=>!li.hidden),'Native clear did not restore lists');
+   toggle.click();
+   check(nav.querySelector('#mk-g5-toc-parts').hidden,'Collapse did not hide chapters');
+   check(toggle.textContent==='Показать разделы','Restore button missing');
+   check(visibleInputs().length===1&&visibleInputs()[0]===native,'Collapse changed number of searches');
+   toggle.click();
+   check(!nav.querySelector('#mk-g5-toc-parts').hidden,'Restore did not reopen chapters');
+   native.value='деление с остатком';native.dispatchEvent(new Event('input',{bubbles:true}));
+   rows[13].querySelector('button').click();
+   check(document.activeElement?.classList.contains('g5-card'),'Row click failed');
+   check(document.activeElement?.textContent.includes('Деление с остатком'),'Wrong card opened');
+   check(native.value===''&&legacy.value==='','Navigation did not clear both search filters');
+   check(document.documentElement.scrollWidth<=innerWidth+2,'Horizontal overflow');
+   return {issues,rows:rows.length,topics:g5AllTopics().length,visibleSearchCount:visibleInputs().length};
+  });
+  assert.deepEqual(r.issues,[],JSON.stringify({width,report:r}));
+  assert.deepEqual(errors,[],JSON.stringify({width,errors}));
+  results.push({width,paragraphs:r.rows,topics:r.topics,searches:r.visibleSearchCount});
+  await page.close();
+ }
+ console.log('G5_V120_KEEP_ONLY_UPPER_SEARCH_PASS',JSON.stringify(results));
+ }finally{await browser.close()}
+})().catch(e=>{console.error('G5_V120_KEEP_ONLY_UPPER_SEARCH_FAIL',e.stack||e);process.exit(1)});
