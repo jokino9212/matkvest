@@ -210,11 +210,11 @@ function mixedSub(t,p){
   if(p===3)return question(id,t,p,'mixed','Было '+M(w,a,d)+' кг, использовали '+M(v,borrow,d)+' кг. Найди остаток.',d,[A,Borrow],['-'],'Сначала занимаем одну целую и вычитаем: '+renderTotal(A-Borrow,d)+' кг.');
   return question(id,t,p,'mixed','Из '+M(w,a,d)+' вычли '+M(v,borrow,d)+', после этого прибавили '+F(c,d)+'. Найди значение.',d,[A,Borrow,c],['-','+'],'Сначала выполняем вычитание с заниманием, затем прибавление: '+renderTotal(A-Borrow+c,d)+'.');
  }
- if(p===0)return question(id,t,p,'mixed','Вычисли '+M(w,a,d)+' − '+M(v,borrow,d)+' − '+F(c,d)+'.',d,[A,Borrow,c],['-','-'],'Сначала занимаем целую в вычитании смешанных, затем вычитаем дробь: '+renderTotal(A-Borrow-c,d)+'.');
+ if(p===0)return question(id,t,p,'mixed','Вычисли '+M(w,a,d)+' − ('+M(v,borrow,d)+' + '+F(c,d)+' + '+F(1,d)+').',d,[A,Borrow,c,1],['-','-','-'],'Сначала найдём сумму в скобках, затем выполним вычитание с займом: '+renderTotal(A-Borrow-c-1,d)+'.');
  if(p===1)return question(id,t,p,'mixed','От '+M(w,a,d)+' сначала вычли '+M(v,borrow,d)+', затем прибавили '+F(c,d)+' и вычли '+F(1,d)+'. Найди результат.',d,[A,Borrow,c,1],['-','+','-'],'Последовательно выполняем три действия: '+renderTotal(A-Borrow+c-1,d)+'.');
  if(p===2)return question(id,t,p,'numeric','Из числителя неправильной дроби '+A+'/'+d+' вычли числитель дроби '+Borrow+'/'+d+', потом ещё '+c+' долей. Каков полученный числитель?',1,[A,Borrow,c],['-','-'],'Новые числители: '+A+' − '+Borrow+' − '+c+' = '+(A-Borrow-c)+'.');
- if(p===3)return question(id,t,p,'mixed','Было '+M(w,a,d)+' м ткани. Отрезали '+M(v,borrow,d)+' м и ещё '+F(c,d)+' м. Сколько осталось?',d,[A,Borrow,c],['-','-'],'Вычтем обе части: '+renderTotal(A-Borrow-c,d)+' м.');
- return question(id,t,p,'mixed','Найди '+M(w,a,d)+' − ('+M(v,borrow,d)+' + '+F(c,d)+').',d,[A,Borrow,c],['-','-'],'Сначала в скобках сложение, затем из большего числа вычитаем сумму: '+renderTotal(A-Borrow-c,d)+'.');
+ if(p===3)return question(id,t,p,'mixed','Было '+M(w,a,d)+' м ткани. Отрезали '+M(v,borrow,d)+' м и ещё '+F(c,d)+' м, после чего купили дополнительно 1 м ткани. Сколько ткани стало?',d,[A,Borrow,c,d],['-','-','+'],'Сначала вычтем два расхода с займами, затем прибавим 1 м: '+renderTotal(A-Borrow-c+d,d)+' м.');
+ return question(id,t,p,'mixed','Найди '+M(w,a,d)+' − ('+M(v,borrow,d)+' + '+F(c,d)+') + '+F(1,d)+'.',d,[A,Borrow,c,1],['-','-','+'],'Сначала складываем в скобках, потом вычитаем сумму с займами и прибавляем '+F(1,d)+': '+renderTotal(A-Borrow-c+1,d)+'.');
 }
 function build(id){
  const t=stage(),p=pos();
