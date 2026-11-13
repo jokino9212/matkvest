@@ -28,7 +28,7 @@ function evaluate(node){
 }
 function lengthQuestion(t,p,text,plan,explain,steps){
  const n=evaluate(plan),id='segments_polygons',name='v122_'+id+'_L'+t+'_F'+p;
- if(!Number.isSafeInteger(n)||n<1)throw Error('v122 impossible segment result '+name+': '+n);
+ if(!Number.isSafeInteger(n)||n<0)throw Error('v122 impossible segment result '+name+': '+n);
  const q=g5q(text,g5nums(n,[n+1,n+2,Math.max(0,n-1)]),String(n),explain+' Ответ: '+n+' см.',name);
  q.mk122={id,t,p,steps,plan,expected:n};
  return q;
