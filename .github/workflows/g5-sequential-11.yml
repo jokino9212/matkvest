@@ -5,6 +5,8 @@ on:
       - audit/g5-sequential-paragraph11-equations-20261114
     paths:
       - 'g5-remaining-core-v126.js'
+      - 'g5-conversion-ux.js'
+      - 'audits/g5_conversion_diversity_smoke.cjs'
       - 'audits/g5_sequential_paragraph11_browser_oracle.cjs'
       - '.github/workflows/g5-sequential-11.yml'
       - 'sw.js'
@@ -13,6 +15,8 @@ on:
       - main
     paths:
       - 'g5-remaining-core-v126.js'
+      - 'g5-conversion-ux.js'
+      - 'audits/g5_conversion_diversity_smoke.cjs'
       - 'audits/g5_sequential_paragraph11_browser_oracle.cjs'
 jobs:
   sequential-paragraph11:
@@ -25,7 +29,9 @@ jobs:
       - name: Validate actual published code and independent root oracle syntax
         run: |
           node --check g5-remaining-core-v126.js
+          node --check g5-conversion-ux.js
           node --check audits/g5_sequential_paragraph11_browser_oracle.cjs
+          node --check audits/g5_conversion_diversity_smoke.cjs
       - name: Install pinned browser runtime
         run: npm install --no-save --no-package-lock playwright@1.56.1
       - name: Independently solve 600 real equations with substitution and unique roots
