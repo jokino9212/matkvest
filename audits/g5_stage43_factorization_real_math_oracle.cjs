@@ -23,7 +23,7 @@ const lcm=(a,b)=>a/gcd(a,b)*b;
 const slots=15,variants=20;
 (async()=>{
  const file=fs.readFileSync('g5-fraction-applications-v130.js','utf8');
- assert(file.includes('Из первой партии массой '+ "'+total+" +' кг'), 'The two independent stock supplies must remain corrected');
+ assert(file.includes("'Из первой партии массой '+total+' кг"), 'The two independent stock supplies must remain corrected');
  assert(!file.includes("'Из '+total+' кг выделили '"),'Impossible double consumption of one stock is back');
  const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
  try{
