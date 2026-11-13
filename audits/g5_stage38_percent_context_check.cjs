@@ -23,7 +23,9 @@ for(const required of [
 assert(!fractions.includes('На какой общий множитель гарантированно делятся'),'Ambiguous divisor question remains');
 assert(!fractions.includes('Вычтем оба общих множителя'),'Incorrect reduction explanation remains');
 const remaining=fs.readFileSync('g5-remaining-core-v126.js','utf8');
-assert(remaining.includes('У трёх одинаковых фигур закраска такая же, как на рисунке.'),'Missing meaningful three-figure grid task');
+assert(remaining.includes("if(id==='frac_shapes')"),'§25 generator must retain its stable topic ID');
+assert(remaining.includes('Окружность — линия, ограничивающая круг'),'§25 corrected geometry concepts are missing');
+assert(!remaining.includes('На рисунке прямоугольник из '+20+' клеток.'),'§25 must no longer generate colored-grid fractions');
 assert(!remaining.includes('Сколько разность между половиной фигуры'),'Original confusing task remains');
 const applied=fs.readFileSync('g5-fraction-applications-v130.js','utf8');
 for(const literal of [
