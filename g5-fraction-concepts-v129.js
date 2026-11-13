@@ -67,7 +67,20 @@ function displayedArithmeticSteps(plan){
  function visit(node){
   const op=node[0],args=node.slice(1);
   if(op==='rat')return reduce(args[0],args[1]);
-  if(!['add','sub'].includes(op))return solve(node);
+  if(!['add','sub','mul','div','max','min'].includes(op))return solve(node);
+  if(op==='mul'||op==='div'){
+   const left=visit(args[0]),right=visit(args[1]),result=solve(node),operation=op==='mul'?'·':':';
+   sequence.push('Вычисляем '+left.n+'/'+left.d+' '+operation+' '+right.n+'/'+right.d+': '+(op==='mul'
+    ?left.n+' · '+right.n+' / ('+left.d+' · '+right.d+')'
+    :left.n+'/'+left.d+' · '+right.d+'/'+right.n)+'. Получаем '+result.n+'/'+result.d+'.');
+   return result;
+  }
+  if(op==='max'||op==='min'){
+   const values=args.map(visit),common=workedLCM(values.map(v=>v.d)),nums=values.map(v=>v.n*(common.common/v.d));
+   const answer=solve(node);
+   sequence.push(common.steps+' Сравним числители '+nums.join(', ')+' при знаменателе '+common.common+'. '+(op==='max'?'Наибольшее':'Наименьшее')+' значение '+answer.n+'/'+answer.d+'.');
+   return answer;
+  }
   const values=args.map(visit);
   let acc=values[0];
   for(let i=1;i<values.length;i++){
@@ -267,14 +280,14 @@ function makeSpec(id,t,p){
  }
  if(!tasks||tasks.length!==5)throw Error('v129 no task family '+id+' '+t);
  const [text,plan,why,steps,mode]=tasks[p];
- let worked='';
+ let worked='',factorAudit=null;
  if(id==='frac_common_lcm'){
   const byTier=[
    [[d,e],[d,d*k],[d,d*k],[d,d*k],[d,d*m]],
    [[d,e,d*k],[d,e],[d,e],[d,e],[d*k,e]],
    [[d,e,d*m],[d,e,d*m],[d,e,e*k],[d,e,d*e],[d*k,e*m,d]]
   ];
-  worked=workedLCM(byTier[t][p]).steps;
+  const detail=workedLCM(byTier[t][p]);worked=detail.steps;factorAudit={denominators:byTier[t][p],lcm:detail.common};
  }else if(id==='frac_add_diff'||id==='frac_sub_diff'){
   worked=displayedArithmeticSteps(plan);
  }else if(id==='frac_compare_diff'){
@@ -291,10 +304,10 @@ function makeSpec(id,t,p){
   const inputs=[primary];
   if(t===2&&(p===0||p===1||p===4))inputs.push([b*m,e*m]);
   worked=reductionSteps(inputs);
- }else if(id==='frac_equal'&&(p===2||p===4)){
-  worked=reductionSteps([[a*k*m,d*k*m]]);
+ }else if(id==='frac_equal'&&((t===0&&p===2)||((t===1||t===2)&&p===4))){
+  worked=reductionSteps([t===0?[a*k,d*k]:[a*k*m,d*k*m]]);
  }
- return {id,t,p,text,plan,why:why+(worked?' '+worked:''),steps,mode};
+ return {id,t,p,text,plan,why:why+(worked?' '+worked:''),steps,mode,factorAudit};
 }
 function question(id){
  const t=T(),p=F();
@@ -322,7 +335,7 @@ function question(id){
  return {text:q.text,ans:String(q.correct),choices:q.choices,ex:q.explain,
   sourceTopicId:id,templateId:q.templateId,sig:['g5',id,'v129',t,p,q.text,correct].join(':'),
   correctLabel:String(keys[0].label),correctText:String(keys[0].label),
-  mk129:{id,t,p,steps:data.steps,mode,plan:data.plan,expected:v}};
+  mk129:{id,t,p,steps:data.steps,mode,plan:data.plan,expected:v,factorAudit:data.factorAudit}};
 }
 makeG5Question=function(id){return covered.has(id)?question(id):previous.apply(this,arguments)};
 window.mkG5V129Tiered=IDS.slice();
