@@ -44,18 +44,88 @@ function option(text,correct,other,ex,family){
  if(unique.length<3)throw Error('v112 insufficient alternatives '+family);
  return g5q(text,unique.map((label,i)=>({label,key:i===0?'yes':'no'+i})),'yes',ex,family);
 }
+function cmpPlaceTable(x,y){
+ const digits=Math.max(String(x).length,String(y).length),head=['Тысячи','Сотни','Десятки','Единицы'].slice(4-digits);
+ const columns=head.map(label=>'<th scope="col" style="padding:6px;border:1px solid #7795b3">'+label+'</th>').join('');
+ const row=(name,n)=>'<tr><th scope="row" style="padding:6px;border:1px solid #7795b3">'+name+'</th>'+
+  String(n).padStart(digits,'0').split('').map(d=>'<td style="padding:6px;border:1px solid #7795b3;font-weight:600">'+d+'</td>').join('')+'</tr>';
+ return '<div class="mk-g5-comparison-table" style="width:100%;max-width:590px;overflow-x:auto;margin:7px auto"><table style="width:100%;border-collapse:collapse;text-align:center"><caption style="text-align:left;padding:4px 0">Разряды двух натуральных чисел</caption><thead><tr><th scope="col" style="padding:6px;border:1px solid #7795b3">Число</th>'+columns+'</tr></thead><tbody>'+row('Первое',x)+row('Второе',y)+'</tbody></table></div>';
+}
+function cmpQuestion(t,p,text,answer,ex,steps,wrong=[]){
+ const id='v141_natural_compare_L'+t+'_F'+p;
+ const isSign=typeof answer==='string',q=isSign?option(text,answer,['<','>','='],ex,id):numeric(text,answer,ex,id,wrong);
+ q.mk5Pedagogy={id:'natural_compare',stage:t,family:p,steps,expected:answer,kind:isSign?'sign':'number'};
+ if(isSign)q.mk5Audit={type:'choice',expected:answer,level:t};
+ return q;
+}
+function cmpShuffle(values){
+ for(let i=values.length-1;i>0;i--){const j=rand(0,i);[values[i],values[j]]=[values[j],values[i]];}
+ return values;
+}
+function cmpSign(a,b){return a<b?'<':a>b?'>':'=';}
+function compareNatural(t,p){
+ const h=rand(2,9),ten=rand(0,9),units=rand(0,9),n=h*100+ten*10+units;
+ if(t===0){
+  if(p===0){
+   const diff=rand(1,25),mode=rand(0,3),other=mode===0?n:mode%2?n+diff:n-diff;
+   const sign=cmpSign(n,other);
+   return cmpQuestion(t,p,'Поставь правильный знак сравнения между числами '+n+' □ '+other+'. '+cmpPlaceTable(n,other),sign,'Сравниваем слева направо: сначала сотни, затем десятки, затем единицы. Получаем '+n+' '+sign+' '+other+'.',1);
+  }
+  if(p===1){let other=rand(120,979);if(other===n)other++;const greater=Math.max(n,other);return cmpQuestion(t,p,'Какое число больше: '+n+' или '+other+'?',greater,'Сравним цифры по разрядам: '+greater+' больше '+Math.min(n,other)+'.',1,[Math.min(n,other)]);}
+  if(p===2){let other=rand(120,979);if(other===n)other++;const smaller=Math.min(n,other);return cmpQuestion(t,p,'Какое число меньше: '+n+' или '+other+'?',smaller,'Сравним цифры от старшего разряда. Меньшее число — '+smaller+'.',1,[Math.max(n,other)]);}
+  if(p===3){
+   const base=rand(120,810),u=rand(3,35),v=rand(3,35),items=cmpShuffle([base,base+u,base+u+v]);const answer=base+u;
+   return cmpQuestion(t,p,'Какое из чисел находится между двумя другими по величине: '+items.join(', ')+'?',answer,'Упорядочим числа: '+base+' < '+answer+' < '+(base+u+v)+'. Между меньшим и большим — '+answer+'.',2,[base,base+u+v]);
+  }
+  const small=rand(800,999),large=rand(1000,1299),items=cmpShuffle([small,large]);
+  return cmpQuestion(t,p,'Одно число трёхзначное, другое четырёхзначное. Какое из чисел '+items.join(' и ')+' больше?',large,'У четырёхзначного числа четыре цифры, у трёхзначного — три. Следовательно, '+large+' > '+small+'.',1,[small]);
+ }
+ if(t===1){
+  if(p===0){
+   const thousands=rand(2,8),hundreds=rand(0,9),tens=rand(1,7),u=rand(0,9),first=1000*thousands+100*hundreds+10*tens+u;
+   const mode=rand(0,3),second=mode===0?first:mode%2?first+rand(11,19):first-rand(11,19);
+   const sign=cmpSign(first,second);
+   return cmpQuestion(t,p,'Сравни близкие четырёхзначные числа. Какой знак нужен: '+first+' □ '+second+'? '+cmpPlaceTable(first,second),sign,'Сравним тысячи, сотни, десятки и единицы по очереди: '+first+' '+sign+' '+second+'.',2);
+  }
+  if(p===1){
+   const base=rand(1100,6300),a=rand(3,30),b=rand(3,30),c=rand(3,30),items=cmpShuffle([base,base+a,base+a+b,base+a+b+c]),answer=base+a+b;
+   return cmpQuestion(t,p,'Четыре числа: '+items.join(', ')+'. Найди второе по величине число при расположении по убыванию.',answer,'Записываем по убыванию: '+[...items].sort((x,y)=>y-x).join(' > ')+'. Второе число — '+answer+'.',3,[base+a,base+a+b+c]);
+  }
+  if(p===2){const left=rand(220,960),right=left+rand(4,31),ans=right-left-1;return cmpQuestion(t,p,'Сколько натуральных чисел строго между '+left+' и '+right+'?',ans,'Разность границ '+right+' − '+left+' = '+(right-left)+'. Не учитываем обе границы: '+(right-left)+' − 1 = '+ans+'.',2,[right-left,right-left+1]);}
+  if(p===3){
+   const small=rand(260,670),large=small+rand(20,100),increase=rand(9,150),items=cmpShuffle([small,large]),newSmall=small+increase,ans=Math.max(large,newSmall);
+   return cmpQuestion(t,p,'Из двух чисел '+items.join(' и ')+' меньшее увеличили на '+increase+'. Какое число стало большим после изменения?',ans,'Меньшее число '+small+' стало '+small+' + '+increase+' = '+newSmall+'. Сравним с '+large+': большее — '+ans+'.',3,[small,newSmall,large]);
+  }
+  const hundred=rand(2,8),unit=rand(0,9),low=rand(1,4),high=rand(low+2,9),lowNum=100*hundred+10*low+unit,highNum=100*hundred+10*high+unit;
+  return cmpQuestion(t,p,'В числе '+hundred+'□'+unit+' на месте десятков стоит цифра □. Какую наименьшую цифру следует поставить вместо □, чтобы число было строго больше '+lowNum+' и строго меньше '+highNum+'?',low+1,'Сотни и единицы совпадают. Цифра десятков должна быть больше '+low+' и меньше '+high+'. Наименьшая подходящая цифра '+(low+1)+'.',3,[low,high,high-1]);
+ }
+ if(p===0){
+  const digits=cmpShuffle([0,1,2,3,4,5,6,7,8,9]).slice(0,4),sorted=[...digits].sort((a,b)=>b-a),answer=Number(sorted.join(''));
+  return cmpQuestion(t,p,'Используя каждую из цифр '+digits.join(', ')+' ровно один раз, составь наибольшее возможное четырёхзначное число.',answer,'Наибольшее число получаем, располагая разные цифры по убыванию: '+sorted.join('')+'.',4);
+ }
+ if(p===1){
+  const digits=cmpShuffle([1,2,3,4,5,6,7,8,9]).slice(0,3),sorted=[...digits].sort((a,b)=>a-b),answer=Number(''+sorted[0]+'0'+sorted[1]+sorted[2]);
+  return cmpQuestion(t,p,'Из цифр 0, '+digits.join(', ')+' (каждую используй один раз) составь наименьшее четырёхзначное число.',answer,'Первая цифра не может быть нулём. Ставим меньшую ненулевую цифру '+sorted[0]+', затем 0, затем '+sorted[1]+' и '+sorted[2]+': '+answer+'.',4);
+ }
+ if(p===2){
+  const prefix=rand(21,79),unit=rand(0,9),low=rand(1,5),high=rand(low+2,9),left=prefix*100+10*low+unit,right=prefix*100+10*high+unit,answer=high-low-1;
+  return cmpQuestion(t,p,'Сколько разных цифр можно поставить вместо □ в числе '+prefix+'□'+unit+', чтобы оно было строго больше '+left+' и строго меньше '+right+'?',answer,'Первые две цифры и единицы совпадают, поэтому сравним десятки: подходят цифры от '+(low+1)+' до '+(high-1)+'. Их количество '+answer+'.',4,[high-low,high-low+1]);
+ }
+ if(p===3){
+  const left=rand(260,730),gap=rand(24,85),right=left+gap,down=rand(5,18),up=rand(5,18),answer=(right+up)-(left-down)-1;
+  return cmpQuestion(t,p,'Левую границу '+left+' уменьшили на '+down+', а правую границу '+right+' увеличили на '+up+'. Сколько натуральных чисел стало строго между новыми границами?',answer,'Новые границы: '+(left-down)+' и '+(right+up)+'. Разность '+(right+up-left+down)+', исключаем обе границы и получаем '+answer+'.',4,[right-left-1,right+up-left+down]);
+ }
+ const base=rand(130,410),scoreA=base+25,scoreB=base+55,scoreC=base+100,scoreD=base+150;
+ let deltaA=rand(60,150);if(deltaA===75||deltaA===125)deltaA++;
+ const deltaB=rand(5,20),after=[scoreA+deltaA,scoreB-deltaB,scoreC,scoreD],order=[...after].sort((a,b)=>b-a),answer=order[1];
+ if(new Set(after).size!==4)throw Error('Unexpected tied scores in comparison master');
+ return cmpQuestion(t,p,'Команды А, Б, В, Г набрали соответственно '+scoreA+', '+scoreB+', '+scoreC+', '+scoreD+' баллов. После пересчёта команде А добавили '+deltaA+' баллов, а у команды Б сняли '+deltaB+'. Сколько баллов оказалось у команды, занявшей второе место?',answer,'После пересчёта результаты: А — '+after[0]+', Б — '+after[1]+', В — '+after[2]+', Г — '+after[3]+'. Упорядочим: '+order.join(' > ')+'. Второе место — '+answer+'.',5,[order[0],order[2],order[3]]);
+}
+
 function make(id){
  const t=level(),p=pos();
  const a=rand(4,9+10*t),b=rand(3,8+7*t),c=rand(2,7+5*t);
- if(id==='natural_compare'){
-  const x=a*100+b*10+c,y=(a+t+1)*100+c*10+b;
-  if(p===0)return numeric('Какое из чисел больше: '+x+' или '+y+'?',Math.max(x,y),'Сначала сравниваем сотни; больше '+Math.max(x,y)+'.','cmp_digits',[Math.min(x,y),x+y]);
-  if(p===1)return numeric('На сколько '+Math.max(x,y)+' больше '+Math.min(x,y)+'?',Math.abs(x-y),'Находим разность '+Math.max(x,y)+' − '+Math.min(x,y)+' = '+Math.abs(x-y)+'.','cmp_difference',[x,y,x+y]);
-  if(p===2){const values=[x,y,x+b*12].sort((u,v)=>u-v);return numeric('Числа '+x+', '+y+' и '+(x+b*12)+'. Какое из них среднее по величине?',values[1],'Упорядочиваем числа: '+values.join(' < ')+'. Среднее '+values[1]+'.','cmp_order',[values[0],values[2]]);}
-  if(p===3){const n=rand(2,6+t*4);return numeric('Число '+x+' увеличили на '+n*10+'. Найди новое значение.',x+n*10,'Увеличиваем число: '+x+' + '+(n*10)+' = '+(x+n*10)+'.','cmp_increase',[x+n,x-n*10]);}
-  const other=Math.min(x,y)+rand(5,30+t*40);
-  return numeric('Сравни числа '+x+' и '+y+'. Затем к меньшему прибавь '+other+'. Найди большее из двух полученных чисел.',Math.max(Math.max(x,y),Math.min(x,y)+other),'После изменения меньшее станет '+(Math.min(x,y)+other)+', другое остаётся '+Math.max(x,y)+'. Большее '+Math.max(Math.max(x,y),Math.min(x,y)+other)+'.','cmp_after_change',[x,y,other]);
- }
+ if(id==='natural_compare')return compareNatural(t,p);
  if(id==='segments_polygons'){
   const L=a+b,M=b+c,N=a+c;
   if(p===0)return numeric('Отрезок AB состоит из частей AC = '+a+' см и CB = '+b+' см. Найди AB.',L,'Длина целого отрезка равна сумме частей: '+a+' + '+b+' = '+L+' см.','segment_parts',[a,b,L+2]);
