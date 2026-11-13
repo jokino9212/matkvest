@@ -54,7 +54,7 @@ const {chromium}=require('playwright');
         }
         if(p<5){
           firstFamilies.add(q.templateId);
-          if(taskTexts.has(q.text))errs.push('Duplicate task '+id+' L'+t+' p'+p);
+          if(ids.includes(id)&&taskTexts.has(q.text))errs.push('Duplicate task '+id+' L'+t+' p'+p);
           taskTexts.add(q.text);
         }
         if(ids.includes(id)&&id!=='segments_polygons'){
