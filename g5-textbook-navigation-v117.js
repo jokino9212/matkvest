@@ -71,7 +71,7 @@ const chapters = [
 const expected=chapters.flatMap(c=>c.items);
 if(expected.length!==51 || expected.some((e,i)=>e[0]!==i+1))throw Error('Vilenkin Grade 5 textbook numbering error');
 const previous=renderGrade5;
-function norm(v){return String(v||'').toLocaleLowerCase('ru').replace(/ё/g,'е').replace(/[^\\p{L}\\p{N}]+/gu,' ').trim()}
+function norm(v){return String(v||'').toLocaleLowerCase('ru').replace(/ё/g,'е').replace(/[^\p{L}\p{N}]+/gu,' ').trim()}
 function mount(){
  const host=mainView,topics=g5AllTopics(),cards=[...host.querySelectorAll('.g5-card')];
  const anchor=host.querySelector('.g5-group');
