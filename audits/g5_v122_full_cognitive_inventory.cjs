@@ -6,6 +6,7 @@ const {chromium}=require('playwright'),path=require('path');
  const p=await b.newPage({viewport:{width:1280,height:800}});
  await p.goto('file://'+path.resolve('index.html'),{waitUntil:'domcontentloaded'});
  const x=await p.evaluate(()=>{
+  const code={makeG5Question:String(makeG5Question).slice(0,6800),g5DonorQuestion:String(g5DonorQuestion).slice(0,1500),activeDifficulty:String(activeDifficulty).slice(0,900),generatorKeys:Object.keys(window).filter(x=>/mk5|makeG5/i.test(x)).slice(0,60)};
   const out=[];
   const topics=g5AllTopics();
   for(const {id,title} of topics){
@@ -24,8 +25,9 @@ const {chromium}=require('playwright'),path=require('path');
    }
    out.push({id,title,tiers});
   }
-  return {count:out.length,items:out};
+  return {count:out.length,items:out,code};
  });
+ console.log('G5_GENERATOR_RUNTIME '+JSON.stringify(x.code));
  for(const item of x.items){
    const sets=item.tiers.map(x=>new Set(x.types));
    const same=sets.slice(1).every(s=>s.size===sets[0].size&&[...s].every(v=>sets[0].has(v)));
