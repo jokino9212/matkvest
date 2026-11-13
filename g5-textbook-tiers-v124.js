@@ -139,7 +139,8 @@ function g4FourPointSegments(a,b,c){
 
 function spec(id,t,p){
  const a=rnd(4,12+4*t),b=rnd(3,10+4*t),c=rnd(2,8+3*t),e=rnd(2,6+2*t);
- const k=rnd(3,8+3*t),m=rnd(2,6+2*t),u=rnd(2,5+2*t);
+ const symbolic=id==='simplify_expressions'||id==='expand_brackets';
+ const k=rnd(3,symbolic?24+7*t:8+3*t),m=rnd(2,symbolic?19+5*t:6+2*t),u=rnd(2,5+2*t);
  let cases;
  if(id==='division_remainder'){
   // §14: a=b*q+r, 0<=r<b; the displayed text determines the answer.
