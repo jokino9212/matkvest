@@ -1,0 +1,47 @@
+name: Grade 5 direct textbook lesson navigation v121
+on:
+  push:
+    branches: [fix/g5-direct-open-v121-20261113]
+    paths:
+      - g5-textbook-navigation-v121.js
+      - audits/g5_v121_patch.py
+      - audits/g5_v121_direct_open_browser.cjs
+      - .github/workflows/g5-v121-direct-open.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  textbook-direct-open:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - name: Activate direct lesson links and PWA v121
+        run: python3 audits/g5_v121_patch.py
+      - name: Check syntax
+        run: |
+          node --check g5-textbook-navigation-v121.js
+          node --check audits/g5_v121_direct_open_browser.cjs
+          python3 -m py_compile audits/g5_v121_patch.py
+      - name: Install pinned Playwright
+        run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Assert direct opens, no card scrolls, all links, and mobile screens
+        run: node audits/g5_v121_direct_open_browser.cjs
+      - name: Regression of fraction conversions
+        run: |
+          node audits/g5_conversion_diversity_smoke.cjs
+          node audits/g5_conversion_ux_smoke.cjs
+      - name: Commit activated page and worker only after green tests
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js
+          if ! git diff --cached --quiet; then
+            git commit -m "build(g5): activate direct lesson textbook navigation v121"
+            git fetch origin fix/g5-direct-open-v121-20261113
+            git rebase origin/fix/g5-direct-open-v121-20261113
+            git push origin HEAD:fix/g5-direct-open-v121-20261113
+          fi
