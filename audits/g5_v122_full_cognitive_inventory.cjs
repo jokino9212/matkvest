@@ -6,7 +6,9 @@ const {chromium}=require('playwright'),path=require('path');
  const p=await b.newPage({viewport:{width:1280,height:800}});
  await p.goto('file://'+path.resolve('index.html'),{waitUntil:'domcontentloaded'});
  const x=await p.evaluate(()=>{
-  const code={makeG5Question:String(makeG5Question).slice(0,6800),g5DonorQuestion:String(g5DonorQuestion).slice(0,1500),activeDifficulty:String(activeDifficulty).slice(0,900),generatorKeys:Object.keys(window).filter(x=>/mk5|makeG5/i.test(x)).slice(0,60)};
+  const base=makeG5Question('segments_polygons'),donor=g5DonorQuestion('segments_polygons'),conv=makeG5Question('frac_to_mixed');
+  const sample={base,donor,conv};
+  const code={sample,makeG5Question:String(makeG5Question).slice(0,6800),g5DonorQuestion:String(g5DonorQuestion).slice(0,1500),activeDifficulty:String(activeDifficulty).slice(0,900),generatorKeys:Object.keys(window).filter(x=>/mk5|makeG5/i.test(x)).slice(0,60)};
   const out=[];
   const topics=g5AllTopics();
   for(const {id,title} of topics){
