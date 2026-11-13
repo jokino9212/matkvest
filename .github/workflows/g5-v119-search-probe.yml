@@ -1,0 +1,16 @@
+name: Grade 5 search container diagnostics v119
+on:
+  push:
+    branches: [fix/g5-single-search-collapse-v119-20261113]
+    paths: [audits/g5_v119_search_dom_probe.cjs, .github/workflows/g5-v119-search-probe.yml]
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - run: node audits/g5_v119_search_dom_probe.cjs
