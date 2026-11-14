@@ -137,7 +137,7 @@ function fractionOperationDiagram(d,a,b,op){
    '" stroke="#52617a" stroke-width="2" fill="none"/>');
  }
  const caption='Одинаковые целые, каждое разделено на '+d+' равных частей. '+
-   captions.map((name,i)=>name+': '+counts[i]+' частей').join('; ')+'.';
+   captions.map((name,i)=>name+': '+counts[i]+'/'+d+' целого').join('; ')+'.';
  return '<div style="width:100%;max-width:660px;overflow:hidden;margin:8px auto"><svg '+
   'class="mk-g5-fraction-operation" role="img" aria-label="'+caption+'" viewBox="0 0 590 145" '+
   'width="100%" style="display:block;height:auto" preserveAspectRatio="xMidYMid meet">'+
@@ -215,7 +215,7 @@ function addFraction(t,p){
 }
 function subFraction(t,p){
  const id='frac_sub',d=pickArithmeticD(),A=rnd(4,d-1),b=rnd(1,A-2),
-  c=rnd(1,Math.max(1,Math.min(3,A-b))),e=rnd(1,Math.max(1,Math.min(3,A-b)));
+  c=rnd(1,Math.max(1,Math.min(3,b))),e=rnd(1,Math.max(1,Math.min(3,A-b)));
  const B=A+b+c+e,K=B+b+c+e,X=n=>F(n,d);
  const q=(kind,story,expression,nums,ops,why,diagram='')=>
   exercise29(id,t,p,kind,story,expression,{d,n:nums},ops,why,diagram);
