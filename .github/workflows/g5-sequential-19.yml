@@ -1,0 +1,36 @@
+name: Grade 5 sequential §19 divisibility signs and properties
+on:
+  push:
+    branches:
+      - audit/g5-sequential-paragraph19-v154-20261114
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'g5-natural-units-v125.js'
+      - 'g5-textbook-v111.js'
+      - 'audits/g5_sequential_paragraph19_browser_oracle.cjs'
+      - '.github/workflows/g5-sequential-19.yml'
+jobs:
+  independent-divisibility:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - name: Syntax
+        run: |
+          node --check g5-natural-units-v125.js
+          node --check g5-textbook-v111.js
+          node --check audits/g5_sequential_paragraph19_browser_oracle.cjs
+      - name: Playwright
+        run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Verify independently 600 learner-visible §19 questions
+        run: node audits/g5_sequential_paragraph19_browser_oracle.cjs
+      - name: Preserve sequential Grade 5 §§1–18
+        run: |
+          node audits/g5_sequential_paragraphs01_03_browser.cjs
+          for f in audits/g5_sequential_paragraph??_browser_oracle.cjs; do node "$f"; done
+      - name: Preserve all Grade 5 topics
+        run: node audits/g5_v132_74_real_cognitive_inventory.cjs
