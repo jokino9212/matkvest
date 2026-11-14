@@ -6,6 +6,8 @@ const IDS=['frac_to_mixed','mixed_to_frac','mixed_compare'];
 const gcd=(a,b)=>{a=a<0n?-a:a;b=b<0n?-b:b;while(b){[a,b]=[b,a%b]}return a};
 const frac=(n,d=1n)=>{n=BigInt(n);d=BigInt(d);assert(d>0n);const g=gcd(n,d);return {n:n/g,d:d/g}};
 const relation=(a,b)=>a.n*b.d>b.n*a.d?'>':a.n*b.d<b.n*a.d?'<':'=';
+const add=(a,b)=>frac(a.n*b.d+b.n*a.d,a.d*b.d);
+const sub=(a,b)=>frac(a.n*b.d-b.n*a.d,a.d*b.d);
 const newRat=(w,n,d)=>frac(BigInt(w)*BigInt(d)+BigInt(n),BigInt(d));
 const fail=(q,m)=>{throw Error(m+' '+q.id+'/'+q.level+'/'+q.family+'/'+q.sample+' '+q.text)};
 const match=(q,re)=>{const m=q.text.match(re);if(!m)fail(q,'Unrecognised visible wording '+re);return m};
@@ -48,20 +50,20 @@ function expectedComparison(q){
    left=v(pair[1]);right=v(pair[2]);
   }else value=ms[1].n>ms[0].n?ms[1].n-ms[0].n:ms[0].n-ms[1].n;
  }else if(t===1){
-  if(p===0){left=frac(ms[0].q.n+f(1)*ms[0].q.d/fs[1].d,ms[0].q.d);right=ms[1].q}
-  else if(p===1){left=frac(ms[0].q.n-f(1)*ms[0].q.d/fs[1].d,ms[0].q.d);right=ms[1].q}
+  if(p===0){left=add(ms[0].q,fs[1].q);right=ms[1].q}
+  else if(p===1){left=sub(ms[0].q,fs[1].q);right=ms[1].q}
   else if(p===2){const m=match(q,/К целой части (\d+) .* прибавили (\d+)/);value=BigInt(m[1])+BigInt(m[2])}
-  else if(p===3){left=frac(ms[0].q.n+f(2),ms[0].d);right=frac(ms[1].q.n+f(2),ms[1].d)}
+  else if(p===3){left=add(ms[0].q,fs[2].q);right=add(ms[1].q,fs[2].q)}
   else {const m=match(q,/числитель уменьшили на (\d+)/);value=ms[0].n-BigInt(m[1])-ms[1].n;if(value<0n)value=-value}
  }else{
-  if(p===0){left=frac(ms[0].q.n+f(1)-f(2),ms[0].d);
-   right=frac(ms[1].q.n-f(4),ms[1].d)}
+  if(p===0){left=sub(add(ms[0].q,fs[1].q),fs[2].q);
+   right=sub(ms[1].q,fs[4].q)}
   else if(p===1){value=ms[1].n+f(3)-ms[0].n-f(1);if(value<0n)value=-value}
   else if(p===2){const m=match(q,/вычли (\d+) целых/);
-   left=frac(ms[0].q.n-BigInt(m[1])*ms[0].d+f(1),ms[0].d);right=ms[1].q}
+   left=add(sub(ms[0].q,frac(m[1])),fs[1].q);right=ms[1].q}
   else if(p===3){value=ms[1].n-ms[0].n-f(2);if(value<0n)value=-value}
-  else {left=frac(ms[0].q.n+f(1)-f(2),ms[0].d);
-   right=frac(ms[1].q.n-f(3)+f(4),ms[1].d)}
+  else {left=sub(add(ms[0].q,fs[1].q),fs[2].q);
+   right=add(sub(ms[1].q,fs[4].q),fs[5].q)}
  }
  if(value!==null)return {kind:'number',value};
  assert(left&&right,'No comparison operands '+q.text);
