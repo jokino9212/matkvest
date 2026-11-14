@@ -45,7 +45,7 @@ const IDS=['frac_parts','frac_read','frac_ray'];
    if(q.id==='frac_parts'&&q.html.includes('mk-v114-graphic')){
     assert(q.html.includes('Одна целая полоска разделена'),'Fraction diagram must show one whole '+ctx);
     assert(!q.html.includes('rx="3"'),'Detached tiles must not reappear '+ctx);
-    const m=q.html.match(/закрашено (\\d+), не закрашено (\\d+)/);
+    const m=q.html.match(/закрашено (\d+), не закрашено (\d+)/);
     assert(m,'Diagram has no meaningful accessible count '+ctx);
     const d=Number(m[1])+Number(m[2]);
     const cells=[...q.html.matchAll(/<rect x="[^"]+" y="8" width="[^"]+" height="44" fill="/g)];
