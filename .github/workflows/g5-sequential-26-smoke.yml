@@ -1,0 +1,34 @@
+name: Grade 5 sequential §26 fractions pre-certification smoke
+on:
+  push:
+    branches:
+      - audit/g5-paragraph26-20261114
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'g5-fractions-v114.js'
+      - 'audits/g5_sequential_paragraph26_live_smoke.cjs'
+      - '.github/workflows/g5-sequential-26-smoke.yml'
+jobs:
+  fractions-live-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check syntax
+        run: |
+          node --check g5-fractions-v114.js
+          node --check audits/g5_sequential_paragraph26_live_smoke.cjs
+      - name: Install Playwright
+        run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Generate and check 1800 actual §26 questions
+        run: node audits/g5_sequential_paragraph26_live_smoke.cjs
+      - name: Regression of certified §§1–25
+        run: |
+          node audits/g5_sequential_paragraphs01_03_browser.cjs
+          for n in 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25; do node "audits/g5_sequential_paragraph${n}_browser_oracle.cjs"; done
+      - name: Verify 74 Grade 5 lessons preserved
+        run: node audits/g5_v132_74_real_cognitive_inventory.cjs
