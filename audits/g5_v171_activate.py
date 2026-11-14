@@ -15,8 +15,8 @@ def build():
     if len(matches)!=19:
         raise SystemExit(f'Expected 19 versioned g5 scripts, got {len(matches)}')
     after=re.sub(r'(<script src="g5-[\w-]+\.js)\?v=(?:170|171)("></script>)',
-                 r'\g<1>?v=170\g<2>',before)
-    if after.count('?v=170')<19:
+                 r'\g<1>?v=171\g<2>',before)
+    if after.count('?v=171')<19:
         raise SystemExit('Missing version tags in output')
     old=WORKER.read_text(encoding='utf-8')
     new,count=re.subn(r'const CACHE_NAME = "matkvest-iphone-v(?:170|171)";',
