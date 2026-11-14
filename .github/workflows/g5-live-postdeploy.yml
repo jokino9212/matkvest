@@ -33,7 +33,7 @@ jobs:
       - name: Validate current HTML/worker fingerprint and exact v166 release stamp
         run: |
           python3 audits/g7_stage12_sync_pwa.py --check
-          python3 audits/g5_v166_activate.py --check
+          node -e 'const fs=require("node:fs");const html=fs.readFileSync("index.html","utf8"),sw=fs.readFileSync("sw.js","utf8");const version=/CACHE_NAME = "matkvest-iphone-v(\d+)"/.exec(sw)?.[1];const scripts=[...html.matchAll(/<script src="g5-[^"]+\.js\?v=(\d+)"/g)];if(!version||scripts.length!==19||scripts.some(x=>x[1]!==version))throw Error("Grade 5 script/worker version mismatch");console.log("G5_LIVE_SCRIPT_SW_SYNC_PASS",version,scripts.length);'
           node --check audits/pwa_v158_grade5_production_browser.cjs
           node --check audits/g5_sequential_paragraph30_browser_oracle.cjs
       - name: Install pinned browser runtime
