@@ -1,0 +1,42 @@
+name: Grade 5 v162 one-time release stamping
+on:
+  push:
+    branches:
+      - audit/g5-paragraph26-20261114
+    paths:
+      - 'audits/g5_v162_activate.py'
+      - '.github/workflows/g5-v162-stamp.yml'
+permissions:
+  contents: write
+jobs:
+  stamp-after-independent-proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Install Playwright
+        run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Independently verify §26 before release stamp
+        run: |
+          node audits/g5_sequential_paragraph26_live_smoke.cjs
+          node audits/g5_sequential_paragraph26_independent_oracle.cjs
+          node audits/g5_stage41_fractions_angles_browser_oracle.cjs
+          node audits/g5_sequential_paragraph25_browser_oracle.cjs
+          node audits/g5_v132_74_real_cognitive_inventory.cjs
+      - name: Stamp versioned scripts and service-worker cache
+        run: |
+          python3 audits/g5_v162_activate.py
+          python3 audits/g5_v162_activate.py --check
+      - name: Commit changed index and worker to the PR branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js
+          if ! git diff --cached --quiet; then
+            git commit -m "Release v162: verified Grade 5 §26 and PWA build stamp"
+            git push origin HEAD:audit/g5-paragraph26-20261114
+          fi
