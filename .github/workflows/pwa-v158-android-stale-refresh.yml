@@ -1,0 +1,56 @@
+name: P0 Android PWA stale Grade 5 refresh (#91)
+on:
+  push:
+    branches:
+      - fix/android-g5-stale-pwa-v158-20261114
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: fix-android-g5-stale-v158
+  cancel-in-progress: false
+jobs:
+  mobile-two-release-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+      - name: Trust checked-out repository inside Playwright container
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+      - name: Apply idempotent Android v158 JS cache-buster and network-first worker
+        run: |
+          python3 audits/pwa_v158_stale_android_patch.py
+          python3 audits/pwa_v158_stale_android_patch.py --check
+          python3 audits/g7_stage12_sync_pwa.py --check
+      - name: Validate JavaScript and test syntax
+        run: |
+          node --check sw.js
+          node --check audits/pwa_v158_android_two_release_browser.cjs
+          python3 -m py_compile audits/pwa_v158_stale_android_patch.py
+      - name: Install pinned Playwright
+        run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Real v157 to v158 SW migration on Android mobile - online, offline, draft
+        run: node audits/pwa_v158_android_two_release_browser.cjs
+      - name: Confirm real offline app and student profile safety
+        run: node audits/stage28_offline_pwa_browser.cjs
+      - name: Recheck §22 600 mathematical answers after script URL revision
+        run: node audits/g5_sequential_paragraph22_browser_oracle.cjs
+      - name: Commit tested HTML and worker to release branch (never push to main)
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js
+          if ! git diff --cached --quiet; then
+            git commit -m "build(pwa): publish tested v158 cache-busted Grade 5 HTML and network-first SW"
+            git fetch origin fix/android-g5-stale-pwa-v158-20261114
+            git rebase origin/fix/android-g5-stale-pwa-v158-20261114
+            git push origin HEAD:fix/android-g5-stale-pwa-v158-20261114
+          else
+            echo "PWA v158 already synchronized. No write needed."
+          fi
