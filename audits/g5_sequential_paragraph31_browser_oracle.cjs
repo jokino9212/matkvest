@@ -130,7 +130,7 @@ function validateDiagram(q){
    :[ms[0].w*d+ms[0].n,ms[1].w*d+ms[1].n];
   for(let i=0;i<2;i++){
    const row=g.rows[i];assert.equal(row.width,504,'Comparison bar width differs');
-   assert.equal(row.cells.filter(x=>x.filled).length,Number(i?a:b),'Comparison shaded units not grounded in text');
+   assert.equal(row.cells.filter(x=>x.filled).length,Number(i?b:a),'Comparison shaded units not grounded in text '+q.text);
    assert.equal(row.cells.length%Number(d),0,'Whole not split into equal units');
    for(let j=1;j<row.cells.length;j++){
     assert(Math.abs(row.cells[j].x-row.cells[j-1].x-row.cells[j-1].width)<0.005,'Detached comparative model');
