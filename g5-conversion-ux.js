@@ -218,7 +218,7 @@ function conversionQuestion(base,topic,given){
    numerator:kind==='number'?undefined:answerN,denominator:kind==='number'?undefined:den,
    level,stage,topic,pedagogicalFamily:family};
  const signature='g5:'+topic+':'+topic+':'+family+':'+stripHtmlText(question)+':'+correctText;
- return {...base,text:question,ans,choices,ex:explanation,templateId:'g5_conversion_'+family,
+ return {...base,text:question,ans,choices,ex:explanation,templateId:'g5_conversion_'+topic+'_L'+stage+'_'+family,
    sig:signature,answerMode,answerRat,correctText,correctHtml,correctLabel,preferMixed:kind==='mixed',
    stage18AnswerForm:form||null,stage18FixedDenominator:kind==='number'?undefined:den,
    stage18ConversionType:conversionType||null,stage18SingleFieldLabel:kind==='number'?label:null,
