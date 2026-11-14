@@ -198,6 +198,27 @@ function question(id){
  if(value.n<0)throw Error('Negative v130 quantity '+id);
  let choices,correct;
  if(value.d===1){choices=g5nums(value.n,[value.n+1,value.n+2,value.n+3]);correct=String(value.n)}
+ else if(id==='frac_division'){
+  // Legacy g5FractionChoices sometimes returned only two options: fix §30, not other topics.
+  // Distractors must be distinct *mathematical values*, not merely different spellings.
+  const chosen=[],seen=new Set();
+  const add=(n,d,key)=>{
+   if(!Number.isSafeInteger(n)||!Number.isSafeInteger(d)||n<0||d<2)return;
+   const reduced=simplify(n,d),canonical=reduced.n+'/'+reduced.d;
+   if(seen.has(canonical))return;
+   seen.add(canonical);chosen.push({label:frac(n,d),key});
+  };
+  correct=value.n+'/'+value.d;
+  add(value.n,value.d,correct);
+  const candidates=[[value.n+1,value.d],[value.n+2,value.d],
+   [Math.max(0,value.n-1),value.d],[value.n,value.d+1],
+   [value.n+1,value.d+1],[value.n+3,value.d],
+   [value.n,value.d+2],[value.n+4,value.d+1]];
+  for(let i=0;i<candidates.length&&chosen.length<4;i++)
+   add(candidates[i][0],candidates[i][1],'v130_30_wrong_'+i);
+  if(chosen.length!==4)throw Error('§30 could not build four unique fraction options');
+  choices=chosen;
+ }
  else{choices=g5FractionChoices(value.n,value.d);correct=value.n+'/'+value.d}
  const q=g5q(d.text,choices,correct,d.explain+' Ответ: '+show(d.plan)+'.','v130_'+id+'_L'+t+'_F'+p);
  const matches=q.choices.filter(x=>String(x.key)===String(q.correct));
