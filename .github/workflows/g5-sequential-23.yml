@@ -1,0 +1,38 @@
+name: Grade 5 sequential §23 cuboid, twelve edges and six-face nets
+on:
+  push:
+    branches: [audit/g5-sequential-paragraph23-v159-20261114]
+  pull_request:
+    branches: [main]
+    paths:
+      - 'g5-pedagogy-v113.js'
+      - 'audits/g5_sequential_paragraph23_browser_oracle.cjs'
+      - 'audits/g5_v113_math_oracle.cjs'
+      - '.github/workflows/g5-sequential-23.yml'
+jobs:
+  independent-cuboid-geometry:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - name: Syntax
+        run: |
+          node --check g5-pedagogy-v113.js
+          node --check audits/g5_sequential_paragraph23_browser_oracle.cjs
+          node --check audits/g5_v113_math_oracle.cjs
+      - name: Install pinned Playwright
+        run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Independently verify 600 learner-visible cuboid and net tasks, no §24 volume
+        run: node audits/g5_sequential_paragraph23_browser_oracle.cjs
+      - name: Regression of four historical v113 math families on mobile and desktop
+        run: node audits/g5_v113_math_oracle.cjs
+      - name: Strict regression §§1-22 in textbook order
+        run: |
+          node audits/g5_sequential_paragraphs01_03_browser.cjs
+          for f in audits/g5_sequential_paragraph??_browser_oracle.cjs; do
+            if [ "$f" != "audits/g5_sequential_paragraph23_browser_oracle.cjs" ]; then node "$f"; fi
+          done
+      - name: Keep all 74 Grade 5 topics with 15 cognitive families each
+        run: node audits/g5_v132_74_real_cognitive_inventory.cjs
