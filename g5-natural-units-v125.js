@@ -122,30 +122,6 @@ function spec(id,t,p){
    ];
   }
  }
- if(id==='divisors_multiples_g5'){
-  const factor=rnd(2,9),q=rnd(3,10+t*4),n=factor*q,primes=[2,3,5,7,11],pr=primes[rnd(0,4)],two=primes[(primes.indexOf(pr)+rnd(1,4))%5],prod=pr*two;
-  if(t===0)rows=[
-   ['Число '+n+' разделили на '+factor+' без остатка. Чему равно частное?',D(V(n),V(factor)),'Делитель '+factor+' входит в число '+n+' ровно '+q+' раз.',1],
-   ['Сколько положительных кратных '+factor+' не больше '+(q*factor)+'?',V(q),'Это '+factor+', '+(2*factor)+', …, '+(q*factor)+'.',2],
-   ['Найди следующее кратное '+factor+' после '+(factor*q)+'.',M(V(factor),V(q+1)),'К кратному прибавим делитель.',2],
-   ['У простого числа '+pr+' сколько натуральных делителей?',V(2),'Простое число имеет ровно два положительных делителя: 1 и само число.',1],
-   ['Чему равно наименьшее положительное кратное числа '+factor+'?',V(factor),'Первое положительное кратное числа равно самому числу.',1]
-  ];
-  else if(t===1)rows=[
-   ['Сколько положительных кратных '+factor+' от 1 до '+(n+factor*c)+' включительно?',D(V(n+factor*c),V(factor)),'Вычислим, сколько полных групп по '+factor+' помещается в границе.',2],
-   ['У числа '+prod+' (произведение различных простых '+pr+' и '+two+') сколько натуральных делителей?',V(4),'Его делители: 1, '+pr+', '+two+' и '+prod+'.',2],
-   ['У числа '+(factor*q)+' исключили '+(factor*Math.min(d,q-1))+' предметов. Сколько полных групп по '+factor+' осталось?',D(S(V(factor*q),V(factor*Math.min(d,q-1))),V(factor)),'Вычтем расход, затем разделим на размер группы.',3],
-   ['Число '+n+' разделили поровну на '+q+' групп. Затем число в каждой группе увеличили на '+c+'. Сколько в новой группе?',A(D(V(n),V(q)),V(c)),'Деление и сложение.',2],
-   ['Сколько кратных числа '+factor+' между '+(factor*2)+' и '+(factor*(q+2))+' включительно?',V(q+1),'Начинаем со второго кратного, заканчиваем '+(q+2)+'-м; считаем количество.',3]
-  ];
-  else rows=[
-   ['Сколько положительных чисел не больше '+(prod*k)+' кратны одновременно '+pr+' и '+two+'?',D(V(prod*k),V(prod)),'Оба простых множителя должны входить в число; кратные их произведения.',4],
-   ['Сколько натуральных делителей имеет число '+(pr*pr)+' (квадрат простого '+pr+')?',V(3),'Делители квадрата простого: 1, '+pr+' и '+(pr*pr)+'.',3],
-   ['На отрезке от '+(factor*2)+' до '+(factor*(q+3))+' включительно сколько кратных '+factor+'?',V(q+2),'Это последовательность кратных с номерами 2, 3, …, '+(q+3)+'.',3],
-   ['Разложили '+(n+factor*c)+' предметов в коробки по '+factor+'. Затем '+Math.min(d,q+c-1)+' полных коробок отдали. Сколько осталось полных коробок?',S(D(V(n+factor*c),V(factor)),V(Math.min(d,q+c-1))),'Сначала число коробок, затем вычтем отданные.',3],
-   ['Для '+(factor*q)+' предметов можно сделать '+q+' упаковок по '+factor+'. Если в каждую добавить ещё '+c+' предметов, сколько всего предметов будет?',M(V(q),A(V(factor),V(c))),'Новая вместимость умножается на число упаковок.',3]
-  ];
- }
  if(id==='divisibility_rules_g5'){
   const head=rnd(11,89)*10,base=(head+10)*10,start=rnd(11,25)*10,end=start+rnd(100,170),mod=rnd(2,9);
   if(t===0)rows=[
@@ -224,6 +200,18 @@ function spec(id,t,p){
 }
 makeG5Question=function(id){
  if(!implemented.has(id))return previous.apply(this,arguments);
+ if(id==='divisors_multiples_g5'){
+  // §18's authoritative, textbook-specific generator is defined in v111.
+  // Keep the v125 metadata contract for legacy lesson and UI QA.
+  const t=stage(),p=pos(),q=g5DonorQuestion(id),m=q.mk18;
+  if(!m||m.t!==t||m.p!==p||m.id!==id)throw Error('§18 authentic generator not active');
+  const correct=q.choices.filter(x=>String(x.key)===String(q.correct));
+  if(correct.length!==1||new Set(q.choices.map(x=>String(x.label))).size!==q.choices.length)throw Error('§18 invalid alternatives');
+  return {text:q.text,ans:String(q.correct),choices:q.choices,ex:q.explain,
+   sourceTopicId:id,templateId:q.templateId,correctLabel:String(correct[0].label),correctText:String(correct[0].label),
+   sig:['g5',id,'v153',t,p,q.text,m.expected].join(':'),
+   mk18:m,mk125:{id,t,p,steps:m.steps,plan:['v',m.expected],expected:m.expected}};
+ }
  const t=stage(),p=pos(),data=spec(id,t,p),answer=calc(data.plan);
  if(!Number.isSafeInteger(answer)||answer<0)throw Error('Invalid v125 result '+id+' L'+t+' F'+p+' '+answer);
  const q=g5q(data.text,g5nums(answer,[answer+1,answer+2,Math.max(0,answer-1)]),String(answer),data.explain+' Ответ: '+answer+'.','v125_'+id+'_L'+t+'_F'+p);

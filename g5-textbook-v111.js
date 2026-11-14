@@ -30,6 +30,95 @@ function choose(text,correct,wrong,ex,family){
  const unique=[...new Set(alternatives)];if(unique.length<3)throw Error('Duplicate distractors: '+family);
  return g5q(text,unique.map((label,i)=>({label,key:i===0?'right':'wrong'+i})),'right',ex,family);
 }
+// §18. Exactly 15 different cognitive families; textbook topic §19 is separate.
+function divisorGcd(a,b){
+ while(b){const rem=a%b;a=b;b=rem;}
+ return a;
+}
+function allDivisors(n){
+ const arr=[];for(let d=1;d<=n;d++)if(n%d===0)arr.push(d);
+ return arr;
+}
+function makeDivisors(t,p){
+ const a=rand(3+2*t,25+9*t),b=rand(3,19+4*t),k=rand(3,16+5*t);
+ const n=a*b,rest=rand(1,a-1),first=rand(13,170+40*t);
+ let text,answer,ex,steps;
+ if(t===0){
+  if(p===0){
+   text='Число '+n+' — положительное кратное числа '+a+'. Найди следующее положительное кратное числа '+a+'.';
+   answer=n+a;ex='Все положительные кратные '+a+' идут с шагом '+a+': '+n+' + '+a+' = '+answer+'.';steps=1;
+  }else if(p===1){
+   text='Найди '+k+'-е положительное кратное числа '+a+'.';
+   answer=a*k;ex='Положительные кратные '+a+': '+a+', '+(a*2)+', '+(a*3)+' и далее. На месте '+k+' стоит '+a+' · '+k+' = '+answer+'.';steps=1;
+  }else if(p===2){
+   text='Число '+n+' делится на '+a+' без остатка. Найди частное.';
+   answer=b;ex='Деление без остатка: '+n+' : '+a+' = '+b+'. Проверка: '+a+' · '+b+' = '+n+'.';steps=2;
+  }else if(p===3){
+   const d=allDivisors(first);
+   text='Сколько положительных делителей у числа '+first+'?';
+   answer=d.length;ex='Положительные делители '+first+': '+d.join(', ')+'. Всего '+answer+'. Проверка: на каждый из них '+first+' делится без остатка.';steps=2;
+  }else{
+   const limit=n+rest;
+   text='Сколько положительных кратных числа '+a+' не превышают '+limit+'?';
+   answer=b;ex='Последнее подходящее кратное '+a+' · '+b+' = '+n+'. Следующее '+a+' · '+(b+1)+' = '+(n+a)+' > '+limit+'. Значит, кратных '+b+'.';steps=2;
+  }
+ }else if(t===1){
+  if(p===0){
+   const bigger=n;
+   text='Найди наименьшее общее положительное кратное чисел '+a+' и '+bigger+'.';
+   answer=bigger;ex=bigger+' = '+a+' · '+b+' и '+bigger+' : '+bigger+' = 1. Само число '+bigger+' — его наименьшее положительное кратное и одновременно кратное '+a+'.';steps=3;
+  }else if(p===1){
+   const other=a*rand(4,21),g=divisorGcd(n,other),ds=allDivisors(g);
+   text='Сколько общих положительных делителей у чисел '+n+' и '+other+'?';
+   answer=ds.length;ex='Наибольший общий делитель чисел '+n+' и '+other+' равен '+g+'. Его делители: '+ds.join(', ')+'. Они и только они делят оба числа. Всего '+answer+'.';steps=3;
+  }else if(p===2){
+   const left=a*rand(2,12)+rand(1,a-1),right=left+a*rand(3,18)+rand(0,a-1);
+   const start=Math.ceil(left/a)*a,end=Math.floor(right/a)*a;
+   text='Сколько положительных кратных числа '+a+' находится от '+left+' до '+right+' включительно?';
+   answer=Math.floor(right/a)-Math.floor((left-1)/a);
+   ex='Первое кратное в промежутке '+start+' = '+a+' · '+(start/a)+'. Последнее '+end+' = '+a+' · '+(end/a)+'. Количество: '+(end/a)+' − '+(start/a)+' + 1 = '+answer+'.';steps=3;
+  }else if(p===3){
+   const limit=n+rest,add=a-rest;
+   text='К числу '+limit+' нужно прибавить наименьшее положительное число, чтобы получилось кратное '+a+'. Сколько прибавить?';
+   answer=add;ex='Ближайшее большее кратное: '+a+' · '+(b+1)+' = '+(n+a)+'. Значит, '+(n+a)+' − '+limit+' = '+add+'. Проверка: '+limit+' + '+add+' = '+(n+a)+'.';steps=3;
+  }else{
+   const multiple=n,count=rand(3,16),limit=multiple*count+rand(1,multiple-1);
+   text='Сколько общих положительных кратных чисел '+a+' и '+multiple+' не превышают '+limit+'?';
+   answer=count;ex='Так как '+multiple+' = '+a+' · '+b+', общие кратные идут через '+multiple+'. Последнее подходящее '+multiple+' · '+count+' = '+(multiple*count)+'. Следующее '+multiple+' · '+(count+1)+' = '+(multiple*(count+1))+' больше '+limit+'. Ответ: '+answer+'.';steps=4;
+  }
+ }else{
+  // Pick two factors with gcd=1: neither resulting number divides the other.
+  const coprimePairs=[[3,4],[3,5],[4,7],[5,6],[5,7],[7,8],[7,9],[8,9],[9,11],[5,11],[4,9],[6,11]];
+  const [x,y]=coprimePairs[rand(0,coprimePairs.length-1)];
+  const d=rand(3,18),u=d*x,v=d*y,common=d*x*y;
+  if(p===0){
+   text='Найди наименьшее общее положительное кратное чисел '+u+' и '+v+'.';
+   answer=common;
+   const tested=[];for(let i=1;i<=x;i++)tested.push(v*i);
+   ex='Перебираем кратные '+v+': '+tested.join(', ')+'. Первое кратное, которое делится и на '+u+', равно '+common+'. Проверка: '+common+' : '+u+' = '+y+'; '+common+' : '+v+' = '+x+'.';steps=5;
+  }else if(p===1){
+   text='Найди наибольший общий положительный делитель чисел '+u+' и '+v+'.';
+   answer=d;ex='Общие делители: '+allDivisors(d).join(', ')+'. Наибольший — '+d+'. Проверка: '+u+' : '+d+' = '+x+'; '+v+' : '+d+' = '+y+'. Числа '+x+' и '+y+' не имеют общего делителя больше 1.';steps=4;
+  }else if(p===2){
+   text='Из '+u+' карандашей и '+v+' фломастеров составляют наибольшее число одинаковых наборов без остатка. Сколько наборов получится?';
+   answer=d;ex='Число наборов должно делить и '+u+', и '+v+'. Наибольший общий делитель — '+d+'. В каждом наборе '+u+' : '+d+' = '+x+' карандаша и '+v+' : '+d+' = '+y+' фломастеров.';steps=5;
+  }else if(p===3){
+   const left=common*rand(1,5)+rand(1,common-1),right=left+common*rand(4,15)+rand(0,common-1);
+   text='Сколько чисел от '+left+' до '+right+' включительно делятся без остатка и на '+u+', и на '+v+'?';
+   answer=Math.floor(right/common)-Math.floor((left-1)/common);
+   const firstCommon=Math.ceil(left/common)*common,lastCommon=Math.floor(right/common)*common;
+   ex='Общие кратные этих чисел идут с шагом '+common+'. Первое в промежутке '+firstCommon+', последнее '+lastCommon+'. Всего '+lastCommon+' : '+common+' − '+(firstCommon-common)+' : '+common+' = '+answer+'.';steps=5;
+  }else{
+   const limit=common*rand(2,13)+rand(1,common-1),next=common*(Math.floor(limit/common)+1);
+   text='Найди наименьшее натуральное число, большее '+limit+', которое делится без остатка и на '+u+', и на '+v+'.';
+   answer=next;ex='Наименьшее общее положительное кратное '+u+' и '+v+' равно '+common+'. Последнее общее кратное до '+limit+': '+common+' · '+Math.floor(limit/common)+' = '+(next-common)+'. Следующее: '+common+' · '+(Math.floor(limit/common)+1)+' = '+next+'. Проверка: '+next+' : '+u+' = '+(next/u)+', '+next+' : '+v+' = '+(next/v)+'.';steps=5;
+  }
+ }
+ if(!Number.isSafeInteger(answer)||answer<0)throw Error('Invalid §18 answer '+t+'/'+p);
+ const family='g5_divisors18_L'+t+'_F'+p,q=numeric(text,answer,ex+' Ответ: '+answer+'.',family,[answer+1,answer+2,Math.max(0,answer-1)]);
+ q.mk18={id:'divisors_multiples_g5',t,p,steps,expected:answer,family};
+ return q;
+}
 function make(id){
  const t=tier(),p=step(),a=rand(4,12+12*t),b=rand(3,10+10*t),c=rand(2,7+7*t);
  if(id==='number_tables'){
@@ -50,14 +139,7 @@ function make(id){
    if(p===3)return numeric('Найди сумму значений всех трёх столбцов. '+chart,a+b+c,'Сумма '+a+' + '+b+' + '+c+' = '+(a+b+c)+'.','chart_total',[a+b,b+c,a+c]);
    return numeric('В четверг показатель равен сумме вторника и среды. Найди общий показатель за четыре дня. '+chart,a+2*b+2*c,'Четверг '+b+' + '+c+' = '+(b+c)+'. За четыре дня '+(a+b+c)+' + '+(b+c)+' = '+(a+2*b+2*c)+'.','chart_multistep',[a+b+c,a+2*b+c]);
  }
- if(id==='divisors_multiples_g5'){
-   const n=a*b, k=rand(2,5+t*3);
-   if(p===0)return numeric('Найди наименьшее положительное кратное числа '+a+'.',a,'Первое положительное кратное числа '+a+' — само число '+a+'.','multiple_small',[2*a,b,n]);
-   if(p===1)return numeric('Найди пятое положительное кратное числа '+b+'.',5*b,'Последовательность: '+b+', '+2*b+', '+3*b+', '+4*b+', '+5*b+'.','multiple_fifth',[4*b,6*b,b]);
-   if(p===2)return numeric('Число '+n+' делится на '+a+' без остатка. Найди частное.',b,n+' : '+a+' = '+b+'.','divisor_quotient',[a,a+b,n]);
-   if(p===3)return choose('Какое число является делителем числа '+n+'?',String(a),[String(n+1),String(n+2),String(n+3)],n+' = '+a+' · '+b+', поэтому '+a+' — делитель.','divisor_select');
-   return numeric('Найди наименьшее общее положительное кратное чисел '+a+' и '+(a*k)+'.',a*k,'Число '+(a*k)+' делится и на '+a+', и на '+(a*k)+'. Любое их общее кратное должно быть кратно '+(a*k)+'.','common_multiple',[a,2*a*k,b*k]);
- }
+ if(id==='divisors_multiples_g5')return makeDivisors(t,p);
  if(id==='divisibility_rules_g5'){
    const n=rand(11,80+100*t),m=n*10+rand(0,9);
    if(p===0)return choose('Какой признак делимости на 2 верен?','Последняя цифра чётная',['Сумма цифр чётная','Число оканчивается цифрой 5','Число содержит цифру 2'],'Число делится на 2, если его последняя цифра — 0, 2, 4, 6 или 8.','rule_even');
@@ -88,7 +170,7 @@ g5DonorQuestion=function(id){return NEW.some(t=>t.id===id)?make(id):previous(id)
 const lessons={
 number_tables:'Числовую информацию удобно записывать в таблице. Столбец и строка показывают, к чему относится число. Для общего результата складывают данные, для сравнения — вычитают.',
 column_charts:'Столбчатая диаграмма показывает количество предметов высотой прямоугольных столбцов. Сначала прочитай название, единицы измерения и подписи дней на горизонтальной оси. На вертикальной оси найдёшь шкалу: между соседними короткими линиями 10 штук, между подписанными крупными делениями 20 штук. Чтобы прочитать значение, проведи мысленно горизонтальную линию от верхнего края столбца к шкале. Если два столбца расположены рядом, цвета и легенда обозначают два разных вида товаров: синие — тетради, оранжевые — альбомы. Для сравнения найди разность, для общего количества — сумму; в задачах про изменения сначала найди показатели по диаграмме, затем прибавь или вычти изменения.',
-divisors_multiples_g5:'Число a называют делителем числа b, если b делится на a без остатка. Кратные числа a: a, 2a, 3a, … . Например, 4 — делитель 12, а 12 — кратное 4.',
+divisors_multiples_g5:'Делитель натурального числа — число, на которое оно делится без остатка. Например, 4 — делитель 12, так как 12 : 4 = 3. Число 1 и само число являются его делителями. Кратные числа a: 0, a, 2a, 3a, …; положительные кратные начинаются с a. Например, 12, 24, 36 — положительные кратные 12. Чтобы проверить общий делитель, делим на него оба числа без остатка. Наибольший общий делитель — самый большой из общих положительных делителей. Общее кратное делится без остатка на каждое исходное число; наименьшее общее положительное кратное можно найти перебором кратных. Например, у 6 и 8 общие кратные 24, 48, …, самое маленькое — 24. Для промежутка сначала найди первое подходящее кратное, затем последнее и пересчитай шаги включительно.',
 divisibility_rules_g5:'На 2 делятся числа с чётной последней цифрой; на 5 — с последней цифрой 0 или 5; на 10 — с последней цифрой 0; на 3 и 9 — если сумма цифр делится соответственно на 3 или 9.',
 formulas_g5:'Формула — равенство, описывающее зависимость величин. Для прямоугольника P = 2(a + b), S = ab. Для прямоугольного параллелепипеда V = abc. Чтобы найти значение, подставь известные числа.',
 area_units_g5:'1 дм² = 100 см²; 1 м² = 100 дм² = 10 000 см²; 1 га = 10 000 м². При переводе площадей коэффициент единиц длины возводят в квадрат.'
