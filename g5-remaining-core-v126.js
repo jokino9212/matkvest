@@ -357,7 +357,7 @@ function spec(id,t,p){
  }
  if(id==='frac_shapes'){
   // Grade 5 textbook §25: circles, disks, balls, spheres and cylinders; §26 fractions stay separate.
-  const radius=r(5,12+t*3),rawOther=r(3,10+t*3),increase=r(2,6+t*2),height=r(5,13+t*3),count=r(2,7+t*2);
+  const radius=r(5,17+t*4),rawOther=r(3,10+t*3),increase=r(2,6+t*2),height=r(5,13+t*3),count=r(2,7+t*2);
   const other=rawOther===radius?rawOther+2:rawOther;
   const order=['ring','disk','sphere','cylinder'];
   for(let i=order.length-1;i>0;i--){const j=r(0,i);[order[i],order[j]]=[order[j],order[i]];}
