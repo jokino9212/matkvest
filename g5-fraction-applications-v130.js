@@ -24,6 +24,46 @@ function calculate(node){
  throw Error('v130 unknown rational operation '+op);
 }
 function show(x){const a=calculate(x);return a.d===1?String(a.n):frac(a.n,a.d)}
+
+function divisionSample(){
+ // The first direct conversion tasks must genuinely require a fraction, not an integer.
+ const d=rnd(4,14),start=rnd(2,Math.min(8,d+2));
+ let n=start;
+ for(let tries=0;tries<15&&gcd(n,d)!==1;tries++)n=n===8?2:n+1;
+ if(gcd(n,d)!==1)throw Error('Cannot select direct fraction conversion');
+ return {n,d};
+}
+function divisionWholePicture(n,d){
+ if(!Number.isSafeInteger(n)||n<2||n>8||!Number.isSafeInteger(d)||d<3||d>14)
+  throw Error('Invalid §30 sharing picture '+n+'/'+d);
+ // Each horizontal strip is one intact whole divided into d equal parts.
+ // One learner receives the FIRST 1/d piece from each of n wholes, totaling n/d.
+ const left=90,width=480,unit=width/d,h=25,pitch=35;
+ const chunks=[];
+ for(let row=0;row<n;row++){
+  const y=5+row*pitch;
+  const cells=Array.from({length:d},(_,i)=>'<rect x="'+(left+i*unit).toFixed(3)+
+   '" y="'+y+'" width="'+unit.toFixed(3)+'" height="'+h+'" fill="'+
+   (i===0?'#5d9cdc':'#edf3fc')+'"/>').join('');
+  const lines=Array.from({length:d-1},(_,i)=>{
+   const x=(left+(i+1)*unit).toFixed(3);
+   return '<line x1="'+x+'" x2="'+x+'" y1="'+y+'" y2="'+(y+h)+
+    '" stroke="#52617a" stroke-width="1.2"/>';
+  }).join('');
+  chunks.push('<text x="4" y="'+(y+18)+'" font-size="15" fill="currentColor">Целое '+
+   (row+1)+'</text>'+cells+lines+'<rect x="'+left+'" y="'+y+'" width="'+width+
+   '" height="'+h+'" fill="none" stroke="#52617a" stroke-width="2"/>');
+ }
+ const desc=n+' одинаковых целых разделили поровну между '+d+
+  ' людьми: каждое целое разрезано на '+d+
+  ' равных частей; одному человеку досталось по одной части от каждого из '+n+
+  ' целых. Всего его доля '+n+'/'+d+'.';
+ return '<div style="width:100%;max-width:630px;overflow:hidden;margin:8px auto"><svg '+
+  'class="mk-g5-division-wholes" role="img" aria-label="'+desc+'" viewBox="0 0 590 '+
+  (n*pitch+5)+'" width="100%" style="display:block;height:auto" '+
+  'preserveAspectRatio="xMidYMid meet">'+chunks.join('')+'</svg></div>';
+}
+
 function spec(id,t,p){
  const d1=rnd(3,9+t*2),d2=rnd(3,10+t*2),d3=rnd(3,9+t*2);
  const a=rnd(1,d1-1),b=rnd(1,d2-1),c=rnd(1,d3-1),h=rnd(2,6+t*2),k=rnd(2,7+t*2);
@@ -32,12 +72,13 @@ function spec(id,t,p){
  let cases;
  if(id==='frac_division'){
   const n=rnd(3,16+t*7),den=rnd(3,12+t*4),boxes=rnd(2,7+t*3);
+  const sampleA=divisionSample(),sampleB=divisionSample(),sampleC=divisionSample();
   if(t===0)cases=[
-   ['Представь частное '+n+' : '+den+' обыкновенной дробью.',Q(n,den),'Числитель — делимое, знаменатель — делитель.',1],
+   ['Представь частное '+sampleA.n+' : '+sampleA.d+' обыкновенной дробью.'+divisionWholePicture(sampleA.n,sampleA.d),Q(sampleA.n,sampleA.d),'Делимое '+sampleA.n+' становится числителем, делитель '+sampleA.d+' — знаменателем. Ответ: '+sampleA.n+'/'+sampleA.d+'.',1],
    ['На '+den+' учеников поровну разделили '+n+' пирогов. Сколько пирогов досталось каждому?',Q(n,den),'Разделим количество пирогов на количество учеников.',1],
-   ['Запиши деление '+(n+1)+' : '+den+' дробью.',Q(n+1,den),'Деление натуральных чисел можно записать дробной чертой.',1],
+   ['Между '+sampleB.d+' учениками поровну разделили '+sampleB.n+' одинаковых целых. Запиши долю каждого дробью.'+divisionWholePicture(sampleB.n,sampleB.d),Q(sampleB.n,sampleB.d),'Каждый получает по 1/'+sampleB.d+' от каждого целого. Таких частей '+sampleB.n+', поэтому частное равно '+sampleB.n+'/'+sampleB.d+'.',1],
    ['Ленту длиной '+n+' м разрезали на '+den+' равных частей. Сколько метров в каждой части?',Q(n,den),'Частное натуральных чисел выражает длину одной части.',2],
-   ['Запиши результат деления '+n+' на '+(den+1)+' обыкновенной дробью.',Q(n,den+1),'Результат — дробь с делимым в числителе.',1]
+   ['Запиши частное '+sampleC.n+' : '+sampleC.d+' в виде обыкновенной дроби.'+divisionWholePicture(sampleC.n,sampleC.d),Q(sampleC.n,sampleC.d),'Запись деления дробной чертой: '+sampleC.n+' : '+sampleC.d+' = '+sampleC.n+'/'+sampleC.d+'.',1]
   ];
   else if(t===1)cases=[
    ['Разделили '+n+' и ещё '+boxes+' пирогов поровну на '+den+' учеников. Сколько пирогов каждому?',Q(n+boxes,den),'Сначала общий запас, затем деление.',2],
