@@ -44,6 +44,7 @@ function expected(q){
     const q=makeG5Question(topic),div=document.createElement('div');div.innerHTML=String(q.text);
     rows.push({level,family,trial,text:div.textContent,answer:String(q.correctLabel),ans:String(q.ans),choices:q.choices.map(x=>({key:String(x.key),label:String(x.label)})),ex:String(q.ex),meta:q.mk18,source:q.sourceTopicId,template:q.templateId});
    }
+   renderGrade5();
    return {rows,total:g5AllTopics().length,lesson:String(g5Lesson(topic)),links:document.querySelectorAll('#mk-g5-textbook-nav .mk-g5-toc-link[data-topic-id="divisors_multiples_g5"]').length};
   },{topic:TOPIC,repeats:REPEATS});
   assert.equal(out.total,74);assert.equal(out.rows.length,600);assert.equal(out.links,1);
