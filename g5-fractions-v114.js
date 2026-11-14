@@ -86,7 +86,7 @@ function partPicture(d,n){
   const x=(left+(i+1)*cell).toFixed(3);
   return '<line x1="'+x+'" y1="'+top+'" x2="'+x+'" y2="'+(top+height)+'" stroke="#52617a" stroke-width="1.5"/>';
  }).join('');
- const label='Одна целая полоска разделена на '+d+' равных долей; закрашено '+n+
+ const label='Равные части целого: Одна целая полоска разделена на '+d+' равных долей; закрашено '+n+
   ', не закрашено '+(d-n);
  return '<div class="mk-v114-graphic" style="width:100%;max-width:620px;overflow:hidden">'+
   '<svg role="img" aria-label="'+label+'" viewBox="0 0 592 60" width="100%" height="auto" '+
