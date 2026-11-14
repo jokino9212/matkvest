@@ -36,7 +36,8 @@ if(new Set(ordered).size!==G5_FRACTIONS.length||ordered.some(id=>!G5_FRACTIONS.s
 const byId=new Map(G5_FRACTIONS.map(x=>[x.id,x]));G5_FRACTIONS.splice(0,G5_FRACTIONS.length,...ordered.map(id=>byId.get(id)));
 const ri5=(a,b)=>ri(a,b),level=()=>Math.max(0,Math.min(2,Number(activeDifficulty())||0));
 const position=()=>Math.max(0,Number(blockSession?.done)||0)%5;
-const denoms=[3,5,7,11], dPick=()=>denoms[ri5(0,denoms.length-1)];
+// §28: many different denominators rather than four repeated examples.
+const denoms=[3,4,5,6,7,8,9,10,11,12,13,14,15,16,18,20],dPick=()=>denoms[ri5(0,denoms.length-1)];
 const family=(id,t,p)=>'v114_'+id+'_L'+t+'_F'+p;
 function nQ(text,answer,ex,id,t,p,wrong=[]){
  if(!Number.isSafeInteger(answer)||answer<0)throw Error('Invalid natural answer '+id+': '+answer);
@@ -190,37 +191,105 @@ function ray(t,p){
  return nQ('Сначала прошли от 0 до A, потом от A до B и ещё '+move+' деления вправо. Сколько всего маленьких делений прошли?'+AB(),b+move,'От 0 до B прошли '+b+' делений, затем ещё '+move+': '+(b+move)+'.',id,t,p,[a,b]);
 }
 function properImproperModel(d,n){
- if(!Number.isSafeInteger(d)||d<2||!Number.isSafeInteger(n)||n<=0||n>4*d)throw Error('Invalid fraction bar diagram '+n+'/'+d);
- const bars=Math.max(1,Math.ceil(n/d)),cw=480/d,content=[];
+ if(!Number.isSafeInteger(d)||d<2||!Number.isSafeInteger(n)||n<=0||n>4*d)
+  throw Error('Invalid fraction bar diagram '+n+'/'+d);
+ // Same-sized continuous wholes, with the exact same d equal parts in every row.
+ const bars=Math.max(1,Math.ceil(n/d)),left=102,width=480,rowHeight=48,h=32;
+ const content=[];
  for(let row=0;row<bars;row++){
-  const cells=Math.min(d,Math.max(0,n-row*d));
-  const elements=Array.from({length:d},(_,i)=>'<rect x="'+(74+i*cw).toFixed(2)+'" y="'+(9+row*42)+'" width="'+(cw-2).toFixed(2)+'" height="30" rx="2" fill="'+(i<cells?'#67a5e6':'#f0f4fb')+'" stroke="#49658b" stroke-width="1"/>').join('');
-  content.push('<text x="15" y="'+(30+row*42)+'" font-size="17" fill="currentColor">'+(row+1)+'</text>'+elements);
+  const filled=Math.min(d,Math.max(0,n-row*d)),y=8+row*rowHeight,cell=width/d;
+  const cells=Array.from({length:d},(_,i)=>
+   '<rect x="'+(left+i*cell).toFixed(3)+'" y="'+y+'" width="'+cell.toFixed(3)+'" height="'+h+
+   '" fill="'+(i<filled?'#5d9cdc':'#edf3fc')+'"/>').join('');
+  const lines=Array.from({length:d-1},(_,i)=>{
+   const x=(left+(i+1)*cell).toFixed(3);
+   return '<line x1="'+x+'" x2="'+x+'" y1="'+y+'" y2="'+(y+h)+'" stroke="#52617a" stroke-width="1.5"/>';
+  }).join('');
+  content.push('<text x="2" y="'+(y+21)+'" font-size="15" fill="currentColor">Целое '+(row+1)+'</text>'+
+   cells+lines+'<rect x="'+left+'" y="'+y+'" width="'+width+'" height="'+h+
+   '" fill="none" stroke="#52617a" stroke-width="2"/>');
  }
- const height=bars*42+7;
- return '<div style="width:100%;max-width:600px;overflow:hidden;margin:7px auto"><svg viewBox="0 0 570 '+height+'" width="100%" role="img" aria-label="Дробь '+n+'/'+d+': '+bars+' полосок по '+d+' равных частей, всего закрашено '+n+' частей" style="height:auto">'+content.join('')+'</svg></div>';
+ const height=bars*rowHeight;
+ return '<div style="width:100%;max-width:640px;overflow:hidden;margin:7px auto">'+
+  '<svg class="mk-g5-proper-improper" viewBox="0 0 600 '+height+'" width="100%" role="img" '+
+  'aria-label="Дробь '+n+'/'+d+': '+bars+' равных целых полосок, каждое поделено на '+d+
+  ' равных частей; всего закрашено '+n+' частей" '+
+  'style="display:block;height:auto" preserveAspectRatio="xMidYMid meet">'+content.join('')+'</svg></div>';
 }
 function types(t,p){
- const id='frac_types',d=dPick(),a=ri5(1,d-2),whole=ri5(1,3),imp=whole*d+a,k=ri5(1,Math.min(3,d-a));
+ const id='frac_types',d=dPick(),a=ri5(1,d-2),whole=ri5(1,3),imp=whole*d+a;
  if(t===0){
-  if(p===0)return cQ('Какой вид имеет дробь '+strip(a,d)+'?'+properImproperModel(d,a),'Правильная',['Неправильная','Смешанное число','Десятичная дробь'],'Числитель '+a+' меньше знаменателя '+d+', дробь правильная.',id,t,p);
-  if(p===1)return cQ('Какой вид имеет дробь '+strip(imp,d)+'?'+properImproperModel(d,imp),'Неправильная',['Правильная','Смешанное число','Десятичная дробь'],'Числитель '+imp+' больше знаменателя '+d+', дробь неправильная.',id,t,p);
-  if(p===2)return cQ('Сравни дробь '+strip(a,d)+' с единицей.','Меньше 1',['Равно 1','Больше 1','Сравнить нельзя'],''+a+' < '+d+', поэтому дробь меньше единицы.',id,t,p);
-  if(p===3)return nQ('Какой наименьший числитель при знаменателе '+d+' делает дробь неправильной?',d,'Неправильная дробь удовлетворяет условию числитель ≥ знаменателя; минимум '+d+'.',id,t,p,[d-1,d+1]);
-  return nQ('На сколько числитель '+a+' меньше знаменателя '+d+' у правильной дроби?',d-a,'Разность '+d+' − '+a+' = '+(d-a)+'.',id,t,p,[a,d]);
+  if(p===0)return cQ('Какой вид имеет дробь '+strip(a,d)+'?'+properImproperModel(d,a),'Правильная',
+   ['Неправильная','Смешанное число','Десятичная дробь'],
+   'Числитель '+a+' меньше знаменателя '+d+': '+a+' < '+d+'. Значит, дробь правильная.',id,t,p);
+  if(p===1)return cQ('Какой вид имеет дробь '+strip(imp,d)+'?'+properImproperModel(d,imp),'Неправильная',
+   ['Правильная','Смешанное число','Десятичная дробь'],
+   'Числитель '+imp+' больше знаменателя '+d+': '+imp+' > '+d+'. Значит, дробь неправильная.',id,t,p);
+  if(p===2){
+   const mode=ri5(0,2),n=mode===0?a:mode===1?d:d+ri5(1,d-1);
+   const answer=n<d?'Меньше 1':n===d?'Равно 1':'Больше 1';
+   return cQ('Сравни дробь '+strip(n,d)+' с единицей.',answer,
+    ['Меньше 1','Равно 1','Больше 1','Сравнить нельзя'].filter(x=>x!==answer),
+    'Сравним числитель '+n+' со знаменателем '+d+': '+(n<d?'<':n===d?'=':'>')+
+    '. Поэтому дробь '+answer.toLowerCase()+'.',id,t,p);
+  }
+  if(p===3)return nQ('Какой наименьший числитель при знаменателе '+d+' делает дробь неправильной?',
+   d,'При равных числителе и знаменателе дробь уже неправильная: '+d+'/'+d+' = 1. Ответ: '+d+'.',id,t,p,[d-1,d+1]);
+  return nQ('На сколько числитель '+a+' меньше знаменателя '+d+' у правильной дроби?',
+   d-a,'Вычитаем: '+d+' − '+a+' = '+(d-a)+'. Ответ: '+(d-a)+'.',id,t,p,[a,d]);
  }
  if(t===1){
-  if(p===0)return cQ('К правильной дроби '+strip(a,d)+' прибавили '+strip(d,d)+'. Какая дробь получится по виду?','Неправильная',['Правильная','Десятичная','Смешанное число'],'Новый числитель '+(a+d)+' больше '+d+', дробь неправильная.',id,t,p);
-  if(p===1)return cQ('От неправильной дроби '+strip(imp,d)+' отняли '+strip(whole*d,d)+'. Какой вид имеет результат?','Правильная',['Неправильная','Десятичная','Смешанное число'],'Получится '+strip(a,d)+': числитель меньше знаменателя.',id,t,p);
-  if(p===2)return fQ('Среди дробей '+strip(a,d)+', '+strip(d,d)+' и '+strip(imp,d)+' найди единственную правильную.',a,d,'Только у '+strip(a,d)+' числитель меньше знаменателя.',id,t,p);
-  if(p===3)return nQ('В неправильной дроби '+strip(imp,d)+' сколько полных единиц содержится?'+properImproperModel(d,imp),whole,'Делим '+imp+' на '+d+': неполное частное '+whole+', остаток '+a+'.',id,t,p,[a,d]);
-  return nQ('Сколько нужно прибавить к числителю '+a+' дроби со знаменателем '+d+', чтобы она впервые стала неправильной?',d-a,'Требуется достичь числителя '+d+', добавляем '+(d-a)+'.',id,t,p,[a,d]);
+  if(p===0){
+   const k=ri5(1,d+1),n=a+k,answer=n<d?'Правильная':'Неправильная';
+   return cQ('У дроби '+strip(a,d)+' числитель увеличили на '+k+'. Какой вид имеет новая дробь?',
+    answer,['Правильная','Неправильная','Смешанное число','Десятичная дробь'].filter(x=>x!==answer),
+    'Получили числитель '+a+' + '+k+' = '+n+'. Сравним '+n+' и '+d+': '+(n<d?'<':'>=')+
+    '. Дробь '+answer.toLowerCase()+'.',id,t,p);
+  }
+  if(p===1){
+   const n=d+ri5(1,d-1),remove=ri5(1,d),left=n-remove,answer=left<d?'Правильная':'Неправильная';
+   return cQ('У неправильной дроби '+strip(n,d)+' числитель уменьшили на '+remove+
+    '. Какой вид имеет новая дробь?',answer,
+    ['Правильная','Неправильная','Смешанное число','Десятичная дробь'].filter(x=>x!==answer),
+    'Новый числитель '+n+' − '+remove+' = '+left+'. Сравним '+left+' со знаменателем '+d+
+    ': '+(left<d?'<':left===d?'=':'>')+'. Дробь '+answer.toLowerCase()+'.',id,t,p);
+  }
+  if(p===2)return fQ('Среди дробей '+strip(a,d)+', '+strip(d,d)+' и '+strip(imp,d)+
+   ' найди единственную правильную.',a,d,'У '+strip(a,d)+' числитель '+a+' меньше '+d+
+   '. У остальных числитель не меньше знаменателя. Ответ: '+strip(a,d)+'.',id,t,p);
+  if(p===3)return nQ('Сколько полных единиц содержит неправильная дробь '+strip(imp,d)+'?'+
+   properImproperModel(d,imp),whole,'Разделим числитель на знаменатель: '+imp+' = '+d+
+   ' · '+whole+' + '+a+'. Целых единиц '+whole+'.',id,t,p,[a,d]);
+  return nQ('Сколько нужно прибавить к числителю '+a+' дроби со знаменателем '+d+
+   ', чтобы она впервые стала неправильной?',d-a,
+   'Нужно достигнуть числителя '+d+'. Вычитаем '+d+' − '+a+' = '+(d-a)+'.',id,t,p,[a,d]);
  }
- if(p===0)return nQ('У дроби со знаменателем '+d+' числитель '+imp+'. Сколько минимально надо вычесть из числителя, чтобы дробь стала правильной?',imp-d+1,'Для правильной дроби числитель не выше '+(d-1)+'. Вычитаем '+imp+' − '+(d-1)+' = '+(imp-d+1)+'.',id,t,p,[whole,imp-d]);
- if(p===1)return nQ('У правильной дроби '+strip(a,d)+' за шаг прибавляют '+strip(1,d)+'. Сколько шагов нужно до первой неправильной дроби?',d-a,'Нужен числитель '+d+', сейчас '+a+'. Число шагов '+(d-a)+'.',id,t,p,[a,d]);
- if(p===2)return cQ('Сначала к дроби '+strip(a,d)+' прибавили целую единицу, затем вычли '+strip(a,d)+'. Какой вид имеет результат '+strip(d,d)+'?'+properImproperModel(d,d),'Неправильная',['Правильная','Смешанное число','Десятичная дробь'],'После действий '+a+'/'+d+' + '+d+'/'+d+' − '+a+'/'+d+' = '+d+'/'+d+'. Равенство 1 записано неправильной дробью.',id,t,p);
- if(p===3)return nQ('Из неправильной дроби '+strip(imp,d)+' надо вычесть целые доли так, чтобы осталась ровно 1 целая. На сколько единиц нужно уменьшить числитель?',imp-d,'Чтобы получить '+strip(d,d)+', уменьшаем числитель '+imp+' до '+d+'. Разность '+(imp-d)+'.',id,t,p,[whole,a]);
- return nQ('Сколько нужно прибавить к числителю '+a+' дроби со знаменателем '+d+', чтобы результат был строго больше 1?',d+1-a,'Требуемый минимальный числитель '+(d+1)+'. Прибавляем '+(d+1)+' − '+a+' = '+(d+1-a)+'.',id,t,p,[d-a,a]);
+ if(p===0)return nQ('У дроби со знаменателем '+d+' числитель '+imp+
+  '. Сколько минимально надо вычесть из числителя, чтобы дробь стала правильной?',
+  imp-d+1,'Числитель правильной дроби не больше '+(d-1)+'. Вычитаем '+imp+' − '+
+  (d-1)+' = '+(imp-d+1)+'. Ответ: '+(imp-d+1)+'.',id,t,p,[whole,imp-d]);
+ if(p===1)return nQ('У правильной дроби '+strip(a,d)+' за шаг прибавляют '+strip(1,d)+
+  '. Сколько шагов нужно до первой неправильной дроби?',d-a,
+  'Чтобы дробь стала неправильной, числитель должен стать '+d+'. Нужно '+d+' − '+a+
+  ' = '+(d-a)+' шагов.',id,t,p,[a,d]);
+ if(p===2){
+  const added=ri5(2,d+2),removed=ri5(1,Math.min(d,added)),finalN=a+added-removed,
+   answer=finalN<d?'Правильная':'Неправильная';
+  return cQ('В дроби '+strip(a,d)+' числитель сначала увеличили на '+added+
+   ', затем уменьшили на '+removed+'. Какой вид имеет получившаяся дробь?',
+   answer,['Правильная','Неправильная','Смешанное число','Десятичная дробь'].filter(x=>x!==answer),
+   'Новый числитель: '+a+' + '+added+' − '+removed+' = '+finalN+
+   '. Сравним '+finalN+' и '+d+': '+(finalN<d?'<':finalN===d?'=':'>')+
+   '. Дробь '+answer.toLowerCase()+'.',id,t,p);
+ }
+ if(p===3)return nQ('У неправильной дроби '+strip(imp,d)+
+  ' сколько нужно вычесть из числителя, чтобы получилась дробь '+strip(d,d)+'?',
+  imp-d,'Вычитаем из числителя '+imp+' знаменатель '+d+': '+imp+' − '+d+' = '+
+  (imp-d)+'. Получим '+strip(d,d)+' = 1.',id,t,p,[whole,a]);
+ return nQ('Сколько нужно прибавить к числителю '+a+' дроби со знаменателем '+d+
+  ', чтобы полученная дробь стала строго больше 1?',d+1-a,
+  'Для дроби больше единицы минимальный числитель '+(d+1)+'. Вычитаем '+
+  (d+1)+' − '+a+' = '+(d+1-a)+'.',id,t,p,[d-a,a]);
 }
 function make(id){
  const t=level(),p=position();
