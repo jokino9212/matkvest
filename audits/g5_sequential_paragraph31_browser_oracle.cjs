@@ -15,8 +15,14 @@ const allMixed=q=>[...q.text.matchAll(/(\d+)\s+(\d+)\/(\d+)/g)].map(m=>({w:BigIn
 const allFractions=q=>[...q.text.matchAll(/(?<!\d)(\d+)\/(\d+)/g)].map(m=>({n:BigInt(m[1]),d:BigInt(m[2]),q:frac(m[1],m[2])}));
 function expectedConversion(q){
  const t=q.level,p=q.family,source=q.id==='frac_to_mixed'?allFractions(q):allMixed(q);
- if(!source.length)fail(q,'No displayed source fraction');
- const a=source[0],d=a.d,n=q.id==='frac_to_mixed'?a.n:a.w*d+a.n;
+ let d,n;
+ if(q.id==='frac_to_mixed'&&t===0&&p===2){
+  const m=match(q,/Раздели (\d+) на (\d+) с остатком/);
+  n=BigInt(m[1]);d=BigInt(m[2]);
+ }else{
+  if(!source.length)fail(q,'No displayed source fraction');
+  const a=source[0];d=a.d;n=q.id==='frac_to_mixed'?a.n:a.w*d+a.n;
+ }
  assert(d>1n&&n>d,'Not a proper source for the requested conversion '+q.text);
  const w=n/d,rem=n%d;assert(rem>0n,'No proper mixed remainder');
  let desired,kind;
@@ -31,8 +37,10 @@ function expectedConversion(q){
   else {desired=[n+d,n+2n*d-1n,n+d-1n,n+3n*d-2n,n+2n*d+1n][p];
    kind=[0,1,0,1,0][p]?'number':'improper'}
  }
- const appearance=source[0].q;
- assert.deepEqual(appearance,frac(n,d),'Displayed initial mixed number disagrees with source');
+ if(source.length){
+  const appearance=source[0].q;
+  assert.deepEqual(appearance,frac(n,d),'Displayed initial mixed number disagrees with source');
+ }
  return {n:desired,d,kind,sourceN:n,sourceW:w,sourceRem:rem};
 }
 function expectedComparison(q){
