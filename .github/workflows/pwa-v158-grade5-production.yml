@@ -24,9 +24,9 @@ jobs:
       - uses: actions/checkout@v4
       - name: Official GitHub Pages URL
         env:
-          GH_TOKEN: \${{ github.token }}
+          GH_TOKEN: ${{ github.token }}
         run: |
-          MATKVEST_PAGES_URL="$(gh api "repos/\${GITHUB_REPOSITORY}/pages" --jq '.html_url')"
+          MATKVEST_PAGES_URL="$(node -e 'fetch("https://api.github.com/repos/"+process.env.GITHUB_REPOSITORY+"/pages",{headers:{"Authorization":"Bearer "+process.env.GH_TOKEN,"User-Agent":"matkvest-ci"}}).then(r=>r.json()).then(j=>{if(!j.html_url)throw Error("GitHub Pages unavailable");process.stdout.write(j.html_url)}).catch(e=>{console.error(e);process.exit(1)})')"
           test -n "$MATKVEST_PAGES_URL"
           echo "MATKVEST_PAGES_URL=$MATKVEST_PAGES_URL" >> "$GITHUB_ENV"
       - name: Check pinned HTML/worker fingerprint and syntax
