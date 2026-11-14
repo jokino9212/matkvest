@@ -48,7 +48,7 @@ const IDS=['frac_parts','frac_read','frac_ray'];
     const m=q.html.match(/закрашено (\d+), не закрашено (\d+)/);
     assert(m,'Diagram has no meaningful accessible count '+ctx);
     const d=Number(m[1])+Number(m[2]);
-    const cells=[...q.html.matchAll(/<rect x="[^"]+" y="8" width="[^"]+" height="44" fill="/g)];
+    const cells=[...q.html.matchAll(/<rect x="[^"]+" y="8" width="[^"]+" height="44" fill="#/g)];
     assert.equal(cells.length,d,'Whole is not divided into equal cells '+ctx);
    }
   }
