@@ -116,8 +116,18 @@ async function transition(browser,origin,width){
    await page.reload({waitUntil:'domcontentloaded'});
    assert.equal(await page.evaluate(()=>window.G5_BUILD),'v158','Reload reverted to old Grade 5 '+i);
   }
+  const offlineReady=await page.evaluate(async()=>{
+   const c=await caches.open('matkvest-iphone-v158');
+   return {cacheKeys:await caches.keys(),html:!!(await c.match('./index.html')),
+    js:!!(await c.match('./g5-natural-units-v125.js?v=158')),
+    plainJs:!!(await c.match('./g5-natural-units-v125.js')),
+    controlled:!!navigator.serviceWorker.controller};
+  });
+  console.log('PWA_91_OFFLINE_PREFLIGHT',JSON.stringify({width,...offlineReady}));
+  assert(offlineReady.html&&(offlineReady.js||offlineReady.plainJs),'Offline precache incomplete');
   await context.setOffline(true);
-  await page.reload({waitUntil:'domcontentloaded',timeout:20000});
+  try{await page.reload({waitUntil:'domcontentloaded',timeout:35000});}
+  catch(e){throw Error('Offline reload failed after verified precache '+JSON.stringify(offlineReady)+' '+String(e));}
   const offline=await page.evaluate(()=>({
    version:window.G5_BUILD,profiles:localStorage.getItem('mq4_profiles'),
    draft:localStorage.getItem('mk872_training_draft'),
