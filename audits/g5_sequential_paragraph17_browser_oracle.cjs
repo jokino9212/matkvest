@@ -6,7 +6,8 @@ function expected(row){
  let a,b,c,d;
  if(t===0){
   if(p===0||p===2){[a]=nums(s,/Вычисли (\d+)²/);return a*a}
-  if(p===1||p===3){[a]=nums(s,/Вычисли (\d+)³/);return a**3}
+  if(p===1){[a]=nums(s,/Вычисли (\d+)³/);return a**3}
+  if(p===3){[a,b,c]=nums(s,/Найди значение произведения (\d+) · (\d+) · (\d+)/);assert.equal(a,b);assert.equal(b,c);return a*a*a}
   [a]=nums(s,/Найди квадрат числа (\d+)/);return a*a
  }
  if(t===1){
