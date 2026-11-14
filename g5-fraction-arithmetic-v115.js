@@ -6,6 +6,20 @@ if(typeof g5DonorQuestion!=='function'||typeof g5Lesson!=='function'||typeof g5q
 const oldDonor=g5DonorQuestion,oldLesson=g5Lesson;
 const rnd=(a,b)=>ri(a,b),stage=()=>Math.max(0,Math.min(2,Number(activeDifficulty())||0)),pos=()=>Math.max(0,Number(blockSession?.done)||0)%5;
 const D=[5,7,11,13],pickD=()=>D[rnd(0,D.length-1)];
+// §27 samples a broader range; arithmetic (§29+) deliberately keeps its original denominators.
+const comparisonDenominators=[5,6,7,8,9,10,11,12,14,15,16,18,20];
+const pickComparisonD=()=>comparisonDenominators[rnd(0,comparisonDenominators.length-1)];
+function fractionComparisonStrips(n1,d1,n2,d2){
+ const row=(n,d,y)=>{
+  const left=18,width=504,h=30,cell=width/d;
+  const cells=Array.from({length:d},(_,i)=>'<rect x="'+(left+i*cell).toFixed(3)+'" y="'+y+'" width="'+cell.toFixed(3)+'" height="'+h+'" fill="'+(i<n?'#5d9cdc':'#edf3fc')+'"/>').join('');
+  const partitions=Array.from({length:d-1},(_,i)=>{const x=(left+(i+1)*cell).toFixed(3);return '<line x1="'+x+'" x2="'+x+'" y1="'+y+'" y2="'+(y+h)+'" stroke="#52617a" stroke-width="1"/>';}).join('');
+  return cells+partitions+'<rect x="'+left+'" y="'+y+'" width="'+width+'" height="'+h+'" fill="none" stroke="#52617a" stroke-width="2"/>';
+ };
+ const desc='Две одинаковые по длине полоски: первая разделена на '+d1+' равных частей, закрашено '+n1+'; вторая разделена на '+d2+' равных частей, закрашено '+n2+'.';
+ return '<div style="width:100%;max-width:580px;overflow:hidden;margin:6px auto"><svg class="mk-g5-compare-fractions" role="img" aria-label="'+desc+'" viewBox="0 0 540 88" width="100%" style="display:block;height:auto" preserveAspectRatio="xMidYMid meet">'+row(n1,d1,6)+row(n2,d2,52)+'</svg></div>';
+}
+
 const F=(n,d)=>frac(n,d),M=(w,n,d)=>mixed(w,n,d);
 const whole=(w,n,d)=>w*d+n;
 function renderTotal(n,d){
@@ -55,12 +69,12 @@ function choose(id,t,p,text,choice,wrong,ex,meta){
 }
 function relation(x,y){return x>y?'>':x<y?'<':'='}
 function denCompare(t,p){
- const id='frac_compare_den',d=pickD(),a=rnd(1,d-3),b=rnd(a+1,d-1),c=rnd(1,Math.min(3,b)),e=rnd(1,Math.min(3,b));
+ const id='frac_compare_den',d=pickComparisonD(),a=rnd(1,d-4),b=rnd(a+1,d-2),c=rnd(1,Math.min(2,d-b-1)),e=rnd(1,Math.min(2,d-b-1));
  if(t===0){
-  if(p===0)return compare(id,t,p,'Сравни '+F(a,d)+' и '+F(b,d)+'.',d,[a],[],[b],[],'Знаменатели одинаковые, сравни числители '+a+' и '+b+'.');
+  if(p===0)return compare(id,t,p,'Сравни '+F(a,d)+' и '+F(b,d)+'.'+fractionComparisonStrips(a,d,b,d),d,[a],[],[b],[],'Знаменатели одинаковые: '+a+' < '+b+', поэтому '+F(a,d)+' < '+F(b,d)+'.');
   if(p===1)return question(id,t,p,'numeric','Какой числитель у большей дроби: '+F(a,d)+' или '+F(b,d)+'?',1,[b],[],'Большая дробь имеет больший числитель '+b+'.');
   if(p===2)return compare(id,t,p,'Поставь знак между '+F(b,d)+' и '+F(a,d)+'.',d,[b],[],[a],[],'С одинаковым знаменателем '+d+' дробь с числителем '+b+' больше дроби с '+a+'.');
-  if(p===3)return question(id,t,p,'numeric','На сколько долей '+F(1,d)+' числитель большей дроби превышает меньший? '+F(b,d)+' и '+F(a,d)+'.',1,[b,a],['-'],'Разность числителей '+b+' − '+a+' = '+(b-a)+'.');
+  if(p===3)return question(id,t,p,'numeric','На сколько числитель большей дроби '+F(b,d)+' больше числителя '+F(a,d)+'?',1,[b,a],['-'],'Вычитаем числители: '+b+' − '+a+' = '+(b-a)+'.');
   return compare(id,t,p,'Сравни '+F(a,d)+' и единицу '+F(d,d)+'.',d,[a],[],[d],[],'Числитель '+a+' меньше знаменателя '+d+', значит дробь меньше единицы.');
  }
  if(t===1){
@@ -78,9 +92,9 @@ function denCompare(t,p){
  return question(id,t,p,'numeric','У двух дробей со знаменателем '+d+' числители '+a+' и '+b+'. К первому добавили '+c+', от второго отняли '+e+'. Найди модуль разности новых числителей.',1,[b,e,a,c],['-','-','-'],'Новые числители '+(a+c)+' и '+(b-e)+'. Расстояние между ними '+Math.abs(a+c-(b-e))+'.',{absolute:true,terms:[b,e,a,c]});
 }
 function numCompare(t,p){
- const id='frac_compare_num',n=rnd(1,4),d1=rnd(n+2,9),d2=d1+rnd(2,5),a=rnd(1,3),b=rnd(1,3);
+ const id='frac_compare_num',n=rnd(1,6),d1=rnd(n+4,18),d2=d1+rnd(2,9),a=rnd(1,3),b=rnd(1,3);
  if(t===0){
-  if(p===0)return compare(id,t,p,'Сравни дроби с одинаковыми числителями: '+F(n,d1)+' и '+F(n,d2)+'.',1,[d2],[],[d1],[],'При одинаковом числителе меньший знаменатель даёт большую дробь. '+d1+' < '+d2+'.');
+  if(p===0)return compare(id,t,p,'Сравни дроби с одинаковыми числителями: '+F(n,d1)+' и '+F(n,d2)+'.'+fractionComparisonStrips(n,d1,n,d2),1,[d2],[],[d1],[],'Полоски одинаковой длины: при числителе '+n+' более крупные доли у меньшего знаменателя '+d1+'. Поэтому '+F(n,d1)+' > '+F(n,d2)+'.');
   if(p===1)return question(id,t,p,'numeric','У дробей '+F(n,d1)+' и '+F(n,d2)+' одинаковый числитель. Какой знаменатель у большей дроби?',1,[d1],[],'Больше дробь с меньшим знаменателем '+d1+'.');
   if(p===2)return compare(id,t,p,'Сравни дроби '+F(n,d2)+' и '+F(n,d1)+'.',1,[d1],[],[d2],[],'Чем больше знаменатель при одинаковом числителе, тем меньше дробь.');
   if(p===3)return question(id,t,p,'numeric','На сколько знаменатель '+F(n,d2)+' больше знаменателя '+F(n,d1)+'?',1,[d2,d1],['-'],'Разность '+d2+' − '+d1+' = '+(d2-d1)+'.');
@@ -89,14 +103,14 @@ function numCompare(t,p){
  if(t===1){
   if(p===0)return compare(id,t,p,'Знаменатель первой дроби '+F(n,d1)+' увеличили на '+a+'. Сравни новую дробь с '+F(n,d2)+'.',1,[d2],[],[d1,a],['+'],'Сравниваем новые знаменатели '+(d1+a)+' и '+d2+' в обратном порядке.');
   if(p===1)return compare(id,t,p,'Знаменатель '+F(n,d2)+' уменьшили на '+b+'. Сравни результат с '+F(n,d1)+'.',1,[d1],[],[d2,b],['-'],'Изменённый знаменатель '+(d2-b)+'. Меньший знаменатель даёт большую дробь.');
-  if(p===2)return question(id,t,p,'numeric','Две дроби имеют одинаковый числитель '+n+'. Знаменатели '+d1+' и '+d2+'. Меньший знаменатель увеличили на '+a+'. Найди новый знаменатель.',1,[d1,a],['+'],'Новый знаменатель '+d1+' + '+a+' = '+(d1+a)+'.');
+  if(p===2)return compare(id,t,p,'У дробей '+F(n,d1)+' и '+F(n,d2)+' одинаковые числители. Первый знаменатель увеличили на '+a+', второй уменьшили на '+b+'. Сравни полученные дроби.',1,[d2,b],['-'],[d1,a],['+'],'После изменений знаменатели '+(d1+a)+' и '+(d2-b)+'. При равном числителе меньше знаменатель — больше дробь.');
   if(p===3)return compare(id,t,p,'К знаменателям '+F(n,d1)+' и '+F(n,d2)+' прибавили по '+b+'. Сравни новые дроби.',1,[d2,b],['+'],[d1,b],['+'],'Новые знаменатели '+(d1+b)+' и '+(d2+b)+'. Чем меньше знаменатель, тем больше дробь.');
   return question(id,t,p,'numeric','У дробей с числителем '+n+' знаменатели '+d1+' и '+d2+'. Первый увеличили на '+a+', второй уменьшили на '+b+'. Найди модуль разности знаменателей.',1,[d2,b,d1,a],['-','-','-'],'Новые знаменатели '+(d1+a)+' и '+(d2-b)+'. Разность по модулю '+Math.abs(d2-b-d1-a)+'.',{absolute:true,terms:[d2,b,d1,a]});
  }
  if(p===0)return compare(id,t,p,'В дроби '+F(n,d1)+' знаменатель увеличили на '+a+' и затем ещё на '+b+'. В дроби '+F(n,d2)+' знаменатель уменьшили на '+b+'. Сравни итоговые дроби.',1,[d2,b],['-'],[d1,a,b],['+','+'],'Получились знаменатели '+(d1+a+b)+' и '+(d2-b)+'. Меньший знаменатель даёт большую дробь.');
  if(p===1)return question(id,t,p,'numeric','В двух дробях числитель '+n+', знаменатели '+d1+' и '+d2+'. К первому знаменателю прибавили '+a+', из второго вычли '+b+'. Сколько единиц нужно прибавить к меньшему новому знаменателю, чтобы они сравнялись?',1,[d2,b,d1,a],['-','-','-'],'Новые знаменатели '+(d1+a)+' и '+(d2-b)+'. Их расстояние '+Math.abs(d2-b-d1-a)+'.',{absolute:true,terms:[d2,b,d1,a]});
  if(p===2)return compare(id,t,p,'К знаменателю первой дроби '+F(n,d1)+' прибавили '+a+', к знаменателю второй '+F(n,d2)+' прибавили '+b+'. Потом оба уменьшили на 1. Сравни новые дроби.',1,[d2,b,1],['+','-'],[d1,a,1],['+','-'],'Сравни новые знаменатели '+(d1+a-1)+' и '+(d2+b-1)+' в обратном порядке.');
- if(p===3)return question(id,t,p,'numeric','У двух дробей числитель '+n+', знаменатели '+d1+' и '+d2+'. Если первый увеличить на '+a+', а второй уменьшить на '+b+', найдите больший из двух новых знаменателей.',1,[Math.max(d1+a,d2-b)],[],'Знаменатели стали '+(d1+a)+' и '+(d2-b)+'. Больший '+Math.max(d1+a,d2-b)+'.',{denominators:[d1,d2],adjustments:[a,-b]});
+ if(p===3)return compare(id,t,p,'У двух дробей с числителем '+n+' знаменатели '+d1+' и '+d2+'. Первый увеличили на '+a+', второй уменьшили на '+b+'. Сравни итоговые дроби.',1,[d2,b],['-'],[d1,a],['+'],'Новые знаменатели '+(d1+a)+' и '+(d2-b)+'. Чтобы сравнить дроби, сравни знаменатели в обратном порядке.');
  return compare(id,t,p,'У первой дроби '+F(n,d1)+' знаменатель увеличили на '+a+', затем уменьшили на '+b+'. У второй '+F(n,d2)+' знаменатель уменьшили на '+a+' и увеличили на '+b+'. Сравни полученные дроби.',1,[d2,a,b],['-','+'],[d1,a,b],['+','-'],'Итоговые знаменатели '+(d1+a-b)+' и '+(d2-a+b)+'. Чем меньше знаменатель, тем больше дробь.');
 }
 function addFraction(t,p){
