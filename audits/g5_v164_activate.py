@@ -15,14 +15,14 @@ def build():
     if len(matches)!=19:
         raise SystemExit(f'Expected 19 versioned g5 scripts, got {len(matches)}')
     after=re.sub(r'(<script src="g5-[\w-]+\.js)\?v=(?:163|164)("></script>)',
-                 r'\g<1>?v=163\g<2>',before)
-    if after.count('?v=163')<19:
+                 r'\g<1>?v=164\g<2>',before)
+    if after.count('?v=164')<19:
         raise SystemExit('Missing version tags in output')
     old=WORKER.read_text(encoding='utf-8')
     new,count=re.subn(r'const CACHE_NAME = "matkvest-iphone-v(?:163|164)";',
                       'const CACHE_NAME = "matkvest-iphone-v164";',old)
     if count!=1:
-        raise SystemExit('Missing previous v161/v164 PWA cache')
+        raise SystemExit('Missing previous v163/v164 PWA cache')
     for required in ['request.destination === "script"','fetch(request, {cache: "no-store"})',
                      'self.clients.claim()']:
         if required not in new:raise SystemExit('Missing safe PWA updater '+required)
