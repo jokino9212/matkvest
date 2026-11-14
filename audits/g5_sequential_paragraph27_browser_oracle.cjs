@@ -42,7 +42,7 @@ function solve(q){
   return q.choices[ordered[0].i].label;
  }
  if(t===1){
-  const a=grab(s,/увеличили на (\d+)/,q.ctx)[0];
+  const a=(p===0||p===2)?grab(s,/увеличили на (\d+)/,q.ctx)[0]:null;
   if(p===0)return cmp(den(1),den(0)+a);
   if(p===1){const b=grab(s,/уменьшили на (\d+)/,q.ctx)[0];return cmp(den(1),den(0)-b);}
   if(p===2){const b=grab(s,/уменьшили на (\d+)/,q.ctx)[0];return cmp(den(1)-b,den(0)+a);}
