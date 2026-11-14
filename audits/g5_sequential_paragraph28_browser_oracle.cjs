@@ -31,7 +31,7 @@ function solve(q){
 }
 function checkDiagram(q){
  if(!q.diagram)return false;
- assert([['0','0'],['0','1'],['1','3']].some(([t,p])=>q.level===+t&&q.slot===+p),
+ assert([['0','0'],['0','1'],['0','2'],['1','3']].some(([t,p])=>q.level===+t&&q.slot===+p),
   'Unexpected drawing '+q.ctx);
  const F=fractions(q.text);assert(F.length>0,'Drawing lacks labelled fraction '+q.ctx);
  const {n,d}=F[0],g=q.diagram;
@@ -130,7 +130,7 @@ function checkDiagram(q){
   assert.equal(sets.size,15,'Not 15 progression families');
   assert.equal(familyIds.size,15,'Duplicate family IDs across levels');
   for(const [slot,strings]of sets)assert(strings.size>=10,'Insufficient variety '+slot+': '+strings.size);
-  assert.equal(images,120,'Expected actual visible diagrams in three families');
+  assert.equal(images,160,'Expected actual visible diagrams in four families');
   assert.deepEqual(errors,[],'Browser JS error');
   console.log('G5_SEQUENTIAL_PARAGRAPH_28_PASS '+JSON.stringify({
    samples:out.rows.length,families:familyIds.size,diagrams:images,classification,numeric,fraction,
