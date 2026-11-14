@@ -1,0 +1,36 @@
+name: One-time Grade 5 paragraph 29 v165 PWA activation
+on:
+  push:
+    branches:
+      - audit/g5-paragraph29-20261115
+    paths:
+      - '.github/workflows/g5-v165-one-time.yml'
+permissions:
+  contents: write
+jobs:
+  apply-v165:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Activate 19 Grade 5 script URL versions and worker
+        run: |
+          python3 audits/g5_v165_activate.py
+          python3 audits/g5_v165_activate.py --check
+          grep -q 'const CACHE_NAME = "matkvest-iphone-v165";' sw.js
+          if grep -q -E 'src="g5-[^"]+\?v=164"' index.html; then
+            echo "Old Grade 5 v164 script URLs still present" >&2
+            exit 1
+          fi
+      - name: Commit cache-busted HTML and Service Worker
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html sw.js
+          if git diff --cached --quiet; then
+            echo 'v165 already activated'
+          else
+            git commit -m 'Release v165: 19 fresh JS versions and PWA build hash'
+            git push origin HEAD:audit/g5-paragraph29-20261115
+          fi
