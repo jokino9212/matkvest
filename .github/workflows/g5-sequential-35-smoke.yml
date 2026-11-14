@@ -1,0 +1,36 @@
+name: Grade 5 sequential paragraph 35 common denominator gate
+on:
+  push:
+    branches: [audit/g5-paragraph35-20261115]
+  pull_request:
+    branches: [main]
+    paths:
+      - 'g5-fraction-concepts-v129.js'
+      - '.github/workflows/g5-sequential-35-smoke.yml'
+jobs:
+  paragraph35:
+    runs-on: ubuntu-latest
+    timeout-minutes: 70
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate JavaScript syntax
+        run: node --check g5-fraction-concepts-v129.js
+      - name: Install pinned Playwright
+        run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Real browser fraction concept problems
+        run: node audits/g5_v129_real_fraction_concepts_browser.cjs
+      - name: Full previously certified fraction regression
+        run: |
+          node audits/g5_sequential_paragraph34_browser_oracle.cjs
+          node audits/g5_sequential_paragraph33_browser_oracle.cjs
+          node audits/g5_sequential_paragraph32_browser_oracle.cjs
+          node audits/g5_sequential_paragraph31_browser_oracle.cjs
+          node audits/g5_sequential_paragraph30_browser_oracle.cjs
+          node audits/g5_sequential_paragraph29_browser_oracle.cjs
+          node audits/g5_sequential_paragraph28_browser_oracle.cjs
+      - name: Previous paragraphs and all 74 Grade 5 topics
+        run: |
+          node audits/g5_stage42_mixed_fraction_oracle.cjs
+          node audits/g5_v132_74_real_cognitive_inventory.cjs
