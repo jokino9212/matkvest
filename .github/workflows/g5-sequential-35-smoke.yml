@@ -6,6 +6,7 @@ on:
     branches: [main]
     paths:
       - 'g5-fraction-concepts-v129.js'
+      - 'audits/g5_sequential_paragraph35_browser_oracle.cjs'
       - '.github/workflows/g5-sequential-35-smoke.yml'
 jobs:
   paragraph35:
@@ -16,9 +17,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Validate JavaScript syntax
-        run: node --check g5-fraction-concepts-v129.js
+        run: |
+          node --check g5-fraction-concepts-v129.js
+          node --check audits/g5_sequential_paragraph35_browser_oracle.cjs
       - name: Install pinned Playwright
         run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Independently solve 600 real learner-visible §35 problems
+        run: node audits/g5_sequential_paragraph35_browser_oracle.cjs
       - name: Real browser fraction concept problems
         run: node audits/g5_v129_real_fraction_concepts_browser.cjs
       - name: Full previously certified fraction regression
@@ -32,5 +37,9 @@ jobs:
           node audits/g5_sequential_paragraph28_browser_oracle.cjs
       - name: Previous paragraphs and all 74 Grade 5 topics
         run: |
+          node audits/g5_sequential_paragraphs01_03_browser.cjs
+          for n in 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25; do node "audits/g5_sequential_paragraph${n}_browser_oracle.cjs"; done
+          node audits/g5_sequential_paragraph26_independent_oracle.cjs
+          node audits/g5_sequential_paragraph27_browser_oracle.cjs
           node audits/g5_stage42_mixed_fraction_oracle.cjs
           node audits/g5_v132_74_real_cognitive_inventory.cjs
