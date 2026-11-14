@@ -10,7 +10,12 @@ assert(url&&url.startsWith('https://'),'Official Pages HTTPS URL must come from 
 const root=new URL(url.endsWith('/')?url:url+'/');
 const html=fs.readFileSync('index.html'),sw=fs.readFileSync('sw.js','utf8');
 const expected=crypto.createHash('sha256').update(html).digest('hex');
-assert(sw.includes('const CACHE_NAME = "matkvest-iphone-v158";'));
+const cacheVersion=Number(sw.match(/const CACHE_NAME = "matkvest-iphone-v(\d+)";/)?.[1]);
+assert(Number.isInteger(cacheVersion)&&cacheVersion>=158,'Unsupported PWA release');
+const cacheName='matkvest-iphone-v'+cacheVersion;
+const g5Tags=[...html.toString('utf8').matchAll(/<script src="g5-[\w-]+\.js\?v=(\d+)"><\/script>/g)];
+assert.equal(g5Tags.length,19);
+assert(g5Tags.every(tag=>Number(tag[1])===cacheVersion),'Grade 5 HTML JS cache-bust does not match PWA version');
 assert(sw.includes('const APP_BUILD_HASH = "'+expected+'";'));
 const pause=ms=>new Promise(r=>setTimeout(r,ms));
 async function deployed(){
@@ -24,16 +29,16 @@ async function deployed(){
    const swLive=await worker.text();
    const liveHash=crypto.createHash('sha256').update(htmlLive).digest('hex');
    if(page.status===200&&worker.status===200&&liveHash===expected
-      &&swLive.includes('const CACHE_NAME = "matkvest-iphone-v158";')
+      &&swLive.includes('const CACHE_NAME = "'+cacheName+'";')
       &&swLive.includes('const APP_BUILD_HASH = "'+expected+'";')){
-     console.log('PASS_PWA_91_PAGES_BYTES',JSON.stringify({attempt:i+1,bytes:htmlLive.length,sha:liveHash,worker:'v158'}));
+     console.log('PASS_PWA_91_PAGES_BYTES',JSON.stringify({attempt:i+1,bytes:htmlLive.length,sha:liveHash,worker:cacheName}));
      return;
    }
-   console.log('PWA_91_PAGES_PROPAGATING',JSON.stringify({attempt:i+1,status:page.status,hash:liveHash,sw158:swLive.includes('matkvest-iphone-v158')}));
+   console.log('PWA_91_PAGES_PROPAGATING',JSON.stringify({attempt:i+1,status:page.status,hash:liveHash,workerMatches:swLive.includes(cacheName)}));
   }catch(e){console.log('PWA_91_PAGES_RETRY',i+1,String(e).slice(0,200));}
   await pause(10000);
  }
- throw Error('Live Pages is not serving the exact merged v158 HTML and SW');
+ throw Error('Live Pages is not serving the exact merged HTML and SW');
 }
 async function browserTest(browser,width){
  const ctx=await browser.newContext({viewport:{width,height:820},isMobile:true,hasTouch:true,serviceWorkers:'allow'});
@@ -49,8 +54,8 @@ async function browserTest(browser,width){
    const q=makeG5Question(id);
    return {grade:currentGrade,topics:g5AllTopics().length,
     src:q.sourceTopicId,lesson:String(g5Lesson(id)),
-    scriptCount:document.querySelectorAll('script[src^="g5-"][src*="?v=158"]').length,
-    legacyScriptCount:document.querySelectorAll('script[src^="g5-"]:not([src*="?v=158"])').length};
+    scriptCount:document.querySelectorAll('script[src^="g5-"][src*="?v="]').length,
+    legacyScriptCount:document.querySelectorAll('script[src^="g5-"]:not([src*="?v="])').length};
   });
   assert.equal(initial.grade,5);
   assert.equal(initial.topics,74);
@@ -70,7 +75,7 @@ async function browserTest(browser,width){
     qid='g5:'+id;
     const q=makeG5Question(id);
     return {topics:g5AllTopics().length,source:q.sourceTopicId,
-     scriptCount:document.querySelectorAll('script[src^="g5-"][src*="?v=158"]').length,
+     scriptCount:document.querySelectorAll('script[src^="g5-"][src*="?v="]').length,
      profileSentinel:localStorage.getItem('mk91_production_probe'),
      cacheKeys:await caches.keys(),controller:!!navigator.serviceWorker.controller};
    });
@@ -78,7 +83,7 @@ async function browserTest(browser,width){
    assert.equal(state.source,'area_units_g5');
    assert.equal(state.scriptCount,19);
    assert.equal(state.profileSentinel,'persists');
-   assert(state.cacheKeys.includes('matkvest-iphone-v158'));
+   assert(state.cacheKeys.includes(cacheName));
    assert(state.controller,'Production v158 SW not controlling browser');
    console.log('PASS_PWA_91_PAGES_GRADE5_RELOAD',JSON.stringify({width,iteration:i+1,...state}));
   }
@@ -90,5 +95,5 @@ async function browserTest(browser,width){
  const b=await chromium.launch({headless:true,args:['--no-sandbox']});
  try{for(const width of [320,390])await browserTest(b,width);}
  finally{await b.close();}
- console.log('PASS_PWA_91_LIVE_PRODUCTION_ANDROID_WIDTHS',JSON.stringify({widths:[320,390],reloads:3,cache:'v158'}));
+ console.log('PASS_PWA_91_LIVE_PRODUCTION_ANDROID_WIDTHS',JSON.stringify({widths:[320,390],reloads:3,cache:cacheName}));
 })().catch(e=>{console.error('FAIL_PWA_91_LIVE_PRODUCTION',e.stack||e);process.exit(1)});
