@@ -228,7 +228,7 @@ function types(t,p){
   if(p===2){
    const mode=ri5(0,2),n=mode===0?a:mode===1?d:d+ri5(1,d-1);
    const answer=n<d?'Меньше 1':n===d?'Равно 1':'Больше 1';
-   return cQ('Сравни дробь '+strip(n,d)+' с единицей.',answer,
+   return cQ('Сравни дробь '+strip(n,d)+' с единицей.'+properImproperModel(d,n),answer,
     ['Меньше 1','Равно 1','Больше 1','Сравнить нельзя'].filter(x=>x!==answer),
     'Сравним числитель '+n+' со знаменателем '+d+': '+(n<d?'<':n===d?'=':'>')+
     '. Поэтому дробь '+answer.toLowerCase()+'.',id,t,p);
