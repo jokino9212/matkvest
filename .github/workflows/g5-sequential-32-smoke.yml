@@ -1,0 +1,43 @@
+name: Grade 5 sequential paragraph 32 independent mixed-number arithmetic
+on:
+  push:
+    branches:
+      - audit/g5-paragraph32-20261115
+  pull_request:
+    branches: [main]
+    paths:
+      - 'g5-fraction-arithmetic-v115.js'
+      - 'audits/g5_sequential_paragraph32_browser_oracle.cjs'
+      - '.github/workflows/g5-sequential-32-smoke.yml'
+jobs:
+  paragraph32-independent:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate exact mixed arithmetic and independent oracle syntax
+        run: |
+          node --check g5-fraction-arithmetic-v115.js
+          node --check audits/g5_sequential_paragraph32_browser_oracle.cjs
+      - name: Install pinned Playwright
+        run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Independently solve 1200 visible mixed arithmetic questions and inspect 320 SVG wholes
+        run: node audits/g5_sequential_paragraph32_browser_oracle.cjs
+      - name: Regress §§28-31 conversions, fractions, mixed comparison and prior arithmetic
+        run: |
+          node audits/g5_sequential_paragraph31_browser_oracle.cjs
+          node audits/g5_sequential_paragraph30_browser_oracle.cjs
+          node audits/g5_sequential_paragraph29_browser_oracle.cjs
+          node audits/g5_sequential_paragraph28_browser_oracle.cjs
+      - name: Regress §§1-27 independent textbook gates
+        run: |
+          node audits/g5_sequential_paragraphs01_03_browser.cjs
+          for n in 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25; do node "audits/g5_sequential_paragraph${n}_browser_oracle.cjs"; done
+          node audits/g5_sequential_paragraph26_independent_oracle.cjs
+          node audits/g5_sequential_paragraph27_browser_oracle.cjs
+      - name: Regress 2700 Stage42 mixed fractions and Grade 5 74-topic inventory
+        run: |
+          node audits/g5_stage42_mixed_fraction_oracle.cjs
+          node audits/g5_v132_74_real_cognitive_inventory.cjs
