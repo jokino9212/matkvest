@@ -45,7 +45,23 @@ function nQ(text,answer,ex,id,t,p,wrong=[]){
 }
 function fQ(text,n,d,ex,id,t,p){
  if(!Number.isSafeInteger(n)||!Number.isSafeInteger(d)||d<2||n<0)throw Error('Invalid rational answer '+id+': '+n+'/'+d);
- const q=g5q(text,g5FractionChoices(n,d),n+'/'+d,ex,family(id,t,p));
+ // Legacy g5FractionChoices sometimes collapses to only two distinct options.
+ // Build four distinct mathematical values while keeping the existing answer key.
+ const options=[],seen=new Set();
+ const gcd=(a,b)=>{while(b){const t=a%b;a=b;b=t;}return a;};
+ function add(x,y,key){
+  if(!Number.isSafeInteger(x)||!Number.isSafeInteger(y)||x<0||y<2)return;
+  const g=gcd(x,y),canonical=(x/g)+'/'+(y/g);
+  if(seen.has(canonical))return;
+  seen.add(canonical);options.push({key,label:frac(x,y)});
+ }
+ add(n,d,n+'/'+d);
+ const candidates=[[n+1,d],[n+2,d],[n,d+1],[n+1,d+1],[n+2,d+1],[n,d+2],
+   [Math.max(0,n-1),d],[n+3,d],[n+1,d+2],[n+2,d+3],[n+4,d+1]];
+ for(let i=0;i<candidates.length&&options.length<4;i++)
+  add(candidates[i][0],candidates[i][1],'wrong_v114_'+i);
+ if(options.length!==4)throw Error('Cannot create four distinct fractions for '+n+'/'+d);
+ const q=g5q(text,options,n+'/'+d,ex,family(id,t,p));
  q.mk5Audit={type:'fraction',expected:n+'/'+d};return q;
 }
 function cQ(text,correct,others,ex,id,t,p){
@@ -58,14 +74,32 @@ function strip(n,d){
  const x=String(n);return frac(n,d); // fraction HTML is the existing classroom renderer
 }
 function partPicture(d,n){
- const w=34,gap=3,total=d*(w+gap),size=Math.min(620,total);
- const boxes=Array.from({length:d},(_,i)=>'<rect x="'+(4+i*(w+gap))+'" y="6" width="'+w+'" height="34" rx="3" fill="'+(i<n?'#5d9cdc':'#edf3fc')+'" stroke="#52617a"/>').join('');
- return '<div class="mk-v114-graphic" style="width:100%;max-width:620px;overflow:hidden"><svg role="img" aria-label="Равные части целого, некоторые закрашены" viewBox="0 0 '+(total+8)+' 52" width="100%" height="54" preserveAspectRatio="xMinYMid meet">'+boxes+'</svg></div>';
+ // §26: show one continuous whole, not separate detached blocks.
+ // Every cell is exactly 1/d of the same strip; no gaps can imply extra pieces.
+ if(!Number.isSafeInteger(d)||d<2||!Number.isSafeInteger(n)||n<0||n>d)
+  throw Error('Invalid equal-parts illustration '+n+'/'+d);
+ const left=8,top=8,width=576,height=44,cell=width/d;
+ const pieces=Array.from({length:d},(_,i)=>
+  '<rect x="'+(left+i*cell).toFixed(3)+'" y="'+top+'" width="'+cell.toFixed(3)+
+  '" height="'+height+'" fill="'+(i<n?'#5d9cdc':'#edf3fc')+'"/>').join('');
+ const divisions=Array.from({length:d-1},(_,i)=>{
+  const x=(left+(i+1)*cell).toFixed(3);
+  return '<line x1="'+x+'" y1="'+top+'" x2="'+x+'" y2="'+(top+height)+'" stroke="#52617a" stroke-width="1.5"/>';
+ }).join('');
+ const label='Равные части целого: Одна целая полоска разделена на '+d+' равных долей; закрашено '+n+
+  ', не закрашено '+(d-n);
+ return '<div class="mk-v114-graphic" style="width:100%;max-width:620px;overflow:hidden">'+
+  '<svg role="img" aria-label="'+label+'" viewBox="0 0 592 60" width="100%" height="auto" '+
+  'style="display:block" preserveAspectRatio="xMidYMid meet">'+pieces+divisions+
+  '<rect x="'+left+'" y="'+top+'" width="'+width+'" height="'+height+
+  '" fill="none" stroke="#52617a" stroke-width="2"/></svg></div>';
 }
 const nouns=['ноль','одна','две','три','четыре','пять','шесть','семь','восемь','девять'];
 const tails={
  2:['вторая','вторых'],3:['третья','третьих'],4:['четвёртая','четвёртых'],5:['пятая','пятых'],6:['шестая','шестых'],
- 7:['седьмая','седьмых'],8:['восьмая','восьмых'],9:['девятая','девятых'],10:['десятая','десятых'],11:['одиннадцатая','одиннадцатых']
+ 7:['седьмая','седьмых'],8:['восьмая','восьмых'],9:['девятая','девятых'],10:['десятая','десятых'],11:['одиннадцатая','одиннадцатых'],12:['двенадцатая','двенадцатых'],
+ 13:['тринадцатая','тринадцатых'],14:['четырнадцатая','четырнадцатых'],
+ 15:['пятнадцатая','пятнадцатых'],16:['шестнадцатая','шестнадцатых']
 };
 function words(n,d){
  if(!Number.isSafeInteger(n)||n<1||n>9||!tails[d])throw Error('Word form unavailable '+n+'/'+d);
@@ -85,7 +119,7 @@ function line(d,marks,maxUnits=2){
  return '<div style="width:100%;max-width:680px;overflow:hidden">'+svg+'</svg></div>';
 }
 function parts(t,p){
- const id='frac_parts',d=dPick(),a=ri5(1,d-2),b=ri5(1,d-a-1),total=a+b;
+ const id='frac_parts',d=ri5(3,20),a=ri5(1,d-2),b=ri5(1,d-a-1),total=a+b;
  if(t===0){
   if(p===0)return nQ('В записи '+strip(a,d)+' какое число является числителем?',a,'Числитель стоит над дробной чертой: '+a+'.',id,t,p,[d,a+1]);
   if(p===1)return nQ('В записи '+strip(a,d)+' какое число является знаменателем?',d,'Знаменатель под чертой: целое делят на '+d+' равных частей.',id,t,p,[a,d+1]);
@@ -109,7 +143,7 @@ function parts(t,p){
  const boxes=ri5(2,5);return nQ('Было '+boxes+' целых шоколадки, каждую поделили на '+d+' одинаковых долек. Из первой взяли '+a+' дольки, из второй '+b+'. Сколько долек осталось всего?',boxes*d-total,'Всего '+boxes+' · '+d+' = '+(boxes*d)+' долек. Взяли '+a+' + '+b+' = '+total+'. Осталось '+(boxes*d-total)+'.',id,t,p,[total,boxes*d]);
 }
 function reading(t,p){
- const id='frac_read',d=[5,7,8,9,11][ri5(0,4)],a=ri5(1,Math.min(4,d-2)),b=ri5(1,Math.min(3,d-a-1)),total=a+b;
+ const id='frac_read',d=ri5(3,16),a=ri5(1,Math.min(4,d-2)),b=ri5(1,Math.min(3,d-a-1)),total=a+b;
  const nextD=d===11?9:11;
  if(t===0){
   if(p===0)return fQ('Запиши обыкновенной дробью выражение «'+words(a,d)+'».',a,d,'Сначала записываем количество долей '+a+' в числитель, число всех долей '+d+' в знаменатель.',id,t,p);
@@ -132,7 +166,7 @@ function reading(t,p){
  return fQ('Из целого сначала взяли неизвестное число долей, потом добавили ещё '+b+' долей. Вернули одну взятую долю — осталось '+(total-1)+' из '+d+'. Какую долю целого взяли сначала?',a,d,'Вернём одну долю: было '+total+', из них позже добавили '+b+'. Первоначально взяли '+total+' − '+b+' = '+a+' из '+d+'.',id,t,p);
 }
 function ray(t,p){
- const id='frac_ray',d=dPick(),a=ri5(1,Math.max(1,d-3)),b=ri5(a+1,d-1),k=ri5(1,Math.min(3,d-b));
+ const id='frac_ray',d=ri5(3,16),a=ri5(1,Math.max(1,d-3)),b=ri5(a+1,d-1),k=ri5(1,Math.min(3,d-b));
  const A=()=>line(d,[{index:a,label:'A'}]), AB=()=>line(d,[{index:a,label:'A'},{index:b,label:'B'}]), B=()=>line(d,[{index:b,label:'B'}]);
  if(t===0){
   if(p===0)return fQ('Единица разделена на '+d+' равных отрезков. Запиши координату точки A дробью со знаменателем '+d+'.'+A(),a,d,'От нуля до точки A '+a+' единичных долей из '+d+'.',id,t,p);
