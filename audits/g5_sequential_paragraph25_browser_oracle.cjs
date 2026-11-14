@@ -87,7 +87,7 @@ function solve(q){
     assert(/см/.test(q.ex),'Missing unit in numerical solution '+ctx);
    }
    const slot=q.level+'/'+q.family;if(!slotSets.has(slot))slotSets.set(slot,new Set());
-   slotSets.get(slot).add(q.text);families.add(q.template);levels[q.level].push(m.steps);
+   slotSets.get(slot).add(picture?q.html:q.text);families.add(q.template);levels[q.level].push(m.steps);
   }
   assert.equal(out.rows.length,600);assert.equal(families.size,15);assert.equal(slotSets.size,15);
   for(const [slot,set]of slotSets)assert(set.size>=10,'Insufficient variation '+slot+': '+set.size);
