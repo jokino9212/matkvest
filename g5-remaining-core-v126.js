@@ -356,10 +356,22 @@ function spec(id,t,p){
  const [text,plan,explain,steps]=rows[p];
  return {id,t,p,text,plan,explain,steps};
 }
+function showPowerProofs(text){
+ const matches=[...String(text).matchAll(/(\d+)([²³⁴])/g)],seen=new Set(),steps=[];
+ for(const m of matches){
+  const base=Number(m[1]),power=({'²':2,'³':3,'⁴':4})[m[2]];
+  const key=base+'^'+power;
+  if(seen.has(key))continue;
+  seen.add(key);
+  steps.push(base+m[2]+' = '+Array(power).fill(base).join(' · ')+' = '+(base**power));
+ }
+ return steps.length?' Расписываем степени: '+steps.join('; ')+'.':'';
+}
 function build(id){
  const t=level(),p=family(),data=spec(id,t,p),value=evalPlan(data.plan);
  if(!Number.isSafeInteger(value)||value<0)throw Error('v126 generated invalid answer '+id+'/'+t+'/'+p+' '+value);
- const q=g5q(data.text,g5nums(value,[value+1,value+2,Math.max(0,value-1)]),String(value),data.explain+' Ответ: '+value+'.','v126_'+id+'_L'+t+'_F'+p);
+ const details=id==='powers'?showPowerProofs(data.text):'';
+ const q=g5q(data.text,g5nums(value,[value+1,value+2,Math.max(0,value-1)]),String(value),data.explain+details+' Ответ: '+value+'.','v126_'+id+'_L'+t+'_F'+p);
  const correct=q.choices.filter(x=>String(x.key)===String(q.correct));
  if(correct.length!==1||new Set(q.choices.map(x=>String(x.label))).size!==q.choices.length)throw Error('v126 duplicate answer choices '+id+'/'+t+'/'+p);
  return {text:q.text,ans:String(q.correct),choices:q.choices,ex:q.explain,
