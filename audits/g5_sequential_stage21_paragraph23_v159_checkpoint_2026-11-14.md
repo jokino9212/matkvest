@@ -13,7 +13,7 @@
 
 ## Мобильное обновление — issue #91
 - Исправлено в v158, PR #92 MERGED. CI https://github.com/jokino9212/matkvest/actions/runs/43614064228 PASS. Real GitHub Pages Grade 5 повторные мобильные загрузки 6/6 PASS: https://github.com/jokino9212/matkvest/actions/runs/43614637512 .
-- Live production v159 после merge **проверяется отдельно**: GitHub Pages workflow и реальные HTTPS/Chrome проверки нельзя приравнивать к локальным/CI тестам. После выполнения сохранить URL и статус.
+- **Production v159 подтверждён:** GitHub Pages deploy https://github.com/jokino9212/matkvest/actions/runs/43616542780 — **SUCCESS**. Реальные HTTPS-байты HTML и Service Worker + desktop/mobile браузерные сценарии https://github.com/jokino9212/matkvest/actions/runs/43616443451 — **PASS**. Отдельная проверка опубликованного пятого класса с обновлением внутри раздела на мобильных ширинах 320/390 и 3 перезагрузками на каждой https://github.com/jokino9212/matkvest/actions/runs/43616443462 — **PASS**. Публичный адрес https://jokino9212.github.io/matkvest/. Это CI с эмуляцией размера Android, а не физическое устройство.
 - **Issue #91 оставлять OPEN** до пользовательской проверки обновления на том самом физическом Android. Не требовать очистки хранилищ/профилей/коллекции.
 
 ## Следующий этап только §24 «Объёмы. Объём прямоугольного параллелепипеда»
