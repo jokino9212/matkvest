@@ -20,6 +20,8 @@ jobs:
         run: |
           node --check g5-fraction-concepts-v129.js
           node --check audits/g5_sequential_paragraph35_browser_oracle.cjs
+      - name: Verify deployed PWA build stamp v171
+        run: python3 audits/g5_v171_activate.py --check
       - name: Install pinned Playwright
         run: npm install --no-save --no-package-lock playwright@1.56.1
       - name: Independently solve 600 real learner-visible §35 problems
