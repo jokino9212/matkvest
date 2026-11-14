@@ -133,7 +133,7 @@ function cuboidNetDiagram(){
 function box(p,t){
  // §23 geometry only: count faces/edges/vertices, read the model, reason
  // about its nets and exposed faces. No cube counting or volume (reserved §24).
- const a=ri5(5,18+5*t),b=ri5(4,15+4*t),c=ri5(3,13+3*t),d=ri5(2,8+2*t),n=ri5(2,12+3*t);
+ const a=ri5(5,18+5*t),b=ri5(4,15+4*t),c=ri5(3,13+3*t),d=ri5(2,8+2*t),n=ri5(2,22+3*t);
  const S=2*(a*b+a*c+b*c),P=4*(a+b+c),pic=cuboidDiagram(),net=cuboidNetDiagram();
  const family='cuboid_v159_L'+t+'_F'+p;
  function task(text,answer,ex,steps,wrong=[],drawing=pic){
