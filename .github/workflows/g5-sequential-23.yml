@@ -1,0 +1,70 @@
+name: Grade 5 sequential §23 cuboid, twelve edges and six-face nets
+on:
+  push:
+    branches: [audit/g5-sequential-paragraph23-v159-20261114]
+  pull_request:
+    branches: [main]
+    paths:
+      - 'g5-pedagogy-v113.js'
+      - 'audits/g5_sequential_paragraph23_browser_oracle.cjs'
+      - 'audits/g5_v113_math_oracle.cjs'
+      - 'audits/g5_v159_activate.py'
+      - '.github/workflows/g5-sequential-23.yml'
+permissions:
+  contents: write
+concurrency:
+  group: grade5-cuboid-v159-branch
+  cancel-in-progress: false
+jobs:
+  independent-cuboid-geometry:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+      - name: Synchronize v159 Grade 5 URLs and PWA fingerprint
+        run: |
+          python3 audits/g5_v159_activate.py
+          python3 audits/g5_v159_activate.py --check
+          python3 audits/g7_stage12_sync_pwa.py --check
+      - name: Syntax
+        run: |
+          node --check g5-pedagogy-v113.js
+          python3 -m py_compile audits/g5_v159_activate.py
+          node --check audits/g5_sequential_paragraph23_browser_oracle.cjs
+          node --check audits/g5_v113_math_oracle.cjs
+      - name: Install pinned Playwright
+        run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Independently verify 600 learner-visible cuboid and net tasks, no §24 volume
+        run: node audits/g5_sequential_paragraph23_browser_oracle.cjs
+      - name: Regression of four historical v113 math families on mobile and desktop
+        run: node audits/g5_v113_math_oracle.cjs
+      - name: Strict regression §§1-22 in textbook order
+        run: |
+          node audits/g5_sequential_paragraphs01_03_browser.cjs
+          for f in audits/g5_sequential_paragraph??_browser_oracle.cjs; do
+            if [ "$f" != "audits/g5_sequential_paragraph23_browser_oracle.cjs" ]; then node "$f"; fi
+          done
+      - name: Keep all 74 Grade 5 topics with 15 cognitive families each
+        run: node audits/g5_v132_74_real_cognitive_inventory.cjs
+      - name: Keep Grade 5 available offline after v159 refresh
+        run: node audits/stage28_offline_pwa_browser.cjs
+      - name: Save verified HTML and Service Worker to the branch, never directly to main
+        if: github.event_name == 'push'
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js
+          if ! git diff --cached --quiet; then
+            git commit -m "build(g5): activate verified §23 v159 with network-first PWA"
+            git fetch origin audit/g5-sequential-paragraph23-v159-20261114
+            git rebase origin/audit/g5-sequential-paragraph23-v159-20261114
+            git push origin HEAD:audit/g5-sequential-paragraph23-v159-20261114
+          else
+            echo "v159 already synchronized"
+          fi
