@@ -58,9 +58,25 @@ function strip(n,d){
  const x=String(n);return frac(n,d); // fraction HTML is the existing classroom renderer
 }
 function partPicture(d,n){
- const w=34,gap=3,total=d*(w+gap),size=Math.min(620,total);
- const boxes=Array.from({length:d},(_,i)=>'<rect x="'+(4+i*(w+gap))+'" y="6" width="'+w+'" height="34" rx="3" fill="'+(i<n?'#5d9cdc':'#edf3fc')+'" stroke="#52617a"/>').join('');
- return '<div class="mk-v114-graphic" style="width:100%;max-width:620px;overflow:hidden"><svg role="img" aria-label="Равные части целого, некоторые закрашены" viewBox="0 0 '+(total+8)+' 52" width="100%" height="54" preserveAspectRatio="xMinYMid meet">'+boxes+'</svg></div>';
+ // §26: show one continuous whole, not separate detached blocks.
+ // Every cell is exactly 1/d of the same strip; no gaps can imply extra pieces.
+ if(!Number.isSafeInteger(d)||d<2||!Number.isSafeInteger(n)||n<0||n>d)
+  throw Error('Invalid equal-parts illustration '+n+'/'+d);
+ const left=8,top=8,width=576,height=44,cell=width/d;
+ const pieces=Array.from({length:d},(_,i)=>
+  '<rect x="'+(left+i*cell).toFixed(3)+'" y="'+top+'" width="'+cell.toFixed(3)+
+  '" height="'+height+'" fill="'+(i<n?'#5d9cdc':'#edf3fc')+'"/>').join('');
+ const divisions=Array.from({length:d-1},(_,i)=>{
+  const x=(left+(i+1)*cell).toFixed(3);
+  return '<line x1="'+x+'" y1="'+top+'" x2="'+x+'" y2="'+(top+height)+'" stroke="#52617a" stroke-width="1.5"/>';
+ }).join('');
+ const label='Одна целая полоска разделена на '+d+' равных долей; закрашено '+n+
+  ', не закрашено '+(d-n);
+ return '<div class="mk-v114-graphic" style="width:100%;max-width:620px;overflow:hidden">'+
+  '<svg role="img" aria-label="'+label+'" viewBox="0 0 592 60" width="100%" height="auto" '+
+  'style="display:block" preserveAspectRatio="xMidYMid meet">'+pieces+divisions+
+  '<rect x="'+left+'" y="'+top+'" width="'+width+'" height="'+height+
+  '" fill="none" stroke="#52617a" stroke-width="2"/></svg></div>';
 }
 const nouns=['ноль','одна','две','три','четыре','пять','шесть','семь','восемь','девять'];
 const tails={
