@@ -1,0 +1,38 @@
+name: PWA v158 Grade 5 actual GitHub Pages Android-width postdeploy gate
+on:
+  push:
+    branches: [main]
+    paths:
+      - index.html
+      - sw.js
+      - audits/pwa_v158_grade5_production_browser.cjs
+      - .github/workflows/pwa-v158-grade5-production.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: read
+concurrency:
+  group: matkvest-grade5-v158-live-pages
+  cancel-in-progress: false
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - name: Official GitHub Pages URL
+        env:
+          GH_TOKEN: \${{ github.token }}
+        run: |
+          MATKVEST_PAGES_URL="$(gh api "repos/\${GITHUB_REPOSITORY}/pages" --jq '.html_url')"
+          test -n "$MATKVEST_PAGES_URL"
+          echo "MATKVEST_PAGES_URL=$MATKVEST_PAGES_URL" >> "$GITHUB_ENV"
+      - name: Check pinned HTML/worker fingerprint and syntax
+        run: |
+          python3 audits/g7_stage12_sync_pwa.py --check
+          node --check audits/pwa_v158_grade5_production_browser.cjs
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Poll real GitHub Pages bytes and reopen Grade 5 three times on Android widths
+        run: node audits/pwa_v158_grade5_production_browser.cjs
