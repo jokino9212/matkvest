@@ -140,15 +140,38 @@ function expectedConversion(a){
   for(const mode of ['frac_to_mixed_number','frac_to_mixed_mixed','mixed_to_frac_number','mixed_to_frac_improper'])
    assert(conversionModes.has(mode),'Missing required conversion answer mode '+mode);
   const diagramChecks=await page.evaluate(rows=>{
+   // Verify learner-visible geometry instead of obsolete colors and disconnected tile markup.
    let checks=0,proper=0,improper=0,equality=0;
    for(const q of rows.filter(x=>x.id==='frac_types')){
     const root=document.createElement('div');root.innerHTML=q.text;
-    const svg=root.querySelector('svg[aria-label^="Дробь "]');if(!svg)continue;
-    const m=svg.getAttribute('aria-label').match(/Дробь (\d+)\/(\d+):/);if(!m)throw Error('Malformed bar description');
-    const n=Number(m[1]),d=Number(m[2]),rects=[...svg.querySelectorAll('rect')],filled=rects.filter(el=>el.getAttribute('fill')==='#67a5e6');
-    if(filled.length!==n||rects.length!==Math.ceil(n/d)*d)throw Error('Visual fraction is not '+n+'/'+d);
-    const expected=Math.ceil(n/d)*42+7;
-    if(Number(svg.getAttribute('viewBox').split(' ')[3])!==expected)throw Error('Fraction bars are clipped');
+    const svg=root.querySelector('svg.mk-g5-proper-improper');if(!svg)continue;
+    const m=svg.getAttribute('aria-label').match(/Дробь (\d+)\/(\d+):/);
+    if(!m)throw Error('Malformed accessible fraction description');
+    const n=Number(m[1]),d=Number(m[2]),bars=Math.ceil(n/d);
+    const all=[...svg.querySelectorAll('rect')],cells=all.filter(r=>r.getAttribute('fill')!=='none'),
+     boundaries=all.filter(r=>r.getAttribute('fill')==='none'),
+     filled=cells.filter(r=>r.getAttribute('fill')==='#5d9cdc');
+    if(filled.length!==n||cells.length!==bars*d||boundaries.length!==bars)
+     throw Error('Visual fraction is not '+n+'/'+d);
+    if(Number(svg.getAttribute('viewBox').split(' ')[3])<bars*48)
+     throw Error('Proper/improper fraction whole is clipped');
+    for(let row=0;row<bars;row++){
+     const y=8+48*row,parts=cells.filter(r=>Number(r.getAttribute('y'))===y).sort((a,b)=>
+      Number(a.getAttribute('x'))-Number(b.getAttribute('x')));
+     if(parts.length!==d)throw Error('Incorrect equal parts '+n+'/'+d);
+     if(!boundaries.some(b=>Number(b.getAttribute('y'))===y&&Number(b.getAttribute('width'))===480))
+      throw Error('Incorrect whole width');
+     for(let i=0;i<parts.length;i++){
+      const p=parts[i],width=Number(p.getAttribute('width'));
+      if(Math.abs(width-480/d)>0.003)throw Error('Wrong size of a fractional part');
+      if(i){
+       const prev=parts[i-1];
+       const endX=Number(prev.getAttribute('x'))+Number(prev.getAttribute('width'));
+       if(Math.abs(Number(p.getAttribute('x'))-endX)>0.005)
+        throw Error('Detached fractional parts instead of one whole');
+      }
+     }
+    }
     if(n<d)proper++;else if(n>d)improper++;else equality++;
     checks++;
    }
