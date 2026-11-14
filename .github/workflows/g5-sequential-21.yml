@@ -1,0 +1,36 @@
+name: Grade 5 sequential §21 rectangle and square area
+on:
+  push:
+    branches:
+      - audit/g5-sequential-paragraph21-v156-20261114
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'g5-textbook-tiers-v124.js'
+      - 'g5-textbook-v112.js'
+      - 'audits/g5_sequential_paragraph21_browser_oracle.cjs'
+      - '.github/workflows/g5-sequential-21.yml'
+jobs:
+  independent-rectangle-area:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - name: Syntax
+        run: |
+          node --check g5-textbook-tiers-v124.js
+          node --check g5-textbook-v112.js
+          node --check audits/g5_sequential_paragraph21_browser_oracle.cjs
+      - name: Playwright
+        run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Independently compute 600 area questions
+        run: node audits/g5_sequential_paragraph21_browser_oracle.cjs
+      - name: Regress sequential paragraphs 1–20
+        run: |
+          node audits/g5_sequential_paragraphs01_03_browser.cjs
+          for f in audits/g5_sequential_paragraph??_browser_oracle.cjs; do if [ "$f" != "audits/g5_sequential_paragraph21_browser_oracle.cjs" ]; then node "$f"; fi; done
+      - name: Preserve 74 topics and families
+        run: node audits/g5_v132_74_real_cognitive_inventory.cjs
