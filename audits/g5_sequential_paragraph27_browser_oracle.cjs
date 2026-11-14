@@ -47,7 +47,7 @@ function solve(q){
   if(p===1){const b=grab(s,/уменьшили на (\d+)/,q.ctx)[0];return cmp(den(1),den(0)-b);}
   if(p===2){const b=grab(s,/уменьшили на (\d+)/,q.ctx)[0];return cmp(den(1)-b,den(0)+a);}
   if(p===3){const b=grab(s,/прибавили по (\d+)/,q.ctx)[0];return cmp(den(1)+b,den(0)+b);}
-  const [d1,d2,a1,b1]=grab(s,/Знаменатели (\d+) и (\d+)\. Первый увеличили на (\d+), второй уменьшили на (\d+)/,q.ctx);
+  const [d1,d2,a1,b1]=grab(s,/знаменатели (\d+) и (\d+)\. Первый увеличили на (\d+), второй уменьшили на (\d+)/,q.ctx);
   return Math.abs((d1+a1)-(d2-b1));
  }
  if(p===0){const [a,b]=grab(s,/увеличили на (\d+) и затем ещё на (\d+)/,q.ctx);return cmp(den(1)-b,den(0)+a+b);}
