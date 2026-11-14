@@ -128,8 +128,41 @@ function safeFractionChoices(n,d){
  if(list.length!==4||list[0].key!==n+'/'+d)throw Error('v129 cannot construct distinct fraction distractors');
  return list;
 }
+// §33: two continuous bars represent exactly the SAME unit interval.
+// Splitting every original share into k equal shares preserves the shaded quantity.
+function equalFractionPropertyModel(a,d,k){
+ if(!Number.isSafeInteger(a)||!Number.isSafeInteger(d)||!Number.isSafeInteger(k)||
+    a<1||a>=d||d<2||k<2||d*k>70)
+  throw Error('§33 invalid same-whole fraction illustration');
+ const x0=94,wholeWidth=480,h=29,rows=[
+  {n:a,den:d,y:8,label:'До'},
+  {n:a*k,den:d*k,y:55,label:'После'}
+ ];
+ const pictures=rows.map(({n,den,y,label})=>{
+  const cell=wholeWidth/den;
+  const cells=Array.from({length:den},(_,i)=>'<rect x="'+(x0+i*cell).toFixed(4)+
+   '" y="'+y+'" width="'+cell.toFixed(4)+'" height="'+h+
+   '" fill="'+(i<n?'#5d9cdc':'#edf3fc')+'"/>').join('');
+  const cuts=Array.from({length:den-1},(_,i)=>{
+   const x=(x0+(i+1)*cell).toFixed(4);
+   return '<line x1="'+x+'" x2="'+x+'" y1="'+y+'" y2="'+(y+h)+
+    '" stroke="#52617a" stroke-width="'+((i+1)%k===0?1.1:0.6)+'"/>';
+  }).join('');
+  return '<text x="3" y="'+(y+20)+'" font-size="15" fill="currentColor">'+label+
+   '</text>'+cells+cuts+'<rect x="'+x0+'" y="'+y+'" width="'+wholeWidth+
+   '" height="'+h+'" fill="none" stroke="#52617a" stroke-width="2"/>';
+ }).join('');
+ const label='Основное свойство дроби: одинаковые целые. '+a+'/'+d+
+  ' равно '+(a*k)+'/'+(d*k)+'. Закрашена одна и та же доля, каждая старая часть '+
+  'разделена ещё на '+k+' равных частей.';
+ return '<div class="mk-g5-equal-property" style="width:100%;max-width:650px;overflow:hidden;margin:8px auto">'+
+  '<svg class="mk-g5-equal-property-svg" role="img" aria-label="'+label+
+  '" viewBox="0 0 590 100" width="100%" style="display:block;height:auto" '+
+  'preserveAspectRatio="xMidYMid meet">'+pictures+'</svg></div>';
+}
+
 function makeSpec(id,t,p){
- const d=r(4,9+t*2),e=r(3,10+t*2),a=r(1,d-1),b=r(1,e-1),k=r(2,5+t),m=r(2,4+t),c=r(2,5+t),h=r(2,5+t);
+ const d=id==='frac_equal'?(t===0?r(4,10):t===1&&p<=1?r(4,8):t===1?r(5,13):r(6,18)):r(4,9+t*2),e=r(3,10+t*2),a=r(1,d-1),b=r(1,e-1),k=id==='frac_equal'&&t===1&&p<=1?r(2,5):r(2,5+t),m=r(2,4+t),c=r(2,5+t),h=r(2,5+t);
  const f1=Q(a,d),f2=Q(b,e),f3=Q(1,d+1),u=Q(1,d),v=Q(1,d+e),two=Q(2,d+e+2);
  const half=Q(1,2),hi=Q(1,d),lo=Q(1,d*2),tiny=Q(1,d*4);
  const s=(n,den)=>format(n,den);
@@ -284,7 +317,10 @@ function makeSpec(id,t,p){
   ];
  }
  if(!tasks||tasks.length!==5)throw Error('v129 no task family '+id+' '+t);
- const [text,plan,why,steps,mode]=tasks[p];
+ let [text,plan,why,steps,mode]=tasks[p];
+ // §33 introductory and first practice models make equivalence visible, never just asserted.
+ if(id==='frac_equal'&&(t===0||t===1&&(p===0||p===1)))
+  text+=' '+equalFractionPropertyModel(a,d,k);
  let worked='',factorAudit=null;
  if(id==='frac_common_lcm'){
   const byTier=[
