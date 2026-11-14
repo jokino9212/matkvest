@@ -202,7 +202,16 @@ function conversionQuestion(base,topic,given){
    form={kind:'exact',n:answerN,d:den};
    const [reducedN,reducedD]=g5NewRat(answerN,den);
    ans=reducedN+'/'+reducedD;
-   choices=g5NewChoiceSet(answerN,den,[[answerN+1,den],[Math.max(0,answerN-1),den],[answerN,den+1]]);
+   // Correct displayed answer must retain the denominator in the question.
+   // The old g5NewChoiceSet reduced 38/10 to 19/5, contradicting 'сохрани знаменатель'.
+   // Keep the canonical key for input comparison, but render the specified exact form.
+   const improperCandidates=[answerN,answerN+1,answerN+2,answerN+3];
+   choices=improperCandidates.map(n=>{
+     const [cn,cd]=g5NewRat(n,den);
+     return {label:frac(n,den),key:cn+'/'+cd};
+   });
+   if(choices[0].key!==ans||new Set(choices.map(c=>c.key)).size!==4)
+    throw Error('§31 improper conversion produced ambiguous answer options');
  }
  const audit={...(base.mk5Audit||{}),type:kind==='number'?'numeric':'rational',
    expected:kind==='number'?answerN:(()=>{const x=g5NewRat(answerN,den);return x[0]+'/'+x[1]})(),
