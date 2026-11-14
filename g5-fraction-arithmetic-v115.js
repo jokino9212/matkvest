@@ -281,21 +281,51 @@ function subFraction(t,p){
   'В скобках '+b+' + '+c+' + '+e+' = '+(b+c+e)+
   '. Затем '+K+' − '+(b+c+e)+' = '+(K-b-c-e)+'. Ответ: '+X(K-b-c-e)+'.');
 }
+function mixedComparisonDrawing(leftNumerator,rightNumerator,d){
+ // Both strips share ONE scale: every complete whole has identical length.
+ const wholes=Math.ceil(Math.max(leftNumerator,rightNumerator)/d),count=wholes*d,width=504,left=45,cell=width/count,h=30;
+ const draw=(num,y,label)=>{
+  const cells=Array.from({length:count},(_,i)=>'<rect x="'+(left+i*cell).toFixed(3)+
+   '" y="'+y+'" width="'+cell.toFixed(3)+'" height="'+h+
+   '" fill="'+(i<num?'#5d9cdc':'#edf3fc')+'"/>').join('');
+  const rules=Array.from({length:count-1},(_,i)=>{
+   const x=(left+(i+1)*cell).toFixed(3);
+   return '<line x1="'+x+'" x2="'+x+'" y1="'+y+'" y2="'+(y+h)+
+    '" stroke="#52617a" stroke-width="'+((i+1)%d===0?2.5:0.7)+'"/>';
+  }).join('');
+  return '<text x="3" y="'+(y+22)+'" font-size="16" fill="currentColor">'+label+'</text>'+
+   cells+rules+'<rect x="'+left+'" y="'+y+'" width="'+width+'" height="'+h+
+   '" fill="none" stroke="#52617a" stroke-width="2"/>';
+ };
+ const alt='Две полоски одинакового масштаба, каждая единица разделена на '+d+
+  ' равных долей. Первая закрашена до '+leftNumerator+'/'+d+
+  ', вторая до '+rightNumerator+'/'+d+'.';
+ return '<div style="width:100%;max-width:600px;overflow:hidden;margin:6px auto">'+
+  '<svg class="mk-g5-mixed-compare" role="img" aria-label="'+alt+
+  '" viewBox="0 0 564 90" width="100%" style="display:block;height:auto" '+
+  'preserveAspectRatio="xMidYMid meet">'+draw(leftNumerator,8,'1')+
+  draw(rightNumerator,52,'2')+'</svg></div>';
+}
+function showMixedComparison(q,a,b,d){
+ q.text+=' '+mixedComparisonDrawing(a,b,d);
+ return q;
+}
+
 function mixCompare(t,p){
- const id='mixed_compare',d=pickD(),w=rnd(2,5),v=rnd(1,3),a=rnd(1,Math.max(1,d-3)),b=rnd(a+1,d-1),c=rnd(1,Math.min(3,b-1));
+ const id='mixed_compare',d=pickComparisonD(),w=rnd(2,6),v=rnd(1,3),a=rnd(1,Math.max(1,d-3)),b=rnd(a+1,d-1),c=rnd(1,Math.min(3,b-1)),swap=rnd(0,1)===1;
  const A=whole(w,a,d),B=whole(w,b,d),C=whole(w+v,a,d);
  if(t===0){
-  if(p===0)return compare(id,t,p,'Сравни '+M(w,a,d)+' и '+M(w,b,d)+'.',d,[A],[],[B],[],'Целые части одинаковы, сравни дробные числители '+a+' и '+b+'.');
-  if(p===1)return compare(id,t,p,'Сравни '+M(w+v,a,d)+' и '+M(w,b,d)+'.',d,[C],[],[B],[],'Сначала сравни целые части '+(w+v)+' и '+w+'.');
+  if(p===0){const left=swap?B:A,right=swap?A:B;return showMixedComparison(compare(id,t,p,'Сравни '+(swap?M(w,b,d):M(w,a,d))+' и '+(swap?M(w,a,d):M(w,b,d))+'.',d,[left],[],[right],[],'Целые части одинаковы: сравни дробные числители '+a+' и '+b+'.'),left,right,d);}
+  if(p===1){const left=swap?B:C,right=swap?C:B;return showMixedComparison(compare(id,t,p,'Сравни '+(swap?M(w,b,d):M(w+v,a,d))+' и '+(swap?M(w+v,a,d):M(w,b,d))+'.',d,[left],[],[right],[],'Сначала сравни целые части '+(w+v)+' и '+w+'.'),left,right,d);}
   if(p===2)return question(id,t,p,'numeric','Какое целое число стоит перед дробной частью в большем из чисел '+M(w,a,d)+' и '+M(w+v,b,d)+'?',1,[w+v],[],'У второго числа больше целая часть: '+(w+v)+'.');
-  if(p===3)return compare(id,t,p,'Сравни смешанное число '+M(w,a,d)+' и целое '+(w+1)+'.',d,[A],[],[(w+1)*d],[],'Дробная часть меньше единицы, поэтому '+M(w,a,d)+' < '+(w+1)+'.');
+  if(p===3){const left=swap?(w+1)*d:A,right=swap?A:(w+1)*d;return showMixedComparison(compare(id,t,p,'Сравни числа '+(swap?String(w+1):M(w,a,d))+' и '+(swap?M(w,a,d):String(w+1))+'.',d,[left],[],[right],[],'Дробная часть меньше единицы, поэтому смешанное число расположено перед следующим целым.'),left,right,d);}
   return question(id,t,p,'numeric','У смешанных чисел '+M(w,a,d)+' и '+M(w,b,d)+' одинаковы целые части. На сколько различаются числители?',1,[b,a],['-'],'Разность числителей '+(b-a)+'.');
  }
  if(t===1){
   if(p===0)return compare(id,t,p,'К '+M(w,a,d)+' прибавили '+F(c,d)+'. Сравни итог с '+M(w,b,d)+'.',d,[A,c],['+'],[B],[],'Сравним числители после прибавления '+(a+c)+' и '+b+'.');
   if(p===1)return compare(id,t,p,'Из '+M(w,b,d)+' вычли '+F(c,d)+'. Сравни с '+M(w,a,d)+'.',d,[B,c],['-'],[A],[],'Оба числа выражаем в долях одного знаменателя '+d+'.');
   if(p===2)return question(id,t,p,'numeric','К целой части '+w+' смешанного числа '+M(w,a,d)+' прибавили '+v+'. Какой стала целая часть?',1,[w,v],['+'],'Целая часть стала '+(w+v)+'.');
-  if(p===3)return compare(id,t,p,'К '+M(w,a,d)+' и '+M(w,b,d)+' прибавили по '+F(c,d)+'. Сравни новые значения.',d,[A,c],['+'],[B,c],['+'],'Одинаковые прибавки не меняют порядок: '+(A+c)+' и '+(B+c)+' долей.');
+  if(p===3)return compare(id,t,p,'К '+(swap?M(w,b,d):M(w,a,d))+' и '+(swap?M(w,a,d):M(w,b,d))+' прибавили по '+F(c,d)+'. Сравни новые значения.',d,[swap?B:A,c],['+'],[swap?A:B,c],['+'],'Одинаковые прибавки не меняют порядок чисел.');
   return question(id,t,p,'numeric','В смешанном числе '+M(w,b,d)+' дробный числитель уменьшили на '+c+'. На сколько отличается новый числитель от числителя '+M(w,a,d)+'?',1,[b,c,a],['-','-'],'Новый числитель '+(b-c)+'. Расстояние до '+a+' равно '+Math.abs(b-c-a)+'.',{absolute:true,terms:[b,c,a]});
  }
  if(p===0)return compare(id,t,p,'К '+M(w,a,d)+' прибавили '+F(c,d)+' и затем вычли '+F(1,d)+'. Из '+M(w,b,d)+' вычли '+F(c,d)+'. Сравни результаты.',d,[A,c,1],['+','-'],[B,c],['-'],'После изменений числители '+(A+c-1)+' и '+(B-c)+'.');

@@ -15,11 +15,43 @@ function displayedParts(html){
 }
 // The former three-mode generator had only two mathematical actions. Each
 // five-question cycle now has five intentionally different cognitive tasks.
+function mixedPartsDrawing(whole,rem,den){
+ // Every row is ONE complete whole, partitioned into identical adjacent units.
+ if(!Number.isSafeInteger(whole)||whole<1||whole>12||!Number.isSafeInteger(rem)||
+    rem<1||rem>=den||!Number.isSafeInteger(den)||den<2||den>20)
+  throw Error('§31: incorrect visual mixed-fraction source');
+ const rows=whole+1,width=480,left=95,h=25,pitch=36,cell=width/den,parts=[];
+ for(let row=0;row<rows;row++){
+  const y=7+pitch*row,filled=row<whole?den:rem;
+  const pieces=Array.from({length:den},(_,i)=>'<rect x="'+(left+i*cell).toFixed(3)+'" y="'+y+
+   '" width="'+cell.toFixed(3)+'" height="'+h+'" fill="'+(i<filled?'#5d9cdc':'#edf3fc')+'"/>').join('');
+  const partitions=Array.from({length:den-1},(_,i)=>{
+   const x=(left+(i+1)*cell).toFixed(3);
+   return '<line x1="'+x+'" x2="'+x+'" y1="'+y+'" y2="'+(y+h)+
+    '" stroke="#52617a" stroke-width="1.2"/>';
+  }).join('');
+  parts.push('<text x="3" y="'+(y+18)+'" fill="currentColor" font-size="14">'+
+   (row<whole?'Целое '+(row+1):'Остаток')+'</text>'+pieces+partitions+
+   '<rect x="'+left+'" y="'+y+'" width="'+width+'" height="'+h+
+   '" fill="none" stroke="#52617a" stroke-width="2"/>');
+ }
+ const height=rows*pitch+6,improper=whole*den+rem,
+  accessible='Неправильная дробь '+improper+'/'+den+' равна смешанному числу '+
+   whole+' целых и '+rem+'/'+den+'. '+whole+' полных единиц и '+rem+
+   ' из '+den+' частей следующей единицы.';
+ return '<div class="mk-g5-mixed-model" style="width:100%;max-width:650px;margin:8px auto;overflow:hidden">'+
+  '<svg class="mk-g5-mixed-wholes" role="img" aria-label="'+accessible+
+  '" viewBox="0 0 590 '+height+'" width="100%" style="display:block;height:auto" '+
+  'preserveAspectRatio="xMidYMid meet">'+parts.join('')+'</svg></div>';
+}
+// §31 intentionally samples broader denominators and mixed whole counts across tiers.
+function conversionDenominator(level){const cap=level===0?12:level===1?16:20;return ri(3+level*2,cap);}
+
 function conversionQuestion(base,topic,given){
  const pos=Math.max(0,Number(blockSession?.done)||0),stage=Math.max(0,Math.min(2,Number(activeDifficulty())||0));
- const familyIndex=pos%5,advanced=stage>=1,master=stage===2,den=given.denominator;
- const whole=topic==='frac_to_mixed'?Math.floor(given.numerator/den):given.whole;
- const rem=topic==='frac_to_mixed'?given.numerator%den:given.numerator;
+ const familyIndex=pos%5,advanced=stage>=1,master=stage===2,den=conversionDenominator(stage);
+ const whole=ri(stage===2?2:1,stage===2?8:stage===1?7:5);
+ const rem=ri(1,den-1);
  if(!Number.isSafeInteger(whole)||whole<1||!Number.isSafeInteger(rem)||rem<1||rem>=den)return base;
  const originalN=whole*den+rem;
  const shown=topic==='frac_to_mixed'?frac(originalN,den):mixed(whole,rem,den);
@@ -150,6 +182,8 @@ function conversionQuestion(base,topic,given){
    }
  }
  if(!Number.isSafeInteger(answerN)||answerN<0)return base;
+ if((stage===0&&(familyIndex===0||familyIndex===3))||(stage===1&&familyIndex===0))
+  question+=' '+mixedPartsDrawing(whole,rem,den);
  let answerMode,answerRat,correctText,correctHtml,correctLabel,choices,ans,form,conversionType;
  if(kind==='number'){
    answerMode='number';answerRat=rational(answerN,1);correctText=String(answerN);correctHtml=correctText;
@@ -168,14 +202,23 @@ function conversionQuestion(base,topic,given){
    form={kind:'exact',n:answerN,d:den};
    const [reducedN,reducedD]=g5NewRat(answerN,den);
    ans=reducedN+'/'+reducedD;
-   choices=g5NewChoiceSet(answerN,den,[[answerN+1,den],[Math.max(0,answerN-1),den],[answerN,den+1]]);
+   // Correct displayed answer must retain the denominator in the question.
+   // The old g5NewChoiceSet reduced 38/10 to 19/5, contradicting 'сохрани знаменатель'.
+   // Keep the canonical key for input comparison, but render the specified exact form.
+   const improperCandidates=[answerN,answerN+1,answerN+2,answerN+3];
+   choices=improperCandidates.map(n=>{
+     const [cn,cd]=g5NewRat(n,den);
+     return {label:frac(n,den),key:cn+'/'+cd};
+   });
+   if(choices[0].key!==ans||new Set(choices.map(c=>c.key)).size!==4)
+    throw Error('§31 improper conversion produced ambiguous answer options');
  }
  const audit={...(base.mk5Audit||{}),type:kind==='number'?'numeric':'rational',
    expected:kind==='number'?answerN:(()=>{const x=g5NewRat(answerN,den);return x[0]+'/'+x[1]})(),
    numerator:kind==='number'?undefined:answerN,denominator:kind==='number'?undefined:den,
    level,stage,topic,pedagogicalFamily:family};
  const signature='g5:'+topic+':'+topic+':'+family+':'+stripHtmlText(question)+':'+correctText;
- return {...base,text:question,ans,choices,ex:explanation,templateId:'g5_conversion_'+family,
+ return {...base,text:question,ans,choices,ex:explanation,templateId:'g5_conversion_'+topic+'_L'+stage+'_'+family,
    sig:signature,answerMode,answerRat,correctText,correctHtml,correctLabel,preferMixed:kind==='mixed',
    stage18AnswerForm:form||null,stage18FixedDenominator:kind==='number'?undefined:den,
    stage18ConversionType:conversionType||null,stage18SingleFieldLabel:kind==='number'?label:null,
