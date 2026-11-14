@@ -334,21 +334,55 @@ function mixCompare(t,p){
  if(p===3)return question(id,t,p,'numeric','У чисел '+M(w,a,d)+' и '+M(w,b,d)+' целые части равны. К меньшему добавили '+F(c,d)+'. Сколько долей '+F(1,d)+' нужно добавить или убрать, чтобы числа стали равны?',1,[b,a,c],['-','-'],'Сначала разница '+(b-a)+', после изменения модуль разницы '+Math.abs(b-a-c)+'.',{absolute:true,terms:[b,a,c]});
  return compare(id,t,p,'Сравни выражения '+M(w,a,d)+' + '+F(c,d)+' − '+F(1,d)+' и '+M(w,b,d)+' − '+F(c,d)+' + '+F(1,d)+'.',d,[A,c,1],['+','-'],[B,c,1],['-','+'],'Сравни суммы в долях: '+(A+c-1)+' и '+(B-c+1)+'.');
 }
+function mixedArithmeticModel(d,leftNumerator,rightNumerator,sign){
+ const total=sign==='+'?leftNumerator+rightNumerator:leftNumerator-rightNumerator;
+ if(!Number.isSafeInteger(total)||total<0)throw Error('§32 invalid mixed operation');
+ // Each marked share is the same size in ALL three rows. The whole remains intact.
+ const bars=Math.ceil(Math.max(leftNumerator,rightNumerator,total)/d),count=bars*d,
+  x0=52,width=504,h=30,cell=width/count;
+ const labels=sign==='+'?['1','2','Сумма']:['1','2','Остаток'];
+ const row=(n,y,label)=>{
+  const squares=Array.from({length:count},(_,i)=>
+   '<rect x="'+(x0+i*cell).toFixed(3)+'" y="'+y+'" width="'+cell.toFixed(3)+
+   '" height="'+h+'" fill="'+(i<n?'#5d9cdc':'#edf3fc')+'"/>').join('');
+  const divisions=Array.from({length:count-1},(_,i)=>{
+   const x=(x0+(i+1)*cell).toFixed(3);
+   return '<line x1="'+x+'" x2="'+x+'" y1="'+y+'" y2="'+(y+h)+
+    '" stroke="#52617a" stroke-width="'+((i+1)%d===0?2.5:0.7)+'"/>';
+  }).join('');
+  return '<text x="3" y="'+(y+21)+'" font-size="14" fill="currentColor">'+label+
+   '</text>'+squares+divisions+'<rect x="'+x0+'" y="'+y+
+   '" width="'+width+'" height="'+h+'" stroke="#52617a" stroke-width="2" fill="none"/>';
+ };
+ const alt=(sign==='+'?'Сложение':'Вычитание')+' смешанных чисел с одинаковыми знаменателями '+
+  d+'. Первая величина '+leftNumerator+'/'+d+', вторая '+rightNumerator+
+  '/'+d+', результат '+total+'/'+d+'. Каждый целый блок разделён на '+d+' равных долей.';
+ return '<div style="width:100%;max-width:620px;overflow:hidden;margin:6px auto">'+
+  '<svg class="mk-g5-mixed-arithmetic" role="img" aria-label="'+alt+
+  '" viewBox="0 0 572 145" width="100%" style="display:block;height:auto" '+
+  'preserveAspectRatio="xMidYMid meet">'+row(leftNumerator,8,labels[0])+
+  row(rightNumerator,53,labels[1])+row(total,98,labels[2])+'</svg></div>';
+}
+function showMixedArithmetic(q,d,left,right,sign){
+ q.text+=' '+mixedArithmeticModel(d,left,right,sign);
+ return q;
+}
+
 function mixedAdd(t,p){
- const id='mixed_add',d=pickD(),w=rnd(1,3),v=rnd(1,3),a=rnd(2,Math.max(2,d-3)),b=rnd(1,d-a-1),c=rnd(1,Math.min(3,d-1));
- const A=whole(w,a,d),B=whole(v,b,d),carry=d-a+1,BB=whole(v,carry,d);
+ const id='mixed_add',d=pickArithmeticD(),w=rnd(1,5),v=rnd(1,4),a=rnd(2,Math.max(2,d-3)),b=rnd(1,d-a-1),c=rnd(1,Math.min(3,d-1));
+ const A=whole(w,a,d),B=whole(v,b,d),carry=rnd(d-a+1,d-1),BB=whole(v,carry,d);
  if(t===0){
-  if(p===0)return question(id,t,p,'mixed','Вычисли '+M(w,a,d)+' + '+M(v,b,d)+'.',d,[A,B],['+'],'Целые: '+w+' + '+v+'. Дроби: '+a+' + '+b+' = '+(a+b)+' долей; итог '+renderTotal(A+B,d)+'.');
+  if(p===0)return showMixedArithmetic(question(id,t,p,'mixed','Вычисли '+M(w,a,d)+' + '+M(v,b,d)+'.',d,[A,B],['+'],'Целые: '+w+' + '+v+'. Дроби: '+a+' + '+b+' = '+(a+b)+' долей; итог '+renderTotal(A+B,d)+'.'),d,A,B,'+');
   if(p===1)return question(id,t,p,'numeric','Найди целую часть суммы '+M(w,a,d)+' + '+M(v,b,d)+' (перехода через единицу нет).',1,[w,v],['+'],'Дробные части меньше 1 целой, поэтому целая часть '+(w+v)+'.');
-  if(p===2)return question(id,t,p,'mixed','Два отрезка имеют длины '+M(w,a,d)+' м и '+M(v,b,d)+' м. Найди их общую длину.',d,[A,B],['+'],'Сумма длин '+renderTotal(A+B,d)+' м.');
+  if(p===2)return showMixedArithmetic(question(id,t,p,'mixed','Два отрезка имеют длины '+M(w,a,d)+' м и '+M(v,b,d)+' м. Найди их общую длину.',d,[A,B],['+'],'Сумма длин '+renderTotal(A+B,d)+' м.'),d,A,B,'+');
   if(p===3)return question(id,t,p,'numeric','В сумме '+M(w,a,d)+' + '+M(v,b,d)+' сколько долей будет в числителе дробной части без сокращения?',1,[a,b],['+'],'Складываем числители '+a+' + '+b+' = '+(a+b)+'.');
   return question(id,t,p,'mixed','К числу '+M(w,a,d)+' прибавили '+v+' целых и '+F(b,d)+'. Запиши итог.',d,[A,v*d,b],['+','+'],'Целые и дробные части суммируются отдельно: '+renderTotal(A+B,d)+'.');
  }
  if(t===1){
-  if(p===0)return question(id,t,p,'mixed','Сложи '+M(w,a,d)+' и '+M(v,carry,d)+'. При сложении дробных частей выдели целую.',d,[A,BB],['+'],'Числители '+a+' + '+carry+' = '+(a+carry)+' — больше '+d+'. Переносим 1 целую: '+renderTotal(A+BB,d)+'.');
+  if(p===0)return showMixedArithmetic(question(id,t,p,'mixed','Сложи '+M(w,a,d)+' и '+M(v,carry,d)+'. При сложении дробных частей выдели целую.',d,[A,BB],['+'],'Числители '+a+' + '+carry+' = '+(a+carry)+' — больше '+d+'. Переносим 1 целую: '+renderTotal(A+BB,d)+'.'),d,A,BB,'+');
   if(p===1)return question(id,t,p,'mixed','К '+M(w,a,d)+' прибавили '+F(carry,d)+', затем ещё '+v+' целых. Найди итог.',d,[A,carry,v*d],['+','+'],'Сумма дробных числителей '+(a+carry)+'; переносим одну целую. Получаем '+renderTotal(A+carry+v*d,d)+'.');
-  if(p===2)return question(id,t,p,'numeric','Смешанные числа '+M(w,a,d)+' и '+M(v,carry,d)+' сложили. На сколько увеличилась сумма целых частей из-за переноса из дробной части?',1,[1],[],'Числители '+a+' + '+carry+' = '+(a+carry)+' ≥ '+d+', поэтому переносится одна целая.');
-  if(p===3)return question(id,t,p,'mixed','Для проекта использовали '+M(w,a,d)+' м ткани и '+M(v,carry,d)+' м. Сколько метров ткани всего?',d,[A,BB],['+'],'Складываем как неправильные дроби и выделяем целую часть: '+renderTotal(A+BB,d)+'.');
+  if(p===2)return question(id,t,p,'numeric','Смешанные числа '+M(w,a,d)+' и '+M(v,carry,d)+' сложили. Какой числитель останется в дробной части после выделения 1 целой? Введи только числитель.',1,[a,carry,d],['+','-'],'Сумма дробных числителей '+a+' + '+carry+' = '+(a+carry)+'. После выделения единицы вычитаем '+d+': остаток '+(a+carry-d)+'.');
+  if(p===3)return showMixedArithmetic(question(id,t,p,'mixed','Для проекта использовали '+M(w,a,d)+' м ткани и '+M(v,carry,d)+' м. Сколько метров ткани всего?',d,[A,BB],['+'],'Складываем как неправильные дроби и выделяем целую часть: '+renderTotal(A+BB,d)+'.'),d,A,BB,'+');
   return question(id,t,p,'mixed','После сложения '+M(w,a,d)+' и '+M(v,carry,d)+' к результату прибавили '+F(c,d)+'. Найди новую сумму.',d,[A,BB,c],['+','+'],'Добавляем дробь к полученной сумме: '+renderTotal(A+BB+c,d)+'.');
  }
  // advanced always uses multiple operands (at least two arithmetic steps).
@@ -359,20 +393,20 @@ function mixedAdd(t,p){
  return question(id,t,p,'mixed','К сумме '+M(w,a,d)+' и '+M(v,carry,d)+' дважды прибавили по '+F(c,d)+'. Найди результат.',d,[A,BB,c,c],['+','+','+'],'Дважды прибавляем по '+c+'/'+d+', результат '+renderTotal(A+BB+2*c,d)+'.');
 }
 function mixedSub(t,p){
- const id='mixed_sub',d=pickD(),w=rnd(4,7),v=rnd(1,w-2),a=rnd(2,d-2),b=rnd(1,a-1),borrow=rnd(a+1,d-1),c=rnd(1,Math.min(2,a));
+ const id='mixed_sub',d=pickArithmeticD(),w=rnd(4,8),v=rnd(1,w-2),a=rnd(2,d-2),b=rnd(1,a-1),borrow=rnd(a+1,d-1),c=rnd(1,Math.min(2,a));
  const A=whole(w,a,d),B=whole(v,b,d),Borrow=whole(v,borrow,d),C=whole(w-1,a,d);
  if(t===0){
-  if(p===0)return question(id,t,p,'mixed','Вычисли '+M(w,a,d)+' − '+M(v,b,d)+'.',d,[A,B],['-'],'Целые: '+w+' − '+v+', дробные: '+a+' − '+b+'. Итог '+renderTotal(A-B,d)+'.');
+  if(p===0)return showMixedArithmetic(question(id,t,p,'mixed','Вычисли '+M(w,a,d)+' − '+M(v,b,d)+'.',d,[A,B],['-'],'Целые: '+w+' − '+v+', дробные: '+a+' − '+b+'. Итог '+renderTotal(A-B,d)+'.'),d,A,B,'-');
   if(p===1)return question(id,t,p,'numeric','У смешанных чисел '+M(w,a,d)+' и '+M(v,b,d)+' сколько целых останется после вычитания (занимать целую не нужно)?',1,[w,v],['-'],'Целые части: '+w+' − '+v+' = '+(w-v)+'.');
-  if(p===2)return question(id,t,p,'mixed','Было '+M(w,a,d)+' м ленты, отрезали '+M(v,b,d)+' м. Сколько осталось?',d,[A,B],['-'],'Вычитаем целые и дробные части: '+renderTotal(A-B,d)+' м.');
+  if(p===2)return showMixedArithmetic(question(id,t,p,'mixed','Было '+M(w,a,d)+' м ленты, отрезали '+M(v,b,d)+' м. Сколько осталось?',d,[A,B],['-'],'Вычитаем целые и дробные части: '+renderTotal(A-B,d)+' м.'),d,A,B,'-');
   if(p===3)return question(id,t,p,'numeric','В дробной части разности '+M(w,a,d)+' − '+M(v,b,d)+' какой числитель (до сокращения)?',1,[a,b],['-'],'Знаменатели равны; числитель остатка '+a+' − '+b+' = '+(a-b)+'.');
   return question(id,t,p,'mixed','От числа '+M(w,a,d)+' вычли '+v+' целых и ещё '+F(b,d)+'. Запиши результат.',d,[A,v*d,b],['-','-'],'Вычитаем '+v+' целых и '+b+' долей: '+renderTotal(A-B,d)+'.');
  }
  if(t===1){
-  if(p===0)return question(id,t,p,'mixed','Вычисли '+M(w,a,d)+' − '+M(v,borrow,d)+'. В дробной части нужно занять целую.',d,[A,Borrow],['-'],'Занимаем целую: дробная часть '+(a+d)+'/'+d+'. Вычтем '+borrow+'/'+d+', получим '+renderTotal(A-Borrow,d)+'.');
+  if(p===0)return showMixedArithmetic(question(id,t,p,'mixed','Вычисли '+M(w,a,d)+' − '+M(v,borrow,d)+'. В дробной части нужно занять целую.',d,[A,Borrow],['-'],'Занимаем целую: дробная часть '+(a+d)+'/'+d+'. Вычтем '+borrow+'/'+d+', получим '+renderTotal(A-Borrow,d)+'.'),d,A,Borrow,'-');
   if(p===1)return question(id,t,p,'mixed','От '+M(w,a,d)+' вычли '+M(v,borrow,d)+', затем вычли ещё '+F(c,d)+'. Найди остаток.',d,[A,Borrow,c],['-','-'],'После займа вычитаем две величины: '+renderTotal(A-Borrow-c,d)+'.');
   if(p===2)return question(id,t,p,'numeric','В примере '+M(w,a,d)+' − '+M(v,borrow,d)+' после займа одной целой сколько долей будет в числителе первой дробной части?',1,[a,d],['+'],'После займа первая дробная часть становится '+(a+d)+'/'+d+'.');
-  if(p===3)return question(id,t,p,'mixed','Было '+M(w,a,d)+' кг, использовали '+M(v,borrow,d)+' кг. Найди остаток.',d,[A,Borrow],['-'],'Сначала занимаем одну целую и вычитаем: '+renderTotal(A-Borrow,d)+' кг.');
+  if(p===3)return showMixedArithmetic(question(id,t,p,'mixed','Было '+M(w,a,d)+' кг, использовали '+M(v,borrow,d)+' кг. Найди остаток.',d,[A,Borrow],['-'],'Сначала занимаем одну целую и вычитаем: '+renderTotal(A-Borrow,d)+' кг.'),d,A,Borrow,'-');
   return question(id,t,p,'mixed','Из '+M(w,a,d)+' вычли '+M(v,borrow,d)+', после этого прибавили '+F(c,d)+'. Найди значение.',d,[A,Borrow,c],['-','+'],'Сначала выполняем вычитание с заниманием, затем прибавление: '+renderTotal(A-Borrow+c,d)+'.');
  }
  if(p===0)return question(id,t,p,'mixed','Вычисли '+M(w,a,d)+' − ('+M(v,borrow,d)+' + '+F(c,d)+' + '+F(1,d)+').',d,[A,Borrow,c,1],['-','-','-'],'Сначала найдём сумму в скобках, затем выполним вычитание с займом: '+renderTotal(A-Borrow-c-1,d)+'.');
