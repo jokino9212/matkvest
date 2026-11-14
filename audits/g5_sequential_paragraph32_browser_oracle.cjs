@@ -18,7 +18,8 @@ function req(condition,msg,q){assert(condition,msg+' '+q.id+'/'+q.level+'/'+q.fa
 function originalDen(s){const m=s.match(/(\d+)\s+\d+\/(\d+)/);return m?BigInt(m[2]):null}
 function solve(q){
  const ms=mixedParts(q.text),fs=fractions(q.text),t=q.level,p=q.family,d=originalDen(q.text);
- req(ms.length>=1,'No visible mixed number',q);
+ if(!(q.id==='mixed_sub'&&t===2&&p===2))
+  req(ms.length>=1,'No visible mixed number',q);
  const M=i=>{req(ms[i],'Missing visible mixed operand '+i,q);return ms[i].value};
  const F=i=>{req(fs[i],'Missing visible fraction '+i,q);return fs[i].value};
  const num=(x)=>rat(x);
