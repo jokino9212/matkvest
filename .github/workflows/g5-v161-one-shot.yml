@@ -1,0 +1,47 @@
+name: One-shot Grade 5 v161 index/PWA release stamp
+on:
+  push:
+    branches: [audit/g5-sequential-paragraph25-v161-20261114]
+    paths: ['.github/workflows/g5-v161-one-shot.yml']
+permissions:
+  contents: write
+jobs:
+  stamp:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Atomically update all 19 Grade 5 script versions and HTML fingerprint
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import re, hashlib
+          from pathlib import Path
+          html = Path("index.html")
+          before = html.read_bytes().decode("utf-8")
+          pat = r'(<script src="g5-[A-Za-z0-9-]+\.js\?v=)160("></script>)'
+          matches = re.findall(pat, before)
+          assert len(matches) == 19, f"Expected 19 Grade 5 scripts, got {len(matches)}"
+          after = re.sub(pat, r'\g<1>161\2', before)
+          assert 'g5-remaining-core-v126.js?v=161' in after
+          assert not re.search(pat, after)
+          html.write_bytes(after.encode("utf-8"))
+          fingerprint = hashlib.sha256(html.read_bytes()).hexdigest()
+          sw = Path("sw.js")
+          worker = sw.read_text(encoding="utf-8")
+          assert worker.count('matkvest-iphone-v160') == 1
+          worker = worker.replace('matkvest-iphone-v160', 'matkvest-iphone-v161', 1)
+          worker, n = re.subn(r'(const APP_BUILD_HASH = ")[0-9a-f]{64}(";)', lambda m: m[1] + fingerprint + m[2], worker)
+          assert n == 1, "Could not stamp exact HTML hash in service worker"
+          sw.write_text(worker, encoding="utf-8")
+          print("v161 19 Grade 5 scripts; HTML SHA256 =", fingerprint)
+          PY
+          rm .github/workflows/g5-v161-one-shot.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js .github/workflows/g5-v161-one-shot.yml
+          git diff --cached --quiet && { echo 'No stamp changes'; exit 1; }
+          git commit -m "build(v161): activate §25 after 23/23 green checks and align PWA hash"
+          git push origin HEAD:audit/g5-sequential-paragraph25-v161-20261114
