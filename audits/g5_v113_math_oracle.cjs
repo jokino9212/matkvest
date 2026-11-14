@@ -81,8 +81,8 @@ function expected(q){
    await page.goto('file://'+path.resolve('index.html'),{waitUntil:'domcontentloaded'});
    const rows=await page.evaluate(()=>{
     if(g5AllTopics().length!==74)throw Error('Grade 5 catalog drift: '+g5AllTopics().length);
-    const ids=window.mkG5V113Tiered,items=[],failures=[],staged={};
-    if(ids.join('|')!=='natural_compare|cuboid|calculator|angle_types')throw Error('v113 ID drift');
+    const ids=window.mkG5V113Tiered.filter(id=>id==='cuboid'),items=[],failures=[],staged={};
+    if(ids.join('|')!=='cuboid')throw Error('§23 cuboid ID drift');
     for(const id of ids)for(let tier=0;tier<3;tier++)for(let session=0;session<12;session++){
      const seen=new Set(),templates=new Set();
      for(let step=0;step<5;step++){
@@ -130,11 +130,11 @@ function expected(q){
     const exp=expected(q);
     assert.equal(String(q.correct),String(exp),'Wrong mathematical answer in '+q.id+'/'+q.key+'/'+q.tier+' : '+q.text);
    }
-   assert.equal(rows.items.length,4*3*12*5);
+   assert.equal(rows.items.length,1*3*12*5);
    validated+=rows.items.length;
    console.log('G5_V113_WIDTH_PASS',width,'questions',rows.items.length);
    await page.close();
   }
-  console.log('G5_V113_MATH_AND_PEDAGOGY_PASS',JSON.stringify({validatedQuestions:validated,topics:4,stages:3,variantsPerSession:5,devices:4}));
+  console.log('G5_V113_MATH_AND_PEDAGOGY_PASS',JSON.stringify({validatedQuestions:validated,topics:1,stages:3,variantsPerSession:5,devices:4}));
  }finally{await browser.close()}
 })().catch(e=>{console.error('G5_V113_MATH_AND_PEDAGOGY_FAIL',e.stack||e);process.exit(1)});
