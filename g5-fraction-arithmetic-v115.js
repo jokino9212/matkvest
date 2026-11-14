@@ -6,6 +6,9 @@ if(typeof g5DonorQuestion!=='function'||typeof g5Lesson!=='function'||typeof g5q
 const oldDonor=g5DonorQuestion,oldLesson=g5Lesson;
 const rnd=(a,b)=>ri(a,b),stage=()=>Math.max(0,Math.min(2,Number(activeDifficulty())||0)),pos=()=>Math.max(0,Number(blockSession?.done)||0)%5;
 const D=[5,7,11,13],pickD=()=>D[rnd(0,D.length-1)];
+// §29-only: broaden the four repeated denominators without changing other curricula.
+const arithmeticDenominators=[5,6,7,8,9,10,11,12,13,14,15,16,18,20];
+const pickArithmeticD=()=>arithmeticDenominators[rnd(0,arithmeticDenominators.length-1)];
 // §27 samples a broader range; arithmetic (§29+) deliberately keeps its original denominators.
 const comparisonDenominators=[5,6,7,8,9,10,11,12,14,15,16,18,20];
 const pickComparisonD=()=>comparisonDenominators[rnd(0,comparisonDenominators.length-1)];
@@ -113,52 +116,170 @@ function numCompare(t,p){
  if(p===3)return compare(id,t,p,'У двух дробей с числителем '+n+' знаменатели '+d1+' и '+d2+'. Первый увеличили на '+a+', затем уменьшили на '+b+'. Второй уменьшили на '+b+', затем увеличили на '+a+'. Сравни дроби после всех изменений.',1,[d2,b,a],['-','+'],[d1,a,b],['+','-'],'Первый знаменатель '+d1+' + '+a+' − '+b+' = '+(d1+a-b)+'. Второй '+d2+' − '+b+' + '+a+' = '+(d2-b+a)+'. При равном числителе большая дробь имеет меньший знаменатель.');
  return compare(id,t,p,'У первой дроби '+F(n,d1)+' знаменатель увеличили на '+a+', затем уменьшили на '+b+'. У второй '+F(n,d2)+' знаменатель уменьшили на '+a+' и увеличили на '+b+'. Сравни полученные дроби.',1,[d2,a,b],['-','+'],[d1,a,b],['+','-'],'Итоговые знаменатели '+(d1+a-b)+' и '+(d2-a+b)+'. Чем меньше знаменатель, тем больше дробь.');
 }
+// §29: Every strip represents ONE intact, equally divided whole; comparisons are by unit fractions.
+function fractionOperationDiagram(d,a,b,op){
+ if(!Number.isInteger(d)||d<2||!Number.isInteger(a)||!Number.isInteger(b)||a<1||b<1||
+    a>d||b>d||(op==='+'?a+b>d:a<b))throw Error('§29 diagram operands out of range');
+ const counts=[a,b,op==='+'?a+b:a-b],captions=op==='+'?['Первое','Второе','Сумма']:['Было','Вычли','Осталось'];
+ const left=104,width=468,h=30,rowHeight=45,content=[];
+ for(let row=0;row<3;row++){
+  const y=8+row*rowHeight,unit=width/d;
+  const cells=Array.from({length:d},(_,i)=>'<rect x="'+(left+i*unit).toFixed(3)+
+   '" y="'+y+'" width="'+unit.toFixed(3)+'" height="'+h+'" fill="'+
+   (i<counts[row]?(row===1?'#f4ad64':'#5d9cdc'):'#edf3fc')+'"/>').join('');
+  const divisions=Array.from({length:d-1},(_,i)=>{
+   const x=(left+(i+1)*unit).toFixed(3);
+   return '<line x1="'+x+'" x2="'+x+'" y1="'+y+'" y2="'+(y+h)+
+    '" stroke="#52617a" stroke-width="1.2"/>';
+  }).join('');
+  content.push('<text x="3" y="'+(y+20)+'" font-size="16" fill="currentColor">'+captions[row]+
+   '</text>'+cells+divisions+'<rect x="'+left+'" y="'+y+'" width="'+width+'" height="'+h+
+   '" stroke="#52617a" stroke-width="2" fill="none"/>');
+ }
+ const caption='Одинаковые целые, каждое разделено на '+d+' равных частей. '+
+   captions.map((name,i)=>name+': '+counts[i]+' частей').join('; ')+'.';
+ return '<div style="width:100%;max-width:660px;overflow:hidden;margin:8px auto"><svg '+
+  'class="mk-g5-fraction-operation" role="img" aria-label="'+caption+'" viewBox="0 0 590 145" '+
+  'width="100%" style="display:block;height:auto" preserveAspectRatio="xMidYMid meet">'+
+  content.join('')+'</svg></div>';
+}
+function exercise29(id,t,p,kind,story,expression,terms,ops,ex,diagram=''){
+ const d=kind==='numeric'?1:terms.d;
+ // terms must be numerator sequence, with its unit denominator attached only as metadata.
+ const nums=terms.n;
+ const prompt=story+' '+(kind==='numeric'?'Найди числитель результата: ':'Вычисли: ')+
+  expression+'.'+diagram;
+ return question(id,t,p,kind,prompt,d,nums,ops,ex);
+}
 function addFraction(t,p){
- const id='frac_add',d=pickD(),a=rnd(1,Math.max(1,Math.floor((d-1)/3))),b=rnd(1,Math.max(1,Math.floor((d-1)/3))),c=rnd(1,Math.max(1,Math.floor((d-1)/4))),e=rnd(1,Math.max(1,Math.floor((d-1)/4)));
- const sum=a+b,total=a+b+c;
+ const id='frac_add',d=pickArithmeticD(),
+  cap=t===2?Math.max(2,Math.ceil(d/3)):Math.max(1,Math.floor((d-1)/3)),
+  a=rnd(1,cap),b=rnd(1,cap),c=rnd(1,cap),e=rnd(1,cap);
+ const X=(n)=>F(n,d),sum=a+b,total=a+b+c,all=total+e;
+ const ex2='Складываем числители: '+a+' + '+b+' = '+sum+'. Знаменатель '+d+' не меняется. Ответ: '+X(sum)+'.';
+ const expr=(xs)=>xs.map(X).join(' + ');
+ const q=(p,kind,story,xs,nums=xs,ops=Array(xs.length-1).fill('+'),why='')=>
+  exercise29(id,t,p,kind,story,expr(xs),{d,n:nums},ops,why);
  if(t===0){
-  if(p===0)return question(id,t,p,'fraction','Вычисли '+F(a,d)+' + '+F(b,d)+'.',d,[a,b],['+'],'Знаменатели равны '+d+'. Числители '+a+' + '+b+' = '+sum+'.',{}); 
-  if(p===1)return question(id,t,p,'numeric','Какой числитель получится при сложении '+F(a,d)+' и '+F(b,d)+' без изменения знаменателя?',1,[a,b],['+'],'Складываем числители '+a+' + '+b+' = '+sum+'.');
-  if(p===2)return question(id,t,p,'fraction','Было '+F(a,d)+' метра ленты, добавили ещё '+F(b,d)+' метра. Найди общую длину.',d,[a,b],['+'],'Общая длина '+F(sum,d)+' м.');
-  if(p===3)return question(id,t,p,'numeric','В дроби '+F(a,d)+' числитель увеличили на '+b+'. Чему равен новый числитель?',1,[a,b],['+'],'Новый числитель '+sum+'.');
-  return question(id,t,p,'fraction','Из двух частей длиной '+F(a,d)+' м и '+F(b,d)+' м составили одну. Какую долю метра она составляет?',d,[a,b],['+'],'Сумма '+a+' + '+b+' = '+sum+' долей из '+d+'.');
+  if(p===0)return exercise29(id,t,p,'fraction','Два слагаемых с одинаковыми знаменателями.',
+   expr([a,b]),{d,n:[a,b]},['+'],ex2,fractionOperationDiagram(d,a,b,'+'));
+  if(p===1)return q(p,'numeric','Сложи две доли одного целого и укажи только новый числитель.',
+   [a,b],[a,b],['+'],'Числители: '+a+' + '+b+' = '+sum+'. Ответ: '+sum+'.');
+  if(p===2)return q(p,'fraction','К ленте длиной '+X(a)+' м прибавили '+X(b)+' м. Найди новую длину в метрах.',
+   [a,b],[a,b],['+'],'Одинаковые доли метра: '+a+' + '+b+' = '+sum+'. Итого '+X(sum)+' м.');
+  if(p===3)return exercise29(id,t,p,'fraction',
+   'На рисунке сравни одинаковые доли и найди их сумму.',expr([a,b]),{d,n:[a,b]},['+'],
+   ex2,fractionOperationDiagram(d,a,b,'+'));
+  return q(p,'fraction','В первой коробке '+a+' долей из '+d+', во второй '+b+' таких же долей. Сколько долей одного целого вместе?',
+   [a,b],[a,b],['+'],'Всего '+a+' + '+b+' = '+sum+' долей из '+d+'. Ответ: '+X(sum)+'.');
  }
  if(t===1){
-  if(p===0)return question(id,t,p,'fraction','Вычисли '+F(a,d)+' + '+F(b,d)+' + '+F(c,d)+'.',d,[a,b,c],['+','+'],'При одинаковом знаменателе складываем все числители: '+a+' + '+b+' + '+c+' = '+total+'.');
-  if(p===1)return question(id,t,p,'fraction','К дроби '+F(a,d)+' прибавили '+F(b,d)+', потом ещё '+F(e,d)+'. Запиши результат.',d,[a,b,e],['+','+'],'Сумма числителей '+(a+b+e)+'; знаменатель '+d+'.');
-  if(p===2)return question(id,t,p,'numeric','К числителю дроби '+F(a,d)+' прибавили '+b+', затем ещё '+c+'. Какой числитель получился?',1,[a,b,c],['+','+'],'Числитель '+a+' + '+b+' + '+c+' = '+total+'.');
-  if(p===3)return question(id,t,p,'fraction','На отрезке отметили '+F(a,d)+' м, затем ещё '+F(b,d)+' м и '+F(c,d)+' м. Найди длину отмеченных частей.',d,[a,b,c],['+','+'],'Сумма трёх дробей '+F(total,d)+'.');
-  return question(id,t,p,'fraction','У девочки было '+F(a,d)+' м ленты, докупили '+F(b,d)+' м, а потом ещё '+F(e,d)+' м. Сколько ленты стало?',d,[a,b,e],['+','+'],'Всего '+F(a+b+e,d)+' м.');
+  if(p===0)return q(p,'fraction','Сложи три дроби с одинаковым знаменателем.',
+   [a,b,c],[a,b,c],['+','+'],'Сначала '+a+' + '+b+' = '+sum+', затем '+sum+' + '+c+' = '+total+'. Ответ: '+X(total)+'.');
+  if(p===1)return q(p,'fraction','Для поделки взяли три отрезка ленты. Найди общую длину в метрах.',
+   [a,b,e],[a,b,e],['+','+'],'Сначала '+a+' + '+b+' = '+sum+' долей, затем добавляем '+e+
+   '. Ответ: '+X(a+b+e)+' м.');
+  if(p===2)return q(p,'numeric','К числителю первой дроби добавили числители ещё двух дробей с тем же знаменателем.',
+   [a,b,c],[a,b,c],['+','+'],'Новый числитель: '+a+' + '+b+' + '+c+' = '+total+'. Ответ: '+total+'.');
+  if(p===3)return q(p,'fraction','На координатном луче последовательно отложили три дробных отрезка. Найди пройденное расстояние в единицах.',
+   [a,c,b],[a,c,b],['+','+'],'Промежуточная сумма числителей '+a+' + '+c+' = '+(a+c)+
+   ', затем + '+b+' = '+total+'. Ответ: '+X(total)+'.');
+  return q(p,'fraction','Сначала взяли две доли, а затем добавили третью часть. Найди общую долю целого.',
+   [b,e,a],[b,e,a],['+','+'],'Сложим по порядку: '+b+' + '+e+' = '+(b+e)+
+   ', затем + '+a+' = '+(a+b+e)+'. Ответ: '+X(a+b+e)+'.');
  }
- if(p===0)return question(id,t,p,'fraction','Вычисли ('+F(a,d)+' + '+F(b,d)+') + ('+F(c,d)+' + '+F(e,d)+').',d,[a,b,c,e],['+','+','+'],'Вычисляем два сложения в скобках, затем складываем результаты: '+F(a+b+c+e,d)+'.');
- if(p===1)return question(id,t,p,'fraction','Сначала сложили '+F(a,d)+' и '+F(b,d)+'. Затем увеличили полученную сумму на '+F(c,d)+' и ещё на '+F(e,d)+'. Найди итог.',d,[a,b,c,e],['+','+','+'],'Суммарный числитель '+(a+b+c+e)+'. Знаменатель '+d+'.');
- if(p===2)return question(id,t,p,'numeric','Складывали дроби со знаменателем '+d+': сначала '+F(a,d)+' и '+F(b,d)+', затем '+F(c,d)+' и '+F(e,d)+'. На сколько числитель общей суммы больше исходного числителя '+a+'?',1,[b,c,e],['+','+'],'Общий числитель '+(a+b+c+e)+'. Вычтем '+a+', получим '+(b+c+e)+'.');
- if(p===3)return question(id,t,p,'fraction','Сумма трёх отрезков равна '+F(total,d)+' м. К ним прибавили два отрезка по '+F(e,d)+' м. Сколько стало?',d,[total,e,e],['+','+'],'Прибавили два одинаковых отрезка: числитель '+total+' + '+e+' + '+e+' = '+(total+2*e)+'.');
- return question(id,t,p,'fraction','Две корзины: в первой сложили '+F(a,d)+' и '+F(b,d)+' кг, во второй '+F(c,d)+' и '+F(e,d)+' кг. Сколько килограммов вместе?',d,[a,b,c,e],['+','+','+'],'Вес всех четырёх частей '+F(a+b+c+e,d)+' кг.');
+ if(p===0)return exercise29(id,t,p,'fraction','Сначала вычисли суммы в каждой скобке.',
+  '('+X(a)+' + '+X(b)+') + ('+X(c)+' + '+X(e)+')',{d,n:[a,b,c,e]},['+','+','+'],
+  'Первая сумма '+(a+b)+'/'+d+', вторая '+(c+e)+'/'+d+
+  '. Складываем '+(a+b)+' + '+(c+e)+' = '+all+'. Ответ: '+X(all)+'.');
+ if(p===1){
+  const target=all,missing=a;
+  return exercise29(id,t,p,'fraction','Известна сумма '+X(target)+'. Найди неизвестное первое слагаемое:',
+   X(target)+' − ('+X(b)+' + '+X(c)+' + '+X(e)+')',{d,n:[target,b,c,e]},['-','-','-'],
+   'Сначала '+b+' + '+c+' + '+e+' = '+(b+c+e)+
+   '. Из '+target+' вычитаем '+(b+c+e)+' и получаем '+missing+'/'+d+'.');
+ }
+ if(p===2)return exercise29(id,t,p,'numeric',
+  'Вычисли числитель суммы четырёх дробей, сгруппировав их попарно.',
+  '('+X(a)+' + '+X(c)+') + ('+X(b)+' + '+X(e)+')',{d,n:[a,c,b,e]},['+','+','+'],
+  'Две суммы числителей: '+(a+c)+' и '+(b+e)+'. Их сумма '+all+
+  '. Знаменатель остаётся '+d+'. Ответ: '+all+'.');
+ if(p===3)return q(p,'fraction','В четырёх порциях содержались одинаковые доли килограмма. Сколько килограммов всего?',
+  [a,b,c,e],[a,b,c,e],['+','+','+'],
+  'Сначала '+a+' + '+b+' = '+sum+', затем + '+c+' = '+total+
+  ', затем + '+e+' = '+all+'. Ответ: '+X(all)+' кг.');
+ return exercise29(id,t,p,'fraction','Вычисли сумму двух сумм и проверь знаменатель.',
+  '('+X(b)+' + '+X(e)+') + ('+X(a)+' + '+X(c)+')',{d,n:[b,e,a,c]},['+','+','+'],
+  'Группы дают '+(b+e)+' и '+(a+c)+' долей; всего '+all+'/'+d+
+  '. Ответ: '+X(all)+'.');
 }
 function subFraction(t,p){
- const id='frac_sub',d=pickD(),a=rnd(4,t===0?d-1:d+4),b=rnd(1,Math.min(3,a-1)),c=rnd(1,Math.min(2,a-b)),e=rnd(1,2);
+ const id='frac_sub',d=pickArithmeticD(),A=rnd(4,d-1),b=rnd(1,A-2),
+  c=rnd(1,Math.max(1,Math.min(3,A-b))),e=rnd(1,Math.max(1,Math.min(3,A-b)));
+ const B=A+b+c+e,K=B+b+c+e,X=n=>F(n,d);
+ const q=(kind,story,expression,nums,ops,why,diagram='')=>
+  exercise29(id,t,p,kind,story,expression,{d,n:nums},ops,why,diagram);
+ const two=X(A)+' − '+X(b),remain=A-b;
  if(t===0){
-  if(p===0)return question(id,t,p,'fraction','Вычисли '+F(a,d)+' − '+F(b,d)+'.',d,[a,b],['-'],'Разность числителей '+a+' − '+b+' = '+(a-b)+'.');
-  if(p===1)return question(id,t,p,'numeric','Какой числитель получится при вычитании '+F(a,d)+' − '+F(b,d)+' без изменения знаменателя?',1,[a,b],['-'],'Вычитаем числители: '+a+' − '+b+' = '+(a-b)+'.');
-  if(p===2)return question(id,t,p,'fraction','От ленты длиной '+F(a,d)+' м отрезали '+F(b,d)+' м. Сколько осталось?',d,[a,b],['-'],'Осталось '+F(a-b,d)+' м.');
-  if(p===3)return question(id,t,p,'numeric','Из числителя дроби '+F(a,d)+' вычли '+b+'. Какой теперь числитель?',1,[a,b],['-'],'Новый числитель '+(a-b)+'.');
-  return question(id,t,p,'fraction','В коробке осталось '+a+' долей целого со знаменателем '+d+'. Убрали '+b+' долей. Запиши оставшуюся часть дробью.',d,[a,b],['-'],'Осталось '+F(a-b,d)+'.');
+  if(p===0)return q('fraction','От одной дроби вычти другую с тем же знаменателем.',
+   two,[A,b],['-'],'Числители: '+A+' − '+b+' = '+remain+
+   '. Знаменатель '+d+' сохраняется. Ответ: '+X(remain)+'.',
+   fractionOperationDiagram(d,A,b,'-'));
+  if(p===1)return q('numeric','При вычитании одинаковых долей целого найди только числитель результата.',
+   two,[A,b],['-'],'Вычитаем '+A+' − '+b+' = '+remain+'. Ответ: '+remain+'.');
+  if(p===2)return q('fraction','Лента имела длину '+X(A)+' м, отрезали '+X(b)+' м. Найди остаток.',
+   two,[A,b],['-'],'Сохраняем знаменатель '+d+
+   ', из '+A+' долей вычтем '+b+'. Ответ: '+X(remain)+' м.');
+  if(p===3)return q('fraction','По рисунку определи, какая доля целого остаётся после удаления части.',
+   two,[A,b],['-'],'На исходной полоске '+A+' долей, удалили '+b+
+   ', осталось '+remain+' из '+d+'. Ответ: '+X(remain)+'.',
+   fractionOperationDiagram(d,A,b,'-'));
+  return q('fraction','Было '+A+' долей единицы, '+b+' долей использовали. Запиши остаток дробью.',
+   two,[A,b],['-'],'Осталось '+A+' − '+b+' = '+remain+' долей. Ответ: '+X(remain)+'.');
  }
- const m=a+b+c+e;
  if(t===1){
-  if(p===0)return question(id,t,p,'fraction','Вычисли '+F(m,d)+' − '+F(b,d)+' − '+F(c,d)+'.',d,[m,b,c],['-','-'],'Из '+m+' вычли '+b+' и '+c+', получили числитель '+(m-b-c)+'.');
-  if(p===1)return question(id,t,p,'fraction','Из '+F(m,d)+' сначала вычли '+F(c,d)+', затем '+F(e,d)+'. Запиши ответ.',d,[m,c,e],['-','-'],'Вычитаем числители '+m+' − '+c+' − '+e+' = '+(m-c-e)+'.');
-  if(p===2)return question(id,t,p,'numeric','Числитель '+m+' дроби со знаменателем '+d+' сначала уменьшили на '+b+', затем на '+c+'. Чему равен результат?',1,[m,b,c],['-','-'],'Новый числитель '+(m-b-c)+'.');
-  if(p===3)return question(id,t,p,'fraction','В классе было '+F(m,d)+' м ленты. Использовали '+F(b,d)+' м, потом ещё '+F(c,d)+' м. Сколько ленты осталось?',d,[m,b,c],['-','-'],'Остаток '+F(m-b-c,d)+' м.');
-  return question(id,t,p,'fraction','Найди '+F(m,d)+' − ('+F(b,d)+' + '+F(c,d)+').',d,[m,b,c],['-','-'],'В скобках сумма '+F(b+c,d)+'. Из '+m+' вычтем '+(b+c)+', получим '+F(m-b-c,d)+'.');
+  if(p===0)return q('fraction','Вычти из дроби две последовательные части.',
+   X(B)+' − '+X(b)+' − '+X(c),[B,b,c],['-','-'],
+   'Сначала '+B+' − '+b+' = '+(B-b)+', затем − '+c+
+   ' = '+(B-b-c)+'. Ответ: '+X(B-b-c)+'.');
+  if(p===1)return q('fraction','Из начальной доли вычти сумму двух долей.',
+   X(B)+' − ('+X(b)+' + '+X(c)+')',[B,b,c],['-','-'],
+   'Сначала сумма в скобках '+b+' + '+c+' = '+(b+c)+
+   '. Затем '+B+' − '+(b+c)+' = '+(B-b-c)+'. Ответ: '+X(B-b-c)+'.');
+  if(p===2)return q('numeric','От начального числителя нужно вычесть два последовательных изменения.',
+   X(B)+' − '+X(c)+' − '+X(e),[B,c,e],['-','-'],
+   'Промежуточный числитель '+(B-c)+', затем '+(B-c)+' − '+e+' = '+(B-c-e)+'.');
+  if(p===3)return q('fraction','Из рулона ленты отрезали сначала одну часть, затем другую. Сколько осталось метров?',
+   X(B)+' − '+X(b)+' − '+X(e),[B,b,e],['-','-'],
+   'Сначала осталось '+(B-b)+' долей, затем '+(B-b)+' − '+e+
+   ' = '+(B-b-e)+'. Ответ: '+X(B-b-e)+' м.');
+  return q('fraction','Вычти разность двух дробей из первой дроби.',
+   X(B)+' − ('+X(b)+' − '+X(c)+')',[B,b,c],['-','+'],
+   'В скобках '+b+' − '+c+' = '+(b-c)+
+   ' (может быть отрицательно как промежуточное изменение); вычитаем его: '+
+   B+' − ('+(b-c)+') = '+(B-b+c)+'. Ответ: '+X(B-b+c)+'.');
  }
- const K=m+b+c+e;
- if(p===0)return question(id,t,p,'fraction','Вычисли '+F(K,d)+' − ('+F(b,d)+' + '+F(c,d)+') − '+F(e,d)+'.',d,[K,b,c,e],['-','-','-'],'Сначала сумму в скобках, затем последовательное вычитание: '+F(K-b-c-e,d)+'.');
- if(p===1)return question(id,t,p,'fraction','От '+F(K,d)+' отняли '+F(b,d)+', потом '+F(c,d)+' и ещё '+F(e,d)+'. Что осталось?',d,[K,b,c,e],['-','-','-'],'Числитель '+K+' − '+b+' − '+c+' − '+e+' = '+(K-b-c-e)+'.');
- if(p===2)return question(id,t,p,'numeric','После вычитаний из числителя '+K+' числа '+b+', '+c+' и '+e+' получился новый числитель. На сколько он меньше первоначального?',1,[b,c,e],['+','+'],'Всего вычли '+b+' + '+c+' + '+e+' = '+(b+c+e)+' единиц.');
- if(p===3)return question(id,t,p,'fraction','Из '+F(K,d)+' метра отрезали два куска по '+F(b,d)+' м и ещё '+F(c,d)+' м. Найди остаток.',d,[K,b,b,c],['-','-','-'],'Всего отрезали '+(2*b+c)+' долей. Осталось '+F(K-2*b-c,d)+'.');
- return question(id,t,p,'fraction','Из '+F(K,d)+' сначала вычли '+F(b,d)+'. Затем вычли сумму '+F(c,d)+' и '+F(e,d)+'. Найди итог.',d,[K,b,c,e],['-','-','-'],'Последовательно получаем '+F(K-b-c-e,d)+'.');
+ if(p===0)return q('fraction','Вычти сумму двух дробей и ещё одну дробь.',
+  X(K)+' − ('+X(b)+' + '+X(c)+') − '+X(e),[K,b,c,e],['-','-','-'],
+  'Сумма в скобках '+(b+c)+'. Далее '+K+' − '+(b+c)+
+  ' − '+e+' = '+(K-b-c-e)+'. Ответ: '+X(K-b-c-e)+'.');
+ if(p===1)return q('fraction','Из большего количества последовательно вычти три доли.',
+  X(K)+' − '+X(b)+' − '+X(c)+' − '+X(e),[K,b,c,e],['-','-','-'],
+  'Сначала '+K+' − '+b+' = '+(K-b)+
+  ', затем − '+c+' = '+(K-b-c)+', затем − '+e+
+  ' = '+(K-b-c-e)+'. Ответ: '+X(K-b-c-e)+'.');
+ if(p===2)return q('numeric','Найди числитель неизвестной дроби, если после двух вычитаний получился указанный остаток.',
+  X(A)+' + '+X(b)+' + '+X(c),[A,b,c],['+','+'],
+  'Восстанавливаем исходный числитель: '+A+' + '+b+
+  ' + '+c+' = '+(A+b+c)+'. Ответ: '+(A+b+c)+'.');
+ if(p===3)return q('fraction','Из одной целой партии вычли два равных куска и ещё одну часть. Сколько осталось?',
+  X(K)+' − '+X(b)+' − '+X(b)+' − '+X(c),[K,b,b,c],['-','-','-'],
+  'Всего вычли '+(2*b+c)+' долей. Осталось '+K+' − '+(2*b+c)+
+  ' = '+(K-2*b-c)+'. Ответ: '+X(K-2*b-c)+'.');
+ return q('fraction','Вычти сумму трёх дробей с одинаковым знаменателем.',
+  X(K)+' − ('+X(b)+' + '+X(c)+' + '+X(e)+')',[K,b,c,e],['-','-','-'],
+  'В скобках '+b+' + '+c+' + '+e+' = '+(b+c+e)+
+  '. Затем '+K+' − '+(b+c+e)+' = '+(K-b-c-e)+'. Ответ: '+X(K-b-c-e)+'.');
 }
 function mixCompare(t,p){
  const id='mixed_compare',d=pickD(),w=rnd(2,5),v=rnd(1,3),a=rnd(1,Math.max(1,d-3)),b=rnd(a+1,d-1),c=rnd(1,Math.min(3,b-1));
