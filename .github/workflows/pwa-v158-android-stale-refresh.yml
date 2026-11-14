@@ -20,6 +20,8 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: true
+      - name: Trust checked-out repository inside Playwright container
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
       - name: Apply idempotent Android v158 JS cache-buster and network-first worker
         run: |
           python3 audits/pwa_v158_stale_android_patch.py
