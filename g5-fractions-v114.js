@@ -45,7 +45,23 @@ function nQ(text,answer,ex,id,t,p,wrong=[]){
 }
 function fQ(text,n,d,ex,id,t,p){
  if(!Number.isSafeInteger(n)||!Number.isSafeInteger(d)||d<2||n<0)throw Error('Invalid rational answer '+id+': '+n+'/'+d);
- const q=g5q(text,g5FractionChoices(n,d),n+'/'+d,ex,family(id,t,p));
+ // Legacy g5FractionChoices sometimes collapses to only two distinct options.
+ // Build four distinct mathematical values while keeping the existing answer key.
+ const options=[],seen=new Set();
+ const gcd=(a,b)=>{while(b){const t=a%b;a=b;b=t;}return a;};
+ function add(x,y,key){
+  if(!Number.isSafeInteger(x)||!Number.isSafeInteger(y)||x<0||y<2)return;
+  const g=gcd(x,y),canonical=(x/g)+'/'+(y/g);
+  if(seen.has(canonical))return;
+  seen.add(canonical);options.push({key,label:frac(x,y)});
+ }
+ add(n,d,n+'/'+d);
+ const candidates=[[n+1,d],[n+2,d],[n,d+1],[n+1,d+1],[n+2,d+1],[n,d+2],
+   [Math.max(0,n-1),d],[n+3,d],[n+1,d+2],[n+2,d+3],[n+4,d+1]];
+ for(let i=0;i<candidates.length&&options.length<4;i++)
+  add(candidates[i][0],candidates[i][1],'wrong_v114_'+i);
+ if(options.length!==4)throw Error('Cannot create four distinct fractions for '+n+'/'+d);
+ const q=g5q(text,options,n+'/'+d,ex,family(id,t,p));
  q.mk5Audit={type:'fraction',expected:n+'/'+d};return q;
 }
 function cQ(text,correct,others,ex,id,t,p){
