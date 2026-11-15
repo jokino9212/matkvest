@@ -1,0 +1,36 @@
+name: Grade 5 §40 v176 release stamp
+on:
+  push:
+    branches: [audit/g5-paragraph40-20261115]
+permissions:
+  contents: write
+jobs:
+  stamp:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Stamp 19 Grade 5 URLs and the service worker
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          html=Path('index.html')
+          worker=Path('sw.js')
+          pattern=rb'(<script src="g5-[\w-]+\.js)\?v=175("></script>)'
+          newer,count=re.subn(pattern,rb'\g<1>?v=176\g<2>',html.read_bytes())
+          assert count==19, count
+          html.write_bytes(newer)
+          old=b'const CACHE_NAME = "matkvest-iphone-v175";'
+          before=worker.read_bytes()
+          assert before.count(old)==1
+          worker.write_bytes(before.replace(old,old.replace(b'175',b'176')))
+          PY
+          python3 audits/g7_stage12_sync_pwa.py
+      - name: Commit release stamp and remove this workflow
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html sw.js
+          git rm .github/workflows/g5-v176-release-once.yml
+          git commit -m 'release(g5): stamp PWA v176 for paragraph 40'
+          git push origin HEAD:refs/heads/audit/g5-paragraph40-20261115

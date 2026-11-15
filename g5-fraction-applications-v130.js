@@ -190,7 +190,61 @@ function fractionDivisionSpec(t,p){
  return calc(f(H)+' : ('+expr(A,':',B)+' + '+f(C)+')',DIV(H,ADD(DIV(A,B),C)),6);
 }
 
+function restoreWholeDiagram(known,n,d){
+ const width=390/d;
+ const cells=Array.from({length:d},(_,i)=>'<rect x="'+(5+i*width).toFixed(3)+
+  '" y="8" width="'+width.toFixed(3)+'" height="28" fill="'+(i<n?'#397dbe':'#edf3fc')+
+  '" stroke="#52617a" stroke-width=".65"/>').join('');
+ return '<svg role="img" aria-label="Целое разделено на '+d+' равных частей. Сумма '+n+
+  ' закрашенных частей равна '+known+'." viewBox="0 0 400 44" width="100%" '+
+  'style="display:block;max-width:400px;height:auto;margin:6px auto">'+cells+'</svg>';
+}
+
+function restoreWholeSpec(t,p){
+ const d=rnd(4,11+2*t),n=rnd(2,d-1),unit=rnd(4,21+3*t),known=n*unit,total=d*unit;
+ const a=rnd(2,d-1),k=rnd(3,12+t*2),d2=rnd(3,8+t*2),n2=rnd(1,d2-1),unit2=rnd(4,20+2*t);
+ const share=frac(n,d),otherShare=frac(n2,d2),remaining=d-n;
+ const W=DIV(Q(known),Q(n,d)),otherTotal=d2*unit2,otherKnown=n2*unit2;
+ const work=(amount,parts,den)=>amount+' : '+parts+' = '+amount/parts+
+  ' — одна доля. '+amount/parts+' · '+den+' = '+amount*den/parts+' — целое.';
+ const main=work(known,n,d),remainingPlan=DIV(Q(unit*remaining),Q(remaining,d));
+ const otherPlan=DIV(Q(otherKnown),Q(n2,d2));
+ const task=(text,plan,explain,steps)=>({text,plan,explain,steps});
+ if(t===0){
+  if(p===0)return task(share+' числа равны '+known+'. Найди целое.'+restoreWholeDiagram(known,n,d),W,main,2);
+  if(p===1){
+   const half=rnd(8,20);
+   return task('Половина школьного туристического отряда — '+half+' детей. Сколько детей в отряде?',MUL(Q(half),Q(2)),half+' · 2 = '+half*2+'.',1);
+  }
+  if(p===2)return task(frac(1,d)+' длины ленты равна '+unit+' см. Сколько сантиметров во всей ленте?',MUL(Q(unit),Q(d)),unit+' · '+d+' = '+total+'.',1);
+  if(p===3)return task('На '+share+' одинаковых рядов приходится '+known+' деревьев. Сколько деревьев в одном ряду, если всего рядов '+d+'?',DIV(Q(known),Q(n)),known+' : '+n+' = '+unit+'.',1);
+  return task('Из '+d+' равных долей запаса использовали '+n+'. Осталось '+(remaining*unit)+' кг. Сколько килограммов было?',remainingPlan,'Осталось '+d+' − '+n+' = '+remaining+' долей. '+work(remaining*unit,remaining,d),3);
+ }
+ if(t===1){
+  if(p===0)return task('После продажи '+share+' запаса осталось '+remaining*unit+' кг. Сколько килограммов было?',remainingPlan,'Осталось '+d+' − '+n+' = '+remaining+' долей. '+work(remaining*unit,remaining,d),3);
+  if(p===1)return task(share+' числа равны '+known+'. Найди '+frac(a,d)+' этого числа.',MUL(W,Q(a,d)),main+' '+unit+' · '+a+' = '+unit*a+'.',3);
+  if(p===2){
+   const delivered=Math.min(k,remaining*unit);
+   return task('До склада довезли '+known+' ящиков. Это '+share+' всей партии. Ещё '+delivered+' ящиков привезли позже. Сколько ящиков из первоначальной партии осталось довезти?',SUB(SUB(W,Q(known)),Q(delivered)),main+' '+total+' − '+known+' − '+delivered+' = '+(total-known-delivered)+'.',4);
+  }
+  if(p===3)return task(share+' массы одного мешка равна '+known+' кг. Сколько килограммов в '+k+' таких мешках?',MUL(W,Q(k)),main+' '+total+' · '+k+' = '+total*k+'.',3);
+  return task(share+' запаса равна '+known+' кг. После пополнения масса выросла на '+k+' кг. Сколько килограммов стало?',ADD(W,Q(k)),main+' '+total+' + '+k+' = '+(total+k)+'.',3);
+ }
+ if(p===0){
+  const extra=Math.min(k,remaining*unit-1);
+  return task('От катушки отрезали '+share+' ленты и ещё '+extra+' см. Осталось '+(remaining*unit-extra)+' см. Какой длины была лента в сантиметрах?',DIV(ADD(Q(remaining*unit-extra),Q(extra)),Q(remaining,d)),(remaining*unit-extra)+' + '+extra+' = '+remaining*unit+' см. '+work(remaining*unit,remaining,d),4);
+ }
+ if(p===1)return task('Для первой партии '+share+' массы равна '+known+' кг. Для второй '+otherShare+' массы равна '+otherKnown+' кг. Сколько килограммов в обеих партиях вместе?',ADD(W,otherPlan),main+' '+work(otherKnown,n2,d2)+' '+total+' + '+otherTotal+' = '+(total+otherTotal)+'.',5);
+ if(p===2)return task('Из первого бака слили '+share+' воды, осталось '+remaining*unit+' л. Из второго бака слили '+otherShare+' воды, осталось '+(d2-n2)*unit2+' л. На сколько литров различались исходные объёмы?',ABS(SUB(remainingPlan,DIV(Q((d2-n2)*unit2),Q(d2-n2,d2)))),'Находим доли остатков: '+d+' − '+n+' = '+remaining+', '+d2+' − '+n2+' = '+(d2-n2)+'. '+work(remaining*unit,remaining,d)+' '+work((d2-n2)*unit2,d2-n2,d2)+' Разность равна '+Math.abs(total-otherTotal)+' л.',7);
+ if(p===3){
+  const added=k*d2+(d2-total%d2)%d2;
+  return task(share+' массы одной партии равна '+known+' кг. Другую партию сделали на '+added+' кг тяжелее первой. Сколько весят '+otherShare+' второй партии в килограммах?',MUL(ADD(W,Q(added)),Q(n2,d2)),main+' '+total+' + '+added+' = '+(total+added)+'. '+(total+added)+' : '+d2+' · '+n2+' = '+((total+added)*n2/d2)+'.',5);
+ }
+ return task('Из целого вычли его '+share+' и получили '+(unit*remaining)+'. К первоначальному числу прибавили '+k+'. Найди разность между новым результатом и '+frac(1,d)+' первоначального числа.',SUB(ADD(remainingPlan,Q(k)),DIV(remainingPlan,Q(d))),work(unit*remaining,remaining,d)+' '+total+' + '+k+' = '+(total+k)+'. '+(total+k)+' − '+unit+' = '+(total+k-unit)+'.',6);
+}
+
 function spec(id,t,p){
+ if(id==='frac_restore')return restoreWholeSpec(t,p);
  if(id==='frac_div_common')return fractionDivisionSpec(t,p);
  if(id==='frac_part_number')return partOfWholeSpec(t,p);
  const d1=rnd(3,9+t*2),d2=rnd(3,10+t*2),d3=rnd(3,9+t*2);
@@ -221,30 +275,6 @@ function spec(id,t,p){
    ['Ленту длиной '+n+' м разделили на '+den+' одинаковых отрезков. Другую ленту длиной '+boxes+' м тоже разделили на '+den+' отрезков. Какова общая длина двух отрезков, взятых по одному от каждой ленты?',ADD(Q(n,den),Q(boxes,den)),'Вычислим два частных и сложим их.',4],
    [''+(n+boxes)+' кг разделили на '+den+' равных упаковок. Из каждой упаковки забрали '+show(Q(boxes,den))+' кг. Сколько осталось в одной?',SUB(Q(n+boxes,den),Q(boxes,den)),'Сначала частное всего запаса, затем вычтем убранную долю.',4],
    ['Сначала '+n+' литров разделили на '+den+' сосудов, затем добавили каждому по '+show(Q(boxes,den))+' л. Сколько литров в каждом?',ADD(Q(n,den),Q(boxes,den)),'Частное, затем прибавим указанную долю.',4]
-  ];
- }
- if(id==='frac_restore'){
-  const known=Q(part),fraction=Q(a,d1),all=Q(total);
-  if(t===0)cases=[
-   [''+show(fraction)+' числа равны '+part+'. Найди целое.',DIV(known,fraction),'Чтобы найти целое по части, разделим часть на дробь.',2],
-   ['Известно, что '+show(fraction)+' запаса составляет '+part+' кг. Сколько килограммов весь запас?',DIV(known,fraction),'Делим массу части на её долю.',2],
-   ['Половина школьного туристического отряда — '+(classSize/2)+' детей. Сколько детей в отряде?',DIV(Q(classSize/2),Q(1,2)),'Удвоим известную половину отряда.',2],
-   ['Треть запаса — '+(total/3)+' кг. Сколько в запасе?',DIV(Q(total/3),Q(1,3)),'Треть умножаем на 3.',2],
-   ['Четверть коллекции — '+(total/4)+' предметов. Сколько предметов всего?',DIV(Q(total/4),Q(1,4)),'Восстановим целое из четверти.',2]
-  ];
-  else if(t===1)cases=[
-   [''+show(fraction)+' целого составляет '+part+'. Найди целое и прибавь '+k+'.',ADD(DIV(known,fraction),Q(k)),'Сначала восстанавливаем целое, затем прибавляем.',3],
-   [''+show(fraction)+' количества равны '+part+'. Найди целое, затем вычти '+k+'.',SUB(DIV(known,fraction),Q(k)),'Делим часть на долю и вычитаем число.',3],
-   ['После продажи '+show(fraction)+' запаса осталось '+(total-part)+' товаров. Сколько было первоначально?',DIV(Q(total-part),SUB(one,fraction)),'Остаток составляет 1 минус проданная доля.',3],
-   [''+show(fraction)+' количества составляют '+part+'. Сколько составляют половина всего количества?',MUL(DIV(known,fraction),Q(1,2)),'Найдём исходное число и его половину.',3],
-   [''+show(fraction)+' числа равны '+part+'. Найди число, затем найди четверть этого числа.',MUL(DIV(known,fraction),Q(1,4)),'Восстановим целое, затем найдём четвертую часть.',3]
-  ];
-  else cases=[
-   ['После продажи '+show(fraction)+' всех товаров и ещё '+k+' товаров осталось '+(total-part-k)+'. Сколько товаров было сначала?',DIV(ADD(Q(total-part-k),Q(k)),SUB(one,fraction)),'Сначала отменим вторую продажу, затем восстановим целое по оставшейся доле.',5],
-   [''+show(fraction)+' целого равно '+part+'. Восстанови целое и увеличь его на '+k+', затем умножь на 2.',MUL(ADD(DIV(known,fraction),Q(k)),two),'Найдём целое, увеличим и удвоим.',5],
-   [''+show(fraction)+' числа равно '+part+'. Найди 3/4 от восстановленного числа.',MUL(DIV(known,fraction),Q(3,4)),'Восстановим целое, затем найдём три четверти.',4],
-   ['Известно, что '+show(fraction)+' целого равно '+part+'. Сколько составляет целое, уменьшенное на его треть?',SUB(DIV(known,fraction),MUL(DIV(known,fraction),Q(1,3))),'Вычислим целое и его треть, затем вычтем.',5],
-   [''+show(fraction)+' запаса равно '+part+' кг. Найди весь запас, затем вычти '+k+' кг и прибавь '+h+' кг.',ADD(SUB(DIV(known,fraction),Q(k)),Q(h)),'Восстановление целого и два последовательных изменения.',5]
   ];
  }
  if(id==='frac_word'){
