@@ -21,8 +21,8 @@ const {chromium}=require('playwright'),path=require('path'),fs=require('fs');
       try{
        const q=freshQuiz(t.id);
        if(!q||!q.text||!q.ex)issues.push({kind:'missing_question_or_explanation',session,pos});
-       const stem=plain(q?.text),pattern=normalize(q?.text),id=String(q?.templateId||'unknown');
-       const signature=JSON.stringify([stem,String(q?.correctText||q?.ans||''),(q?.choices||[]).map(c=>String(c.label||'')).sort()]);
+       const stem=plain(q?.text),pattern=normalize(q?.text),id=String(q?.audit?.variant||q?.templateId||'unknown');
+       const signature=JSON.stringify([stem,String(q?.correctText||q?.ans||''),(q?.choices||[]).map(c=>String(c.label||'')).sort(),q?.visual||null]);
        texts.push(signature);stems.push(pattern);templates.push(id);
        types.set(id,(types.get(id)||0)+1);
        if(!stem||!String(q?.correctText||q?.ans||'').trim())issues.push({kind:'empty_prompt_or_answer',session,pos});
@@ -41,6 +41,6 @@ const {chromium}=require('playwright'),path=require('path'),fs=require('fs');
   const ranking=[...result.rows].sort((a,b)=>b.oneStemSessions-a.oneStemSessions||b.oneFamilySessions-a.oneFamilySessions||a.avgSemanticStems-b.avgSemanticStems);
   console.log('G6_SEMANTIC_AUDIT_SUMMARY',JSON.stringify({topics:result.topics,rows:result.stageRows,questions:result.questions,pageErrors:errors,rowsWithIssues:result.rows.filter(x=>x.issueCount).length,exactRepeatSessions:result.rows.reduce((s,x)=>s+x.exactRepeatSessions,0),singleStemSessions:result.rows.reduce((s,x)=>s+x.oneStemSessions,0),singleFamilySessions:result.rows.reduce((s,x)=>s+x.oneFamilySessions,0)}));
   console.log('G6_SEMANTIC_WEAKEST_20',JSON.stringify(ranking.slice(0,20)));
-  if(errors.length||result.topics!==58||result.stageRows!==174||result.rows.some(x=>x.issueCount))throw Error('Grade 6 content generation needs repair');
+  if(errors.length||result.topics!==75||result.stageRows!==225||result.rows.some(x=>x.issueCount))throw Error('Grade 6 content generation needs repair');
  }finally{await browser.close()}
 })().catch(e=>{console.error('G6_SEMANTIC_AUDIT_ERROR',e.stack||e);process.exit(1)});
