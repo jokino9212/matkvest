@@ -7041,6 +7041,214 @@ Object.assign(reviewed,{
  ]
 });
 
+Object.assign(reviewedLessons,{
+ stat_sample_estimation:'Для оценки доли в совокупности найди относительную частоту признака в представительной выборке. Умножь долю на размер совокупности, если нужна примерная численность.',
+ graph_basics:'Вершины изображают объекты. Ребро соединяет два связанных объекта. Соседями вершины называют все вершины, соединённые с ней ребром.',
+ graph_directed_modeling:'Ориентированное ребро — дуга со стрелкой. Из её начала можно перейти в конец. Обратный переход потребует отдельной стрелки или другого пути.',
+ graph_vertex_degree_edges:'Степень вершины неориентированного графа — число рёбер, выходящих из неё. Сумма степеней всех вершин вдвое больше числа рёбер.'
+});
+function textbookGraph(index,directed){
+ const pool=directed?G7_GRAPH_D_MODELS:G7_GRAPH_U_MODELS;
+ const graph=pool[index%pool.length];
+ return {graph,vertices:graph.vertices,edges:graph.edges,visual:question=>g7GraphAttach(question,graph)};
+}
+const undirectedGraph=(a,b)=>textbookGraph(3*a+b,false);
+const directedGraph=(a,b)=>textbookGraph(3*a+b,true);
+const verticesText=list=>list.slice().sort().join(', ');
+function graphNeighbors(model,vertex){
+ return g7GraphNeighbors(model.graph,vertex);
+}
+function graphRoute(sequence,directed=false){
+ return sequence.join(directed?' → ':' – ');
+}
+function choiceByVertex(model,prompt,vertex,ex){
+ return chooseConclusion(prompt,vertex,model.vertices.filter(other=>other!==vertex).slice(0,3),ex,model);
+}
+Object.assign(reviewed,{
+ stat_sample_estimation:[
+  {
+   find_sample_rate:({a,b})=>['В выборке из '+(a+b)+' экземпляров '+a+' имеют признак. Найди выборочную долю.',rational(a,a+b),'Делим число отмеченных случаев на объём выборки.'],
+   estimate_population_count:({a,b,c})=>['В представительной выборке из '+(a+b)+' объектов признаки есть у '+a+'. Сколько объектов с этим признаком примерно ожидать в совокупности из '+((a+b)*c)+'?',a*c,'Размер совокупности в '+c+' раз больше. Умножаем '+a+' на '+c+'.'],
+   estimate_count_with_percentage:({a,b})=>['В опросе '+(5*b)+'% ответили утвердительно. Оцени число таких ответов в группе из '+20*a+' человек при той же доле.',a*b,'Умножаем '+20*a+' на '+(5*b)+' / 100.'],
+   infer_complementary_fraction:({a,b})=>['Из '+(a+b)+' проверенных упаковок '+a+' с дефектом. Какая доля упаковок без дефекта?',rational(b,a+b),'Без дефекта '+b+'. Делим на объём выборки.']
+  },
+  {
+   merge_estimates_weighted:({a,b,c,y})=>['В одной выборке признак найден у '+a+' из '+(a+b)+' объектов, в другой — у '+c+' из '+(c+y)+'. Найди общую долю.',rational(a+c,a+b+c+y),'Складываем числа объектов с признаком и отдельно общие объёмы выборок.'],
+   estimate_complementary_count:({a,b,c})=>['В выборке из '+(a+b)+' деталей '+a+' бракованных. Оцени число исправных деталей в партии '+(c*(a+b))+' шт.',b*c,'Исправных '+b+' в выборке. Масштабируем её в '+c+' раз.'],
+   avoid_unjustified_precision:({a,b})=>checkStatement('В выборке '+a+' из '+(a+b)+' изделий с особенностью. Значит ли это, что доля всех изделий с особенностью известна точно?',false,'Доля в выборке служит оценкой для всей партии.'),
+   compare_proportions_not_counts:({a,b})=>compare('Сравни доли: в A '+a+' случаев из '+(a+b)+', в B '+2*a+' случаев из '+(2*a+3*b)+'.',rational(a,a+b),rational(2*a,2*a+3*b),'Сравниваем отношения к объёмам выборок. В B число случаев удвоилось, а объём вырос больше чем в два раза.')
+  },
+  {
+   estimate_total_from_different_subgroups:({a,b,c})=>{
+    const n=10*(a+b),first=a%6+2,second=b%6+3;
+    return ['В группе A из '+(2*n)+' человек оценка доли '+(10*first)+'%. В группе B из '+n+' человек — '+(10*second)+'%. Оцени общее число людей с признаком.',
+     (a+b)*(2*first+second),'В первой группе умножаем её размер на '+first+' / 10, во второй на '+second+' / 10. Затем складываем оценки.'];
+   },
+   find_additional_without_feature_to_reach_share:({a,b})=>['В выборке '+a+' объектов с признаком и '+b+' без него. Добавили '+a+' объектов без признака. Какова новая доля признака?',rational(a,2*a+b),'Числитель прежний, знаменатель увеличен на '+a+'.'],
+   infer_sample_size_from_count_and_fraction:({a,b})=>['В выборке '+(a+b)+' объектов с признаком. Это 1 / '+a+' всей выборки. Найди объём выборки.',a*(a+b),'Если '+(a+b)+' — одна из '+a+' равных частей, умножаем на '+a+'.'],
+   find_difference_between_estimates:({a,b,c})=>['Выборки дают два результата: '+a+' из '+(a+b)+' и '+(a+1)+' из '+(a+b)+'. Оцени, на сколько отличаются предполагаемые количества объектов с признаком в партии '+((a+b)*c)+' шт.',c,'Разность долей 1 / '+(a+b)+'. Умножаем на размер партии.']
+  }
+ ],
+ graph_basics:[
+  {
+   count_vertices_on_diagram:({a,b})=>{const m=undirectedGraph(a,b);return tableTask(m,'Сколько вершин на схеме?',m.vertices.length,'Считаем обозначенные точки.');},
+   count_edges_on_diagram:({a,b})=>{const m=undirectedGraph(a,b);return tableTask(m,'Сколько рёбер на схеме?',m.edges.length,'Каждая линия между двумя вершинами — одно ребро.');},
+   recognize_connection:({a,b})=>{
+    const m=undirectedGraph(a,b),u=m.vertices[a%m.vertices.length],v=m.vertices[(a+1)%m.vertices.length];
+    return withVisual(checkStatement('Соединены ли '+u+' и '+v+' одним ребром?',g7GraphHasEdge(m.graph,u,v),'Проверяем, есть ли отрезок между выбранными вершинами.'),m.visual);
+   },
+   identify_edge_not_vertex:({a,b})=>{
+    const m=undirectedGraph(a,b),e=m.edges[b%m.edges.length];
+    return chooseConclusion('Какая запись обозначает ребро, показанное на схеме?',g7GraphEdgeText(m.graph,e),m.vertices.slice(0,3),'Для ребра указывают оба конца.',m);
+   }
+  },
+  {
+   count_neighbors_without_self:({a,b})=>{
+    const m=undirectedGraph(a,b),v=m.vertices[b%m.vertices.length],neighbors=graphNeighbors(m,v);
+    return tableTask(m,'Сколько соседей у вершины '+v+'?',neighbors.length,'Соседи этой вершины: '+(verticesText(neighbors)||'нет')+'.');
+   },
+   read_non_neighbors:({a,b})=>{
+    const m=undirectedGraph(a,b),v=m.vertices[a%m.vertices.length],non=m.vertices.filter(u=>u!==v&&!g7GraphHasEdge(m.graph,u,v));
+    return tableTask(m,'Сколько других вершин не соединены с '+v+' напрямую?',non.length,'Исключаем саму '+v+' и все вершины, к которым из неё идут рёбра.');
+   },
+   compare_incident_edges_after_merging:({a,b})=>{
+    const m=undirectedGraph(a,b),u=m.vertices[0],v=m.vertices[1],n=m.edges.filter(e=>[e.from,e.to].some(w=>w===u||w===v)).length;
+    return tableTask(m,'Сколько рёбер имеют концом хотя бы одну из вершин '+u+' и '+v+'?',n,'Берём рёбра из обеих вершин. Общее ребро учитываем один раз.');
+   },
+   add_edges_to_new_vertex:({a,b})=>{
+    const m=undirectedGraph(a,b),k=2+b%2;
+    return tableTask(m,'Добавили вершину, соединив её с '+k+' разными прежними вершинами. Сколько теперь рёбер?',m.edges.length+k,'К '+m.edges.length+' старым рёбрам прибавляем '+k+' новых.');
+   }
+  },
+  {
+   remove_vertex_and_incident_edges:({a,b})=>{
+    const m=undirectedGraph(a,b),v=m.vertices[a%m.vertices.length],k=graphNeighbors(m,v).length;
+    return tableTask(m,'Удалили '+v+' и все рёбра, для которых она конец. Сколько рёбер осталось?',m.edges.length-k,'Было '+m.edges.length+' рёбер и исчезло '+k+'.');
+   },
+   count_missing_edges_to_complete_graph:({a,b})=>{
+    const m=undirectedGraph(a,b),n=m.vertices.length;
+    return tableTask(m,'Сколько рёбер нужно добавить, чтобы соединить каждую пару разных вершин?',n*(n-1)/2-m.edges.length,'Всего пар '+n*(n-1)/2+'. Вычитаем '+m.edges.length+' существующих рёбер.');
+   },
+   count_pairs_sharing_neighbor:({a,b})=>{
+    const m=undirectedGraph(a,b),u=m.vertices[a%m.vertices.length],v=m.vertices[(a+1)%m.vertices.length],neighbors=graphNeighbors(m,u).filter(w=>graphNeighbors(m,v).includes(w));
+    return tableTask(m,'Сколько общих соседей у '+u+' и '+v+'?',neighbors.length,'Выписываем соседей обеих вершин и считаем совпадения.');
+   },
+   graph_from_story_and_omission:({a,b})=>{
+    const n=a%7+5;
+    return ['В группе '+n+' человек. Соединяем ребром знакомых между собой людей. Один человек знаком со всеми, других знакомств нет. Сколько рёбер?',n-1,'От единственной центральной вершины идёт по одному ребру до каждого из '+(n-1)+' остальных.'];
+   }
+  }
+ ],
+ graph_directed_modeling:[
+  {
+   read_single_arrow:({a,b})=>{
+    const m=directedGraph(a,b),edge=m.edges[a%m.edges.length];
+    const missing=m.vertices.flatMap(u=>m.vertices.filter(v=>v!==u&&!g7GraphHasEdge(m.graph,u,v)).map(v=>u+' → '+v));
+    const start=b%missing.length,options=missing.slice(start).concat(missing.slice(0,start)).slice(0,3);
+    return chooseConclusion('Какой переход показан отдельной стрелкой?',edge.from+' → '+edge.to,options,
+     'Стрелка направлена от '+edge.from+' к '+edge.to+'.',m);
+   },
+   may_return_directly:({a,b})=>{
+    const m=directedGraph(a,b),e=m.edges[b%m.edges.length],can=g7GraphHasEdge(m.graph,e.to,e.from);
+    return withVisual(checkStatement('Есть ли прямой переход '+e.to+' → '+e.from+'?',can,'Для прямого перехода нужно найти стрелку именно в указанном направлении.'),m.visual);
+   },
+   outgoing_count_from_vertex:({a,b})=>{
+    const m=directedGraph(a,b),v=m.vertices[a%m.vertices.length],counts=g7GraphInOut(m.graph);
+    return tableTask(m,'Сколько стрелок начинается в '+v+'?',counts.outgoing[v],'Считаем только стрелки, направленные из '+v+'.');
+   },
+   incoming_count_from_vertex:({a,b})=>{
+    const m=directedGraph(a,b),v=m.vertices[b%m.vertices.length],counts=g7GraphInOut(m.graph);
+    return tableTask(m,'Сколько стрелок заканчивается в '+v+'?',counts.incoming[v],'Смотрим, какие стрелки направлены к '+v+'.');
+   }
+  },
+  {
+   validate_three_vertex_route:({a,b})=>{
+    const m=directedGraph(a,b),n=m.vertices.length,i=a%n,seq=[m.vertices[i],m.vertices[(i+1)%n],m.vertices[(i+2)%n]];
+    return withVisual(checkStatement('Можно ли пройти '+graphRoute(seq,true)+' ровно за два перехода?',g7GraphValidPath(m.graph,seq),'Нужно проверить направление стрелки на каждом из двух переходов.'),m.visual);
+   },
+   find_two_way_connections:({a,b})=>{
+    const m=directedGraph(a,b),both=m.edges.filter(e=>g7GraphHasEdge(m.graph,e.to,e.from)).length/2;
+    return tableTask(m,'Сколько пар вершин соединены стрелками в обе стороны?',both,'Для пары нужны две противоположные стрелки. Такую пару считаем один раз.');
+   },
+   match_arrow_to_one_way_story:({a,b})=>{
+    const [p,q,r]=geometryLabels(a,b);
+    return choice('На дороге из '+p+' в '+q+' движение только в указанном направлении. Обратный путь идёт из '+q+' через '+r+' в '+p+'. Какие стрелки нужны?',
+     p+' → '+q+', '+q+' → '+r+', '+r+' → '+p,[q+' → '+p+', '+q+' → '+r+', '+r+' → '+p,p+' → '+q+', '+r+' → '+q+', '+r+' → '+p,p+' → '+q+', '+q+' → '+r+', '+p+' → '+r],
+     'Каждую стрелку записываем от начала разрешённого перехода к его концу.');
+   },
+   count_vertices_with_one_way_out:({a,b})=>{
+    const m=directedGraph(a,b),counts=g7GraphInOut(m.graph);
+    return tableTask(m,'У скольких вершин ровно одна исходящая стрелка?',m.vertices.filter(v=>counts.outgoing[v]===1).length,'Считаем исходящие стрелки отдельно у каждой вершины.');
+   }
+  },
+  {
+   count_reachable_from_one_vertex:({a,b})=>{
+    const m=directedGraph(a,b),v=m.vertices[a%m.vertices.length];
+    return tableTask(m,'Сколько других вершин доступны из '+v+' за любое число переходов?',g7GraphReachable(m.graph,v).length-1,'Идём вдоль стрелок и отмечаем новые вершины. Саму начальную не считаем.');
+   },
+   transitive_reachability:({a,b})=>{
+    const m=directedGraph(a,b),n=m.vertices.length,u=m.vertices[a%n],v=m.vertices[(a+2)%n],reach=g7GraphReachable(m.graph,u).includes(v);
+    return withVisual(checkStatement('Можно ли попасть из '+u+' в '+v+', двигаясь по стрелкам?',reach,'Помечаем все вершины, доступные из '+u+', и проверяем наличие '+v+'.'),m.visual);
+   },
+   find_number_without_incoming_edges:({a,b})=>{
+    const m=directedGraph(a,b),counts=g7GraphInOut(m.graph);
+    return tableTask(m,'У скольких вершин нет входа, но есть хотя бы один выход?',m.vertices.filter(v=>!counts.incoming[v]&&counts.outgoing[v]>0).length,'Для каждой вершины проверяем оба условия: вход 0 и выход больше 0.');
+   },
+   count_routes_of_exact_length:({a,b})=>{
+    const m=directedGraph(a,b),u=m.vertices[a%m.vertices.length],adj=g7GraphAdj(m.graph),count=addValues(adj[u].map(v=>adj[v].length));
+    return tableTask(m,'Сколько последовательностей из двух стрелок начинается в '+u+'? Различай последовательности по их стрелкам.',count,'Для каждого первого перехода считаем, сколько переходов доступно из его конца. Складываем.');
+   }
+  }
+ ],
+ graph_vertex_degree_edges:[
+  {
+   degree_from_diagram:({a,b})=>{const m=undirectedGraph(a,b),v=m.vertices[a%m.vertices.length],deg=graphNeighbors(m,v).length;return tableTask(m,'Какова степень вершины '+v+'?',deg,'Степень равна числу рёбер с этим концом.');},
+   degree_from_story:({a,b})=>['У '+(a+b+1)+' станций двусторонние пути. Из станции A путь есть в '+a+' разных соседних станций. Какова степень A?',a,'Каждый путь из A соответствует одному ребру.'],
+   count_degree_zero:({a,b})=>{
+    const n=a%5+3,vertices=Array.from({length:n+1},(_,i)=>geometryLetters[(b+i)%geometryLetters.length]);
+    const graph=g7GraphModel('isolated'+a+'-'+b,vertices,vertices.slice(1,-1).map((v,i)=>[v,vertices[i+2]]));
+    return tableTask({visual:q=>g7GraphAttach(q,graph)},'Какова степень изолированной вершины '+vertices[0]+'?',0,'Изолированная вершина не является концом ни одного ребра.');
+   },
+   check_degree_not_neighbor_of_neighbor:({a,b})=>{
+    const m=undirectedGraph(a,b),v=m.vertices[b%m.vertices.length],deg=graphNeighbors(m,v).length;
+    return withVisual(checkStatement('Степень вершины '+v+' равна '+(deg+(a%2))+'?',a%2===0,'Считаем только рёбра, непосредственно выходящие из '+v+'.'),m.visual);
+   }
+  },
+  {
+   sum_degrees_by_counting_edges:({a,b})=>{const m=undirectedGraph(a,b);return tableTask(m,'Найди сумму степеней всех вершин.',2*m.edges.length,'У каждого ребра два конца, поэтому сумма вдвое больше числа рёбер.');},
+   count_edges_from_sum:({a,b})=>['Сумма степеней вершин простого графа равна '+2*(a+b)+'. Сколько рёбер?',a+b,'Делим сумму степеней на 2.'],
+   count_odd_degrees:({a,b})=>{
+    const m=undirectedGraph(a,b),values=Object.values(g7GraphDegrees(m.graph));
+    return tableTask(m,'Сколько вершин имеют нечётную степень?',values.filter(deg=>deg%2===1).length,'Степени вершин по порядку: '+values.join(', ')+'. Оставляем нечётные.');
+   },
+   compare_degrees_at_two_vertices:({a,b})=>{
+    const m=undirectedGraph(a,b),u=m.vertices[a%m.vertices.length],v=m.vertices[(a+1)%m.vertices.length];
+    return withVisual(compare('Сравни степени вершин '+u+' и '+v+'.',rational(graphNeighbors(m,u).length),rational(graphNeighbors(m,v).length),'Считаем рёбра с каждым из указанных концов.'),m.visual);
+   }
+  },
+  {
+   recover_missing_degree:({a,b})=>{
+    const n=a%6+4,degree=b%2?2:0;
+    return ['У графа '+n+' вершин и '+(n-1+degree/2)+' рёбер. У '+(n-1)+' вершин степень 2. Найди степень оставшейся.',degree,
+     'Из удвоенного числа рёбер вычитаем сумму известных степеней '+2*(n-1)+'.'];
+   },
+   check_odd_degree_invariant:({a,b})=>{
+    const n=a+b+5,k=a+(a%2===0?1:0);
+    return checkStatement('В графе '+n+' вершин. Может ли ровно '+k+' из них иметь нечётную степень?',false,'Сумма степеней чётна, поэтому и число нечётных слагаемых должно быть чётным.');
+   },
+   degree_sum_after_deletion:({a,b})=>{
+    const m=undirectedGraph(a,b),v=m.vertices[a%m.vertices.length],n=graphNeighbors(m,v).length;
+    return tableTask(m,'Удалили вершину '+v+' вместе с её рёбрами. Чему равна сумма степеней оставшихся вершин?',2*(m.edges.length-n),'Удаление убрало '+n+' рёбер. Удваиваем число оставшихся.');
+   },
+   infer_number_of_vertices_from_degrees:({a,b})=>{
+    const leaves=a%6+4,internal=leaves-2;
+    return ['Дерево имеет '+(leaves+internal)+' вершин. Каждая имеет степень 1 или 3. Сумма степеней '+(leaves+3*internal)+'. Сколько вершин имеют степень 3?',internal,
+     'Если считать у всех степень 1, сумма '+(leaves+internal)+'. Каждая вершина степени 3 добавляет ещё 2.'];
+   }
+  }
+ ]
+});
+
 add('alg_expressions_equations','compare_expression_values','Сравнение значений выражений',
  'Чтобы сравнить выражения, вычисли оба значения или используй свойства действий. При указанном значении переменной сначала подставь его в обе части. Для двойного неравенства проверь обе границы.',
  null);
