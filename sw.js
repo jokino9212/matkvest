@@ -109,12 +109,16 @@ self.addEventListener('fetch', event => {
 
   // Restrict asset caching to shipped artwork and the manifest.
   if (!APP_FILES.includes('./' + file)) return;
-  event.respondWith((async () => {
-    const cache = await caches.open(CACHE_NAME);
-    const cached = await cache.match(request);
-    if (cached) return cached;
-    const response = await fetch(request);
-    if (response.ok) await cache.put(request, response.clone());
-    return response;
-  })());
+  event.respondWith(
+    caches.open(CACHE_NAME).then(cache => cache.match(request))
+      .then(async cached => {
+        if (cached) return cached;
+        const response = await fetch(request);
+        if (response.ok) {
+          const cache = await caches.open(CACHE_NAME);
+          await cache.put(request, response.clone());
+        }
+        return response;
+      })
+  );
 });
