@@ -7,7 +7,7 @@ const rules=Object.create(null);
 const sources={algebra:'Макарычев и др., 2024',geometry:'Атанасян и др., 2023',probability_statistics:'Высоцкий и Ященко, 2023'};
 
 const math=text=>'<span class="math">'+text+'</span>';
-const fmt=value=>String(value).replace(/^-/, '−').replace('.', ',');
+const fmt=value=>(Number.isInteger(value)?String(value):String(Number(value.toFixed(6)))).replace(/^-/, '−').replace('.', ',');
 const exact=value=>g7SignedHtml(value,{fraction:value.d!==1&&rationalFiniteDecimal(value)===null});
 const sum=(left,right)=>left+signed(right);
 const readResult=(expression,answer,...steps)=>[
@@ -34,8 +34,21 @@ const reviewedLessons={
  rational_numbers_forms:'Натуральные числа начинаются с 1. Целые числа включают натуральные, ноль и отрицательные целые. Рациональное число можно записать дробью с целым числителем и натуральным знаменателем. При делении либо получаем остаток 0, либо остатки начинают повторяться. Во втором случае записываем период в скобках.',
  rational_arithmetic:'При сложении и вычитании дробей приведи их к общему знаменателю. При умножении перемножь числители и знаменатели. Деление замени умножением на обратную дробь. Учитывай знаки и выполняй действия в скобках первыми.',
  variables_expression_value:'Выражение с переменной описывает число, которое зависит от значения буквы. При вычислении подставляй заданное число. Отрицательное число подставляй в скобках.',
- admissible_values:'Подставлять можно любые значения, при которых определены все действия. Для выражения с дробью найди, при каких значениях знаменатель равен нулю. Эти значения исключи.'
+ admissible_values:'Подставлять можно любые значения, при которых определены все действия. Для выражения с дробью найди, при каких значениях знаменатель равен нулю. Эти значения исключи.',
+ rational_compare_order:'У отрицательных чисел больше то, у которого модуль меньше. Дроби можно сравнить, приведя их к общему знаменателю. В двойном неравенстве должны быть верны оба сравнения.',
+ expression_properties:'Переместительное свойство позволяет менять порядок, сочетательное — группировать слагаемые и множители. По распределительному свойству a(b + c) = ab + ac. Можно раскрыть скобки или вынести общий множитель.',
+ identities:'Тождество верно при всех допустимых значениях переменных. Чтобы доказать тождество, приведи обе части к одному выражению. Чтобы опровергнуть равенство, достаточно одного допустимого значения, при котором части различны.',
+ brackets_like_terms:'Если перед скобками стоит минус, поменяй знак каждого слагаемого. Приводи только подобные слагаемые: складывай коэффициенты при одинаковых буквенных частях.'
 };
+
+function compare(prompt,left,right,explanation){
+ const signs=['&lt;','=','&gt;'],sign=signs[rationalCmp(left,right)+1];
+ return choice(prompt,sign,signs.filter(item=>item!==sign),explanation+' Получаем '+exact(left)+' '+sign+' '+exact(right)+'.');
+}
+const checkStatement=(prompt,truth,explanation)=>choice(prompt,truth?'Да':'Нет',[truth?'Нет':'Да'],explanation);
+const simplify=(expression,coefficient,constant,explanation)=>[
+ 'Упрости '+math(expression)+'.',g7Lin(coefficient,constant),explanation,'linear'
+];
 
 function add(section,id,title,rule,build){
  const group=G7_GROUPS.find(item=>item.id===section);
@@ -309,16 +322,232 @@ const reviewed = {
     ],'Сначала '+a+' + '+b+' = '+(a+b)+', затем '+(a+b)+' · '+c+' = '+((a+b)*c)+'. После вычитания '+a+' получается '+((a+b)*c-a)+'.'];
    }
   }
+ ],
+ compare_expression_values: [
+  {
+   sums: ({a,b,c,y})=>compare('Сравни '+math(a+' + '+b)+' и '+math(c+' + '+y)+'.',
+    rational(a+b),rational(c+y),'Вычислим обе суммы.'),
+   product_and_quotient: ({a,b,c})=>compare('Сравни '+math(a+' · '+b)+' и '+math(a*b*c+' : '+c)+'.',
+    rational(a*b),rational(a*b),'В правой части сокращаем множитель '+c+' и получаем то же произведение.'),
+   common_minuend: ({a,b,c})=>compare('Сравни без полного вычисления '+math(a+' − '+b)+' и '+math(a+' − '+(b+c))+'.',
+    rational(a-b),rational(a-b-c),'Уменьшаемое одинаковое. Чем больше вычитаемое, тем меньше разность.'),
+   compare_signed_products: ({a,b,c})=>compare('Сравни '+math(a+' · (−'+b+')')+' и '+math(c+' · '+b)+'.',
+    rational(-a*b),rational(c*b),'Слева произведение отрицательное, справа — положительное.')
+  },
+  {
+   compare_decimal_operations: ({a,b,c,y})=>compare('Сравни '+math(fmt(a/10)+' · '+b)+' и '+math(fmt(c*y/10)+' : '+y)+'.',
+    rational(a*b,10),rational(c,10),'Вычисляем произведение и частное.'),
+   compare_with_substitution: ({a,b,c,y})=>compare('При x = −'+c+' сравни '+math(a+'x + '+b)+' и '+math(y+' − x')+'.',
+    rational(-a*c+b),rational(y+c),'Вместо x в обеих частях подставляем (−'+c+').'),
+   multiply_or_divide: ({a,b,c})=>compare('Сравни без полного вычисления '+a+' · '+frac(b,b+c)+' и '+a+' : '+frac(b,b+c)+'.',
+    rational(a*b,b+c),rational(a*(b+c),b),'Дробь между 0 и 1. Умножение на неё уменьшает положительное число, деление увеличивает.'),
+   double_inequality: ({a,b,c})=>{
+    const value=a+c%(b+2),upper=a+b,truth=value<upper;
+    return checkStatement('Верно ли '+math(a+' ≤ '+value+' &lt; '+upper)+'?',truth,
+     'Левая граница допускает равенство, правая требует строго меньше. '+value+(truth?' меньше ':' больше или равно ')+upper+'.');
+   }
+  },
+  {
+   fraction_expressions: ({a,b,c,y})=>compare('Сравни '+frac(a,b)+' − '+frac(c,b+1)+' и '+frac(y,b)+' + '+frac(1,b+1)+'.',
+    rational(a*(b+1)-c*b,b*(b+1)),rational(y*(b+1)+b,b*(b+1)),
+    'Приводим четыре дроби к знаменателю '+b*(b+1)+', затем считаем обе части.'),
+   compare_average_speeds: ({a,b,c,y})=>compare('Первый велосипедист проехал '+a*b+' км за '+c+' ч, второй — '+a*y+' км за '+b+' ч. Сравни скорость первого со скоростью второго.',
+    rational(a*b,c),rational(a*y,b),'Делим пройденные расстояния на время. Значения указаны в км/ч.'),
+   check_substituted_bounds: ({a,b,c,y})=>{
+    const value=a*c-b,upper=a*y,truth=value>=a&&value<upper;
+    return checkStatement('При x = '+c+' верно ли '+math(a+' ≤ '+a+'x − '+b+' &lt; '+upper)+'?',truth,
+     'Подставляем x: '+a+' · '+c+' − '+b+' = '+fmt(value)+'. Проверяем отдельно '+a+' ≤ '+fmt(value)+' и '+fmt(value)+' &lt; '+upper+'.');
+   },
+   compare_without_products: ({a,b,c})=>compare('Сравни без раскрытия скобок '+math('(−'+a+') · ('+b+' + '+c+')')+' и '+math('(−'+a+') · '+b)+'.',
+    rational(-a*(b+c)),rational(-a*b),'Сумма '+b+' + '+c+' больше '+b+'. При умножении обеих частей на отрицательное число знак неравенства меняется.')
+  }
+ ],
+ rational_compare_order: [
+  {
+   signed_integers: ({a,b})=>compare('Сравни '+fmt(-a)+' и '+b+'.',rational(-a),rational(b),'Положительные числа расположены правее отрицательных.'),
+   negative_decimals: ({a,b})=>compare('Сравни '+fmt(-a/10)+' и '+fmt(-b/10)+'.',rational(-a,10),rational(-b,10),'Среди отрицательных чисел больше то, у которого модуль меньше.'),
+   same_denominator: ({a,b,c})=>compare('Сравни '+frac(a,c)+' и '+frac(b,c)+'.',rational(a,c),rational(b,c),'При одинаковом положительном знаменателе сравниваем числители.'),
+   between_integers: ({a,b})=>{
+    const above=b%2===0,offset=above?b/20:-b/20;
+    return checkStatement('Верно ли '+math(fmt(-a-1)+' &lt; '+fmt(-a+offset)+' &lt; '+fmt(-a))+'?',!above,
+     above?'Среднее число больше правой границы, так как к ней прибавили '+fmt(offset)+'.':
+     'От '+fmt(-a)+' отняли '+fmt(-offset)+', то есть меньше единицы. Число строго между границами.');
+   }
+  },
+  {
+   different_denominators: ({a,b,c})=>compare('Сравни '+frac(a,b)+' и '+frac(c,b+1)+'.',rational(a,b),rational(c,b+1),
+    'К знаменателю '+b*(b+1)+' приводятся числители '+a*(b+1)+' и '+c*b+'.'),
+   mixed_notation: ({a,b,c})=>compare('Сравни '+fmt(a/10)+' и '+frac(b,c)+'.',rational(a,10),rational(b,c),
+    'После приведения к знаменателю '+10*c+' получаем числители '+a*c+' и '+10*b+'.'),
+   negative_fractions: ({a,b,c})=>compare('Сравни −'+frac(a,c)+' и −'+frac(b,c+1)+'.',rational(-a,c),rational(-b,c+1),
+    'К знаменателю '+c*(c+1)+' приводятся числители '+fmt(-a*(c+1))+' и '+fmt(-b*c)+'.'),
+   sort_three: ({a,b,c})=>{
+    const low=fmt(-a/10),mid='0',high=fmt((b+c)/10),correct=low+' &lt; '+mid+' &lt; '+high;
+    return choice('Расположи по возрастанию '+high+', '+low+', '+mid+'.',correct,
+     [mid+' &lt; '+low+' &lt; '+high,high+' &lt; '+mid+' &lt; '+low,low+' &lt; '+high+' &lt; '+mid],
+     'Отрицательное число слева от нуля, положительное справа.');
+   }
+  },
+  {
+   signed_decimal_fraction: ({a,b,c})=>compare('Сравни '+fmt(-a/10)+' и −'+frac(b,c)+'.',rational(-a,10),rational(-b,c),
+    'Общий знаменатель '+10*c+'. Сравниваем отрицательные числители '+fmt(-a*c)+' и '+fmt(-10*b)+'.'),
+   compare_absolute_values: ({a,b,c})=>compare('Сравни модули '+math('|'+fmt(-a/10)+'|')+' и |−'+frac(b,c)+'|.',
+    rational(a,10),rational(b,c),'Убираем минус у каждого числа и сравниваем их расстояния до нуля.'),
+   strict_between_rationals: ({a,b,c})=>{
+    const left=rational(-a,b),value=rational(-c,b+1),truth=rationalCmp(left,value)<0;
+    return checkStatement('Лежит ли −'+frac(c,b+1)+' строго между −'+frac(a,b)+' и 0?',truth,
+     'Число отрицательное. Для нижней границы сравниваем числители '+fmt(-a*(b+1))+' и '+fmt(-c*b)+' при знаменателе '+b*(b+1)+'.');
+   },
+   order_negative_mixed: ({a,b})=>{
+    const first=fmt(-a-.5),second='−'+frac(a*b+1,b),third=fmt(-a-1);
+    const order=[third,first,second],equal=b===2;
+    const join=(items,signs)=>items[0]+signs[0]+items[1]+signs[1]+items[2];
+    const correct=join(order,[' &lt; ',equal?' = ':' &lt; ']);
+    return choice('Выбери верное сравнение чисел '+first+', '+second+', '+third+'.',correct,
+     [join(order,[' &lt; ',equal?' &lt; ':' = ']),join(order,[' &gt; ',' &lt; ']),join(order,[' &lt; ',' &gt; '])],
+     third+' меньше обоих чисел. В записи '+second+' модуль равен '+a+' + '+frac(1,b)+'. Сравниваем '+frac(1,b)+' с '+frac(1,2)+'.');
+   }
+  }
+ ],
+ expression_properties: [
+  {
+   identify_swap: ({a,b})=>choice('Какое свойство объясняет равенство '+math(a+' + '+(a+b)+' = '+(a+b)+' + '+a)+'?',
+    'Переместительное',['Сочетательное','Распределительное'],'Слагаемые поменялись местами. Сумма сохранилась.'),
+   identify_grouping: ({a,b,c})=>choice('Какое свойство объясняет '+math('('+a+' · '+b+') · '+c+' = '+a+' · ('+b+' · '+c+')')+'?',
+    'Сочетательное',['Переместительное','Распределительное'],'Порядок множителей прежний, изменилась только группировка.'),
+   expand_numerical_product: ({a,b,c})=>choice('Раскрой скобки в '+math(a+' · ('+b+' + '+c+')')+'.',
+    math(a+' · '+b+' + '+a+' · '+c),[math(a+' · '+b+' + '+c),math(a+' + '+b+' + '+c),math(a+' · '+b+' − '+a+' · '+c)],
+    'На '+a+' умножаем каждое слагаемое: '+b+' и '+c+'.'),
+   complete_a_hundred: ({a,b,c})=>readResult(math((30+a)+' + '+(b+c)+' + '+(70-a)),100+b+c,
+    'Переставляем слагаемые и складываем '+(30+a)+' + '+(70-a)+' = 100.','100 + '+(b+c)+' = '+(100+b+c)+'.')
+  },
+  {
+   convenient_product: ({a,b})=>readResult(math('25 · '+(a*b)+' · 4'),100*a*b,
+    'По переместительному и сочетательному свойствам группируем 25 и 4.','25 · 4 = 100. Значит, результат '+100*a*b+'.'),
+   common_multiplier: ({a,b,c})=>readResult(math(a+' · '+b+' + '+a+' · '+c),a*(b+c),
+    'Выносим общий множитель '+a+': '+a+' · ('+b+' + '+c+').',a+' · '+(b+c)+' = '+a*(b+c)+'.'),
+   group_signed_decimals: ({a,b,c})=>readResult(math(fmt(a/10)+' − '+fmt((b+c)/10)+' + '+fmt((20-a)/10)),rational(20-b-c,10),
+    'Вычитание считаем сложением отрицательного числа. Группируем '+fmt(a/10)+' + '+fmt((20-a)/10)+' = 2.',
+    '2 − '+fmt((b+c)/10)+' = '+fmt((20-b-c)/10)+'.'),
+   expand_difference: ({a,b,c})=>{
+    const bigger=b+c;
+    return choice('Раскрой скобки в '+math(a+' · ('+bigger+' − '+c+')')+'.',
+     math(a+' · '+bigger+' − '+a+' · '+c),[math(a+' · '+bigger+' − '+c),math(a+' · '+bigger+' + '+a+' · '+c),math(a+' − '+bigger+' · '+c)],
+     'Умножаем оба члена разности на '+a+' и сохраняем знак вычитания.');
+   }
+  },
+  {
+   factor_decimal_difference: ({a,b,c})=>readResult(math(fmt(a/10)+' · '+fmt((b+c+20)/10)+' − '+fmt(a/10)+' · '+fmt((b+c)/10)),rational(a,5),
+    'Выносим '+fmt(a/10)+' за скобки. Разность оставшихся множителей равна 2.',fmt(a/10)+' · 2 = '+fmt(a/5)+'.'),
+   distribute_to_three: ({a,b,c,y})=>readResult(math('(−'+a+') · ('+b+' − '+c+' + '+y+')'),-a*b+a*c-a*y,
+    'Распределяем отрицательный множитель на все три слагаемых: '+sum(sum(fmt(-a*b),a*c),-a*y)+'.',
+    'Итог: '+fmt(-a*b+a*c-a*y)+'.'),
+   divisibility_via_factoring: ({a,b,c})=>{
+    const left=a+b,right=left+c;
+    return ['Какое частное получится при делении '+math(left+' · '+b+' + '+right+' · '+b)+' на '+b+'?',
+     left+right,'Выносим общий множитель '+b+': '+b+' · ('+left+' + '+right+'). После деления остаётся '+(left+right)+'.'];
+   },
+   grouped_fraction_sum: ({a,b,c,y})=>{
+    const answer=rational(c+y,b+1);
+    return readResult(frac(a,b)+' + '+frac(c,b+1)+' − '+frac(a,b)+' + '+frac(y,b+1),answer,
+     frac(a,b)+' и −'+frac(a,b)+' дают в сумме 0.',frac(c,b+1)+' + '+frac(y,b+1)+' = '+g7FracHtml(answer)+'.');
+   }
+  }
+ ],
+ identities: [
+  {
+   distributive_identity: ({a,b,c})=>{
+    const truth=c%2===0;
+    return checkStatement('Является ли равенство '+math(a+'(x + '+b+') = '+a+'x + '+(a*b+Number(!truth)))+' тождеством?',truth,
+     'После раскрытия скобок левая часть равна '+math(a+'x + '+a*b)+'. '+(truth?'Обе части совпадают при любом x.':'Свободные члены различны.'));
+   },
+   commutative_identity: ({a,b})=>choice('Какое выражение тождественно равно '+math(a+'x + '+b)+'?',
+    math(b+' + '+a+'x'),[math(b+' − '+a+'x'),math(a+'x − '+b),math(b+' + '+(a+1)+'x')],
+    'При перестановке слагаемых сумма сохраняется.'),
+   inverse_terms: ({a,b})=>choice('Что получится после упрощения '+math(a+'x + '+b+' − '+a+'x')+'?',
+    math(b),[math(-b),math(2*a+'x + '+b),math(a+'x + '+b)],'Противоположные слагаемые '+a+'x и −'+a+'x дают 0.'),
+   check_at_zero: ({a,b})=>checkStatement('Верно ли '+math(a+'x + '+b+' = '+(a+b)+'x')+' при x = 0?',false,
+    'Слева остаётся '+b+', справа 0. Одного значения x = 0 достаточно, чтобы опровергнуть тождество.')
+  },
+  {
+   counterexample: ({a,b,c})=>choice('Какое x опровергает равенство '+math(a+'x + '+a*b+' = '+a*(b+1)+'x')+'?',
+    String(c),['1'],'Разность левой и правой частей равна '+a*b+'(1 − x). Она обращается в ноль только при x = 1.'),
+   missing_constant: ({a,b,c})=>['Какое число нужно записать вместо □, чтобы равенство '+math(a+'(x − '+b+') + '+c+' = '+a+'x + (□)')+' стало тождеством?',
+    c-a*b,'Раскрываем скобки: '+a+'x − '+a*b+' + '+c+'. Свободный член равен '+fmt(c-a*b)+'.'],
+   factor_identity: ({a,b,c})=>choice('Какое выражение тождественно равно '+math(a*b+'x − '+a*c)+'?',
+    math(a+'('+b+'x − '+c+')'),[math(a+'('+b+'x + '+c+')'),math(a+'('+b+'x − '+(c+1)+')'),math(a+'('+(b+1)+'x − '+c+')')],
+    'Делим оба слагаемых на общий множитель '+a+' и записываем их в скобках.'),
+   decimal_identity: ({a,b,c})=>{
+    const truth=c%2===0,coefficient=rational(a-b,10);
+    const right=g7LinHtml(truth?coefficient:rational(a+b,10),c);
+    return checkStatement('Является ли '+math(fmt(a/10)+'x − '+fmt(b/10)+'x + '+c)+' = '+right+' тождеством?',truth,
+     'Слева после приведения подобных получается '+g7LinHtml(coefficient,c)+'.');
+   }
+  },
+  {
+   identity_missing_coefficient: ({a,b,c,y})=>['Найди коэффициент □, чтобы '+math(a+'(x + '+b+') − '+c+'(x − '+y+') = (□)x + '+(a*b+c*y))+' было тождеством.',
+    a-c,'Раскрываем обе скобки: '+a+'x + '+a*b+' − '+c+'x + '+c*y+'. Коэффициент при x равен '+fmt(a-c)+'.'],
+   remove_variable: ({a,b,c})=>['Какое значение при любом x принимает '+math(a+'(x − '+b+') − ('+a+'x − '+c+')')+'?',
+    c-a*b,'После раскрытия скобок '+a+'x − '+a*b+' − '+a+'x + '+c+'. Слагаемые с x сокращаются. Остаётся '+fmt(c-a*b)+'.'],
+   proves_for_two_variables: ({a,b,c})=>choice('Какое выражение тождественно равно '+math(a+'(x − '+b+'y) − '+c+'(x − '+b+'y)')+'?',
+    math('('+fmt(a-c)+')(x − '+b+'y)'),[math('('+(a+c)+')(x − '+b+'y)'),math('('+fmt(a-c+1)+')(x + '+b+'y)'),math('('+fmt(a-c-1)+')(x − '+b+'y)')],
+    'Выносим двучлен x − '+b+'y за скобки. В другом множителе остаётся '+a+' − '+c+' = '+fmt(a-c)+'.'),
+   equality_vs_identity: ({a,b,c})=>{
+    const value=a*b+c;
+    return choice('При x = '+b+' значение '+math(a+'x + '+c)+' равно '+value+'. Что верно?',
+     'Равенство выполняется только при указанном x',['Это тождество','Равенство выполняется при каждом положительном x','Равенство выполняется при x = 0'],
+     'При подстановке равенство верно. Если x изменится, значение левой части изменится, так как коэффициент '+a+' отличен от нуля.');
+   }
+  }
+ ],
+ brackets_like_terms: [
+  {
+   combine_x: ({a,b,c})=>simplify(a+'x + '+b+'x − '+c+'x',a+b-c,0,
+    'Складываем коэффициенты: '+a+' + '+b+' − '+c+' = '+fmt(a+b-c)+'. Ответ '+g7LinHtml(a+b-c,0)+'.'),
+   drop_plus_brackets: ({a,b,c})=>simplify(a+' + ('+b+'x − '+c+')',b,a-c,
+    'Перед скобками плюс, поэтому знаки сохраняются: '+a+' + '+b+'x − '+c+'. Ответ '+g7LinHtml(b,a-c)+'.'),
+   drop_minus_brackets: ({a,b,c})=>simplify(a+' − ('+b+'x − '+c+')',-b,a+c,
+    'Меняем оба знака в скобках: '+a+' − '+b+'x + '+c+'. Ответ '+g7LinHtml(-b,a+c)+'.'),
+   combine_two_letters: ({a,b,c})=>choice('Приведи подобные в '+math(a+'x + '+b+'y + '+c+'x')+'.',
+    math((a+c)+'x + '+b+'y'),[math((a+b+c)+'x'),math(a+'x + '+(b+c)+'y'),math((a+c)+'x − '+b+'y')],
+    'Складываем коэффициенты при x. Единственное слагаемое с y сохраняется.')
+  },
+  {
+   multiply_then_combine: ({a,b,c,y})=>simplify(a+'('+b+'x − '+c+') + '+y+'x',a*b+y,-a*c,
+    'Раскрываем скобки: '+a*b+'x − '+a*c+' + '+y+'x. Получаем '+g7LinHtml(a*b+y,-a*c)+'.'),
+   sum_two_brackets: ({a,b,c,y})=>simplify('('+a+'x − '+b+') + ('+c+' − '+y+'x)',a-y,c-b,
+    'Перед скобками знаки плюс. Группируем коэффициенты '+a+' − '+y+' и свободные числа '+c+' − '+b+'. Ответ '+g7LinHtml(a-y,c-b)+'.'),
+   negative_multiplier: ({a,b,c,y})=>simplify('−'+a+'('+b+'x + '+c+') + '+y,-a*b,y-a*c,
+    'Умножаем два слагаемых на (−'+a+'): −'+a*b+'x − '+a*c+' + '+y+'. Получаем '+g7LinHtml(-a*b,y-a*c)+'.'),
+   decimal_coefficients: ({a,b,c,y})=>{
+    const coefficient=rational(a-c,10),constant=rational(b+y,10);
+    return simplify(fmt(a/10)+'x + '+fmt(b/10)+' − ('+fmt(c/10)+'x − '+fmt(y/10)+')',coefficient,constant,
+     'Меняем знаки в скобках. Коэффициент при x равен '+fmt((a-c)/10)+', свободный член '+fmt((b+y)/10)+'.');
+   }
+  },
+  {
+   two_products: ({a,b,c,y})=>simplify(a+'('+b+'x − '+c+') − '+b+'('+c+'x + '+y+')',a*b-b*c,-a*c-b*y,
+    'После раскрытия получаем '+a*b+'x − '+a*c+' − '+b*c+'x − '+b*y+'. Приводим подобные: '+g7LinHtml(a*b-b*c,-a*c-b*y)+'.'),
+   simplify_and_substitute: ({a,b,c,y})=>{
+    const coefficient=a+c,constant=-b-y,answer=coefficient*(-c)+constant;
+    return ['Упрости '+math('('+a+'x − '+b+') − ('+y+' − '+c+'x)')+' и вычисли при x = '+fmt(-c)+'.',
+     answer,'Раскрываем скобки и приводим подобные: '+g7LinHtml(coefficient,constant)+'. При x = '+fmt(-c)+' получаем '+fmt(answer)+'.'];
+   },
+   simplify_context: ({a,b,c})=>{
+    const coefficient=c+2,constant=(c+1)*a+b;
+    const left=g7LinHtml(coefficient,constant);
+    return choice('В первой коробке x тетрадей, во второй на '+a+' больше. В третьей в '+c+' раз больше, чем во второй, и ещё '+b+' тетрадей. Выбери упрощённое выражение для общего количества.',
+     left,[g7LinHtml(coefficient,c*a+b),g7LinHtml(c+1,constant),g7LinHtml(coefficient,constant-b)],
+     'Складываем x + (x + '+a+') + '+c+'(x + '+a+') + '+b+'. После раскрытия скобок получаем '+left+'.');
+   },
+   nested_brackets: ({a,b,c,y})=>simplify(a+'x − ('+b+' − ('+c+'x − '+y+'))',a+c,-b-y,
+    'Внешний минус меняет знаки: '+a+'x − '+b+' + ('+c+'x − '+y+'). Собираем подобные: '+g7LinHtml(a+c,-b-y)+'.')
+  }
  ]
 };
-add('alg_expressions_equations','compare_expression_values','Сравнение значений выражений','Вычисли оба значения. На числовой прямой большее число расположено правее.',
- ({a,b,c,y,d,k})=>{
- const xs=d===0?[[a+b,a-b,a+' + '+b,a+' − '+b],[a*c,b*c,a+' · '+c,b+' · '+c],[a+b,c+y,a+' + '+b,c+' + '+y]]:
- d===1?[[(a-b)*c,a-b*c,'('+a+' − '+b+') · '+c,a+' − '+b+' · '+c],[-a*c,-b*y,'−'+a+' · '+c,'−'+b+' · '+y],[(a+b)*c,a*c+b*c,'('+a+' + '+b+') · '+c,a+' · '+c+' + '+b+' · '+c]]:
- [[(a-b)**2,(c-y)**2,'('+a+' − '+b+')²','('+c+' − '+y+')²'],[-(a**2),0,'−'+a+'²','0'],[a**2-b*c,b**2-a*c,a+'² − '+b+' · '+c,b+'² − '+a+' · '+c]];
- const [left,right,p,q]=xs[k]; const sign=left===right?'=':left<right?'&lt;':'&gt;';
- return ['Сравни '+p+' и '+q+'.',sign,['&lt;','=','&gt;'],p+' = '+left+', а '+q+' = '+right+'.'];
-});
+add('alg_expressions_equations','compare_expression_values','Сравнение значений выражений',
+ 'Чтобы сравнить выражения, вычисли оба значения или используй свойства действий. При указанном значении переменной сначала подставь его в обе части. Для двойного неравенства проверь обе границы.',
+ null);
 add('alg_functions','function_formula_values','Вычисление значений функции по формуле','В прямой задаче подставь аргумент. В обратной задаче приравняй формулу к известному значению функции и реши уравнение.',
  ({a,b,c,y,d,n})=>n(...(d===0?[
   ['f(x) = '+a+'x'+signed(b)+'. Найди f('+c+').',a*c+b],
@@ -923,6 +1152,7 @@ makeG7Question=function(id,stageOverride=null){
   const audit={variant,level:d};
   const sig=g7QuestionSig(raw,d,variant,[text]);
   if(Array.isArray(options))return g7StrictChoice(text,answer,options,detail,sig,audit);
+  if(detail==='linear')return g7LinearInput(text,answer,options,sig,audit);
   return g7InputQuestionForRat(text,typeof answer==='number'?rational(answer):answer,options,sig,{audit,
    inputHint:'Введи точное значение. Обыкновенную дробь можно записать через /.'});
  }
