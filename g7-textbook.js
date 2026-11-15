@@ -7744,9 +7744,11 @@ function dieProbability(prompt,success,ex){
 const baseTenDigits=['0','1','2','3','4','5','6','7','8','9'];
 const digitSum=number=>addValues(String(number).split('').map(Number));
 function dataForReview(a,b,c,y){
- const labels=['A','Б','В','Г'],shift=(a+b)%4,base=[1,2,3,4];
+ const labels=['Книги','Игры','Спорт','Музыка'],shift=(a+b)%4;
+ const shapes=[[1,2,3,4],[1,2,2,5],[1,1,3,5]],base=shapes[(a+c)%shapes.length];
  const ratio=base.slice(shift).concat(base.slice(0,shift)),unit=a+b+c+y,values=ratio.map(v=>v*unit),total=10*unit;
- const scale=g6ChartScale(values),bar={labels,values,title:'Количество ответов',maxValue:scale.maxValue,step:scale.step};
+ const step=Math.ceil(Math.max(...values)/50)*10;
+ const bar={labels,values,title:'Количество ответов',maxValue:Math.ceil(Math.max(...values)/step)*step,step};
  const pie={labels,values:ratio.map(v=>10*v),title:'Доли ответов, %'};
  return {labels,ratio,unit,values,total,bar:question=>g6AttachBarChart(question,bar),pie:question=>g7AttachPie(question,pie)};
 }
@@ -7767,7 +7769,7 @@ Object.assign(reviewed,{
   {
    count_sequences_of_coin_tosses:({a,b})=>{
     const n=a%4+2;
-    return ['Монету бросают '+n+' раза, записывая результаты по порядку. Сколько последовательностей возможны?',2**n,'На каждом шаге два варианта. Перемножаем два '+n+' раза.'];
+    return ['Число бросков монеты: '+n+'. Результаты записывают по порядку. Сколько последовательностей возможны?',2**n,'На каждом шаге два варианта. Перемножаем по одной двойке за каждый бросок.'];
    },
    exactly_one_head_in_two:({a,b})=>{
     const name=a%2?'орёл':'решка';
@@ -7795,7 +7797,7 @@ Object.assign(reviewed,{
    },
    at_least_one_head:({a,b})=>{
     const n=b%4+2;
-    return ['Подбросили честную монету '+n+' раза независимо. Какова вероятность хотя бы одного орла?',rational(2**n-1,2**n),
+    return ['Число независимых бросков честной монеты: '+n+'. Какова вероятность хотя бы одного орла?',rational(2**n-1,2**n),
      'Не подходит только одна последовательность — та, где выпали одни решки.'];
    },
    count_ordered_pairs_having_multiple:({a,b})=>{
@@ -7891,10 +7893,10 @@ Object.assign(reviewed,{
     return checkStatement('Цифры числа '+(10*x+y)+' поменяли местами. Обнаружит ли подмену контрольная сумма, равная сумме цифр?',false,
      'После перестановки слагаемых сумма '+(x+y)+' сохраняется.');
    },
-   find_control_digit_simple_remainder:({a,b})=>{
-    const x=a%8+1,y=b%8+1;
-    return ['Контрольная цифра — последняя цифра суммы цифр кода '+(100*x+10*y+7)+'. Найди её.',(x+y+7)%10,
-     'Сумма '+(x+y+7)+'. Нужна её последняя цифра.'];
+   chance_of_matching_random_typo:({a})=>{
+    const count=a%7+3;
+    return ['Первый ввод уже содержит ошибку. Если во втором вводе тоже будет ошибка, все '+count+' неверных вариантов равновозможны. Какова вероятность совпадения ошибок при этом условии?',
+     rational(1,count),'Из '+count+' неверных вариантов во втором вводе совпасть с первым может только один.'];
    }
   },
   {
@@ -7913,10 +7915,10 @@ Object.assign(reviewed,{
     return ['В двухзначном коде разрешён ведущий ноль. Контрольная сумма его двух цифр '+target+'. Сколько разных кодов имеют эту сумму?',n,
      'Первая цифра может быть любой от 0 до '+target+'. Вторая однозначно дополняет её до суммы.'];
    },
-   distinguish_two_checks_under_repeat:({a,b})=>{
-    const x=a%4+1,y=b%4+6,p=10*x+y,q=10*y+x;
-    return choice('Первая копия кода '+p+', вторая '+q+'. Какой способ обнаружит расхождение между копиями?',
-     'Сравнение кодов целиком',['Сравнение сумм цифр','Оба способа','Ни один способ'],'Коды различаются, а сумма цифр одинакова из-за перестановки.');
+   probability_of_same_error_twice:({a,b})=>{
+    const outcomes=a%4+5,wrong=b%3+2;
+    return ['В каждом из двух независимых вводов '+outcomes+' равновозможных вариантов. Ровно '+wrong+' из них неверны и одинаковы для обоих вводов. Найди вероятность того, что оба ввода дадут один и тот же неверный вариант.',
+     rational(wrong,outcomes**2),'Всего '+outcomes**2+' упорядоченных пар. Подходят '+wrong+' пар, в которых один и тот же неверный вариант повторяется.'];
    }
   }
  ],
@@ -7935,7 +7937,7 @@ Object.assign(reviewed,{
     return withVisual(['Какой процент занимает сектор «'+m.labels[i]+'»?',10*m.ratio[i],'Находим сектор по легенде.'],m.pie);
    },
    find_largest_category_in_review:({a,b,c,y})=>{
-    const m=dataForReview(a,b,c,y),i=m.ratio.indexOf(4);
+    const m=dataForReview(a,b,c,y),i=m.ratio.indexOf(Math.max(...m.ratio));
     return withVisual(choice('Какой категории соответствует самый большой сектор?',m.labels[i],m.labels.filter((_,j)=>j!==i),'Выбираем сектор с наибольшей долей.'),m.pie);
    }
   },
@@ -7954,7 +7956,7 @@ Object.assign(reviewed,{
    },
    count_categories_above_quarter:({a,b,c,y})=>{
     const m=dataForReview(a,b,c,y),i=b%2,cutoff=25+10*i;
-    return withVisual(['Сколько категорий составляют строго больше '+cutoff+'% общего числа?',2-i,'Считаем сектора, чьи доли превышают указанный порог.'],m.pie);
+    return withVisual(['Сколько категорий составляют строго больше '+cutoff+'% общего числа?',m.ratio.filter(value=>10*value>cutoff).length,'Считаем сектора, чьи доли превышают указанный порог.'],m.pie);
    }
   },
   {
