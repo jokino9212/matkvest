@@ -207,7 +207,7 @@ const grade7Chapters=[
  {part:'Геометрия',chapter:'I',title:'Начальные геометрические сведения',items:[
   [1,'Точка, прямая, отрезок',['geo_primitives']],
   [2,'Провешивание прямой',['geo_field_line']],
-  [3,'Луч',['geo_primitives']],
+  [3,'Луч',['geo_rays']],
   [4,'Угол',['geo_angle_bisector']],
   [5,'Равные фигуры',['geo_congruent_figures']],
   [6,'Сравнение отрезков и углов',['geo_segment_angle_measurement','geo_angle_bisector']],

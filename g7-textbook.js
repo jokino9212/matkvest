@@ -87,7 +87,10 @@ const reviewedLessons={
  fraction_word_problems:'Чтобы найти часть от целого, умножь целое на дробь. Чтобы восстановить целое по части, раздели известное значение на дробь. Проверь, от какой величины взята каждая доля.',
  percent_fraction_conversion:'p% означает p сотых. Для перевода процентов в дробь дели на 100. Чтобы записать число в процентах, умножай его на 100 и ставь знак процента.',
  percent_word_problems:'Выясни, какая величина равна 100%. Увеличение на p% означает умножение на 1 + p/100, уменьшение — на 1 − p/100.',
- direct_inverse_proportion:'При прямой пропорциональности отношение y к x постоянно. При обратной постоянно произведение xy. В задачах сначала проверь, какая величина фиксирована.'
+ direct_inverse_proportion:'При прямой пропорциональности отношение y к x постоянно. При обратной постоянно произведение xy. В задачах сначала проверь, какая величина фиксирована.',
+ geo_primitives:'Через две различные точки проходит ровно одна прямая. Отрезок AB состоит из точек A, B и всех точек прямой между ними. В обозначении отрезка порядок концов можно менять.',
+ geo_field_line:'Чтобы провесить прямую, сначала ставят вехи в двух известных точках. Затем промежуточные вехи выставляют по линии визирования. Между соседними вехами один промежуток.',
+ geo_rays:'Луч имеет начало и продолжается в одну сторону. В названии AB первой пишут точку начала A, второй — точку B, задающую направление. Два луча с общим началом и противоположными направлениями образуют прямую.'
 };
 
 function compare(prompt,left,right,explanation){
@@ -153,6 +156,26 @@ function systemGraph(lines){
  const series=lines.map(([k,b],i)=>g7LineSeries(k,b,{alt:i>0,label:i?'Вторая прямая':'Первая прямая'}));
  return question=>g7AttachGraph(question,g7GraphData(series,{caption:'Графики уравнений системы'}));
 }
+const geometryLetters='ABCDEFGHKLMNPQRSTUVXYZ';
+const geometryLabels=(a,b)=>Array.from({length:4},(_,i)=>geometryLetters[(4*(a-3)+i+(b-2)*3)%geometryLetters.length]);
+function geometryLine(labels,kind='line',offPoint=''){
+ const data={kind:'g7-textbook-line',figure:kind,labels,offPoint};
+ return question=>g7GeoAttach(question,data,'Отмеченные точки: '+[...labels,offPoint].filter(Boolean).join(', ')+'.');
+}
+const originalGeometrySvg=geometrySvg;
+geometrySvg=function(data){
+ if(data?.kind!=='g7-textbook-line')return originalGeometrySvg(data);
+ const positions=data.labels.map((label,i)=>({label,x:120+i*125,y:122}));
+ const first=positions[0],last=positions.at(-1),left=data.figure==='line'?60:first.x,right=data.figure==='segment'?last.x:580;
+ const arrows=[];
+ if(data.figure==='line')arrows.push([left,-1]);
+ if(data.figure!=='segment')arrows.push([right,1]);
+ const arrowHtml=arrows.map(([x,dx])=>'<polygon fill="currentColor" points="'+g7GeoArrowTip({x,y:122},{x:dx,y:0})+'"></polygon>').join('');
+ const points=positions.map(({x,y,label})=>g6GeoPoint(x,y,label,-5,-18)).join('');
+ const outside=data.offPoint?g6GeoPoint(350,65,data.offPoint,-5,-18):'';
+ return '<div class="geometry-wrap"><svg class="geometry-svg" viewBox="0 0 640 205" role="img" aria-label="Геометрический чертёж">'+
+  g6GeoLine(left,122,right,122,data.figure==='segment'?'geo-segment':'geo-line')+arrowHtml+points+outside+'</svg></div>';
+};
 
 function add(section,id,title,rule,build){
  const group=G7_GROUPS.find(item=>item.id===section);
@@ -2838,6 +2861,184 @@ const reviewed = {
    infer_workers_from_fraction_time: ({a,b})=>['За '+3*a+' дней работу выполняют '+2*b+' рабочих. Сколько рабочих нужно, чтобы закончить за '+2*a+' дней?',3*b,
     'Объём работы одинаков, поэтому число рабочих умножаем на отношение старого времени к новому: '+2*b+' · '+frac(3*a,2*a)+' = '+3*b+'.']
   }
+ ],
+ geo_primitives: [
+  {
+   one_line_through_two_points: ({a,b})=>{
+    const [p,q]=geometryLabels(a,b);
+    return ['Сколько прямых проходит через две различные точки '+p+' и '+q+'?',1,
+     'Через две различные точки проходит одна и только одна прямая.'];
+   },
+   read_middle_point: ({a,b})=>{
+    const [p,q,r]=geometryLabels(a,b);
+    return withVisual(choice('Какая точка лежит между '+p+' и '+r+'?',q,[p,r,'Ни одна'],
+     'На чертеже порядок такой: '+p+' — '+q+' — '+r+'.'),geometryLine([p,q,r]));
+   },
+   read_collinear_membership: ({a,b})=>{
+    const [p,q,r,s]=geometryLabels(a,b);
+    return withVisual(choice('Какая точка лежит вне прямой '+p+q+'?',s,[p,q,r],
+     'Точки '+p+', '+q+' и '+r+' отмечены на прямой. Точка '+s+' находится в стороне.'),geometryLine([p,q,r],'line',s));
+   },
+   read_segment_endpoints: ({a,b})=>{
+    const [p,q,r]=geometryLabels(a,b);
+    return withVisual(choice('Как называется весь изображённый отрезок?',p+r,[p+q,q+r,q+p],
+     'Концы отрезка — крайние отмеченные точки '+p+' и '+r+'.'),geometryLine([p,q,r],'segment'));
+   }
+  },
+  {
+   count_segments_from_collinear_points: ({a,b})=>{
+    const n=3+a%6;
+    return ['На прямой отметили '+n+' различных точек. Сколько отрезков с концами в отмеченных точках?',n*(n-1)/2,
+     'Выбираем две точки для концов. Получаем '+n+' · '+(n-1)+' пар с порядком, но каждый отрезок посчитан дважды. Делим на 2.'];
+   },
+   two_names_of_same_segment: ({a,b})=>{
+    const [p,q,r,s]=geometryLabels(a,b);
+    return choice('Как ещё можно назвать отрезок '+p+q+'?',q+p,[p+r,q+s,r+s],
+     'Если поменять местами названия концов отрезка, получится тот же отрезок.');
+   },
+   one_line_for_collinear_triplet: ({a,b})=>{
+    const [p,q,r]=geometryLabels(a,b);
+    return ['Точки '+p+', '+q+' и '+r+' лежат на одной прямой. Сколько различных прямых задают пары '+p+q+', '+p+r+' и '+q+r+'?',1,
+     'Каждая из этих пар задаёт уже указанную прямую. Все три записи называют одну прямую.'];
+   },
+   count_intermediate_marked_points: ({a,b})=>{
+    const labels=geometryLabels(a,b),from=a%2,to=3;
+    return withVisual(['Сколько отмеченных точек строго между '+labels[from]+' и '+labels[to]+'?',to-from-1,
+     'Идём от '+labels[from]+' до '+labels[to]+'. Крайние точки в число промежуточных не входят.'],geometryLine(labels));
+   }
+  },
+  {
+   count_lines_with_one_off_line: ({a,b})=>{
+    const total=4+a%6,base=total-1;
+    return ['На прямой отметили '+base+' точек, а ещё одну точку поставили вне прямой. Сколько различных прямых задают пары этих точек?',total,
+     'Пары на исходной прямой дают одну прямую. Внешняя точка с каждой из '+base+' точек задаёт свою прямую. Всего '+(base+1)+'.'];
+   },
+   segment_contains_two_marked_points: ({a,b})=>{
+    const [p,q,r,s]=geometryLabels(a,b);
+    return withVisual(choice('Какой из отрезков содержит обе точки '+q+' и '+r+' как внутренние?',p+s,[p+r,q+s,q+r],
+     'Концы нужного отрезка должны лежать левее '+q+' и правее '+r+'. На чертеже это '+p+' и '+s+'.'),geometryLine([p,q,r,s]));
+   },
+   count_segments_with_fixed_endpoint: ({a,b})=>{
+    const n=5+a%7,[p]=geometryLabels(a,b);
+    return ['На прямой '+n+' отмеченных точек, включая '+p+'. Сколько отрезков с двумя отмеченными концами имеют '+p+' одним концом?',n-1,
+     'Вторым концом можно выбрать любую из остальных '+(n-1)+' точек.'];
+   },
+   find_total_from_segment_count: ({a})=>{
+    const n=4+a%7,total=n*(n-1)/2;
+    return ['На прямой отметили несколько точек. Все пары отмеченных точек задают '+total+' разных отрезков. Сколько точек отметили?',n,
+     'Каждая пара даёт один отрезок. Проверяем '+n+' точек: '+n+' · '+(n-1)+' : 2 = '+total+'. При другом числе точек число пар меняется.'];
+   }
+  }
+ ],
+ geo_field_line: [
+  {
+   two_starting_markers: ({a,b})=>{
+    const [p,q]=geometryLabels(a,b);
+    return choice('Нужно разметить прямую '+p+q+' на местности. Что поставить сначала?',
+     'Вехи в '+p+' и '+q,['Только веху в '+p,'Одну веху между точками','Две вехи в одной точке'],
+     'Две разные исходные точки задают направление прямой.');
+   },
+   count_all_stakes: ({a,b})=>['Между двумя крайними вехами стоят '+a+' промежуточных. Сколько вех всего?',a+2,
+    'К промежуточным прибавляем две крайние: '+a+' + 2 = '+(a+2)+'.'],
+   choose_aligned_stake: ({a,b})=>{
+    const [p,q,r,s]=geometryLabels(a,b);
+    return withVisual(choice('Крайние вехи стоят в '+p+' и '+r+'. Какую отмеченную точку выбрать для промежуточной вехи?',q,[p,r,s],
+     'Точка '+q+' лежит на линии визирования между исходными вехами. Точка '+s+' смещена в сторону.'),geometryLine([p,q,r],'line',s));
+   },
+   count_gaps: ({a})=>['Вдоль прямой выставили '+(a+1)+' вех. Сколько промежутков между соседними вехами?',a,
+    'Каждый промежуток образует пара соседних вех. Их на один меньше, чем вех.']
+  },
+  {
+   distance_given_spacing: ({a,b})=>['В ряду '+(a+1)+' вех. Между соседними '+b+' м. Найди расстояние от первой до последней (в м).',a*b,
+    'Между '+(a+1)+' вехами '+a+' промежутков. Умножаем '+a+' · '+b+'.'],
+   stakes_including_endpoints: ({a,b})=>['От первой вехи до последней '+a*b+' м. Вехи стоят через '+b+' м. Сколько вех вместе с крайними?',a+1,
+    'Делим расстояние на шаг и получаем '+a+' промежутков. Вех на одну больше.'],
+   find_spacing_on_line: ({a,b})=>['На участке длиной '+a*b+' м установили '+(a+1)+' вех, включая обе крайние. Найди равный шаг (в м).',b,
+    'Между вехами '+a+' промежутков. Делим '+a*b+' на '+a+'.'],
+   position_of_numbered_stake: ({a,b,c})=>['Вехи стоят через '+b+' м. На каком расстоянии от первой стоит веха № '+(a+1)+'?',a*b,
+    'До вехи № '+(a+1)+' от первой '+a+' промежутков. Расстояние '+a+' · '+b+' = '+a*b+' м.']
+  },
+  {
+   two_sections_share_stake: ({a,b,c})=>['Два соседних участка прямой дороги длиной '+a*b+' и '+c*b+' м размечают вехами через '+b+' м. В месте стыка стоит одна общая веха. Сколько вех всего, включая крайние?',a+c+1,
+    'На первом участке '+a+' промежутков, на втором '+c+'. Складываем и добавляем 1 к числу промежутков.'],
+   extend_and_count_new_stakes: ({a,b,c})=>['По прямой от A до B '+a*b+' м. Вехи стоят через '+b+' м. Линию продлили на '+c*b+' м за B. Сколько новых вех нужно после B, включая новый конец?',c,
+    'На продолжении '+c*b+' : '+b+' = '+c+' промежутков. Веха B уже стоит, значит нужно '+c+' новых.'],
+   missing_stakes_from_existing_layout: ({a,b,c})=>['На отрезке '+2*a*b+' м вехи уже поставлены через '+2*b+' м, включая крайние. Шаг уменьшают до '+b+' м. Сколько вех нужно добавить?',a,
+    'В каждом из '+a+' исходных промежутков добавляем ровно одну веху посередине.'],
+   two_passes_alignment: ({a,b})=>['При разбивке прямой от точки A отмерили '+a*b+' м до B, дальше ещё '+2*a*b+' м до C. Вехи считают от A с шагом '+b+' м. Какой номер имеет веха в C, если в A стоит веха № 1?',3*a+1,
+    'От A до C '+3*a*b+' м, это '+3*a+' промежутков. Так как счёт начинается с 1, в C номер '+(3*a+1)+'.']
+  }
+ ],
+ geo_rays: [
+  {
+   ray_start_from_name: ({a,b})=>{
+    const [p,q,r,s]=geometryLabels(a,b);
+    return choice('Какая точка является началом луча '+p+q+'?',p,[q,r,s],
+     'Первая буква в названии луча обозначает его начало.');
+   },
+   read_ray_name: ({a,b})=>{
+    const [p,q,r]=geometryLabels(a,b);
+    return withVisual(choice('Как называется показанный луч?',p+q,[q+p,p+r,r+q],
+     'Луч начинается в '+p+' и проходит через '+q+'. В названии начало пишем первым.'),geometryLine([p,q],'ray'));
+   },
+   ray_vs_segment: ({a,b})=>{
+    const [p,q]=geometryLabels(a,b);
+    return choice('Какое свойство верно для луча '+p+q+'?','Имеет начало и продолжается в одну сторону',
+     ['Имеет два конца','Продолжается без начала в обе стороны','Состоит из двух точек'],
+     'У луча есть начало '+p+'. Точка '+q+' задаёт направление.');
+   },
+   arrow_direction_read: ({a,b})=>{
+    const [p,q,r]=geometryLabels(a,b);
+    return withVisual(checkStatement('Может ли '+p+' быть началом изображённого луча?',true,
+     'Слева луч начинается в '+p+', справа стрелка показывает его продолжение.'),geometryLine([p,q,r],'ray'));
+   }
+  },
+  {
+   ray_membership_on_line: ({a,b})=>{
+    const [p,q,r,s]=geometryLabels(a,b);
+    return withVisual(choice('Какая точка не принадлежит лучу '+q+r+'?',p,[q,r,s],
+     'У луча '+q+r+' начало в '+q+', а направление вправо через '+r+'. Точка '+p+' лежит слева от начала.'),geometryLine([p,q,r,s]));
+   },
+   choose_opposite_ray: ({a,b})=>{
+    const [p,q,r,s]=geometryLabels(a,b);
+    return withVisual(choice('Какой из лучей противоположен '+q+r+'?',q+p,[q+s,p+q,r+q],
+     'Противоположные лучи имеют одно начало '+q+' и идут в разные стороны.'),geometryLine([p,q,r,s]));
+   },
+   different_starts_are_different: ({a,b})=>{
+    const [p,q,r]=geometryLabels(a,b);
+    return withVisual(checkStatement('Совпадают ли лучи '+p+r+' и '+q+r+'?',false,
+     'Оба идут вправо, но начала разные. Первый луч содержит '+p+', второй — нет.'),geometryLine([p,q,r]));
+   },
+   same_ray_different_names: ({a,b})=>{
+    const [p,q,r]=geometryLabels(a,b);
+    return withVisual(choice('Как ещё можно назвать луч '+p+q+'?',p+r,[q+p,r+p,q+r],
+     'Оба названия начинаются с '+p+'. Точки '+q+' и '+r+' расположены справа от него.'),geometryLine([p,q,r],'ray'));
+   }
+  },
+  {
+   count_rays_from_marked_points: ({a,b})=>{
+    const [p,q,r,s]=geometryLabels(a,b);
+    return withVisual(['Сколько разных лучей с началом в отмеченных точках можно назвать, используя второй отмеченный пункт для направления?',6,
+     'Из крайних точек видим по одному направлению к другой отмеченной точке. Из внутренних — по два. Получаем 1 + 2 + 2 + 1 = 6.'],geometryLine([p,q,r,s]));
+   },
+   intersection_of_opposite_rays: ({a,b})=>{
+    const [p,q,r]=geometryLabels(a,b);
+    return withVisual(choice('Какие точки общие у лучей '+q+p+' и '+q+r+'?', 'Только '+q,[p+' и '+r,q+' и '+r,'Общих точек нет'],
+     'Лучи идут от '+q+' в противоположные стороны. Они имеют только одно общее начало.'),geometryLine([p,q,r]));
+   },
+   common_part_is_segment: ({a,b})=>{
+    const [p,q,r,s]=geometryLabels(a,b);
+    return withVisual(choice('Какова общая часть лучей '+q+r+' и '+r+q+'?', 'Отрезок '+q+r,
+     ['Только '+q,'Луч '+q+r,'Вся прямая '+p+s],
+     'Первый луч идёт вправо от '+q+', второй влево от '+r+'. Их общая часть включает обе границы и все точки между ними.'),geometryLine([p,q,r,s]));
+   },
+   common_part_is_ray: ({a,b})=>{
+    const [p,q,r,s]=geometryLabels(a,b);
+    return withVisual(choice('Какова общая часть лучей '+p+r+' и '+q+s+'?', 'Луч '+q+s,
+     ['Луч '+p+r,'Отрезок '+p+q,'Только '+s],
+     'Оба луча направлены вправо. Общие точки начинаются с '+q+', потому что начало второго луча правее.'),geometryLine([p,q,r,s]));
+   }
+  }
  ]
 };
 add('alg_expressions_equations','compare_expression_values','Сравнение значений выражений',
@@ -2884,24 +3085,7 @@ add('alg_formulas','perfect_square_factor','Разложение по форму
 add('alg_formulas','factor_difference_squares','Разложение разности квадратов','Разность квадратов раскладывается на произведение разности и суммы: A² − B² = (A − B)(A + B).', null);
 add('alg_systems','linear_inequalities_two_variables','Неравенства с двумя переменными','Для проверки точки подставь её координаты во все неравенства. В строгом неравенстве точки на границе не входят в решение.', null);
 
-add('geo_basics','geo_field_line','Провешивание прямой','Чтобы отметить прямую на местности, сначала поставь вехи в двух заданных точках. Затем выставляй промежуточные вехи на линии наблюдения.',
- ({a,b,c,d,k})=>{
- const x=a*b, y=c*b;
- const rows=d===0?[
-  ['Сколько исходных вех нужно, чтобы задать прямую?',2,'Через две различные точки проходит ровно одна прямая.'],
-  ['Между крайними вехами поставили '+a+' промежуточных. Сколько вех всего?',a+2],
-  ['Вдоль прямой AB поставили '+(a+b+2)+' вех. Сколько вех между A и B?',a+b]
- ]:d===1?[
-  ['Между вехами '+b+' м, все '+(a+1)+' вех стоят в ряд. Каково расстояние от первой до последней (в метрах)?',x],
-  ['От первой до последней вехи '+x+' м, шаг '+b+' м. Сколько вех вместе с крайними?',a+1],
-  ['От первой вехи до последней '+x+' м. Всего '+(a+1)+' вех через равные промежутки. Найди шаг в метрах.',b]
- ]:[
-  ['На двух участках одной прямой дороги длиной '+x+' и '+y+' м ставят вехи через '+b+' м. В месте стыка веха одна. Сколько вех всего?',a+c+1],
-  ['На прямой от A до B '+x+' м, от B до C '+y+' м. B между A и C. Сколько промежуточных вех нужно для шага '+b+' м от A до C?',a+c-1],
-  ['От A до B '+x+' м. Затем прямую продлили на '+y+' м. На каком расстоянии от A стоит '+(a+2)+'-я веха при шаге '+b+' м?',(a+1)*b]
- ];
- return rows[k];
-});
+add('geo_basics','geo_field_line','Провешивание прямой','Чтобы отметить прямую на местности, сначала поставь вехи в двух заданных точках. Затем выставляй промежуточные вехи на линии наблюдения.', null);
 add('geo_basics','geo_congruent_figures','Равные геометрические фигуры','Равные фигуры совпадают при наложении. У соответствующих отрезков и углов равны длины и градусные меры.',
  ({a,b,c,y,d,k,n})=>n(...(d===0?[
   ['AB и CD совпали при наложении. AB = '+a+' см. Найди CD в сантиметрах.',a],
@@ -3372,6 +3556,8 @@ Object.assign(rules,{
   }
  }
 });
+
+add('geo_basics','geo_rays','Луч',reviewedLessons.geo_rays,null);
 
 const previousQuestion=makeG7Question, previousLesson=g7Lesson;
 g7Lesson=function(id){
