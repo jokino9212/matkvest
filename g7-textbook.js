@@ -60,7 +60,10 @@ const reviewedLessons={
  monomial_standard_form:'В стандартном виде одночлена числовой множитель записан первым, а каждая буква встречается один раз. Степень ненулевого одночлена равна сумме показателей его букв.',
  monomial_operations:'При умножении одночленов перемножь коэффициенты и сложи показатели одинаковых букв. При возведении одночлена в степень возведи в неё коэффициент и умножь показатели букв на показатель степени.',
  functions_x2_x3:'У y = x² при противоположных x значения совпадают, график симметричен относительно Oy. У y = x³ при противоположных x значения противоположны, график симметричен относительно начала координат.',
- divisibility_factorization:'У простого числа два натуральных делителя: 1 и само число. У составного есть другие делители. Число 1 не относится ни к простым, ни к составным. При разложении составного числа перемножение простых множителей восстанавливает исходное число.'
+ divisibility_factorization:'У простого числа два натуральных делителя: 1 и само число. У составного есть другие делители. Число 1 не относится ни к простым, ни к составным. При разложении составного числа перемножение простых множителей восстанавливает исходное число.',
+ polynomial_standard_degree:'Приведи подобные слагаемые и убери нулевые члены. Степень ненулевого многочлена — наибольшая степень среди оставшихся членов.',
+ polynomial_add_subtract:'При сложении раскрывай скобки без изменения знаков. При вычитании меняй знак каждого члена вычитаемого многочлена. Затем складывай коэффициенты при одинаковых буквенных частях.',
+ monomial_times_polynomial:'Умножь одночлен на каждый член многочлена. В каждом произведении перемножь коэффициенты и сложи показатели одинаковых букв.'
 };
 
 function compare(prompt,left,right,explanation){
@@ -116,6 +119,9 @@ function monomialSelect(prompt,answer,wrong,ex){
 function powerCurve(power){
  return question=>g7AttachGraph(question,g7PowerFunctionGraph(power,{caption:'График функции'}));
 }
+const xTerm=(coef,degree)=>monomial(coef,degree,0);
+const polynomial=(...terms)=>terms.map(([coef,degree])=>xTerm(coef,degree));
+const polyChoice=(prompt,correct,options,ex)=>choice(prompt,g7PolynomialHtml(correct),options.map(g7PolynomialHtml),ex);
 
 function add(section,id,title,rule,build){
  const group=G7_GROUPS.find(item=>item.id===section);
@@ -1620,6 +1626,152 @@ const reviewed = {
     return checkStatement('Делится ли '+value+' на '+divisor+'?',m>=k,
      'Для делимости показатели простых множителей делимого должны быть не меньше показателей делителя. Двоек поровну, троек в делимом '+m+', в делителе '+k+'.');
    }
+  }
+ ],
+ polynomial_standard_degree: [
+  {
+   degree_in_standard_form: ({a,b,c})=>['Найди степень '+g7PolynomialHtml(polynomial([a,b+1],[-c,1],[b,0]))+'.',b+1,
+    'Степени членов: '+(b+1)+', 1 и 0. Наибольшая равна '+(b+1)+'.'],
+   read_coefficient: ({a,b,c})=>['Найди коэффициент при x² в '+g7PolynomialHtml(polynomial([a,3],[-b,2],[c,0]))+'.',-b,
+    'Коэффициент перед x² равен '+fmt(-b)+'.'],
+   count_standard_terms: ({a,b,c})=>{
+    const terms=polynomial([a,b+2],[-c,2],[b-c,1],[a-c,0]),result=g7PolynomialNormalize(terms).length;
+    return ['Сколько членов в '+g7PolynomialHtml(terms)+'?',result,
+     'Считаем слагаемые вместе с их знаками. Нулевые слагаемые уже убраны. Всего '+result+'.'];
+   },
+   identify_like_terms: ({a,b,c})=>monomialSelect('Какой член подобен '+math(a+pow('x',b)+'y')+'?',
+    monomial(-c,b,1),[monomial(c,b+1,1),monomial(-c,b,2),monomial(c,b,0)],
+    'Подобные члены имеют одинаковую буквенную часть '+pow('x',b)+'y.')
+  },
+  {
+   group_degree_two: ({a,b,c})=>{
+    const terms=polynomial([a,2],[b,1],[c,2],[-b,0]),result=polynomial([a+c,2],[b,1],[-b,0]);
+    return polyChoice('Приведи к стандартному виду '+g7PolynomialSequenceHtml(terms)+'.',result,
+     [polynomial([a+c,2],[2*b,1]),polynomial([a-c,2],[b,1],[-b,0]),polynomial([a+c,2],[b,1],[b,0])],
+     'Складываем коэффициенты при x²: '+a+' + '+c+' = '+(a+c)+'. Остальные слагаемые различаются.');
+   },
+   cancel_leading_term: ({a,b,c})=>{
+    const terms=polynomial([a,b+2],[c,b],[-a,b+2],[a,0]);
+    return ['Приведи подобные и найди степень '+g7PolynomialSequenceHtml(terms)+'.',b,
+     'Слагаемые степени '+(b+2)+' взаимно уничтожаются. Стандартный вид: '+g7PolynomialHtml(polynomial([c,b],[a,0]))+'.'];
+   },
+   degree_two_variables: ({a,b,c})=>{
+    const terms=[monomial(a,b,c),monomial(-b,b+1,0),monomial(c,0,c+1)];
+    return ['Найди степень '+g7PolynomialHtml(terms)+'.',b+c,'У первого члена степень '+b+' + '+c+' = '+(b+c)+'. У остальных степени '+(b+1)+' и '+(c+1)+', они меньше.'];
+   },
+   coefficient_after_grouping: ({a,b,c,y})=>['Найди коэффициент при x² после приведения подобного в '+g7PolynomialSequenceHtml(polynomial([a,2],[b,1],[-c,2],[y,2]))+'.',a-c+y,
+    'Коэффициенты слагаемых при x²: '+a+', '+fmt(-c)+' и '+y+'. Их сумма '+fmt(a-c+y)+'.']
+  },
+  {
+   degree_after_multiple_cancellations: ({a,b,c})=>{
+    const terms=polynomial([a,b+3],[-b,b+2],[c,b],[b,b+2],[-a,b+3],[c,0]);
+    return ['Приведи подобные и найди степень '+g7PolynomialSequenceHtml(terms)+'.',b,
+     'Группы степеней '+(b+3)+' и '+(b+2)+' дают ноль. Остаётся '+g7PolynomialHtml(polynomial([c,b],[c,0]))+'.'];
+   },
+   standard_form_many_letters: ({a,b,c})=>{
+    const terms=[monomial(a,2,1),monomial(-b,1,2),monomial(c,2,1),monomial(b,1,2),monomial(c,0,0)];
+    return polyChoice('Приведи к стандартному виду '+g7PolynomialSequenceHtml(terms)+'.',[monomial(a+c,2,1),monomial(c,0,0)],
+     [[monomial(a+c,1,2),monomial(c,0,0)],[monomial(a+c,2,1)],[monomial(a,2,1),monomial(c,0,0)]],
+     'Члены при xy² сокращаются. При x²y складываем '+a+' и '+c+'. Свободный член остаётся.');
+   },
+   unknown_coefficient_for_degree: ({a,b,c})=>['При каком k степень '+math(pow('kx',b+2)+' − '+a+pow('x',b+2)+' + '+c+pow('x',b))+' равна '+b+'?',a,
+    'Старший коэффициент k − '+a+' должен обратиться в ноль. Тогда остаётся ненулевой член степени '+b+'.'],
+   nonzero_members_after_normalization: ({a,b,c})=>{
+    const terms=polynomial([a,4],[c,3],[-a,4],[b,2],[-b,2],[a,1],[-c,0]);
+    return ['Сколько членов останется после приведения подобных в '+g7PolynomialSequenceHtml(terms)+'?',3,
+     'Члены степеней 4 и 2 взаимно уничтожаются. В стандартном виде '+g7PolynomialHtml(polynomial([c,3],[a,1],[-c,0]))+' три члена.'];
+   }
+  }
+ ],
+ polynomial_add_subtract: [
+  {
+   sum_two_polynomials: ({a,b,c})=>polyChoice('Найди сумму '+math('('+a+'x + '+b+') + ('+c+'x + '+a+')')+'.',polynomial([a+c,1],[a+b,0]),
+    [polynomial([a+c,1],[a-b,0]),polynomial([a,1],[a+b+c,0]),polynomial([a+c+1,1],[a+b,0])],
+    'Складываем отдельно коэффициенты при x и свободные члены.'),
+   subtract_single_terms: ({a,b})=>['Найди коэффициент в '+math((a+b)+'x² − '+a+'x²')+'.',b,
+    'Буквенная часть одинакова. Вычитаем коэффициенты: '+(a+b)+' − '+a+' = '+b+'.'],
+   remove_parentheses_sum: ({a,b,c})=>simplify(a+'x + (−'+b+'x + '+c+')',a-b,c,
+    'Плюс перед скобками сохраняет знаки. Коэффициент при x равен '+fmt(a-b)+', свободный член '+c+'.'),
+   add_constants: ({a,b,c})=>['Чему равен свободный член суммы '+math('('+a+'x² − '+b+') + ('+c+'x + '+a+')')+'?',a-b,
+    'Свободные члены −'+b+' и '+a+' складываются. Получаем '+fmt(a-b)+'.']
+  },
+  {
+   unequal_quadratics_difference: ({a,b,c,y})=>{
+    const first=polynomial([a+b,2],[c,1],[y,0]),second=polynomial([b,2],[-a,1],[c,0]);
+    return polyChoice('Вычти '+math('('+g7PolynomialBodyHtml(first)+') − ('+g7PolynomialBodyHtml(second)+')')+'.',g7PolynomialAdd(first,second,-1),
+     [g7PolynomialAdd(first,second),polynomial([a,2],[c-a,1],[y-c,0]),polynomial([a,2],[c+a,1],[y+c,0])],
+     'Во второй скобке меняем все знаки. Коэффициенты результата: '+a+' при x², '+(c+a)+' при x, свободный член '+fmt(y-c)+'.');
+   },
+   highest_degree_cancels: ({a,b,c})=>['Найди степень разности '+math('('+a+'x³ + '+b+'x²) − ('+a+'x³ − '+c+'x²)')+'.',2,
+    'Оба члена с x³ сокращаются. Остаётся '+(b+c)+'x².'],
+   add_three_polynomials: ({a,b,c})=>['Чему равен свободный член '+math('('+a+'x² + '+b+') + ('+c+'x − '+a+') + ('+b+'x + '+c+')')+'?',b-a+c,
+    'Свободные члены '+b+', −'+a+' и '+c+'. При сложении получаем '+fmt(b-a+c)+'.'],
+   add_bivariate_polynomials: ({a,b,c})=>polyChoice('Найди сумму '+math('('+a+'x² − '+b+'y²) + ('+c+'x² + '+(a+b)+'y²)')+'.',
+    [monomial(a+c,2,0),monomial(a,0,2)],
+    [[monomial(a+c,2,0),monomial(a+2*b,0,2)],[monomial(a+c,2,0)],[monomial(a+c,0,3),monomial(a,2,0)]],
+    'При x² складываем '+a+' и '+c+', при y² складываем −'+b+' и '+(a+b)+'.')
+  },
+  {
+   nested_polynomial_difference: ({a,b,c,y})=>{
+    const p=polynomial([a+b,2],[c,0]),q=polynomial([a,2],[-y,1]),r=polynomial([-b,2],[c,1]);
+    const correct=g7PolynomialAdd(g7PolynomialAdd(p,q),r,-1);
+    return polyChoice('Упрости '+math('('+g7PolynomialBodyHtml(p)+') − (('+g7PolynomialBodyHtml(r)+') − ('+g7PolynomialBodyHtml(q)+'))')+'.',correct,
+     [g7PolynomialAdd(g7PolynomialAdd(p,q,-1),r,-1),g7PolynomialAdd(g7PolynomialAdd(p,q),r),g7PolynomialAdd(p,r,-1)],
+     'Внешний минус меняет знак перед обеими скобками: получаем P − R + Q. Затем группируем подобные.');
+   },
+   reconstruct_missing_difference: ({a,b,c})=>['Вычли '+math('('+a+'x² − '+b+'x)')+' из многочлена и получили '+math(c+'x² + '+(a+b)+'x')+'. Найди его коэффициент при x.',a,
+    'Чтобы восстановить уменьшаемое, прибавляем вычитаемое к разности. При x получаем '+(a+b)+' − '+b+' = '+a+'.'],
+   diff_then_value: ({a,b,c})=>{
+    const coefficient=a-b,answer=coefficient*c+c;
+    return ['Упрости '+math('('+a+'x² + '+a+'x + '+c+') − ('+a+'x² + '+b+'x)')+' и вычисли при x = '+c+'.',
+     answer,'Квадраты сокращаются. Получаем '+g7LinHtml(coefficient,c)+'. Подставляем '+c+' и вычисляем '+fmt(answer)+'.'];
+   },
+   recover_parameter_by_cancellation: ({a,b,c})=>['Найди k, при котором разность '+math('(kx³ + '+a+'x²) − ('+b+'x³ − '+c+'x²)')+' имеет степень 2.',b,
+    'Коэффициент при x³ должен быть нулём: k − '+b+' = 0. Коэффициент при x² равен '+(a+c)+' и не обнуляется.']
+  }
+ ],
+ monomial_times_polynomial: [
+  {
+   scale_binomial: ({a,b,c})=>simplify(a+'('+b+'x + '+c+')',a*b,a*c,
+    'Умножаем на '+a+' каждое слагаемое: '+a*b+'x + '+a*c+'.'),
+   multiply_by_x: ({a,b})=>polyChoice('Умножь '+math('x('+a+'x + '+b+')')+'.',polynomial([a,2],[b,1]),
+    [polynomial([a,2],[b,0]),polynomial([a,1],[b,3]),polynomial([a+1,2],[b,1])],
+    'В первом произведении x · x = x². Во втором x умножается на свободный член.'),
+   scale_negative_binomial: ({a,b,c})=>simplify('−'+a+'('+b+'x − '+c+')',-a*b,a*c,
+    'Умножаем на отрицательное число. Получаем −'+a*b+'x + '+a*c+'.'),
+   constant_after_distribution: ({a,b,c})=>['Найди свободный член после раскрытия '+math(a+'('+b+'x² − '+c+')')+'.',-a*c,
+    'Свободный член появляется из произведения '+a+' · (−'+c+') = '+fmt(-a*c)+'.']
+  },
+  {
+   scale_quadratic: ({a,b,c,y})=>{
+    const original=polynomial([b,2],[-c,1],[y,0]),factor=xTerm(-a,1);
+    return polyChoice('Раскрой скобки: '+math('−'+a+'x('+g7PolynomialBodyHtml(original)+')')+'.',g7PolynomialScale(original,factor),
+     [g7PolynomialScale(original,xTerm(a,1)),g7PolynomialScale(original,xTerm(-a,0)),polynomial([-a*b,3],[a*c,2],[-y,1])],
+     'У каждого слагаемого степень x увеличивается на 1, а коэффициент умножается на −'+a+'.');
+   },
+   bivariate_distribution: ({a,b,c})=>polyChoice('Умножь одночлен на двучлен '+math(a+'xy('+b+'x − '+c+'y)')+'.',
+    [monomial(a*b,2,1),monomial(-a*c,1,2)],
+    [[monomial(a*b,2,1),monomial(a*c,1,2)],[monomial(a*b,2,1),monomial(-a*c,1,1)],[monomial(a*b,1,1),monomial(-a*c,1,2)]],
+    'Отдельно умножаем xy на x и на y. Получаем x²y и xy².'),
+   find_intermediate_coefficient: ({a,b,c,y})=>['Найди коэффициент при x² в произведении '+math('−'+a+'x('+b+'x² − '+c+'x + '+y+')')+'.',a*c,
+    'Член при x² образуется только из (−'+a+'x) · (−'+c+'x). Получаем '+a*c+'x².'],
+   degree_of_product: ({a,b,c})=>['Найди степень '+math(a+pow('x',b)+'('+c+'x² − '+b+'x + '+a+')')+' после раскрытия.',b+2,
+    'Старший член получается из '+pow('x',b)+' · x², степень равна '+b+' + 2 = '+(b+2)+'.']
+  },
+  {
+   distribute_and_cancel: ({a,b,c})=>polyChoice('Упрости '+math(a+'x('+b+'x − '+c+') − '+a*b+'x²')+'.',
+    polynomial([-a*c,1]),[polynomial([a*c,1]),polynomial([-a*c,2]),polynomial([-c,1])],
+    'Раскрываем скобки: '+a*b+'x² − '+a*c+'x. Квадратные члены сокращаются.'),
+   recover_missing_linear_term: ({a,b,c})=>['Найди k из тождества '+math(a+'x('+b+'x + k) = '+a*b+'x² − '+a*c+'x')+'.',-c,
+    'Сравниваем коэффициенты при x: '+a+'k = '+fmt(-a*c)+'. Делим на '+a+'.'],
+   two_distributions: ({a,b,c,y})=>{
+    const first=polynomial([a*b,2],[-a*c,1]),second=polynomial([b*c,2],[b*y,1]);
+    return polyChoice('Упрости '+math(a+'x('+b+'x − '+c+') − '+b+'x('+c+'x + '+y+')')+'.',g7PolynomialAdd(first,second,-1),
+     [g7PolynomialAdd(first,second),polynomial([a*b-b*c,2],[-a*c-b*y-1,1]),polynomial([a*b-b*c,2],[-a*c-b*y,0])],
+     'После раскрытия квадратный коэффициент '+fmt(a*b-b*c)+', коэффициент при x равен '+fmt(-a*c-b*y)+'.');
+   },
+   fractional_distribution: ({a,b,c})=>['Найди коэффициент при x² после раскрытия '+frac(a,b)+math('x('+b*c+'x − '+b+')')+'.',a*c,
+    'Умножаем '+frac(a,b)+'x на '+b*c+'x. Коэффициент равен '+a+' · '+c+' = '+a*c+'.']
   }
  ]
 };
