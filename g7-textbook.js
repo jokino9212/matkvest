@@ -42,7 +42,11 @@ const reviewedLessons={
  equation_root_equivalence:'Корень уравнения превращает его в верное равенство. Равносильные уравнения имеют один и тот же набор корней. К обеим частям можно прибавить одно и то же число или умножить обе части на одно и то же ненулевое число.',
  linear_equation_one_variable:'Раскрой скобки и приведи подобные слагаемые. Собери слагаемые с x слева, числа справа. В уравнении ax = b при a ≠ 0 раздели обе части на a.',
  linear_equation_cases:'После приведения к ax = b при a ≠ 0 корень один. При a = 0 проверь правую часть: из 0x = 0 следует, что подходит любое число, из 0x = b при b ≠ 0 следует, что корней нет.',
- equation_word_problems:'Обозначь искомое или удобную для расчёта величину через x. Вырази через x остальные величины и найди в условии равенство. После решения проверь, подходит ли найденное значение.'
+ equation_word_problems:'Обозначь искомое или удобную для расчёта величину через x. Вырази через x остальные величины и найди в условии равенство. После решения проверь, подходит ли найденное значение.',
+ formulas_dependencies:'Формула связывает величины. Чтобы найти значение, подставь известные числа в согласованных единицах. Чтобы выразить одну букву через остальные, выполни одинаковые обратные действия с обеими частями.',
+ number_intervals:'Квадратная скобка у границы означает, что граница входит в промежуток. Круглая скобка исключает границу. У бесконечности всегда круглая скобка. На прямой включённая граница отмечена закрашенной точкой.',
+ number_line_distance:'Расстояние между точками равно модулю разности их координат. Координата середины отрезка — полусумма координат концов.',
+ function_concept_values:'Функция каждому допустимому аргументу ставит в соответствие ровно одно значение. Область определения — множество допустимых аргументов. Разным аргументам может соответствовать одно и то же значение.'
 };
 
 function compare(prompt,left,right,explanation){
@@ -64,6 +68,20 @@ function equationCases(prompt,left,right){
  };
  return choice(prompt,labels[kind.kind],Object.values(labels).filter(label=>label!==labels[kind.kind]),
   'После упрощения получаем '+exact(coefficient)+' · x = '+exact(constant)+'. '+reasons[kind.kind]);
+}
+function intervalVisual(left,right,leftClosed,rightClosed){
+ const interval={left:left===null?null:rational(left),right:right===null?null:rational(right),leftClosed,rightClosed};
+ const min=left===null?right-4:Math.min(left-2,(right??left)-4);
+ const max=right===null?left+4:Math.max(right+2,(left??right)+4);
+ return question=>{
+  const attached=g7AttachInterval(question,interval);
+  attached.visual.data.min=rational(min);
+  attached.visual.data.max=rational(max);
+  return attached;
+ };
+}
+function functionTable(rows){
+ return question=>g6AttachTable(question,{headers:['Аргумент x','Значение y'],rows});
 }
 
 function add(section,id,title,rule,build){
@@ -729,6 +747,186 @@ const reviewed = {
      'Пусть x — число часов в новом темпе. В прежнем темпе он работал '+h+' − x ч.<br>'+f+'('+h+' − x) + '+(f+c)+'x = '+total+'.<br>После упрощения '+c+'x = '+(total-f*h)+'. Получаем x = '+y+'.'];
    }
   }
+ ],
+ formulas_dependencies: [
+  {
+   uniform_speed_formula: ({a,b})=>['Машина ехала '+b+' ч со скоростью '+(5*a)+' км/ч. Найди путь по формуле '+math('s = vt')+' (в км).',5*a*b,
+    'Подставляем скорость и время: s = '+(5*a)+' · '+b+' = '+5*a*b+' км.'],
+   use_perimeter_formula: ({a,b})=>['Прямоугольник со сторонами '+a+' см и '+b+' см. Найди его периметр по формуле '+math('P = 2(a + b)')+' (в см).',2*(a+b),
+    'Сначала складываем стороны: '+a+' + '+b+' = '+(a+b)+'. Удваиваем сумму: '+2*(a+b)+' см.'],
+   temperature_formula: ({a,b})=>['Переведи '+5*(a+b)+' °C в градусы Фаренгейта по формуле '+math('F = 1,8C + 32')+'.',9*(a+b)+32,
+    'F = 1,8 · '+5*(a+b)+' + 32 = '+9*(a+b)+' + 32 = '+(9*(a+b)+32)+' °F.'],
+   formula_meaning: ({a,b})=>choice('Для '+a+' прямоугольников со сторонами x и y и '+b+' прямоугольников со сторонами x и z какая формула даёт суммарную площадь?',
+    math('S = '+a+'xy + '+b+'xz'),[math('S = '+(a+b)+'xyz'),math('S = '+a+'xy − '+b+'xz'),math('S = '+a+'x + '+b+'z')],
+    'Площадь одного прямоугольника равна произведению сторон. Умножаем каждую площадь на количество и складываем.')
+  },
+  {
+   recover_rectangle_side: ({a,b})=>['Площадь прямоугольника '+a*b+' см², одна сторона '+a+' см. Найди вторую сторону (в см) по формуле '+math('S = ab')+'.',b,
+    'Из S = ab получаем b = S : a. Подставляем: '+a*b+' : '+a+' = '+b+' см.'],
+   express_height: ({a})=>choice('В формуле объёма '+math('V = '+a+'Sh')+', где S &gt; 0, вырази h.',
+    'h = '+frac('V',a+'S'),['h = '+frac(a+'V','S'),'h = '+frac('S',a+'V'),math('h = '+a+'SV')],
+    'Делим обе части равенства на '+a+'S.'),
+   formula_with_units: ({a,b})=>['Объём прямоугольного ящика равен '+math('V = abc')+'. Длины сторон '+a+' дм, '+b+' см и 10 см. Вычисли объём в см³.',
+    100*a*b,'Переводим '+a+' дм в '+10*a+' см. Умножаем: '+10*a+' · '+b+' · 10 = '+100*a*b+' см³.'],
+   reverse_temperature: ({a})=>['Температура '+(32+9*a)+' °F. Сколько это градусов Цельсия, если '+math('F = 1,8C + 32')+'?',5*a,
+    'Вычитаем 32: 1,8C = '+9*a+'. Делим на 1,8 и получаем '+5*a+' °C.']
+  },
+  {
+   express_from_perimeter: ({a,b})=>choice('В формуле '+math('P = 2(x + '+a+') + '+b)+' вырази x.',
+    'x = '+frac('P − '+b,2)+' − '+a,['x = '+frac('P',2)+' − '+a+' − '+b,'x = '+frac('P + '+b,2)+' − '+a,'x = '+frac('P − '+b,2)+' + '+a],
+    'Вычитаем '+b+' из обеих частей, делим на 2, затем вычитаем '+a+'.'),
+   rectangle_percent_change: ({a,b})=>{
+    const answer=rational(100*(a+b)+a*b,100);
+    return ['Длину прямоугольника увеличили на '+a+'%, ширину — на '+b+'%. На сколько процентов увеличилась площадь?',answer,
+     'Площадь меняется в '+frac(100+a,100)+' · '+frac(100+b,100)+' раза. Вычитаем 1 и умножаем на 100%. Прирост '+exact(answer)+'%.'];
+   },
+   reverse_unit_consumption: ({a,b,c})=>['Площадь четырёх стен комнаты без учёта проёмов равна '+math('S = 2(l + w)h')+'. Площадь стен '+2*(a+b)*c+' м², высота '+c+' м, ширина '+b+' м. Найди длину комнаты в метрах.',a,
+    'Выражаем l: делим S на 2h и вычитаем w. Получаем '+2*(a+b)*c+' : '+2*c+' − '+b+' = '+(a+b)+' − '+b+' = '+a+' м.'],
+   combine_formulas: ({a,b,c,y})=>['В двух ёмкостях '+a+' л и '+b+' л раствора. В первом '+c+' г соли на литр, во втором '+y+' г на литр. Найди концентрацию полученной смеси в г/л.',
+    rational(a*c+b*y,a+b),'Масса соли: '+a+' · '+c+' + '+b+' · '+y+' = '+(a*c+b*y)+' г. Общий объём '+(a+b)+' л.<br>Делим массу на объём и получаем '+exact(rational(a*c+b*y,a+b))+' г/л.']
+  }
+ ],
+ number_intervals: [
+  {
+   right_ray_notation: ({a,b})=>choice('Запиши промежутком '+math('x &gt; '+fmt(a-b))+'.',
+    '('+fmt(a-b)+'; +∞)',['['+fmt(a-b)+'; +∞)','(−∞; '+fmt(a-b)+')','(−∞; '+fmt(a-b)+']'],
+    'Берём числа правее '+fmt(a-b)+'. Граница исключена, так как знак строгий.'),
+   left_ray_notation: ({a,b})=>choice('Запиши промежутком '+math('x ≤ '+fmt(b-a))+'.',
+    '(−∞; '+fmt(b-a)+']',['(−∞; '+fmt(b-a)+')','['+fmt(b-a)+'; +∞)','('+fmt(b-a)+'; +∞)'],
+    'Берём числа левее '+fmt(b-a)+' и саму границу.'),
+   open_boundary: ({a,b,c})=>{
+    const closed=c%2===0;
+    return checkStatement('Входит ли '+a+' в промежуток '+(closed?'[':'(')+a+'; '+(a+b)+']?',closed,
+     (closed?'Квадратная скобка слева включает число ':'Круглая скобка слева исключает число ')+a+'.');
+   },
+   identify_endpoint: ({a,b})=>choice('Какая из границ входит в ['+fmt(-a)+'; '+b+')?',fmt(-a),[String(b),'Обе границы','Ни одна'],
+    'Левая скобка квадратная, правая круглая, поэтому входит только '+fmt(-a)+'.')
+  },
+  {
+   mixed_bounded_notation: ({a,b})=>choice('Запиши промежутком '+math(fmt(-a)+' &lt; x ≤ '+b)+'.',
+    '('+fmt(-a)+'; '+b+']',['['+fmt(-a)+'; '+b+']','('+fmt(-a)+'; '+b+')','['+fmt(-a)+'; '+b+')'],
+    'Нижняя граница исключается, верхняя включается.'),
+   decode_marked_ray: ({a,b})=>{
+    const edge=a-b,correct='x ≥ '+fmt(edge);
+    return ['Какое неравенство задаёт изображённый луч?',correct,['x &gt; '+fmt(edge),'x ≤ '+fmt(edge),'x &lt; '+fmt(edge)],
+     'Точка закрашена, луч идёт вправо. Значит, x больше границы или равно ей.',intervalVisual(edge,null,true,false)];
+   },
+   decode_marked_segment: ({a,b})=>{
+    const left=1-a,right=b-1,correct='['+fmt(left)+'; '+right+')';
+    return ['Как записать изображённый промежуток?',correct,['('+fmt(left)+'; '+right+')','['+fmt(left)+'; '+right+']','('+fmt(left)+'; '+right+']'],
+     'Левая точка закрашена, правая пустая. Включаем только левую границу.',intervalVisual(left,right,true,false)];
+   },
+   decimal_boundary: ({a,b,c})=>{
+    const left=a/10,right=(a+b)/10,test=(a+b-c%2)/10,truth=test<right;
+    return checkStatement('Принадлежит ли '+fmt(test)+' промежутку ['+fmt(left)+'; '+fmt(right)+')?',truth,
+     'Нужны числа от '+fmt(left)+' включительно до '+fmt(right)+' строго. '+(truth?'Число проходит оба сравнения.':'Число равно исключённой правой границе.'));
+   }
+  },
+  {
+   count_integer_points: ({a,b})=>['Сколько целых чисел принадлежит ('+fmt(-a)+'; '+b+']?',a+b,
+    'Первое подходящее целое число '+fmt(1-a)+', последнее '+b+'. Их '+b+' − ('+fmt(1-a)+') + 1 = '+(a+b)+'.'],
+   fraction_membership: ({a,b,c})=>{
+    const lower=rational(a,b),upper=rational(a+2,b),value=rational(2*a+c%4,2*b);
+    const truth=rationalCmp(lower,value)<0&&rationalCmp(value,upper)<=0;
+    return checkStatement('Принадлежит ли '+g7FracHtml(value)+' промежутку ('+g7FracHtml(lower)+'; '+g7FracHtml(upper)+']?',truth,
+     'При знаменателе '+2*b+' нужно, чтобы числитель был больше '+2*a+' и не больше '+(2*a+4)+'. Проверяем числитель '+(2*a+c%4)+'.');
+   },
+   overlapping_requirements: ({a,b,c})=>{
+    const upper=a+b+c,lower=a+b;
+    return choice('Какой промежуток одновременно удовлетворяет '+math(a+' ≤ x &lt; '+upper)+' и '+math('x &gt; '+lower)+'?',
+     '('+lower+'; '+upper+')',['['+lower+'; '+upper+')','('+a+'; '+upper+')','('+lower+'; '+upper+']'],
+     'Из первого условия сохраняем верхнюю границу '+upper+'. Второе условие даёт более строгую нижнюю границу '+lower+'. Обе границы исключены.');
+   },
+   explain_left_endpoint: ({a,b})=>{
+    const left=-a,right=b,correct=fmt(left);
+    return ['Какое целое число является наименьшим среди показанных на промежутке?',correct,[fmt(left-1),fmt(left+1),String(right)],
+     'Левая граница '+fmt(left)+' закрашена и входит в промежуток. Все остальные числа правее.',intervalVisual(left,right,true,false)];
+   }
+  }
+ ],
+ number_line_distance: [
+  {
+   positive_points: ({a,b})=>['На координатной прямой A('+a+'), B('+(a+b)+'). Найди AB.',b,
+    'Вычитаем меньшую координату из большей: '+(a+b)+' − '+a+' = '+b+'.'],
+   negative_points: ({a,b})=>['Найди расстояние от '+fmt(-a-b)+' до '+fmt(-a)+'.',b,
+    'Вычитаем: '+fmt(-a)+' − ('+fmt(-a-b)+') = '+b+'.'],
+   opposite_sides: ({a,b})=>['На координатной прямой A('+fmt(-a)+'), B('+b+'). Найди AB.',a+b,
+    'Точки по разные стороны нуля. Складываем расстояния до нуля: '+a+' + '+b+' = '+(a+b)+'.'],
+   distance_to_origin: ({a})=>['Найди расстояние от точки с координатой '+fmt(-a/10)+' до нуля.',rational(a,10),
+    'Расстояние до нуля равно модулю координаты: '+fmt(a/10)+'.']
+  },
+  {
+   decimal_coordinates: ({a,b,c})=>['Найди расстояние от '+fmt(a/10)+' до '+fmt((a+b+c)/10)+'.',rational(b+c,10),
+    'Из большей координаты вычитаем меньшую: '+fmt((a+b+c)/10)+' − '+fmt(a/10)+' = '+fmt((b+c)/10)+'.'],
+   one_side_coordinate: ({a,b})=>['Точка B левее A('+a+') на '+b+' единиц. Найди координату B.',a-b,
+    'Движение влево уменьшает координату. '+a+' − '+b+' = '+fmt(a-b)+'.'],
+   two_equidistant_points: ({a,b})=>choice('Какие точки удалены от '+a+' ровно на '+b+' единиц?',
+    fmt(a-b)+' и '+(a+b),[fmt(a-b)+' и '+(a+b+1),a+' и '+(a+b),fmt(a-b-1)+' и '+(a+b)],
+    'От '+a+' можно отложить '+b+' единиц влево или вправо.'),
+   midpoint_coordinate: ({a,b})=>['Найди координату середины отрезка с концами '+fmt(-a)+' и '+b+'.',rational(b-a,2),
+    'Координата середины равна полусумме: ('+fmt(-a)+' + '+b+') : 2 = '+exact(rational(b-a,2))+'.']
+  },
+  {
+   midpoint_distance: ({a,b,c,y})=>{
+    const midFirst=rational(-a+b,2),midSecond=rational(2*c+y,2);
+    const answer=g6AbsRat(rationalSub(midSecond,midFirst));
+    return ['На координатной прямой концы первого отрезка имеют координаты '+fmt(-a)+' и '+b+', второго — '+c+' и '+(c+y)+'. Найди расстояние между серединами отрезков.',
+     answer,'Первая середина '+exact(midFirst)+'. Вторая середина '+exact(midSecond)+'. Модуль их разности равен '+exact(answer)+'.'];
+   },
+   fraction_coordinates: ({a,b,c})=>{
+    const denominator=b*(b+1),answer=rational(a*(b+1)+c*b,denominator);
+    return ['Найди расстояние от −'+frac(a,b)+' до '+frac(c,b+1)+'.',answer,
+     'Точки по разные стороны нуля. Складываем модули, приведя дроби к знаменателю '+denominator+'. Получаем '+g7FracHtml(answer)+'.'];
+   },
+   from_midpoint_and_end: ({a,b,c})=>['Середина отрезка имеет координату '+b+'. Один конец имеет координату '+fmt(-a)+'. На каком расстоянии от второго конца находится точка '+fmt(-c)+'?',2*b+a+c,
+    'Координата второго конца '+2*b+' − ('+fmt(-a)+') = '+(2*b+a)+'. До точки '+fmt(-c)+' расстояние '+(2*b+a+c)+'.'],
+   compare_point_distances: ({a,b,c})=>compare('На прямой A('+fmt(-a)+'), B('+b+'), C('+(b+c)+'). Сравни расстояния AB и BC.',
+    rational(a+b),rational(c),'AB = '+b+' − ('+fmt(-a)+'), BC = '+(b+c)+' − '+b+'.')
+  }
+ ],
+ function_concept_values: [
+  {
+   choose_argument: ({a,b})=>choice('Путь задан формулой '+math('s = '+(a+b)+'t')+'. Что здесь аргумент?',
+    'Время t',['Путь s','Скорость '+(a+b),'Число 0'],
+    'Время выбирают, а путь вычисляют для выбранного времени. Поэтому t — независимая переменная.'),
+   one_output: ({a,b})=>checkStatement('Правило сопоставляет каждому числу x число '+math(a+'x + '+b)+'. Задаёт ли это правило функцию?',true,
+    'Для каждого x умножение на '+a+' и прибавление '+b+' дают единственный результат.'),
+   read_function_value: ({a,b,c})=>['По таблице найди значение функции при x = '+b+'.',a*b+c,
+    'В строке с x = '+b+' записано y = '+(a*b+c)+'.',null,functionTable([[b-1,a*(b-1)+c],[b,a*b+c],[b+1,a*(b+1)+c]])],
+   interpret_function_notation: ({a,b})=>choice('Что означает '+math('f('+a+') = '+b)+'?',
+    'Значение функции при x = '+a+' равно '+b,['Значение функции при x = '+b+' равно '+a,'Функция принимает только значение '+b,'Аргумент всегда равен '+a],
+    'В скобках стоит аргумент. Справа после знака равенства указано соответствующее значение.')
+  },
+  {
+   reverse_table: ({a,b,c})=>['По таблице найди аргумент, при котором y = '+(a*(b+1)+c)+'.',b+1,
+    'Находим нужное значение y и читаем x в той же строке: x = '+(b+1)+'.',null,functionTable([[b,a*b+c],[b+1,a*(b+1)+c],[b+2,a*(b+2)+c]])],
+   conflicting_outputs: ({a,b,c})=>[
+    ...checkStatement('Задаёт ли таблица функцию y от x?',false,
+     'Одному аргументу '+a+' соответствуют разные значения '+b+' и '+(b+c)+'.'),
+    functionTable([[a,b],[a,b+c],[a+1,c]])
+   ],
+   input_constraints: ({a,b})=>choice('Число x — количество купленных билетов. Можно купить от 0 до '+(a+b)+' билетов. Какие x входят в область определения общей стоимости?',
+    'Целые числа от 0 до '+(a+b),['Все числа от 0 до '+(a+b),'Все целые числа','Только положительные числа'],
+    'Билет покупают целиком. Число купленных билетов начинается с 0 и ограничено числом '+(a+b)+'.'),
+   remainder_rule: ({a,b,c})=>{
+    const n=a*b+c,answer=n%b;
+    return ['Функция сопоставляет натуральному числу n остаток от деления на '+b+'. Найди значение при n = '+n+'.',answer,
+     'Записываем '+n+' = '+b+' · '+Math.floor(n/b)+' + '+answer+'. Остаток равен '+answer+'.'];
+   }
+  },
+  {
+   same_output_allowed: ({a,b,c})=>choice('Может ли таблица задавать функцию y от x?', 'Да, каждому x соответствует одно y',
+    ['Нет, одинаковые y запрещены','Нет, должно быть только одно значение x','Да, но только если y строго возрастает'],
+    'У всех аргументов есть по одному значению. Совпадение y у разных аргументов допустимо.').concat(functionTable([[a,b],[a+1,b+c],[a+2,b]])),
+   all_matching_inputs: ({a,b,c})=>choice('Найди все аргументы, при которых y = '+b+'.',
+    a+' и '+(a+2),[String(a),String(a+2),(a+1)+' и '+(a+2)],
+    'Значение '+b+' встречается дважды, при x = '+a+' и x = '+(a+2)+'.').concat(functionTable([[a,b],[a+1,b+c],[a+2,b]])),
+   distinguish_domain_values: ({a,b,c})=>choice('Определи множество значений y, записанных в таблице.',
+    b+' и '+(b+c),[a+', '+(a+1)+' и '+(a+2),b+', '+(b+c)+' и '+(b+2*c),String(b)],
+    'Смотрим только на столбец y. В нём два различных числа.').concat(functionTable([[a,b],[a+1,b+c],[a+2,b]])),
+   complete_consistent_table: ({a,b,c})=>['В таблице требуется восстановить пропуск так, чтобы каждому аргументу соответствовало единственное значение. Какое y нужно записать?',
+    b+c,'Аргумент '+a+' уже встречается в первой строке, его значение '+(b+c)+'.',null,functionTable([[a,b+c],[a+1,b],[a,'?']])]
+  }
  ]
 };
 add('alg_expressions_equations','compare_expression_values','Сравнение значений выражений',
@@ -1334,13 +1532,15 @@ makeG7Question=function(id,stageOverride=null){
  const d=Math.max(0,Math.min(2,Number.isInteger(stageOverride)?stageOverride:activeDifficulty()));
  if(tiered){
   const [variant,build]=g7Pick(Object.entries(tiered[d]));
-  const [text,answer,options,detail]=build({a:ri(3,13),b:ri(2,13),c:ri(3,14),y:ri(2,13)});
+  const [text,answer,options,detail,attach]=build({a:ri(3,13),b:ri(2,13),c:ri(3,14),y:ri(2,13)});
   const audit={variant,level:d};
-  const sig=g7QuestionSig(raw,d,variant,[text]);
-  if(Array.isArray(options))return g7StrictChoice(text,answer,options,detail,sig,audit);
-  if(detail==='linear')return g7LinearInput(text,answer,options,sig,audit);
-  return g7InputQuestionForRat(text,typeof answer==='number'?rational(answer):answer,options,sig,{audit,
+  const sig=g7QuestionSig(raw,d,variant,[text,typeof answer==='object'?JSON.stringify(answer):answer]);
+  let question;
+  if(Array.isArray(options))question=g7StrictChoice(text,answer,options,detail,sig,audit);
+  else if(detail==='linear')question=g7LinearInput(text,answer,options,sig,audit);
+  else question=g7InputQuestionForRat(text,typeof answer==='number'?rational(answer):answer,options,sig,{audit,
    inputHint:'Введи точное значение. Обыкновенную дробь можно записать через /.'});
+  return typeof attach==='function'?attach(question):question;
  }
  const k=ri(0,2), a=ri(3,13), b=ri(2,13), c=ri(3,14), y=ri(2,13);
  const n=(first,second,third,prefix='')=>{
