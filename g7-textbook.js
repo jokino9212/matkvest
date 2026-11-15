@@ -4732,6 +4732,318 @@ Object.assign(reviewed,{
  ]
 });
 
+Object.assign(reviewedLessons,{
+ geo_triangle_angle_sum:'Сумма внутренних углов любого треугольника 180°. Чтобы найти неизвестный угол, вычти остальные из 180°. В равнобедренном треугольнике сначала отметь углы при основании.',
+ geo_exterior_triangle_angle:'Внешний угол треугольника смежен с внутренним при той же вершине. Он равен сумме двух внутренних углов при остальных вершинах.',
+ geo_triangle_angle_types:'Смотри на наибольший угол треугольника. Если он меньше 90°, треугольник остроугольный. Если он равен 90°, треугольник прямоугольный. Если он больше 90°, треугольник тупоугольный.',
+ geo_side_angle_relation:'В одном треугольнике против большей стороны лежит больший угол, а против большего угла — большая сторона. Против равных сторон лежат равные углы.'
+});
+const triangleKinds=['Остроугольный','Прямоугольный','Тупоугольный'];
+function classifyTriangle(A,B,C){
+ const max=Math.max(A,B,C);
+ return max<90?triangleKinds[0]:max===90?triangleKinds[1]:triangleKinds[2];
+}
+function classifyTriangleTask(prompt,A,B,C){
+ const kind=classifyTriangle(A,B,C);
+ return choice(prompt,kind,triangleKinds.filter(option=>option!==kind),
+  'Углы равны '+[A,B,C].map(x=>x+'°').join(', ')+'. Наибольший — '+Math.max(A,B,C)+'°.');
+}
+function labelledTriangleDiagram(A,B,C,rightAt=''){
+ const model=g7TriangleAngleModel(A,B,C);
+ return triangleVisual({kind:'g7-triangle',points:model.points,rightAt,aria:'Треугольник ABC'});
+}
+const angleSidePairs=[['∠A','BC'],['∠B','AC'],['∠C','AB']];
+function findLargestByMeasure(values){
+ return values.indexOf(Math.max(...values));
+}
+function shuffledTriangleMeasures(a,b){
+ const values=[27+a,47+b,106-a-b],start=(a+b)%3;
+ return values.slice(start).concat(values.slice(0,start));
+}
+function triangleDegreesFromPair(a,b){
+ const A=28+a,B=49+b;
+ return [A,B,180-A-B];
+}
+Object.assign(reviewed,{
+ geo_triangle_angle_sum:[
+  {
+   find_last_angle:({a,b})=>{
+    const [A,B,C]=triangleDegreesFromPair(a,b);
+    return ['В треугольнике ∠A = '+A+'°, ∠B = '+B+'°. Найди ∠C.',C,'Сумма углов 180°. Вычисляем 180° − '+A+'° − '+B+'°.'];
+   },
+   complete_right_triangle:({a,b})=>{
+    const angle=27+a+b;
+    return ['В прямоугольном треугольнике один острый угол равен '+angle+'°. Найди другой.',90-angle,'Два острых угла в сумме дают 90°.'];
+   },
+   find_sum_of_remaining_angles:({a,b})=>{
+    const [p,q,r]=geometryLabels(a,b),angle=39+a+b;
+    return ['В треугольнике '+p+q+r+' угол при '+p+' равен '+angle+'°. Чему равна сумма углов при '+q+' и '+r+'?',180-angle,
+     'Вычитаем из общей суммы 180° известный угол.'];
+   },
+   rule_out_incompatible_pair:({a,b})=>{
+    const A=90+a,B=89-a+b;
+    return checkStatement('Могут ли два угла одного треугольника быть равными '+A+'° и '+B+'°?',false,
+     'Их сумма '+(A+B)+'°, а вместе с третьим положительным углом должна получиться сумма 180°.');
+   }
+  },
+  {
+   base_angle_from_vertex:({a,b})=>{
+    const A=36+2*(a+b),base=(180-A)/2;
+    return ['В равнобедренном треугольнике угол между боковыми сторонами '+A+'°. Найди угол при основании.',base,
+     'Углы при основании равны. Вычитаем '+A+'° из 180° и делим на 2.'];
+   },
+   find_angle_given_two_expressions:({a,b})=>{
+    const A=30+a,B=A+b,C=180-A-B;
+    return ['Угол A равен '+A+'°, а угол B на '+b+'° больше A. Найди угол C.',C,
+     'Сначала ∠B = '+A+'° + '+b+'° = '+B+'°. Затем ∠C = 180° − '+(A+B)+'°.'];
+   },
+   select_valid_triple:({a,b})=>{
+    const [A,B,C]=triangleDegreesFromPair(a,b),fmtTriple=c=>A+'°, '+B+'° и '+c+'°';
+    return choice('Какой набор может быть углами треугольника?',fmtTriple(C),[fmtTriple(C-10),fmtTriple(C+5),fmtTriple(C+13)],
+     'Только '+A+'° + '+B+'° + '+C+'° = 180°. Все три угла положительные.');
+   },
+   match_triangle_marking:({a,b})=>{
+    const A=28+a+b,B=90-A;
+    return ['На чертеже ∠A = '+A+'°. Найди ∠B, учитывая отметку у C.',B,
+     'Квадратная отметка показывает, что ∠C = 90°. Вычитаем 90° и '+A+'° из 180°.',null,labelledTriangleDiagram(A,B,90,'C')];
+   }
+  },
+  {
+   ratio_all_three:({a,b})=>{
+    const k=a%4+2,m=b%4+1,parts=1+k+m;
+    return ['Углы треугольника относятся как 1 : '+k+' : '+m+'. Найди первый угол в градусах.',rational(180,parts),
+     'На 180° приходится '+parts+' одинаковых частей. Первый угол равен 180° / '+parts+'.'];
+   },
+   solve_linear_from_triangle:({a,b})=>{
+    const x=32+a,constant=180-4*x-b;
+    return ['Углы треугольника равны x°, (x + '+b+')° и ('+sum('2x',constant)+')°. Найди x.',x,
+     'Складываем меры углов: '+sum('4x',constant+b)+' = 180. Решаем и получаем x = '+x+'.'];
+   },
+   base_plus_vertex_difference:({a,b})=>{
+    const x=65+a,vertex=180-2*x,delta=x-vertex;
+    return ['В равнобедренном треугольнике угол при основании на '+delta+'° больше угла при вершине. Найди угол при вершине.',vertex,
+     'Если угол при вершине x°, сумма равна x + 2(x + '+delta+') = 180. Из неё x = '+vertex+'.'];
+   },
+   split_angle_then_compute:({a,b})=>{
+    const [A,B,C]=triangleDegreesFromPair(a,b),part=12+a;
+    return ['В треугольнике ABC угол A равен '+A+'°, а B — '+B+'°. Луч из C делит ∠C на две части. Одна часть равна '+part+'°. Найди другую.',C-part,
+     'Сначала ∠C = 180° − '+A+'° − '+B+'° = '+C+'°. Затем вычитаем '+part+'°.'];
+   }
+  }
+ ],
+ geo_exterior_triangle_angle:[
+  {
+   adjacent_to_interior:({a,b})=>{
+    const [A,B,C]=triangleDegreesFromPair(a,b);
+    return ['Сторона BC продолжена за C до D. ∠ACB = '+C+'°. Найди ∠ACD.',180-C,
+     '∠ACB и ∠ACD смежные. Из 180° вычитаем '+C+'°.',null,triangleVisual(g7ExteriorTriangleData(g7TriangleAngleModel(A,B,C)))];
+   },
+   add_remote_angles:({a,b})=>{
+    const [A,B]=triangleDegreesFromPair(a,b);
+    return ['В треугольнике ABC углы A и B равны '+A+'° и '+B+'°. Найди внешний угол при C.',A+B,
+     'Внешний угол при C равен сумме внутренних углов при A и B.'];
+   },
+   choose_remote_angles:({a,b})=>{
+    const [p,q,r]=geometryLabels(a,b);
+    return choice('Чему равен внешний угол при '+p+' треугольника '+p+q+r+'?',
+     '∠'+q+' + ∠'+r,['∠'+p+' + ∠'+r,'∠'+p+' + ∠'+q,'∠'+p],
+     'Нужны внутренние углы при остальных вершинах, '+q+' и '+r+'.');
+   },
+   determine_adjacent_internal:({a,b})=>{
+    const exterior=95+a+b;
+    return ['Внешний угол при вершине B равен '+exterior+'°. Найди внутренний угол при этой вершине.',180-exterior,
+     'Сумма внутреннего и внешнего углов при одной вершине 180°.'];
+   }
+  },
+  {
+   subtract_known_remote_angle:({a,b})=>{
+    const [A,B]=triangleDegreesFromPair(a,b);
+    return ['Внешний угол при C равен '+(A+B)+'°, угол A — '+A+'°. Найди угол B.',B,
+     'Внешний угол при C равен ∠A + ∠B. Вычитаем '+A+'°.'];
+   },
+   check_exterior_larger_than_remote:({a,b})=>{
+    const x=70+a+b;
+    return checkStatement('Внешний угол при C равен '+x+'°. Может ли внутренний угол A быть равен '+(x+b)+'°?',false,
+     'Внешний угол при C — сумма положительных ∠A и ∠B. Он больше каждого из них.');
+   },
+   find_outer_from_right_angle:({a,b})=>{
+    const angle=28+a+b;
+    return ['В треугольнике ABC угол A прямой, угол B равен '+angle+'°. Найди внешний угол при C.',90+angle,
+     'Складываем внутренние углы при A и B: 90° + '+angle+'°.'];
+   },
+   recover_equal_remote_angles:({a,b})=>{
+    const angle=35+a+b;
+    return ['В равнобедренном треугольнике внешний угол при вершине между равными сторонами '+2*angle+'°. Чему равен каждый из углов при основании?',angle,
+     'Этот внешний угол равен сумме равных углов при основании. Делим его пополам.'];
+   }
+  },
+  {
+   two_exterior_angles:({a,b})=>{
+    const [A,B,C]=triangleDegreesFromPair(a,b);
+    return ['Внешние углы при A и B равны '+(180-A)+'° и '+(180-B)+'°. Найди внешний угол при C.',180-C,
+     'Сначала находим внутренние ∠A = '+A+'° и ∠B = '+B+'°. Их сумма '+(180-C)+'° даёт внешний угол при C.'];
+   },
+   exterior_angle_equation:({a,b})=>{
+    const x=20+a,k=24+b;
+    return ['Внутренние углы A и B равны x° и (x + '+k+')°. Внешний угол при C равен '+(2*x+k)+'°. Найди x.',x,
+     'Составляем x + x + '+k+' = '+(2*x+k)+'. Решение x = '+x+'.'];
+   },
+   use_adjacent_then_remote:({a,b})=>{
+    const [A,B,C]=triangleDegreesFromPair(a,b);
+    return ['Внешний угол при A равен '+(180-A)+'°, а внешний угол при C равен '+(180-C)+'°. Найди внутренний угол B.',B,
+     'Внутренний ∠A = '+A+'°. Внешний угол при C равен ∠A + ∠B. Вычитаем '+A+'°.'];
+   },
+   remote_difference_and_sum:({a,b})=>{
+    const [A,B]=triangleDegreesFromPair(a,b);
+    return ['Внешний угол при C равен '+(A+B)+'°. Внутренний угол B на '+(B-A)+'° больше угла A. Найди угол A.',A,
+     'Из суммы ∠A + ∠B вычитаем разность ∠B − ∠A и делим на 2.'];
+   }
+  }
+ ],
+ geo_triangle_angle_types:[
+  {
+   name_acute_triangle:({a,b})=>{
+    const A=47+a,B=50+b,C=180-A-B;
+    return classifyTriangleTask('Углы треугольника равны '+A+'°, '+B+'° и '+C+'°. Какого он вида по углам?',A,B,C);
+   },
+   name_right_triangle:({a,b})=>{
+    const A=27+a+b,B=90-A;
+    return classifyTriangleTask('Углы треугольника равны '+A+'°, 90° и '+B+'°. Какого он вида по углам?',A,B,90);
+   },
+   name_obtuse_triangle:({a,b})=>{
+    const A=90+a,B=25+b,C=180-A-B;
+    return classifyTriangleTask('Какого вида по углам треугольник с углом '+A+'°?',A,B,C);
+   },
+   count_acute_angles:({a,b})=>{
+    const angle=90+a+b;
+    return ['В треугольнике один угол равен '+angle+'°. Сколько в нём острых углов?',2,
+     'Два оставшихся угла дают в сумме '+(180-angle)+'°, что меньше 90°. Каждый из них острый.'];
+   }
+  },
+  {
+   classify_from_two_angles:({a,b})=>{
+    const A=32+a,B=36+b,C=180-A-B;
+    return classifyTriangleTask('Два угла треугольника равны '+A+'° и '+B+'°. Какого он вида по углам?',A,B,C);
+   },
+   classify_isosceles_by_base:({a,b})=>{
+    const B=39+a%7+b%4,A=180-2*B;
+    return classifyTriangleTask('В равнобедренном треугольнике угол при основании '+B+'°. Какого он вида по углам?',A,B,B);
+   },
+   right_condition_from_sum:({a,b})=>{
+    const x=90+(a%3-1)*b;
+    return checkStatement('Сумма углов A и B равна '+x+'°. Является ли угол C прямым?',x===90,
+     'Угол C равен 180° − '+x+'° = '+(180-x)+'°.');
+   },
+   classify_from_vertex:({a,b})=>{
+    const A=85+a,B=28+b,C=180-A-B;
+    return classifyTriangleTask('Угол A равен '+A+'°, а угол B — '+B+'°. Определи вид треугольника по углам.',A,B,C);
+   }
+  },
+  {
+   classify_from_external_and_remote:({a,b})=>{
+    const A=24+a,B=42+b,C=180-A-B;
+    return classifyTriangleTask('Внешний угол при C равен '+(180-C)+'°, угол A — '+A+'°. Какого вида треугольник?',A,B,C);
+   },
+   classify_from_angle_ratio:({a,b})=>{
+    const ratios=[[2,3,4],[2,3,5],[1,2,6],[3,4,5],[3,3,6],[2,2,5]],start=(a+b)%ratios.length;
+    const row=ratios[start],ordered=row.slice(a%3).concat(row.slice(0,a%3)),factor=180/ordered.reduce((x,y)=>x+y,0);
+    return classifyTriangleTask('Углы треугольника относятся как '+ordered.join(' : ')+'. Какого он вида?',...ordered.map(value=>value*factor));
+   },
+   classify_by_difference_in_equal_sides:({a,b})=>{
+    const B=53+a%7,A=180-2*B;
+    return classifyTriangleTask('В равнобедренном треугольнике угол при вершине на '+(B-A>=0?B-A:A-B)+'° '+(A<=B?'меньше':'больше')+' угла при основании. Какого он вида по углам?',A,B,B);
+   },
+   bound_max_angle:({a,b})=>{
+    const max=62+a+b;
+    return checkStatement('Наибольший угол в треугольнике '+max+'°. Могут ли два других угла быть тупыми?',false,
+     'Оба остальных угла не больше '+max+'°, а это меньше 90°. Тупым считается угол больше 90°.');
+   }
+  }
+ ],
+ geo_side_angle_relation:[
+  {
+   opposite_side_for_given_vertex:({a,b})=>{
+    const [p,q,r]=geometryLabels(a,b);
+    return choice('Какая сторона треугольника '+p+q+r+' лежит напротив угла при '+q+'?',p+r,[p+q,q+r],
+     'Сторона напротив угла не содержит его вершину '+q+'.');
+   },
+   largest_side_from_three_angles:({a,b})=>{
+    const values=shuffledTriangleMeasures(a,b),index=findLargestByMeasure(values);
+    return choice('∠A = '+values[0]+'°, ∠B = '+values[1]+'°, ∠C = '+values[2]+'°. Какая сторона больше всех?',
+     angleSidePairs[index][1],angleSidePairs.filter((_,i)=>i!==index).map(pair=>pair[1]),
+     'Самая длинная сторона лежит напротив наибольшего угла '+angleSidePairs[index][0]+'.');
+   },
+   compare_angles_from_given_sides:({a,b})=>{
+    const first=10+a,second=first+b;
+    return choice('В ABC сторона AB = '+first+' см, AC = '+second+' см. Как сравнить ∠B и ∠C?',
+     '∠B > ∠C',['∠B < ∠C','∠B = ∠C','Данных недостаточно'],
+     'Угол B лежит напротив AC, а угол C — напротив AB. Сторона AC длиннее.');
+   },
+   equal_sides_imply_equal_angles:({a,b})=>{
+    const [p,q,r]=geometryLabels(a,b);
+    return choice('В треугольнике '+p+q+r+' стороны '+p+q+' и '+p+r+' равны. Какие углы равны?',
+     '∠'+q+' и ∠'+r,['∠'+p+' и ∠'+q,'∠'+p+' и ∠'+r,'Равных углов нет'],
+     'Этим сторонам противолежат соответственно ∠'+r+' и ∠'+q+'.');
+   }
+  },
+  {
+   compute_and_order_sides:({a,b})=>{
+    const [A,B,C]=shuffledTriangleMeasures(a,b);
+    const order=[A,B,C].map((angle,index)=>[angle,angleSidePairs[index][1]]).sort((u,v)=>u[0]-v[0]);
+    const [p,q,r]=order.map(pair=>pair[1]);
+    return choice('В ABC угол A равен '+A+'°, угол B — '+B+'°. Укажи порядок сторон по возрастанию.',
+     [p,q,r].join(' < '),[[r,q,p],[p,r,q],[q,p,r]].map(row=>row.join(' < ')),
+     'Сначала ∠C = '+C+'°. Затем упорядочиваем углы и выписываем стороны напротив них.');
+   },
+   maximum_angle_from_perimeter:({a,b})=>{
+    const short=15+a,middle=short+2,long=middle+3;
+    return choice('BC = '+short+' см, AB = '+middle+' см, периметр ABC равен '+(short+middle+long)+' см. Какой угол наибольший?',
+     '∠B',['∠A','∠C','Все углы равны'],
+     'AC = '+long+' см, это наибольшая сторона. Напротив AC лежит ∠B.');
+   },
+   longest_side_opposite_obtuse:({a,b})=>{
+    const [p,q,r]=geometryLabels(a,b),angle=95+a+b;
+    return choice('В треугольнике '+p+q+r+' угол при '+r+' равен '+angle+'°. Какая сторона самая длинная?',
+     p+q,[p+r,q+r,'Данных недостаточно'],
+     'Тупой угол больше каждого из двух других, поэтому напротив него наибольшая сторона.');
+   },
+   reject_wrong_side_order:({a,b})=>{
+    const A=31+a,B=51+b;
+    return checkStatement('Если ∠A = '+A+'°, ∠B = '+B+'°, может ли выполняться BC > AC?',false,
+     '∠A меньше ∠B, значит сторона BC напротив A короче стороны AC напротив B.');
+   }
+  },
+  {
+   order_sides_from_exterior_angle:({a,b})=>{
+    const [A,B,C]=shuffledTriangleMeasures(a,b);
+    const sorted=[A,B,C].map((angle,index)=>[angle,angleSidePairs[index][1]]).sort((u,v)=>u[0]-v[0]).map(pair=>pair[1]);
+    const [p,q,r]=sorted;
+    return choice('Внешний угол при C равен '+(180-C)+'°, угол B — '+B+'°. Укажи порядок сторон от большей к меньшей.',
+     [r,q,p].join(' > '),[[p,q,r],[r,p,q],[q,r,p]].map(row=>row.join(' > ')),
+     'Внутренний ∠C = '+C+'°, ∠A = '+A+'°. Стороны располагаем как противолежащие углы.');
+   },
+   reconstruct_sides_from_differences:({a,b})=>{
+    const shortest=19+a,middle=shortest+b,longest=middle+2;
+    return choice('В ABC сторона AB на '+b+' см длиннее AC, а BC на 2 см длиннее AB. Периметр '+(shortest+middle+longest)+' см. Какой угол наименьший?',
+     '∠B',['∠A','∠C','Два угла одинаковы'],
+     'AC короче AB, а AB короче BC. Наименьший угол B лежит напротив AC.');
+   },
+   equal_angles_checked_with_total:({a,b})=>{
+    const A=40+a,B=A,C=180-2*A;
+    return choice('В треугольнике ABC угол A равен '+A+'°, а внешний угол при C — '+(180-C)+'°. Какие стороны равны?',
+     'BC = AC',['AB = BC','AB = AC','Все стороны различны'],
+     '∠B = '+(180-C)+'° − '+A+'° = '+B+'°. Напротив равных A и B лежат BC и AC.');
+   },
+   rank_by_two_angle_gaps:({a,b})=>{
+    const [p,q,r]=geometryLabels(a,b),first=b+1,second=a+2;
+    return choice('В треугольнике '+p+q+r+' угол '+q+' больше угла '+p+' на '+first+'°, а угол '+r+' меньше угла '+p+' на '+second+'°. Какая сторона имеет среднюю длину?',
+     q+r,[p+q,p+r,'Две стороны одинаковы'],
+     'Углы по возрастанию идут так: '+r+', '+p+', '+q+'. Сторона напротив среднего угла '+p+' — '+q+r+'.');
+   }
+  }
+ ]
+});
+
 add('alg_expressions_equations','compare_expression_values','Сравнение значений выражений',
  'Чтобы сравнить выражения, вычисли оба значения или используй свойства действий. При указанном значении переменной сначала подставь его в обе части. Для двойного неравенства проверь обе границы.',
  null);
