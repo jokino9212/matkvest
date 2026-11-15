@@ -26,8 +26,10 @@ jobs:
         run: python3 audits/g7_stage12_sync_pwa.py --check
       - name: Install pinned Playwright
         run: npm install --no-save --no-package-lock playwright@1.56.1
-      - name: Independently solve 600 real learner-visible §49 problems
-        run: node audits/g5_sequential_paragraph49_browser_oracle.cjs
+      - name: Independently solve 600 real learner-visible §49 problems and retain cuboid geometry
+        run: |
+          node audits/g5_sequential_paragraph49_browser_oracle.cjs
+          node audits/g5_sequential_paragraph23_browser_oracle.cjs
       - name: Full previously certified fraction regression
         run: |
           node audits/g5_sequential_paragraph48_browser_oracle.cjs
