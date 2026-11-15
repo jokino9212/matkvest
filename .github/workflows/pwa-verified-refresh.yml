@@ -1,0 +1,23 @@
+name: PWA verified builds and F5 refresh
+on:
+  push:
+    branches: [fix/pwa-verified-refresh-20261115]
+  pull_request:
+    paths:
+      - sw.js
+      - index.html
+      - audits/g7_stage12_sync_pwa.py
+      - audits/pwa_verified_refresh_browser.cjs
+      - .github/workflows/pwa-verified-refresh.yml
+jobs:
+  verified-refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 audits/g7_stage12_sync_pwa.py --check
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - run: node audits/pwa_verified_refresh_browser.cjs
+      - run: node audits/stage28_offline_pwa_browser.cjs

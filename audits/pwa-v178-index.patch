@@ -1,0 +1,21 @@
+diff --git a/index.html b/index.html
+index 5f7d4b2..00f004c 100644
+--- a/index.html
++++ b/index.html
+@@ -20892,6 +20892,16 @@ function mk872CleanLegacy(){
+ /* МатКвест 8.78: безопасное обновление открытой вкладки при смене Service Worker. */
+ (function mkStage12PwaRefresh(){
+  'use strict';
++ const badge=document.getElementById('appVersionBadge');
++ // This block appears before the Grade 5 script elements.
++ function showBuild(){
++  const version=new URL(document.querySelector('script[src^="g5-"][src*="?v="]')?.src||location.href).searchParams.get('v');
++  if(badge&&version&&/^\d+$/.test(version)){
++   badge.textContent='Сборка v'+version;
++   badge.setAttribute('aria-label',badge.textContent);
++  }
++ }
++ document.addEventListener('DOMContentLoaded',showBuild,{once:true});
+  if(!('serviceWorker' in navigator))return;
+  let hadController=!!navigator.serviceWorker.controller;
+  let reloading=false,reg=null,inFlight=false,lastCheck=0;
