@@ -1,0 +1,27 @@
+name: Verify deployed MatKvest v72 on GitHub Pages
+on:
+  push:
+    branches: [main, audit/live-pages-v72-20261106]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify-live-pages:
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install browser driver
+        run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Verify deployed HTML, service worker and actual mobile division
+        run: node audits/live_pages_v72_verify.cjs
+      - name: Upload mobile screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployed-v72-android-evidence
+          path: audits/screenshots/pages-live-v72-*.png
+          if-no-files-found: ignore
