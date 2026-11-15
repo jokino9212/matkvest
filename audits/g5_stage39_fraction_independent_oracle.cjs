@@ -5,6 +5,7 @@ const gcd=(a,b)=>{a=a<0n?-a:a;b=b<0n?-b:b;while(b){[a,b]=[b,a%b]}return a};
 const rat=(a,b=1n)=>{a=BigInt(a);b=BigInt(b);assert(b!==0n,'Zero denominator');if(b<0n){a=-a;b=-b}const g=gcd(a,b);return [a/g,b/g]};
 function solve(p){
  const [op,...x]=p,ev=solve;
+ if(op==='cmp'){const a=ev(x[0]),b=ev(x[1]),delta=a[0]*b[1]-b[0]*a[1];return rat(delta<0n?0n:delta>0n?2n:1n);}
  if(op==='rat')return rat(x[0],x[1]);
  if(op==='add')return x.reduce((a,y)=>{const b=ev(y);return rat(a[0]*b[1]+b[0]*a[1],a[1]*b[1])},[0n,1n]);
  if(op==='sub'){const a=ev(x[0]),b=ev(x[1]);return rat(a[0]*b[1]-b[0]*a[1],a[1]*b[1])}
@@ -53,7 +54,7 @@ function solve(p){
   assert.equal(addition.filter(q=>q.f===0).length,10,'Missing original addition samples');
   assert.equal(addition.filter(q=>q.f===4).length,10,'Missing revised addition samples');
   assert(addition.filter(q=>q.f===0).every(q=>q.meta.plan[0]==='add'),'Expected direct addition family');
-  assert(addition.filter(q=>q.f===4).every(q=>q.meta.plan[0]==='mul'),'New family must be genuinely two-stage');
+  assert(addition.filter(q=>q.f===4).every(q=>q.meta.plan[0]==='add'&&q.meta.plan.slice(1).every(part=>part[0]==='add')),'New family must be genuinely two-stage');
   console.log('G5_STAGE39_1800_INDEPENDENT_ORACLE_PASS '+JSON.stringify({topics:ids.length,samples:checks,uniqueFamilySlots:ids.length*15}));
  }finally{await browser.close()}
 })().catch(e=>{console.error('G5_STAGE39_INDEPENDENT_ORACLE_FAIL',e.stack||e);process.exit(1)});
