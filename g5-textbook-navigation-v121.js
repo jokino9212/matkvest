@@ -235,7 +235,7 @@ const grade7Chapters=[
   [24,'Понятие параллельных прямых',['geo_parallel_perpendicular_intro']],
   [25,'Признаки параллельности',['geo_parallel_criteria','geo_transversal_angles']],
   [26,'Построение параллельных прямых',['geo_construct_parallel']],
-  [27,'Аксиомы геометрии',['geo_axiom_parallel']],
+  [27,'Аксиомы геометрии',['geo_geometry_axioms']],
   [28,'Аксиома о параллельных прямых',['geo_axiom_parallel']],
   [29,'Углы при параллельных прямых и секущей',['geo_parallel_properties']],
   [30,'Углы с параллельными или перпендикулярными сторонами',['geo_angles_matching_sides']]

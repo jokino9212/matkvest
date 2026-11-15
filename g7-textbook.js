@@ -196,6 +196,11 @@ function geometryCross(labels,angle,rightMarker=false){
 const triangleVisual=(data)=>question=>g7GeoAttach(question,data,'Вершины обозначены на чертеже.');
 const originalGeometrySvg=geometrySvg;
 geometrySvg=function(data){
+ if(data?.kind==='g7-textbook-transversal'){
+  const model=g7TransversalModel(data.alpha,{parallelMark:data.parallelMark});
+  const body=g7TransversalSvg(model).replace(/>([1-8])<\/text>/g,(_,digit)=>'>'+data.numbers[Number(digit)-1]+'</text>');
+  return '<div class="geometry-wrap"><svg class="geometry-svg" viewBox="60 36 535 343" role="img" aria-label="Секущая пересекает две прямые. Углы пронумерованы.">'+body+'</svg></div>';
+ }
  if(data?.kind==='g7-textbook-cross'){
   const center={x:320,y:150},directions=[0,data.angle,180,180+data.angle];
   const points=directions.map(degrees=>g7GeoAnglePoint(center,degrees,107));
@@ -4215,6 +4220,312 @@ const reviewed = {
   }
  ]
 };
+Object.assign(reviewedLessons,{
+ geo_transversal_angles:'Секущая пересекает две прямые в разных точках. Соответственные углы занимают одинаковое положение в обоих пересечениях. Накрест лежащие углы находятся внутри обеих прямых и по разные стороны секущей. Внутренние односторонние углы лежат по одну сторону секущей.',
+ geo_parallel_criteria:'Для доказательства параллельности достаточно одного условия: равенства накрест лежащих углов, равенства соответственных углов или суммы внутренних односторонних углов 180°.',
+ geo_construct_parallel:'Через точку вне прямой можно провести параллельную. Для этого перенеси соответственный угол или построй две прямые, перпендикулярные одной прямой.',
+ geo_geometry_axioms:'Аксиому принимают без доказательства. Теорему доказывают, используя определения, аксиомы и ранее доказанные теоремы. Через две различные точки проходит ровно одна прямая.'
+});
+
+const transversalRelations=['corresponding','alternate','sameSide','vertical'];
+const transversalNames={...G7_CRITERIA_RELATION_NAMES,vertical:'вертикальные'};
+const transversalNumbers=[1,2,3,4,5,6,7,8];
+function transversalDiagram(a,b,parallelMark=false){
+ const offset=(a+b)%8,numbers=transversalNumbers.map(n=>(n+offset-1)%8+1);
+ return question=>{
+  const numbered=text=>typeof text==='string'?text.replace(/∠([1-8])/g,(_,digit)=>'∠'+numbers[Number(digit)-1]):text;
+  question.text=numbered(question.text);
+  question.ex=numbered(question.ex);
+  for(const answer of question.choices){
+   answer.label=numbered(answer.label);
+   answer.key=numbered(answer.key);
+  }
+  question.ans=numbered(question.ans);
+  question.correctLabel=numbered(question.correctLabel);
+  question.correctText=numbered(question.correctText);
+  question.sig+=':numbering='+offset;
+  return g7GeoAttach(question,{kind:'g7-textbook-transversal',alpha:25+a+b,numbers,parallelMark},'Две прямые пересечены секущей. Углы пронумерованы.');
+ };
+}
+const transversalPair=(relation,a,b)=>{
+ const pairs=G7_TRANSVERSAL_PAIRS[relation];
+ return pairs[(a+b)%pairs.length];
+};
+function identifyTransversal(relation,a,b){
+ const selected=transversalPair(relation,a,b);
+ return withVisual(choice('Как называются углы '+g7AnglePairText(selected)+'?',transversalNames[relation],
+  transversalRelations.filter(key=>key!==relation).map(key=>transversalNames[key]),
+  'По расположению на схеме '+g7AnglePairText(selected)+' — '+transversalNames[relation]+' углы.'),transversalDiagram(a,b));
+}
+function transversalPartner(relation,a,b){
+ const selected=transversalPair(relation,a,b),index=b%2,from=selected[index],to=selected[1-index];
+ return withVisual(choice('Укажи угол, который с ∠'+from+' образует пару «'+transversalNames[relation]+' углы».','∠'+to,
+  transversalNumbers.filter(n=>n!==from&&n!==to).slice(a%4,a%4+3).map(n=>'∠'+n),
+  'На схеме нужная пара — '+g7AnglePairText(selected)+'.'),transversalDiagram(a,b));
+}
+function namedParallelLines(a,b){
+ const [p,q,r,s]=geometryLabels(a,b);
+ return [p+q,r+s];
+}
+function criterionAt(relation,x,y){
+ return relation==='sameSide'?x+y===180:x===y;
+}
+function requestedCriterion(relation,a,b,missing=false){
+ const x=30+3*a+b,required=relation==='sameSide'?180-x:x;
+ const y=required+(a%2?0:b), satisfies=criterionAt(relation,x,y);
+ const [line,other]=namedParallelLines(a,b);
+ const prefix='Две прямые '+line+' и '+other+' пересечены секущей. Их '+transversalNames[relation]+' углы ';
+ const reason=relation==='sameSide'?'Их сумма должна быть 180°.':'Они должны быть равны.';
+ if(missing)return [prefix+'образуют пару. Один угол равен '+x+'°. Найди величину второго, при которой прямые параллельны.',required,
+  reason+' Получаем '+required+'°.'];
+ return checkStatement(prefix+'равны '+x+'° и '+y+'°. Следует ли, что прямые параллельны?',satisfies,
+  reason+' Условие '+(satisfies?'выполнено.':'не выполнено.'));
+}
+
+Object.assign(reviewed,{
+ geo_transversal_angles:[
+  {
+   identify_corresponding_pair:({a,b})=>identifyTransversal('corresponding',a,b),
+   identify_alternate_pair:({a,b})=>identifyTransversal('alternate',a,b),
+   choose_same_side_partner:({a,b})=>transversalPartner('sameSide',a,b),
+   distinguish_vertical_pair:({a,b})=>identifyTransversal('vertical',a,b)
+  },
+  {
+   match_corresponding_angle:({a,b})=>transversalPartner('corresponding',a,b),
+   match_alternate_angle:({a,b})=>transversalPartner('alternate',a,b),
+   read_same_side_pair:({a,b})=>identifyTransversal('sameSide',a,b),
+   locate_interior_angles:({a,b})=>{
+    const vertex=b%2?[3,4]:[5,6],exterior=b%2?[1,2]:[7,8];
+    return withVisual(choice('Какие два угла при пересечении '+(b%2?'прямой a':'прямой b')+' с секущей лежат между прямыми a и b?',
+     g7AnglePairText(vertex),[g7AnglePairText(exterior),g7AnglePairText([vertex[0],exterior[0]]),g7AnglePairText([vertex[1],exterior[1]])],
+     'Между прямыми находится пара '+g7AnglePairText(vertex)+'.'),transversalDiagram(a,b));
+   }
+  },
+  {
+   one_side_then_vertical:({a,b})=>{
+    const [from,mid]=transversalPair('sameSide',a,b),to=G7_TRANSVERSAL_PAIRS.vertical.find(p=>p.includes(mid)).find(n=>n!==mid);
+    return withVisual(choice('К углу ∠'+from+' подбери внутренний односторонний угол и затем найди угол, вертикальный к подобранному. Что получилось?',
+     '∠'+to,['∠'+from,'∠'+mid,'∠'+(to===7?8:7)],'Сначала получаем ∠'+mid+', затем вертикальный к нему ∠'+to+'.'),transversalDiagram(a,b));
+   },
+   corresponding_then_classify:({a,b})=>{
+    const from=a%2?3:4,partner=from+4,other=from===3?6:5,adjacent=from===3?5:6;
+    return withVisual(choice('Укажи угол, соответственный углу ∠'+from+', и классифицируй его пару с ∠'+other+'.',
+     '∠'+partner+', углы вертикальные',['∠'+partner+', углы смежные','∠'+adjacent+', углы вертикальные','∠'+adjacent+', углы смежные'],
+     'Соответственный угол — ∠'+partner+'. Он расположен напротив ∠'+other+' при том же пересечении.'),transversalDiagram(a,b));
+   },
+   alternate_then_classify:({a,b})=>{
+    const [from,partner]=transversalPair('alternate',a,b),other=from===3?6:5;
+    return withVisual(choice('Найди угол, который накрест лежит с ∠'+from+'. Как этот угол расположен относительно ∠'+other+'?',
+     '∠'+partner+', углы смежные',['∠'+partner+', углы вертикальные','∠'+(partner+2)+', углы смежные','∠'+(partner+2)+', углы вертикальные'],
+     'Накрест лежащий угол — ∠'+partner+'. ∠5 и ∠6 имеют общую сторону, две другие стороны противоположны.'),transversalDiagram(a,b));
+   },
+   pair_from_two_conditions:({a,b})=>{
+    const selected=transversalPair('alternate',a,b);
+    return withVisual(choice('Два угла лежат между прямыми, по разные стороны секущей. Один из них ∠'+selected[1]+'. Назови второй.',
+     '∠'+selected[0],['∠'+(selected[0]===3?4:3),'∠'+selected[1],'∠'+(selected[1]+2)],
+     'Это накрест лежащие углы '+g7AnglePairText(selected)+'.'),transversalDiagram(a,b));
+   }
+  }
+ ],
+ geo_parallel_criteria:[
+  {
+   check_alternate_equality:({a,b})=>requestedCriterion('alternate',a,b),
+   check_corresponding_equality:({a,b})=>requestedCriterion('corresponding',a,b),
+   sum_for_same_side:({a,b})=>requestedCriterion('sameSide',a,b,true),
+   reject_wrong_angle_pair:({a,b})=>{
+    const [line,other]=namedParallelLines(a,b);
+    return checkStatement('Секущая пересекает '+line+' и '+other+'. При одном пересечении равны вертикальные углы. Достаточно ли этого для параллельности двух прямых?',false,
+     'Вертикальные углы равны при любом пересечении. Они не сравнивают направления двух прямых.');
+   }
+  },
+  {
+   classify_angles_before_proof:({a,b})=>{
+    const relation=transversalRelations[(a+b)%3],selected=transversalPair(relation,a,b);
+    const angle=34+2*a+b,y=relation==='sameSide'?180-angle:angle;
+    return withVisual(choice(g7AnglePairText(selected)+' равны '+angle+'° и '+y+'°. По какому признаку следует a ∥ b?',
+     'По углам: '+transversalNames[relation],transversalRelations.filter(key=>key!==relation).map(key=>'По углам: '+transversalNames[key]),
+     'Названная пара — '+transversalNames[relation]+' углы. '+(relation==='sameSide'?'Их сумма 180°.':'Их величины равны.')),
+     transversalDiagram(a,b));
+   },
+   assess_same_side_sum:({a,b})=>requestedCriterion('sameSide',a,b),
+   missing_corresponding_by_adjacent:({a,b})=>{
+    const x=30+2*a+b;
+    return ['При первом пересечении угол равен '+x+'°. При втором ищем соответственный ему угол. Какой должна быть величина смежного с искомым, чтобы прямые были параллельны?',180-x,
+     'Соответственный должен быть '+x+'°, значит смежный равен 180° − '+x+'°.'];
+   },
+   vertical_cannot_replace_criterion:({a,b})=>{
+    const [line,other]=namedParallelLines(a,b);
+    return choice('Для прямых '+line+' и '+other+' нашли равные углы при разных точках пересечения с секущей. Какие сведения позволяют применить признак?',
+     'Эти углы соответственные',['Оба угла острые','Точки пересечения различны','Один из углов внутренний'],
+     'Равенство соответственных углов — признак параллельности. Остальных условий по отдельности недостаточно.');
+   }
+  },
+  {
+   solve_alternate_equation:({a,b})=>{
+    const x=5+b,offset=25+a,angle=x+offset;
+    return ['Накрест лежащие углы равны (x + '+offset+')° и (2x + '+(offset-x)+')°. При каком x прямые параллельны?',x,
+     'Приравниваем выражения и получаем x = '+x+'. Оба угла равны '+angle+'°.'];
+   },
+   solve_same_side_equation:({a,b})=>{
+    const x=a+b,offset=180-3*x-b;
+    return ['Внутренние односторонние углы равны (x + '+b+')° и (2x + '+offset+')°. При каком x прямые параллельны?',x,
+     'Сумма углов 180°, поэтому 3x + '+(b+offset)+' = 180, откуда x = '+x+'.'];
+   },
+   test_corresponding_through_vertical:({a,b})=>{
+    const [line,other]=namedParallelLines(a,b),x=30+3*a,y=x+b%3;
+    return checkStatement('Угол при пересечении секущей с '+line+' равен '+x+'°. Угол, вертикальный к соответственному ему при пересечении с '+other+', равен '+y+'°. Параллельны ли прямые?',x===y,
+     'Искомый соответственный равен вертикальному к нему, то есть '+y+'°. '+(x===y?'Равенство установлено.':'Равенства нет.'));
+   },
+   disprove_with_wrong_measure:({a,b})=>{
+    const [line,other]=namedParallelLines(a,b),x=40+a+b;
+    return choice('Один внутренний односторонний угол равен '+x+'°. Какое измерение второго опровергло бы '+line+' ∥ '+other+'?',
+     (181-x)+'°',['Ровно '+(180-x)+'°','Измерение второго здесь ничего не меняет','Любой угол от 0° до 180°'],
+     'При параллельных прямых сумма этих углов 180°. С '+(181-x)+'° она равна 181°.');
+   }
+  }
+ ],
+ geo_construct_parallel:[
+  {
+   copy_corresponding_for_construction:({a,b})=>['Чтобы провести параллельную, копируют соответственный угол. Исходный угол равен '+(36+2*a+b)+'°. Какой угол отложить?',36+2*a+b,
+    'При равенстве соответственных углов прямые параллельны.'],
+   two_perpendiculars:({a,b})=>{
+    const [line,other]=namedParallelLines(a,b);
+    return choice('Прямая '+line+' перпендикулярна '+other+'. Как провести ещё одну прямую, параллельную '+line+'?',
+     'Перпендикулярно '+other,['Перпендикулярно '+line,'Через любое пересечение с '+line,'Под углом 45° к '+other],
+     'Две различные прямые, перпендикулярные одной прямой, параллельны.');
+   },
+   ruler_and_set_square:({a,b})=>{
+    const [line,other]=namedParallelLines(a,b);
+    return choice('На чертеже нужно перенести направление '+line+' к прямой-направляющей '+other+' с помощью угольника. Что делать с угольником?',
+     'Сдвинуть его вдоль линейки без поворота',['Повернуть его на 90°','Развернуть его другой стороной','Сдвинуть линейку и угольник независимо'],
+     'При сдвиге без поворота угол между стороной угольника и линейкой остаётся тем же.');
+   },
+   identify_shared_transversal:({a,b})=>{
+    const [line,other]=namedParallelLines(a,b);
+    return choice('Нужно провести через P параллельную к '+line+'. Что можно использовать как секущую для переноса угла?',
+     'Прямую '+other+' через P, пересекающую '+line,['Совпадающую с '+line+' прямую','Прямую, не проходящую через P и не пересекающую '+line,'Любую параллельную к '+line],
+     'Второй угол строится в точке P, а первый берётся в точке пересечения секущей с данной прямой.');
+   }
+  },
+  {
+   establish_correct_placement:({a,b})=>{
+    const [line,other]=namedParallelLines(a,b),angle=31+2*a+b;
+    return choice('Прямые '+line+' и '+other+' пересеклись под углом '+angle+'°. Через P на '+other+' вне '+line+' откладывают такой же угол. Как его расположить, чтобы получить параллельную к '+line+'?',
+     'В положении соответственного угла',['В положении внутреннего одностороннего угла','Как смежный к углу '+angle+'° в первом пересечении','При любой точке, кроме P'],
+     'Соответственные углы должны быть равны. Для односторонних нужна сумма 180°.');
+   },
+   transfer_with_inside_sum:({a,b})=>requestedCriterion('sameSide',a,b,true),
+   verify_turn_direction:({a,b})=>{
+    const [line,other]=namedParallelLines(a,b),angle=38+2*a+b;
+    return checkStatement('При построении к '+line+' через P отложили угол '+angle+'°. У пересечения '+line+' с '+other+' взяли такой же угол, и оба угла внутренние односторонние. Получилась ли параллельная?',false,
+     'Их сумма '+2*angle+'°, а для внутренних односторонних необходимо 180°.');
+   },
+   read_correct_path:({a,b})=>{
+    const [line,other]=namedParallelLines(a,b);
+    return choice('Построение начинают прямой '+other+' через P, перпендикулярной '+line+'. Какой второй шаг завершает построение параллельной к '+line+' через P?',
+     'Провести через P перпендикуляр к '+other,['Провести через P перпендикуляр к '+line,'Оставить только '+other,'Провести через P прямую под углом 45° к '+other],
+     'Искомая прямая и '+line+' перпендикулярны одной прямой '+other+'.');
+   }
+  },
+  {
+   adjust_after_wrong_turn:({a,b})=>{
+    const angle=30+2*a,observed=angle+b;
+    return ['При переносе соответственного угла '+angle+'° получился угол '+observed+'°. На сколько градусов нужно уменьшить угол?',b,
+     'Вычитаем '+observed+'° − '+angle+'° = '+b+'°.'];
+   },
+   select_supported_construction:({a,b})=>{
+    const [line,other]=namedParallelLines(a,b),angle=30+a+b;
+    return choice('Секущая '+other+' образует с '+line+' острый угол '+angle+'°. Какая пара измерения и положения годится для построения параллельной?',
+     (180-angle)+'°, внутренний односторонний',[angle+'°, внутренний односторонний',(180-angle)+'°, соответственный',(180-angle)+'°, накрест лежащий'],
+     'Сумма внутренних односторонних углов должна быть 180°.');
+   },
+   double_perpendicular_angle:({a,b})=>{
+    const angle=33+a+b,[line,other]=namedParallelLines(a,b);
+    return ['Прямые '+line+' и '+other+' получены как перпендикуляры к общей прямой. Секущая образует с первой прямой угол '+angle+'°. Найди величину угла, смежного с соответственным при втором пересечении.',180-angle,
+     'Прямые параллельны, соответственный угол равен '+angle+'°, а смежный дополняет его до 180°.'];
+   },
+   derive_parallel_from_two_right_angles:({a,b})=>{
+    const [line,other]=namedParallelLines(a,b);
+    return choice('По построению '+line+' и '+other+' перпендикулярны одной прямой c. Какое доказательство параллельности годится?',
+     'Секущая c образует равные соответственные углы по 90°',['Все углы между '+line+' и '+other+' прямые','При каждом пересечении с c есть вертикальные углы','Каждая прямая имеет с c одну общую точку'],
+     'Равные соответственные углы при секущей c дают признак параллельности.');
+   }
+  }
+ ],
+ geo_geometry_axioms:[
+  {
+   name_statement_without_derivation:({a,b})=>{
+    const [p,q]=geometryLabels(a,b);
+    return choice('Утверждение «через различные точки '+p+' и '+q+' проходит ровно одна прямая» принято без доказательства. Как называют такое утверждение?',
+     'Аксиома',['Теорема','Определение','Следствие'],'Аксиомы — исходные утверждения теории.');
+   },
+   count_lines_through_two:({a,b})=>{
+    const [p,q]=geometryLabels(a,b);
+    return ['Сколько различных прямых проходит одновременно через '+p+' и '+q+'?',1,'Через две различные точки проходит ровно одна прямая.'];
+   },
+   name_proved_claim:({a,b})=>{
+    const [line,other]=namedParallelLines(a,b);
+    return choice('Из свойств смежных углов вывели равенство вертикальных при пересечении прямых '+line+' и '+other+'. Как называется доказанное утверждение?',
+     'Теорема',['Аксиома','Определение','Обозначение'],'Теорема — утверждение, которое доказывают.');
+   },
+   distinguish_definition:({a,b})=>{
+    const [line,other]=namedParallelLines(a,b);
+    return choice('Фраза «если '+line+' и '+other+' лежат в одной плоскости и не пересекаются, они называются параллельными» объясняет смысл термина. Что это?',
+     'Определение',['Доказательство','Аксиома','Признак равенства'],'Определение объясняет значение термина.');
+   }
+  },
+  {
+   justify_two_shared_points:({a,b})=>{
+    const [p,q,r,s]=geometryLabels(a,b);
+    return choice('Прямые '+p+r+' и '+q+s+' обе проходят через '+p+' и '+q+'. Какой вывод следует из аксиомы о двух точках?',
+     'Прямые совпадают',['Они параллельны','Они перпендикулярны','У них ровно одна общая точка'],
+     'Через '+p+' и '+q+' проходит одна прямая. Оба названия относятся к ней.');
+   },
+   choose_direct_axiom_application:({a,b})=>{
+    const [p,q,r]=geometryLabels(a,b);
+    return choice('По условию '+p+', '+q+' и '+r+' не лежат на одной прямой. Какой вывод непосредственно следует из аксиомы о двух точках?',
+     'Прямая '+p+q+' существует и единственна',['Точки лежат на одной прямой','Прямая '+p+q+' совпадает с '+p+r,'Точки '+q+' и '+r+' совпадают'],
+     'Для построения единственной прямой достаточно двух различных точек.');
+   },
+   check_condition_of_distinctness:({a,b})=>{
+    const [p,q]=geometryLabels(a,b);
+    return checkStatement('В черновике '+p+' и '+q+' обозначают одну и ту же точку. Можно ли применить аксиому о двух различных точках к этой паре?',false,
+     'Для применения аксиомы нужно проверить, что точки различны.');
+   },
+   find_proof_premise:({a,b})=>{
+    const [p,q,r]=geometryLabels(a,b);
+    return choice('В доказательстве указали, что '+p+q+' и '+p+r+' совпадают, потому что '+q+' лежит на '+p+r+'. Какое свойство завершает рассуждение?',
+     'Через две различные точки проходит только одна прямая',['Через одну точку проходит только одна прямая','Любые три точки лежат на одной прямой','Две разные прямые не могут пересечься'],
+     'Обе прямые проходят через '+p+' и '+q+'. Единственность заставляет их совпасть.');
+   }
+  },
+  {
+   count_lines_from_distinct_pairs:({a,b})=>{
+    const n=4+a%6;
+    return ['Отмечено '+n+' точек, причём никакие три не лежат на одной прямой. Сколько различных прямых задают пары этих точек?',n*(n-1)/2,
+     'Каждая пара задаёт одну прямую. Совпадение прямых двух разных пар дало бы не менее трёх точек на одной прямой. Пар '+n+' · '+(n-1)+' / 2.'];
+   },
+   count_lines_with_collinear_triple:({a,b})=>{
+    const [p,q,r,s]=geometryLabels(a,b);
+    return ['Точки '+p+', '+q+' и '+r+' лежат на одной прямой, а '+s+' вне её. Сколько различных прямых задают все пары этих точек?',4,
+     'Три пары точек '+p+', '+q+', '+r+' дают одну прямую. Каждая из этих точек образует с '+s+' ещё одну отличную прямую.'];
+   },
+   finish_uniqueness_argument:({a,b})=>{
+    const [p,q,r]=geometryLabels(a,b);
+    return choice('Доказывают, что прямые '+p+q+' и '+p+r+' с различными направлениями не могут иметь вторую общую точку. Почему?',
+     'Две общие точки однозначно задают одну прямую',['Ровно одна общая точка запрещена','У прямых нет точек','Любые две прямые параллельны'],
+     'Если бы общих точек было две, прямые оказались бы одной и той же, вопреки условию.');
+   },
+   evaluate_argument_with_repeated_point:({a,b})=>{
+    const [p,q,r]=geometryLabels(a,b);
+    return choice('Две прямые проходят через '+p+' и '+q+', но '+p+' и '+q+' совпадают. Какого дополнительного факта достаточно, чтобы доказать совпадение прямых?',
+     r+' принадлежит обеим прямым и отличается от '+p,[r+' принадлежит только одной прямой',r+' совпадает с '+p,'Точка '+p+' принадлежит обеим прямым'],
+     'Точка '+r+' даёт вторую общую точку, отличную от '+p+'. Аксиома применяется к двум различным точкам.');
+   }
+  }
+ ]
+});
+
 add('alg_expressions_equations','compare_expression_values','Сравнение значений выражений',
  'Чтобы сравнить выражения, вычисли оба значения или используй свойства действий. При указанном значении переменной сначала подставь его в обе части. Для двойного неравенства проверь обе границы.',
  null);
@@ -4282,6 +4593,7 @@ add('geo_parallels','geo_construct_parallel','Построение паралл�
  ];
  return rows[k];
 });
+add('geo_parallels','geo_geometry_axioms','Аксиомы геометрии',reviewedLessons.geo_geometry_axioms,null);
 add('geo_parallels','geo_axiom_parallel','Аксиомы и единственность параллельной','Аксиому принимают без доказательства. Через точку вне прямой можно провести ровно одну прямую, параллельную данной.',
  ({a,b,c,d,k})=>{
  const rows=d===0?[
