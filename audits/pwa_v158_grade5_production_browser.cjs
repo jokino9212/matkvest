@@ -46,8 +46,8 @@ async function browserTest(browser,width){
  page.on('pageerror',e=>errors.push(e.message));
  try{
   await page.goto(root.href,{waitUntil:'domcontentloaded',timeout:120000});
+  await page.locator('.grade-card button[onclick="openGrade(5)"]').click();
   const initial=await page.evaluate(()=>{
-   openGrade(5);
    const id='area_units_g5';
    blockSession={kind:'g5quiz',key:'g5:'+id,stageIndex:0,done:0,total:10,usedSignatures:[],items:[],finished:false};
    qid='g5:'+id;
@@ -69,17 +69,25 @@ async function browserTest(browser,width){
   for(let i=0;i<3;i++){
    await page.reload({waitUntil:'domcontentloaded',timeout:120000});
    const state=await page.evaluate(async()=>{
-    openGrade(5);
     const id='area_units_g5';
     blockSession={kind:'g5quiz',key:'g5:'+id,stageIndex:0,done:0,total:10,usedSignatures:[],items:[],finished:false};
     qid='g5:'+id;
     const q=makeG5Question(id);
-    return {topics:g5AllTopics().length,source:q.sourceTopicId,
+    return {grade:currentGrade,topics:g5AllTopics().length,source:q.sourceTopicId,
+     cards:document.querySelectorAll('#mainView .g5-card').length,
+     paragraphs:document.querySelectorAll('#mk-g5-textbook-nav .mk-g5-toc-list li').length,
+     search:document.querySelector('#mk19c4-topic-tools .mk19c4-count')?.textContent,
+     progress:document.querySelector('#mk19f-grade-strip [role="progressbar"]')?.getAttribute('aria-label'),
      scriptCount:document.querySelectorAll('script[src^="g5-"][src*="?v="]').length,
      profileSentinel:localStorage.getItem('mk91_production_probe'),
      cacheKeys:await caches.keys(),controller:!!navigator.serviceWorker.controller};
    });
+   assert.equal(state.grade,5);
    assert.equal(state.topics,74);
+   assert.equal(state.cards,74);
+   assert.equal(state.paragraphs,51);
+   assert.equal(state.search,'Всего тем: 74');
+   assert.match(state.progress,/из 222$/);
    assert.equal(state.source,'area_units_g5');
    assert.equal(state.scriptCount,19);
    assert.equal(state.profileSentinel,'persists');
@@ -87,6 +95,16 @@ async function browserTest(browser,width){
    assert(state.controller,'Production v158 SW not controlling browser');
    console.log('PASS_PWA_91_PAGES_GRADE5_RELOAD',JSON.stringify({width,iteration:i+1,...state}));
   }
+  const chapter=page.locator('#mk-g5-textbook-nav details').filter({has:page.locator('[data-topic-id="area_units_g5"]')});
+  await chapter.locator('summary').click();
+  await chapter.locator('[data-topic-id="area_units_g5"]').click();
+  const lesson=page.locator('#modal .lesson');
+  const theory=await lesson.innerText();
+  assert.match(theory,/1 га = 100 а/);
+  await page.reload({waitUntil:'domcontentloaded',timeout:120000});
+  assert.equal(await lesson.innerText(),theory);
+  assert.equal(await page.locator('#modal .stage-card').count(),3);
+  assert.equal(await page.locator('#mk-g5-textbook-nav .mk-g5-toc-list li').count(),51);
   assert.deepEqual(errors,[]);
  }finally{await ctx.close();}
 }
