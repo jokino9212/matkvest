@@ -257,7 +257,7 @@ const grade7Chapters=[
   [42,'Прямая и окружность. Касательная',['geo_line_circle_tangent_secant','geo_circle_inscribed_in_angle']],
   [43,'Вписанная и описанная окружности',['geo_incircle_triangle','geo_circumcircle_triangle']],
   [44,'Фигуры, симметричные относительно прямой',['geo_axial_symmetry']],
-  [45,'Свойства осевой симметрии',['geo_axial_symmetry']]
+  [45,'Свойства осевой симметрии',['geo_axial_symmetry_properties']]
  ]},
  {part:'Геометрия',title:'Дополнительные темы',items:[
   [null,'Ломаная и многоугольник',['geo_broken_line_polygon','geo_polygon_angle_sum_intro']]
