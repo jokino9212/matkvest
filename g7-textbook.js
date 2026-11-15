@@ -54,7 +54,10 @@ const reviewedLessons={
  linear_function:'У функции y = kx + b число b равно ординате пересечения с Oy. Коэффициент k показывает изменение y при увеличении x на 1. При k = 0 график горизонтальный.',
  piecewise_functions:'Для каждого аргумента сначала выбери ветвь по её условию. Особое внимание удели границе: в неё входит ветвь с нестрогим знаком.',
  absolute_value_function:'При x ≥ 0 имеем |x| = x, а при x &lt; 0 имеем |x| = −x. У противоположных аргументов одинаковый модуль. График y = |x| симметричен относительно Oy.',
- natural_power_definition:'Степень aⁿ — произведение n одинаковых множителей a. Чётная степень отрицательного основания положительна, нечётная — отрицательна. Скобки показывают, входит ли минус в основание.'
+ natural_power_definition:'Степень aⁿ — произведение n одинаковых множителей a. Чётная степень отрицательного основания положительна, нечётная — отрицательна. Скобки показывают, входит ли минус в основание.',
+ power_properties:'При умножении степеней с одинаковым основанием складывай показатели. При делении вычитай показатель делителя из показателя делимого. Для ненулевого a имеем a⁰ = 1.',
+ power_product_power:'Чтобы возвести произведение в степень, возведи в неё каждый множитель. При возведении степени в степень показатели перемножаются.',
+ monomial_standard_form:'В стандартном виде одночлена числовой множитель записан первым, а каждая буква встречается один раз. Степень ненулевого одночлена равна сумме показателей его букв.'
 };
 
 function compare(prompt,left,right,explanation){
@@ -102,6 +105,11 @@ function pointVisual(points){
 }
 const withVisual=(task,attach)=>task.length===3?[...task,null,attach]:[...task,attach];
 const piecewise=(left,right,edge)=>math('f(x) = '+left+' при x &lt; '+fmt(edge)+', а f(x) = '+right+' при x ≥ '+fmt(edge));
+const pow=(base,degree)=>base+superscriptInt(degree);
+const monomial=(coef,x,y)=>({coef,powers:{x,y}});
+function monomialSelect(prompt,answer,wrong,ex){
+ return choice(prompt,g7MonomialHtml(answer),wrong.map(g7MonomialHtml),ex);
+}
 
 function add(section,id,title,rule,build){
  const group=G7_GROUPS.find(item=>item.id===section);
@@ -1335,6 +1343,128 @@ const reviewed = {
     return compare('Сравни '+g7PowHtml(x,2)+' и '+g7PowHtml(y,3)+'.',rational(x*x),rational(y**3),
      'Умножаем '+x+' на себя и отдельно находим произведение трёх множителей '+y+'.');
    }
+  }
+ ],
+ power_properties: [
+  {
+   multiply_powers: ({a,b})=>['Найди показатель степени в '+math(pow('x',a)+' · '+pow('x',b))+' после приведения к одной степени.',a+b,
+    'Одинаковое основание x сохраняется. Складываем показатели: '+a+' + '+b+' = '+(a+b)+'.'],
+   divide_powers: ({a,b})=>['Найди показатель степени в '+math(pow('x',a+b)+' : '+pow('x',b))+' при x ≠ 0.',a,
+    'Вычитаем показатель делителя из показателя делимого: '+(a+b)+' − '+b+' = '+a+'.'],
+   equal_powers_quotient: ({a})=>['Вычисли '+math(pow('x',a)+' : '+pow('x',a))+' при x ≠ 0.',1,
+    'Делим ненулевое число на само себя и получаем 1. Это соответствует x⁰ = 1.'],
+   identify_same_base: ({a,b})=>choice('Какой результат даёт '+math(pow('x',a)+' · '+pow('x',b))+'?',
+    math(pow('x',a+b)),[math(pow('x',a+b+1)),math(pow('x',Math.abs(a-b))),math(pow('y',a+b))],
+    'Складываем показатели, сохраняя исходное основание x.')
+  },
+  {
+   multiply_divide_chain: ({a,b,c})=>['Найди показатель результата '+math(pow('x',a+c)+' : '+pow('x',c)+' · '+pow('x',b))+' при x ≠ 0.',a+b,
+    'Первое действие даёт показатель '+a+'. Добавляем '+b+' при умножении.'],
+   solve_exponent_in_product: ({a,b})=>['Найди n, если '+math(pow('x',a)+' · xⁿ = '+pow('x',a+b))+' при любом x.',b,
+    'Показатели дают a + n = '+(a+b)+' при a = '+a+'. Значит n = '+b+'.'],
+   power_product_numeric: ({a,b})=>{
+    const n=a%3+1,m=b%3+1;
+    return readResult(math(pow(2,n)+' · '+pow(2,m)),2**(n+m),'Заменяем произведение степенью '+pow(2,n+m)+'.',
+     pow(2,n+m)+' = '+2**(n+m)+'.');
+   },
+   division_to_power: ({a,b})=>choice('Запиши '+math(pow('x',a+b)+' : '+pow('x',a))+' одной степенью при x ≠ 0.',
+    math(pow('x',b)),[math(pow('x',b+1)),math(pow('x',2*a+b)),math(pow('y',b))],
+    'Из '+(a+b)+' вычитаем '+a+', получаем '+b+'.')
+  },
+  {
+   powers_fraction_chain: ({a,b,c,y})=>['Найди показатель степени '+frac(pow('x',a+b)+' · '+pow('x',c+y),pow('x',b)+' · '+pow('x',y))+' при x ≠ 0.',a+c,
+    'Степень числителя '+(a+b+c+y)+', степень знаменателя '+(b+y)+'. Разность показателей '+(a+c)+'.'],
+   missing_denominator_power: ({a,b,c})=>['Найди n для равенства '+frac(pow('x',a)+' · '+pow('x',b+c),'xⁿ')+' = '+math(pow('x',a+c))+' при любом x ≠ 0.',b,
+    'После деления показатель равен '+(a+b+c)+' − n. Приравниваем к '+(a+c)+' и получаем n = '+b+'.'],
+   simplify_two_bases: ({a,b,c})=>choice('Упрости '+frac(pow('x',a+b)+' · '+pow('y',c+b),pow('x',b)+' · '+pow('y',b))+' при x ≠ 0 и y ≠ 0.',
+    math(pow('x',a)+pow('y',c)),[math(pow('x',a+1)+pow('y',c)),math(pow('x',a)+pow('y',c+1)),math(pow('x',a+b)+pow('y',c+b))],
+    'Вычитаем показатели отдельно для x и для y. Остаются '+a+' и '+c+'.'),
+   signed_exponent_chain: ({a,b,c})=>{
+    const n=a%3+1,m=b%3+1,k=c%3+1,result=(-2)**(n+m);
+    return readResult(frac(g7PowHtml(-2,n+k)+' · '+g7PowHtml(-2,m),g7PowHtml(-2,k)),result,
+     'Из суммы показателей '+(n+k+m)+' вычитаем '+k+'.',g7PowPlain(-2,n+m)+' = '+fmt(result)+'.');
+   }
+  }
+ ],
+ power_product_power: [
+  {
+   distribute_power: ({a})=>choice('Раскрой степень произведения '+math(pow('(xy)',a))+'.',
+    math(pow('x',a)+pow('y',a)),[math(pow('x',a)+'y'),math('x'+pow('y',a)),math(pow('x',a+1)+pow('y',a+1))],
+    'Возводим в степень '+a+' каждый множитель, x и y.'),
+   exponent_multiplication: ({a,b})=>['Каков итоговый показатель в '+math(pow('('+pow('x',a)+')',b))+'?',a*b,
+    'При возведении степени в степень показатели перемножаются: '+a+' · '+b+' = '+a*b+'.'],
+   compute_product_square: ({a,b})=>readResult(math(pow('('+a+' · '+b+')',2)),(a*b)**2,
+    'Возводим оба множителя в квадрат: '+a*a+' · '+b*b+' = '+(a*b)**2+'.'),
+   numeric_coefficient_square: ({a})=>['Чему равен числовой множитель в '+math(pow('('+a+'x)',2))+' после возведения в степень?',a*a,
+    'Возводим число '+a+' и переменную x в квадрат. Числовой множитель равен '+a*a+'.']
+  },
+  {
+   expand_negative_cube: ({a})=>choice('Как раскрыть '+math(pow('(−'+a+'xy)',3))+'?',
+    math('−'+a**3+'x³y³'),[math(a**3+'x³y³'),math('−'+a+'x³y³'),math('−'+a**3+'xy³')],
+    'Нечётная степень сохраняет минус. Кубуем число '+a+' и обе переменные.'),
+   power_on_existing_exponents: ({a,b,c})=>choice('Раскрой степень '+math(pow('('+pow('x',a)+pow('y',b)+')',c))+'.',
+    math(pow('x',a*c)+pow('y',b*c)),[math(pow('x',a+c)+pow('y',b+c)),math(pow('x',a*c)+pow('y',b*c+1)),math(pow('x',a*c+1)+pow('y',b*c))],
+    'Показатель x равен '+a+' · '+c+', показатель y равен '+b+' · '+c+'.'),
+   combine_nested_power: ({a,b,c})=>['Каков показатель степени x после упрощения '+math(pow('('+pow('x',a)+')',b)+' · '+pow('x',c))+'?',a*b+c,
+    'В первой степени перемножаем '+a+' и '+b+'. При умножении прибавляем '+c+'.'],
+   compare_nested_powers: ({a,b})=>compare('Сравни '+math(pow('('+pow(2,a%3+1)+')',b%3+2))+' и '+math(pow(2,a%3+b%3+3))+'.',
+    rational(2**((a%3+1)*(b%3+2))),rational(2**(a%3+b%3+3)),
+    'У обеих степеней основание 2. Сравниваем произведение показателей слева и показатель справа.')
+  },
+  {
+   inverse_nested_degree: ({a,b,c})=>['Найди n в равенстве '+math('('+pow('x',a)+')ⁿ · '+pow('x',c)+' = '+pow('x',a*b+c))+' при любом x.',b,
+    'Слева показатель '+a+'n + '+c+'. После вычитания '+c+' получаем '+a+'n = '+a*b+'.'],
+   combine_product_powers: ({a,b,c})=>{
+    const answer=math(pow('x',a*b+c)+pow('y',b*c));
+    return choice('Упрости '+math(pow('('+pow('x',a)+pow('y',c)+')',b)+' · '+pow('x',c))+'.',
+     answer,[math(pow('x',a*b+c+1)+pow('y',b*c)),math(pow('x',a*b)+pow('y',b*c+c)),math(pow('x',a*b+c)+pow('y',b*c+1))],
+     'Возводим в степень показатели в скобках. Затем прибавляем '+c+' только к показателю x.');
+   },
+   nested_fractional_coefficient: ({a,b})=>{
+    const n=a%4+2,m=b%4+2;
+    return ['Найди коэффициент в '+math('(')+frac('−x',n)+math(')² · '+n*n*m)+'.',m,
+     'Квадрат коэффициента равен '+frac(1,n*n)+'. Умножаем на '+n*n*m+' и получаем '+m+'.'];
+   },
+   simplify_nested_quotient: ({a,b,c})=>['Найди показатель x после упрощения '+frac(pow('('+pow('x',a+c)+')',b),pow('('+pow('x',c)+')',b))+' при x ≠ 0.',a*b,
+    'Показатели равны '+(a+c)*b+' и '+c*b+'. Вычитаем: '+(a+c)*b+' − '+c*b+' = '+a*b+'.']
+  }
+ ],
+ monomial_standard_form: [
+  {
+   identify_monomial: ({a,b})=>choice('Какое выражение является одночленом?',
+    math(a+'x²y'),[math(a+'x + '+b),math('x − y'),frac(a,'x')],
+    'В одночлене переменные с неотрицательными целыми показателями перемножаются с числом. Буква в знаменателе этому определению не отвечает.'),
+   identify_coefficient: ({a,b})=>['Найди коэффициент одночлена '+math('−'+a+pow('x',b)+'y')+'.',-a,
+    'Числовой множитель перед буквенной частью равен '+fmt(-a)+'.'],
+   identify_degree: ({a,b})=>['Найди степень одночлена '+math('−'+(a+b)+pow('x',a)+pow('y',b))+'.',a+b,
+    'Складываем показатели букв: '+a+' + '+b+' = '+(a+b)+'. Коэффициент в степень не входит.'],
+   implicit_coefficient: ({a,b})=>['Найди коэффициент одночлена '+math('−'+pow('x',a)+pow('y',b))+'.',-1,
+    'Знак минус перед буквами означает множитель −1.']
+  },
+  {
+   normalize_repeated_variable: ({a,b,c})=>monomialSelect('Запиши '+math(a+pow('x',b)+' · '+c+'x')+' в стандартном виде.',
+    monomial(a*c,b+1,0),[monomial(a*c,b,0),monomial(a+c,b+1,0),monomial(a*c,b+2,0)],
+    'Перемножаем коэффициенты '+a+' и '+c+', к показателю x прибавляем 1.'),
+   normalize_negative_coefficient: ({a,b,c})=>monomialSelect('Запиши '+math('(−'+a+'xy) · '+b+pow('x',c))+' в стандартном виде.',
+    monomial(-a*b,c+1,1),[monomial(a*b,c+1,1),monomial(-a*b,c,1),monomial(-a*b,c+1,2)],
+    'Коэффициент отрицателен: (−'+a+') · '+b+' = '+fmt(-a*b)+'. Показатель x равен '+(c+1)+'.'),
+   degree_after_rearrangement: ({a,b,c})=>['Какова степень одночлена '+math('−'+a+pow('x',b)+'y · '+pow('x',c)+'y²')+'?',b+c+3,
+    'У x показатель '+(b+c)+', у y показатель 3. Складываем и получаем '+(b+c+3)+'.'],
+   degree_of_constant: ({a,b})=>['Чему равна степень одночлена '+math(fmt(-a*b))+'?',0,
+    'У ненулевого постоянного одночлена нет букв, поэтому степень равна 0.']
+  },
+  {
+   normalize_three_multipliers: ({a,b,c,y})=>monomialSelect('Приведи к стандартному виду '+math(a+'x · (−'+b+pow('y',c)+') · '+y+'xy')+'.',
+    monomial(-a*b*y,2,c+1),[monomial(-a*b*y,1,c+1),monomial(-a*b,c+1,2),monomial(a*b*y,2,c+1)],
+    'Коэффициент равен −'+a*b*y+'. Буква x встречается дважды, к показателю y прибавляем 1.'),
+   fractional_coefficient: ({a,b,c})=>monomialSelect('Приведи к стандартному виду −'+frac(a,b)+math(pow('x',c)+'y · '+b+'xy')+'.',
+    monomial(-a,c+1,2),[monomial(a,c+1,2),monomial(-a,c,2),monomial(-a,c+1,1)],
+    'Коэффициенты дают (−'+a+' : '+b+') · '+b+' = '+fmt(-a)+'. Показатели складываем отдельно для каждой буквы.'),
+   missing_exponent_for_degree: ({a,b,c})=>['Найди n, если степень одночлена '+math(a+'xⁿ'+pow('y',b))+' равна '+(b+c)+'.',c,
+    'Сумма показателей равна n + '+b+'. Вычитаем '+b+' из '+(b+c)+' и получаем '+c+'.'],
+   choose_equivalent_standard_form: ({a,b,c,y})=>monomialSelect('Какой одночлен тождественно равен '+math('−'+a+pow('x',b)+' · (−'+c+'x'+pow('y',y)+')')+'?',
+    monomial(a*c,b+1,y),[monomial(-a*c,b+1,y),monomial(a*c,b,y),monomial(a*c,b+1,y+1)],
+    'Произведение двух отрицательных коэффициентов положительно. У x показатель '+(b+1)+', у y — '+y+'.')
   }
  ]
 };
