@@ -50,7 +50,11 @@ const reviewedLessons={
  function_formula_values:'Чтобы найти значение функции, подставь аргумент в формулу. Если известно значение, приравняй к нему формулу и найди аргумент. Проверь, допустим ли он.',
  function_graph_reading:'Чтобы прочитать y по заданному x, двигайся от отметки x вертикально до графика и затем горизонтально к оси Oy. Если задан y, ищи все пересечения графика с горизонталью на этой высоте.',
  coordinate_plane:'Абсцисса x показывает положение по горизонтали, ордината y — по вертикали. Точки оси Ox имеют y = 0, точки оси Oy имеют x = 0.',
- direct_proportionality_function:'Прямая пропорциональность задаётся формулой y = kx, где k ≠ 0. Её график — прямая через начало координат. Если известна точка с x ≠ 0, найди k делением y на x.'
+ direct_proportionality_function:'Прямая пропорциональность задаётся формулой y = kx, где k ≠ 0. Её график — прямая через начало координат. Если известна точка с x ≠ 0, найди k делением y на x.',
+ linear_function:'У функции y = kx + b число b равно ординате пересечения с Oy. Коэффициент k показывает изменение y при увеличении x на 1. При k = 0 график горизонтальный.',
+ piecewise_functions:'Для каждого аргумента сначала выбери ветвь по её условию. Особое внимание удели границе: в неё входит ветвь с нестрогим знаком.',
+ absolute_value_function:'При x ≥ 0 имеем |x| = x, а при x &lt; 0 имеем |x| = −x. У противоположных аргументов одинаковый модуль. График y = |x| симметричен относительно Oy.',
+ natural_power_definition:'Степень aⁿ — произведение n одинаковых множителей a. Чётная степень отрицательного основания положительна, нечётная — отрицательна. Скобки показывают, входит ли минус в основание.'
 };
 
 function compare(prompt,left,right,explanation){
@@ -97,6 +101,7 @@ function pointVisual(points){
  return question=>g6AttachCoordinatePlane(question,g7GraphData([],{points:marked}));
 }
 const withVisual=(task,attach)=>task.length===3?[...task,null,attach]:[...task,attach];
+const piecewise=(left,right,edge)=>math('f(x) = '+left+' при x &lt; '+fmt(edge)+', а f(x) = '+right+' при x ≥ '+fmt(edge));
 
 function add(section,id,title,rule,build){
  const group=G7_GROUPS.find(item=>item.id===section);
@@ -1164,6 +1169,173 @@ const reviewed = {
     'Только при x = 0',['При любом x','Только при x = '+a,'Ни при каком x'],
     'После вычитания '+a+'x из обеих частей остаётся '+b+'x = 0. Так как '+b+' ≠ 0, единственное решение x = 0.')
   }
+ ],
+ linear_function: [
+  {
+   read_k: ({a,b})=>['Чему равен коэффициент k в '+math('y = −'+a+'x + '+b)+'?',-a,
+    'Коэффициент при x равен '+fmt(-a)+'.'],
+   read_b: ({a,b})=>['В какой ординате график '+math('y = '+a+'x − '+b)+' пересекает Oy?',-b,
+    'На оси Oy абсцисса равна нулю. Подставляем 0 и получаем '+fmt(-b)+'.'],
+   horizontal_function: ({a,b})=>choice('У какого графика все точки имеют ординату '+a+'?',
+    math('y = '+a),[math('y = '+b+'x + '+a),math('y = '+a+'x'),math('y = x − '+a)],
+    'Для горизонтальной прямой ордината постоянна при всех x.'),
+   substitute_value: ({a,b,c})=>['Для '+math('y = '+a+'x + '+b)+' найди y при x = '+fmt(-c)+'.',b-a*c,
+    'Подставляем: '+a+' · (−'+c+') + '+b+' = '+fmt(b-a*c)+'.']
+  },
+  {
+   graph_read_offset: ({a,b})=>{
+    const offset=a%7-3,k=b%2?1:-1;
+    return withVisual(['По графику найди свободный член b в y = kx + b.',offset,'График пересекает ось Oy при y = '+fmt(offset)+'.'],
+     functionGraph([],{line:[k,offset]}));
+   },
+   find_axis_crossing: ({a,b})=>['Найди абсциссу пересечения '+math('y = '+a+'x + '+a*b)+' с Ox.',-b,
+    'На Ox значение y равно 0. После переноса постоянного члена получаем '+a+'x = '+fmt(-a*b)+', откуда x = '+fmt(-b)+'.'],
+   write_from_k_b: ({a,b})=>choice('Коэффициент k равен '+fmt(-a)+', свободный член b равен '+b+'. Какая формула подходит?',
+    math('y = −'+a+'x + '+b),[math('y = '+a+'x + '+b),math('y = −'+a+'x − '+b),math('y = '+b+'x − '+a)],
+    'Подставляем k = '+fmt(-a)+' и b = '+b+' в y = kx + b.'),
+   compare_two_values: ({a,b,c})=>compare('Для '+math('f(x) = −'+a+'x + '+b)+' сравни f('+c+') и f('+(c+1)+').',
+    rational(b-a*c),rational(b-a*(c+1)),'При увеличении x на 1 значение y уменьшается на '+a+'.')
+  },
+  {
+   find_from_two_points: ({a,b,c})=>{
+    const h=c%4+1,offset=1-b,first=a+offset,second=a*(1+h)+offset;
+    return ['График y = kx + b проходит через (1; '+fmt(first)+') и ('+(1+h)+'; '+fmt(second)+'). Найди k.',a,
+     'Изменение x равно '+h+', изменение y равно '+(second-first)+'. Делим второе изменение на первое: k = '+a+'.'];
+   },
+   recover_formula_from_two_points: ({a,b})=>{
+    const k=a%4+1,offset=b%5-2;
+    return choice('Через точки ('+fmt(-1)+'; '+fmt(offset-k)+') и (2; '+fmt(offset+2*k)+') проходит график линейной функции. Выбери её формулу.',
+     'y = '+g7LinHtml(k,offset),['y = '+g7LinHtml(-k,offset),'y = '+g7LinHtml(k,offset+1),'y = '+g7LinHtml(k+1,offset)],
+     'Разность ординат равна '+3*k+', разность абсцисс равна 3. Значит, k = '+k+'. Из первой точки находим b = '+fmt(offset)+'.');
+   },
+   two_linear_functions: ({a,b,c})=>['При каком x совпадают '+math('y₁ = '+a+'x + '+b)+' и '+math('y₂ = '+(a+c)+'x − '+b)+'?',rational(2*b,c),
+    'Приравниваем выражения. После переноса слагаемых получаем '+c+'x = '+2*b+'. Делим на '+c+'.'],
+   interpolate_from_graph: ({a,b})=>{
+    const k=a%2+1,offset=b%3-1;
+    return withVisual(['Найди свободный член b в уравнении показанной прямой и коэффициент k. В ответ запиши произведение kb.',k*offset,
+     'Свободный член равен f(0) = '+fmt(offset)+'. При увеличении x на 1 ордината увеличилась на '+k+'. Поэтому kb = '+fmt(k*offset)+'.'],
+     functionGraph([],{line:[k,offset]}));
+   }
+  }
+ ],
+ piecewise_functions: [
+  {
+   left_branch: ({a,b})=>['Дано '+piecewise(a+'x','x + '+b,0)+'. Найди f(−2).',-2*a,
+    'Аргумент отрицательный. Выбираем первую формулу и получаем '+a+' · (−2) = '+fmt(-2*a)+'.'],
+   right_branch: ({a,b,c})=>['Дано '+piecewise(a+'x','x + '+b,0)+'. Найди f('+c+').',c+b,
+    'Аргумент положительный. Выбираем вторую формулу: '+c+' + '+b+' = '+(c+b)+'.'],
+   at_boundary: ({a,b})=>['Дано '+piecewise(a+'x','x + '+b,0)+'. Найди f(0).',b,
+    'Вторая ветвь включает x = 0. Подставляем: 0 + '+b+' = '+b+'.'],
+   select_formula: ({a,b,c})=>choice('Дано '+piecewise('x − '+a,b+'x + '+a,c)+'. Какую формулу берут для x = '+(c-1)+'?',
+    math('x − '+a),[math(b+'x + '+a),math('x + '+a),math(b+'x − '+a)],
+    (c-1)+' меньше '+c+', поэтому берём первую ветвь.')
+  },
+  {
+   values_from_both_branches: ({a,b,c})=>['Дано '+piecewise(a+'x','x + '+b,c)+'. Найди f('+c+') − f('+(c-1)+').',c+b-a*(c-1),
+    'На границе используем вторую формулу: f('+c+') = '+(c+b)+'. Слева используем первую: f('+(c-1)+') = '+a*(c-1)+'. Вычитаем.'],
+   weighted_first_branch: ({a,b,c})=>['Дано '+piecewise(a+'x + '+b,'x − '+b,c)+'. Найди f('+fmt(-c)+') + f('+c+').',-a*c+c,
+    'Для '+fmt(-c)+' берём первую формулу и получаем '+fmt(-a*c+b)+'. Для '+c+' берём вторую и получаем '+fmt(c-b)+'. Складываем.'],
+   compare_at_boundary: ({a,b,c})=>compare('Дано '+piecewise('x + '+a,'x − '+b,c)+'. Сравни f('+(c-1)+') и f('+c+').',
+    rational(c-1+a),rational(c-b),'Слева от '+c+' используем первую формулу, на границе — вторую.'),
+   piecewise_tariff: ({a,b,c})=>['Для x минут, где x — целое, цена равна '+a+'x руб. при x ≤ '+b+' и '+a*b+' + '+(a-1)+'(x − '+b+') руб. при x &gt; '+b+'. Сколько рублей стоят '+(b+c)+' минут?',
+    a*b+(a-1)*c,'Время больше '+b+' минут, поэтому берём вторую формулу. Подставляем '+(b+c)+' и вычисляем '+a*b+' + '+(a-1)+' · '+c+'.']
+  },
+  {
+   solve_filter_branch: ({a,b,c})=>['Дано '+piecewise('x + '+a,'x + '+(a+b),0)+'. Найди x, если f(x) = '+(a+b+c)+'.',c,
+    'Первая формула даёт x = '+(b+c)+', но это число не меньше 0. Вторая формула даёт x = '+c+', и оно входит в область этой ветви.'],
+   same_value_two_branches: ({a,b})=>choice('Дано '+piecewise('−x + '+a,'x + '+a,0)+'. Найди все x, для которых f(x) = '+(a+b)+'.',
+    fmt(-b)+' и '+b,[fmt(-b),String(b),'0'],
+    'В первой ветви −x = '+b+', значит x = '+fmt(-b)+'. Во второй x = '+b+'. Оба корня удовлетворяют своим условиям.'),
+   match_at_boundary: ({a,b,c})=>['Первая формула '+math('y = '+a+'x + '+b)+', вторая '+math('y = x + m')+'. Найди m, чтобы обе формулы давали одинаковое значение при x = '+c+'.',(a-1)*c+b,
+    'При x = '+c+' первое значение равно '+(a*c+b)+'. Из '+c+' + m = '+(a*c+b)+' получаем m = '+((a-1)*c+b)+'.'],
+   exclude_unreachable_value: ({a,b})=>checkStatement('Дано '+piecewise('−x + '+a,'x + '+(a+b),0)+'. Может ли f(x) равняться '+a+'?',false,
+    'На левой ветви −x положительно, поэтому f(x) больше '+a+'. На правой ветви f(x) не меньше '+(a+b)+'.')
+  }
+ ],
+ absolute_value_function: [
+  {
+   positive_absolute_argument: ({a})=>['Найди |'+a+'|.',a,'Положительное число равно своему модулю.'],
+   negative_absolute_argument: ({a})=>['Найди |'+fmt(-a)+'|.',a,'Расстояние от '+fmt(-a)+' до нуля равно '+a+'.'],
+   sign_select: ({a,b})=>choice('Чему равен |x|, если x = −'+frac(a,b)+'?',
+    g7FracHtml(rational(a,b)),[g7FracHtml(rational(-a,b)),'0'],
+    'При отрицательном x модуль равен противоположному числу '+g7FracHtml(rational(a,b))+'.'),
+   graph_vertex: ({a,b})=>choice('Координаты вершины графика y = |x| + '+b+'?', '(0; '+b+')',
+    ['('+a+'; 0)','(0; 0)','('+a+'; '+b+')'],'Наименьший модуль равен 0 и достигается при x = 0. Прибавляем '+b+' и получаем ординату вершины.')
+  },
+  {
+   shifted_absolute_value: ({a,b})=>['Вычисли '+math('|x − '+b+'|')+' при x = '+fmt(-a)+'.',a+b,
+    'Внутри модуля '+fmt(-a)+' − '+b+' = '+fmt(-a-b)+'. Его модуль '+(a+b)+'.'],
+   compare_abs: ({a,b})=>compare('Сравни |'+fmt(-a)+'| и |'+b+'|.',rational(a),rational(b),'Берём расстояние каждого числа до нуля.'),
+   symmetric_absolute_pair: ({a})=>choice('Какие x дают y = '+a+' на графике y = |x|?',fmt(-a)+' и '+a,
+    [fmt(-a),String(a),'0'], 'На расстоянии '+a+' от нуля лежат две точки.'),
+   solve_shifted_y: ({a,b})=>['Найди y = |x| − '+b+' при x = '+fmt(-a)+'.',a-b,
+    'Модуль '+fmt(-a)+' равен '+a+'. Вычитаем '+b+' и получаем '+fmt(a-b)+'.']
+  },
+  {
+   two_shifted_solutions: ({a,b})=>choice('Какие x удовлетворяют '+math('|x − '+a+'| = '+b)+'?',fmt(a-b)+' и '+(a+b),
+    [fmt(a-b),String(a+b),fmt(-a-b)+' и '+(a+b)],'Число x находится на расстоянии '+b+' от '+a+', поэтому x = '+a+' ± '+b+'.'),
+   branch_difference: ({a,b,c})=>['Для f(x) = |x − '+a+'| найди f('+(a+b)+') − f('+(a-c)+').',b-c,
+    'Расстояния до '+a+' равны '+b+' и '+c+'. Их разность равна '+fmt(b-c)+'.'],
+   graph_level_shifted: ({a,b})=>{
+    const shift=a%3-1,level=b%3+1,left=shift-level,right=shift+level;
+    return withVisual(choice('При каких x на графике y = '+level+'?',fmt(left)+' и '+fmt(right),
+     [fmt(left),fmt(right),fmt(left-1)+' и '+fmt(right+1)],'Горизонталь пересекает обе ветви. Абсциссы точек '+fmt(left)+' и '+fmt(right)+'.'),
+     functionGraph([[shift-4,4],[shift,0],[shift+4,4]]));
+   },
+   minimum_and_argument: ({a,b})=>['При каком x функция '+math('y = |x + '+a+'| − '+b)+' принимает наименьшее значение?',-a,
+    'Минимум модуля равен 0. Для этого x + '+a+' = 0, значит x = '+fmt(-a)+'.']
+  }
+ ],
+ natural_power_definition: [
+  {
+   recognize_base: ({a,b})=>['Чему равно основание степени '+math(g7PowPlain(a,b%4+2))+'?',a,
+    'Основание — число, которое умножают само на себя. Здесь это '+a+'.'],
+   recognize_exponent: ({a,b})=>['Каков показатель степени '+math(g7PowPlain(a,b%4+2))+'?',b%4+2,
+    'Показатель степени равен '+(b%4+2)+'. Столько раз основание входит в произведение.'],
+   write_product: ({a,b})=>{
+    const n=b%3+2,base=a%5+2;
+    return choice('Представь '+math(Array(n).fill(base).join(' · '))+' степенью.',g7PowHtml(base,n),
+     [g7PowHtml(base,n+1),g7PowHtml(base+1,n),g7PowHtml(base*n,n)],
+     'Множитель '+base+' повторяется '+n+' '+ruCount(n,'раз','раза','раз')+'.');
+   },
+   compute_square: ({a})=>['Вычисли '+math(a+'²')+'.',a*a,'Квадрат равен '+a+' · '+a+' = '+a*a+'.']
+  },
+  {
+   even_negative_power: ({a,b})=>{
+    const n=2*(b%2+1),base=a%5+2;
+    return ['Вычисли '+g7PowHtml(-base,n)+'.',base**n,'Отрицательный множитель повторяется чётное число раз. Результат положительный: '+base**n+'.'];
+   },
+   odd_negative_power: ({a,b})=>{
+    const n=2*(b%2)+3,base=a%4+2;
+    return ['Вычисли '+g7PowHtml(-base,n)+'.',-(base**n),'Отрицательный множитель повторяется нечётное число раз. Результат '+fmt(-(base**n))+'.'];
+   },
+   distinguish_minus: ({a})=>compare('Сравни '+g7PowHtml(-a,2)+' и '+math('−'+a+'²')+'.',
+    rational(a*a),rational(-a*a),'В первом выражении минус входит в основание. Во втором сначала вычисляем квадрат, затем берём противоположное число.'),
+   fraction_power: ({a,b})=>['Вычисли ('+frac(a,b)+')².',rational(a*a,b*b),
+    'Дважды умножаем одну и ту же дробь. Получаем '+frac(a*a,b*b)+' = '+g7FracHtml(rational(a*a,b*b))+'.']
+  },
+  {
+   signed_power_expression: ({a,b})=>{
+    const x=a%5+2,y=b%4+2,answer=x*x-y**3;
+    return ['Вычисли '+g7PowHtml(-x,2)+' + '+g7PowHtml(-y,3)+'.',answer,
+     'Первая степень равна '+x*x+', вторая равна '+fmt(-(y**3))+'. Складываем и получаем '+fmt(answer)+'.'];
+   },
+   find_exponent: ({a,b})=>{
+    const base=a%4+2,n=b%4+2;
+    return ['Найди натуральное n, если '+math(base+'ⁿ = '+base**n)+'.',n,
+     base**n+' получается при умножении '+n+' одинаковых множителей '+base+'.'];
+   },
+   power_of_product_literal: ({a,b})=>{
+    const product=a*b;
+    return ['Найди разность '+g7PowHtml(-a,2)+' · '+g7PowHtml(-b,2)+' − '+g7PowHtml(product,2)+'.',0,
+     'Первое произведение равно '+a*a+' · '+b*b+' = '+product*product+'. Второй квадрат тоже равен '+product*product+'.'];
+   },
+   compare_powers: ({a,b})=>{
+    const x=a%6+2,y=b%4+2;
+    return compare('Сравни '+g7PowHtml(x,2)+' и '+g7PowHtml(y,3)+'.',rational(x*x),rational(y**3),
+     'Умножаем '+x+' на себя и отдельно находим произведение трёх множителей '+y+'.');
+   }
+  }
  ]
 };
 add('alg_expressions_equations','compare_expression_values','Сравнение значений выражений',
@@ -1795,6 +1967,40 @@ makeG7Question=function(id,stageOverride=null){
  else question=g7Number(text,answer,explain(answer),sig,{audit});
  if(attach)return attach(question);
  if(raw==='functions_x2_x3'&&d===1&&k<2)return g7AttachGraph(question,g7PowerFunctionGraph(k+2));
+ return question;
+};
+
+// The Grade 8 quiz adapters also match several unqualified Grade 7 topic names.
+// Reviewed topics use their Grade 7 generator directly in normal practice.
+const previousFreshQuiz=freshQuiz;
+freshQuiz=function(id){
+ const raw=rawCourseId(id),session=blockSession;
+ if(keyGrade(id)!==7||!reviewed[raw]||session?.kind!=='g7quiz'||session.topicId!==raw||session.finished){
+  return previousFreshQuiz(id);
+ }
+ const stage=session.stageIndex,key=raw+':'+stage;
+ const history=session._g7Stage13Used||(session._g7Stage13Used={});
+ const used=history[key]||(history[key]=[]);
+ const signatures=new Set(used.map(entry=>entry.sig));
+ const meanings=new Set(used.map(entry=>entry.semantic));
+ const familyCounts=new Map();
+ for(const entry of used)familyCounts.set(entry.family,(familyCounts.get(entry.family)||0)+1);
+ const lowestFrequency=Math.min(...Object.keys(reviewed[raw][stage]).map(family=>familyCounts.get(family)||0));
+ let best=null;
+ for(let attempt=0;attempt<120;attempt++){
+  const question=makeG7Question(id,stage);
+  const family=question.audit.variant;
+  const semantic=JSON.stringify([question.text,question.ans,question.visual?.data||null]);
+  if(signatures.has(question.sig)||meanings.has(semantic))continue;
+  const frequency=familyCounts.get(family)||0;
+  if(!best||frequency<best.frequency)best={question,family,semantic,frequency};
+  if(frequency===lowestFrequency&&!wasRecent(question.sig))break;
+ }
+ if(!best)return previousFreshQuiz(id);
+ const {question,family,semantic}=best;
+ registerSignature(question.sig);
+ question._signature=question.sig;
+ used.push({sig:question.sig,family,semantic});
  return question;
 };
 
