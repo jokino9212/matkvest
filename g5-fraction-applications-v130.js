@@ -64,7 +64,62 @@ function divisionWholePicture(n,d){
   'preserveAspectRatio="xMidYMid meet">'+chunks.join('')+'</svg></div>';
 }
 
+function partOfWholePicture(part,den,whole){
+ const width=390,cell=width/den;
+ const cells=Array.from({length:den},(_,i)=>'<rect x="'+(5+i*cell).toFixed(3)+
+  '" y="5" width="'+cell.toFixed(3)+'" height="32" fill="'+(i<part?'#397dbe':'#edf3fc')+
+  '" stroke="#52617a" stroke-width=".65"/>').join('');
+ return '<svg class="mk-g5-section38" role="img" aria-label="Всего '+whole+
+  ' предметов. Полоса разделена на '+den+' равных частей, закрашено '+part+
+  '." viewBox="0 0 400 42" width="100%" style="display:block;max-width:400px;height:auto;margin:6px auto">'+cells+'</svg>';
+}
+
+function partOfWholeSpec(t,p){
+ const d=rnd(3,8+2*t),a=rnd(1,d-1),e=rnd(3,7+2*t),b=rnd(1,e-1);
+ const unit=rnd(3,9+3*t),total=d*e*unit,first=total*a/d,second=total*b/e;
+ const k=rnd(2,8),other=total+e*k;
+ const af=frac(a,d),bf=frac(b,e);
+ const portion=(whole,n,den)=>MUL(Q(whole),Q(n,den));
+ const A=portion(total,a,d),B=portion(total,b,e);
+ const calc=(whole,n,den)=>whole+' : '+den+' = '+whole/den+'. '+whole/den+' · '+n+' = '+whole*n/den+'.';
+ const workA=calc(total,a,d),workB=calc(total,b,e);
+ const task=(text,plan,explain,steps)=>({text,plan,explain,steps});
+ if(t===0){
+  if(p===0)return task('Найди '+af+' от числа '+total+'.'+partOfWholePicture(a,d,total),A,workA,2);
+  if(p===1)return task('В школьной библиотеке '+total+' учебников. '+af+' из них новые. Сколько учебников из этого числа не новые?',SUB(Q(total),A),workA+' '+total+' − '+first+' = '+(total-first)+'.',3);
+  if(p===2)return task('Разделили '+total+' яблок на '+d+' одинаковых групп. Сколько яблок в одной группе?',portion(total,1,d),total+' : '+d+' = '+total/d+'.',1);
+  if(p===3)return task('Найди половину от '+(2*total)+' предметов.',portion(2*total,1,2),2*total+' : 2 = '+total+'.',1);
+  return task('Сравни две части числа '+total+': '+af+' и '+frac(a+1,d)+'. На сколько предметов вторая часть больше первой?',SUB(portion(total,a+1,d),A),workA+' '+calc(total,a+1,d)+' Разность равна '+total/d+'.',3);
+ }
+ if(t===1){
+  if(p===0)return task('Из '+total+' игрушек подарили '+af+' всех игрушек и ещё '+k+' игрушек. Сколько осталось?',SUB(SUB(Q(total),A),Q(k)),workA+' '+total+' − '+first+' = '+(total-first)+'. '+(total-first)+' − '+k+' = '+(total-first-k)+'.',4);
+  if(p===1)return task('На склад поступило '+total+' книг. '+af+' книг отправили в филиал. На сколько книг различаются число отправленных и число оставшихся?',ABS(SUB(SUB(Q(total),A),A)),workA+' Осталось '+total+' − '+first+' = '+(total-first)+'. Разность большего и меньшего количества равна '+Math.abs(total-2*first)+'.',4);
+  if(p===2)return task('Найди '+af+' от числа '+total+' и '+bf+' от числа '+other+'. Сложи результаты.',ADD(A,portion(other,b,e)),workA+' '+calc(other,b,e)+' '+first+' + '+other*b/e+' = '+(first+other*b/e)+'.',5);
+  if(p===3){
+   const remaining=total-first;
+   return task('Первый день — '+af+' от '+total+' м маршрута. Во второй день прошли '+frac(1,e)+' от оставшегося пути. Сколько метров прошли во второй день?',MUL(SUB(Q(total),A),Q(1,e)),workA+' '+total+' − '+first+' = '+remaining+'. '+remaining+' : '+e+' = '+remaining/e+'.',4);
+  }
+  return task('У двух мастерских по '+total+' деталей. Первая использовала '+af+' своих деталей, вторая — '+bf+' своих деталей. На сколько различаются использованные количества?',ABS(SUB(A,B)),workA+' '+workB+' Разность большего и меньшего количества равна '+Math.abs(first-second)+'.',5);
+ }
+ if(p===0){
+  const left=total-first,spent=left*b/e;
+  return task('Из '+total+' л воды сначала израсходовали '+af+' всего объёма, затем '+bf+' остатка. Сколько литров осталось?',SUB(SUB(Q(total),A),MUL(SUB(Q(total),A),Q(b,e))),workA+' '+total+' − '+first+' = '+left+'. '+calc(left,b,e)+' '+left+' − '+spent+' = '+(left-spent)+'.',6);
+ }
+ if(p===1){
+  const rest=total-first,secondPart=rest*b/e;
+  return task('Было '+total+' кг крупы. В первый день продали '+af+' всей массы, во второй — '+bf+' остатка. Сколько килограммов продали за два дня?',ADD(A,MUL(SUB(Q(total),A),Q(b,e))),workA+' '+total+' − '+first+' = '+rest+'. '+calc(rest,b,e)+' '+first+' + '+secondPart+' = '+(first+secondPart)+'.',6);
+ }
+ if(p===2)return task('В первом рейсе было '+total+' кг груза, во втором — '+other+' кг. В первом доставили '+af+' груза, во втором — '+bf+'. Сколько килограммов груза из двух рейсов осталось доставить?',SUB(ADD(Q(total),Q(other)),ADD(A,portion(other,b,e))),workA+' '+calc(other,b,e)+' Всего было '+(total+other)+' кг. Доставили '+(first+other*b/e)+' кг. Осталось '+(total+other-first-other*b/e)+' кг.',7);
+ if(p===3){
+  const secondTotal=d*e*(unit+k);
+  return task('Из первой партии массой '+total+' кг выделили '+af+' для одного класса. Из второй партии того же материала массой '+secondTotal+' кг выделили '+bf+' для другого класса. Сколько килограммов выделили вместе?',ADD(A,portion(secondTotal,b,e)),workA+' '+calc(secondTotal,b,e)+' '+first+' + '+secondTotal*b/e+' = '+(first+secondTotal*b/e)+'.',5);
+ }
+ const enlarged=total+e*k,changed=enlarged*b/e;
+ return task('В ёмкости было '+total+' л. В первый раз отмерили '+af+' этого объёма. Для второго замера исходный объём увеличили на '+e*k+' л и отмерили '+bf+' нового объёма. На сколько литров различаются отмеренные части?',ABS(SUB(A,MUL(ADD(Q(total),Q(e*k)),Q(b,e)))),workA+' '+total+' + '+e*k+' = '+enlarged+'. '+calc(enlarged,b,e)+' Разность большего и меньшего объёма равна '+Math.abs(first-changed)+' л.',6);
+}
+
 function spec(id,t,p){
+ if(id==='frac_part_number')return partOfWholeSpec(t,p);
  const d1=rnd(3,9+t*2),d2=rnd(3,10+t*2),d3=rnd(3,9+t*2);
  const a=rnd(1,d1-1),b=rnd(1,d2-1),c=rnd(1,d3-1),h=rnd(2,6+t*2),k=rnd(2,7+t*2);
  const X=Q(a,d1),Y=Q(b,d2),Z=Q(c,d3),one=Q(1),two=Q(2);
@@ -93,30 +148,6 @@ function spec(id,t,p){
    ['Ленту длиной '+n+' м разделили на '+den+' одинаковых отрезков. Другую ленту длиной '+boxes+' м тоже разделили на '+den+' отрезков. Какова общая длина двух отрезков, взятых по одному от каждой ленты?',ADD(Q(n,den),Q(boxes,den)),'Вычислим два частных и сложим их.',4],
    [''+(n+boxes)+' кг разделили на '+den+' равных упаковок. Из каждой упаковки забрали '+show(Q(boxes,den))+' кг. Сколько осталось в одной?',SUB(Q(n+boxes,den),Q(boxes,den)),'Сначала частное всего запаса, затем вычтем убранную долю.',4],
    ['Сначала '+n+' литров разделили на '+den+' сосудов, затем добавили каждому по '+show(Q(boxes,den))+' л. Сколько литров в каждом?',ADD(Q(n,den),Q(boxes,den)),'Частное, затем прибавим указанную долю.',4]
-  ];
- }
- if(id==='frac_part_number'){
-  const fraction=Q(a,d1),whole=Q(total),result=Q(part);
-  if(t===0)cases=[
-   ['Найди '+show(fraction)+' от числа '+total+'.',MUL(whole,fraction),'Разделим число на знаменатель и умножим на числитель.',2],
-   ['В школьной библиотеке '+total+' учебников. '+show(fraction)+' из них новые. Сколько новых?',MUL(whole,fraction),'Найдём заданную часть целого.',2],
-   ['Из '+total+' яблок '+show(fraction)+' зелёные. Сколько зелёных яблок?',MUL(whole,fraction),'Умножим общее число на долю.',2],
-   ['Найди половину от '+(total*2)+' предметов.',MUL(Q(total*2),Q(1,2)),'Половина равна делению на 2.',1],
-   ['Найди третью часть от '+(total*3)+' книг.',MUL(Q(total*3),Q(1,3)),'Треть числа равна частному от деления на 3.',1]
-  ];
-  else if(t===1)cases=[
-   ['Из '+total+' игрушек '+show(fraction)+' подарили. Сколько осталось?',SUB(whole,MUL(whole,fraction)),'Найдём подаренную долю, затем вычтем из общего числа.',3],
-   ['На склад поступило '+total+' книг. '+show(fraction)+' книг отправили в филиал. На сколько книг различаются число отправленных и число оставшихся?',ABS(SUB(SUB(whole,MUL(whole,fraction)),MUL(whole,fraction))),'Найдём отправленную долю, остаток и положительную разность двух количеств.',4],
-   ['Найди '+show(fraction)+' от числа '+total+' и прибавь '+k+'.',ADD(MUL(whole,fraction),Q(k)),'Доля целого, затем прибавление.',3],
-   ['В библиотеке '+total+' книг. '+show(fraction)+' отправили в класс, затем ещё '+k+' книг. Сколько всего отправили?',ADD(MUL(whole,fraction),Q(k)),'Сначала дробная часть, затем дополнительное количество.',3],
-   ['Найди '+show(fraction)+' от '+total+' и удвой результат.',MUL(MUL(whole,fraction),two),'Найдём часть, затем умножим на 2.',3]
-  ];
-  else cases=[
-   ['В магазине '+total+' товаров. Продали '+show(fraction)+' всех товаров, затем ещё '+k+' товаров. Сколько осталось?',SUB(SUB(whole,MUL(whole,fraction)),Q(k)),'Доля от целого, затем два вычитания.',4],
-   ['Найди '+show(fraction)+' от '+total+', затем возьми половину найденного количества.',DIV(MUL(whole,fraction),two),'Находим долю и от неё половину.',4],
-   ['Сколько предметов будет, если найти '+show(fraction)+' от '+total+', удвоить и прибавить '+k+'?',ADD(MUL(MUL(whole,fraction),two),Q(k)),'Вычислим часть, удвоим её и прибавим число.',4],
-   ['Из первой партии массой '+total+' кг выделили '+show(fraction)+' для одного класса. Из второй такой же партии выделили ту же долю для другого класса. Сколько килограммов выделили вместе?',MUL(MUL(whole,fraction),two),'Два одинаковых дробных количества складываются.',4],
-   ['Вычисли разность между целым '+total+' и удвоенным значением '+show(fraction)+' от него по модулю.',ABS(SUB(whole,MUL(MUL(whole,fraction),two))),'Вычислим часть, удвоим и найдём положительную разность.',5]
   ];
  }
  if(id==='frac_div_common'){
