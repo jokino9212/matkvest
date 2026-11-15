@@ -34,7 +34,7 @@ for(const literal of [
  'classSize=2*rnd(9,16)',
  'Половина школьного туристического отряда',
  'На сколько книг различаются число отправленных и число оставшихся?',
- 'затем умножь результат на '
+ 'Найди отношение массы первой порции к массе второй.'
 ])assert(applied.includes(literal),'Missing fixed fraction-application text: '+literal);
 assert(!applied.includes("'Половина класса — '+(total/2)"),'Oversized class remains');
 assert(!applied.includes("'В классе '+total+' учебников"),'Oversized classroom library remains');

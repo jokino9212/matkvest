@@ -118,7 +118,80 @@ function partOfWholeSpec(t,p){
  return task('В ёмкости было '+total+' л. В первый раз отмерили '+af+' этого объёма. Для второго замера исходный объём увеличили на '+e*k+' л и отмерили '+bf+' нового объёма. На сколько литров различаются отмеренные части?',ABS(SUB(A,MUL(ADD(Q(total),Q(e*k)),Q(b,e)))),workA+' '+total+' + '+e*k+' = '+enlarged+'. '+calc(enlarged,b,e)+' Разность большего и меньшего объёма равна '+Math.abs(first-changed)+' л.',6);
 }
 
+function divisionMeasurePicture(length,den,piece){
+ const width=390,cell=width/length,group=piece*cell;
+ const ticks=Array.from({length:length+1},(_,i)=>{
+  const x=(5+i*cell).toFixed(3);
+  return '<line x1="'+x+'" x2="'+x+'" y1="8" y2="35" stroke="#52617a" stroke-width=".75"/>';
+ }).join('');
+ const groups=Array.from({length:length/piece},(_,i)=>'<rect x="'+(5+i*group).toFixed(3)+
+  '" y="8" width="'+group.toFixed(3)+'" height="27" fill="'+(i%2?'#c4ddf5':'#397dbe')+'"/>').join('');
+ return '<svg class="mk-g5-section39" role="img" aria-label="Полоса длиной '+length+'/'+den+
+  ' разделена на отрезки по '+piece+'/'+den+'." viewBox="0 0 400 43" width="100%" '+
+  'style="display:block;max-width:400px;height:auto;margin:6px auto">'+groups+ticks+
+  '<rect x="5" y="8" width="390" height="27" fill="none" stroke="#52617a"/></svg>';
+}
+
+function divisionWork(plan){
+ const lines=[],display=([,n,d])=>d===1?String(n):frac(n,d);
+ function visit(node){
+  const [op,x,y]=node;
+  if(op==='rat')return node;
+  const l=visit(x),r=visit(y),[,a,b]=l,[,c,d]=r,value=calculate(node);
+  const result=display(Q(value.n,value.d));
+  if(op==='div'){
+   lines.push(display(l)+' : '+display(r)+' = '+display(l)+' · '+frac(d,c)+
+    ' = '+frac(a+' · '+d,b+' · '+c)+' = '+result+'.');
+  }else if(op==='mul'){
+   lines.push(display(l)+' · '+display(r)+' = '+frac(a+' · '+c,b+' · '+d)+' = '+result+'.');
+  }else{
+   const common=b/gcd(b,d)*d,first=a*(common/b),second=c*(common/d),sign=op==='add'?'+':'−';
+   lines.push(display(l)+' '+sign+' '+display(r)+' = '+frac(first,common)+' '+sign+' '+frac(second,common)+
+    ' = '+frac(first+' '+sign+' '+second,common)+' = '+result+'.');
+  }
+  return Q(value.n,value.d);
+ }
+ visit(plan);
+ return lines.join(' ');
+}
+
+function fractionDivisionSpec(t,p){
+ const d=rnd(4,11+2*t),a=rnd(1,d-1),e=rnd(3,10+2*t),b=rnd(1,e-1);
+ const h=rnd(2,8+2*t),k=rnd(2,7+2*t),j=rnd(5,12+2*t),n=rnd(1,j-1);
+ const A=Q(a,d),B=Q(b,e),C=Q(n,j),H=Q(h),K=Q(k),one=Q(1);
+ const f=([,x,y])=>y===1?String(x):frac(x,y);
+ const expr=(x,sign,y)=>f(x)+' '+sign+' '+f(y);
+ const task=(text,plan,steps,diagram='')=>({text:text+diagram,plan,steps,explain:divisionWork(plan)});
+ const calc=(text,plan,steps)=>task('Вычисли '+text+'.',plan,steps);
+ if(t===0){
+  if(p===0)return calc(expr(A,':',B),DIV(A,B),2);
+  if(p===1)return calc(expr(A,':',H),DIV(A,H),2);
+  if(p===2)return calc(expr(H,':',B),DIV(H,B),2);
+  if(p===3){
+   const den=rnd(7,16),piece=rnd(1,Math.floor(den/2)),blocks=rnd(2,Math.floor(den/piece)+1),length=piece*blocks;
+   return task('Ленту длиной '+frac(length,den)+' м разрезали на куски по '+frac(piece,den)+
+    ' м. Сколько кусков получилось?',DIV(Q(length,den),Q(piece,den)),2,divisionMeasurePicture(length,den,piece));
+  }
+  return calc('0 : '+f(A),DIV(Q(0),A),1);
+ }
+ if(t===1){
+  if(p===0)return calc('('+expr(A,'+',B)+') : '+f(C),DIV(ADD(A,B),C),4);
+  if(p===1)return calc(f(A)+' : ('+expr(B,'·',C)+')',DIV(A,MUL(B,C)),4);
+  if(p===2)return calc(expr(A,':',B)+' + '+f(C),ADD(DIV(A,B),C),4);
+  if(p===3)return calc(expr(H,':',A)+' : '+f(K),DIV(DIV(H,A),K),4);
+  return task('Материал массой '+f(H)+' кг расфасовали поровну в '+k+
+   ' контейнеров. Масса одной порции другого материала — '+f(B)+
+   ' кг. Найди отношение массы первой порции к массе второй.',DIV(DIV(H,K),B),4);
+ }
+ if(p===0)return calc('('+expr(A,'+',B)+') : ('+expr(B,'·',C)+')',DIV(ADD(A,B),MUL(B,C)),5);
+ if(p===1)return calc('('+expr(A,':',B)+') · ('+expr(B,'+',C)+')',MUL(DIV(A,B),ADD(B,C)),5);
+ if(p===2)return calc(expr(A,':',B)+' + '+expr(B,':',C),ADD(DIV(A,B),DIV(B,C)),6);
+ if(p===3)return calc('('+expr(H,'−',A)+') : ('+expr(one,'−',C)+')',DIV(SUB(H,A),SUB(one,C)),5);
+ return calc(f(H)+' : ('+expr(A,':',B)+' + '+f(C)+')',DIV(H,ADD(DIV(A,B),C)),6);
+}
+
 function spec(id,t,p){
+ if(id==='frac_div_common')return fractionDivisionSpec(t,p);
  if(id==='frac_part_number')return partOfWholeSpec(t,p);
  const d1=rnd(3,9+t*2),d2=rnd(3,10+t*2),d3=rnd(3,9+t*2);
  const a=rnd(1,d1-1),b=rnd(1,d2-1),c=rnd(1,d3-1),h=rnd(2,6+t*2),k=rnd(2,7+t*2);
@@ -148,29 +221,6 @@ function spec(id,t,p){
    ['Ленту длиной '+n+' м разделили на '+den+' одинаковых отрезков. Другую ленту длиной '+boxes+' м тоже разделили на '+den+' отрезков. Какова общая длина двух отрезков, взятых по одному от каждой ленты?',ADD(Q(n,den),Q(boxes,den)),'Вычислим два частных и сложим их.',4],
    [''+(n+boxes)+' кг разделили на '+den+' равных упаковок. Из каждой упаковки забрали '+show(Q(boxes,den))+' кг. Сколько осталось в одной?',SUB(Q(n+boxes,den),Q(boxes,den)),'Сначала частное всего запаса, затем вычтем убранную долю.',4],
    ['Сначала '+n+' литров разделили на '+den+' сосудов, затем добавили каждому по '+show(Q(boxes,den))+' л. Сколько литров в каждом?',ADD(Q(n,den),Q(boxes,den)),'Частное, затем прибавим указанную долю.',4]
-  ];
- }
- if(id==='frac_div_common'){
-  if(t===0)cases=[
-   ['Вычисли '+show(X)+' : '+show(Y)+'.',DIV(X,Y),'Умножим первую дробь на дробь, обратную второй.',2],
-   ['Найди частное дробей '+show(Y)+' и '+show(X)+'.',DIV(Y,X),'Перевернём делитель и перемножим дроби.',2],
-   ['Вычисли '+show(X)+' : '+h+'.',DIV(X,Q(h)),'Деление на натуральное — умножение на обратную дробь.',2],
-   ['Вычисли '+show(X)+' : '+show(Z)+', затем увеличь частное в '+h+' раза.',MUL(DIV(X,Z),Q(h)),'Сначала умножим на дробь, обратную делителю, затем увеличим результат в '+h+' раза.',3],
-   ['Первый отрезок имеет длину '+show(X)+' м, второй — '+show(Y)+' м. Найди отношение длины первого к длине второго.',DIV(X,Y),'Отношение длин — частное первой величины и второй.',2]
-  ];
-  else if(t===1)cases=[
-   ['Вычисли ('+show(X)+' + '+show(Y)+') : '+show(Z)+'.',DIV(ADD(X,Y),Z),'Сначала сложение, затем деление дробей.',3],
-   ['Вычисли '+show(X)+' : ('+show(Y)+' · '+show(Z)+').',DIV(X,MUL(Y,Z)),'Сначала произведение в скобках, затем частное.',3],
-   ['Вычисли '+show(X)+' : '+show(Y)+' + '+show(Z)+'.',ADD(DIV(X,Y),Z),'Частное, затем сумма.',3],
-   ['Найди частное '+show(X)+' : '+show(Y)+' и умножь его на 2.',MUL(DIV(X,Y),two),'Деление двух дробей, затем удвоение.',3],
-   ['Первый отрезок имеет длину '+show(X)+' м, второй — '+show(Y)+' м. Вычисли отношение первой длины ко второй, затем умножь результат на '+show(Z)+'.',MUL(DIV(X,Y),Z),'Найдём отношение длин и умножим его на заданное число.',4]
-  ];
-  else cases=[
-   ['Вычисли ('+show(X)+' + '+show(Y)+') : ('+show(Y)+' · '+show(Z)+').',DIV(ADD(X,Y),MUL(Y,Z)),'Сумма, произведение, затем деление.',5],
-   ['Вычисли ('+show(X)+' : '+show(Y)+') · ('+show(Y)+' + '+show(Z)+').',MUL(DIV(X,Y),ADD(Y,Z)),'Частное, сумма и их произведение.',5],
-   ['Вычисли '+show(X)+' : '+show(Y)+' + '+show(Y)+' : '+show(Z)+'.',ADD(DIV(X,Y),DIV(Y,Z)),'Два частных и итоговое сложение.',5],
-   ['Найди '+show(X)+' : ('+show(Y)+' + '+show(Z)+') и затем удвой.',MUL(DIV(X,ADD(Y,Z)),two),'Сначала сумма делителя, затем частное и удвоение.',5],
-   ['Вычисли ('+show(X)+' + '+show(Y)+' + '+show(Z)+') : '+show(Y)+'.',DIV(ADD(X,Y,Z),Y),'Сложим три дроби и разделим на одну из них.',4]
   ];
  }
  if(id==='frac_restore'){
@@ -229,8 +279,8 @@ function question(id){
  if(value.n<0)throw Error('Negative v130 quantity '+id);
  let choices,correct;
  if(value.d===1){choices=g5nums(value.n,[value.n+1,value.n+2,value.n+3]);correct=String(value.n)}
- else if(id==='frac_division'){
-  // Legacy g5FractionChoices sometimes returned only two options: fix §30, not other topics.
+ else if(id==='frac_division'||id==='frac_div_common'){
+  // Build four choices for the two division topics, deduplicated by rational value.
   // Distractors must be distinct *mathematical values*, not merely different spellings.
   const chosen=[],seen=new Set();
   const add=(n,d,key)=>{
@@ -246,8 +296,8 @@ function question(id){
    [value.n+1,value.d+1],[value.n+3,value.d],
    [value.n,value.d+2],[value.n+4,value.d+1]];
   for(let i=0;i<candidates.length&&chosen.length<4;i++)
-   add(candidates[i][0],candidates[i][1],'v130_30_wrong_'+i);
-  if(chosen.length!==4)throw Error('§30 could not build four unique fraction options');
+   add(candidates[i][0],candidates[i][1],'v130_'+id+'_wrong_'+i);
+  if(chosen.length!==4)throw Error('Could not build four unique fraction division options: '+id);
   choices=chosen;
  }
  else{choices=g5FractionChoices(value.n,value.d);correct=value.n+'/'+value.d}
