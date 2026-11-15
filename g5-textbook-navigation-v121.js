@@ -213,7 +213,7 @@ const grade7Chapters=[
   [6,'Сравнение отрезков и углов',['geo_compare_segments_angles','geo_angle_bisector']],
   [7,'Длина отрезка',['geo_segment_angle_measurement']],
   [8,'Единицы длины и измерительные приборы',['geo_length_units']],
-  [9,'Градусная мера',['geo_segment_angle_measurement']],
+  [9,'Градусная мера',['geo_angle_measure']],
   [10,'Измерение углов на местности',['geo_field_angles']],
   [11,'Смежные и вертикальные углы',['geo_adjacent_vertical_angles']],
   [12,'Перпендикулярность прямых',['geo_parallel_perpendicular_intro']],
