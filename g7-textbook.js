@@ -7249,6 +7249,188 @@ Object.assign(reviewed,{
  ]
 });
 
+Object.assign(reviewedLessons,{
+ graph_connectivity_paths:'Путь перехода по графу должен соединять соседние вершины на каждом шаге. Граф связен, если из любой вершины можно добраться до любой другой.',
+ graph_chains_cycles_euler:'Эйлеров путь проходит по каждому ребру ровно один раз. При связности вершин с рёбрами он существует при нуле или двух нечётных степенях. При нуле путь можно замкнуть в эйлеров цикл.',
+ logic_statements:'Высказывание — фраза, для которой определено, истинна она или ложна. Вопрос, приказ или условие с неопределённой переменной без дополнительных данных таким свойством не обладает.'
+});
+function poolGraph(pool,a,b){
+ const graph=pool[(3*a+b)%pool.length];
+ return {graph,vertices:graph.vertices,edges:graph.edges,visual:question=>g7GraphAttach(question,graph)};
+}
+const connectedGraphPool=G7_GRAPH_U_MODELS.filter(g7GraphConnected);
+const cycleGraphPool=connectedGraphPool.filter(graph=>g7GraphEulerInfo(graph).hasCircuit);
+const openEulerGraphPool=connectedGraphPool.filter(graph=>{
+ const info=g7GraphEulerInfo(graph);
+ return info.hasTrail&&!info.hasCircuit;
+});
+const routeOnGraph=(graph,path)=>g7GraphValidPath(graph,path);
+function oddVertices(graph){
+ const degree=g7GraphDegrees(graph);
+ return graph.vertices.filter(v=>degree[v]%2===1);
+}
+function isClaim(prompt,truth,ex){
+ return choice(prompt,truth?'Истинное':'Ложное',[truth?'Ложное':'Истинное'],ex);
+}
+Object.assign(reviewed,{
+ graph_connectivity_paths:[
+  {
+   identify_connected_graph:({a,b})=>{
+    const m=undirectedGraph(a,b);
+    return withVisual(checkStatement('Связен ли граф на рисунке?',g7GraphConnected(m.graph),'Отметь все вершины, достижимые из одной выбранной вершины. Для связности должны отметиться все.'),m.visual);
+   },
+   count_steps_on_given_route:({a,b})=>{
+    const m=poolGraph(connectedGraphPool,a,b),v=m.vertices[a%m.vertices.length],u=m.vertices[(a+2)%m.vertices.length],path=g7GraphBfsPath(m.graph,v,u);
+    return tableTask(m,'Сколько рёбер проходит последовательность '+graphRoute(path)+'?',path.length-1,'Число переходов на один меньше числа вершин в записи пути.');
+   },
+   check_consecutive_edges:({a,b})=>{
+    const m=undirectedGraph(a,b),seq=m.vertices.slice(0,3);
+    return withVisual(checkStatement('Можно ли пройти '+graphRoute(seq)+' за два перехода?',routeOnGraph(m.graph,seq),'Проверяем каждую пару соседних в записи вершин.'),m.visual);
+   },
+   test_pair_reachability:({a,b})=>{
+    const m=undirectedGraph(a,b),u=m.vertices[a%m.vertices.length],v=m.vertices[(a+2)%m.vertices.length];
+    return withVisual(checkStatement('Можно ли добраться из '+u+' до '+v+' по рёбрам?',g7GraphReachable(m.graph,u).includes(v),'Ищем цепочку рёбер между этими вершинами.'),m.visual);
+   }
+  },
+  {
+   component_count:({a,b})=>{
+    const m=undirectedGraph(a,b),count=g7GraphComponents(m.graph).length;
+    return tableTask(m,'Сколько компонент связности у графа?',count,'В одну компоненту входят все вершины, между которыми можно пройти. Повторяем обход из ещё не отмеченной вершины.');
+   },
+   shortest_path_length:({a,b})=>{
+    const m=poolGraph(connectedGraphPool,a,b),u=m.vertices[a%m.vertices.length],v=m.vertices[(a+Math.floor(m.vertices.length/2))%m.vertices.length],path=g7GraphBfsPath(m.graph,u,v);
+    return tableTask(m,'Каково наименьшее число рёбер, по которым можно добраться из '+u+' в '+v+'?',path.length-1,'Ищем путь сначала за одно ребро, затем за два и так далее. Один из кратчайших: '+graphRoute(path)+'.');
+   },
+   vertices_accessible_in_same_component:({a,b})=>{
+    const m=undirectedGraph(a,b),v=m.vertices[a%m.vertices.length],visited=g7GraphReachable(m.graph,v);
+    return tableTask(m,'Сколько других вершин достижимы из '+v+'?',visited.length-1,'В компоненте вершины '+v+' всего '+visited.length+' вершин. Саму '+v+' исключаем.');
+   },
+   check_connection_after_one_edge_removed:({a,b})=>{
+    const m=poolGraph(connectedGraphPool,a,b),i=a%m.edges.length,e=m.edges[i],rem={...m.graph,edges:m.edges.filter((_,j)=>j!==i)};
+    return withVisual(checkStatement('Если удалить ребро '+g7GraphEdgeText(m.graph,e)+', граф останется связным?',g7GraphConnected(rem),'Проверяем достижимость по остальным рёбрам.'),m.visual);
+   }
+  },
+  {
+   minimum_edges_to_connect_parts:({a,b})=>{
+    const n=a%5+3,k=b%3+1,vertices=Array.from({length:n+k},(_,i)=>geometryLetters[(a+i)%geometryLetters.length]);
+    const graph=g7GraphModel('components-'+a+'-'+b,vertices,vertices.slice(0,k).map((v,i)=>[v,vertices[i+1]]));
+    return tableTask({visual:q=>g7GraphAttach(q,graph)},'Сколько рёбер как минимум нужно добавить, чтобы граф стал связным?',n-1,
+     'Компонент '+n+'. Каждое новое ребро может объединить максимум две компоненты, уменьшая их число на 1.');
+   },
+   count_bridge_edges:({a,b})=>{
+    const m=poolGraph(connectedGraphPool,a,b),count=g7GraphBridgeEdges(m.graph).length;
+    return tableTask(m,'Сколько рёбер можно выбрать так, что удаление одного выбранного ребра сделает граф несвязным?',count,'Рёбра, лежащие на цикле, можно обойти. Остальные разделят граф при удалении.');
+   },
+   compare_distances_from_same_source:({a,b})=>{
+    const m=poolGraph(connectedGraphPool,a,b),n=m.vertices.length,u=m.vertices[a%n],v=m.vertices[(a+1)%n],w=m.vertices[(a+2)%n],
+     left=g7GraphBfsPath(m.graph,u,v).length-1,right=g7GraphBfsPath(m.graph,u,w).length-1;
+    return withVisual(compare('Сравни минимальное число переходов от '+u+' к '+v+' и от '+u+' к '+w+'.',rational(left),rational(right),'По очереди находим два кратчайших пути.'),m.visual);
+   },
+   count_remaining_vertices_in_component_after_removing_vertex:({a,b})=>{
+    const m=poolGraph(connectedGraphPool,a,b),n=m.vertices.length,i=a%n,removed=m.vertices[i],from=m.vertices[(i+1)%n];
+    const model={...m.graph,vertices:m.vertices.filter(v=>v!==removed),edges:m.edges.filter(e=>e.from!==removed&&e.to!==removed)};
+    return tableTask(m,'Удалили '+removed+' вместе с примыкающими рёбрами. Сколько вершин осталось в компоненте '+from+', включая '+from+'?',g7GraphReachable(model,from).length,
+     'Выполняем обход из '+from+' без удалённой вершины и её рёбер.');
+   }
+  }
+ ],
+ graph_chains_cycles_euler:[
+  {
+   determine_closed_route:({a,b})=>{
+    const m=undirectedGraph(a,b),e=m.edges[a%m.edges.length],closed=b%2===0,sequence=closed?[e.from,e.to,e.from]:[e.from,e.to];
+    return withVisual(checkStatement('У записи '+graphRoute(sequence)+' совпадают начало и конец?',closed,'Сравниваем первую и последнюю вершины в записи.'),m.visual);
+   },
+   check_simple_cycle_candidate:({a,b})=>{
+    const m=undirectedGraph(a,b),seq=m.vertices.slice(0,3).concat(m.vertices[0]),ok=g7GraphValidSimpleCycle(m.graph,seq);
+    return withVisual(checkStatement('Является ли '+graphRoute(seq)+' циклом без повторения промежуточных вершин?',ok,'Проверяем замыкание и наличие каждого ребра последовательности.'),m.visual);
+   },
+   count_odd_degrees_for_euler:({a,b})=>{
+    const m=undirectedGraph(a,b),odd=oddVertices(m.graph);
+    return tableTask(m,'Сколько вершин с нечётной степенью?',odd.length,'Считаем количество инцидентных рёбер у каждой вершины.');
+   },
+   read_definition_of_euler_route:({a,b})=>{
+    const m=undirectedGraph(a,b);
+    return chooseConclusion('Какое условие обязательно для эйлерова пути по этому графу?','Пройти каждое ребро ровно один раз',
+     ['Посетить каждую вершину ровно один раз','Пройти каждое ребро ровно два раза','Не выходить из одной вершины'],'В определении считают прохождения по рёбрам.',m);
+   }
+  },
+  {
+   decide_euler_walk_exists:({a,b})=>{
+    const m=undirectedGraph(a,b),info=g7GraphEulerInfo(m.graph),odd=oddVertices(m.graph);
+    return withVisual(checkStatement('Есть ли у графа эйлеров путь?',info.hasTrail,'Проверяем связность вершин с рёбрами и число нечётных степеней. Нечётных вершин '+odd.length+'.'),m.visual);
+   },
+   distinguish_cycle_from_open_route:({a,b})=>{
+    const m=poolGraph(connectedGraphPool,a,b),info=g7GraphEulerInfo(m.graph);
+    const correct=info.hasCircuit?'Возможен замкнутый маршрут':info.hasTrail?'Возможен только открытый маршрут':'Эйлеров путь невозможен';
+    return chooseConclusion('Что верно о маршруте по каждому ребру ровно один раз?',correct,['Возможен замкнутый маршрут','Возможен только открытый маршрут','Эйлеров путь невозможен'].filter(x=>x!==correct),
+     'Сравниваем число нечётных степеней с 0 и 2.',m);
+   },
+   select_endpoints_of_open_euler_trail:({a,b})=>{
+    const m=poolGraph(openEulerGraphPool,a,b),[first,second]=oddVertices(m.graph),other=m.vertices.find(v=>v!==first&&v!==second);
+    return chooseConclusion('Какими могут быть концы открытого эйлерова пути?',verticesText([first,second]),[verticesText([first,other]),verticesText([second,other]),'Только одна и та же вершина'],
+     'При двух нечётных степенях именно эти две вершины служат концами пути.',m);
+   },
+   count_steps_in_euler_cycle:({a,b})=>{
+    const m=poolGraph(cycleGraphPool,a,b);
+    return tableTask(m,'Сколько переходов между вершинами совершит эйлеров цикл?',m.edges.length,'Эйлеров цикл использует каждое ребро один раз.');
+   }
+  },
+  {
+   validate_full_or_truncated_euler_route:({a,b})=>{
+    const m=poolGraph(cycleGraphPool,a,b),trail=g7GraphEulerTrail(m.graph),path=b%2?trail:trail.slice(0,-1);
+    return withVisual(checkStatement('Использует ли запись '+graphRoute(path)+' каждое ребро ровно один раз?',g7GraphCheckEulerTrail(m.graph,path),'Проверяем, что все рёбра пройдены и ни одно не повторяется.'),m.visual);
+   },
+   close_euler_trail_by_removing_new_edge:({a,b})=>{
+    const m=poolGraph(cycleGraphPool,a,b),edge=m.edges[a%m.edges.length];
+    return chooseConclusion('Удалили ребро '+g7GraphEdgeText(m.graph,edge)+' из этого графа с эйлеровым циклом. Что стало с эйлеровым маршрутом?',
+     'Остался открытый эйлеров путь',['Остался эйлеров цикл','Эйлеров путь стал невозможен','Появились четыре нечётные вершины'],
+     'Удалённое ребро лежит на цикле, поэтому сохраняется связность. Ровно два его конца меняют чётность.',m);
+   },
+   parity_after_using_two_edges:({a,b})=>{
+    const m=poolGraph(cycleGraphPool,a,b),u=m.vertices[a%m.vertices.length],neighbors=graphNeighbors(m,u),[v,w]=neighbors;
+    return chooseConclusion('В графе с эйлеровым циклом удалили рёбра '+u+'–'+v+' и '+u+'–'+w+'. У каких вершин степени стали нечётными?',
+     verticesText([v,w]),[verticesText([u,v]),verticesText([u,w]),'Ни у каких'],'У '+u+' исчезло два ребра, чётность сохранилась. У '+v+' и '+w+' исчезло по одному.',m);
+   },
+   rebuild_cycle_from_chain_endpoints:({a,b})=>{
+    const n=a%6+4,first=geometryLetters[b%geometryLetters.length],last=geometryLetters[(b+n-1)%geometryLetters.length];
+    return ['Граф — цепочка из '+n+' вершин. Сколько новых рёбер как минимум нужно добавить, чтобы из цепочки получился эйлеров цикл? Крайние вершины '+first+' и '+last+'.',1,
+     'В исходной цепочке нечётные только концы. Одно ребро между ними делает все степени чётными.'];
+   }
+  }
+ ],
+ logic_statements:[
+  {
+   choose_closed_claim:({a,b})=>choice('Какая запись имеет определённую истинность без дополнительных сведений?',(a+b)+' больше '+a+'.',
+    ['Сколько будет '+a+' + '+b+'?','Сравни '+a+' и '+b+'.','x больше '+a+'.'],'О сравнении двух заданных чисел можно сказать, верно оно или ложно.'),
+   evaluate_numerical_claim:({a,b})=>isClaim('Оцени высказывание «'+(a+b)+' меньше '+a+'».',false,'Число '+b+' положительно, поэтому '+(a+b)+' больше '+a+'.'),
+   distinguish_request_from_claim:({a,b})=>checkStatement('Фраза «Запиши '+(a+b)+' простых чисел» — высказывание?',false,'Это указание к действию, ему не присваивают истинность.'),
+   evaluate_divisibility_claim:({a,b})=>isClaim('Оцени высказывание «'+(a*b)+' делится на '+a+'».',true,'Число равно '+a+' · '+b+', поэтому делится на '+a+'.')
+  },
+  {
+   evaluate_with_assigned_variable:({a,b})=>isClaim('При x = '+a+' оцени «x + '+b+' > '+(a+b+(a%3-1))+'».',a%3===0,'Подставляем x. Левая часть '+(a+b)+', затем проверяем знак строгого неравенства.'),
+   check_and_claim:({a,b})=>isClaim('Оцени «'+(a*b)+' делится на '+a+' и делится на '+b+'».',true,'Произведение делится на каждый из двух положительных целых множителей.'),
+   check_or_claim:({a,b})=>isClaim('Оцени «'+(a*b+1)+' делится на '+a+' или делится на '+b+'».',false,'От деления на каждый из указанных множителей остаётся 1. Обе части ложны.'),
+   check_existential_in_interval:({a,b})=>isClaim('Оцени «Между '+a*b+' и '+(a*b+a)+' есть целое число, кратное '+a+'», если границы исключены.',false,'Это соседние кратные '+a+'. Других таких кратных между ними нет.')
+  },
+  {
+   decide_nested_and_or:({a,b})=>{
+    const x=2*a+b;
+    return isClaim('Оцени «'+x+' делится на 2 и хотя бы одно из двух утверждений верно: '+x+' > '+a+' или '+x+' < '+b+'».',x%2===0,
+     'Неравенство '+x+' > '+a+' истинно. Для всего высказывания остаётся проверить чётность числа '+x+'.');
+   },
+   infer_truth_after_quantifying:({a,b})=>isClaim('Оцени «Каждое целое число между '+a+' и '+(a+b)+' включительно делится на '+b+'».',false,
+    'В промежутке есть два последовательных целых числа. Оба не могут делиться на '+b+'.'),
+   distinguish_unassigned_from_false:({a,b})=>choice('Что можно сказать про запись «'+a+'x + '+b+' = '+(a+b)+'», если x ещё не задан?',
+    'Истинность зависит от x',['Она всегда истинна','Она всегда ложна','Это приказ'],'При x = 1 равенство выполняется. При x = 0 оно не выполняется.'),
+   pick_quantifier_for_true_claim:({a,b})=>{
+    const low=a*b-1,high=a*b+1;
+    return choice('Как начать фразу «… целое число среди '+low+', '+(a*b)+' и '+high+' делится на '+a+'», чтобы получилось истинное высказывание?',
+     'Хотя бы одно',['Каждое','Ни одно','Ровно два'],'Среднее число делится на '+a+', а крайние отличаются от него на 1.');
+   }
+  }
+ ]
+});
+
 add('alg_expressions_equations','compare_expression_values','Сравнение значений выражений',
  'Чтобы сравнить выражения, вычисли оба значения или используй свойства действий. При указанном значении переменной сначала подставь его в обе части. Для двойного неравенства проверь обе границы.',
  null);
