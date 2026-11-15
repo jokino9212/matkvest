@@ -46,7 +46,16 @@ async function browserTest(browser,width){
  page.on('pageerror',e=>errors.push(e.message));
  try{
   await page.goto(root.href,{waitUntil:'domcontentloaded',timeout:120000});
-  await page.locator('.grade-card button[onclick="openGrade(5)"]').click();
+  const gradeButton=page.locator('.grade-card button[onclick="openGrade(5)"]');
+  const homeSummary=page.locator('.grade-card').filter({has:gradeButton}).locator('.grade-summary');
+  const expectedHome='Пройдено тем: 0/74 • этапов: 0/222';
+  assert.equal(await homeSummary.innerText(),expectedHome);
+  await page.evaluate(()=>navigator.serviceWorker.ready.then(()=>null));
+  await page.reload({waitUntil:'domcontentloaded',timeout:120000});
+  const homeAfterReload=await homeSummary.innerText();
+  assert.equal(homeAfterReload,expectedHome);
+  console.log('PASS_PAGES_GRADE5_HOME_RELOAD',JSON.stringify({width,summary:homeAfterReload}));
+  await gradeButton.click();
   const initial=await page.evaluate(()=>{
    const id='area_units_g5';
    blockSession={kind:'g5quiz',key:'g5:'+id,stageIndex:0,done:0,total:10,usedSignatures:[],items:[],finished:false};

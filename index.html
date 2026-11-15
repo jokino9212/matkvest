@@ -8571,6 +8571,12 @@ function g3CompletedStages(){return g3AllTopics().filter(t=>t.implemented!==fals
 function g3TotalStages(){return g3AllTopics().length*3}
 function g5AllTopics(){return [...G5_CORE,...G5_FRACTIONS,...G5_DECIMALS]}
 function g5CompletedStages(){return g5AllTopics().reduce((s,t)=>s+completedStages(`g5:${t.id}`),0)}
+let g5HomeCatalogReady=false;
+function g5HomeProgressText(){
+ if(!g5HomeCatalogReady)return "";
+ const total=g5AllTopics().length;
+ return `Пройдено тем: ${gradeCompletedTopics(5)}/${total} • этапов: ${g5CompletedStages()}/${total*3}`;
+}
 function g6CompletedStages(){return g6AllTopics().reduce((s,t)=>s+completedStages(t.id),0)}
 function g6TotalStages(){return g6AllTopics().length*3}
 function g7ImplementedTopics(){return g7AllTopics().filter(t=>t.implemented!==false)}
@@ -8591,7 +8597,7 @@ function renderHome(){
  currentGrade=null;
  const back=document.getElementById("gradeBackPill");if(back)back.style.display="none";
  if(brandLogo)brandLogo.textContent="M";if(brandTitle)brandTitle.textContent="МатКвест";
- const g3done=g3CompletedStages(),g3total=g3TotalStages(),g4done=g4CompletedStages(),g4total=g4TotalStages(),g5done=g5CompletedStages(),g5total=g5AllTopics().length*3,g6done=g6CompletedStages(),g6total=g6TotalStages(),g7done=g7CompletedStages(),g7total=g7TotalStages(),g7ready=g7ImplementedTopics().length;
+ const g3done=g3CompletedStages(),g3total=g3TotalStages(),g4done=g4CompletedStages(),g4total=g4TotalStages(),g6done=g6CompletedStages(),g6total=g6TotalStages(),g7done=g7CompletedStages(),g7total=g7TotalStages(),g7ready=g7ImplementedTopics().length;
  const errorSummary=errorWorkSummary();
  const weakSummary=weakTopicsSummary(state);
  ensureQuestBoard(state,{persist:true});const questSummary=questBoardSummary(state);
@@ -8600,7 +8606,7 @@ function renderHome(){
  <div class="grade-grid">
   <section class="grade-card"><div class="grade-ico">${gradeBookIcon(3,false)}</div><h2>3 КЛАСС</h2><p>Числа до 1000, арифметические действия, задачи, доли, геометрия и работа с данными.</p><div class="grade-summary">${g3AllTopics().length} тем • пройдено этапов: ${g3done}/${g3total}</div><button class="btn primary" onclick="openGrade(3)">Открыть 3 класс</button></section>
   <section class="grade-card"><div class="grade-ico">${gradeBookIcon(4,false)}</div><h2>4 КЛАСС</h2><p>Вычисления, величины, геометрия, задачи и полная письменная работа столбиком.</p><div class="grade-summary">Пройдено тем: ${gradeCompletedTopics(4)}/${TOPICS.length} • этапов: ${g4done}/${g4total}</div><button class="btn primary" onclick="openGrade(4)">Открыть 4 класс</button></section>
-  <section class="grade-card"><div class="grade-ico">${gradeBookIcon(5,false)}</div><h2>5 КЛАСС</h2><p>Натуральные числа, обыкновенные и десятичные дроби, проценты и геометрия.</p><div class="grade-summary">Пройдено тем: ${gradeCompletedTopics(5)}/${g5AllTopics().length} • этапов: ${g5done}/${g5total}</div><button class="btn primary" onclick="openGrade(5)">Открыть 5 класс</button></section>
+  <section class="grade-card"><div class="grade-ico">${gradeBookIcon(5,false)}</div><h2>5 КЛАСС</h2><p>Натуральные числа, обыкновенные и десятичные дроби, проценты и геометрия.</p><div class="grade-summary" id="g5HomeProgress">${g5HomeProgressText()}</div><button class="btn primary" onclick="openGrade(5)">Открыть 5 класс</button></section>
   <section class="grade-card"><div class="grade-ico">${gradeBookIcon(6,false)}</div><h2>6 КЛАСС</h2><p>Делимость, дроби, пропорции, рациональные числа, уравнения, координаты и геометрия.</p><div class="grade-summary">Каталог: ${g6AllTopics().length} тем • пройдено этапов: ${g6done}/${g6total}</div><button class="btn primary" onclick="openGrade(6)">Открыть 6 класс</button></section>
   <section class="grade-card g7-card"><div class="grade-ico">${gradeBookIcon(7,false)}</div><h2>7 КЛАСС</h2><p>Алгебра • Геометрия • Вероятность и статистика.</p><div class="grade-summary">Каталог: ${g7AllTopics().length} тем • реализовано: ${g7ready} • этапов: ${g7done}/${g7total}</div><button class="btn primary" onclick="openGrade(7)">Открыть 7 класс</button></section>
   <section class="grade-card g7-card"><div class="grade-ico">${gradeBookIcon(8,false)}</div><h2>8 КЛАСС</h2><p>Алгебра • Геометрия • Вероятность и статистика.</p><div class="grade-summary">Каталог: ${g8AllTopics().length} тем • реализовано: ${g8ImplementedTopics().length} • этапов: ${g8CompletedStages()}/${g8TotalStages()}</div><button class="btn primary" onclick="openGrade(8)">Открыть 8 класс</button></section>
@@ -17274,7 +17280,6 @@ renderHome=function(){
   const summaries={
    "3 КЛАСС":`Пройдено тем: ${gradeCompletedTopics(3)}/${g3AllTopics().length} • этапов: ${g3CompletedStages()}/${g3TotalStages()}`,
    "4 КЛАСС":`Пройдено тем: ${gradeCompletedTopics(4)}/${TOPICS.length} • этапов: ${g4CompletedStages()}/${g4TotalStages()}`,
-   "5 КЛАСС":`Пройдено тем: ${gradeCompletedTopics(5)}/${g5AllTopics().length} • этапов: ${g5CompletedStages()}/${g5AllTopics().length*3}`,
    "6 КЛАСС":`Пройдено тем: ${gradeCompletedTopics(6)}/${g6AllTopics().length} • этапов: ${g6CompletedStages()}/${g6TotalStages()}`,
    "7 КЛАСС":`Пройдено тем: ${gradeCompletedTopics(7)}/${g7AllTopics().length} • этапов: ${g7CompletedStages()}/${g7TotalStages()}`,
    "8 КЛАСС":`Пройдено тем: ${gradeCompletedTopics(8)}/${g8AllTopics().length} • этапов: ${g8CompletedStages()}/${g8TotalStages()}`
@@ -35521,23 +35526,29 @@ document.addEventListener("keydown",event=>{
 })();
 </script>
 
-<script src="g5-conversion-ux.js?v=189"></script>
-<script src="g5-textbook-topics.js?v=189"></script>
-<script src="g5-textbook-core.js?v=189"></script>
-<script src="g5-textbook-v111.js?v=189"></script>
-<script src="g5-textbook-v112.js?v=189"></script>
-<script src="g5-pedagogy-v113.js?v=189"></script>
-<script src="g5-fractions-v114.js?v=189"></script>
-<script src="g5-fraction-arithmetic-v115.js?v=189"></script>
-<script src="g5-decimals-v116.js?v=189"></script>
-<script src="g5-textbook-navigation-v121.js?v=189"></script>
-<script src="g5-live-pedagogy-v122.js?v=189"></script>
-<script src="g5-arithmetic-tiers-v123.js?v=189"></script>
-<script src="g5-textbook-tiers-v124.js?v=189"></script>
-<script src="g5-natural-units-v125.js?v=189"></script>
-<script src="g5-remaining-core-v126.js?v=189"></script>
-<script src="g5-decimal-tiers-v127.js?v=189"></script>
-<script src="g5-decimal-percent-v128.js?v=189"></script>
-<script src="g5-fraction-concepts-v129.js?v=189"></script>
-<script src="g5-fraction-applications-v130.js?v=189"></script>
+<script src="g5-conversion-ux.js?v=190"></script>
+<script src="g5-textbook-topics.js?v=190"></script>
+<script src="g5-textbook-core.js?v=190"></script>
+<script src="g5-textbook-v111.js?v=190"></script>
+<script src="g5-textbook-v112.js?v=190"></script>
+<script src="g5-pedagogy-v113.js?v=190"></script>
+<script src="g5-fractions-v114.js?v=190"></script>
+<script src="g5-fraction-arithmetic-v115.js?v=190"></script>
+<script src="g5-decimals-v116.js?v=190"></script>
+<script src="g5-textbook-navigation-v121.js?v=190"></script>
+<script src="g5-live-pedagogy-v122.js?v=190"></script>
+<script src="g5-arithmetic-tiers-v123.js?v=190"></script>
+<script src="g5-textbook-tiers-v124.js?v=190"></script>
+<script src="g5-natural-units-v125.js?v=190"></script>
+<script src="g5-remaining-core-v126.js?v=190"></script>
+<script src="g5-decimal-tiers-v127.js?v=190"></script>
+<script src="g5-decimal-percent-v128.js?v=190"></script>
+<script src="g5-fraction-concepts-v129.js?v=190"></script>
+<script src="g5-fraction-applications-v130.js?v=190"></script>
+<script>
+// The textbook scripts finish extending the catalog before Home shows its totals.
+g5HomeCatalogReady=true;
+const g5HomeProgress=document.getElementById("g5HomeProgress");
+if(g5HomeProgress)g5HomeProgress.textContent=g5HomeProgressText();
+</script>
 </body></html>
