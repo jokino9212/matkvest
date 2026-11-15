@@ -8,7 +8,7 @@ const headings={
  dec_compare:['Сравнение десятичных дробей','Сравнение по разрядам, приписывание нулей, порядок и сравнение с границами'],
  dec_add:['Сложение десятичных дробей','Поразрядное сложение, перенос, задачи на несколько действий'],
  dec_sub:['Вычитание десятичных дробей','Поразрядное вычитание, неизвестные компоненты и обратные задачи'],
- dec_round:['Округление десятичных дробей','Округление до целых, десятых и сотых; граничные случаи']
+ dec_round:['Округление десятичных дробей','Округление до заданного разряда, прикидка и сравнение с точным результатом']
 };
 for(const [id,[title,sub]] of Object.entries(headings)){
  const t=G5_DECIMALS.find(x=>x.id===id);if(!t)throw Error('G5 v116 missing topic '+id);
@@ -32,7 +32,7 @@ function result(node){
  if(op==='min')return Math.min(...args.map(result));
  if(op==='round'){
   const x=result(args[0]),step=args[1];
-  if(x<0||![10,100,1000].includes(step))throw Error('Invalid rounding input');
+  if(x<0||![10,100,1000,10000].includes(step))throw Error('Invalid rounding input');
   return Math.floor((x+step/2)/step)*step;
  }
  throw Error('Unknown decimal calculation '+op);
@@ -260,29 +260,77 @@ function subtractQuestions(t,p){
   'Во втором было '+diff(a,b)+' кг. После переноса осталось '+diff(a-b,c)+' кг. В первом теперь '+sum(b,c)+' кг. В сумме снова '+sum(b+c,a-b-c)+' кг.',[a,b,c]);
 }
 function roundQuestions(t,p){
- const id='dec_round';
- const r=rnd(1900,37500),whole=rnd(2,22)*1000,base=rnd(18,32)*1000+rnd(100,970);
- const b=rnd(230,840),c=rnd(110,650),e=rnd(60,290);
- const R=K(r),A=K(base),B=K(b),C=K(c),E=K(e),F=fmt;
+ const id='dec_round',F=fmt;
+ const places={10:'сотых',100:'десятых',1000:'целых',10000:'десятков'};
+ const digits={10:'тысячных',100:'сотых',1000:'десятых',10000:'единиц'};
+ const precision={10:2,100:1,1000:0,10000:0};
+ const calc=(value,step)=>result(round(K(value),step));
+ const solve=(value,step)=>{
+  const digit=Math.floor((value%step)/(step/10));
+  const action=digit<5?'сохраняем предыдущую цифру':'увеличиваем предыдущую цифру на 1, с переносом при необходимости';
+  return 'В разряде '+digits[step]+' стоит '+digit+', поэтому '+action+'. '+F(value)+' ≈ '+F(calc(value,step),precision[step]);
+ };
+ const ask=(text,plan,ex,inputs,options)=>nQ(id,t,p,text,plan,ex,'decimal',inputs,options);
+ const base=rnd(2,38)*1000,r=base+rnd(1,999);
+ const a=base+rnd(41,987),b=rnd(2,17)*1000+rnd(11,986),c=rnd(1,Math.floor((a+b)/1000)-2)*1000+rnd(12,908);
  if(t===0){
-  if(p===0)return nQ(id,t,p,'Округли '+F(r)+' до сотых.',round(R,10),'Смотрим на цифру тысячных и округляем сотые.','decimal',[r]);
-  if(p===1)return nQ(id,t,p,'Округли '+F(r)+' до десятых.',round(R,100),'Смотрим на сотые; цифры 5–9 увеличивают десятые на 1.','decimal',[r]);
-  if(p===2)return nQ(id,t,p,'Округли '+F(r)+' до целых.',round(R,1000),'Смотрим на первую цифру после запятой.','decimal',[r]);
-  if(p===3){const k=rnd(1,8)*1000+rnd(1,8)*100+50;return nQ(id,t,p,'Округли '+F(k)+' до десятых (сотые равны 5).',round(K(k),100),'При цифре 5 округляем вверх.','decimal',[k]);}
-  const k=rnd(1,9)*1000+rnd(10,80)*10+5;return nQ(id,t,p,'Округли '+F(k)+' до сотых (тысячные равны 5).',round(K(k),10),'При ровно пяти тысячных сотые увеличиваются на 1.','decimal',[k]);
+  const step=[1000,100,10,10000,100][p];
+  const x=p===3?rnd(121,1989)*1000:p===4?base+950:r;
+  const label=p===4?'Округли с переносом ':'Округли ';
+  const value=calc(x,step),choices=[value+step,value+2*step,(value===0?3*step:value-step)].map(unit);
+  return ask(label+F(x)+' до '+places[step]+'.',round(K(x),step),solve(x,step)+'.',[x],choices);
  }
  if(t===1){
-  if(p===0)return nQ(id,t,p,'Найди сумму '+F(base)+' + '+F(b)+' и округли её до десятых.',round(add(A,B),100),'Сначала сложение, затем округление результата.','decimal',[base,b]);
-  if(p===1)return nQ(id,t,p,'Вычисли '+F(base)+' − '+F(c)+' и округли результат до сотых.',round(subtract(A,C),10),'Сначала разность, затем округление до сотых.','decimal',[base,c]);
-  if(p===2)return nQ(id,t,p,'Число '+F(r)+' сначала округли до сотых, затем полученное число до десятых.',round(round(R,10),100),'Это последовательное округление в два этапа.','decimal',[r]);
-  if(p===3)return nQ(id,t,p,'Сложи '+F(base)+' и '+F(b)+', затем округли сумму до целых.',round(add(A,B),1000),'Сначала сумма, потом проверяем десятые и округляем целую часть.','decimal',[base,b]);
-  return nQ(id,t,p,'Вычисли '+F(base)+' − '+F(b)+', затем округли значение до десятых.',round(subtract(A,B),100),'Сначала выполняем вычитание, затем округление.','decimal',[base,b]);
+  if(p===0)return ask('Прикинь сумму '+F(a)+' и '+F(b)+': округли каждое слагаемое до целых, затем сложи.',add(round(K(a),1000),round(K(b),1000)),
+   solve(a,1000)+'. '+solve(b,1000)+'. '+decimalStep(calc(a,1000),calc(b,1000),'+')+'.',[a,b]);
+  if(p===1){
+   const larger=Math.max(a,b),smaller=Math.min(a,b);
+   return ask('Прикинь разность '+F(larger)+' и '+F(smaller)+': округли уменьшаемое и вычитаемое до десятых, затем вычти.',subtract(round(K(larger),100),round(K(smaller),100)),
+    solve(larger,100)+'. '+solve(smaller,100)+'. '+decimalStep(calc(larger,100),calc(smaller,100),'−')+'.',[larger,smaller]);
+  }
+  if(p===2){
+   const x=base+100*rnd(1,8)+rnd(45,49),middle=calc(x,10);
+   return ask('Число '+F(x)+' сначала округли до сотых, а результат — до десятых.',round(round(K(x),10),100),
+    solve(x,10)+'. '+solve(middle,100)+'.',[x]);
+  }
+  if(p===3){
+   const x=rnd(1,15)*1000+rnd(10,89)*10+rnd(1,9);
+   const target=calc(x,100),choices=[target,target-100,target+100,target+200];
+   const key=String(unit(target));
+   const q=g5q('Выбери верное округление числа '+F(x)+' до десятых.',choices.map(v=>({label:F(v,1),key:String(unit(v))})),
+    key,solve(x,100)+'. Ответ: '+F(target)+'.','g5v116_'+id+'_L'+t+'_F'+p);
+   q.mk116={id,t,p,kind:'numeric',mode:'decimal',plan:round(K(x),100),answerMilli:target,answerInt:null,sources:[x]};
+   return q;
+  }
+  const sum=a+b;
+  return ask('Найди точную сумму '+F(a)+' и '+F(b)+', затем округли результат до сотых.',round(add(K(a),K(b)),10),
+   decimalStep(a,b,'+')+'. '+solve(sum,10)+'.',[a,b]);
  }
- if(p===0)return nQ(id,t,p,'Округли '+F(r)+' до сотых, затем до десятых. На сколько полученное значение отличается от прямого округления '+F(r)+' до десятых?',absolute(subtract(round(round(R,10),100),round(R,100))),'Сравниваем прямое и двухэтапное округление.','decimal',[r]);
- if(p===1)return nQ(id,t,p,'Сначала вычисли '+F(base)+' + '+F(b)+' − '+F(c)+' + '+F(e)+'. Округли результат до десятых.',round(add(subtract(add(A,B),C),E),100),'Три арифметических действия, затем округление.','decimal',[base,b,c,e]);
- if(p===2)return cQ(id,t,p,'Округли суммы '+F(base)+' + '+F(b)+' и '+F(base)+' + '+F(c)+' до десятых, затем сравни.',round(add(A,B),100),round(add(A,C),100),'Сначала два сложения, затем два округления и сравнение.',[base,b,c]);
- if(p===3)return nQ(id,t,p,'Вычисли '+F(base)+' − '+F(b)+' − '+F(c)+'. Округли разность до сотых.',round(subtract(subtract(A,B),C),10),'После двух вычитаний смотрим на тысячные.','decimal',[base,b,c]);
- return nQ(id,t,p,'Округли '+F(base)+' и '+F(base+b)+' до сотых. На сколько отличаются два округлённых значения?',absolute(subtract(round(K(base+b),10),round(A,10))),'Сначала независимо округляем, затем вычитаем меньшее из большего.','decimal',[base,base+b]);
+ if(p===0){
+  const site=base+rnd(1,8)*100,x=site+rnd(41,49),mid=calc(x,10),direct=calc(x,100),inSteps=calc(mid,100);
+  return ask('Число '+F(x)+' округли до десятых напрямую, затем отдельно через сотые. Найди разность: результат через сотые минус прямой результат.',subtract(round(round(K(x),10),100),round(K(x),100)),
+   'Напрямую. '+solve(x,100)+'. Через сотые. '+solve(x,10)+'. '+solve(mid,100)+'. '+decimalStep(inSteps,direct,'−')+'.',[x]);
+ }
+ if(p===1){
+  const target=base+rnd(1,8)*100,low=target-50,high=target+49;
+  return ask('Найди наибольшее число с тремя знаками после запятой, которое при округлении до десятых даёт '+F(target,1)+'.',K(high),
+   'До '+F(target,1)+' округляются числа от '+F(low,3)+' включительно до '+F(target+50,3)+' без верхней границы. Наибольшее с тремя знаками — '+F(high,3)+'. '+solve(high,100)+'.',[target]);
+ }
+ if(p===2){
+  const x=base+rnd(1,8)*100+rnd(501,599),y=base+rnd(1,8)*100+rnd(501,599),z=base+rnd(1,8)*100+rnd(501,599);
+  const total=calc(x,1000)+calc(y,1000)+calc(z,1000);
+  return ask('Прикинь общий вес '+F(x)+' кг, '+F(y)+' кг и '+F(z)+' кг: округли каждый до целых и сложи. На сколько оценка отличается от точной суммы?',K(Math.abs(total-x-y-z)),
+   solve(x,1000)+'. '+solve(y,1000)+'. '+solve(z,1000)+'. Прикидка: '+F(total)+' кг. Точная сумма: '+F(x+y+z)+' кг. Вычитаем меньшее значение из большего: '+decimalStep(Math.max(total,x+y+z),Math.min(total,x+y+z),'−')+' кг.',[x,y,z]);
+ }
+ if(p===3){
+  const target=base+rnd(1,8)*100,values=[target-50,target-49,target,target+49,target+50,target+51];
+  const listed=sh(values).map(v=>F(v,3)).join('; ');
+  const plan=K(4),ex='Границы для '+F(target,1)+': от '+F(target-50,3)+' включительно до '+F(target+50,3)+' без верхней границы. В этот промежуток входят '+values.slice(0,4).map(x=>F(x,3)).join('; ')+'.';
+  return nQ(id,t,p,'Сколько из записей после округления до десятых дадут '+F(target,1)+'? Список: '+listed+'.',plan,ex,'integer',values,[2,3,5]);
+ }
+ const exact=a+b-c,hint=calc(a,100)+calc(b,100)-calc(c,100);
+ return ask('Найди абсолютную разницу между точным значением '+F(a)+' + '+F(b)+' − '+F(c)+' и прикидкой: округли каждое число до десятых и выполни те же действия.',absolute(subtract(K(exact),K(hint))),
+  'Точное вычисление. '+decimalStep(a,b,'+')+'. '+decimalStep(a+b,c,'−')+'. Прикидка. '+solve(a,100)+'. '+solve(b,100)+'. '+solve(c,100)+'. '+decimalStep(calc(a,100),calc(b,100),'+')+'. '+decimalStep(calc(a,100)+calc(b,100),calc(c,100),'−')+'. Вычитаем меньшее значение из большего: '+decimalStep(Math.max(exact,hint),Math.min(exact,hint),'−')+'.',[a,b,c]);
 }
 function build(id){
  const t=level(),p=slot();
@@ -297,7 +345,7 @@ const lessons={
  dec_compare:'Сначала сравни целые части. Если они равны, допиши нули справа до одинакового числа знаков после запятой и сравни цифры слева направо. Например, 4,3 = 4,30, а 4,30 &lt; 4,37: десятые равны, в сотых 0 &lt; 7. Если все разряды равны, числа равны. Чтобы проверить, что число строго между двумя границами, сравни его с каждой: 4,30 &lt; 4,35 &lt; 4,37.',
  dec_add:'Поставь запятые одну под другой и допиши справа нули, если нужно. Складывай цифры справа налево. Если в разряде набралось 10, перенеси единицу в соседний разряд слева. В ответе запятая остаётся под запятыми слагаемых.<br>'+writtenDecimal(3750,860,'+')+'<br>При нескольких действиях сначала вычисли скобки. Известные слагаемые иногда можно перегруппировать так, чтобы получить целое число.',
  dec_sub:'Поставь запятые одну под другой. Допиши справа нули, чтобы в обоих числах было одинаковое количество знаков после запятой. Вычитай справа налево. Если цифры не хватает, займи одну единицу из соседнего разряда слева и преврати её в десять единиц текущего разряда.<br>'+writtenDecimal(4300,1750,'−')+'<br>Для проверки прибавь вычитаемое к разности. Должно получиться уменьшаемое.',
- dec_round:'Округляя до десятых, смотри на сотые; до сотых — на тысячные; до целых — на десятые. Если следующая цифра 5–9, увеличь сохраняемый разряд. Последовательное округление иногда отличается от прямого.'
+ dec_round:'Найди разряд, до которого округляешь. Если следующая цифра 0–4, сохрани выбранный разряд. При цифре 5–9 увеличь его на 1. Остальные дробные разряды отбрось, а оставшиеся разряды целой части замени нулями. Например, 6,48 ≈ 6,5 до десятых, а 376 ≈ 380 до десятков. Для прикидки сначала округли числа, затем выполни действие: 9,8 + 5,2 ≈ 10 + 5 = 15. Если нужен точный результат после округления, сначала выполни действие с исходными числами.'
 };
 g5Lesson=function(id){return Object.prototype.hasOwnProperty.call(lessons,id)?lessons[id]:previousLesson(id)};
 window.mkG5V116DecimalTopics=IDS.slice();
