@@ -57,7 +57,10 @@ const reviewedLessons={
  natural_power_definition:'Степень aⁿ — произведение n одинаковых множителей a. Чётная степень отрицательного основания положительна, нечётная — отрицательна. Скобки показывают, входит ли минус в основание.',
  power_properties:'При умножении степеней с одинаковым основанием складывай показатели. При делении вычитай показатель делителя из показателя делимого. Для ненулевого a имеем a⁰ = 1.',
  power_product_power:'Чтобы возвести произведение в степень, возведи в неё каждый множитель. При возведении степени в степень показатели перемножаются.',
- monomial_standard_form:'В стандартном виде одночлена числовой множитель записан первым, а каждая буква встречается один раз. Степень ненулевого одночлена равна сумме показателей его букв.'
+ monomial_standard_form:'В стандартном виде одночлена числовой множитель записан первым, а каждая буква встречается один раз. Степень ненулевого одночлена равна сумме показателей его букв.',
+ monomial_operations:'При умножении одночленов перемножь коэффициенты и сложи показатели одинаковых букв. При возведении одночлена в степень возведи в неё коэффициент и умножь показатели букв на показатель степени.',
+ functions_x2_x3:'У y = x² при противоположных x значения совпадают, график симметричен относительно Oy. У y = x³ при противоположных x значения противоположны, график симметричен относительно начала координат.',
+ divisibility_factorization:'У простого числа два натуральных делителя: 1 и само число. У составного есть другие делители. Число 1 не относится ни к простым, ни к составным. При разложении составного числа перемножение простых множителей восстанавливает исходное число.'
 };
 
 function compare(prompt,left,right,explanation){
@@ -109,6 +112,9 @@ const pow=(base,degree)=>base+superscriptInt(degree);
 const monomial=(coef,x,y)=>({coef,powers:{x,y}});
 function monomialSelect(prompt,answer,wrong,ex){
  return choice(prompt,g7MonomialHtml(answer),wrong.map(g7MonomialHtml),ex);
+}
+function powerCurve(power){
+ return question=>g7AttachGraph(question,g7PowerFunctionGraph(power,{caption:'График функции'}));
 }
 
 function add(section,id,title,rule,build){
@@ -1465,6 +1471,155 @@ const reviewed = {
    choose_equivalent_standard_form: ({a,b,c,y})=>monomialSelect('Какой одночлен тождественно равен '+math('−'+a+pow('x',b)+' · (−'+c+'x'+pow('y',y)+')')+'?',
     monomial(a*c,b+1,y),[monomial(-a*c,b+1,y),monomial(a*c,b,y),monomial(a*c,b+1,y+1)],
     'Произведение двух отрицательных коэффициентов положительно. У x показатель '+(b+1)+', у y — '+y+'.')
+  }
+ ],
+ monomial_operations: [
+  {
+   product_coefficients: ({a,b})=>['Найди коэффициент произведения '+math('(−'+a+'x²) · '+b+'x³')+'.',-a*b,
+    'Перемножаем числовые множители: (−'+a+') · '+b+' = '+fmt(-a*b)+'.'],
+   multiply_one_variable: ({a,b})=>monomialSelect('Перемножь '+math(a+pow('x',b)+' · '+pow('x',a))+'.',
+    monomial(a,a+b,0),[monomial(a,a+b+1,0),monomial(a,a*b,0),monomial(a+1,a+b,0)],
+    'Числовой множитель остаётся '+a+', показатель степени x равен '+a+' + '+b+'.'),
+   square_product: ({a,b})=>monomialSelect('Возведи одночлен '+math(a+pow('x',b))+' в квадрат.',
+    monomial(a*a,2*b,0),[monomial(a*a,b,0),monomial(a,2*b,0),monomial(-a*a,2*b,0)],
+    'Коэффициент возводим в квадрат, показатель при x удваиваем.'),
+   product_degree: ({a,b})=>['Какова степень произведения '+math(pow('x',a)+'y · x'+pow('y',b))+ '?',a+b+2,
+    'Показатель x равен '+(a+1)+', показатель y равен '+(b+1)+'. Складываем показатели.']
+  },
+  {
+   multiply_two_variables: ({a,b,c})=>monomialSelect('Перемножь '+math('(−'+a+pow('x',c)+'y) · '+b+'xy²')+'.',
+    monomial(-a*b,c+1,3),[monomial(a*b,c+1,3),monomial(-a*b,c,3),monomial(-a*b,c+1,2)],
+    'Коэффициент (−'+a+') · '+b+'. Показатель x увеличивается на 1, показатель y равен 1 + 2.'),
+   cube_negative_monomial: ({a,b})=>monomialSelect('Найди куб одночлена '+math('−'+a+'x'+pow('y',b))+'.',
+    monomial(-(a**3),3,3*b),[monomial(a**3,3,3*b),monomial(-a,3,3*b),monomial(-(a**3),3,b)],
+    'Куб отрицательного коэффициента отрицателен. Показатели x и y умножаем на 3.'),
+   find_missing_product_coefficient: ({a,b,c})=>['Найди k в '+math('(k'+pow('x',c)+'y) · '+a+'x = '+fmt(-a*b)+pow('x',c+1)+'y')+'.',-b,
+    'Сравниваем коэффициенты: '+a+'k = '+fmt(-a*b)+'. Делим на '+a+'.'],
+   degree_after_power: ({a,b,c})=>['Найди степень одночлена '+math(pow('(−'+a+'x'+pow('y',b)+')',c))+'.',(b+1)*c,
+    'После возведения в степень показатель x равен '+c+', показатель y равен '+b*c+'. Их сумма '+(b+1)*c+'.']
+  },
+  {
+   combine_power_and_product: ({a,b,c})=>monomialSelect('Запиши в стандартном виде '+math('(−'+a+pow('x',b)+'y)² · (−'+c+'xy²)')+'.',
+    monomial(-a*a*c,2*b+1,4),[monomial(a*a*c,2*b+1,4),monomial(-a*a*c,b+1,4),monomial(-a*a*c,2*b+1,3)],
+    'Квадрат первого одночлена даёт '+a*a+pow('x',2*b)+'y². Умножение на второй даёт коэффициент '+fmt(-a*a*c)+' и показатели '+(2*b+1)+' и 4.'),
+   fractional_product_power: ({a,b,c})=>{
+    const coefficient=rational(a*a,b);
+    return ['Найди коэффициент одночлена '+math('(')+frac(a,b)+math(pow('x',c)+'y)² · '+b+'xy')+'.',coefficient,
+     'Квадрат коэффициента равен '+frac(a*a,b*b)+'. Умножаем на '+b+' и получаем '+g7FracHtml(coefficient)+'.'];
+   },
+   restore_base_exponent: ({a,b,c})=>['Найди n из тождества '+math('(xⁿ'+pow('y',b)+')² · '+pow('x',a)+' = '+pow('x',2*c+a)+pow('y',2*b))+'.',c,
+    'Показатель x слева равен 2n + '+a+'. Справа '+(2*c+a)+'. После вычитания '+a+' и деления на 2 получаем n = '+c+'.'],
+   signed_powers_degree: ({a,b,c})=>['Найди степень произведения '+math(pow('(−'+a+'x²'+pow('y',b)+')',c)+' · xy³')+'.',(2+b)*c+4,
+    'У x показатель '+(2*c+1)+', у y показатель '+(b*c+3)+'. Складываем и получаем '+((2+b)*c+4)+'.']
+  }
+ ],
+ functions_x2_x3: [
+  {
+   square_value: ({a})=>['Вычисли y = x² при x = '+fmt(-a)+'.',a*a,'Квадрат отрицательного аргумента положителен: (−'+a+')² = '+a*a+'.'],
+   cube_value: ({a})=>['Вычисли y = x³ при x = '+fmt(-a)+'.',-(a**3),'Куб отрицательного аргумента отрицателен: (−'+a+')³ = '+fmt(-(a**3))+'.'],
+   graph_identification: ({a,b})=>{
+    const power=b%2===0?2:3,correct=power===2?'y = x²':'y = x³';
+    return withVisual(choice('Какой из двух графиков показан?',correct,[power===2?'y = x³':'y = x²'],
+     power===2?'Обе ветви находятся выше Ox и симметричны относительно Oy.':'У отрицательных x значения отрицательные, у положительных — положительные.'),powerCurve(power));
+   },
+   point_membership_power: ({a,b})=>{
+    const x=a%4+1,truth=b%2===0,y=x*x+Number(!truth);
+    return checkStatement('Точка ('+fmt(-x)+'; '+y+') принадлежит графику y = x²?',truth,'При x = '+fmt(-x)+' квадрат равен '+x*x+'. Сравниваем с '+y+'.');
+   }
+  },
+  {
+   two_square_roots: ({a})=>choice('Какие точки на графике y = x² имеют ординату '+a*a+'?',
+    '('+fmt(-a)+'; '+a*a+') и ('+a+'; '+a*a+')',['Только ('+a+'; '+a*a+')','Только ('+fmt(-a)+'; '+a*a+')','(0; '+a*a+')'],
+    'Из x² = '+a*a+' получаем два противоположных x: '+fmt(-a)+' и '+a+'.'),
+   cube_reverse: ({a,b})=>{
+    const x=b%2===0?a:-a;
+    return ['На графике y = x³ ордината точки равна '+fmt(x**3)+'. Найди её абсциссу.',x,
+     'Решаем x³ = '+fmt(x**3)+'. Куб '+fmt(x)+' даёт заданную ординату.'];
+   },
+   compare_square_and_cube: ({a,b})=>{
+    const x=b%2===0?a:-a;
+    return compare('Сравни x² и x³ при x = '+fmt(x)+'.',rational(x*x),rational(x**3),'Вычисляем квадрат и куб одного аргумента с учётом знака.');
+   },
+   graph_y_read: ({a,b})=>{
+    const power=b%2===0?2:3,x=a%2===0?-2:-1;
+    return withVisual(['По графику найди y при x = '+fmt(x)+'.',x**power,
+     'Двигаемся вертикально от x = '+fmt(x)+' до кривой. Читаем ординату '+fmt(x**power)+'.'],powerCurve(power));
+   }
+  },
+  {
+   distance_at_square_level: ({a})=>['Две точки графика y = x² имеют ординату '+a*a+'. Найди расстояние между ними.',2*a,
+    'Точки находятся на одной горизонтали с абсциссами '+fmt(-a)+' и '+a+'. Расстояние равно '+a+' − ('+fmt(-a)+') = '+2*a+'.'],
+   opposite_cubic_outputs: ({a})=>['Точки графика y = x³ имеют абсциссы '+fmt(-a)+' и '+a+'. На сколько ордината второй точки больше первой?',2*a**3,
+    'Ординаты противоположны: '+fmt(-(a**3))+' и '+a**3+'. Вычитаем первую из второй: '+2*a**3+'.'],
+   equal_square_and_cube: ({a})=>choice('При каких x совпадают значения y = x² и y = x³?',
+    '0 и 1', ['Только 0','Только 1','0 и '+a],
+    'Равенство x² = x³ приводим к x²(x − 1) = 0. Подходит x = 0 или x = 1.'),
+   compare_at_opposite_arguments: ({a})=>['Для f(x) = x² и g(x) = x³ найди f('+fmt(-a)+') − g('+fmt(-a)+').',a*a+a**3,
+    'Квадрат равен '+a*a+', куб равен '+fmt(-(a**3))+'. Вычитание отрицательного числа заменяем сложением и получаем '+(a*a+a**3)+'.']
+  }
+ ],
+ divisibility_factorization: [
+  {
+   select_prime: ({a,b})=>{
+    const prime=[2,3,5,7,11,13,17,19,23,29,31][a-3],multiple=2*(b+2);
+    return choice('Какое число простое?',String(prime),[String(multiple),String(multiple+2),'1'],
+     'У '+prime+' ровно два натуральных делителя. Оба чётных числа в вариантах больше 2, поэтому они составные.');
+   },
+   classify_composite: ({a,b})=>choice('К каким числам относится '+a*b+'?', 'Составные',['Простые','Ни простые, ни составные'],
+    a*b+' = '+a+' · '+b+'. Оба множителя больше 1.'),
+   divisibility_by_three: ({a,b})=>{
+    const number=10*a+b,truth=number%3===0,sumDigits=[...String(number)].reduce((total,digit)=>total+Number(digit),0);
+    return checkStatement('Делится ли '+number+' на 3?',truth,'Сумма цифр равна '+sumDigits+' и '+(truth?'делится':'не делится')+' на 3.');
+   },
+   one_is_special: ({a})=>choice('Выбери число, которое не является ни простым, ни составным.', '1',[String(2*a),'2','3'],
+    'У единицы один натуральный делитель. У простого числа их два, у составного больше двух.')
+  },
+  {
+   identify_prime_factorization: ({a,b})=>{
+    const n=a%3+1,m=b%3+1,value=2**n*3**m;
+    const correct=math(pow(2,n)+' · '+pow(3,m));
+    return choice('Выбери разложение '+value+' на простые множители.',correct,
+     [math(pow(2,n+1)+' · '+pow(3,m)),math(pow(2,n)+' · '+pow(3,m+1)),math(pow(2,n)+' · '+pow(5,m))],
+     'Делим '+n+' '+ruCount(n,'раз','раза','раз')+' на 2 и '+m+' '+ruCount(m,'раз','раза','раз')+' на 3, получаем 1.');
+   },
+   recover_from_primes: ({a,b,c})=>{
+    const n=a%3+1,m=b%3+1,p=c%2+1,result=2**n*3**m*5**p;
+    return ['Какое число имеет разложение '+math(pow(2,n)+' · '+pow(3,m)+' · '+pow(5,p))+'?',result,
+     'Вычисляем степени и перемножаем: '+2**n+' · '+3**m+' · '+5**p+' = '+result+'.'];
+   },
+   factor_multiplicity: ({a,b})=>{
+    const n=a%4+1,m=b%3+1,number=2**n*3**m;
+    return ['Сколько двоек в разложении '+number+' на простые множители?',n,
+     'Последовательно делим на 2, пока результат остаётся целым. После '+n+' делений остаётся нечётное '+3**m+'.'];
+   },
+   factor_missing_prime: ({a,b,c})=>{
+    const prime=[5,7,11,13][c%4],n=a%3+1,m=b%3+1,known=2**n*3**m,value=known*prime;
+    return ['Какой простой множитель пропущен в '+math(value+' = '+pow(2,n)+' · '+pow(3,m)+' · □')+'?',prime,
+     'Делим '+value+' на произведение известных множителей '+known+'. Получаем '+prime+'.'];
+   }
+  },
+  {
+   compare_factorizations: ({a,b,c})=>{
+    const n=a%3+1,m=b%3+1,p=c%3+1,first=2**n*3**m*5,second=2**n*3**p*5;
+    return compare('Сравни '+math(pow(2,n)+' · '+pow(3,m)+' · 5')+' и '+math(pow(2,n)+' · '+pow(3,p)+' · 5')+'.',
+     rational(first),rational(second),'Сокращаем общий положительный множитель '+(2**n*5)+'. Порядок определяется показателями степени тройки.');
+   },
+   divisor_count: ({a,b})=>{
+    const n=a%3+1,m=b%3+1,value=2**n*3**m;
+    return ['Сколько натуральных делителей у '+value+'?',(n+1)*(m+1),
+     'В разложении '+math(pow(2,n)+' · '+pow(3,m))+'. Для делителя показатель двойки выбираем от 0 до '+n+', тройки — от 0 до '+m+'. Получаем '+(n+1)+' · '+(m+1)+' делителей.'];
+   },
+   smallest_prime_factor: ({a,b,c})=>{
+    const primes=[3,5,7,11,13,17],first=c%3,second=first+1+a%3,third=b%2?second:first;
+    const value=primes[first]*primes[second]*primes[third];
+    return ['Найди наименьший простой делитель '+value+'.',primes[first],
+     'Проверяем простые числа по возрастанию. Разложение '+value+' = '+primes[first]+' · '+primes[second]+' · '+primes[third]+'.'];
+   },
+   product_divisibility_via_factors: ({a,b,c})=>{
+    const n=a%4+1,m=b%3+1,k=m+c%2,value=2**n*3**m*5,divisor=2**n*3**k;
+    return checkStatement('Делится ли '+value+' на '+divisor+'?',m>=k,
+     'Для делимости показатели простых множителей делимого должны быть не меньше показателей делителя. Двоек поровну, троек в делимом '+m+', в делителе '+k+'.');
+   }
   }
  ]
 };
