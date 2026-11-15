@@ -42,16 +42,20 @@ const server=http.createServer((req,res)=>{
  res.end(body);
 });
 
-async function check(page,version){
+async function check(page,version,{enterGrade=false}={}){
  await page.waitForFunction(v=>window.testBuild===v&&
   document.querySelector('#appVersionBadge')?.textContent==='Сборка v'+v,version);
+ if(enterGrade)await page.locator('.grade-card button[onclick="openGrade(5)"]').click();
  const result=await page.evaluate(()=>{
-  openGrade(5);
   return {grade:currentGrade,topics:g5AllTopics().length,
+   cards:document.querySelectorAll('#mainView .g5-card').length,
+   paragraphs:document.querySelectorAll('#mk-g5-textbook-nav .mk-g5-toc-list li').length,
    builds:[...document.querySelectorAll('script[src^="g5-"]')].map(s=>new URL(s.src).searchParams.get('v')),
    saved:localStorage.getItem('verifiedRefreshProbe')};
  });
  assert.equal(result.grade,5);assert.equal(result.topics,74);
+ assert.equal(result.cards,74,'Reloaded Grade 5 must render the full catalog');
+ assert.equal(result.paragraphs,51,'Reloaded Grade 5 must render the textbook navigation');
  assert.deepEqual(result.builds,Array(19).fill(String(version)));
  return result.saved;
 }
@@ -67,7 +71,7 @@ async function run(browser,address,viewport){
   await page.goto(address);
   await page.evaluate(()=>navigator.serviceWorker.ready.then(()=>null));
   await page.reload();
-  await check(page,first);
+  await check(page,first,{enterGrade:true});
   await page.evaluate(()=>localStorage.setItem('verifiedRefreshProbe','saved'));
   active=fresh;stale='all';
   const rejected=await page.evaluate(async()=>{
@@ -96,7 +100,7 @@ async function run(browser,address,viewport){
   await page.reload();
   assert.equal(await check(page,latest),'saved');
   await page.goto(address+'index.html');
-  assert.equal(await check(page,latest),'saved');
+  assert.equal(await check(page,latest,{enterGrade:true}),'saved');
   await ctx.setOffline(true);
   await page.reload();
   assert.equal(await check(page,latest),'saved');
