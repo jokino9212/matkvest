@@ -47,7 +47,7 @@ async function browserTest(browser,width){
  try{
   await page.goto(root.href,{waitUntil:'domcontentloaded',timeout:120000});
   const gradeButton=page.locator('.grade-card button[onclick="openGrade(5)"]');
-  const homeSummary=page.locator('.grade-card').filter({has:gradeButton}).locator('.grade-summary');
+  const homeSummary=page.locator('#mainView #g5HomeProgress');
   const expectedHome='Пройдено тем: 0/74 • этапов: 0/222';
   assert.equal(await homeSummary.innerText(),expectedHome);
   await page.evaluate(()=>navigator.serviceWorker.ready.then(()=>null));
