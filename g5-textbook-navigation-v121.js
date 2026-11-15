@@ -332,7 +332,8 @@ const grade7Sections={
 const layouts={
  5:{chapters,catalog:g5AllTopics,card:'.g5-card',group:'.g5-group',open:id=>openG5Topic(id)},
  6:{chapters:grade6Chapters,catalog:g6AllTopics,card:'.g6-card',group:'.g6-group',open:id=>openG6Topic(id)},
- 7:{chapters:grade7Chapters,catalog:g7AllTopics,card:'.topic.g7-card',group:'.g7-course',open:id=>openG7Topic(id)}
+ 7:{chapters:grade7Chapters,sections:grade7Sections,catalog:g7AllTopics,card:'.topic.g7-card',group:'.g7-course',open:id=>openG7Topic(id)},
+ 8:{...window.grade8Textbook,catalog:g8AllTopics,card:'.topic.g7-card',group:'.g7-course',open:id=>openG8Topic(id)}
 };
 const g6Aliases={
  'g6:brackets':'раскрыть скобки',
@@ -405,7 +406,7 @@ function menuStyle(){
  document.head.append(style);
 }
 function mount(grade){
- const layout=layouts[grade], isGrade5=grade===5, isGrade6=grade===6, isGrade7=grade===7;
+ const layout=layouts[grade], isGrade5=grade===5, isGrade6=grade===6, hasSubjects=grade>=7;
  const host=mainView, topics=layout.catalog();
  const cards=[...host.querySelectorAll(layout.card)],anchor=host.querySelector(layout.group);
  const rootId='mk-g'+grade+'-textbook-nav';
@@ -473,13 +474,13 @@ function mount(grade){
   let part=parts.get(ch.part);
   if(!part){
     const container=document.createElement('div');container.className='mk-g5-toc-part';
-    const label=document.createElement('h3');label.className='mk-g5-toc-part-heading';label.textContent=isGrade7?ch.part:'Часть '+ch.part+(isGrade6?(ch.part===1?' · Смешанные числа':' · Рациональные числа'):'');
+    const label=document.createElement('h3');label.className='mk-g5-toc-part-heading';label.textContent=hasSubjects?ch.part:'Часть '+ch.part+(isGrade6?(ch.part===1?' · Смешанные числа':' · Рациональные числа'):'');
     container.append(label);body.append(container);
     part={container,chapters:[]};parts.set(ch.part,part);
   }
   const detail=document.createElement('details');detail.className='mk-g5-toc-chapter';
   const summary=document.createElement('summary');
-  const ordinal=document.createElement('span');ordinal.className='mk-g5-toc-num';ordinal.textContent=(isGrade7?'':'§ ')+ch.chapter;
+  const ordinal=document.createElement('span');ordinal.className='mk-g5-toc-num';ordinal.textContent=(hasSubjects?'':'§ ')+ch.chapter;
   const text=document.createElement('span');text.textContent=ch.title;
   if(ch.chapter)summary.append(ordinal);
   summary.append(text);
@@ -487,7 +488,7 @@ function mount(grade){
   detail.append(summary,list);part.container.append(detail);part.chapters.push(detail);details.push(detail);
   let section=null;
   for(const [number,title,rawIds,note] of ch.items){
-   const sectionName=isGrade7&&grade7Sections[ch.part]?.[number];
+   const sectionName=layout.sections?.[ch.part]?.[number];
    if(sectionName){
     const label=document.createElement('li');
     label.className='mk-g7-toc-section';
@@ -505,7 +506,7 @@ function mount(grade){
     if(!topic||(isGrade5&&!card)){issues.push(number+': '+id);continue}
     const label=i===0?title:topic.title;
     const b=button(label,number,i>0,id);
-    if(i===0&&title!==topic.title&&(isGrade7||isGrade6&&(ids.length>1||[12,15,30,31,36,41,42].includes(number)))){
+    if(i===0&&title!==topic.title&&(hasSubjects||isGrade6&&(ids.length>1||[12,15,30,31,36,41,42].includes(number)))){
      const subtitle=document.createElement('small');
      subtitle.className='mk-g6-toc-topic-name';subtitle.textContent=topic.title;
      b.querySelector('.mk-g5-toc-item-title').append(subtitle);
@@ -526,7 +527,7 @@ function mount(grade){
     status.textContent=note||'Тренажёр готовится';li.append(status);
    }
    list.append(li);
-   const searchable=norm([...(!isGrade5?[number,ch.title,isGrade7?ch.part:'']:[]),title,...ids.flatMap(id=>{
+   const searchable=norm([...(!isGrade5?[number,ch.title,hasSubjects?ch.part:'']:[]),title,...ids.flatMap(id=>{
     const topic=byId.get(id);
     return !isGrade5?[topic?.title,topic?.shortTitle,g6Aliases[id]]:[topic?.title];
    })].join(' '));
@@ -545,13 +546,13 @@ function mount(grade){
   let count=0;
   const terms=query.split(' ').filter(Boolean),matchingTopics=new Set();
   for(const row of rows){
-   const show=!isGrade5&&/^\d+$/.test(query)?row.number===Number(query):terms.every(term=>/^\d+$/.test(term)&&isGrade7?row.number===Number(term):row.searchable.includes(term));
+   const show=!isGrade5&&/^\d+$/.test(query)?row.number===Number(query):terms.every(term=>/^\d+$/.test(term)&&hasSubjects?row.number===Number(term):row.searchable.includes(term));
    if(show)for(const id of row.ids)matchingTopics.add(id);
    row.element.hidden=!show;
    if(show)count++;
   }
   for(const detail of details){
-   const show=[...detail.querySelectorAll('.mk-g5-toc-list li')].some(li=>!li.hidden);
+   const show=[...detail.querySelectorAll('.mk-g5-toc-list > li:not(.mk-g7-toc-section)')].some(li=>!li.hidden);
    detail.hidden=!show;
    if(query)detail.open=show;
    else if(filtering)detail.open=previousOpen.get(detail)||false;
@@ -567,10 +568,10 @@ function mount(grade){
    if(status)status.textContent=query?'Найдено пунктов: '+count:'Всего тем: '+topics.length;
    if(empty)empty.dataset.visible=String(!!query&&!count);
    for(const card of cards){
-    const id=card.getAttribute('onclick')?.match(/g[67]:[a-z0-9_]+/)?.[0];
+    const id=card.getAttribute('onclick')?.match(/g[678]:[a-z0-9_]+/)?.[0];
     card.classList.toggle('mk19c4-filter-hidden',!!query&&!matchingTopics.has(id));
    }
-   for(const section of host.querySelectorAll(isGrade7?'.g7-course,.g7-course .g6-group':layout.group)){
+   for(const section of host.querySelectorAll(hasSubjects?'.g7-course,.g7-course .g6-group':layout.group)){
     section.classList.toggle('mk19c4-filter-hidden',!!query&&!section.querySelector(layout.card+':not(.mk19c4-filter-hidden)'));
    }
   }
@@ -588,6 +589,7 @@ function mount(grade){
  function bindUpperSearch(){
   const native=findNativeSearch(),target=native||textbookInput;
   if(target===primarySearch)return;
+  const previousQuery=primarySearch?.value;
   if(primarySearch)primarySearch.removeEventListener('input',synchronizeSearch);
   primarySearch=target;
   if(textbookPanel){
@@ -600,6 +602,10 @@ function mount(grade){
    }
   }
   if(primarySearch){
+   if(previousQuery&&!primarySearch.value){
+    primarySearch.value=previousQuery;
+    primarySearch.dispatchEvent(new Event('input',{bubbles:true}));
+   }
    primarySearch.addEventListener('input',synchronizeSearch);
    if(!isGrade5)primarySearch.closest('#mk19c4-topic-tools')?.querySelector('.mk19c4-clear')
     ?.addEventListener('click',synchronizeSearch);
@@ -626,9 +632,11 @@ function mount(grade){
  menuObserver.observe(host,{subtree:true,childList:true});
  if(isGrade5)window.mkG5TextbookNavigation={total:rows.length,missing:issues,chapters:details.length,volumes:parts.size,version:121,refreshSearch:bindUpperSearch};
 }
-const previousGrade5=renderGrade5,previousGrade6=renderGrade6,previousGrade7=renderGrade7;
+const previousGrade5=renderGrade5,previousGrade6=renderGrade6,previousGrade7=renderGrade7,previousGrade8=renderGrade8;
 renderGrade5=function(...args){const result=previousGrade5(...args);mount(5);return result};
 renderGrade6=function(...args){const result=previousGrade6(...args);mount(6);return result};
 renderGrade7=function(...args){const result=previousGrade7(...args);mount(7);return result};
+renderGrade8=function(...args){const result=previousGrade8(...args);mount(8);return result};
 if(currentGrade===7)renderGrade7();
+if(currentGrade===8)renderGrade8();
 })();

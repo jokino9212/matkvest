@@ -131,7 +131,7 @@ async function run(browser,address,viewport){
  try{
   const origin='http://127.0.0.1:'+server.address().port+'/matkvest/';
   assert.equal(digest(html),worker.match(/const APP_BUILD_HASH = "([^"]+)";/)[1]);
-  const verifiedScripts=[...html.matchAll(/<script src="((?:g5-[\w-]+|g7-textbook)\.js)\?v=\d+"><\/script>/g)].map(match=>match[1]);
+  const verifiedScripts=[...html.matchAll(/<script src="((?:g5-[\w-]+|g[78]-textbook)\.js)\?v=\d+"><\/script>/g)].map(match=>match[1]);
   assert.equal(verifiedScripts.filter(name=>name.startsWith('g5-')).length,19);
   assert.deepEqual(Object.keys(hashes).sort(),verifiedScripts.sort());
   for(const [name,hash] of Object.entries(hashes))assert.equal(digest(readFileSync(name)),hash,name);

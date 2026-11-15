@@ -9677,6 +9677,7 @@ function gradeCompletedTopics(grade){
  if(g===8)return g8ImplementedTopics().filter(t=>completedStages(t.id)===3).length;
  return 0;
 }
+function g8HomeProgressText(){return `Пройдено тем: ${gradeCompletedTopics(8)}/${g8AllTopics().length} • этапов: ${g8CompletedStages()}/${g8TotalStages()}`;}
 function renderHome(){
  closeModal();
  currentGrade=null;
@@ -9694,7 +9695,7 @@ function renderHome(){
   <section class="grade-card"><div class="grade-ico">${gradeBookIcon(5,false)}</div><h2>5 КЛАСС</h2><p>Натуральные числа, обыкновенные и десятичные дроби, проценты и геометрия.</p><div class="grade-summary" id="g5HomeProgress">${g5HomeProgressText()}</div><button class="btn primary" onclick="openGrade(5)">Открыть 5 класс</button></section>
   <section class="grade-card"><div class="grade-ico">${gradeBookIcon(6,false)}</div><h2>6 КЛАСС</h2><p>Делимость, дроби, пропорции, рациональные числа, уравнения, координаты и геометрия.</p><div class="grade-summary">Каталог: ${g6AllTopics().length} тем • пройдено этапов: ${g6done}/${g6total}</div><button class="btn primary" onclick="openGrade(6)">Открыть 6 класс</button></section>
   <section class="grade-card g7-card"><div class="grade-ico">${gradeBookIcon(7,false)}</div><h2>7 КЛАСС</h2><p>Алгебра • Геометрия • Вероятность и статистика.</p><div class="grade-summary">Каталог: ${g7AllTopics().length} тем • реализовано: ${g7ready} • этапов: ${g7done}/${g7total}</div><button class="btn primary" onclick="openGrade(7)">Открыть 7 класс</button></section>
-  <section class="grade-card g7-card"><div class="grade-ico">${gradeBookIcon(8,false)}</div><h2>8 КЛАСС</h2><p>Алгебра • Геометрия • Вероятность и статистика.</p><div class="grade-summary">Каталог: ${g8AllTopics().length} тем • реализовано: ${g8ImplementedTopics().length} • этапов: ${g8CompletedStages()}/${g8TotalStages()}</div><button class="btn primary" onclick="openGrade(8)">Открыть 8 класс</button></section>
+  <section class="grade-card g7-card"><div class="grade-ico">${gradeBookIcon(8,false)}</div><h2>8 КЛАСС</h2><p>Алгебра • Геометрия • Вероятность и статистика.</p><div class="grade-summary" id="g8HomeProgress">${g8HomeProgressText()}</div><button class="btn primary" onclick="openGrade(8)">Открыть 8 класс</button></section>
  </div>
  <section class="error-home-card ${errorSummary.active?"":"done"}"><div><h2>🧠 Работа над ошибками</h2><p>${errorSummary.active?"МатКвест собрал реальные ошибки из журнала и подготовит новые аналогичные задания по тем же темам.":"Все ошибки из сохранённого журнала уже отработаны."}</p><div class="error-home-count">${errorSummary.active?`Нужно отработать: ${errorSummary.active} • 3 класс: ${errorSummary.g3Active} • 4 класс: ${errorSummary.g4Active} • 5 класс: ${errorSummary.g5Active} • 6 класс: ${errorSummary.g6Active} • 7 класс: ${errorSummary.g7Active||0}`:`🎉 Активных ошибок нет • отработано: ${errorSummary.resolved}`}</div></div><button class="btn ${errorSummary.active?"primary":"soft"}" onclick="openErrorWork()">${errorSummary.active?"Начать работу":"Открыть"}</button></section>
  <section class="weak-home-card"><div><h2>🎯 Слабые темы</h2><p>Анализ свежих ответов, прогресса по ступеням и активных ошибок — без отдельной базы статистики.</p><div class="weak-home-count">Требуют внимания: ${weakSummary.attention} • слабые: ${weakSummary.weak} • нестабильные: ${weakSummary.unstable}</div></div><button class="btn ${weakSummary.attention?"primary":"soft"}" onclick="openWeakTopics()">Посмотреть</button></section>
@@ -20518,7 +20519,7 @@ function mk854InitHistory(){
  }
  mk854HistoryReady=true;
  const route=mk854Route();
- if([5,6].includes(Number(route.grade))&&(route.screen==="grade"||route.screen==="topic")){
+ if([5,6,7,8].includes(Number(route.grade))&&(route.screen==="grade"||route.screen==="topic")){
   // The textbook scripts attach the catalog and its renderer at the end of the document.
   document.addEventListener("DOMContentLoaded",()=>{
    if(mk854SameRoute(route,mk854Route()))mk854RestoreRoute(route);
@@ -31365,7 +31366,7 @@ function extraQuestion(raw,d,v){
  if(v==='@@P_hard_angle'){const k=R(2,5),small=180/(k+1);return N(`В параллелограмме ABCD угол A в ${k} ${k<5?'раза':'раз'} меньше угла B. Найди ∠C.`,small,`Пусть ∠A=x. Тогда x+${k}x=180°, ∠A=∠C=${small}°.`,{k},'°');}
  if(v==='@@P_hard_diagonals'){const ac=2*R(6,14),bd=2*R(7,15),ao=ac/2,bo=bd/2;return N(`В параллелограмме ABCD диагонали AC=${ac} см и BD=${bd} см пересекаются в O. Найди разность AO и BO по модулю.`,Math.abs(ao-bo),`AO=${ao}, BO=${bo}. Разность |${ao}−${bo}|=${Math.abs(ao-bo)} см.`,{ac,bd},'см');}
  if(v==='@@P_hard_missing'){const a=R(7,14),b=R(16,24);return N(`Периметр параллелограмма равен ${2*(a+b)} см. Одна сторона на ${b-a} см меньше другой. Найди меньшую сторону.`,a,`Сумма сторон ${a+b}; разность ${b-a}. Меньшая сторона (${a+b}−${b-a})/2=${a}.`,{a,b},'см');}
- if(v==='@@P_hard_perimeter'){const a=R(7,17),b=R(6,16),P=2*(a+b);return N(`Сумма трёх последовательных сторон параллелограмма ABCD равна ${2*a+b} см. Сторона AB=${a} см. Найди периметр.`,P,`AB=CD=${a}; из AB+BC+CD=${2*a+b} следует BC=${b}. P=2(${a}+${b})=${P}.`,{a,b,P},'см');}
+ if(v==='@@P_hard_perimeter'){const a=R(7,17),b=R(6,16),P=2*(a+b);return N(`Сумма сторон AB, BC и CD параллелограмма ABCD равна ${2*a+b} см. Сторона AB=${a} см. Найди периметр.`,P,`AB=CD=${a}; из AB+BC+CD=${2*a+b} следует BC=${b}. P=2(${a}+${b})=${P}.`,{a,b,P},'см');}
  if(v==='@@P_hard_ratio'){const k=R(2,5),b=R(4,9),P=2*(k+1)*b;return N(`Стороны параллелограмма относятся как ${k}:1, его периметр равен ${P} см. Найди большую сторону.`,k*b,`Сумма соседних сторон ${P/2}; всего ${k+1} долей, одна доля ${b}, большая ${k*b} см.`,{k,b,P},'см');}
  if(v==='@@P_inverse'){const p=R(18,35),ab=R(4,12);return N(`Периметр параллелограмма равен ${2*p} см, одна сторона ${ab} см. Найди вторую сторону.`,p-ab,`2(a+b)=${2*p}, поэтому a+b=${p}, искомая сторона=${p}−${ab}=${p-ab}.`,{p,ab},'см');}
  if(v==='@@P_angle_ratio'){const k=R(2,5);const x=180/(k+1);
@@ -34634,7 +34635,7 @@ body{background:var(--mk19c-canvas);color:var(--mk19c-ink)}
    const count=controls.querySelector('.mk19c4-count');
    const empty=controls.querySelector('.mk19c4-empty');
    const links=controls.querySelector('.mk19c4-course-links');
-   const courses=currentGrade===7?[]:[...root.querySelectorAll(':scope > .g7-course')];
+   const courses=currentGrade===7||currentGrade===8?[]:[...root.querySelectorAll(':scope > .g7-course')];
    const groups=[...root.querySelectorAll('.g6-group,.g7-course')];
    const names=topics.map(t=>{
      const group=t.closest('.g6-group');
@@ -36616,30 +36617,33 @@ document.addEventListener("keydown",event=>{
 })();
 </script>
 
-<script src="g5-conversion-ux.js?v=192"></script>
-<script src="g5-textbook-topics.js?v=192"></script>
-<script src="g5-textbook-core.js?v=192"></script>
-<script src="g5-textbook-v111.js?v=192"></script>
-<script src="g5-textbook-v112.js?v=192"></script>
-<script src="g5-pedagogy-v113.js?v=192"></script>
-<script src="g5-fractions-v114.js?v=192"></script>
-<script src="g5-fraction-arithmetic-v115.js?v=192"></script>
-<script src="g5-decimals-v116.js?v=192"></script>
-<script src="g7-textbook.js?v=192"></script>
-<script src="g5-textbook-navigation-v121.js?v=192"></script>
-<script src="g5-live-pedagogy-v122.js?v=192"></script>
-<script src="g5-arithmetic-tiers-v123.js?v=192"></script>
-<script src="g5-textbook-tiers-v124.js?v=192"></script>
-<script src="g5-natural-units-v125.js?v=192"></script>
-<script src="g5-remaining-core-v126.js?v=192"></script>
-<script src="g5-decimal-tiers-v127.js?v=192"></script>
-<script src="g5-decimal-percent-v128.js?v=192"></script>
-<script src="g5-fraction-concepts-v129.js?v=192"></script>
-<script src="g5-fraction-applications-v130.js?v=192"></script>
+<script src="g5-conversion-ux.js?v=193"></script>
+<script src="g5-textbook-topics.js?v=193"></script>
+<script src="g5-textbook-core.js?v=193"></script>
+<script src="g5-textbook-v111.js?v=193"></script>
+<script src="g5-textbook-v112.js?v=193"></script>
+<script src="g5-pedagogy-v113.js?v=193"></script>
+<script src="g5-fractions-v114.js?v=193"></script>
+<script src="g5-fraction-arithmetic-v115.js?v=193"></script>
+<script src="g5-decimals-v116.js?v=193"></script>
+<script src="g7-textbook.js?v=193"></script>
+<script src="g8-textbook.js?v=193"></script>
+<script src="g5-textbook-navigation-v121.js?v=193"></script>
+<script src="g5-live-pedagogy-v122.js?v=193"></script>
+<script src="g5-arithmetic-tiers-v123.js?v=193"></script>
+<script src="g5-textbook-tiers-v124.js?v=193"></script>
+<script src="g5-natural-units-v125.js?v=193"></script>
+<script src="g5-remaining-core-v126.js?v=193"></script>
+<script src="g5-decimal-tiers-v127.js?v=193"></script>
+<script src="g5-decimal-percent-v128.js?v=193"></script>
+<script src="g5-fraction-concepts-v129.js?v=193"></script>
+<script src="g5-fraction-applications-v130.js?v=193"></script>
 <script>
 // The textbook scripts finish extending the catalog before Home shows its totals.
 g5HomeCatalogReady=true;
 const g5HomeProgress=document.getElementById("g5HomeProgress");
 if(g5HomeProgress)g5HomeProgress.textContent=g5HomeProgressText();
+const g8HomeProgress=document.getElementById("g8HomeProgress");
+if(g8HomeProgress)g8HomeProgress.textContent=g8HomeProgressText();
 </script>
 </body></html>
