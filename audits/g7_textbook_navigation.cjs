@@ -40,7 +40,7 @@ const {chromium}=require('playwright');
  });
  console.log(JSON.stringify(result));
  assert.deepEqual(result.rows,[46,45,31]);
- assert.deepEqual([result.total,result.legacy,result.linked,result.unavailable],[147,107,147,0]);
+ assert.deepEqual([result.total,result.legacy,result.linked,result.unavailable],[148,107,148,0]);
  assert.deepEqual(result.missing,[]);
  assert.deepEqual(result.failures,[]);
  const search=page.locator('main input[type=search]:visible');

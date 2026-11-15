@@ -253,7 +253,7 @@ const grade7Chapters=[
  {part:'Геометрия',chapter:'V',title:'Геометрические места точек и симметрия',items:[
   [39,'Биссектриса как геометрическое место точек',['geo_angle_bisector_locus','geo_locus_points']],
   [40,'Свойства серединного перпендикуляра',['geo_perpendicular_bisector_locus']],
-  [41,'Свойства хорд и диаметров',['geo_circle_chord_diameter']],
+  [41,'Свойства хорд и диаметров',['geo_chord_properties']],
   [42,'Прямая и окружность. Касательная',['geo_line_circle_tangent_secant','geo_circle_inscribed_in_angle']],
   [43,'Вписанная и описанная окружности',['geo_incircle_triangle','geo_circumcircle_triangle']],
   [44,'Фигуры, симметричные относительно прямой',['geo_axial_symmetry']],
