@@ -140,9 +140,199 @@ const grade6Chapters=[
   [null,'Прямоугольный параллелепипед',['prism','volume']]
  ]}
 ];
+const grade7Chapters=[
+ {part:'Алгебра',chapter:'I',title:'Выражения, тождества и уравнения',items:[
+  [1,'Рациональные числа',['rational_numbers_forms','rational_arithmetic']],
+  [2,'Числовые выражения',['numerical_expressions']],
+  [3,'Выражения с переменными',['variables_expression_value','admissible_values']],
+  [4,'Сравнение значений выражений',['compare_expression_values','rational_compare_order']],
+  [5,'Свойства действий над числами',['expression_properties']],
+  [6,'Тождества и преобразования выражений',['identities','brackets_like_terms']],
+  [7,'Уравнение и его корни',['equation_root_equivalence']],
+  [8,'Линейные уравнения с одной переменной',['linear_equation_one_variable','linear_equation_cases']],
+  [9,'Задачи с линейными уравнениями',['equation_word_problems']],
+  [10,'Формулы',['formulas_dependencies']]
+ ]},
+ {part:'Алгебра',chapter:'II',title:'Функции',items:[
+  [11,'Числовые промежутки',['number_intervals','number_line_distance']],
+  [12,'Понятие функции',['function_concept_values']],
+  [13,'Значение функции по формуле',['function_formula_values']],
+  [14,'График функции',['function_graph_reading','coordinate_plane']],
+  [15,'График прямой пропорциональности',['direct_proportionality_function']],
+  [16,'График линейной функции',['linear_function']],
+  [17,'Кусочно-заданные функции',['piecewise_functions','absolute_value_function']]
+ ]},
+ {part:'Алгебра',chapter:'III',title:'Степень с натуральным показателем',items:[
+  [18,'Определение степени',['natural_power_definition']],
+  [19,'Произведение и частное степеней',['power_properties']],
+  [20,'Степень произведения и степени',['power_product_power']],
+  [21,'Стандартный вид одночлена',['monomial_standard_form']],
+  [22,'Произведение и степень одночленов',['monomial_operations']],
+  [23,'Графики y = x² и y = x³',['functions_x2_x3']],
+  [24,'Простые и составные числа',['divisibility_factorization']]
+ ]},
+ {part:'Алгебра',chapter:'IV',title:'Многочлены',items:[
+  [25,'Стандартный вид и степень многочлена',['polynomial_standard_degree']],
+  [26,'Сумма и разность многочленов',['polynomial_add_subtract']],
+  [27,'Произведение одночлена и многочлена',['monomial_times_polynomial']],
+  [28,'Общий множитель за скобками',['common_factor']],
+  [29,'Произведение многочленов',['polynomial_times_polynomial']],
+  [30,'Разложение группировкой',['factorization_grouping']],
+  [31,'Деление с остатком',['division_with_remainder']]
+ ]},
+ {part:'Алгебра',chapter:'V',title:'Формулы сокращённого умножения',items:[
+  [32,'Квадрат и куб суммы и разности',['square_sum_difference','binomial_cube']],
+  [33,'Разложение по формуле квадрата двучлена',['perfect_square_factor']],
+  [34,'Произведение суммы и разности',['difference_of_squares']],
+  [35,'Разложение разности квадратов',['factor_difference_squares']],
+  [36,'Разложение суммы и разности кубов',['sum_difference_cubes']],
+  [37,'Преобразование выражения в многочлен',['integer_expression_transform']],
+  [38,'Комбинированное разложение на множители',['combined_factorization']],
+  [39,'Степень двучлена',['higher_binomial_power']]
+ ]},
+ {part:'Алгебра',chapter:'VI',title:'Системы линейных уравнений',items:[
+  [40,'Линейное уравнение с двумя переменными',['linear_equation_two_variables']],
+  [41,'График уравнения с двумя переменными',['linear_equation_two_variables_graph']],
+  [42,'Системы двух линейных уравнений',['linear_system_concept','graphical_equations_systems']],
+  [43,'Метод подстановки',['linear_system_substitution']],
+  [44,'Метод сложения',['linear_system_addition']],
+  [45,'Текстовые задачи на системы',['linear_system_word_problems']],
+  [46,'Линейные неравенства с двумя переменными',['linear_inequalities_two_variables']]
+ ]},
+ {part:'Алгебра',title:'Повторение',items:[
+  [null,'Доли и дроби',['fraction_word_problems']],
+  [null,'Проценты',['percent_fraction_conversion','percent_word_problems']],
+  [null,'Прямая и обратная пропорциональность',['direct_inverse_proportion']]
+ ]},
+ {part:'Геометрия',chapter:'I',title:'Начальные геометрические сведения',items:[
+  [1,'Точка, прямая, отрезок',['geo_primitives']],
+  [2,'Провешивание прямой',['geo_field_line']],
+  [3,'Луч',['geo_rays']],
+  [4,'Угол',['geo_angle']],
+  [5,'Равные фигуры',['geo_congruent_figures']],
+  [6,'Сравнение отрезков и углов',['geo_compare_segments_angles','geo_angle_bisector']],
+  [7,'Длина отрезка',['geo_segment_angle_measurement']],
+  [8,'Единицы длины и измерительные приборы',['geo_length_units']],
+  [9,'Градусная мера',['geo_angle_measure']],
+  [10,'Измерение углов на местности',['geo_field_angles']],
+  [11,'Смежные и вертикальные углы',['geo_adjacent_vertical_angles']],
+  [12,'Перпендикулярность прямых',['geo_perpendicular_lines']],
+  [13,'Прямые углы на местности',['geo_field_right_angles']]
+ ]},
+ {part:'Геометрия',chapter:'II',title:'Треугольники',items:[
+  [14,'Элементы треугольника',['geo_triangle_elements']],
+  [15,'Признак равенства по двум сторонам и углу',['geo_congruence_sas']],
+  [16,'Перпендикуляр к прямой',['geo_perpendicular_oblique_distances']],
+  [17,'Медианы, биссектрисы и высоты',['geo_triangle_medians_bisectors_altitudes']],
+  [18,'Равнобедренный треугольник и его свойства',['geo_isosceles_properties_criteria','geo_isosceles_equilateral']],
+  [19,'Признак равенства по стороне и двум углам',['geo_congruence_asa']],
+  [20,'Признак равенства по трём сторонам',['geo_congruence_sss']],
+  [21,'Элементы окружности',['geo_circle_chord_diameter']],
+  [22,'Построения циркулем и линейкой',['geo_basic_constructions']],
+  [23,'Задачи на построение отрезков и углов',['geo_constructions_lines_angles']]
+ ]},
+ {part:'Геометрия',chapter:'III',title:'Параллельные прямые',items:[
+  [24,'Понятие параллельных прямых',['geo_parallel_perpendicular_intro']],
+  [25,'Признаки параллельности',['geo_parallel_criteria','geo_transversal_angles']],
+  [26,'Построение параллельных прямых',['geo_construct_parallel']],
+  [27,'Аксиомы геометрии',['geo_geometry_axioms']],
+  [28,'Аксиома о параллельных прямых',['geo_axiom_parallel']],
+  [29,'Углы при параллельных прямых и секущей',['geo_parallel_properties']],
+  [30,'Углы с параллельными или перпендикулярными сторонами',['geo_angles_matching_sides']]
+ ]},
+ {part:'Геометрия',chapter:'IV',title:'Стороны и углы треугольника',items:[
+  [31,'Сумма углов треугольника',['geo_triangle_angle_sum','geo_exterior_triangle_angle']],
+  [32,'Виды треугольников по углам',['geo_triangle_angle_types']],
+  [33,'Связь сторон и углов',['geo_side_angle_relation']],
+  [34,'Неравенство треугольника',['geo_triangle_inequality']],
+  [35,'Свойства прямоугольных треугольников',['geo_right_triangle_properties','geo_right_triangle_30deg']],
+  [36,'Равенство прямоугольных треугольников',['geo_right_triangle_congruence']],
+  [37,'Расстояние до прямой и между параллельными прямыми',['geo_perpendicular_oblique_distances']],
+  [38,'Построение треугольника по трём элементам',['geo_constructions_triangles']]
+ ]},
+ {part:'Геометрия',chapter:'V',title:'Геометрические места точек и симметрия',items:[
+  [39,'Биссектриса как геометрическое место точек',['geo_angle_bisector_locus','geo_locus_points']],
+  [40,'Свойства серединного перпендикуляра',['geo_perpendicular_bisector_locus']],
+  [41,'Свойства хорд и диаметров',['geo_chord_properties']],
+  [42,'Прямая и окружность. Касательная',['geo_line_circle_tangent_secant','geo_circle_inscribed_in_angle']],
+  [43,'Вписанная и описанная окружности',['geo_incircle_triangle','geo_circumcircle_triangle']],
+  [44,'Фигуры, симметричные относительно прямой',['geo_axial_symmetry']],
+  [45,'Свойства осевой симметрии',['geo_axial_symmetry_properties']]
+ ]},
+ {part:'Геометрия',title:'Дополнительные темы',items:[
+  [null,'Ломаная и многоугольник',['geo_broken_line_polygon','geo_polygon_angle_sum_intro']]
+ ]},
+ {part:'Вероятность и статистика',chapter:'I',title:'Представление данных',items:[
+  [1,'Таблицы',['stat_tables']],
+  [2,'Упорядочивание и поиск данных',['stat_data_interpretation']],
+  [3,'Вычисления по таблице',['stat_table_calculations']],
+  [4,'Столбчатые диаграммы',['stat_bar_charts']],
+  [5,'Круговые диаграммы',['stat_pie_charts']],
+  [6,'Возрастно-половые диаграммы',['stat_population_pyramid']]
+ ]},
+ {part:'Вероятность и статистика',chapter:'II',title:'Описательная статистика',items:[
+  [7,'Среднее арифметическое',['stat_arithmetic_mean']],
+  [8,'Медиана',['stat_median']],
+  [9,'Минимум, максимум и размах',['stat_min_max_range']],
+  [10,'Свойства среднего арифметического',['stat_mean_properties','stat_choose_characteristic']]
+ ]},
+ {part:'Вероятность и статистика',chapter:'III',title:'Случайная изменчивость',items:[
+  [11,'Случайная изменчивость величин',['stat_random_variability']],
+  [12,'Точность и погрешность',['stat_measurement_error']],
+  [13,'Тенденции и отклонения',['stat_real_process_graphs']],
+  [14,'Частоты значений',['stat_value_frequency']],
+  [15,'Группировка данных и гистограммы',['stat_grouping_histograms']],
+  [16,'Выборка',['stat_sample']],
+  [17,'Оценки по выборке',['stat_sample_estimation']]
+ ]},
+ {part:'Вероятность и статистика',chapter:'IV',title:'Графы',items:[
+  [18,'Вершины и рёбра',['graph_basics','graph_directed_modeling']],
+  [19,'Степень вершины',['graph_vertex_degree_edges']],
+  [20,'Пути и связность графа',['graph_connectivity_paths']],
+  [21,'Эйлеровы пути и циклы',['graph_chains_cycles_euler']]
+ ]},
+ {part:'Вероятность и статистика',chapter:'V',title:'Логические утверждения',items:[
+  [22,'Высказывания и их истинность',['logic_statements']],
+  [23,'Отрицание высказывания',['logic_negation']],
+  [24,'Условные утверждения',['logic_implication']],
+  [25,'Обратные утверждения и равносильность',['logic_converse']],
+  [26,'Контрпример и доказательство от противного',['logic_contradiction']]
+ ]},
+ {part:'Вероятность и статистика',chapter:'VI',title:'Случайные опыты и события',items:[
+  [27,'Случайный опыт и событие',['prob_random_experiment_event']],
+  [28,'Частота и вероятность события',['prob_probability_frequency']],
+  [29,'Опыты с монетой и кубиком',['prob_coin_die_models']],
+  [30,'Как узнать вероятность события',['prob_likelihood_methods','prob_unlikely_almost_certain']],
+  [31,'Вероятность и защита от ошибок',['prob_error_protection']]
+ ]},
+ {part:'Вероятность и статистика',title:'Повторение',items:[
+  [null,'Столбчатые и круговые диаграммы',['stat_bar_pie_charts']]
+ ]}
+];
+
+const grade7Sections={
+ Алгебра:{
+  1:'§ 1. Числа и выражения',5:'§ 2. Преобразование выражений',7:'§ 3. Уравнения с одной переменной',
+  11:'§ 4. Функции и их графики',15:'§ 5. Линейная функция',
+  18:'§ 6. Степень и её свойства',21:'§ 7. Одночлены',
+  25:'§ 8. Сумма и разность многочленов',27:'§ 9. Произведение одночлена и многочлена',29:'§ 10. Произведение многочленов',
+  32:'§ 11. Квадрат суммы и разности',34:'§ 12. Разность квадратов. Сумма и разность кубов',37:'§ 13. Преобразование целых выражений',
+  40:'§ 14. Линейные уравнения с двумя переменными и их системы',43:'§ 15. Решение систем линейных уравнений'
+ },
+ Геометрия:{
+  1:'§ 1. Прямая и отрезок',3:'§ 2. Луч и угол',5:'§ 3. Сравнение отрезков и углов',7:'§ 4. Измерение отрезков',
+  9:'§ 5. Измерение углов',11:'§ 6. Перпендикулярные прямые',
+  14:'§ 1. Первый признак равенства треугольников',16:'§ 2. Медианы, биссектрисы и высоты',19:'§ 3. Второй и третий признаки равенства',21:'§ 4. Задачи на построение',
+  24:'§ 1. Признаки параллельности двух прямых',27:'§ 2. Аксиома параллельных прямых',
+  31:'§ 1. Сумма углов треугольника',33:'§ 2. Соотношения между сторонами и углами треугольника',35:'§ 3. Прямоугольные треугольники',37:'§ 4. Построение треугольника по трём элементам',
+  39:'§ 1. Геометрические места точек',41:'§ 2. Окружность и касательная',44:'§ 3. Симметричные фигуры'
+ }
+};
+
 const layouts={
  5:{chapters,catalog:g5AllTopics,card:'.g5-card',group:'.g5-group',open:id=>openG5Topic(id)},
- 6:{chapters:grade6Chapters,catalog:g6AllTopics,card:'.g6-card',group:'.g6-group',open:id=>openG6Topic(id)}
+ 6:{chapters:grade6Chapters,catalog:g6AllTopics,card:'.g6-card',group:'.g6-group',open:id=>openG6Topic(id)},
+ 7:{chapters:grade7Chapters,catalog:g7AllTopics,card:'.topic.g7-card',group:'.g7-course',open:id=>openG7Topic(id)}
 };
 const g6Aliases={
  'g6:brackets':'раскрыть скобки',
@@ -194,6 +384,7 @@ function menuStyle(){
  '.mk-g5-toc-list{margin:0;padding:5px 10px;list-style:none}',
  '.mk-g5-toc-list li{margin:0;padding:0;border-bottom:1px solid #e7ecf4;list-style:none}',
  '.mk-g5-toc-list li:last-child{border-bottom:0}',
+ '.mk-g5-toc-list .mk-g7-toc-section{padding:10px 12px 6px;font-size:.89rem;font-weight:750;color:var(--muted,#617186)}',
  '.mk-g5-toc-link{width:100%;display:grid;grid-template-columns:33px minmax(0,1fr) 18px;align-items:center;gap:12px;min-height:55px;padding:10px 12px;border:0;border-radius:9px;background:transparent;text-align:left;cursor:pointer;color:inherit;font:inherit;font-size:.96rem;line-height:1.38;transition:background .12s ease}',
  '.mk-g5-toc-link:hover{background:#ebf3ff}',
  '.mk-g5-toc-link:focus-visible{outline:3px solid #78a5ec;outline-offset:-3px;background:#ebf3ff}',
@@ -214,7 +405,8 @@ function menuStyle(){
  document.head.append(style);
 }
 function mount(grade){
- const layout=layouts[grade],isGrade6=grade===6,host=mainView,topics=layout.catalog();
+ const layout=layouts[grade], isGrade5=grade===5, isGrade6=grade===6, isGrade7=grade===7;
+ const host=mainView, topics=layout.catalog();
  const cards=[...host.querySelectorAll(layout.card)],anchor=host.querySelector(layout.group);
  const rootId='mk-g'+grade+'-textbook-nav';
  let collapsed=!!layout.collapsed;
@@ -223,7 +415,7 @@ function mount(grade){
  const byId=new Map(topics.map(t=>[t.id,t]));
  // The existing section organizer moves cards. Match by title, preferring its own heading.
  const byTitle=new Map();
- if(!isGrade6)for(const topic of topics){
+ if(isGrade5)for(const topic of topics){
   const matches=cards.filter(card=>norm(card.textContent).includes(norm(topic.title)));
   matches.sort((a,b)=>{
    const needle=norm(topic.title);
@@ -246,7 +438,7 @@ function mount(grade){
  const textbookInput=host.querySelector('#mk-textbook-search-input-'+grade);
  const textbookPanel=textbookInput?.closest('.mk-textbook-search');
  let primarySearch=null;
- const findNativeSearch=()=>isGrade6?host.querySelector('#mk19c4-topic-tools input'):[...host.querySelectorAll('input')].find(field=>
+ const findNativeSearch=()=>!isGrade5?host.querySelector('#mk19c4-topic-tools input'):[...host.querySelectorAll('input')].find(field=>
   field!==textbookInput && !field.closest('#'+rootId) &&
   !field.closest('.mk-textbook-search') &&
   /найти тему по названию|найти тему/i.test(norm(field.placeholder))
@@ -261,7 +453,7 @@ function mount(grade){
    textbookInput.dispatchEvent(new Event('input',{bubbles:true}));
   }
  }
- const rows=[],issues=[],parts=new Map(),details=[];
+ const rows=[],issues=[],parts=new Map(),details=[],sections=[];
  function visit(id){
   // This must use exactly the same entry point as the ordinary visual card.
   // Never scroll to/focus another card; open the topic's three-stage lesson dialog.
@@ -281,29 +473,39 @@ function mount(grade){
   let part=parts.get(ch.part);
   if(!part){
     const container=document.createElement('div');container.className='mk-g5-toc-part';
-    const label=document.createElement('h3');label.className='mk-g5-toc-part-heading';label.textContent='Часть '+ch.part+(isGrade6?(ch.part===1?' · Смешанные числа':' · Рациональные числа'):'');
+    const label=document.createElement('h3');label.className='mk-g5-toc-part-heading';label.textContent=isGrade7?ch.part:'Часть '+ch.part+(isGrade6?(ch.part===1?' · Смешанные числа':' · Рациональные числа'):'');
     container.append(label);body.append(container);
     part={container,chapters:[]};parts.set(ch.part,part);
   }
   const detail=document.createElement('details');detail.className='mk-g5-toc-chapter';
   const summary=document.createElement('summary');
-  const ordinal=document.createElement('span');ordinal.className='mk-g5-toc-num';ordinal.textContent='§ '+ch.chapter;
+  const ordinal=document.createElement('span');ordinal.className='mk-g5-toc-num';ordinal.textContent=(isGrade7?'':'§ ')+ch.chapter;
   const text=document.createElement('span');text.textContent=ch.title;
   if(ch.chapter)summary.append(ordinal);
   summary.append(text);
   const list=document.createElement('ol');list.className='mk-g5-toc-list';if(ch.items[0][0]!=null)list.start=ch.items[0][0];
   detail.append(summary,list);part.container.append(detail);part.chapters.push(detail);details.push(detail);
+  let section=null;
   for(const [number,title,rawIds,note] of ch.items){
-   const ids=isGrade6?rawIds.map(id=>'g6:'+id):rawIds;
+   const sectionName=isGrade7&&grade7Sections[ch.part]?.[number];
+   if(sectionName){
+    const label=document.createElement('li');
+    label.className='mk-g7-toc-section';
+    label.textContent=sectionName;
+    list.append(label);
+    section={label,rows:[]};
+    sections.push(section);
+   }
+   const ids=isGrade5?rawIds:rawIds.map(id=>'g'+grade+':'+id);
    const li=document.createElement('li');
    if(number!=null){li.value=number;li.dataset.paragraph=number;}
    let resolved=0;
    for(let i=0;i<ids.length;i++){
     const id=ids[i],topic=byId.get(id),card=byTitle.get(id);
-    if(!topic||(!isGrade6&&!card)){issues.push(number+': '+id);continue}
+    if(!topic||(isGrade5&&!card)){issues.push(number+': '+id);continue}
     const label=i===0?title:topic.title;
     const b=button(label,number,i>0,id);
-    if(isGrade6&&i===0&&title!==topic.title&&(ids.length>1||[12,15,30,31,36,41,42].includes(number))){
+    if(i===0&&title!==topic.title&&(isGrade7||isGrade6&&(ids.length>1||[12,15,30,31,36,41,42].includes(number)))){
      const subtitle=document.createElement('small');
      subtitle.className='mk-g6-toc-topic-name';subtitle.textContent=topic.title;
      b.querySelector('.mk-g5-toc-item-title').append(subtitle);
@@ -316,19 +518,20 @@ function mount(grade){
    }
    if(!resolved){
     const unavailable=document.createElement('strong');
-    unavailable.className=isGrade6?'mk-g6-toc-unavailable':'mk-g5-toc-missing';
+    unavailable.className=!isGrade5?'mk-g6-toc-unavailable':'mk-g5-toc-missing';
     unavailable.textContent=isGrade6&&number!=null?number+'. '+title:title;li.append(unavailable);
    }
-   if(isGrade6&&(!resolved||note)){
+   if(!isGrade5&&(!resolved||note)){
     const status=document.createElement('small');status.className='mk-g6-toc-status';
     status.textContent=note||'Тренажёр готовится';li.append(status);
    }
    list.append(li);
-   const searchable=norm([...(isGrade6?[number,ch.title]:[]),title,...ids.flatMap(id=>{
+   const searchable=norm([...(!isGrade5?[number,ch.title,isGrade7?ch.part:'']:[]),title,...ids.flatMap(id=>{
     const topic=byId.get(id);
-    return isGrade6?[topic?.title,topic?.shortTitle,g6Aliases[id]]:[topic?.title];
+    return !isGrade5?[topic?.title,topic?.shortTitle,g6Aliases[id]]:[topic?.title];
    })].join(' '));
    rows.push({number,ids,searchable,element:li});
+   section?.rows.push(li);
   }
  }
  const previousOpen=new Map();
@@ -342,7 +545,7 @@ function mount(grade){
   let count=0;
   const terms=query.split(' ').filter(Boolean),matchingTopics=new Set();
   for(const row of rows){
-   const show=isGrade6&&/^\d+$/.test(query)?row.number===Number(query):terms.every(term=>row.searchable.includes(term));
+   const show=!isGrade5&&/^\d+$/.test(query)?row.number===Number(query):terms.every(term=>/^\d+$/.test(term)&&isGrade7?row.number===Number(term):row.searchable.includes(term));
    if(show)for(const id of row.ids)matchingTopics.add(id);
    row.element.hidden=!show;
    if(show)count++;
@@ -353,9 +556,10 @@ function mount(grade){
    if(query)detail.open=show;
    else if(filtering)detail.open=previousOpen.get(detail)||false;
   }
+  for(const section of sections)section.label.hidden=section.rows.every(row=>row.hidden);
   for(const part of parts.values())part.container.hidden=part.chapters.every(d=>d.hidden);
   if(!query){filtering=false;previousOpen.clear()}
-  if(isGrade6&&primarySearch){
+  if(!isGrade5&&primarySearch){
    const tools=primarySearch.closest('#mk19c4-topic-tools');
    const status=tools?.querySelector('.mk19c4-count');
    const empty=tools?.querySelector('.mk19c4-empty');
@@ -363,20 +567,20 @@ function mount(grade){
    if(status)status.textContent=query?'Найдено пунктов: '+count:'Всего тем: '+topics.length;
    if(empty)empty.dataset.visible=String(!!query&&!count);
    for(const card of cards){
-    const id=card.getAttribute('onclick')?.match(/g6:[a-z0-9_]+/)?.[0];
+    const id=card.getAttribute('onclick')?.match(/g[67]:[a-z0-9_]+/)?.[0];
     card.classList.toggle('mk19c4-filter-hidden',!!query&&!matchingTopics.has(id));
    }
-   for(const section of host.querySelectorAll(layout.group)){
+   for(const section of host.querySelectorAll(isGrade7?'.g7-course,.g7-course .g6-group':layout.group)){
     section.classList.toggle('mk19c4-filter-hidden',!!query&&!section.querySelector(layout.card+':not(.mk19c4-filter-hidden)'));
    }
   }
  }
  function synchronizeSearch(event){
-  if(isGrade6&&event?.type==='input'&&norm(primarySearch?.value)){
+  if(!isGrade5&&event?.type==='input'&&norm(primarySearch?.value)){
    collapsed=false;layout.collapsed=false;
   }
   update();
-  if(!isGrade6&&primarySearch && textbookInput && primarySearch!==textbookInput && textbookInput.value!==primarySearch.value){
+  if(isGrade5&&primarySearch && textbookInput && primarySearch!==textbookInput && textbookInput.value!==primarySearch.value){
    textbookInput.value=primarySearch.value;
    textbookInput.dispatchEvent(new Event('input',{bubbles:true}));
   }
@@ -397,7 +601,7 @@ function mount(grade){
   }
   if(primarySearch){
    primarySearch.addEventListener('input',synchronizeSearch);
-   if(isGrade6)primarySearch.closest('#mk19c4-topic-tools')?.querySelector('.mk19c4-clear')
+   if(!isGrade5)primarySearch.closest('#mk19c4-topic-tools')?.querySelector('.mk19c4-clear')
     ?.addEventListener('click',synchronizeSearch);
   }
   synchronizeSearch();
@@ -420,9 +624,11 @@ function mount(grade){
  // Some account-specific UI inserts the upper search after the lesson list has rendered.
  menuObserver=new MutationObserver(()=>{if(findNativeSearch()!==null&&findNativeSearch()!==primarySearch)bindUpperSearch()});
  menuObserver.observe(host,{subtree:true,childList:true});
- if(!isGrade6)window.mkG5TextbookNavigation={total:rows.length,missing:issues,chapters:details.length,volumes:parts.size,version:121,refreshSearch:bindUpperSearch};
+ if(isGrade5)window.mkG5TextbookNavigation={total:rows.length,missing:issues,chapters:details.length,volumes:parts.size,version:121,refreshSearch:bindUpperSearch};
 }
-const previousGrade5=renderGrade5,previousGrade6=renderGrade6;
+const previousGrade5=renderGrade5,previousGrade6=renderGrade6,previousGrade7=renderGrade7;
 renderGrade5=function(...args){const result=previousGrade5(...args);mount(5);return result};
 renderGrade6=function(...args){const result=previousGrade6(...args);mount(6);return result};
+renderGrade7=function(...args){const result=previousGrade7(...args);mount(7);return result};
+if(currentGrade===7)renderGrade7();
 })();
