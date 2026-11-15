@@ -90,7 +90,11 @@ const reviewedLessons={
  direct_inverse_proportion:'При прямой пропорциональности отношение y к x постоянно. При обратной постоянно произведение xy. В задачах сначала проверь, какая величина фиксирована.',
  geo_primitives:'Через две различные точки проходит ровно одна прямая. Отрезок AB состоит из точек A, B и всех точек прямой между ними. В обозначении отрезка порядок концов можно менять.',
  geo_field_line:'Чтобы провесить прямую, сначала ставят вехи в двух известных точках. Затем промежуточные вехи выставляют по линии визирования. Между соседними вехами один промежуток.',
- geo_rays:'Луч имеет начало и продолжается в одну сторону. В названии AB первой пишут точку начала A, второй — точку B, задающую направление. Два луча с общим началом и противоположными направлениями образуют прямую.'
+ geo_rays:'Луч имеет начало и продолжается в одну сторону. В названии AB первой пишут точку начала A, второй — точку B, задающую направление. Два луча с общим началом и противоположными направлениями образуют прямую.',
+ geo_angle:'Угол образован двумя лучами с общим началом. Лучи называются сторонами, их общее начало — вершиной. В обозначении угла тремя буквами вершина стоит посередине.',
+ geo_congruent_figures:'Равные фигуры совмещаются при наложении. При этом равны длины соответствующих отрезков и величины соответствующих углов.',
+ geo_compare_segments_angles:'При сравнении отрезков совмещают один конец и направляют их по одному лучу. При сравнении углов совмещают вершины и одну сторону. Если вторая сторона одного угла проходит внутри другого, первый меньше.',
+ geo_angle_bisector:'Биссектриса — луч, который исходит из вершины и делит угол на два равных угла. На чертеже равные части угла часто отмечают одинаковыми дугами.'
 };
 
 function compare(prompt,left,right,explanation){
@@ -162,8 +166,24 @@ function geometryLine(labels,kind='line',offPoint=''){
  const data={kind:'g7-textbook-line',figure:kind,labels,offPoint};
  return question=>g7GeoAttach(question,data,'Отмеченные точки: '+[...labels,offPoint].filter(Boolean).join(', ')+'.');
 }
+function geometryAngle(labels,angles,{equalArcs=false}={}){
+ const data={kind:'g7-textbook-angle',labels,angles,equalArcs};
+ return question=>g7GeoAttach(question,data,'Точки '+labels.join(', ')+'.');
+}
 const originalGeometrySvg=geometrySvg;
 geometrySvg=function(data){
+ if(data?.kind==='g7-textbook-angle'){
+  const center={x:320,y:225},radius=140;
+  const sides=data.angles.map((degrees,i)=>{
+   const point=g7GeoAnglePoint(center,degrees,radius),end=g7GeoAnglePoint(center,degrees,radius+27);
+   return g6GeoLine(center.x,center.y,end.x,end.y,'geo-line')+
+    '<polygon fill="currentColor" points="'+g7GeoArrowTip(end,{x:end.x-center.x,y:end.y-center.y})+'"></polygon>'+
+    g6GeoPoint(point.x,point.y,data.labels[i+1],degrees>90?-25:10,degrees>15?-10:24);
+  }).join('');
+  const arcs=data.equalArcs?data.angles.slice(1).map((degrees,i)=>g7GeoArcPath(center,48,data.angles[i],degrees,'geo-guide')).join(''):'';
+  return '<div class="geometry-wrap"><svg class="geometry-svg" viewBox="45 25 550 245" role="img" aria-label="Лучи с общей вершиной">'+
+   sides+g6GeoPoint(center.x,center.y,data.labels[0],-5,24)+arcs+'</svg></div>';
+ }
  if(data?.kind!=='g7-textbook-line')return originalGeometrySvg(data);
  const positions=data.labels.map((label,i)=>({label,x:120+i*125,y:122}));
  const first=positions[0],last=positions.at(-1),left=data.figure==='line'?60:first.x,right=data.figure==='segment'?last.x:580;
@@ -3039,6 +3059,196 @@ const reviewed = {
      'Оба луча направлены вправо. Общие точки начинаются с '+q+', потому что начало второго луча правее.'),geometryLine([p,q,r,s]));
    }
   }
+ ],
+ geo_angle: [
+  {
+   vertex_of_named_angle: ({a,b})=>{
+    const [o,p,q,r]=geometryLabels(a,b);
+    return choice('Назови вершину угла ∠'+p+o+q+'.',o,[p,q,r],'В обозначении из трёх букв вершина стоит посередине.');
+   },
+   sides_of_named_angle: ({a,b})=>{
+    const [o,p,q]=geometryLabels(a,b),correct=o+p+' и '+o+q;
+    return choice('Какие лучи являются сторонами ∠'+p+o+q+'?',correct,[p+o+' и '+q+o,o+p+' и '+p+q,p+q+' и '+q+p],
+     'Обе стороны начинаются в вершине '+o+'.');
+   },
+   read_vertex_from_diagram: ({a,b})=>{
+    const [o,p,q,r]=geometryLabels(a,b);
+    return withVisual(choice('Какая точка является вершиной отмеченного угла?',o,[p,q,r],
+     'Вершина — общая начальная точка обоих лучей.'),geometryAngle([o,p,q],[0,35+5*(b%9)]));
+   },
+   two_names_of_angle: ({a,b})=>{
+    const [o,p,q,r]=geometryLabels(a,b);
+    return choice('Как ещё можно назвать ∠'+p+o+q+'?', '∠'+q+o+p,['∠'+o+p+q,'∠'+p+q+o,'∠'+r+o+q],
+     'Поменяли местами точки на сторонах. Вершина '+o+' осталась посередине.');
+   }
+  },
+  {
+   read_middle_ray: ({a,b})=>{
+    const [o,p,q,r]=geometryLabels(a,b);
+    return withVisual(choice('Какой луч проходит внутри ∠'+p+o+r+'?',o+q,[o+p,o+r,q+o],
+     'Из вершины '+o+' проведены три луча. Внутренняя сторона — '+o+q+'.'),geometryAngle([o,p,q,r],[0,25+b,70+b]));
+   },
+   identify_angle_from_sides: ({a,b})=>{
+    const [o,p,q,r]=geometryLabels(a,b);
+    return choice('Какой угол образуют лучи '+o+p+' и '+o+q+'?', '∠'+p+o+q,['∠'+o+p+q,'∠'+p+q+o,'∠'+p+o+r],
+     'Начало обоих лучей '+o+'. Записываем эту точку в середине названия угла.');
+   },
+   relation_of_two_angles: ({a,b})=>{
+    const [o,p,q,r]=geometryLabels(a,b);
+    return withVisual(choice('Какой из углов содержит обе части ∠'+p+o+q+' и ∠'+q+o+r+'?','∠'+p+o+r,
+     ['∠'+p+o+q,'∠'+q+o+r,'∠'+p+q+r],'Луч '+o+q+' делит угол с крайними сторонами '+o+p+' и '+o+r+'.'),
+     geometryAngle([o,p,q,r],[0,28+b,80+b]));
+   },
+   distinguish_different_angles: ({a,b})=>{
+    const [o,p,q,r]=geometryLabels(a,b),truth=b%2===0,last=truth?p:r;
+    return withVisual(checkStatement('Одно и то же ли ∠'+p+o+q+' и ∠'+q+o+last+'?',truth,
+     truth?'Да. Совпадают обе стороны, записанные в обратном порядке.':'Вершина одна, но совпадает только одна сторона. Это разные углы.'),
+     geometryAngle([o,p,q,r],[0,28+b,75+b]));
+   }
+  },
+  {
+   count_unoriented_angles: ({a,b})=>{
+    const [o,p,q,r]=geometryLabels(a,b);
+    return withVisual(['Сколько разных неразвёрнутых углов образуют пары показанных лучей?',3,
+     'Выбираем пары: '+o+p+' и '+o+q+', '+o+p+' и '+o+r+', '+o+q+' и '+o+r+'. Всего три угла.'],
+     geometryAngle([o,p,q,r],[0,25+b,75+b]));
+   },
+   common_side_from_two_angle_names: ({a,b})=>{
+    const [o,p,q,r]=geometryLabels(a,b);
+    return choice('Какая сторона общая у ∠'+p+o+q+' и ∠'+r+o+q+'?',o+q,[o+p,o+r,q+o],
+     'Первый угол ограничен лучами '+o+p+' и '+o+q+'. Второй — '+o+r+' и '+o+q+'.');
+   },
+   choose_correct_angle_statement: ({a,b})=>{
+    const [o,p,q,r]=geometryLabels(a,b);
+    return withVisual(choice('Какое утверждение верно по чертежу?',o+q+' лежит внутри ∠'+p+o+r,
+     [o+p+' лежит внутри ∠'+q+o+r,o+r+' лежит внутри ∠'+p+o+q,o+q+' не имеет общей вершины с углом'],
+     'Только луч '+o+q+' расположен между сторонами двух других лучей с общим началом.'),
+     geometryAngle([o,p,q,r],[0,34+b,84+b]));
+   },
+   count_angles_with_fixed_ray: ({a,b})=>{
+    const [o,p,q,r]=geometryLabels(a,b),last=geometryLetters[(geometryLetters.indexOf(r)+1)%geometryLetters.length];
+    return withVisual(['Сколько разных углов на чертеже имеют сторону '+o+q+'?',3,
+     'Объединяем эту сторону по очереди с '+o+p+', '+o+r+' и '+o+last+'. Это три разные пары.'],
+     geometryAngle([o,p,q,r,last],[0,27+b,65+b,112+b]));
+   }
+  }
+ ],
+ geo_congruent_figures: [
+  {
+   segments_length_by_overlay: ({a,b})=>['При наложении AB и CD совпали. AB = '+(a+b)+' см. Найди CD в сантиметрах.',a+b,
+    'Совпавшие при наложении отрезки имеют одинаковую длину.'],
+   angles_measure_by_overlay: ({a,b})=>['Углы равны. Величина первого '+(20+3*a+b)+'°. Сколько градусов во втором?',20+3*a+b,
+    'Соответствующие углы равных фигур имеют одинаковую величину.'],
+   identify_congruence_meaning: ({a,b})=>{
+    const [p,q,r,s]=geometryLabels(a,b);
+    return choice('Что следует из того, что '+p+q+' полностью совместился с '+r+s+'?',p+q+' = '+r+s,
+     [p+q+' вдвое длиннее '+r+s,'У отрезков одна общая точка','Отрезки обязательно лежали на одной прямой до наложения'],
+     'Равенство означает, что их можно совместить. Начальное положение отрезков может быть разным.');
+   },
+   equal_rectangles_dimension: ({a,b})=>['Два прямоугольника совпали при наложении. У первого длинная сторона '+(a+b)+' см. Найди длинную сторону второго.',a+b,
+    'Длинные стороны соответствуют друг другу, значит равны.']
+  },
+  {
+   read_corresponding_segments: ({a,b,c})=>['При наложении AB совпал с CD. Точка M внутри AB соответствует N внутри CD. AM = '+a+' см, MB = '+b+' см. Найди CD.',a+b,
+    'Второй отрезок имеет ту же длину, что AB. Складываем его части: '+a+' + '+b+'.'],
+   equal_angles_find_x: ({a,b})=>['Величины равных углов равны '+a+'x° и '+a*b+'°. Найди x.',b,
+    'Приравниваем: '+a+'x = '+a*b+'. Делим обе части на '+a+'.'],
+   match_angle_measure: ({a,b})=>choice('Какое условие достаточно для равенства углов ∠ABC и ∠KLM?',
+    'Их градусные меры равны',['Их вершины обозначены одной буквой','Обе меры меньше 90°','У них по две стороны'],
+    'Для углов одинаковая градусная мера означает возможность совместить один угол с другим.'),
+   put_equal_segments_on_same_ray: ({a,b})=>['От общей точки O на луче отложили равные отрезки OA и OB длиной '+(a+b)+' см. Чему равно расстояние между A и B?',0,
+    'На одном луче на данном расстоянии от начала есть ровно одна точка. Поэтому A и B совпадают.']
+  },
+  {
+   shared_angle_from_two_forms: ({a,b,c})=>['Градусные меры равных углов равны '+(a%6+2)+'x + '+c+' и '+(a%6+1)+'x + '+(c+b)+'. Найди общую градусную меру.',(a%6+2)*b+c,
+    'Приравниваем выражения. После сокращения получаем x = '+b+'. Подставляем: '+(a%6+2)+' · '+b+' + '+c+' = '+((a%6+2)*b+c)+'.'],
+   doubled_length_from_equality: ({a,b,c})=>['Длины равных отрезков '+a+'x + '+b+' и '+(a-1)+'x + '+(b+c)+' см. Найди удвоенную длину.',2*(a*c+b),
+    'Из равенства получаем x = '+c+'. Длина одного отрезка '+(a*c+b)+' см. Удваиваем.'],
+   compose_congruent_rectangles: ({a,b})=>['Два равных прямоугольника со сторонами '+(a+b)+' и '+b+' см приложили друг к другу длинными сторонами. Найди периметр нового прямоугольника.',2*(a+3*b),
+    'Длина осталась '+(a+b)+' см, ширина удвоилась и стала '+2*b+' см. Складываем стороны и удваиваем.'],
+   corresponding_parts_difference: ({a,b})=>['При наложении A совместилась с C, B — с D, а внутренняя точка M — с N. AM = '+a+' см, MB в '+b+' раз больше AM. Найди разность ND − CN (в см).',a*(b-1),
+    'При наложении CN = AM = '+a+', а ND = MB = '+a*b+'. Вычитаем и получаем '+a*(b-1)+' см.']
+  }
+ ],
+ geo_compare_segments_angles: [
+  {
+   compare_lengths_same_units: ({a,b})=>compare('Сравни длины '+a+' см и '+b+' см.',rational(a),rational(b),'Единицы одинаковы, сравниваем числовые значения.'),
+   compare_aligned_segments: ({a,b})=>{
+    const [o,p,q]=geometryLabels(a,b);
+    return withVisual(choice('Какой из отрезков длиннее: '+o+p+' или '+o+q+'?',o+q,[o+p,'Они равны','Определить нельзя'],
+     'У отрезков общее начало. Конец '+q+' дальше от '+o+', значит '+o+q+' длиннее.'),geometryLine([o,p,q],'ray'));
+   },
+   compare_angles_same_units: ({a,b})=>compare('Сравни углы '+(20+3*a)+'° и '+(20+3*b)+'°.',rational(20+3*a),rational(20+3*b),'Сравниваем их градусные меры.'),
+   compare_aligned_angles: ({a,b})=>{
+    const [o,p,q,r]=geometryLabels(a,b);
+    return withVisual(choice('Какой угол больше: ∠'+p+o+q+' или ∠'+p+o+r+'?', '∠'+p+o+r,['∠'+p+o+q,'Углы равны','Определить нельзя'],
+     'У углов общие вершина и сторона. Вторая сторона первого лежит внутри второго.'),geometryAngle([o,p,q,r],[0,32+b,78+b]));
+   }
+  },
+  {
+   compare_mixed_length_units: ({a,b})=>compare('Сравни '+a+' см '+b%10+' мм и '+(10*a+b%10-1)+' мм.',
+    rational(10*a+b%10),rational(10*a+b%10-1),'Первую длину переводим в миллиметры.'),
+   determine_difference_of_angles: ({a,b})=>['Один угол равен '+(20+a)+'°, другой '+(20+a+2*b)+'°. На сколько градусов второй больше?',2*b,
+    'Из большей градусной меры вычитаем меньшую: '+(20+a+2*b)+' − '+(20+a)+' = '+2*b+'.'],
+   segment_part_comparison: ({a,b})=>compare('Точка M внутри AB. AM = '+a+' см, MB = '+b+' см. Сравни AB и MB.',
+    rational(a+b),rational(b),'Длина всего отрезка равна сумме длин частей.'),
+   angle_part_comparison: ({a,b})=>compare('Луч BD проходит внутри ∠ABC. ∠ABD = '+(20+a)+'°, ∠DBC = '+(20+b)+'°. Сравни ∠ABD и ∠DBC.',
+    rational(20+a),rational(20+b),'Луч делит исходный угол на две указанные части. Сравниваем их градусные меры.')
+  },
+  {
+   compare_lengths_after_subtraction: ({a,b,c})=>compare('M внутри AB, N внутри CD. AB = '+(a+b)+' см, AM = '+a+' см, CD = '+(a+c)+' см, CN = '+a+' см. Сравни MB и ND.',
+    rational(b),rational(c),'Из каждой полной длины вычитаем её первую часть.'),
+   compare_subangles_from_wholes: ({a,b,c})=>compare('∠ABC = '+(20+a+b)+'°, ∠ABD = '+(20+a)+'°. D внутри угла ABC. ∠KLM = '+(20+a+c)+'°, ∠KLN = '+(20+a)+'°. N внутри KLM. Сравни ∠DBC и ∠NLM.',
+    rational(b),rational(c),'Из каждого полного угла вычитаем известную часть с общей стороной.'),
+   recover_equal_parts: ({a,b,c})=>['Отрезки AB и CD имеют длины '+(a+b)+' и '+(a+c)+' см. У первого отрезали '+b+' см. Сколько сантиметров отрезать у второго, чтобы остатки были равны?',c,
+    'От первого осталось '+a+' см. От второго нужно отрезать '+(a+c)+' − '+a+' = '+c+' см.'],
+   compare_two_angle_sums: ({a,b,c})=>compare('Сравни сумму углов '+(15+a)+'° и '+(20+b)+'° с углом '+(35+a+c)+'°.',
+    rational(35+a+b),rational(35+a+c),'Сначала складываем меры двух первых углов, затем сравниваем с третьей мерой.')
+  }
+ ],
+ geo_angle_bisector: [
+  {
+   divide_even_angle: ({a,b})=>['Биссектриса делит угол величиной '+2*(20+a+b)+'°. Найди величину каждой части.',20+a+b,
+    'Делим градусную меру полного угла пополам: '+2*(20+a+b)+' : 2 = '+(20+a+b)+'.'],
+   recover_from_half: ({a,b})=>['Одна из частей угла, разделённого биссектрисой, равна '+(20+a+b)+'°. Найди полный угол.',2*(20+a+b),
+    'У частей одинаковые меры. Складываем две половины.'],
+   read_marked_equal_arcs: ({a,b})=>{
+    const [o,p,q,r]=geometryLabels(a,b),half=24+b;
+    return withVisual(choice('Какой луч является биссектрисой ∠'+p+o+r+' по отмеченным равным дугам?',o+q,[o+p,o+r,q+o],
+     'Две одинаковые дуги показывают, что '+o+q+' делит угол на равные части.'),geometryAngle([o,p,q,r],[0,half,2*half],{equalArcs:true}));
+   },
+   verify_not_half: ({a,b})=>{
+    const truth=b%2===0,half=15+a,second=half+Number(!truth);
+    return checkStatement('Луч делит угол на '+half+'° и '+second+'°. Является ли он биссектрисой?',truth,
+     'Проверяем равенство двух частей: '+half+'° '+(truth?'равно ':'отличается от ')+second+'°.');
+   }
+  },
+  {
+   bisector_find_parameter: ({a,b})=>['Половины угла имеют меры '+a+'x + '+b+' и '+(a-1)+'x + '+(b+a)+'. Найди x.',a,
+    'Биссектриса делит угол пополам. Приравниваем меры, вычитаем ('+(a-1)+')x и '+b+'. Получаем x = '+a+'.'],
+   fraction_of_right_angle: ({a,b})=>['Биссектриса делит угол величиной '+(90+2*a+b%2)+'°. На сколько градусов каждая часть больше 45°?',rational(2*a+b%2,2),
+    'Каждая часть равна половине полного угла. Из половины вычитаем 45° и получаем '+exact(rational(2*a+b%2,2))+'°.' ],
+   compare_half_of_angles: ({a,b})=>compare('Биссектрисы проведены в углах '+2*(20+a)+'° и '+2*(20+b)+'°. Сравни величины половин.',
+    rational(20+a),rational(20+b),'Делим обе исходные меры пополам.'),
+   identify_part_on_marked_diagram: ({a,b})=>{
+    const [o,p,q,r]=geometryLabels(a,b),half=25+b;
+    return withVisual(['Мера ∠'+p+o+q+' равна '+half+'°. Найди ∠'+q+o+r+' по отметкам на чертеже.',half,
+     'Одинаковые дуги означают равные углы. Вторая часть тоже равна '+half+'°.'],geometryAngle([o,p,q,r],[0,half,2*half],{equalArcs:true}));
+   }
+  },
+  {
+   two_successive_bisectors: ({a,b})=>['Угол '+4*(15+a+b)+'° разделили биссектрисой. Затем в одной из половин провели её биссектрису. Найди меньший угол, полученный после второго деления.',15+a+b,
+    'Первым делением получаем половину, вторым — половину от половины. Делим '+4*(15+a+b)+'° на 4.'],
+   bisectors_adjacent_parts: ({a,b})=>['Один внутренний луч делит угол на две части, '+2*(20+a)+'° и '+2*(20+b)+'°. Провели биссектрисы обеих частей. Найди угол между ними.',40+a+b,
+    'От общего луча до первой биссектрисы '+(20+a)+'°, до второй '+(20+b)+'°. Складываем, потому что биссектрисы по разные стороны общего луча.'],
+   bisector_after_angle_difference: ({a,b,c})=>['Полный угол равен '+(3*a+2*b+c)+'°. Один внутренний луч отсёк '+(a+c)+'°. Оставшуюся часть разделили пополам. Сколько градусов в каждой новой части?',a+b,
+    'Вычитаем '+(a+c)+'° и получаем '+2*(a+b)+'°. Делим на 2.'],
+   bisector_recover_full_by_equation: ({a,b,c})=>{
+    const factor=a%4+2;
+    return ['Биссектриса делит угол на части с мерами '+factor+'x + '+b+' и '+(factor-1)+'x + '+(b+c)+'. Найди полный угол.',2*(factor*c+b),
+     'Из равенства частей получаем x = '+c+'. Половина угла '+(factor*c+b)+'°, удваиваем и получаем '+2*(factor*c+b)+'°.'];
+   }
+  }
  ]
 };
 add('alg_expressions_equations','compare_expression_values','Сравнение значений выражений',
@@ -3086,20 +3296,7 @@ add('alg_formulas','factor_difference_squares','Разложение разно�
 add('alg_systems','linear_inequalities_two_variables','Неравенства с двумя переменными','Для проверки точки подставь её координаты во все неравенства. В строгом неравенстве точки на границе не входят в решение.', null);
 
 add('geo_basics','geo_field_line','Провешивание прямой','Чтобы отметить прямую на местности, сначала поставь вехи в двух заданных точках. Затем выставляй промежуточные вехи на линии наблюдения.', null);
-add('geo_basics','geo_congruent_figures','Равные геометрические фигуры','Равные фигуры совпадают при наложении. У соответствующих отрезков и углов равны длины и градусные меры.',
- ({a,b,c,y,d,k,n})=>n(...(d===0?[
-  ['AB и CD совпали при наложении. AB = '+a+' см. Найди CD в сантиметрах.',a],
-  ['Угол A равен углу B. ∠B = '+(a+b)+'°. Найди ∠A в градусах.',a+b],
-  ['После наложения квадратов сторона одного совпала со стороной '+b+' см. Найди периметр первого в сантиметрах.',4*b]
- ]:d===1?[
-  ['При наложении отрезков AM переходит в CP, MB — в PD. AM = '+a+' см, MB = '+b+' см. Найди CD.',a+b],
-  ['Равные углы имеют меры '+a+'x и '+(a*b)+'°. Найди x.',b],
-  ['Точки A, M, B идут по порядку. Равный AB отрезок CD равен '+(c+b)+' см, AM = '+c+' см. Найди MB.',b]
- ]:[
-  ['У равных углов меры '+a+'x + '+c+' и '+(a-1)+'x + '+(c+b)+'. Найди общую градусную меру.',a*b+c],
-  ['Отрезки длиной '+a+'x + '+y+' и '+(a-1)+'x + '+(y+c)+' равны. Найди удвоенную длину одного отрезка.',2*(a*c+y)],
-  ['Два равных прямоугольника сложили длинными сторонами '+(a+b)+' см. Ширина каждого '+b+' см. Найди периметр получившегося прямоугольника.',2*(a+3*b)]
- ])));
+add('geo_basics','geo_congruent_figures','Равные геометрические фигуры','Равные фигуры совпадают при наложении. У соответствующих отрезков и углов равны длины и градусные меры.', null);
 add('geo_basics','geo_length_units','Единицы длины и измерение отрезков','При измерении линейкой вычитай показание начала от показания конца. Для сравнения или сложения сначала приведи длины к одной единице.',
  ({a,b,c,y,d,n})=>n(...(d===0?[
   [a+' см. Сколько это миллиметров?',10*a],
@@ -3558,6 +3755,8 @@ Object.assign(rules,{
 });
 
 add('geo_basics','geo_rays','Луч',reviewedLessons.geo_rays,null);
+add('geo_basics','geo_angle','Угол',reviewedLessons.geo_angle,null);
+add('geo_basics','geo_compare_segments_angles','Сравнение отрезков и углов',reviewedLessons.geo_compare_segments_angles,null);
 
 const previousQuestion=makeG7Question, previousLesson=g7Lesson;
 g7Lesson=function(id){
