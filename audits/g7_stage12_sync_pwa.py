@@ -5,6 +5,7 @@ can detect and activate a new service worker without a hard refresh.
 """
 from pathlib import Path
 import hashlib
+import json
 import re
 import sys
 
@@ -23,10 +24,24 @@ pattern=r'const APP_BUILD_HASH = "[a-f0-9]{64}";'
 updated,count=re.subn(pattern,f'const APP_BUILD_HASH = "{expected}";',source)
 if count!=1:
     raise SystemExit("ERROR: missing or duplicate PWA fingerprint")
+if 'const SCRIPT_HASHES = ' in source:
+    scripts = re.findall(rb'<script src="(g5-[\w-]+\.js)\?v=(\d+)"></script>', html)
+    if len(scripts) != 19 or len({name for name, _ in scripts}) != 19:
+        raise SystemExit("ERROR: expected 19 distinct versioned Grade 5 scripts")
+    version = cache_name.rsplit('v', 1)[-1].encode()
+    if any(stamp != version for _, stamp in scripts):
+        raise SystemExit("ERROR: script versions differ from the worker cache")
+    hashes = {name.decode(): hashlib.sha256(Path(name.decode()).read_bytes()).hexdigest()
+              for name, _ in scripts}
+    updated, count = re.subn(r'const SCRIPT_HASHES = \{[^\n]*\};',
+                             'const SCRIPT_HASHES = ' + json.dumps(hashes) + ';', updated)
+    if count != 1:
+        raise SystemExit("ERROR: missing or duplicate script fingerprints")
+
 if "--check" in sys.argv:
     if source != updated:
-        raise SystemExit("ERROR: SW build fingerprint differs from index.html")
-    print("PASS: SW fingerprint matches HTML SHA256",expected)
+        raise SystemExit("ERROR: SW build fingerprint differs from HTML or scripts")
+    print("PASS: SW fingerprints match the build, HTML SHA256",expected)
 elif source != updated:
     worker.write_text(updated,encoding="utf-8")
     print("UPDATED: SW fingerprint",expected)
