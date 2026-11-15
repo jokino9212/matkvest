@@ -74,12 +74,19 @@ function displayedArithmeticSteps(plan){
    sequence.push('Расстояние между значениями равно модулю разности: |'+value(raw)+'| = '+value(positive)+'.');
    return positive;
   }
-  if(!['add','sub','mul','div','cmp','max','min'].includes(op))return solve(node);
-  if(op==='mul'||op==='div'){
-   const left=visit(args[0]),right=visit(args[1]),result=solve(node),operation=op==='mul'?'·':':';
-   sequence.push('Вычисляем '+left.n+'/'+left.d+' '+operation+' '+right.n+'/'+right.d+': '+(op==='mul'
-    ?left.n+' · '+right.n+' / ('+left.d+' · '+right.d+')'
-    :left.n+'/'+left.d+' · '+right.d+'/'+right.n)+'. Получаем '+result.n+'/'+result.d+'.');
+  if(!['add','sub','mul','cmp','max','min'].includes(op))return solve(node);
+  if(op==='mul'){
+   const left=visit(args[0]),right=visit(args[1]),result=solve(node);
+   const first=gcd(left.n,right.d),second=gcd(right.n,left.d);
+   const n1=left.n/first,n2=right.n/second,d1=left.d/second,d2=right.d/first;
+   const cancellation=[
+    first>1?'сокращаем '+left.n+' и '+right.d+' на '+first:'',
+    second>1?'сокращаем '+right.n+' и '+left.d+' на '+second:''
+   ].filter(Boolean);
+   sequence.push('Умножаем '+value(left)+' · '+value(right)+'. '+
+    (cancellation.length?'Перед умножением '+cancellation.join(', ')+'. ':'')+
+    format(n1+' · '+n2,d1+' · '+d2)+' = '+format(n1*n2,d1*d2)+
+    (n1*n2===result.n&&d1*d2===result.d?'.':' = '+value(result)+'.'));
    return result;
   }
   if(op==='cmp'||op==='max'||op==='min'){
@@ -323,10 +330,60 @@ function section36Spec(id,t,p){
  return calc(S(Q(3,1))+' − ('+sum(A,B)+') − ('+diff(ONE,C)+')',SUB(SUB(Q(3,1),ADD(A,B)),SUB(ONE,C)),6);
 }
 
+function productModel(a,d,b,e){
+ const cellWidth=390/d,cellHeight=132/e;
+ const rows=Array.from({length:e},(_,y)=>Array.from({length:d},(_,x)=>{
+  const fill=x<a&&y<b?'#397dbe':x<a||y<b?'#c4ddf5':'#edf3fc';
+  return '<rect x="'+(5+x*cellWidth).toFixed(3)+'" y="'+(5+y*cellHeight).toFixed(3)+
+   '" width="'+cellWidth.toFixed(3)+'" height="'+cellHeight.toFixed(3)+'" fill="'+fill+'" stroke="#52617a" stroke-width=".55"/>';
+ }).join('')).join('');
+ return '<svg class="mk-g5-section37" role="img" aria-label="Прямоугольник: '+d+' столбцов и '+e+
+  ' строк. Выделено столбцов: '+a+', строк: '+b+'. Тёмные клетки показывают пересечение."'+
+  ' viewBox="0 0 400 142" width="100%" style="display:block;max-width:400px;height:auto;margin:6px auto">'+rows+'</svg>';
+}
+
+function multiplicationSpec(id,t,p){
+ const d=r(3,9+3*t),e=r(4,10+3*t),a=r(1,d-1),b=r(1,e-1),n=r(2,8+2*t);
+ const A=Q(a,d),B=Q(b,e),C=Q(r(1,4),r(5,9+2*t)),N=Q(n,1);
+ const show=([,x,y])=>y===1?String(x):format(x,y);
+ const product=(...args)=>args.map(show).join(' · ');
+ const task=(text,plan,steps)=>({id,t,p,text,plan,steps,mode:solve(plan).d===1?'int':'frac',
+  why:displayedArithmeticSteps(plan),factorAudit:null});
+ const calculate=(expr,plan,steps)=>task('Вычисли '+expr+'.',plan,steps);
+ if(t===0){
+  if(p===0)return task('Вычисли '+product(A,B)+'.'+productModel(a,d,b,e),MUL(A,B),2);
+  if(p===1)return calculate(product(N,A),MUL(N,A),2);
+  if(p===2)return task('Стороны прямоугольника равны '+show(A)+' м и '+show(B)+' м. Найди площадь в квадратных метрах.',MUL(A,B),2);
+  if(p===3){
+   const k=r(2,5);
+   const left=Q(k*a,d*k+1),right=Q(b,k*e);
+   return task('Сократи перед умножением и вычисли '+product(left,right)+'.',MUL(left,right),3);
+  }
+  // A reciprocal pair with one additional natural factor can give an integer.
+  const inverse=Q(d,a);
+  return calculate(product(A,inverse,N),MUL(MUL(A,inverse),N),3);
+ }
+ const sum=(x,y)=>show(x)+' + '+show(y),diff=(x,y)=>show(x)+' − '+show(y);
+ if(t===1){
+  if(p===0)return calculate('('+sum(A,B)+') · '+show(C),MUL(ADD(A,B),C),4);
+  if(p===1)return calculate(show(A)+' · ('+diff(Q(1,1),B)+')',MUL(A,SUB(Q(1,1),B)),4);
+  if(p===2)return calculate(product(A,B,C),MUL(MUL(A,B),C),4);
+  if(p===3)return task('Стороны прямоугольника равны '+show(A)+' м и '+show(B)+' м. К первой стороне прибавили '+show(C)+' м. Найди новую площадь в квадратных метрах.',MUL(ADD(A,C),B),4);
+  const left=Q(d+a,d),right=Q(e+b,e);
+  return calculate(product(left,right,C),MUL(MUL(left,right),C),5);
+ }
+ if(p===0)return calculate('('+sum(A,B)+') · ('+diff(Q(1,1),C)+')',MUL(ADD(A,B),SUB(Q(1,1),C)),5);
+ if(p===1)return calculate(product(A,B)+' + '+product(B,C),ADD(MUL(A,B),MUL(B,C)),5);
+ if(p===2)return calculate('('+sum(A,B)+') · '+show(C)+' − '+product(B,C),SUB(MUL(ADD(A,B),C),MUL(B,C)),6);
+ if(p===3)return task('Стороны прямоугольника равны '+show(A)+' м и '+show(B)+' м. Каждую сторону увеличили на '+show(C)+' м. Найди новую площадь в квадратных метрах.',MUL(ADD(A,C),ADD(B,C)),5);
+ return calculate('('+sum(A,B)+') · '+product(C,N)+' + '+product(A,C),ADD(MUL(MUL(ADD(A,B),C),N),MUL(A,C)),6);
+}
+
 function makeSpec(id,t,p){
+ if(id==='frac_mul_common')return multiplicationSpec(id,t,p);
  if(section36.has(id))return section36Spec(id,t,p);
  const d=id==='frac_equal'?(t===0?r(4,10):t===1&&p<=1?r(4,8):t===1?r(5,13):r(6,18)):r(4,9+t*2),e=r(3,10+t*2),a=r(1,d-1),b=r(1,e-1),k=id==='frac_equal'&&t===1&&p<=1?r(2,5):r(2,5+t),m=r(2,4+t),c=r(2,5+t),h=r(2,5+t);
- const f1=Q(a,d),f2=Q(b,e),f3=Q(1,d+1),u=Q(1,d),v=Q(1,d+e),lo=Q(1,d*2);
+ const f1=Q(a,d),f2=Q(b,e);
  const s=(n,den)=>format(n,den);
  const common=lcm(d,e);
  let tasks;
@@ -409,27 +466,6 @@ function makeSpec(id,t,p){
    ['Приведи '+s(b,e)+' к НОК трёх знаменателей '+d+', '+e+' и '+(e*k)+'. Найди числитель.',Q(b*(lcm(common,e*k)/e),1),'Определяем НОК трёх знаменателей и умножаем числитель.',4,'int'],
    ['Приведи знаменатели '+d+', '+e+' и '+(d*e)+' к наименьшему общему. Найди сумму трёх дополнительных множителей.',Q(lcm(common,d*e)/d+lcm(common,d*e)/e+lcm(common,d*e)/(d*e),1),'Разложим все три знаменателя на простые множители. Найдём НОК '+lcm(common,d*e)+'. Дополнительные множители: '+(lcm(common,d*e)/d)+', '+(lcm(common,d*e)/e)+' и '+(lcm(common,d*e)/(d*e))+'. Сложим их.',5,'int'],
    ['Найди НОК чисел '+(d*k)+', '+(e*m)+' и '+d+'.',Q(lcm(lcm(d*k,e*m),d),1),'Разложим три знаменателя на простые множители и соберём НОК.',4,'int']
-  ];
- }
- if(id==='frac_mul_common'){
-  if(t===0)tasks=[
-   ['Вычисли '+s(1,d)+' · '+s(1,e)+'.',MUL(u,Q(1,e)),'Перемножим числители и знаменатели, затем сократим.',2,'frac'],
-   ['Найди произведение '+s(a,d)+' и '+s(1,e)+'.',MUL(f1,Q(1,e)),'Произведение числителей поделим на произведение знаменателей.',2,'frac'],
-   ['Площадь прямоугольника со сторонами '+s(1,d)+' м и '+s(1,e)+' м. Найди площадь в м².',MUL(u,Q(1,e)),'Площадь равна произведению дробных длин.',2,'frac'],
-   ['Проверь, можно ли сократить множители перед умножением '+s(a,d)+' · '+s(b,e)+'. Вычисли произведение.',MUL(f1,f2),'Сократим общие множители, если они есть, затем перемножим и сократим дробь.',3,'frac'],
-   ['Найди половину числа '+s(a,d)+'.',MUL(f1,Q(1,2)),'Умножим дробь на одну вторую.',2,'frac']
-  ];else if(t===1)tasks=[
-   ['Вычисли ('+s(1,d)+' + '+s(1,e)+') · '+s(1,d+e)+'.',MUL(ADD(u,Q(1,e)),v),'Сложим дроби, затем умножим.',3,'frac'],
-   ['Найди произведение '+s(a,d)+' · '+s(b,e)+' и затем раздели результат на 2.',DIV(MUL(f1,f2),Q(2,1)),'Умножим две дроби и разделим пополам.',3,'frac'],
-   ['Вычисли '+s(a,d)+' · ('+s(1,e)+' + '+s(1,d*2)+').',MUL(f1,ADD(Q(1,e),lo)),'Сначала сумму внутри скобок, затем произведение.',3,'frac'],
-   ['Найди произведение '+s(1,d)+' · '+s(1,e)+' · '+s(1,d+1)+'.',MUL(MUL(u,Q(1,e)),f3),'Последовательно перемножим три дроби.',3,'frac'],
-   ['У прямоугольника стороны '+s(a,d)+' м и '+s(b,e)+' м. Вторую сторону уменьшили в 2 раза. Найди площадь нового прямоугольника.',MUL(f1,DIV(f2,Q(2,1))),'Разделим вторую сторону пополам, затем умножим длины.',3,'frac']
-  ];else tasks=[
-   ['Вычисли ('+s(a,d)+' + '+s(1,e)+') · ('+s(1,d)+' + '+s(1,d+e)+').',MUL(ADD(f1,Q(1,e)),ADD(u,v)),'Найдём две суммы, затем произведение и сократим.',5,'frac'],
-   ['Найди произведение '+s(a,d)+' · '+s(b,e)+' · '+s(1,d+e)+' + '+s(1,d*e)+'.',ADD(MUL(MUL(f1,f2),v),Q(1,d*e)),'Три множителя, затем прибавление дроби.',5,'frac'],
-   ['У прямоугольника стороны '+s(a,d)+' и '+s(b,e)+' м. Увеличили каждую сторону на '+s(1,d*e)+' м. Вычисли новую площадь.',MUL(ADD(f1,Q(1,d*e)),ADD(f2,Q(1,d*e))),'Две суммы сторон и умножение.',5,'frac'],
-   ['Вычисли '+s(a,d)+' · ('+s(b,e)+' + '+s(1,d*2)+') + '+s(1,d*e)+'.',ADD(MUL(f1,ADD(f2,lo)),Q(1,d*e)),'Скобки, произведение и ещё одно сложение.',4,'frac'],
-   ['Найди разность: ('+s(a,d)+' + '+s(1,d*2)+') · '+s(1,e)+' − '+s(1,d*2)+' · '+s(1,e)+'.',SUB(MUL(ADD(f1,lo),Q(1,e)),MUL(lo,Q(1,e))),'Вычислим два произведения и вычтем меньшее.',5,'frac']
   ];
  }
  if(!tasks||tasks.length!==5)throw Error('v129 no task family '+id+' '+t);
