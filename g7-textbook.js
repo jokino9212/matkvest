@@ -6260,6 +6260,265 @@ Object.assign(reviewed,{
  ]
 });
 
+Object.assign(reviewedLessons,{
+ stat_bar_charts:'Значение показывает высота столбца по вертикальной шкале. У соседних отметок шкалы одинаковая разность. Сравнивай значения на одной шкале и учитывай единицу измерения.',
+ stat_pie_charts:'Весь круг — это 100% или 360°. Угол сектора равен его доле от 360°. Чтобы найти число объектов в секторе, умножь долю на общее число объектов.',
+ stat_population_pyramid:'Каждая строка показывает возрастную группу. Полосы слева и справа читают от общей нулевой отметки по одной шкале. Общая численность возрастной группы — сумма обеих полос.'
+});
+function textbookBars(a,b,c,y){
+ const labels=['Пн','Вт','Ср','Чт','Пт'];
+ const ordered=[a,a+b,a+b+c+14,a+b+c+y+42,a+b+c+y+44],shift=(a+b)%5;
+ const values=ordered.slice(shift).concat(ordered.slice(0,shift));
+ const scale=g6ChartScale(values);
+ const data={labels,values,title:'Посетители библиотеки, чел.',maxValue:scale.maxValue,step:scale.step};
+ return {labels,values,scale,visual:question=>g6AttachBarChart(question,data)};
+}
+function textbookPie(a,b){
+ const labels=['Книги','Игры','Спорт','Музыка'];
+ const rows=[[10,15,25,50],[10,20,30,40],[5,25,30,40],[15,20,30,35],[5,20,25,50],[10,15,35,40]];
+ const numbers=rows[(a+b)%rows.length],shift=a%4;
+ const values=numbers.slice(shift).concat(numbers.slice(0,shift));
+ return {labels,values,visual:question=>g7AttachPie(question,{labels,values,title:'Распределение ответов, %'})};
+}
+const populationAges=['0–17','18–34','35–59','60+'];
+const ageGroups=['Мужчины','Женщины'];
+function populationModel(a,b,c,y){
+ const men=[a+4,a+c,b+c+1,y+2].map(v=>2*v),women=[b+4,b+y,a+y+1,c+2].map(v=>2*v);
+ const values=[men,women];
+ return {men,women,values,visual:question=>{
+  question.visual={type:'g7TextbookPopulation',data:{values,ages:populationAges}};
+  const rows=populationAges.map((age,i)=>age+': мужчин — '+men[i]+', женщин — '+women[i]);
+  question.journalPrompt=question.text+'<br>'+rows.join('; ');
+  return question;
+ }};
+}
+function populationChart({values,ages}){
+ const max=Math.ceil(Math.max(...values.flat())/4)*4,leftZero=259,rightZero=301,length=205,scale=length/max;
+ const x=(side,value)=>side===0?leftZero-value*scale:rightZero+value*scale;
+ const text=(x,y,label,size=15)=>'<text x="'+x+'" y="'+y+'" fill="currentColor" text-anchor="middle" font-size="'+size+'">'+label+'</text>';
+ const marks=Array.from({length:max/4+1},(_,i)=>i*4);
+ const yAxis=237, colors=['#83b7ee','#daa1d4'];
+ const grids=values.map((_,side)=>marks.map(mark=>'<line x1="'+x(side,mark)+'" x2="'+x(side,mark)+'" y1="38" y2="'+yAxis+'" stroke="currentColor" opacity=".24"/>'+text(x(side,mark),yAxis+19,mark)).join('')).join('');
+ const bars=ages.map((age,i)=>{
+  const y=56+45*i;
+  return text(280,y+15,age,14)+values.map((counts,side)=>{
+   const number=counts[i], edge=x(side,number), start=side===0?edge:rightZero;
+   return '<rect x="'+start+'" y="'+y+'" width="'+number*scale+'" height="21" rx="3" fill="'+colors[side]+'">'+
+    '<title>'+ageGroups[side]+', '+age+' лет: '+number+' тыс. чел.</title></rect>'+text(edge+(side===0?-15:15),y+15,number,13);
+  }).join('');
+ }).join('');
+ return '<div class="g7-data-title">Численность по возрасту и полу, тыс. чел.</div><svg class="g7-population-svg" viewBox="0 0 560 278" role="img" aria-label="Возрастно-половая диаграмма" style="display:block;width:100%;max-width:560px;margin:auto">'+
+  text(145,22,ageGroups[0],19)+text(415,22,ageGroups[1],19)+grids+bars+'</svg>';
+}
+const beforePopulationVisual=quizVisualHtml;
+quizVisualHtml=function(question){
+ const visual=question?.visual;
+ return visual?.type==='g7TextbookPopulation'?populationChart(visual.data):beforePopulationVisual(question);
+};
+Object.assign(reviewed,{
+ stat_bar_charts:[
+  {
+   read_day_value:({a,b,c,y})=>{
+    const m=textbookBars(a,b,c,y),i=a%5;
+    return tableTask(m,'Сколько посетителей пришло в день «'+m.labels[i]+'»?',m.values[i],'Считываем высоту столбца над «'+m.labels[i]+'».');
+   },
+   find_label_of_largest_column:({a,b,c,y})=>{
+    const m=textbookBars(a,b,c,y),i=m.values.indexOf(Math.max(...m.values));
+    return withVisual(choice('В какой день было больше всего посетителей?',m.labels[i],m.labels.filter((_,j)=>j!==i).slice(0,3),
+     'Самый высокий столбец — над «'+m.labels[i]+'». Его высота '+m.values[i]+'.'),m.visual);
+   },
+   read_highest_and_lowest_gap:({a,b,c,y})=>{
+    const m=textbookBars(a,b,c,y),hi=Math.max(...m.values),lo=Math.min(...m.values);
+    return tableTask(m,'На сколько человек самый высокий столбец отличается от самого низкого?',hi-lo,
+     'По шкале высоты '+hi+' и '+lo+'. Разность '+(hi-lo)+'.');
+   },
+   identify_days_above_mark:({a,b,c,y})=>{
+    const m=textbookBars(a,b,c,y),threshold=a+b+c;
+    return tableTask(m,'Сколько дней было строго больше '+threshold+' посетителей?',m.values.filter(v=>v>threshold).length,
+     'Считаем только столбцы выше отметки '+threshold+'.');
+   }
+  },
+  {
+   compare_sum_two_against_another:({a,b,c,y})=>{
+    const m=textbookBars(a,b,c,y),[u,v,w]=m.values;
+    return tableTask(m,'На сколько человек отличаются сумма за понедельник и вторник и число за среду?',Math.abs(u+v-w),
+     'За два дня '+u+' + '+v+' = '+(u+v)+'. За среду '+w+'. Берём разность большего и меньшего.');
+   },
+   find_combined_period_total:({a,b,c,y})=>{
+    const m=textbookBars(a,b,c,y),start=a%3,values=m.values.slice(start,start+3);
+    return tableTask(m,'Сколько всего людей за три дня с «'+m.labels[start]+'» по «'+m.labels[start+2]+'»?',addValues(values),
+     'Складываем три соответствующих значения: '+values.join(' + ')+'.');
+   },
+   determine_mean_of_first_three:({a,b,c,y})=>{
+    const m=textbookBars(a,b,c,y),rows=m.values.slice(0,3);
+    return tableTask(m,'Найди среднее число посетителей за первые три дня в точном виде.',rational(addValues(rows),3),
+     'Складываем '+rows.join(', ')+' и делим сумму на три.');
+   },
+   read_which_day_has_largest_increase:({a,b,c,y})=>{
+    const m=textbookBars(a,b,c,y),diff=m.values.slice(1).map((v,i)=>v-m.values[i]),i=diff.indexOf(Math.max(...diff));
+    return withVisual(choice('В какой день прирост относительно предыдущего дня был самым большим?',m.labels[i+1],m.labels.slice(1).filter((_,j)=>i!==j),
+     'Разности соседних столбцов: '+diff.join(', ')+'. Берём наибольшую.'),m.visual);
+   }
+  },
+  {
+   exact_share_of_combined_days:({a,b,c,y})=>{
+    const m=textbookBars(a,b,c,y),subtotal=m.values[1]+m.values[3],total=addValues(m.values);
+    return tableTask(m,'Какую долю посетителей за пять дней дали вторник и четверг? Ответ запиши дробью.',rational(subtotal,total),
+     'В числителе сумма за два указанных дня, '+subtotal+'. В знаменателе сумма пяти столбцов, '+total+'.');
+   },
+   compute_relative_increase_from_bars:({a,b,c,y})=>{
+    const m=textbookBars(a,b,c,y),min=Math.min(...m.values),max=Math.max(...m.values);
+    return tableTask(m,'На сколько процентов максимальное число посетителей больше минимального? Запиши точное значение без знака процента.',rational(100*(max-min),min),
+     'Находим разность '+(max-min)+'. Делим на минимум '+min+' и умножаем на 100.');
+   },
+   remove_one_column_and_recalculate:({a,b,c,y})=>{
+    const m=textbookBars(a,b,c,y),high=Math.max(...m.values),total=addValues(m.values);
+    return tableTask(m,'Из подсчёта исключили день с наибольшим числом посетителей. Найди новое среднее в точном виде.',rational(total-high,4),
+     'Из общей суммы '+total+' вычитаем '+high+' и делим на четыре оставшихся дня.');
+   },
+   expected_extra_to_hit_daily_average:({a,b,c,y})=>{
+    const m=textbookBars(a,b,c,y),total=addValues(m.values),target=Math.ceil(total/5)+a;
+    return tableTask(m,'Добавили шестой день. В среднем за шесть дней получилось '+target+' посетителей в день. Сколько пришло в шестой день?',6*target-total,
+     'За шесть дней получается 6 · '+target+' = '+6*target+'. Из этой суммы вычитаем '+total+' за первые пять дней.');
+   }
+  }
+ ],
+ stat_pie_charts:[
+  {
+   exact_share_at_sector:({a,b})=>{
+    const m=textbookPie(a,b),i=a%4;
+    return tableTask(m,'Какой процент соответствует сектору «'+m.labels[i]+'»?',m.values[i],'Находим сектор по легенде и читаем его долю.');
+   },
+   name_largest_slice:({a,b})=>{
+    const m=textbookPie(a,b),i=m.values.indexOf(Math.max(...m.values));
+    return withVisual(choice('К какой категории относится самый большой сектор?',m.labels[i],m.labels.filter((_,j)=>j!==i),
+     'Самый большой сектор занимает '+m.values[i]+'% круга.'),m.visual);
+   },
+   compare_slices_in_points:({a,b})=>{
+    const m=textbookPie(a,b),i=a%4,j=(i+1)%4;
+    return tableTask(m,'На сколько процентных пунктов отличаются доли «'+m.labels[i]+'» и «'+m.labels[j]+'»?',Math.abs(m.values[i]-m.values[j]),
+     'Берём разность большей и меньшей долей, выраженных в процентах.');
+   },
+   percent_outside_selected_sector:({a,b})=>{
+    const m=textbookPie(a,b),i=b%4;
+    return tableTask(m,'Какой процент занимают все сектора, кроме «'+m.labels[i]+'»?',100-m.values[i],'Из 100% вычитаем долю выбранного сектора.');
+   }
+  },
+  {
+   section_angle_from_share:({a,b})=>{
+    const m=textbookPie(a,b),i=a%4;
+    return tableTask(m,'Чему равен центральный угол сектора «'+m.labels[i]+'»?',360*m.values[i]/100,
+     'Умножаем 360° на '+m.values[i]+' / 100.');
+   },
+   count_people_in_selected_slice:({a,b})=>{
+    const m=textbookPie(a,b),i=b%4,total=20*(a+b);
+    return tableTask(m,'Ответило '+total+' человек. Сколько выбрали «'+m.labels[i]+'»?',total*m.values[i]/100,
+     'Берём '+m.values[i]+'% от '+total+'.');
+   },
+   combined_share_and_complement:({a,b})=>{
+    const m=textbookPie(a,b),i=a%4,j=(i+1)%4;
+    return tableTask(m,'Какой процент занимают все сектора, кроме «'+m.labels[i]+'» и «'+m.labels[j]+'»?',100-m.values[i]-m.values[j],
+     'Из 100% вычитаем '+m.values[i]+'% и '+m.values[j]+'%.');
+   },
+   ratio_of_two_sector_angles:({a,b})=>{
+    const m=textbookPie(a,b),i=a%4,j=(i+2)%4;
+    return tableTask(m,'Чему равно отношение центральных углов «'+m.labels[i]+'» к «'+m.labels[j]+'»? Запиши дробью.',rational(m.values[i],m.values[j]),
+     'Отношение углов равно отношению долей: '+m.values[i]+' / '+m.values[j]+'.');
+   }
+  },
+  {
+   infer_total_from_slice_count:({a,b})=>{
+    const m=textbookPie(a,b),i=a%4,total=20*(a+b),n=total*m.values[i]/100;
+    return tableTask(m,'«'+m.labels[i]+'» выбрали '+n+' человек. Сколько всего человек ответило?',total,
+     'Число '+n+' соответствует доле '+m.values[i]+' / 100. Делим это число на долю.');
+   },
+   find_difference_counts_using_partial_count:({a,b})=>{
+    const m=textbookPie(a,b),i=a%4,j=(i+1)%4,total=20*(a+b),n=total*m.values[i]/100;
+    return tableTask(m,'«'+m.labels[i]+'» выбрали '+n+' человек. На сколько человек отличаются числа выбравших «'+m.labels[i]+'» и «'+m.labels[j]+'»?',
+     total*Math.abs(m.values[i]-m.values[j])/100,
+     'Сначала делим '+n+' на '+m.values[i]+' / 100, получаем '+total+' человек. Берём разность долей от этого числа.');
+   },
+   share_after_excluding_two_categories:({a,b})=>{
+    const m=textbookPie(a,b),i=a%4,j=(i+3)%4;
+    return tableTask(m,'Оставили ответы «'+m.labels[i]+'» и «'+m.labels[j]+'». Какую долю среди них занимают «'+m.labels[i]+'»?',rational(m.values[i],m.values[i]+m.values[j]),
+     'В новой группе всего '+(m.values[i]+m.values[j])+' долей из исходных ста. Числитель '+m.values[i]+'.');
+   },
+   compare_angles_of_two_combined_groups:({a,b})=>{
+    const m=textbookPie(a,b),i=a%4,j=(i+2)%4,share=m.values[i]+m.values[j];
+    return tableTask(m,'Объединили «'+m.labels[i]+'» и «'+m.labels[j]+'» в сектор, все остальные — в другой. На сколько градусов отличаются их углы?',rational(18*Math.abs(2*share-100),5),
+     'Доли '+share+'% и '+(100-share)+'%. Переводим разность долей в градусы: умножаем на 360° и делим на 100.');
+   }
+  }
+ ],
+ stat_population_pyramid:[
+  {
+   read_age_and_sex_cell:({a,b,c,y})=>{
+    const m=populationModel(a,b,c,y),age=a%4,side=b%2;
+    return tableTask(m,'Сколько тысяч человек в группе «'+ageGroups[side]+'», возраст '+populationAges[age]+' лет?',m.values[side][age],
+     'Читаем длину полосы от нуля в нужной строке и на нужной половине.');
+   },
+   name_age_with_most_men:({a,b,c,y})=>{
+    const m=populationModel(a,b,c,y),high=Math.max(...m.men);
+    return tableTask(m,'Сколько тысяч мужчин в самой многочисленной мужской возрастной группе?',high,
+     'На левой половине ищем самую длинную полосу. Её значение '+high+' тыс.');
+   },
+   read_more_from_one_pair:({a,b,c,y})=>{
+    const m=populationModel(a,b,c,y),i=a%4,men=m.men[i],women=m.women[i];
+    return withVisual(choice('Кого больше в возрастной группе '+populationAges[i]+' лет?',men>women?'Мужчин':women>men?'Женщин':'Поровну',
+     ['Мужчин','Женщин','Поровну'].filter(label=>label!==(men>women?'Мужчин':women>men?'Женщин':'Поровну')),
+     'Сравниваем левую и правую полосы одной строки: '+men+' и '+women+' тыс.'),m.visual);
+   },
+   find_gap_between_two_ages_one_sex:({a,b,c,y})=>{
+    const m=populationModel(a,b,c,y),i=a%4,j=(i+1)%4;
+    return tableTask(m,'На сколько тысяч различается число женщин в группах '+populationAges[i]+' и '+populationAges[j]+' лет?',Math.abs(m.women[i]-m.women[j]),
+     'На правой половине читаем '+m.women[i]+' и '+m.women[j]+'. Берём разность.');
+   }
+  },
+  {
+   population_total_by_age:({a,b,c,y})=>{
+    const m=populationModel(a,b,c,y),i=b%4;
+    return tableTask(m,'Сколько тысяч человек в возрастной группе '+populationAges[i]+' лет вместе?',m.men[i]+m.women[i],'Складываем обе полосы в этой строке.');
+   },
+   sum_by_one_sex:({a,b,c,y})=>{
+    const m=populationModel(a,b,c,y),i=a%2;
+    return tableTask(m,'Какова общая численность группы «'+ageGroups[i]+'» в тысячах?',addValues(m.values[i]),'Складываем все четыре полосы с нужной стороны.');
+   },
+   compare_age_groups_total:({a,b,c,y})=>{
+    const m=populationModel(a,b,c,y),i=a%4,j=(i+2)%4,p=m.men[i]+m.women[i],q=m.men[j]+m.women[j];
+    return tableTask(m,'На сколько тысяч человек различаются общие размеры групп '+populationAges[i]+' и '+populationAges[j]+' лет?',Math.abs(p-q),
+     'Сначала складываем обе полосы в каждой строке. Получаем '+p+' и '+q+' тыс., затем берём разность.');
+   },
+   filter_age_by_male_female_inequality:({a,b,c,y})=>{
+    const m=populationModel(a,b,c,y);
+    return tableTask(m,'В скольких возрастных группах женщин строго больше мужчин?',m.women.filter((v,i)=>v>m.men[i]).length,
+     'Сравниваем полосы слева и справа в каждой строке. Равные не учитываем.');
+   }
+  },
+  {
+   compute_female_share_in_one_age:({a,b,c,y})=>{
+    const m=populationModel(a,b,c,y),i=a%4;
+    return tableTask(m,'Какую долю возрастной группы '+populationAges[i]+' лет составляют женщины? Запиши дробью.',rational(m.women[i],m.women[i]+m.men[i]),
+     'Числитель — женщины, знаменатель — обе полосы выбранной строки в сумме.');
+   },
+   compute_share_of_two_age_groups:({a,b,c,y})=>{
+    const m=populationModel(a,b,c,y),i=b%3,group=m.values.flatMap(row=>row.slice(i,i+2));
+    return tableTask(m,'Какую долю всего населения составляют возрастные группы '+populationAges[i]+' и '+populationAges[i+1]+' лет вместе?',
+     rational(addValues(group),addValues(m.values.flat())),'Суммируем обе половины в двух выбранных строках и делим на сумму всех полос.');
+   },
+   extended_totals_by_sex_and_age:({a,b,c,y})=>{
+    const m=populationModel(a,b,c,y),men=m.men.slice(0,3),women=m.women.slice(1);
+    return tableTask(m,'На сколько тысяч различаются число мужчин младше 60 лет и число женщин от 18 лет?',Math.abs(addValues(men)-addValues(women)),
+     'Из мужской части берём первые три строки, из женской — последние три. Сравниваем суммы.');
+   },
+   compare_relative_shares_two_groups:({a,b,c,y})=>{
+    const m=populationModel(a,b,c,y),i=a%4,j=(i+1)%4,left=rational(m.women[i],m.women[i]+m.men[i]),right=rational(m.women[j],m.women[j]+m.men[j]);
+    return withVisual(compare('Сравни доли женщин среди всех людей в группах '+populationAges[i]+' и '+populationAges[j]+' лет. Первая доля соответствует первой группе.',left,right,
+     'Для каждой возрастной группы делим длину правой полосы на сумму обеих длин.'),m.visual);
+   }
+  }
+ ]
+});
+
 add('alg_expressions_equations','compare_expression_values','Сравнение значений выражений',
  'Чтобы сравнить выражения, вычисли оба значения или используй свойства действий. При указанном значении переменной сначала подставь его в обе части. Для двойного неравенства проверь обе границы.',
  null);
