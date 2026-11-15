@@ -75,7 +75,11 @@ const reviewedLessons={
  sum_difference_cubes:'Для суммы кубов используй (A + B)(A² − AB + B²). Для разности кубов используй (A − B)(A² + AB + B²).',
  integer_expression_transform:'Узнай формулу, раскрой скобки и приведи подобные. Если нужно вычислить значение, обычно удобно сначала упростить выражение.',
  combined_factorization:'Сначала проверь общий множитель. Затем ищи формулу или группировку. Если один из полученных множителей ещё раскладывается, продолжи разложение.',
- higher_binomial_power:'Запиши степень как произведение одинаковых скобок. Каждый член получается выбором одного слагаемого из каждой скобки. Коэффициент учитывает, сколькими способами можно сделать такой выбор.'
+ higher_binomial_power:'Запиши степень как произведение одинаковых скобок. Каждый член получается выбором одного слагаемого из каждой скобки. Коэффициент учитывает, сколькими способами можно сделать такой выбор.',
+ linear_equation_two_variables:'Решение уравнения с двумя переменными — пара чисел. Подставь x и y в свои места. Если задана одна координата, найди другую, решив уравнение.',
+ linear_equation_two_variables_graph:'График уравнения ax + by = c при ненулевой паре коэффициентов — прямая. Координаты каждой её точки удовлетворяют уравнению. Для пересечения с осью подставь ноль вместо другой координаты.',
+ linear_system_concept:'Пара является решением системы, если она удовлетворяет обоим уравнениям одновременно.',
+ graphical_equations_systems:'Решение системы находится в точке пересечения графиков. Пересекающиеся прямые дают одно решение, различные параллельные прямые — ни одного, совпадающие — бесконечно много.'
 };
 
 function compare(prompt,left,right,explanation){
@@ -135,6 +139,12 @@ const xTerm=(coef,degree)=>monomial(coef,degree,0);
 const polynomial=(...terms)=>terms.map(([coef,degree])=>xTerm(coef,degree));
 const polyChoice=(prompt,correct,options,ex)=>choice(prompt,g7PolynomialHtml(correct),options.map(g7PolynomialHtml),ex);
 const parenthesized=terms=>'('+g7PolynomialBodyHtml(terms)+')';
+const system=(left,right)=>math('⎧ '+left+'<br>⎩ '+right);
+const coordinates=(prompt,x,y,ex,attach)=>[prompt,{x:g6CoordRat(x),y:g6CoordRat(y)},ex,'coordinate',attach];
+function systemGraph(lines){
+ const series=lines.map(([k,b],i)=>g7LineSeries(k,b,{alt:i>0,label:i?'Вторая прямая':'Первая прямая'}));
+ return question=>g7AttachGraph(question,g7GraphData(series,{caption:'Графики уравнений системы'}));
+}
 
 function add(section,id,title,rule,build){
  const group=G7_GROUPS.find(item=>item.id===section);
@@ -2331,6 +2341,186 @@ const reviewed = {
     'Для x³ один свободный множитель берётся со знаком +, другой со знаком −. Слагаемые сокращаются.'],
    recover_binomial_constant: ({a,b})=>['Найди k, если в '+math('('+a+'x + k)⁵')+' коэффициент при x⁴ равен '+fmt(-5*a**4*b)+'.',-b,
     'Коэффициент при x⁴ равен 5 · '+a**4+' · k. Делим заданное число на '+(5*a**4)+' и получаем '+fmt(-b)+'.']
+  }
+ ],
+ linear_equation_two_variables: [
+  {
+   check_integer_pair: ({a,b,c})=>{
+    const truth=c%2===0,right=a+b+Number(!truth);
+    return checkStatement('Является ли ('+a+'; '+b+') решением '+math('x + y = '+right)+'?',truth,'Слева при подстановке получаем '+a+' + '+b+' = '+(a+b)+'.');
+   },
+   find_y_given_x: ({a,b,c})=>['В уравнении '+math(a+'x + y = '+(a*b+c))+' известно x = '+b+'. Найди y.',c,
+    'Вычитаем '+a*b+' из правой части. Получаем y = '+c+'.'],
+   find_x_given_y: ({a,b,c})=>['В уравнении '+math('x − '+a+'y = '+fmt(b-a*c))+' известно y = '+c+'. Найди x.',b,
+    'Прибавляем '+a*c+' к обеим частям. x = '+fmt(b-a*c)+' + '+a*c+' = '+b+'.'],
+   choose_equation_pair: ({a,b})=>choice('Какая пара удовлетворяет '+math('x + y = '+(a+b))+'?',
+    pair(a,b),[pair(a+1,b),pair(a,b+1),pair(a+b,1)],'Проверяем сложением координат. У верной пары сумма '+(a+b)+'.')
+  },
+  {
+   check_signed_pair: ({a,b,c})=>{
+    const truth=c%2===0,left=-a*b+c,right=left+Number(!truth);
+    return checkStatement('Подходит ли '+pair(fmt(-b),c)+' для '+math(a+'x + y = '+fmt(right))+'?',truth,
+     'Левая часть равна '+a+' · (−'+b+') + '+c+' = '+fmt(left)+'.');
+   },
+   express_y: ({a,b})=>choice('Вырази y из '+math(a+'x + '+b+'y = '+b*a)+'.',
+    'y = '+frac(b*a+' − '+a+'x',b),['y = '+frac(b*a+' + '+a+'x',b),'y = '+frac(b*a+' − '+a+'x',b+1),math('y = '+b*a+' − '+a+'x')],
+    'Вычитаем '+a+'x из обеих частей, затем делим на '+b+'.'),
+   find_fractional_coordinate: ({a,b,c})=>['В '+math(a+'x + '+b+'y = '+(a*c+1))+' подставь x = '+c+' и найди y.',rational(1,b),
+    'После вычитания '+a*c+' остаётся '+b+'y = 1. Значит, y = '+frac(1,b)+'.'],
+   choose_from_two_constraints: ({a,b,c})=>choice('Какая пара удовлетворяет '+math(a+'x − y = '+fmt(a*b-c))+' и имеет x &lt; '+(b+1)+'?',
+    pair(b,c),[pair(b+1,c+a),pair(b,c+1),pair(b+1,c)],
+    'Проверяем обе части условия. Для ('+b+'; '+c+') уравнение верно и '+b+' меньше '+(b+1)+'.')
+  },
+  {
+   equate_results_from_coordinates: ({a,b,c})=>['Найди k, чтобы '+pair(a,b)+' была решением '+math('kx − '+c+'y = '+a*b)+'.',rational(a*b+c*b,a),
+    'Подстановка даёт '+a+'k − '+c*b+' = '+a*b+'. Прибавляем '+c*b+' и делим на '+a+'.'],
+   solve_with_related_coordinates: ({a,b,c})=>{
+    const right=(a+b)*c+b*a;
+    return coordinates('Найди пару (x; y) для '+math(a+'x + '+b+'y = '+right)+', если y = x + '+a+'.',c,c+a,
+     'Подставляем y = x + '+a+'. Получаем '+(a+b)+'x + '+b*a+' = '+right+'. Отсюда x = '+c+', y = '+(c+a)+'.');
+   },
+   compare_two_coordinates_conditions: ({a,b,c})=>['Найди y, если '+math(a+'x − '+b+'y = 0')+' и x = '+fmt(-c)+'.',rational(-a*c,b),
+    'Переносим слагаемое: '+b+'y = '+a+'x. Подставляем x = '+fmt(-c)+' и делим на '+b+'.'],
+   expression_on_solutions: ({a,b,c})=>['Вычисли '+math(2*a+'x − '+2*b+'y + '+c)+', если '+math(a+'x − '+b+'y = '+(a+b))+'.',2*(a+b)+c,
+    'Первые два члена равны удвоенной левой части известного уравнения. Получаем 2 · '+(a+b)+' + '+c+' = '+(2*(a+b)+c)+'.']
+  }
+ ],
+ linear_equation_two_variables_graph: [
+  {
+   y_intercept_from_equation: ({a,b,c})=>['Найди ординату пересечения с Oy графика '+math(a+'x + '+b+'y = '+b*c)+'.',c,
+    'Подставляем x = 0. Получаем '+b+'y = '+b*c+', значит y = '+c+'.'],
+   x_intercept_from_equation: ({a,b,c})=>['Найди абсциссу пересечения с Ox графика '+math(a+'x + '+b+'y = '+fmt(-a*c))+'.',-c,
+    'Подставляем y = 0. Получаем '+a+'x = '+fmt(-a*c)+', откуда x = '+fmt(-c)+'.'],
+   recognize_horizontal: ({a,b})=>choice('Как расположен график '+math(a+'y = '+a*b)+'?',
+    'Горизонтальная прямая',['Вертикальная прямая','Точка на Ox','Прямая через начало координат'],
+    'Из уравнения следует y = '+b+'. Абсцисса может быть любой.'),
+   recognize_vertical: ({a,b})=>choice('Как расположен график '+math(a+'x = '+fmt(-a*b))+'?',
+    'Вертикальная прямая',['Горизонтальная прямая','Точка на Oy','Прямая через начало координат'],
+    'Из уравнения следует x = '+fmt(-b)+'. Ордината может быть любой.')
+  },
+  {
+   intercept_from_shown_graph: ({a,b})=>{
+    const b0=a%5-2,k=1+b%2;
+    return withVisual(['Найди ординату точки пересечения показанной прямой с Oy.',b0,'При x = 0 на графике y = '+fmt(b0)+'.'],
+     functionGraph([],{line:[k,b0]}));
+   },
+   choose_two_points_to_plot: ({a,b})=>choice('Какую пару точек можно использовать для построения графика '+math('x + y = '+(a+b))+'?',
+    pair(a+b,0)+' и '+pair(0,a+b),[pair(a,0)+' и '+pair(0,b),pair(a+b,1)+' и '+pair(0,a+b),pair(0,0)+' и '+pair(a,b)],
+    'При y = 0 получаем x = '+(a+b)+'. При x = 0 получаем y = '+(a+b)+'.'),
+   convert_equation_for_graph: ({a,b,c})=>choice('Какая запись задаёт тот же график, что '+math(a+'x + '+b+'y = '+c)+'?',
+    'y = '+frac(c+' − '+a+'x',b),['y = '+frac(c+' + '+a+'x',b),'y = '+frac(c+' − '+a+'x',b+1),'y = '+frac(a+'x − '+c,b)],
+    'Вычитаем '+a+'x, затем делим на '+b+'.'),
+   intercept_fraction_from_equation: ({a,b,c})=>['Найди абсциссу пересечения с Ox графика '+math(a+'x − '+b+'y = '+c)+'.',rational(c,a),
+    'Подставляем y = 0 и делим обе части уравнения '+a+'x = '+c+' на '+a+'.']
+  },
+  {
+   identify_equation_from_graph: ({a,b})=>{
+    const k=a%3+1,offset=b%3-1,term=fmt(-k)+'x + y';
+    return withVisual(choice('Какое уравнение задаёт показанную прямую?',math(term+' = '+fmt(offset)),
+     [math(term+' = '+fmt(offset+1)),math(k+'x + y = '+fmt(offset)),math(term+' = '+fmt(offset-1))],
+     'Читаем пересечение с Oy: '+fmt(offset)+'. При увеличении x на 1 y меняется на '+k+'. Поэтому y − '+k+'x = '+fmt(offset)+'.'),
+     functionGraph([],{line:[k,offset]}));
+   },
+   axis_triangle_area: ({a,b})=>['Прямая '+math(b+'x + '+a+'y = '+a*b)+' и оси образуют треугольник. Найди его площадь.',rational(a*b,2),
+    'Пересечения с осями имеют координаты ('+a+'; 0) и (0; '+b+'). Катеты '+a+' и '+b+', площадь равна половине их произведения.'],
+   find_a_from_graph_point: ({a,b,c})=>['Прямая '+math('kx + '+b+'y = '+(a*c+b))+' проходит через '+pair(c,1)+'. Найди k.',a,
+    'Подстановка даёт '+c+'k + '+b+' = '+(a*c+b)+'. Вычитаем '+b+' и делим на '+c+'.'],
+   triangle_axis_lengths: ({a,b})=>['Найди сумму длин катетов треугольника, образованного координатными осями и '+math(b+'x − '+a+'y = '+a*b)+'.',a+b,
+    'При y = 0 получаем x = '+a+'. При x = 0 получаем y = '+fmt(-b)+'. Длины катетов равны '+a+' и '+b+'.']
+  }
+ ],
+ linear_system_concept: [
+  {
+   check_both_conditions: ({a,b,c})=>{
+    const truth=c%2===0;
+    return checkStatement('Является ли '+pair(a,b)+' решением '+system('x + y = '+(a+b),'x − y = '+fmt(a-b+Number(!truth)))+'?',
+     truth,'Подстановка даёт x + y = '+(a+b)+' и x − y = '+fmt(a-b)+'. Сравниваем с обеими правыми частями.');
+   },
+   select_common_solution: ({a,b})=>choice('Какая пара решает '+system('x + y = '+(a+b),'y = '+b)+'?',
+    pair(a,b),[pair(a+1,b),pair(a+1,b-1),pair(a,b+1)],'Вторая координата равна '+b+', после подстановки в первое уравнение x = '+a+'.'),
+   read_system_pair: ({a,b})=>coordinates('Запиши решение '+system('x = '+fmt(-a),'y = '+b)+'.',-a,b,
+    'Первое уравнение задаёт x, второе задаёт y. Обе координаты уже известны.'),
+   identify_meaning_of_system: ({a,b})=>choice('Что значит решить '+system('x + y = '+(a+b),'x − y = '+fmt(a-b))+'?',
+    'Найти все пары, удовлетворяющие обоим уравнениям',['Найти решения только верхнего уравнения','Найти любую пару чисел','Сравнить правые части'],
+    'Одна пара должна одновременно превращать каждое уравнение в верное равенство.')
+  },
+  {
+   rejects_one_equation_only: ({a,b})=>checkStatement('Подходит ли '+pair(a+1,b-1)+' для '+system('x + y = '+(a+b),'x = '+a)+'?',false,
+    'Сумма верна, но x равно '+(a+1)+', тогда как второе уравнение требует '+a+'.'),
+   find_partner_from_known_value: ({a,b,c})=>['Известно, что x = '+a+' в решении '+system('x + y = '+(a+b),c+'x + y = '+(c*a+b))+'. Найди y.',b,
+    'В первом уравнении y = '+(a+b)+' − '+a+' = '+b+'. Во втором '+c+' · '+a+' + '+b+' = '+(c*a+b)+'.'],
+   transformed_pair_check: ({a,b,c})=>{
+    const left=a*c+b,truth=c%2===0;
+    return checkStatement('Подходит ли '+pair(a,b)+' для '+system(c+'x + y = '+left,'y − x = '+fmt(b-a+Number(!truth)))+'?',truth,
+     'Первая левая часть равна '+left+', вторая '+fmt(b-a)+'. Пара должна удовлетворять двум равенствам.');
+   },
+   equivalent_constant_system: ({a,b})=>choice('Какая система имеет то же решение, что '+system('x = '+a,'y = '+b)+'?',
+    system('x + y = '+(a+b),'y = '+b),[system('x + y = '+(a+b+1),'y = '+b),system('x = 0','y = '+b),system('x = '+a,'y = '+(b+1))],
+    'У второй координаты значение '+b+'. После подстановки в x + y = '+(a+b)+' первая координата равна '+a+'.')
+  },
+  {
+   contradictory_system: ({a,b,c})=>choice('Сколько решений у '+system(a+'x + y = '+b,a+'x + y = '+(b+c))+'?',
+    'Нет решений',['Одно','Два','Бесконечно много'],'У левых частей одна формула, а требуемые значения отличаются на '+c+'.'),
+   same_equation_times_factor: ({a,b,c})=>choice('Сколько решений у '+system(a+'x + y = '+b,c*a+'x + '+c+'y = '+c*b)+'?',
+    'Бесконечно много',['Ни одного','Одно','Два'],'Второе уравнение получается умножением первого на '+c+'. Каждая точка прямой является общим решением.'),
+   recover_system_parameter: ({a,b,c})=>['Найди k, если '+pair(a,b)+' является решением '+system('x + y = '+(a+b),c+'x + ky = '+(c*a+b*b))+'.',b,
+    'Подставляем координаты во второе уравнение: '+c*a+' + '+b+'k = '+(c*a+b*b)+'. Получаем '+b+'k = '+b*b+'.'],
+   find_pair_from_simple_system: ({a,b,c})=>coordinates('Найди решение '+system('x + y = '+(a+b),'x − y = '+fmt(a-b))+'.',a,b,
+    'Складываем: 2x = '+2*a+'. Значит, x = '+a+' и y = '+(a+b)+' − '+a+' = '+b+'.')
+  }
+ ],
+ graphical_equations_systems: [
+  {
+   meaning_of_crossing: ({a,b})=>checkStatement('Если графики системы пересеклись в '+pair(a,b)+', является ли '+pair(a,b)+' решением?',true,
+    'Точка пересечения принадлежит обоим графикам. Поэтому её координаты удовлетворяют обоим уравнениям.'),
+   read_integer_intersection: ({a,b})=>{
+    const x=a%3-1,y=b%3-1;
+    return coordinates('Запиши координаты точки пересечения графиков.',x,y,
+     'На рисунке прямые пересекаются в точке '+pair(fmt(x),fmt(y))+'.',systemGraph([[0,y],[1,y-x]]));
+   },
+   identify_parallel_graphs: ({a})=>{
+    const gap=a%3+1;
+    return withVisual(choice('Сколько решений у системы, показанной на графике?', 'Нет решений',['Одно','Два','Бесконечно много'],
+     'Разные прямые параллельны и не пересекаются.'),systemGraph([[1,-gap],[1,gap]]));
+   },
+   compare_zero_intercept: ({a,b})=>{
+    const k=a%2+1,c=b%3+1;
+    return withVisual(['На какой высоте пересекаются прямые? Введи y точки пересечения.',c,
+     'Обе прямые пересекают Oy в точке с ординатой '+c+'.'],systemGraph([[k,c],[-k,c]]));
+   }
+  },
+  {
+   count_from_different_slopes: ({a,b})=>choice('Сколько решений у '+system('y = '+a+'x + '+b,'y = '+(a+1)+'x + '+b)+'?',
+    'Одно',['Ни одного','Два','Бесконечно много'],'Наклоны разные, поэтому графики пересекаются ровно один раз.'),
+   count_from_same_line: ({a,b,c})=>choice('Сколько решений у '+system('y = '+a+'x + '+b,c+'y = '+c*a+'x + '+c*b)+'?',
+    'Бесконечно много',['Ни одного','Одно','Два'],'Делим второе уравнение на '+c+'. Получаем первую формулу, значит графики совпадают.'),
+   intersection_with_negative_coordinates: ({a,b})=>{
+    const x=-(a%3+1),y=-(b%3+1);
+    return coordinates('По графику найди решение системы.',x,y,
+     'Проверяем обе координаты общей точки: x = '+fmt(x)+', y = '+fmt(y)+'.',systemGraph([[1,y-x],[-1,y+x]]));
+   },
+   find_system_at_horizontal: ({a,b})=>{
+    const x=a%4-2,y=b%4+1,offset=y-x;
+    return withVisual(['Найди абсциссу общей точки наклонной и горизонтальной прямых.',x,
+     'Проводим вертикаль от пересечения к Ox. Его абсцисса '+fmt(x)+'.'],systemGraph([[1,offset],[0,y]]));
+   }
+  },
+  {
+   solve_for_fractional_crossing: ({a,b,c})=>{
+    const coefficient=a+b,delta=2*c+1,offset=a-delta;
+    const x=rational(delta,coefficient),y=rationalAdd(rationalMul(rational(a),x),rational(offset));
+    return coordinates('Найди точные координаты пересечения '+system('y = '+g7LinPlain(a,offset),'y = '+g7LinPlain(-b,a))+'.',x,y,
+     'Приравниваем правые части. Получаем '+coefficient+'x = '+delta+', откуда x = '+g7FracHtml(x)+'. Подставляем в одну из формул: y = '+g7FracHtml(y)+'.');
+   },
+   parameter_for_parallel_lines: ({a,b})=>['При каком k у '+system('y = '+a+'x + '+b,'y = kx + '+(b+1))+' нет решений?',a,
+    'Нужны разные параллельные прямые. Их свободные члены различаются, а коэффициенты наклона должны совпасть, значит k = '+a+'.'],
+   parameter_for_known_crossing: ({a,b,c})=>['Прямые '+system('y = '+a+'x + '+b,'y = '+(a+1)+'x + m')+' пересекаются при x = '+c+'. Найди m.',b-c,
+    'В общей точке '+a*c+' + '+b+' = '+(a+1)*c+' + m. Вычисляем m = '+fmt(b-c)+'.'],
+   interpret_solution_then_compute: ({a,b})=>{
+    const x=a%4-2,y=b%5-2;
+    return withVisual(['Найди точку пересечения на графике и вычисли сумму её координат.',x+y,
+     'Общая точка '+pair(fmt(x),fmt(y))+'. Складываем координаты и получаем '+fmt(x+y)+'.'],systemGraph([[1,y-x],[-1,y+x]]));
+   }
   }
  ]
 };
