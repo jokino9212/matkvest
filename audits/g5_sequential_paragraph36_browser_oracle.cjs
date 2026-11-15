@@ -117,14 +117,15 @@ function solveText(text){
    for(const id of topics)for(let tier=0;tier<3;tier++){
     blockSession=null;qid='';
     startG5QuizStage(id,tier);
-    visible.push({id,tier,text:document.getElementById('qstage').textContent,options:document.querySelector('#qstage')?.querySelectorAll('button').length});
+    const view=document.getElementById('qstage');
+    visible.push({id,tier,text:view.querySelector('.quizq').textContent,options:[...view.querySelectorAll('.answer')].map(button=>text(button))});
     closeModal();
    }
    return {rows,visible,count:g5AllTopics().length};
   },topics);
   assert.equal(data.count,74);
   assert.equal(data.rows.length,1800);
-  assert(data.visible.every(stage=>stage.text.trim()&&stage.options>=3),'Missing quiz in a live stage');
+  assert(data.visible.every(stage=>stage.text.trim()&&stage.options.length>=3&&stage.options.every(Boolean)),'Missing quiz in a live stage');
   const reports=[];
   for(const id of topics){
    const rows=data.rows.filter(q=>q.id===id),slots=new Map(),templates=new Set(),depth=[[],[],[]];
@@ -133,7 +134,7 @@ function solveText(text){
    for(const q of rows){
     const {text,tier,slot}=q,where=id+'/'+tier+'/'+slot+' '+text;
     assert.equal(q.source,id,where);
-    assert(q.ex.includes('Разложим знаменатели')&&q.ex.includes('Дополнительные множители'),where);
+    assert(q.ex.includes('Разложим знаменатели')&&q.ex.includes('Дополнительные множители'),where+' solution: '+q.ex);
     assert(!/NaN|undefined|Infinity/.test(text+' '+q.ex),where);
     assert(!/[·×÷]/.test(text),where);
     const {answer,operations}=solveText(text);

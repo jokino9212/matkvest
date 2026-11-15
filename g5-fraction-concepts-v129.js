@@ -74,7 +74,7 @@ function displayedArithmeticSteps(plan){
    sequence.push('Расстояние между значениями равно модулю разности: |'+value(raw)+'| = '+value(positive)+'.');
    return positive;
   }
-  if(!['add','sub','mul','div','max','min'].includes(op))return solve(node);
+  if(!['add','sub','mul','div','cmp','max','min'].includes(op))return solve(node);
   if(op==='mul'||op==='div'){
    const left=visit(args[0]),right=visit(args[1]),result=solve(node),operation=op==='mul'?'·':':';
    sequence.push('Вычисляем '+left.n+'/'+left.d+' '+operation+' '+right.n+'/'+right.d+': '+(op==='mul'
