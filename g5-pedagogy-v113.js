@@ -211,35 +211,60 @@ function g5AngleSketch(degrees){
  const labelX=(cx+73*Math.cos(rad/2)).toFixed(2),labelY=(cy-73*Math.sin(rad/2)-6).toFixed(2);
  return '<div style="width:100%;max-width:450px;overflow:hidden;margin:6px auto"><svg role="img" aria-label="Чертёж угла '+degrees+' градусов" viewBox="0 0 420 225" width="100%" style="height:auto"><line x1="'+cx+'" y1="'+cy+'" x2="345" y2="'+cy+'" stroke="#35629b" stroke-width="3"/><line x1="'+cx+'" y1="'+cy+'" x2="'+endX+'" y2="'+endY+'" stroke="#35629b" stroke-width="3"/><path d="M '+(cx+ar)+' '+cy+' A '+ar+' '+ar+' 0 0 0 '+arcX+' '+arcY+'" fill="none" stroke="#e07d37" stroke-width="3"/><circle cx="'+cx+'" cy="'+cy+'" r="4" fill="#35629b"/><text x="'+labelX+'" y="'+labelY+'" text-anchor="middle" font-size="21" fill="currentColor">'+degrees+'°</text></svg></div>';
 }
-function g5RightTriangleSketch(){
- return '<div style="max-width:450px;width:100%;overflow:hidden;margin:6px auto"><svg role="img" aria-label="Чертёжный треугольник с обозначением прямого угла" viewBox="0 0 420 225" width="100%" style="height:auto"><path d="M 105 178 L 105 34 L 320 178 Z" fill="#d4e9fb" stroke="#35629b" stroke-width="3"/><path d="M 105 157 L 126 157 L 126 178" fill="none" stroke="#d97735" stroke-width="3"/><circle cx="105" cy="178" r="3" fill="#35629b"/></svg></div>';
+function g5RightTriangleSketch(height,width,mirror){
+ const x=mirror?285:105,y=170,direction=mirror?-1:1,end=x+direction*width;
+ const vertices=x+' '+y+' '+x+' '+(y-height)+' '+end+' '+y;
+ return '<div style="max-width:450px;width:100%;margin:6px auto"><svg role="img" aria-label="Чертёжный треугольник. Один угол отмечен маленьким квадратом." viewBox="0 0 420 205" width="100%" style="height:auto"><polygon points="'+vertices+'" fill="#d4e9fb" stroke="#35629b" stroke-width="3"/><polyline class="g5-right-mark" points="'+x+' '+(y-19)+' '+(x+direction*19)+' '+(y-19)+' '+(x+direction*19)+' '+y+'" fill="none" stroke="#ad552c" stroke-width="3"/></svg></div>';
 }
 function g5RightSplitSketch(degrees){
  const theta=degrees*Math.PI/180,cx=165,cy=175;
  const x=(cx+120*Math.cos(theta)).toFixed(2),y=(cy-120*Math.sin(theta)).toFixed(2);
- return '<div style="max-width:420px;width:100%;overflow:hidden;margin:6px auto"><svg role="img" aria-label="Прямой угол разделён на '+degrees+' градусов и неизвестный угол x" viewBox="0 0 420 220" width="100%" style="height:auto"><path d="M '+cx+' 40 L '+cx+' '+cy+' L 315 '+cy+'" fill="none" stroke="#35629b" stroke-width="3"/><line x1="'+cx+'" y1="'+cy+'" x2="'+x+'" y2="'+y+'" stroke="#de7e35" stroke-width="3"/><path d="M '+cx+' 157 L 183 157 L 183 '+cy+'" fill="none" stroke="#35629b" stroke-width="2"/><text x="255" y="134" font-size="19" fill="currentColor">'+degrees+'°</text><text x="180" y="76" font-size="22" fill="currentColor">x°</text></svg></div>';
+ const label=angle=>[(cx+91*Math.cos(angle*Math.PI/180)).toFixed(2),(cy-91*Math.sin(angle*Math.PI/180)).toFixed(2)];
+ const [givenX,givenY]=label(degrees/2),[unknownX,unknownY]=label((degrees+90)/2);
+ return '<div style="max-width:420px;width:100%;overflow:hidden;margin:6px auto"><svg role="img" aria-label="Прямой угол разделён на '+degrees+' градусов и неизвестный угол x" viewBox="0 0 420 220" width="100%" style="height:auto"><path d="M '+cx+' 40 L '+cx+' '+cy+' L 315 '+cy+'" fill="none" stroke="#35629b" stroke-width="3"/><line x1="'+cx+'" y1="'+cy+'" x2="'+x+'" y2="'+y+'" stroke="#de7e35" stroke-width="3"/><path d="M '+cx+' 157 L 183 157 L 183 '+cy+'" fill="none" stroke="#35629b" stroke-width="2"/><text x="'+givenX+'" y="'+givenY+'" text-anchor="middle" font-size="17" fill="currentColor">'+degrees+'°</text><text x="'+unknownX+'" y="'+unknownY+'" text-anchor="middle" font-size="17" fill="currentColor">x°</text></svg></div>';
 }
 function angles(p,t){
- const a=ri5(20,67),b=ri5(15,45),c=ri5(12,36);
+ const acute=ri5(16,78),obtuse=ri5(102,166),first=ri5(13,38),second=ri5(41,72),extra=ri5(3,15);
+ const type=value=>value<90?'Острый':value===90?'Прямой':value<180?'Тупой':'Развёрнутый';
+ const all=['Острый','Прямой','Тупой','Развёрнутый'];
+ const numeric=(text,answer,why,steps)=>number(text,answer,why+' Ответ: '+answer+'.','angle_L'+t+'_F'+p,steps,[answer+1,answer+10,answer+20]);
+ const classify=(text,value,why,steps)=>choice(text,type(value),all.filter(item=>item!==type(value)),why+' Ответ: '+type(value)+'.','angle_L'+t+'_F'+p,steps);
+ const sum=(a,b)=>a+' + '+b+' = '+(a+b),diff=(a,b)=>a+' − '+b+' = '+(a-b);
  if(t===0){
-  if(p===0)return choice('Как называется изображённый угол?'+g5AngleSketch(a),'Острый',['Прямой','Тупой','Развёрнутый'],'Угол '+a+'° меньше 90°. Он острый.','angle_classify_acute');
-  if(p===1)return choice('Как называется изображённый угол?'+g5AngleSketch(a+90),'Тупой',['Острый','Прямой','Развёрнутый'],'Между 90° и 180° — тупой угол.','angle_classify_obtuse');
-  if(p===2)return number('Сколько градусов не хватает углу '+a+'° до прямого?',90-a,'Прямой угол равен 90°, значит 90 − '+a+' = '+(90-a)+'°.','angle_right_gap',1,[a,180-a]);
-  if(p===3)return number('Сколько градусов не хватает углу '+(a+90)+'° до развёрнутого?',90-a,'Развёрнутый угол 180°; 180 − '+(a+90)+' = '+(90-a)+'°.','angle_straight_gap',1,[a,180-a]);
-  return choice('Какой угол отмечен на чертёжном треугольнике?'+g5RightTriangleSketch(),'Прямой',['Развёрнутый','Тупой','Полный'],'У чертёжного треугольника есть прямой угол 90°.','angle_square');
+  if(p===0)return classify('Как называется изображённый угол?'+g5AngleSketch(acute),acute,'На рисунке '+acute+'°. Это меньше 90°.',1);
+  if(p===1)return classify('Как называется угол на втором рисунке?'+g5AngleSketch(acute)+g5AngleSketch(obtuse),obtuse,'На втором рисунке '+obtuse+'°. Это больше 90° и меньше 180°.',1);
+  if(p===2){
+   const variants=[acute,obtuse,90,180],value=variants[ri5(0,3)];
+   return classify('Как называется угол '+value+'°?',value,'Сравниваем '+value+'° с прямым углом 90° и развёрнутым 180°.',1);
+  }
+  if(p===3)return numeric('Сколько градусов не хватает углу '+acute+'° до прямого?',90-acute,'Прямой угол равен 90°. Находим недостающую часть: '+diff(90,acute)+'°.',1);
+  return classify('Какой угол отмечен квадратом на чертёжном треугольнике?'+g5RightTriangleSketch(ri5(78,132),ri5(90,155),ri5(0,1)),90,'Маленьким квадратом обозначают прямой угол. У чертёжного треугольника он равен 90°.',1);
  }
  if(t===1){
-  if(p===0)return number('Угол составили из двух частей '+a+'° и '+b+'°, затем увеличили на '+c+'°. Чему равен новый угол?',a+b+c,'Сначала '+a+' + '+b+' = '+(a+b)+'°, затем '+(a+b)+' + '+c+' = '+(a+b+c)+'°.','angle_sum_parts',2,[a+b,a+c]);
-  if(p===1)return number('Прямой угол на рисунке разделили на '+a+'° и x°. Найди x и прибавь к нему '+c+'°.'+g5RightSplitSketch(a),90-a+c,'Недостающая часть 90 − '+a+' = '+(90-a)+'°. Затем прибавим '+c+'° и получим '+(90-a+c)+'°.','angle_missing_right',2,[a,90-a]);
-  if(p===2)return number('Угол '+(a+b)+'° разделили на две части. Первая '+a+'°. На сколько градусов вторая часть отличается от первой?',Math.abs(b-a),'Вторая часть '+b+'°. Разность между частями '+Math.abs(a-b)+'°.','angle_compare_parts',3,[a,b,a+b]);
-  if(p===3)return number('Смежные углы дают 180°. Один из них '+(a+90)+'°. Второй увеличили на '+c+'°. Чему равен новый угол?',90-a+c,'Второй угол равен 180 − '+(a+90)+' = '+(90-a)+'°. После увеличения на '+c+'° получаем '+(90-a+c)+'°.','angle_adjacent',2,[a,180-a]);
-  return number('Вокруг точки четыре угла: '+a+'°, '+b+'°, '+c+'° и x°. Найди x.',360-a-b-c,'Вокруг точки 360°. Оставшийся угол 360 − '+a+' − '+b+' − '+c+' = '+(360-a-b-c)+'°.','angle_around_point',3,[a+b+c,180-a-b]);
+  if(p===0)return classify('Сложили углы '+first+'° и '+second+'°. Какого вида получился угол?',first+second,'Складываем меры: '+sum(first,second)+'°. Сравниваем с 90°.',2);
+  if(p===1)return numeric('Прямой угол на рисунке разделили на '+acute+'° и x°. Найди x и прибавь к нему '+extra+'°.'+g5RightSplitSketch(acute),90-acute+extra,
+   'Недостающая часть: '+diff(90,acute)+'°. Затем прибавляем: '+sum(90-acute,extra)+'°.',2);
+  if(p===2)return classify('От тупого угла '+obtuse+'° отрезали угол '+first+'°. Какого вида оставшийся угол?',obtuse-first,'Находим остаток: '+diff(obtuse,first)+'°. Сравниваем его с 90°.',2);
+  if(p===3)return numeric('Развёрнутый угол разделили на '+obtuse+'° и второй угол. На сколько градусов второму углу не хватает до прямого?',obtuse-90,
+   'Второй угол: '+diff(180,obtuse)+'°. До прямого не хватает '+diff(90,180-obtuse)+'°.',2);
+  const mixed=first+second,values=[first,second,mixed,obtuse,90];
+  return numeric('Сколько из углов '+values.map(value=>value+'°').join('; ')+' меньше прямого?',values.filter(value=>value<90).length,
+   'Меньше 90°: '+values.filter(value=>value<90).map(value=>value+'°').join('; ')+'.',2);
  }
- if(p===0)return number('Развёрнутый угол 180° состоит из трёх частей: '+a+'°, '+b+'° и x°. Найди x.',180-a-b,'Сначала сумма частей '+(a+b)+'°. Вычитаем из 180° и получаем '+(180-a-b)+'°.','angle_three_parts',3,[a+b,180-a]);
- if(p===1)return number('Вокруг точки четыре угла: '+a+'°, '+(a+b)+'°, '+c+'° и x°. Найди x.',360-2*a-b-c,'Складываем три известных угла '+(2*a+b+c)+'°, затем вычитаем из 360°: '+(360-2*a-b-c)+'°.','angle_four_parts',4,[a+b,360-a-b-c]);
- if(p===2)return number('Смежные углы дают 180°. Первый угол состоит из частей '+a+'° и '+b+'°. На сколько второй угол больше части '+c+'°?',180-a-b-c,'Первый угол '+(a+b)+'°, второй '+(180-a-b)+'°. Разность с '+c+'° равна '+(180-a-b-c)+'°.','angle_supplement_compare',4,[180-a-b,a+b]);
- if(p===3){const x=a+b;return number('Два угла вместе составляют '+(x+c)+'°. Первый угол '+x+'°, а его часть равна '+a+'°. Чему равна сумма второй части первого угла и всего второго угла?',b+c,'Второй угол '+c+'°, оставшаяся часть первого '+b+'°. Сумма '+(b+c)+'°.','angle_two_subtractions',4,[x,c]);}
- const take=Math.min(c,90-a-1);return number('Прямой угол разделили на части '+a+'° и '+(90-a)+'°. От второй части отняли '+take+'°, а результат прибавили к первому углу. Найди сумму.',90-take,'Вторая часть '+(90-a)+'°. После уменьшения '+(90-a-take)+'°. С первой частью получаем '+(90-take)+'°.','angle_rebalance',4,[90,a]);
+ if(p===0)return classify('Прямой угол разделили на '+acute+'° и оставшуюся часть. К оставшейся части прибавили угол '+second+'°. Какого вида итоговый угол?',90-acute+second,
+  'Остаток: '+diff(90,acute)+'°. Затем '+sum(90-acute,second)+'°. Сравниваем с 90° и 180°.',3);
+ if(p===1)return numeric('Развёрнутый угол разделили на '+first+'°, '+second+'° и x°. На сколько градусов x отличается от прямого?',Math.abs(90-first-second),
+  'Две части: '+sum(first,second)+'°. Третья: '+diff(180,first+second)+'°. Разница с прямым: '+diff(Math.max(180-first-second,90),Math.min(180-first-second,90))+'°.',3);
+ if(p===2){
+  const maximum=89-second;
+  return numeric('Какой наибольший целый угол в градусах можно добавить к '+second+'°, чтобы сумма осталась острым углом?',maximum,
+   'Наибольшая целая мера острого угла — 89°. Находим добавку: '+diff(89,second)+'°. Проверка: '+sum(second,maximum)+'°.',3);
+ }
+ if(p===3)return classify('К прямому углу прибавили '+first+'°, а затем вычли '+extra+'°. Какого вида получился угол?',90+first-extra,
+  'После прибавления: '+sum(90,first)+'°. После вычитания: '+diff(90+first,extra)+'°. Сравним с 90°.',3);
+ const measures=[acute,obtuse,90+extra,180-obtuse,first+second];
+ return numeric('Сколько из углов '+measures.map(value=>value+'°').join('; ')+' являются тупыми?',measures.filter(value=>value>90&&value<180).length,
+  'Тупые углы больше 90° и меньше 180°. Условие выполняют '+measures.filter(value=>value>90&&value<180).map(value=>value+'°').join('; ')+'.',3);
 }
 g5DonorQuestion=function(id){
  const p=familyIndex(),t=stage();
@@ -253,7 +278,7 @@ const improved={
 natural_compare:'Сначала сравни количество цифр в двух натуральных числах. Если оно одинаковое, сравнивай разряды слева направо до первого различия. Используй знаки <, >, =. Порядок по возрастанию — от меньшего числа к большему, по убыванию — наоборот. Между натуральными числами a и b при a < b находится b − a − 1 натуральных чисел, если границы исключены. В четырёхзначном числе ноль не может стоять первым. Для задач с неизвестной цифрой проверь оба строгих неравенства по разрядам.',
 cuboid:'Прямоугольный параллелепипед — объёмная геометрическая фигура с шестью прямоугольными гранями, двенадцатью рёбрами и восемью вершинами. Противоположные грани равны и параллельны. Каждая из трёх длин a, b, c встречается ровно на четырёх рёбрах, поэтому сумма длин всех рёбер равна 4(a + b + c). Площади трёх типов граней — ab, ac и bc, каждая встречается дважды: площадь всех шести граней S = 2(ab + ac + bc). Развёртка должна содержать шесть прямоугольников: две грани a×b, две a×c, две b×c, которые можно сложить в коробку. Например, для a = 6 см, b = 4 см, c = 3 см сумма рёбер 4 · (6 + 4 + 3) = 52 см, площадь шести граней 2 · (24 + 18 + 12) = 108 см². Если убрали крышку a×b, вычти ab из полной площади. Если два тела склеены по одной грани, обе соприкасающиеся грани становятся внутренними: их площади нужно вычесть. Объём и кубические единицы изучаются в следующем параграфе.',
 calculator:'Набери первое число, нажми клавишу действия, набери второе число и нажми «=». Клавиши «×» и «÷» обозначают умножение и деление. Клавиша AC очищает экран. Для вычисления со скобками на простом калькуляторе сначала вычисли выражение в скобках, затем продолжи с полученным числом. Например, для (12 + 8) · 4 набери 12 + 8 =, затем × 4 =. На экране будет 80.',
-angle_types:'Начальный уровень: виды углов и дополнение до прямого или развёрнутого. Средний: части угла, смежные углы и полный угол вокруг точки. Сложный: задачи с несколькими частями и несколькими действиями.'
+angle_types:'У прямого угла 90°, у развёрнутого 180°. Острый угол меньше прямого. Тупой угол больше прямого и меньше развёрнутого. Чтобы построить или проверить прямой угол, приложи к вершине прямой угол чертёжного треугольника, совместив одну его сторону со стороной угла. Если совпадёт и вторая сторона, угол прямой.'
 };
 g5Lesson=function(id){return Object.prototype.hasOwnProperty.call(improved,id)?improved[id]:oldLesson(id)};
 window.mkG5V113Tiered=IDS.slice();
