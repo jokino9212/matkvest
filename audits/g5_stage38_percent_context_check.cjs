@@ -17,10 +17,10 @@ assert(!arithmetic.includes("В каждом большом ящике '+d+' м�
 const fractions=fs.readFileSync('g5-fraction-concepts-v129.js','utf8');
 for(const required of [
  'Найди НОД числителя и знаменателя дроби',
- 'и удвой полученную сумму.',
  'Вторую сторону уменьшили в 2 раза.',
  'Последовательно разделим числитель и знаменатель на '
 ])assert(fractions.includes(required),'Missing fraction pedagogy improvement: '+required);
+assert(fractions.includes('ADD(ADD(A,B),ADD(C,Q(1,e)))'),'§36 training must combine two independently computed sums');
 assert(!fractions.includes('На какой общий множитель гарантированно делятся'),'Ambiguous divisor question remains');
 assert(!fractions.includes('Вычтем оба общих множителя'),'Incorrect reduction explanation remains');
 const remaining=fs.readFileSync('g5-remaining-core-v126.js','utf8');

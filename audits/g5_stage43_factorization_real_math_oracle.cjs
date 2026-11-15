@@ -6,6 +6,7 @@ const rat=(n,d=1n)=>{n=BigInt(n);d=BigInt(d);assert(d!==0n,'Division by zero');i
 const cmp=(a,b)=>a[0]*b[1]-b[0]*a[1];
 function solve(node){
  const [op,...x]=node,E=solve;
+ if(op==='cmp'){const a=E(x[0]),b=E(x[1]),delta=a[0]*b[1]-b[0]*a[1];return rat(delta<0n?0n:delta>0n?2n:1n);}
  if(op==='rat')return rat(x[0],x[1]);
  if(op==='add')return x.reduce((a,n)=>{const b=E(n);return rat(a[0]*b[1]+b[0]*a[1],a[1]*b[1])},[0n,1n]);
  if(op==='sub'){const a=E(x[0]),b=E(x[1]);return rat(a[0]*b[1]-b[0]*a[1],a[1]*b[1])}

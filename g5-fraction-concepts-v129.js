@@ -21,6 +21,7 @@ function solve(node){
  if(!Array.isArray(node))throw Error('v129 missing rational expression');
  const [op,...x]=node,E=solve;
  if(op==='rat')return reduce(x[0],x[1]);
+ if(op==='cmp')return {n:relation(E(x[0]),E(x[1]))+1,d:1};
  if(op==='add')return x.map(E).reduce((a,b)=>reduce(a.n*b.d+b.n*a.d,a.d*b.d),{n:0,d:1});
  if(op==='sub'){const a=E(x[0]),b=E(x[1]);return reduce(a.n*b.d-b.n*a.d,a.d*b.d)}
  if(op==='mul'){const a=E(x[0]),b=E(x[1]);return reduce(a.n*b.n,a.d*b.d)}
@@ -64,15 +65,16 @@ function workedLCM(denoms){
 }
 function displayedArithmeticSteps(plan){
  const sequence=[];
+ const value=x=>x.d===1?String(x.n):format(x.n,x.d);
  function visit(node){
   const op=node[0],args=node.slice(1);
-  if(op==='rat')return reduce(args[0],args[1]);
+  if(op==='rat')return {n:args[0],d:args[1]};
   if(op==='abs'){
    const raw=visit(args[0]),positive=reduce(Math.abs(raw.n),raw.d);
-   sequence.push('Берём положительное значение разности: |'+raw.n+'/'+raw.d+'| = '+positive.n+'/'+positive.d+'.');
+   sequence.push('Расстояние между значениями равно модулю разности: |'+value(raw)+'| = '+value(positive)+'.');
    return positive;
   }
-  if(!['add','sub','mul','div','max','min'].includes(op))return solve(node);
+  if(!['add','sub','mul','div','cmp','max','min'].includes(op))return solve(node);
   if(op==='mul'||op==='div'){
    const left=visit(args[0]),right=visit(args[1]),result=solve(node),operation=op==='mul'?'·':':';
    sequence.push('Вычисляем '+left.n+'/'+left.d+' '+operation+' '+right.n+'/'+right.d+': '+(op==='mul'
@@ -80,10 +82,13 @@ function displayedArithmeticSteps(plan){
     :left.n+'/'+left.d+' · '+right.d+'/'+right.n)+'. Получаем '+result.n+'/'+result.d+'.');
    return result;
   }
-  if(op==='max'||op==='min'){
+  if(op==='cmp'||op==='max'||op==='min'){
    const values=args.map(visit),common=workedLCM(values.map(v=>v.d)),nums=values.map(v=>v.n*(common.common/v.d));
    const answer=solve(node);
-   sequence.push(common.steps+' Сравним числители '+nums.join(', ')+' при знаменателе '+common.common+'. '+(op==='max'?'Наибольшее':'Наименьшее')+' значение '+answer.n+'/'+answer.d+'.');
+   const conclusion=op==='cmp'
+    ?nums[0]+' '+(comparisonSigns[answer.n]==='<'?'&lt;':comparisonSigns[answer.n])+' '+nums[1]
+    :(op==='max'?'Наибольшее':'Наименьшее')+' значение '+value(answer);
+   sequence.push(common.steps+' При одном знаменателе сравниваем числители: '+nums.join(', ')+'. '+conclusion+'.');
    return answer;
   }
   const values=args.map(visit);
@@ -94,7 +99,7 @@ function displayedArithmeticSteps(plan){
    const numerator=op==='add'?left+right:left-right;
    const res=reduce(numerator,common);
    const symbol=op==='add'?'+':'−';
-   sequence.push(worked.steps+' Приводим дроби: '+acc.n+'/'+acc.d+' = '+left+'/'+common+', '+next.n+'/'+next.d+' = '+right+'/'+common+'. ('+left+' '+symbol+' '+right+')/'+common+' = '+numerator+'/'+common+'.'+(res.d!==common?' Сокращаем до '+res.n+'/'+res.d+'.':''));
+   sequence.push(worked.steps+' Приводим дроби: '+format(acc.n,acc.d)+' = '+format(left,common)+', '+format(next.n,next.d)+' = '+format(right,common)+'. '+format('('+left+' '+symbol+' '+right+')',common)+' = '+format(numerator,common)+'.'+(res.d!==common?' Сокращаем до '+(res.d===1?res.n:format(res.n,res.d))+'.':''));
    acc=res;
   }
   return acc;
@@ -191,12 +196,139 @@ function reductionWholeDiagram(n,d,k){
   'preserveAspectRatio="xMidYMid meet">'+rows+'</svg></div>';
 }
 
+const section36=new Set(['frac_compare_diff','frac_add_diff','frac_sub_diff']);
+const comparisonSigns=['<','=','>'];
+const relation=(a,b)=>Math.sign(a.n*b.d-b.n*a.d);
+const compare=(a,b)=>['cmp',a,b];
+
+function section36Model(rows,den){
+ const colors=['#5d9cdc','#edf3fc'];
+ const width=456,h=22,x=12,cell=width/den;
+ const bars=rows.map((n,i)=>{
+  const y=6+30*i;
+  const parts=Array.from({length:den},(_,j)=>'<rect x="'+(x+j*cell).toFixed(3)+'" y="'+y+
+   '" width="'+cell.toFixed(3)+'" height="'+h+'" fill="'+colors[Number(j>=n)]+'"/>').join('');
+  const cuts=Array.from({length:den-1},(_,j)=>{
+   const at=(x+(j+1)*cell).toFixed(3);
+   return '<line x1="'+at+'" y1="'+y+'" x2="'+at+'" y2="'+(y+h)+'" stroke="#52617a" stroke-width="0.7"/>';
+  }).join('');
+  return '<g>'+parts+cuts+'<rect x="'+x+'" y="'+y+'" width="'+width+'" height="'+h+
+   '" fill="none" stroke="#52617a" stroke-width="1.5"/></g>';
+ }).join('');
+ return '<svg class="mk-g5-section36" role="img" aria-label="Одинаковые целые, в каждой полосе '+den+
+  ' равных долей. Закрашено по строкам: '+rows.join(', ')+
+  '." viewBox="0 0 480 '+(rows.length*30+3)+'" width="100%" style="display:block;max-width:480px;height:auto;margin:6px auto">'+bars+'</svg>';
+}
+
+function section36Spec(id,t,p){
+ // One shared factor, two distinct denominators, and a third denominator for later tiers.
+ const g=r(2,5+t),k=r(2,4+t),m=k+1,h=r(2,4+t);
+ const d=g*k,e=g*m,j=g*h;
+ const a=r(1,d-1),b=r(1,e-1),c=r(1,j-1);
+ const A=Q(a,d),B=Q(b,e),C=Q(c,j),ONE=Q(1,1),HALF=Q(1,2);
+ const f=format,S=x=>x[2]===1?String(x[1]):f(x[1],x[2]), sum=(x,y)=>S(x)+' + '+S(y), diff=(x,y)=>S(x)+' − '+S(y);
+ const order=relation(solve(A),solve(B))>=0?[A,B]:[B,A];
+ const [big,small]=order;
+ const scaledDen=d*2,partLeft=r(1,d-1),partRight=r(1,scaledDen-1);
+ const partA=Q(partLeft,d),partB=Q(partRight,scaledDen);
+ const lesson=(text,plan,steps,diagram='')=>({id,t,p,text:text+diagram,plan,
+  steps,mode:plan[0]==='cmp'?'sign':solve(plan).d===1?'int':'frac',
+  why:displayedArithmeticSteps(plan),factorAudit:null});
+ const sign=(left,right,plan,steps,diagram='')=>lesson('Поставь знак: '+left+' □ '+right+'.',plan,steps,diagram);
+ const calc=(text,plan,steps,diagram='')=>lesson('Вычисли '+text+'.',plan,steps,diagram);
+ if(id==='frac_compare_diff'){
+  if(t===0){
+   if(p===0)return sign(S(partA),S(partB),compare(partA,partB),2,section36Model([partLeft*2,partRight],scaledDen));
+   if(p===1)return sign(S(A),S(B),compare(A,B),2);
+   if(p===2){
+    const scaled=Q(a*h+r(-1,1),d*h);
+    return sign(S(A),S(scaled),compare(A,scaled),3);
+   }
+   if(p===3){
+    const l=Q(r(1,4),5),rr=Q(r(1,6),7);
+    return sign(S(l),S(rr),compare(l,rr),2);
+   }
+   return sign(S(A),S(HALF),compare(A,HALF),2);
+  }
+  if(t===1){
+   if(p===0)return lesson('Найди наибольшую из дробей '+[A,B,C].map(S).join(', ')+'.',MAX(A,B,C),3);
+   if(p===1)return lesson('Найди наименьшую из дробей '+[A,B,C].map(S).join(', ')+'.',MIN(A,B,C),3);
+   if(p===2)return sign('('+sum(A,C)+')',S(B),compare(ADD(A,C),B),4);
+   if(p===3)return sign('('+diff(big,small)+')',S(C),compare(SUB(big,small),C),4);
+   return sign(S(A),'('+sum(B,C)+')',compare(A,ADD(B,C)),4);
+  }
+  if(p===0)return sign('('+sum(A,C)+')','('+sum(B,Q(1,d))+')',compare(ADD(A,C),ADD(B,Q(1,d))),5);
+  if(p===1)return sign('('+diff(big,small)+')','('+diff(ONE,C)+')',compare(SUB(big,small),SUB(ONE,C)),5);
+  if(p===2)return sign('('+sum(A,B)+' − '+S(C)+')',S(HALF),compare(SUB(ADD(A,B),C),HALF),5);
+  if(p===3)return sign('(2 − ('+sum(A,B)+'))','('+diff(Q(2,1),C)+')',compare(SUB(Q(2,1),ADD(A,B)),SUB(Q(2,1),C)),6);
+  return sign('('+sum(A,B)+')','('+S(ONE)+' − ('+diff(ONE,C)+'))',compare(ADD(A,B),SUB(ONE,SUB(ONE,C))),6);
+ }
+ if(id==='frac_add_diff'){
+  if(t===0){
+   if(p===0){
+    const n=r(1,d-1),b=r(1,scaledDen-n*2);
+    const first=Q(n,d),second=Q(b,scaledDen);
+    return calc(sum(first,second),ADD(first,second),2,section36Model([n*2,b,n*2+b],scaledDen));
+   }
+   if(p===1)return calc(sum(A,B),ADD(A,B),2);
+   if(p===2){
+    const left=Q(d-r(1,2),d),right=Q(e-r(1,2),e);
+    return calc(sum(left,right),ADD(left,right),3);
+   }
+   if(p===3)return lesson('До обеда прошли '+S(A)+' км, после обеда — '+S(B)+' км. Сколько километров прошли всего?',ADD(A,B),2);
+   const target=r(1,2),n=r(1,g-1),right=Q(k*(target*g-n),d);
+   return calc(sum(Q(n,g),right),ADD(Q(n,g),right),3);
+  }
+  if(t===1){
+   if(p===0)return calc(sum(A,B)+' + '+S(C),ADD(A,B,C),4);
+   if(p===1)return calc(S(A)+' + ('+sum(B,C)+')',ADD(A,ADD(B,C)),4);
+   if(p===2)return lesson('В кувшин налили '+S(A)+' л воды, потом '+S(B)+' л и ещё '+S(C)+' л. Сколько литров налили?',ADD(A,B,C),4);
+   if(p===3)return calc(sum(A,Q(d-a,d))+' + '+S(C),ADD(A,Q(d-a,d),C),4);
+   return calc('('+sum(A,B)+') + ('+sum(C,Q(1,e))+')',ADD(ADD(A,B),ADD(C,Q(1,e))),5);
+  }
+  if(p===0)return calc(sum(A,B)+' + '+S(C)+' + '+S(Q(1,e))+' + '+S(Q(1,d)),ADD(A,B,C,Q(1,e),Q(1,d)),6);
+  if(p===1)return calc('('+sum(A,B)+') + ('+S(C)+' + ('+sum(Q(1,d),Q(1,e))+'))',ADD(ADD(A,B),ADD(C,ADD(Q(1,d),Q(1,e)))),6);
+  if(p===2)return calc(S(A)+' + ('+sum(B,C)+') + ('+sum(Q(d-a,d),Q(e-b,e))+')',ADD(A,ADD(B,C),ADD(Q(d-a,d),Q(e-b,e))),6);
+  if(p===3)return lesson('Кабель составили из пяти отрезков длиной '+[A,B,C,Q(1,d),Q(1,e)].map(S).join(', ')+' м. Какова общая длина в метрах?',ADD(A,B,C,Q(1,d),Q(1,e)),6);
+  return calc('('+sum(A,B)+') − ('+diff(Q(1,d*e),Q(1,d*e*2))+') + '+S(C),ADD(SUB(ADD(A,B),SUB(Q(1,d*e),Q(1,d*e*2))),C),6);
+ }
+ if(t===0){
+  if(p===0){
+   const n=r(1,d-1),b=r(1,n*2-1);
+   const first=Q(n,d),second=Q(b,scaledDen);
+   return calc(diff(first,second),SUB(first,second),2,section36Model([n*2,b,n*2-b],scaledDen));
+  }
+  if(p===1)return calc(diff(big,small),SUB(big,small),2);
+  if(p===2)return calc(diff(ONE,A),SUB(ONE,A),2);
+  if(p===3){
+   const length=Q(r(1,3)*d+a,d);
+   return lesson('Было '+S(length)+' м ткани, отрезали '+S(B)+' м. Сколько метров осталось?',SUB(length,B),3);
+  }
+  return lesson('На сколько отличаются доли '+S(A)+' и '+S(B)+'?',ABS(SUB(A,B)),3);
+ }
+ if(t===1){
+  if(p===0){
+   const first=Q(d+a,d);
+   return calc(S(first)+' − '+S(B)+' − '+f(1,d*e),SUB(SUB(first,B),Q(1,d*e)),4);
+  }
+  if(p===1)return calc(S(Q(2,1))+' − ('+sum(A,B)+')',SUB(Q(2,1),ADD(A,B)),4);
+  if(p===2)return calc(S(ONE)+' − ('+diff(big,small)+')',SUB(ONE,SUB(big,small)),4);
+  if(p===3)return lesson('В канистре было '+S(Q(2,1))+' л воды. Из неё вылили '+S(A)+' л, затем долили '+S(B)+' л. Сколько литров стало?',ADD(SUB(Q(2,1),A),B),4);
+  return calc('('+sum(A,B)+') − '+S(Q(1,d*e)),SUB(ADD(A,B),Q(1,d*e)),4);
+ }
+ if(p===0)return calc(S(Q(3,1))+' − '+S(A)+' − '+S(B)+' − '+S(C),SUB(SUB(SUB(Q(3,1),A),B),C),6);
+ if(p===1)return calc('('+sum(Q(2,1),A)+') − ('+sum(B,C)+')',SUB(ADD(Q(2,1),A),ADD(B,C)),5);
+ if(p===2)return calc(S(Q(2,1))+' − ('+S(A)+' + ('+diff(ONE,C)+'))',SUB(Q(2,1),ADD(A,SUB(ONE,C))),5);
+ if(p===3)return lesson('Первый маршрут состоит из участков '+S(ONE)+' км и '+S(A)+' км, второй — из '+S(B)+' км и '+S(C)+' км. На сколько километров различаются длины маршрутов?',ABS(SUB(ADD(ONE,A),ADD(B,C))),6);
+ return calc(S(Q(3,1))+' − ('+sum(A,B)+') − ('+diff(ONE,C)+')',SUB(SUB(Q(3,1),ADD(A,B)),SUB(ONE,C)),6);
+}
+
 function makeSpec(id,t,p){
+ if(section36.has(id))return section36Spec(id,t,p);
  const d=id==='frac_equal'?(t===0?r(4,10):t===1&&p<=1?r(4,8):t===1?r(5,13):r(6,18)):r(4,9+t*2),e=r(3,10+t*2),a=r(1,d-1),b=r(1,e-1),k=id==='frac_equal'&&t===1&&p<=1?r(2,5):r(2,5+t),m=r(2,4+t),c=r(2,5+t),h=r(2,5+t);
- const f1=Q(a,d),f2=Q(b,e),f3=Q(1,d+1),u=Q(1,d),v=Q(1,d+e),two=Q(2,d+e+2);
- const half=Q(1,2),hi=Q(1,d),lo=Q(1,d*2),tiny=Q(1,d*4);
+ const f1=Q(a,d),f2=Q(b,e),f3=Q(1,d+1),u=Q(1,d),v=Q(1,d+e),lo=Q(1,d*2);
  const s=(n,den)=>format(n,den);
- const am=ADD(f1,f2),delta=ABS(SUB(f1,f2)),common=lcm(d,e);
+ const common=lcm(d,e);
  let tasks;
  if(id==='frac_equal'){
   if(t===0)tasks=[
@@ -279,70 +411,6 @@ function makeSpec(id,t,p){
    ['Найди НОК чисел '+(d*k)+', '+(e*m)+' и '+d+'.',Q(lcm(lcm(d*k,e*m),d),1),'Разложим три знаменателя на простые множители и соберём НОК.',4,'int']
   ];
  }
- if(id==='frac_compare_diff'){
-  const la=Q(1,d),lb=Q(1,e),left=ADD(f1,Q(1,d*e)),right=ADD(f2,Q(1,d*e));
-  if(t===0)tasks=[
-   ['Из дробей '+s(1,d)+' и '+s(1,d*2)+' найди большую.',hi,'У единичных дробей больше та, у которой меньше знаменатель.',2,'frac'],
-   ['Из '+s(1,e)+' и '+s(1,d*e)+' выбери меньшую дробь.',Q(1,d*e),'Сравним единичные дроби по знаменателям.',2,'frac'],
-   ['Какая дробь больше: '+s(a,d)+' или '+s(a,d*k)+'?',f1,'При одинаковом числителе больше дробь с меньшим знаменателем.',2,'frac'],
-   ['Какая дробь меньше: '+s(a,d)+' или '+s(a,d*m)+'?',Q(a,d*m),'При одинаковом числителе сравним знаменатели.',2,'frac'],
-   ['Выбери наибольшее значение из дробей '+s(a,d)+' и '+s(b,e)+'.',MAX(f1,f2),'Приведём к общему знаменателю или перемножим крест-накрест.',2,'frac']
-  ];else if(t===1)tasks=[
-   ['Найди наибольшее значение из дробей '+s(a,d)+' и '+s(b,e)+' после приведения к общему знаменателю.',MAX(f1,f2),'Найдём НОК знаменателей, затем сравним числители.',3,'frac'],
-   ['Найди наименьшее значение из дробей '+s(a,d)+' и '+s(b,e)+'.',MIN(f1,f2),'Приведём к общему знаменателю и выберем меньшую.',3,'frac'],
-   ['Сравни результаты: '+s(a,d)+' + '+s(1,d*e)+' и '+s(b,e)+' + '+s(1,d*e)+'. Выбери больший.',MAX(left,right),'Сложим обе пары, затем сравним.',3,'frac'],
-   ['Какая дробь меньше из трёх: '+s(a,d)+', '+s(b,e)+' и '+s(1,d*e)+'?',MIN(f1,f2,Q(1,d*e)),'Сравним три дроби с разными знаменателями.',3,'frac'],
-   ['Из дробей '+s(a,d)+' и '+s(b,e)+' выбери наибольшее значение, затем найди половину выбранной.',DIV(MAX(f1,f2),Q(2,1)),'Сначала сравнение, затем деление пополам.',3,'frac']
-  ];else tasks=[
-   ['Сначала сложи '+s(a,d)+' и '+s(1,d*e)+', затем сравни сумму с '+s(b,e)+'. Запиши большую дробь.',MAX(left,f2),'Приведём, сложим и сравним.',4,'frac'],
-   ['Сначала сложи '+s(b,e)+' и '+s(1,d*e)+', затем сравни сумму с '+s(a,d)+'. Запиши меньшую.',MIN(right,f1),'Выполним сложение и сравнение.',4,'frac'],
-   ['Сравни три величины: '+s(a,d)+', '+s(b,e)+' и '+s(1,d)+' + '+s(1,e)+'. Назови наибольшую.',MAX(f1,f2,ADD(u,Q(1,e))),'Найдём третью сумму, затем сравним три дроби.',4,'frac'],
-   ['Из наибольшей из дробей '+s(a,d)+' и '+s(b,e)+' вычли половину наименьшей. Найди результат.',SUB(MAX(f1,f2),DIV(MIN(f1,f2),Q(2,1))),'Сначала сравнение, затем половина меньшего и вычитание.',5,'frac'],
-   ['Найди половину наименьшего из '+s(a,d)+', '+s(b,e)+' и '+s(1,d*e)+'.',DIV(MIN(f1,f2,Q(1,d*e)),Q(2,1)),'Сравним три дроби, выберем наименьшую, разделим на 2.',4,'frac']
-  ];
- }
- if(id==='frac_add_diff'){
-  if(t===0)tasks=[
-   ['Вычисли '+s(1,d)+' + '+s(1,e)+'.',ADD(u,Q(1,e)),'Найдём НОК знаменателей, дополнительные множители и сложим числители.',2,'frac'],
-   ['Сложи '+s(a,d)+' и '+s(b,e)+'.',ADD(f1,f2),'Приведём к общему знаменателю, сложим числители.',2,'frac'],
-   ['К '+s(a,d)+' прибавили '+s(1,d*k)+'. Найди сумму.',ADD(f1,Q(1,d*k)),'Один знаменатель кратен другому, приводим первую дробь.',2,'frac'],
-   ['У одной дроби знаменатель вдвое больше, чем у другой: '+s(1,d)+' и '+s(1,d*2)+'. Найди сумму.',ADD(u,lo),'Приведём первую дробь к знаменателю '+(d*2)+' и сложим числители.',2,'frac'],
-   ['За два дня прошли '+s(a,d)+' км и '+s(1,e)+' км. Сколько километров прошли?',ADD(f1,Q(1,e)),'Складываем дробные величины с разными знаменателями.',2,'frac']
-  ];else if(t===1)tasks=[
-   ['Вычисли '+s(a,d)+' + '+s(b,e)+' + '+s(1,d*e)+'.',ADD(f1,f2,Q(1,d*e)),'Приведём три дроби к общему знаменателю и сложим.',3,'frac'],
-   ['К сумме '+s(1,d)+' + '+s(1,e)+' прибавили '+s(1,d*k)+'. Найди итог.',ADD(u,Q(1,e),Q(1,d*k)),'Сначала сумма, затем третье слагаемое с новым знаменателем.',3,'frac'],
-   ['Найди '+s(a,d)+' + ('+s(b,e)+' + '+s(1,d+e)+').',ADD(f1,ADD(f2,v)),'Сумма в скобках, затем сложение с первой дробью.',3,'frac'],
-   ['К '+s(a,d)+' прибавили '+s(1,e)+', затем ещё '+s(1,d+1)+'. Найди общую сумму.',ADD(f1,Q(1,e),f3),'Три последовательных сложения с разными знаменателями.',3,'frac'],
-   ['Сначала сложи '+s(a,d)+' и '+s(b,e)+', затем прибавь '+s(1,d*e)+' и удвой полученную сумму.',MUL(ADD(am,Q(1,d*e)),Q(2,1)),'Вычислим сумму трёх дробей, затем умножим результат на 2.',4,'frac']
-  ];else tasks=[
-   ['Сначала прибавь к '+s(a,d)+' дробь '+s(b,e)+', затем ещё '+s(1,d+e)+' и '+s(1,d*e)+'.',ADD(f1,f2,v,Q(1,d*e)),'Несколько знаменателей, суммы по этапам и сокращение.',5,'frac'],
-   ['К сумме '+s(1,d)+' + '+s(1,e)+' прибавили '+s(a,d)+' и '+s(b,e)+'. Вычисли.',ADD(u,Q(1,e),f1,f2),'Сгруппируем дроби, приведём к НОК и сложим.',4,'frac'],
-   ['Найди сумму трёх дробей '+s(a,d)+', '+s(1,d*2)+', '+s(1,e)+' и затем прибавь '+s(1,d+1)+'.',ADD(f1,lo,Q(1,e),f3),'Четыре дроби со смешанными кратными знаменателями.',5,'frac'],
-   ['Утром прошли '+s(a,d)+' км, днём '+s(b,e)+' км, вечером '+s(1,d+e)+' км, а перед сном ещё '+s(1,d*e)+' км. Найди путь.',ADD(f1,f2,v,Q(1,d*e)),'Сложим четыре дроби после приведения к общему знаменателю.',5,'frac'],
-   ['Из суммы '+s(a,d)+' + '+s(b,e)+' + '+s(1,d*e)+' вычли '+s(1,d*e)+'. Найди итог.',SUB(ADD(f1,f2,Q(1,d*e)),Q(1,d*e)),'Приведение к общему знаменателю, сложение и вычитание.',4,'frac']
-  ];
- }
- if(id==='frac_sub_diff'){
-  if(t===0)tasks=[
-   ['Вычисли '+s(1,d)+' − '+s(1,d*2)+'.',SUB(hi,lo),'Приведём к знаменателю '+(d*2)+' и вычтем числители.',2,'frac'],
-   ['Из '+s(1,d)+' вычти '+s(1,d*4)+'.',SUB(hi,tiny),'Второй знаменатель кратен первому, разность положительна.',2,'frac'],
-   ['На сколько '+s(1,d)+' больше '+s(1,d*2)+'?',SUB(hi,lo),'Из большей дроби вычтем меньшую.',2,'frac'],
-   ['Лента '+s(1,d)+' м, отрезали '+s(1,d*2)+' м. Сколько осталось?',SUB(hi,lo),'Вычтем меньшую долю из большей.',2,'frac'],
-   ['Найди положительную разницу дробей '+s(a,d)+' и '+s(b,e)+'.',ABS(SUB(f1,f2)),'Приведём к общему знаменателю и вычтем меньшую из большей.',2,'frac']
-  ];else if(t===1)tasks=[
-   ['Вычисли '+s(1,d)+' − '+s(1,d*2)+' − '+s(1,d*4)+'.',SUB(SUB(hi,lo),tiny),'Приведём к знаменателю '+(d*4)+' и выполним два вычитания.',3,'frac'],
-   ['Из '+s(1,d)+' вычли '+s(1,d*4)+', затем ещё '+s(1,d*4)+'. Найди остаток.',SUB(SUB(hi,tiny),tiny),'Два раза вычитаем четверть исходной единичной дроби.',3,'frac'],
-   ['Найди разность между '+s(a,d)+' + '+s(1,d*2)+' и '+s(1,d*2)+'.',SUB(ADD(f1,lo),lo),'Сначала сложение, затем вычитание.',3,'frac'],
-   ['На сколько дробь '+s(a,d)+' + '+s(b,e)+' больше дроби '+s(b,e)+'?',SUB(am,f2),'Сумма двух разных знаменателей минус одно слагаемое.',3,'frac'],
-   ['Вычисли '+s(1,d)+' − ('+s(1,d*2)+' − '+s(1,d*4)+').',SUB(hi,SUB(lo,tiny)),'Сначала разность внутри скобок, затем внешнее вычитание.',3,'frac']
-  ];else tasks=[
-   ['Вычисли '+s(1,d)+' − '+s(1,d*2)+' − '+s(1,d*4)+' + '+s(1,d*8)+'.',ADD(SUB(SUB(hi,lo),tiny),Q(1,d*8)),'Три действия с кратными знаменателями.',4,'frac'],
-   ['Из '+s(a,d)+' + '+s(b,e)+' вычли сначала '+s(b,e)+', затем '+s(1,d*2)+'. Найди результат.',SUB(SUB(am,f2),lo),'Сначала сумму, затем два вычитания.',4,'frac'],
-   ['Найди положительную разность между суммами '+s(a,d)+' + '+s(1,d*2)+' и '+s(b,e)+' + '+s(1,d*4)+'.',ABS(SUB(ADD(f1,lo),ADD(f2,tiny))),'Найдём обе суммы и сравним.',5,'frac'],
-   ['Из суммы '+s(a,d)+' + '+s(1,d*2)+' вычли '+s(1,d*4)+'. Найди остаток.',SUB(ADD(f1,lo),tiny),'Сложение и вычитание с разными знаменателями.',4,'frac'],
-   ['Вычисли '+s(1,d)+' − ('+s(1,d*2)+' − '+s(1,d*4)+') + '+s(1,d*8)+'.',ADD(SUB(hi,SUB(lo,tiny)),Q(1,d*8)),'Сначала внутренние скобки, затем оставшиеся действия.',5,'frac']
-  ];
- }
  if(id==='frac_mul_common'){
   if(t===0)tasks=[
    ['Вычисли '+s(1,d)+' · '+s(1,e)+'.',MUL(u,Q(1,e)),'Перемножим числители и знаменатели, затем сократим.',2,'frac'],
@@ -378,17 +446,6 @@ function makeSpec(id,t,p){
    [[d,e,d*m],[d,e,d*m],[d,e,e*k],[d,e,d*e],[d*k,e*m,d]]
   ];
   const detail=workedLCM(byTier[t][p]);worked=detail.steps;factorAudit={denominators:byTier[t][p],lcm:detail.common};
- }else if(id==='frac_add_diff'||id==='frac_sub_diff'){
-  worked=displayedArithmeticSteps(plan);
- }else if(id==='frac_compare_diff'){
-  const denominators=[];
-  const explore=node=>{
-   if(!Array.isArray(node))return;
-   if(node[0]==='rat')denominators.push(node[2]);
-   else for(const child of node.slice(1))if(Array.isArray(child))explore(child);
-  };
-  explore(plan);
-  worked=workedLCM(denominators).steps;
  }else if(id==='frac_reduce'){
   const primary=t===0?(p===1?[b*m,e*m]:[a*k,d*k]):
    t===1?[a*k*m,d*k*m]:
@@ -412,14 +469,17 @@ function question(id){
  if(!Number.isSafeInteger(v.n)||!Number.isSafeInteger(v.d)||v.n<0||v.d<=0||v.n>200000000)throw Error('v129 invalid rational answer '+id+'/'+t+'/'+p+' '+v.n+'/'+v.d);
  const key='v129_'+id+'_L'+t+'_F'+p;
  let options,correct,mode=data.mode;
- if(mode==='frac'){
+ if(mode==='sign'){
+  options=comparisonSigns.map((label,i)=>({label,key:String(i)}));correct=String(v.n);
+ }else if(mode==='frac'){
   if(v.d===1)throw Error('v129 unexpectedly integer fraction '+key);
   options=safeFractionChoices(v.n,v.d);correct=v.n+'/'+v.d;
  }else{
   if(v.d!==1)throw Error('v129 integer family produced fraction '+key);
   options=g5nums(v.n,[v.n+1,v.n+2,v.n+3]);correct=String(v.n);
  }
- const q=g5q(data.text,options,correct,data.why+' Ответ: '+(mode==='frac'?format(v.n,v.d):v.n)+'.',key);
+ const answer=options.find(option=>String(option.key)===correct).label;
+ const q=g5q(data.text,options,correct,data.why+' Ответ: '+(answer==='<'?'&lt;':answer)+'.',key);
  const keys=q.choices.filter(c=>String(c.key)===String(q.correct));
  if(keys.length!==1||new Set(q.choices.map(c=>String(c.label))).size!==q.choices.length)throw Error('v129 duplicate answers '+key);
  return {text:q.text,ans:String(q.correct),choices:q.choices,ex:q.explain,
