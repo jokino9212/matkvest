@@ -70,7 +70,18 @@ async function run(browser,address,viewport){
   await check(page,first);
   await page.evaluate(()=>localStorage.setItem('verifiedRefreshProbe','saved'));
   active=fresh;stale='all';
-  await page.evaluate(async()=>{const r=await navigator.serviceWorker.getRegistration();await r.update();});
+  const rejected=await page.evaluate(async()=>{
+   const registration=await navigator.serviceWorker.getRegistration();
+   const installed=new Promise(resolve=>registration.addEventListener('updatefound',()=>{
+    const candidate=registration.installing;
+    candidate.addEventListener('statechange',()=>{
+     if(candidate.state==='redundant'||candidate.state==='activated')resolve(candidate.state);
+    });
+   },{once:true}));
+   await registration.update();
+   return installed;
+  });
+  assert.equal(rejected,'redundant');
   await idle(page);
   await page.reload();
   assert.equal(await check(page,first),'saved');
@@ -79,7 +90,12 @@ async function run(browser,address,viewport){
   await check(page,latest);
   assert(retries.has('index.html')&&retries.has(marker),'Build-specific retry did not verify stale CDN resources');
   stale='all';
+  await page.keyboard.press('F5');
+  // Headless Chromium may leave browser shortcuts to the host. Navigate the same
+  // route with a browser reload even on hosts that do not forward F5.
   await page.reload();
+  assert.equal(await check(page,latest),'saved');
+  await page.goto(address+'index.html');
   assert.equal(await check(page,latest),'saved');
   await ctx.setOffline(true);
   await page.reload();
