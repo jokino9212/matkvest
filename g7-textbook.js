@@ -6,6 +6,37 @@ const pair=(x,y)=>'('+x+'; '+y+')';
 const rules=Object.create(null);
 const sources={algebra:'Макарычев и др., 2024',geometry:'Атанасян и др., 2023',probability_statistics:'Высоцкий и Ященко, 2023'};
 
+const math=text=>'<span class="math">'+text+'</span>';
+const fmt=value=>String(value).replace(/^-/, '−').replace('.', ',');
+const exact=value=>g7SignedHtml(value,{fraction:value.d!==1&&rationalFiniteDecimal(value)===null});
+const sum=(left,right)=>left+signed(right);
+const readResult=(expression,answer,...steps)=>[
+ 'Вычисли '+expression+'.',answer,steps.join('<br>')
+];
+const choice=(prompt,answer,options,ex)=>[prompt,answer,options,ex];
+
+function decimalExpansion(value){
+ const remainderPositions=new Map(),digits=[];
+ const n=Math.abs(value.n),d=value.d;
+ let remainder=n%d;
+ while(remainder&&!remainderPositions.has(remainder)){
+  remainderPositions.set(remainder,digits.length);
+  const next=remainder*10;
+  digits.push(Math.floor(next/d));
+  remainder=next%d;
+ }
+ const start=remainder?remainderPositions.get(remainder):digits.length;
+ return {whole:(value.n<0?'−':'')+Math.floor(n/d),
+  prefix:digits.slice(0,start).join(''),period:digits.slice(start).join('')};
+}
+
+const reviewedLessons={
+ rational_numbers_forms:'Натуральные числа начинаются с 1. Целые числа включают натуральные, ноль и отрицательные целые. Рациональное число можно записать дробью с целым числителем и натуральным знаменателем. При делении либо получаем остаток 0, либо остатки начинают повторяться. Во втором случае записываем период в скобках.',
+ rational_arithmetic:'При сложении и вычитании дробей приведи их к общему знаменателю. При умножении перемножь числители и знаменатели. Деление замени умножением на обратную дробь. Учитывай знаки и выполняй действия в скобках первыми.',
+ variables_expression_value:'Выражение с переменной описывает число, которое зависит от значения буквы. При вычислении подставляй заданное число. Отрицательное число подставляй в скобках.',
+ admissible_values:'Подставлять можно любые значения, при которых определены все действия. Для выражения с дробью найди, при каких значениях знаменатель равен нулю. Эти значения исключи.'
+};
+
 function add(section,id,title,rule,build){
  const group=G7_GROUPS.find(item=>item.id===section);
  if(!group)throw new Error('Неизвестный раздел: '+section);
@@ -14,22 +45,272 @@ function add(section,id,title,rule,build){
  rules[id]={rule,build};
 }
 
-add('alg_expressions_equations','numerical_expressions','Числовые выражения','Сначала выполняй действия в скобках. Затем вычисляй степени, произведения и частные, а в конце — суммы и разности.',
- ({a,b,c,d,n,y})=>{
- const result=[
-  [a+' + '+b+' · '+c,a+b*c],
-  ['('+a+' + '+b+') · '+c,(a+b)*c],
-  [b*c+' : '+b+' − '+a,c-a],
-  [a+' − '+b+' · ('+c+' − '+y+')',a-b*(c-y)],
-  ['('+a+' − '+b+') · ('+c+' + '+y+')',(a-b)*(c+y)],
-  [(b*c)+' : ('+(b+y)+' − '+y+') + '+a,c+a]
- ];
- return n(...(d===0?result.slice(0,3):d===1?result.slice(3):[
-  ['('+a+' − '+b+')² − '+c+' · '+y,(a-b)**2-c*y],
-  ['('+b+'² + '+b*y+') : '+b+' − '+c,b+y-c],
-  [a+' − ('+b+' − '+c+') · ('+y+' − '+b+')',a-(b-c)*(y-b)]
- ]),'Вычисли значение: ');
-});
+add('alg_expressions_equations','numerical_expressions','Числовые выражения',
+ 'Числовое выражение составляют из чисел, знаков действий и скобок. Сначала выполни действия в скобках, затем умножение и деление, потом сложение и вычитание. Действия одной ступени выполняй слева направо. Если делитель равен нулю, выражение не имеет смысла.',
+ null);
+
+const reviewed = {
+ rational_numbers_forms: [
+  {
+   number_sets: ({a,b,c})=>{
+    const r=[rational(a),rational(-a),rational(a*b+1,b)][c%3];
+    const labels=['Натуральные числа','Целые числа','Рациональные числа'];
+    const set=r.d!==1?2:r.n<1?1:0;
+    return choice('В каком из этих множеств находится '+g7FracHtml(r)+'? Выбери самое узкое множество.',
+     labels[set],labels.filter((_,i)=>i!==set),
+     set===0?'Это положительное целое число.':set===1?'Это отрицательное целое число.':'Числитель на знаменатель нацело не делится.');
+   },
+   opposite: ({a,b})=>{
+    const value=b%2===0?a:-a;
+    return ['Запиши число, противоположное '+math(fmt(value))+'.',-value,fmt(value)+' и '+fmt(-value)+' находятся на одинаковом расстоянии от нуля по разные стороны.'];
+   },
+   modulus: ({a})=>['Найди '+math('|'+fmt(-a/10)+'|')+'.',rational(a,10),'Расстояние от '+fmt(-a/10)+' до нуля равно '+fmt(a/10)+'.'],
+   equivalent: ({b,c})=>{
+    return ['Запиши числитель дроби '+frac('?',b)+', равной '+math(c)+'.',b*c,math(c)+' = '+frac(b*c,b)+'. Умножаем '+c+' на '+b+' и делаем знаменатель равным '+b+'.'];
+   }
+  },
+  {
+   finite_decimal: ({a,b})=>{
+    const d=[4,5,8,20,25][b%5];
+    return choice('Какая десятичная запись равна −'+frac(a,d)+'?',fmt(-a/d),
+     [fmt(a/d),fmt((1-a)/d),fmt(-10*a/d)],'Делим '+a+' на '+d+' и ставим знак минус: '+fmt(-a/d)+'.');
+   },
+   simple_period: ({a,c})=>{
+    const n=a*9+c%8+1;
+    return ['Дробь '+frac(n,9)+' запиши в виде бесконечной десятичной дроби. Какая цифра повторяется?',n%9,
+     n+' = '+a+' · 9 + '+n%9+'. При делении остаток '+n%9+' повторяется после каждого шага, поэтому '+frac(n,9)+' = '+fmt(a)+',('+n%9+').'];
+   },
+   reduce_signed: ({a,b,c})=>{
+    const r=rational(-a,b),answer=g7FracHtml(r);
+    return choice('Выбери несократимую запись числа −'+frac(a*c,b*c)+'.',answer,
+     ['−'+frac(r.n*-2,r.d*2),g7FracHtml(rational(a,b)),g7FracHtml(rational(-a,b+1))],
+     'Делим числитель и знаменатель на их НОД '+gcd(a*c,b*c)+'. Получаем '+answer+'.');
+   },
+   compare_mixed: ({a,b})=>{
+    const r=rational(-a,10),s=rational(-a+b%3-1,10),cmp=rationalCmp(r,s);
+    const labels=['&lt;','=','&gt;'];
+    return choice('Сравни '+g7FracHtml(r)+' и '+g7DecHtml(s)+'.',labels[cmp+1],labels.filter((_,i)=>i!==cmp+1),
+     g7DecHtml(r)+' '+labels[cmp+1]+' '+g7DecHtml(s)+'. Обе записи привели к десятичным дробям.');
+   }
+  },
+  {
+   mixed_period: ({a,b})=>{
+    const r=rational((b%2===0?-1:1)*(12*a+(b%2===0?5:7)),12);
+    const {whole,prefix,period}=decimalExpansion(r);
+    const correct=whole+','+prefix+'('+period+')';
+    return choice('Как записать '+g7FracHtml(r)+' в виде периодической дроби?',correct,
+     [whole+',('+prefix+period+')',whole+','+prefix+period,whole+',('+period+')'],
+     'При делении получаем '+whole+','+prefix+period+period+'… . Цифра '+period+' повторяется, поэтому записываем '+correct+'.');
+   },
+   periodic_compare: ({a,b,c})=>{
+    const digit=1+b%8,r=rational(a*9+digit,9),s=rational(a*100+11*digit+(c%2),100),cmp=rationalCmp(r,s);
+    const label=a+',('+digit+')',labels=['&lt;','=','&gt;'];
+    return choice('Сравни '+math(label)+' и '+g7DecHtml(s)+'.',labels[cmp+1],labels.filter((_,i)=>i!==cmp+1),
+     label+' = '+a+','+String(digit).repeat(4)+'… . Сравниваем цифры после запятой слева направо, дополняя конечную дробь нулями.');
+   },
+   between_fractions: ({a,b})=>{
+    const denominator=2*b,n=2*a+1,answer=g7FracHtml(rational(n,denominator));
+    return choice('Какое число строго между '+frac(a,b)+' и '+frac(a+1,b)+'?',answer,
+     [g7FracHtml(rational(a,b)),g7FracHtml(rational(a+1,b)),g7FracHtml(rational(a+2,b))],
+     'При знаменателе '+denominator+' у границ числители '+2*a+' и '+(2*a+2)+'. Числитель '+n+' между ними.');
+   },
+   opposite_difference: ({a,b,c})=>{
+    const r=rational(a,b),s=rational(c,b),answer=rational(c-a,b);
+    return ['Вычисли '+g7FracHtml(r)+' − '+g7FracHtml(s)+' и запиши противоположное число.',answer,
+     'Разность равна '+g7FracHtml(rational(a-c,b))+'. Меняем знак и получаем '+g7FracHtml(answer)+'.'];
+   }
+  }
+ ],
+ rational_arithmetic: [
+  {
+   signed_sum: ({a,b})=>readResult(math('−'+a+' + '+b),b-a,'Складываем числа с разными знаками: '+b+' − '+a+' = '+fmt(b-a)+'.'),
+   subtract_negative: ({a,b})=>readResult(math(a+' − (−'+b+')'),a+b,'Заменяем вычитание на сложение: '+a+' + '+b+' = '+(a+b)+'.'),
+   signed_product: ({a,b})=>readResult(math('(−'+a+') · '+b),-a*b,a+' · '+b+' = '+a*b+'. У множителей разные знаки, поэтому ответ '+fmt(-a*b)+'.'),
+   signed_quotient: ({a,b})=>readResult(math('(−'+a*b+') : (−'+b+')'),a,a*b+' : '+b+' = '+a+'. У делимого и делителя одинаковые знаки, поэтому ответ положительный.')
+  },
+  {
+   different_denominators: ({a,b,c})=>{
+    const left=rational(a,b),right=rational(c,b+1),answer=rationalSub(left,right);
+    return readResult(frac(a,b)+' − '+frac(c,b+1),answer,
+     frac(a,b)+' − '+frac(c,b+1)+' = '+frac(a*(b+1),b*(b+1))+' − '+frac(c*b,b*(b+1))+' = '+g7FracHtml(answer)+'.');
+   },
+   signed_decimal: ({a,b,c})=>readResult(math('(−'+fmt(a/10)+') − (−'+fmt(b/10)+') + '+fmt(c/10)),rational(-a+b+c,10),
+    'Вычитание отрицательного числа заменяем сложением: −'+fmt(a/10)+' + '+fmt(b/10)+' = '+fmt((b-a)/10)+'.',
+    fmt((b-a)/10)+' + '+fmt(c/10)+' = '+fmt((b-a+c)/10)+'.'),
+   divide_fractions: ({a,b,c})=>{
+    const answer=rational(-a,c);
+    return readResult('(−'+frac(a,b)+') : '+frac(c,b),answer,
+     'Умножаем на дробь, обратную делителю: (−'+frac(a,b)+') · '+frac(b,c)+' = '+g7FracHtml(answer)+'.');
+   },
+   signed_bracket: ({a,b,c})=>readResult(math('(−'+a+' + '+b+') · (−'+c+')'),(a-b)*c,
+    '−'+a+' + '+b+' = '+fmt(b-a)+'.','('+fmt(b-a)+') · (−'+c+') = '+fmt((a-b)*c)+'.')
+  },
+  {
+   fraction_brackets: ({a,b,c,y})=>{
+    const first=rational(a-c,b),answer=rational((a-c)*y,b);
+    return readResult('('+frac(a,b)+' − '+frac(c,b)+') : '+frac(1,y),answer,
+     'Сначала вычитаем дроби: '+g7FracHtml(first)+'.',
+     'Деление заменяем умножением: '+g7FracHtml(first)+' · '+y+' = '+g7FracHtml(answer)+'.');
+   },
+   decimal_fraction_mix: ({a,b,c})=>{
+    const term=rational(b,c),product=rational(a*b,10*c),answer=rationalSub(product,rational(b,10));
+    return readResult(fmt(a/10)+' · '+g7FracHtml(term)+' − '+fmt(b/10),answer,
+     fmt(a/10)+' = '+g7FracHtml(rational(a,10))+'.',
+     'Произведение равно '+g7FracHtml(product)+'.',
+     g7FracHtml(product)+' − '+g7FracHtml(rational(b,10))+' = '+g7FracHtml(answer)+'.');
+   },
+   signed_quotient_chain: ({a,b,c,y})=>readResult(math('('+a+' − '+(a+b*c)+') : '+b+' + '+c+' · (−'+y+')'),-c-c*y,
+    a+' − '+(a+b*c)+' = '+fmt(-b*c)+'.',fmt(-b*c)+' : '+b+' = '+fmt(-c)+', а '+c+' · (−'+y+') = '+fmt(-c*y)+'.',
+    sum(fmt(-c),-c*y)+' = '+fmt(-c-c*y)+'.'),
+   reverse_arithmetic: ({a,b,c,y})=>{
+    const result=c-b*y;
+    return ['Какое число нужно поставить вместо □, чтобы '+math('(□ − '+a+') : '+b+signed(-c)+' = '+fmt(-b*y))+'?',
+     a+b*result,'Прибавляем '+c+' к обеим частям: (□ − '+a+') : '+b+' = '+fmt(result)+'.<br>Значит □ − '+a+' = '+fmt(b*result)+', поэтому □ = '+fmt(a+b*result)+'.'];
+   }
+  }
+ ],
+ variables_expression_value: [
+  {
+   single_substitution: ({a,b,c})=>['При '+math('x = '+c)+' найди значение '+math(a+'x − '+b)+'.',a*c-b,
+    'Подставляем '+c+' вместо x: '+a+' · '+c+' − '+b+' = '+a*c+' − '+b+' = '+fmt(a*c-b)+'.'],
+   signed_substitution: ({a,b,c})=>['При '+math('x = −'+c)+' найди значение '+math(a+' + '+b+'x')+'.',a-b*c,
+    a+' + '+b+' · (−'+c+') = '+a+' − '+b*c+' = '+fmt(a-b*c)+'.'],
+   read_expression: ({a,b})=>choice('Как прочитать '+math(a+'x − '+b)+'?',
+    'Разность произведения '+a+' и x и числа '+b,['Произведение '+a+' и разности x и '+b,'Сумма произведения '+a+' и x и числа '+b,'Разность числа '+b+' и произведения '+a+' и x'],
+    'Сначала '+a+' умножают на x. Затем из произведения вычитают '+b+'.'),
+   write_expression: ({a,b})=>choice('Как записать произведение числа '+a+' и суммы x и '+b+'?',
+    math(a+'(x + '+b+')'),[math(a+'x + '+b),math(a+'(x − '+b+')'),math('x + '+a*b)],
+    'Сумма равна x + '+b+'. Умножаем всю сумму на '+a+', поэтому нужны скобки.')
+  },
+  {
+   quadratic_substitution: ({a,b,c})=>['Вычисли '+math('x² − '+a+'x + '+b)+' при '+math('x = −'+c)+'.',c*c+a*c+b,
+    '(−'+c+')² = '+c*c+', а −'+a+' · (−'+c+') = '+a*c+'. Складываем: '+c*c+' + '+a*c+' + '+b+' = '+(c*c+a*c+b)+'.'],
+   two_variables: ({a,b,c,y})=>['При '+math('x = −'+c+', y = '+y)+' найди значение '+math(a+'x + '+b+'y')+'.',-a*c+b*y,
+    a+' · (−'+c+') + '+b+' · '+y+' = '+sum(fmt(-a*c),b*y)+' = '+fmt(-a*c+b*y)+'.'],
+   fractional_substitution: ({a,b,c})=>{
+    const x=rational(-a,b),answer=rational(a+c*b,b);
+    return ['При x = '+g7FracHtml(x)+' вычисли '+math(c+' − x')+'.',answer,
+     c+' − ('+g7FracHtml(x)+') = '+frac(c*b,b)+' + '+frac(a,b)+' = '+g7FracHtml(answer)+'.'];
+   },
+   build_context: ({a,b})=>choice('В одной группе '+a+' наборов по x деталей, в другой '+b+' наборов по y деталей. Как записать общее количество деталей?',
+    math(a+'x + '+b+'y'),[math((a+b)+'(x + y)'),math(b+'x + '+(a+1)+'y'),math(a+'x − '+b+'y')],
+    'В первой группе '+a+'x деталей, во второй '+b+'y деталей. Складываем два количества.')
+  },
+  {
+   substitute_two_fractions: ({a,b,c,y})=>{
+    const x=rational(-a,b),z=rational(c,y),first=rational(a*a,b*b),second=rational(a*c,b*y),answer=rationalAdd(first,second);
+    return ['Вычисли '+math('x(x − y)')+' при x = '+g7FracHtml(x)+', y = '+g7FracHtml(z)+'.',answer,
+     'Произведение x² − xy даёт '+g7FracHtml(first)+' + '+g7FracHtml(second)+' = '+g7FracHtml(answer)+'.'];
+   },
+   translate_and_evaluate: ({a,b,c,y})=>{
+    const answer=a*c+b*y;
+    return ['В школьном шкафу '+a+' коробок по x карандашей и '+b+' коробок по y карандашей. Составь выражение и вычисли общее количество при x = '+c+', y = '+y+'.',
+     answer,'Выражение имеет вид '+math(a+'x + '+b+'y')+'. После подстановки: '+a+' · '+c+' + '+b+' · '+y+' = '+a*c+' + '+b*y+' = '+answer+'.'];
+   },
+   expression_quotient: ({a,b,c,y})=>{
+    const x=-c,z=y,top=x*x-a*z,bottom=z-x,answer=rational(top,bottom);
+    return ['Найди значение '+frac('x² − '+a+'y','y − x')+' при x = '+fmt(x)+', y = '+z+'.',answer,
+     'Числитель: ('+fmt(x)+')² − '+a+' · '+z+' = '+fmt(top)+'.<br>Знаменатель: '+z+' − ('+fmt(x)+') = '+bottom+'.<br>Частное равно '+g7FracHtml(answer)+'.'];
+   },
+   two_brackets_value: ({a,b,c,y})=>{
+    const answer=a*(b-c)-b*(y+c);
+    return ['При '+math('x = −'+c)+' вычисли '+math(a+'(x + '+b+') − '+b+'('+y+' − x)')+'.',answer,
+     'Первая скобка: −'+c+' + '+b+' = '+fmt(b-c)+'.<br>Вторая: '+y+' − (−'+c+') = '+(y+c)+'.<br>Получаем '+fmt(a*(b-c))+' − '+b*(y+c)+' = '+fmt(answer)+'.'];
+   }
+  }
+ ],
+ admissible_values: [
+  {
+   direct_denominator: ({a})=>['При каком x выражение '+frac(a,'x')+' не имеет смысла?',0,'Знаменатель равен x. Деление на ноль невозможно.'],
+   shifted_denominator: ({a,b})=>['При каком x выражение '+frac(a,'x − '+b)+' не имеет смысла?',b,'Знаменатель равен нулю при x − '+b+' = 0, то есть при x = '+b+'.'],
+   constant_denominator: ({a,b})=>choice('При каких x имеет смысл '+frac('x − '+a,b)+'?','При любых x',
+    ['Только при положительных x','При всех x, кроме '+a,'При всех x, кроме 0'],
+    'В знаменателе ненулевое число '+b+'. Если числитель равен нулю, значение всей дроби равно нулю.'),
+   allowed_from_list: ({a,b})=>choice('Из предложенных чисел выбери допустимое x для '+frac(a,'x + '+b)+'.',fmt(b),
+    [fmt(-b)],'При x = '+fmt(-b)+' знаменатель обнуляется. При x = '+b+' он равен '+2*b+'.')
+  },
+  {
+   linear_denominator: ({a,b,c})=>['При каком x выражение '+frac(c,a+'x + '+a*b)+' не имеет смысла?',-b,
+    a+'x + '+a*b+' = 0, значит '+a+'x = '+fmt(-a*b)+' и x = '+fmt(-b)+'.'],
+   signs_in_denominator: ({a,b,c})=>['При каком x выражение '+frac(c,a*b+' − '+a+'x')+' не имеет смысла?',b,
+    a*b+' − '+a+'x = 0, значит '+a+'x = '+a*b+' и x = '+b+'.'],
+   fractional_exclusion: ({a,b,c})=>{
+    const answer=rational(a,b);
+    return ['При каком x выражение '+frac(c,b+'x − '+a)+' не имеет смысла?',answer,
+     b+'x − '+a+' = 0, значит '+b+'x = '+a+' и x = '+g7FracHtml(answer)+'.'];
+   },
+   guaranteed_nonzero: ({a,b})=>choice('У какой дроби знаменатель отличен от нуля при любом x?',frac(a,'x² + '+b),
+    [frac(a,'x − '+b),frac(a,'x²'),frac(a,'x + '+b)],
+    'Квадрат x² ≥ 0. Прибавляем '+b+' и получаем положительный знаменатель для любого x.')
+  },
+  {
+   product_denominator: ({a,b,c})=>choice('Какие значения x нужно исключить в '+frac(c,'(x − '+a+')(x + '+b+')')+'?',
+    fmt(-b)+' и '+a,[b+' и '+a,fmt(-b-1)+' и '+a,fmt(-b)+' и '+(a+1)],
+    'Произведение равно нулю, если хотя бы один множитель равен нулю. Получаем x = '+a+' или x = '+fmt(-b)+'.'),
+   two_denominators: ({a,b,c,y})=>choice('При каких x имеет смысл '+frac(a,'x − '+c)+' + '+frac(b,'x + '+y)+'?',
+    'При всех x, кроме '+fmt(-y)+' и '+c,['При всех x, кроме '+c,'При всех x, кроме '+fmt(-y),'При любых x'],
+    'Первая дробь требует x ≠ '+c+', вторая — x ≠ '+fmt(-y)+'. Оба ограничения действуют одновременно.'),
+   cancellation_exclusion: ({a,b,c})=>['При каком x исходное выражение '+frac('(x − '+a+')(x + '+b+')','x − '+a)+' не имеет смысла?',a,
+    'Сократить множитель x − '+a+' можно только при x ≠ '+a+'. При x = '+a+' исходный знаменатель равен нулю.'],
+   evaluate_or_exclude: ({a,b,c})=>choice('При каком x имеет смысл '+frac(c,'(x − '+a+')(x + '+b+')')+'?',
+    fmt(a+1),[fmt(-b),fmt(a)],'При x = '+fmt(-b)+' или x = '+a+' один из множителей знаменателя равен нулю. При x = '+(a+1)+' оба отличны от нуля.')
+  }
+ ],
+ numerical_expressions: [
+  {
+   product_first: ({a,b,c})=>readResult(math(a+' + '+b+' · '+c),a+b*c,
+    b+' · '+c+' = '+b*c+'.',a+' + '+b*c+' = '+(a+b*c)+'.'),
+   brackets_first: ({a,b,c})=>readResult(math('('+a+' + '+b+') · '+c),(a+b)*c,
+    a+' + '+b+' = '+(a+b)+'.',(a+b)+' · '+c+' = '+((a+b)*c)+'.'),
+   quotient_difference: ({a,b,c})=>readResult(math(b*c+' : '+b+' − '+a),c-a,
+    b*c+' : '+b+' = '+c+'.',c+' − '+a+' = '+fmt(c-a)+'.'),
+   outer_operation: ({a,b,c})=>[
+    'Как называется всё выражение '+math('('+a+' + '+b+') : '+c)+'?',
+    'Частное',['Сумма','Разность','Произведение'],
+    'Сначала вычисляем сумму в скобках, потом делим её на '+c+'. Последнее действие — деление.'
+   ]
+  },
+  {
+   three_operations: ({a,b,c,y})=>readResult(math(a+' + '+b+' · ('+c+' − '+y+')'),a+b*(c-y),
+    c+' − '+y+' = '+fmt(c-y)+'.',b+' · ('+fmt(c-y)+') = '+fmt(b*(c-y))+'.',sum(a,b*(c-y))+' = '+fmt(a+b*(c-y))+'.'),
+   decimals: ({a,b,c})=>readResult(math(fmt(a/10)+' − '+fmt(b/10)+' · '+c),rational(a-b*c,10),
+    fmt(b/10)+' · '+c+' = '+fmt(b*c/10)+'.',fmt(a/10)+' − '+fmt(b*c/10)+' = '+fmt((a-b*c)/10)+'.'),
+   fraction_product: ({a,b,c})=>readResult(c+' · ('+frac(a,c)+' − '+frac(a+b,c)+')',-b,
+    frac(a,c)+' − '+frac(a+b,c)+' = −'+frac(b,c)+'.',c+' · (−'+frac(b,c)+') = '+fmt(-b)+'.'),
+   zero_divisor: ({a,b,c})=>{
+    const invalid=math(a+' : ('+b*c+' − '+b+' · '+c+')');
+    return ['Какое выражение не имеет смысла?',invalid,[
+     math(a+' : ('+(b*c+1)+' − '+b+' · '+c+')'),math('('+b*c+' − '+b+' · '+c+') : '+a),
+     math(a+' · ('+b*c+' − '+b+' · '+c+')')
+    ],'В скобках '+b*c+' − '+b*c+' = 0. В первом действии вне скобок пришлось бы делить '+a+' на ноль.'];
+   }
+  },
+  {
+   nested_divisor: ({a,b,c,y})=>readResult(math(b*c*(a+1)+' : ('+b+' · ('+(c+y)+' − '+y+')) − '+a),1,
+    (c+y)+' − '+y+' = '+c+'.',b+' · '+c+' = '+b*c+'.',b*c*(a+1)+' : '+b*c+' = '+(a+1)+'.',(a+1)+' − '+a+' = 1.'),
+   two_fractions: ({a,b,c})=>{
+    const answer=rational(a+b-c,2);
+    return readResult('('+frac(a,2*b)+' + '+frac(1,2)+') · '+b+' − '+frac(c,2),answer,
+     frac(a,2*b)+' + '+frac(b,2*b)+' = '+frac(a+b,2*b)+'.',
+     frac(a+b,2*b)+' · '+b+' = '+g7FracHtml(rational(a+b,2))+'.',
+     g7FracHtml(rational(a+b,2))+' − '+frac(c,2)+' = '+g7FracHtml(answer)+'.');
+   },
+   solve_by_expression: ({a,b,c,y})=>{
+    const distance=(a+b)*c+y;
+    return ['Два велосипедиста выехали навстречу друг другу со скоростями '+a+' и '+b+' км/ч. Через '+c+' ч между ними ещё было '+y+' км. Какое выражение даёт начальное расстояние?',
+     math('('+a+' + '+b+') · '+c+' + '+y),[
+      math('('+a+' + '+b+') · ('+c+' + '+y+')'),math('('+a+' + '+b+') · '+c+' − '+y),math(a+' + '+b+' · '+c+' + '+y)
+     ],'За час расстояние уменьшается на '+(a+b)+' км. За '+c+' ч оно уменьшилось на '+((a+b)*c)+' км. Прибавляем оставшиеся '+y+' км и получаем '+distance+' км.'];
+   },
+   insert_brackets: ({a,b,c})=>{
+    const left=math('('+a+' + '+b+') · '+c+' − '+a);
+    return ['Выбери расстановку скобок, при которой значение выражения равно '+((a+b)*c-a)+'.',left,[
+     math(a+' + '+b+' · ('+c+' − '+a+')'),math(a+' + ('+b+' · '+c+' − '+a+')'),math('('+a+' + '+b+') · ('+c+' − '+a+')')
+    ],'Сначала '+a+' + '+b+' = '+(a+b)+', затем '+(a+b)+' · '+c+' = '+((a+b)*c)+'. После вычитания '+a+' получается '+((a+b)*c-a)+'.'];
+   }
+  }
+ ]
+};
 add('alg_expressions_equations','compare_expression_values','Сравнение значений выражений','Вычисли оба значения. На числовой прямой большее число расположено правее.',
  ({a,b,c,y,d,k})=>{
  const xs=d===0?[[a+b,a-b,a+' + '+b,a+' − '+b],[a*c,b*c,a+' · '+c,b+' · '+c],[a+b,c+y,a+' + '+b,c+' + '+y]]:
@@ -629,13 +910,22 @@ Object.assign(rules,{
 
 const previousQuestion=makeG7Question, previousLesson=g7Lesson;
 g7Lesson=function(id){
- const topic=rules[rawCourseId(id)];
- return topic?'<div class="g6-theory"><h3>Правило</h3><p>'+topic.rule+'</p></div>':previousLesson(id);
+ const raw=rawCourseId(id),rule=reviewedLessons[raw]||rules[raw]?.rule;
+ return rule?'<div class="g6-theory"><h3>Правило</h3><p>'+rule+'</p></div>':previousLesson(id);
 };
 makeG7Question=function(id,stageOverride=null){
- const raw=rawCourseId(id),topic=rules[raw];
- if(!topic)return previousQuestion(id,stageOverride);
+ const raw=rawCourseId(id),topic=rules[raw],tiered=reviewed[raw];
+ if(!topic&&!tiered)return previousQuestion(id,stageOverride);
  const d=Math.max(0,Math.min(2,Number.isInteger(stageOverride)?stageOverride:activeDifficulty()));
+ if(tiered){
+  const [variant,build]=g7Pick(Object.entries(tiered[d]));
+  const [text,answer,options,detail]=build({a:ri(3,13),b:ri(2,13),c:ri(3,14),y:ri(2,13)});
+  const audit={variant,level:d};
+  const sig=g7QuestionSig(raw,d,variant,[text]);
+  if(Array.isArray(options))return g7StrictChoice(text,answer,options,detail,sig,audit);
+  return g7InputQuestionForRat(text,typeof answer==='number'?rational(answer):answer,options,sig,{audit,
+   inputHint:'Введи точное значение. Обыкновенную дробь можно записать через /.'});
+ }
  const k=ri(0,2), a=ri(3,13), b=ri(2,13), c=ri(3,14), y=ri(2,13);
  const n=(first,second,third,prefix='')=>{
   const [text,answer,ex]=[first,second,third][k];
