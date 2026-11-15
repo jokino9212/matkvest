@@ -33560,11 +33560,16 @@ window.G8_QA8_AUDIT={targets:RAW.slice(),levels:LENGTH.slice(),pools:Object.from
   const used=b._g7Stage13Used[key]||(b._g7Stage13Used[key]=[]);
   const signatures=new Set(used.map(x=>x.sig)),meanings=new Set(used.map(x=>x.semantic));
   const fits=q=>!!q?.text&&!!q?.sig&&!signatures.has(String(q.sig))&&!meanings.has(semantic(q));
+  const family=q=>q?.audit?.variant||q?.audit?.type||String(q?.sig||'').split(':')[3];
+  const counts=new Map();
+  for(const entry of used)counts.set(entry.family,(counts.get(entry.family)||0)+1);
+  const frequency=q=>counts.get(family(q))||0;
   let chosen=initial;
-  if(!fits(chosen)){
-   for(let attempt=0;attempt<600;attempt++){
+  if(!fits(chosen)||frequency(chosen)>0){
+   for(let attempt=0;attempt<(fits(chosen)?18:600);attempt++){
     const candidate=makeG7Question(id,b.stageIndex);
-    if(fits(candidate)){chosen=candidate;break;}
+    if(fits(candidate)&&(!fits(chosen)||frequency(candidate)<frequency(chosen)))chosen=candidate;
+    if(fits(chosen)&&frequency(chosen)===0)break;
    }
   }
   if(!fits(chosen)){
@@ -33575,7 +33580,7 @@ window.G8_QA8_AUDIT={targets:RAW.slice(),levels:LENGTH.slice(),pools:Object.from
    registerSignature(chosen.sig);
    chosen._signature=chosen.sig;
   }
-  used.push({sig:String(chosen?.sig||''),semantic:semantic(chosen)});
+  used.push({sig:String(chosen?.sig||''),semantic:semantic(chosen),family:family(chosen)});
   return chosen;
  };
 })();
@@ -34629,7 +34634,7 @@ body{background:var(--mk19c-canvas);color:var(--mk19c-ink)}
    const count=controls.querySelector('.mk19c4-count');
    const empty=controls.querySelector('.mk19c4-empty');
    const links=controls.querySelector('.mk19c4-course-links');
-   const courses=[...root.querySelectorAll(':scope > .g7-course')];
+   const courses=currentGrade===7?[]:[...root.querySelectorAll(':scope > .g7-course')];
    const groups=[...root.querySelectorAll('.g6-group,.g7-course')];
    const names=topics.map(t=>{
      const group=t.closest('.g6-group');
@@ -36611,25 +36616,26 @@ document.addEventListener("keydown",event=>{
 })();
 </script>
 
-<script src="g5-conversion-ux.js?v=191"></script>
-<script src="g5-textbook-topics.js?v=191"></script>
-<script src="g5-textbook-core.js?v=191"></script>
-<script src="g5-textbook-v111.js?v=191"></script>
-<script src="g5-textbook-v112.js?v=191"></script>
-<script src="g5-pedagogy-v113.js?v=191"></script>
-<script src="g5-fractions-v114.js?v=191"></script>
-<script src="g5-fraction-arithmetic-v115.js?v=191"></script>
-<script src="g5-decimals-v116.js?v=191"></script>
-<script src="g5-textbook-navigation-v121.js?v=191"></script>
-<script src="g5-live-pedagogy-v122.js?v=191"></script>
-<script src="g5-arithmetic-tiers-v123.js?v=191"></script>
-<script src="g5-textbook-tiers-v124.js?v=191"></script>
-<script src="g5-natural-units-v125.js?v=191"></script>
-<script src="g5-remaining-core-v126.js?v=191"></script>
-<script src="g5-decimal-tiers-v127.js?v=191"></script>
-<script src="g5-decimal-percent-v128.js?v=191"></script>
-<script src="g5-fraction-concepts-v129.js?v=191"></script>
-<script src="g5-fraction-applications-v130.js?v=191"></script>
+<script src="g5-conversion-ux.js?v=192"></script>
+<script src="g5-textbook-topics.js?v=192"></script>
+<script src="g5-textbook-core.js?v=192"></script>
+<script src="g5-textbook-v111.js?v=192"></script>
+<script src="g5-textbook-v112.js?v=192"></script>
+<script src="g5-pedagogy-v113.js?v=192"></script>
+<script src="g5-fractions-v114.js?v=192"></script>
+<script src="g5-fraction-arithmetic-v115.js?v=192"></script>
+<script src="g5-decimals-v116.js?v=192"></script>
+<script src="g7-textbook.js?v=192"></script>
+<script src="g5-textbook-navigation-v121.js?v=192"></script>
+<script src="g5-live-pedagogy-v122.js?v=192"></script>
+<script src="g5-arithmetic-tiers-v123.js?v=192"></script>
+<script src="g5-textbook-tiers-v124.js?v=192"></script>
+<script src="g5-natural-units-v125.js?v=192"></script>
+<script src="g5-remaining-core-v126.js?v=192"></script>
+<script src="g5-decimal-tiers-v127.js?v=192"></script>
+<script src="g5-decimal-percent-v128.js?v=192"></script>
+<script src="g5-fraction-concepts-v129.js?v=192"></script>
+<script src="g5-fraction-applications-v130.js?v=192"></script>
 <script>
 // The textbook scripts finish extending the catalog before Home shows its totals.
 g5HomeCatalogReady=true;

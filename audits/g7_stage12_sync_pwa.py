@@ -25,9 +25,9 @@ updated,count=re.subn(pattern,f'const APP_BUILD_HASH = "{expected}";',source)
 if count!=1:
     raise SystemExit("ERROR: missing or duplicate PWA fingerprint")
 if 'const SCRIPT_HASHES = ' in source:
-    scripts = re.findall(rb'<script src="(g5-[\w-]+\.js)\?v=(\d+)"></script>', html)
-    if len(scripts) != 19 or len({name for name, _ in scripts}) != 19:
-        raise SystemExit("ERROR: expected 19 distinct versioned Grade 5 scripts")
+    scripts = re.findall(rb'<script src="((?:g5-[\w-]+|g7-textbook)\.js)\?v=(\d+)"></script>', html)
+    if sum(name.startswith(b"g5-") for name, _ in scripts) != 19 or len({name for name, _ in scripts}) != len(scripts):
+        raise SystemExit("ERROR: expected 19 Grade 5 scripts and distinct versioned textbook scripts")
     version = cache_name.rsplit('v', 1)[-1].encode()
     if any(stamp != version for _, stamp in scripts):
         raise SystemExit("ERROR: script versions differ from the worker cache")
