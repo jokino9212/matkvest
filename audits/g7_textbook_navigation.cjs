@@ -44,6 +44,7 @@ const {chromium}=require('playwright');
  assert.deepEqual(result.missing,[]);
  assert.deepEqual(result.failures,[]);
  const search=page.locator('main input[type=search]:visible');
+ await search.waitFor();
  assert.equal(await search.count(),1);
  await search.fill('геометрия 43');
  assert.equal(await menu.locator('[data-paragraph]:visible').count(),1);
@@ -53,6 +54,29 @@ const {chromium}=require('playwright');
  await menu.waitFor();
  await page.locator('#modal .stage-card').first().waitFor({state:'visible'});
  assert.equal(await page.locator('#modal .stage-card').count(),3);
+ const initial=await page.evaluate(()=>{
+  for(let attempt=0;attempt<30;attempt++){
+   startG7QuizStage('g7:geo_incircle_triangle',1);
+   if(q.answerMode==='number')break;
+  }
+  if(q.answerMode!=='number')throw Error('Numeric task missing');
+  if(!skipNormalQuiz())throw Error('Skip failed');
+  for(let attempt=0;attempt<4;attempt++){
+   nextQ();
+   if(q.answerMode==='number')break;
+   if(!skipNormalQuiz())throw Error('Skip failed');
+  }
+  if(q.answerMode!=='number'||blockSession.finished)throw Error('Unfinished numeric task missing');
+  const input=document.getElementById('quizInput');
+  input.value='12,5';
+  input.dispatchEvent(new Event('input',{bubbles:true}));
+  if(!mk872PersistDraft())throw Error('Draft was not saved');
+  return {attempt:blockSession.attemptId,sig:q.sig,done:blockSession.done,value:input.value};
+ });
+ await page.reload();
+ await page.getByRole('button',{name:'Продолжить',exact:true}).click();
+ const restored=await page.evaluate(()=>({attempt:blockSession.attemptId,sig:q.sig,done:blockSession.done,value:document.getElementById('quizInput')?.value}));
+ assert.deepEqual(restored,initial);
  assert.deepEqual(errors,[]);
  console.log('G7_HOME_NAV_AND_GENERATION_PASS');
  await browser.close();
