@@ -62,6 +62,12 @@ async function check(page,version,{enterGrade=false}={}){
 async function idle(page){
  await page.waitForFunction(async()=>{const r=await navigator.serviceWorker.getRegistration();return r?.active&&!r.installing&&!r.waiting;});
 }
+async function checkHome(page,expected){
+ const card=page.locator('#mainView .grade-card').filter({
+  has:page.locator('button[onclick="openGrade(5)"]')
+ });
+ assert.equal(await card.locator('.grade-summary').textContent(),expected);
+}
 async function run(browser,address,viewport){
  active=old;stale='none';retries=new Set();
  const ctx=await browser.newContext({viewport,isMobile:viewport.width<500,hasTouch:viewport.width<500});
@@ -69,8 +75,14 @@ async function run(browser,address,viewport){
  page.on('pageerror',error=>errors.push(error.message));
  try{
   await page.goto(address);
+  await checkHome(page,'Пройдено тем: 0/74 • этапов: 0/222');
   await page.evaluate(()=>navigator.serviceWorker.ready.then(()=>null));
+  await page.evaluate(()=>{
+   progressFor('g5:area_units_g5').best=STAGES.map(stage=>stage.need);
+   save();
+  });
   await page.reload();
+  await checkHome(page,'Пройдено тем: 1/74 • этапов: 3/222');
   await check(page,first,{enterGrade:true});
   await page.evaluate(()=>localStorage.setItem('verifiedRefreshProbe','saved'));
   active=fresh;stale='all';
@@ -99,6 +111,10 @@ async function run(browser,address,viewport){
   // route with a browser reload even on hosts that do not forward F5.
   await page.reload();
   assert.equal(await check(page,latest),'saved');
+  await page.goBack();
+  await checkHome(page,'Пройдено тем: 1/74 • этапов: 3/222');
+  await page.reload();
+  await checkHome(page,'Пройдено тем: 1/74 • этапов: 3/222');
   await page.goto(address+'index.html');
   assert.equal(await check(page,latest,{enterGrade:true}),'saved');
   await ctx.setOffline(true);
