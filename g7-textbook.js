@@ -46,7 +46,11 @@ const reviewedLessons={
  formulas_dependencies:'Формула связывает величины. Чтобы найти значение, подставь известные числа в согласованных единицах. Чтобы выразить одну букву через остальные, выполни одинаковые обратные действия с обеими частями.',
  number_intervals:'Квадратная скобка у границы означает, что граница входит в промежуток. Круглая скобка исключает границу. У бесконечности всегда круглая скобка. На прямой включённая граница отмечена закрашенной точкой.',
  number_line_distance:'Расстояние между точками равно модулю разности их координат. Координата середины отрезка — полусумма координат концов.',
- function_concept_values:'Функция каждому допустимому аргументу ставит в соответствие ровно одно значение. Область определения — множество допустимых аргументов. Разным аргументам может соответствовать одно и то же значение.'
+ function_concept_values:'Функция каждому допустимому аргументу ставит в соответствие ровно одно значение. Область определения — множество допустимых аргументов. Разным аргументам может соответствовать одно и то же значение.',
+ function_formula_values:'Чтобы найти значение функции, подставь аргумент в формулу. Если известно значение, приравняй к нему формулу и найди аргумент. Проверь, допустим ли он.',
+ function_graph_reading:'Чтобы прочитать y по заданному x, двигайся от отметки x вертикально до графика и затем горизонтально к оси Oy. Если задан y, ищи все пересечения графика с горизонталью на этой высоте.',
+ coordinate_plane:'Абсцисса x показывает положение по горизонтали, ордината y — по вертикали. Точки оси Ox имеют y = 0, точки оси Oy имеют x = 0.',
+ direct_proportionality_function:'Прямая пропорциональность задаётся формулой y = kx, где k ≠ 0. Её график — прямая через начало координат. Если известна точка с x ≠ 0, найди k делением y на x.'
 };
 
 function compare(prompt,left,right,explanation){
@@ -83,6 +87,16 @@ function intervalVisual(left,right,leftClosed,rightClosed){
 function functionTable(rows){
  return question=>g6AttachTable(question,{headers:['Аргумент x','Значение y'],rows});
 }
+function functionGraph(points,{line=null,range=6}={}){
+ const coordinates=points.map(([x,y])=>({x:rational(x),y:rational(y)}));
+ const series=line?[g7LineSeries(line[0],line[1],{range})]:[{points:coordinates}];
+ return question=>g7AttachGraph(question,g7GraphData(series,{range,caption:'Координатная плоскость'}));
+}
+function pointVisual(points){
+ const marked=points.map(([x,y,label])=>g7PointOnLine(x,0,y,label));
+ return question=>g6AttachCoordinatePlane(question,g7GraphData([],{points:marked}));
+}
+const withVisual=(task,attach)=>task.length===3?[...task,null,attach]:[...task,attach];
 
 function add(section,id,title,rule,build){
  const group=G7_GROUPS.find(item=>item.id===section);
@@ -927,6 +941,229 @@ const reviewed = {
    complete_consistent_table: ({a,b,c})=>['В таблице требуется восстановить пропуск так, чтобы каждому аргументу соответствовало единственное значение. Какое y нужно записать?',
     b+c,'Аргумент '+a+' уже встречается в первой строке, его значение '+(b+c)+'.',null,functionTable([[a,b+c],[a+1,b],[a,'?']])]
   }
+ ],
+ function_formula_values: [
+  {
+   affine_at_positive: ({a,b,c})=>['Для '+math('f(x) = '+a+'x + '+b)+' найди f('+c+').',a*c+b,
+    'Подставляем '+c+': '+a+' · '+c+' + '+b+' = '+(a*c+b)+'.'],
+   square_at_negative: ({a,b})=>['Для '+math('f(x) = x² + '+b)+' найди f('+fmt(-a)+').',a*a+b,
+    'Квадрат (−'+a+')² равен '+a*a+'. Прибавляем '+b+' и получаем '+(a*a+b)+'.'],
+   zero_argument: ({a,b})=>['Для '+math('g(x) = '+a+' − '+b+'x')+' найди g(0).',a,
+    'Произведение '+b+' · 0 равно 0. Остаётся '+a+'.'],
+   choose_substitution: ({a,b,c})=>choice('Для '+math('f(t) = '+a+' − '+b+'t')+' какое выражение даёт f('+fmt(-c)+')?',
+    math(a+' − '+b+' · (−'+c+')'),[math(a+' − '+b+' · '+c),math('−'+a+' − '+b+' · (−'+c+')'),math(a+' + '+b+' · (−'+c+')')],
+    'Вместо t подставляем (−'+c+'), а знак вычитания в формуле сохраняем.')
+  },
+  {
+   fractional_argument: ({a,b,c})=>['Пусть '+math('f(x) = '+b+'x − '+c)+'. Найди f('+g7FracHtml(rational(a,b))+').',a-c,
+    'После подстановки '+b+' · '+frac(a,b)+' − '+c+' = '+a+' − '+c+' = '+fmt(a-c)+'.'],
+   evaluate_two_arguments: ({a,b,c,y})=>['При '+math('f(x) = '+a+'x − '+b)+' вычисли f('+c+') − f('+fmt(-y)+').',a*(c+y),
+    'Значения равны '+fmt(a*c-b)+' и '+fmt(-a*y-b)+'. Их разность: '+fmt(a*c-b)+' − ('+fmt(-a*y-b)+') = '+a*(c+y)+'.'],
+   nonlinear_decimal: ({a,b,c})=>['Для '+math('f(x) = x² − '+a+'x + '+b)+' вычисли f('+fmt(-c/10)+').',
+    rational(c*c+10*a*c+100*b,100),
+    'Квадрат аргумента равен '+fmt(c*c/100)+', а слагаемое −'+a+'x равно '+fmt(a*c/10)+'. Складываем оба числа и '+b+'.'],
+   function_with_denominator: ({a,b,c})=>['Для '+math('g(x) = ')+frac(a,'x + '+b)+' найди g('+c+').',rational(a,b+c),
+    'В знаменателе '+c+' + '+b+' = '+(b+c)+'. Значение функции равно '+g7FracHtml(rational(a,b+c))+'.']
+  },
+  {
+   solve_for_argument: ({a,b,c})=>['При каком x функция '+math('f(x) = '+a+'x − '+b)+' принимает значение '+c+'?',rational(b+c,a),
+    'Приравниваем '+a+'x − '+b+' к '+c+'. После прибавления '+b+' получаем '+a+'x = '+(b+c)+'. Делим на '+a+'.'],
+   two_outputs_equal: ({a,b,c})=>['При каком x совпадут значения '+math('f(x) = '+a+'x + '+b)+' и '+math('g(x) = '+(a+c)+'x − '+b)+'?',rational(2*b,c),
+    'Из '+a+'x + '+b+' = '+(a+c)+'x − '+b+' получаем '+c+'x = '+2*b+'. Делим на '+c+'.'],
+   two_square_arguments: ({a,b})=>choice('Какие x дают '+math('f(x) = '+(a*a+b))+' для '+math('f(x) = x² + '+b)+'?',
+    fmt(-a)+' и '+a,[String(a),fmt(-a),fmt(-a-1)+' и '+(a+1)],
+    'Вычитаем '+b+' и получаем x² = '+a*a+'. Подходят оба числа с модулем '+a+'.'),
+   shifted_arguments: ({a,b,c})=>['Для '+math('f(x) = '+a+'x + '+b)+' найди x, если f(x + 1) + f(x − 1) = '+(2*a*c+2*b)+'.',c,
+    'Сумма равна '+a+'(x + 1) + '+a+'(x − 1) + '+2*b+' = '+2*a+'x + '+2*b+'. После вычитания '+2*b+' получаем '+2*a+'x = '+2*a*c+'. Значит, x = '+c+'.']
+  }
+ ],
+ function_graph_reading: [
+  {
+   read_ordinate: ({a,b})=>{
+    const x=a%5+1,y=b%5+1;
+    return withVisual(['По графику найди y при x = '+x+'.',y,'Находим x = '+x+' на оси Ox. У графика на этой вертикали ордината '+y+'.'],
+     functionGraph([[0,0],[x,y],[6,y]]));
+   },
+   read_abscissa: ({a,b})=>{
+    const x=a%4+1,y=b%4+1;
+    return withVisual(['По графику найди x, при котором y = '+y+'.',x,'Горизонталь y = '+y+' пересекает график при x = '+x+'.'],
+     functionGraph([[0,0],[x,y],[6,y+1]]));
+   },
+   read_y_intercept: ({a,b})=>{
+    const offset=a%5-2,slope=b%2?1:-1;
+    return withVisual(['Каково значение функции при x = 0?',offset,'График пересекает ось Oy в точке с ординатой '+fmt(offset)+'.'],
+     functionGraph([],{line:[slope,offset]}));
+   },
+   graph_membership: ({a,b})=>{
+    const x=a%4+1,truth=b%2===0,y=x+Number(!truth);
+    return withVisual(checkStatement('Принадлежит ли точка ('+x+'; '+y+') графику?',truth,
+     'На графике при x = '+x+' ордината равна '+x+'.'),functionGraph([],{line:[1,0]}));
+   }
+  },
+  {
+   read_difference_on_graph: ({a,b,c})=>{
+    const left=a%4+1,right=b%4+1,middle=c%4+1,answer=right-left;
+    return withVisual(['По графику вычисли f(4) − f(−4).',answer,'Читаем f(4) = '+right+' и f(−4) = '+left+'. Разность '+fmt(answer)+'.'],
+     functionGraph([[-4,left],[0,middle],[4,right]]));
+   },
+   find_two_zeros: ({a,b})=>{
+    const left=-(a%4+1),right=b%4+1;
+    return withVisual(choice('При каких значениях x показанная функция равна нулю?',fmt(left)+' и '+right,
+     [fmt(left-1)+' и '+right,fmt(left)+' и '+(right+1),String(right)],
+     'В точках пересечения с Ox значение y равно 0. Абсциссы этих точек '+fmt(left)+' и '+right+'.'),
+     functionGraph([[left-1,-2],[left,0],[0,2],[right,0],[right+1,-2]]));
+   },
+   constant_segment: ({a,b})=>{
+    const x=a%3+1,y=b%3+1;
+    return withVisual(choice('На каком отрезке показанная функция постоянна?', '['+fmt(-x)+'; '+x+']',
+     ['[−5; '+fmt(-x)+']','['+x+'; 5]','[−5; 5]'],'Горизонтальный участок идёт от x = '+fmt(-x)+' до x = '+x+'.'),
+     functionGraph([[-5,y-2],[-x,y],[x,y],[5,y+2]]));
+   },
+   increasing_or_decreasing: ({a,b})=>{
+    const slope=b%2===0?1:-1,offset=a%3-1;
+    return withVisual(choice('Как меняется y при увеличении x на показанном графике?',slope>0?'Увеличивается':'Уменьшается',
+     [slope>0?'Уменьшается':'Увеличивается','Остаётся постоянным'],'Идём по графику слева направо. Точки становятся '+(slope>0?'выше.':'ниже.')),
+     functionGraph([],{line:[slope,offset]}));
+   }
+  },
+  {
+   all_level_intersections: ({a,b})=>{
+    const x=a%3+1,y=b%3+1;
+    return withVisual(choice('При каких x значение функции равно '+y+'?',fmt(-x)+' и '+x,
+     [fmt(-x),String(x),fmt(-x-1)+' и '+(x+1)],'Горизонталь y = '+y+' пересекает ломаную в двух точках. Их абсциссы '+fmt(-x)+' и '+x+'.'),
+     functionGraph([[-x-1,y-1],[-x,y],[0,y+2],[x,y],[x+1,y-1]]));
+   },
+   argmax_on_piecewise_graph: ({a,b})=>{
+    const x=a%4+1,y=b%3+3;
+    return withVisual(['При каком x показанная функция достигает наибольшего значения?',x,
+     'Самая высокая точка имеет ординату '+y+'. Её абсцисса равна '+x+'.'],
+     functionGraph([[-5,0],[-1,y-1],[x,y],[6,1]]));
+   },
+   range_of_shown_graph: ({a,b})=>{
+    const min=-(a%4+1),max=b%4+1,correct='['+fmt(min)+'; '+max+']';
+    return withVisual(choice('Какое множество значений имеет показанная функция?',correct,
+     ['[−5; 5]','('+fmt(min)+'; '+max+')','['+fmt(min+1)+'; '+max+']'],
+     'Минимальное значение y равно '+fmt(min)+', максимальное '+max+'. Все промежуточные значения есть на ломаной.'),
+     functionGraph([[-5,min],[0,max],[5,1]]));
+   },
+   positive_x_span: ({a,b})=>{
+    const left=-(a%4+2),right=b%4+1;
+    return withVisual(choice('При каких x на рисунке функция принимает положительные значения?', '('+fmt(left)+'; '+right+')',
+     ['['+fmt(left)+'; '+right+']','['+fmt(left-1)+'; '+fmt(left)+')','('+right+'; '+(right+1)+']'],
+     'Функция положительна над осью Ox. В точках с абсциссами '+fmt(left)+' и '+right+' она равна нулю, поэтому границы исключены.'),
+     functionGraph([[left-1,-1],[left,0],[0,3],[right,0],[right+1,-1]]));
+   }
+  }
+ ],
+ coordinate_plane: [
+  {
+   read_point_positive: ({a,b})=>{
+    const x=a%5+1,y=b%5+1;
+    return ['Введи координаты точки A.',{x:rational(x),y:rational(y)},'По горизонтали x = '+x+', по вертикали y = '+y+'.','coordinate',pointVisual([[x,y,'A']])];
+   },
+   identify_x_axis: ({a,b})=>choice('Какая точка лежит на Ox?', '('+a+'; 0)',['(0; '+a+')','('+a+'; '+b+')','('+b+'; '+a+')'].filter((label,i,list)=>list.indexOf(label)===i),
+    'У точек на Ox ордината равна нулю.'),
+   identify_y_axis: ({a,b})=>choice('Какая точка лежит на Oy?', '(0; '+b+')',['('+b+'; 0)','('+a+'; '+(b+1)+')','('+a+'; '+b+')'],
+    'У точек на Oy абсцисса равна нулю.'),
+   read_one_coordinate: ({a,b})=>{
+    const x=-(a%4+1),y=b%4+1;
+    return withVisual(['Найди абсциссу точки B.',x,'Абсциссу читаем по горизонтальной оси: '+fmt(x)+'.'],pointVisual([[x,y,'B']]));
+   }
+  },
+  {
+   read_negative_point: ({a,b})=>{
+    const x=-(a%5+1),y=-(b%5+1);
+    return ['Введи координаты точки B.',{x:rational(x),y:rational(y)},
+     'Точка находится левее Oy и ниже Ox. Её координаты ('+fmt(x)+'; '+fmt(y)+').','coordinate',pointVisual([[x,y,'B']])];
+   },
+   choose_quadrant: ({a,b,c})=>{
+    const x=a%4+1,y=b%4+1,points=[[x,y],[-x,y],[-x,-y],[x,-y]],index=c%4;
+    return withVisual(choice('В какой четверти расположена точка A?', ['I','II','III','IV'][index],['I','II','III','IV'].filter((_,i)=>i!==index),
+     'Знаки координат точки: x '+(points[index][0]>0?'&gt;':'&lt;')+' 0, y '+(points[index][1]>0?'&gt;':'&lt;')+' 0.'),
+     pointVisual([[...points[index],'A']]));
+   },
+   compare_point_ordinates: ({a,b})=>{
+    const x=a%4+1,y=b%5-2;
+    return withVisual(compare('Сравни ординату точки A с ординатой точки B.',rational(y),rational(-y),'Сравниваем высоты точек, а не положение по горизонтали.'),
+     pointVisual([[x,y,'A'],[-x,-y,'B']]));
+   },
+   line_through_two_points: ({a,b})=>{
+    const x=a%3+1,y=b%4+1;
+    return withVisual(choice('Как расположена прямая AB?', 'Параллельна Ox',['Параллельна Oy','Проходит через начало координат','Наклонена к обеим осям'],
+     'У A и B одинаковая ордината '+y+'. Поэтому прямая через них горизонтальная.'),pointVisual([[-x,y,'A'],[x,y,'B']]));
+   }
+  },
+  {
+   point_on_both_grid_lines: ({a,b})=>{
+    const x=-(a%5+1),y=b%5+1;
+    return ['Найди точку пересечения вертикали через A и горизонтали через B.',{x:rational(x),y:rational(y)},
+     'У вертикали абсцисса A, то есть '+fmt(x)+'. У горизонтали ордината B, то есть '+y+'.','coordinate',pointVisual([[x,-y,'A'],[-x,y,'B']])];
+   },
+   midpoint_on_plane: ({a,b})=>{
+    const x=-(a%3+1),y=b%3+1;
+    return ['Найди координаты середины AB.',{x:rational(x+1),y:rational(y-1)},
+     'Берём полусуммы координат: x = ('+fmt(x)+' + ('+fmt(x+2)+')) : 2 = '+fmt(x+1)+', y = ('+y+' + ('+fmt(y-2)+')) : 2 = '+fmt(y-1)+'.',
+     'coordinate',pointVisual([[x,y,'A'],[x+2,y-2,'B']])];
+   },
+   reflect_across_Oy: ({a,b})=>{
+    const x=a%5+1,y=-(b%5+1);
+    return ['Найди координаты точки, симметричной A относительно Oy.',{x:rational(-x),y:rational(y)},
+     'При отражении относительно Oy меняется знак абсциссы, ордината сохраняется.','coordinate',pointVisual([[x,y,'A']])];
+   },
+   rectangle_fourth_point: ({a,b})=>{
+    const x=a%4+1,y=b%4+1;
+    return ['A, B, C — последовательные вершины прямоугольника со сторонами, параллельными осям. Введи координаты D.',
+     {x:rational(x),y:rational(-y)},'Точка D должна лежать на горизонтали через A и вертикали через C. Значит, D('+x+'; '+fmt(-y)+').',
+     'coordinate',pointVisual([[-x,-y,'A'],[-x,y,'B'],[x,y,'C']])];
+   }
+  }
+ ],
+ direct_proportionality_function: [
+  {
+   origin_property: ({a})=>choice('Через какую точку проходит график '+math('y = '+a+'x')+'?',
+    '(0; 0)',['(0; '+a+')','('+a+'; 0)','(1; 0)'],'При x = 0 произведение равно 0.'),
+   formula_from_description: ({a})=>choice('Величина y прямо пропорциональна x, коэффициент равен '+fmt(-a)+'. Выбери формулу.',
+    math('y = −'+a+'x'),[math('y = '+a+'x'),math('y = x − '+a),math('y = x : '+a)],
+    'Подставляем отрицательный коэффициент k в y = kx.'),
+   compute_output: ({a,b})=>['Для '+math('y = '+a+'x')+' найди y при x = '+fmt(-b)+'.',-a*b,
+    'Умножаем '+a+' на (−'+b+'): y = '+fmt(-a*b)+'.'],
+   read_k_at_one: ({a,b})=>{
+    const k=(a%2+1)*(b%2===0?1:-1);
+    return withVisual(['Найди коэффициент k по графику прямой пропорциональности.',k,'При x = 1 ордината равна k. По графику y = '+fmt(k)+'.'],
+     functionGraph([],{line:[k,0]}));
+   }
+  },
+  {
+   coefficient_from_point: ({a,b,c})=>{
+    const k=rational((c%2===0?-1:1)*a,b);
+    return ['График '+math('y = kx')+' проходит через ('+b+'; '+fmt(k.n*b/k.d)+'). Найди k.',k,
+     'Коэффициент равен y : x. Подстановка даёт '+g7FracHtml(k)+'.'];
+   },
+   membership_check: ({a,b,c})=>{
+    const truth=c%2===0,y=-a*b+Number(!truth);
+    return checkStatement('Лежит ли точка ('+b+'; '+fmt(y)+') на графике '+math('y = −'+a+'x')+'?',truth,
+     'При x = '+b+' функция даёт y = '+fmt(-a*b)+'. Сравниваем с ординатой '+fmt(y)+'.');
+   },
+   find_negative_input: ({a,b})=>['Для '+math('y = −'+a+'x')+' найди x, если y = '+a*b+'.',-b,
+    'Из −'+a+'x = '+a*b+' делением на (−'+a+') получаем x = '+fmt(-b)+'.'],
+   spot_proportional_formula: ({a,b})=>choice('Какая зависимость является прямой пропорциональностью?',
+    math('y = '+a+'x'),[math('y = '+a+'x + '+b),math('y = '+a+' + x'),math('y = x²')],
+    'В прямой пропорциональности y равно произведению постоянного ненулевого коэффициента и x.')
+  },
+  {
+   coefficient_from_fractional_x: ({a,b})=>{
+    const k=rational(-2*b,a);
+    return ['График прямой пропорциональности содержит точку с x = '+fmt(-a/2)+', y = '+b+'. Найди k.',k,
+     'Коэффициент k = y : x = '+b+' : ('+fmt(-a/2)+') = '+g7FracHtml(k)+'.'];
+   },
+   recover_another_point: ({a,b,c})=>['График прямой пропорциональности проходит через A('+a+'; '+a*b+'). Чему равна абсцисса точки B, если её ордината '+fmt(-c*b)+'?',-c,
+    'По точке A коэффициент k = '+a*b+' : '+a+' = '+b+'. Для B решаем '+b+'x = '+fmt(-c*b)+' и получаем x = '+fmt(-c)+'.'],
+   compare_graph_values: ({a,b,c})=>compare('Сравни значения '+math('y₁ = '+a+'x')+' и '+math('y₂ = '+(a+b)+'x')+' при x = '+fmt(-c)+'.',
+    rational(-a*c),rational(-(a+b)*c),'При отрицательном x больший коэффициент даёт меньшее значение.'),
+   two_graphs_intersection: ({a,b})=>choice('При каком x совпадают значения '+math('y₁ = '+a+'x')+' и '+math('y₂ = '+(a+b)+'x')+'?',
+    'Только при x = 0',['При любом x','Только при x = '+a,'Ни при каком x'],
+    'После вычитания '+a+'x из обеих частей остаётся '+b+'x = 0. Так как '+b+' ≠ 0, единственное решение x = 0.')
+  }
  ]
 };
 add('alg_expressions_equations','compare_expression_values','Сравнение значений выражений',
@@ -1538,6 +1775,7 @@ makeG7Question=function(id,stageOverride=null){
   let question;
   if(Array.isArray(options))question=g7StrictChoice(text,answer,options,detail,sig,audit);
   else if(detail==='linear')question=g7LinearInput(text,answer,options,sig,audit);
+  else if(detail==='coordinate')question=g6CoordinateInputQuestion(text,answer.x,answer.y,options,sig,{audit});
   else question=g7InputQuestionForRat(text,typeof answer==='number'?rational(answer):answer,options,sig,{audit,
    inputHint:'Введи точное значение. Обыкновенную дробь можно записать через /.'});
   return typeof attach==='function'?attach(question):question;
