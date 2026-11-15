@@ -87,28 +87,51 @@ function expression(id,t,p){
   ];
  }
  if(id==='dec_div_dec'){
-  const quotient=a*100,divisor=b*10,dividend=quotient*divisor/1000;
-  const quotient2=c*100,divisor2=d*10,dividend2=quotient2*divisor2/1000;
+  const x=r(20,89)*100,y=r(1,9)*10,u=r(13,57)*100,v=r(11,28)*100;
+  const product=(a,b)=>a*b/1000,quotient=(a,b)=>a*1000/b;
+  const times=(a,b)=>f(a)+' · '+f(b)+' = '+f(product(a,b));
+  const plus=(a,b)=>f(a)+' + '+f(b)+' = '+f(a+b);
+  const minus=(a,b)=>f(a)+' − '+f(b)+' = '+f(a-b);
+  const div=(a,b)=>f(a)+' : '+f(b)+' = '+f(quotient(a,b));
+  const explain=(a,b)=>{
+   const places=f(b).split(',')[1]?.length||0,scale=10**places;
+   const count=places===1?'один разряд':'два разряда';
+   return 'Переносим запятую вправо на '+count+' в обоих числах. Делитель становится целым: '+div(a*scale,b*scale)+'. Проверка: '+times(quotient(a,b),b)+'.';
+  };
+  const d=product(x,y),w=product(u,v),same=product(u,y),count=r(3,25);
   if(t===0)rows=[
-   ['Вычисли '+f(dividend)+' : '+f(divisor)+'.',DD(V(dividend),V(divisor)),'Умножим делимое и делитель на одинаковую разрядную единицу, затем разделим.',1,'dec'],
-   ['Длина '+f(a*divisor)+' м состоит из отрезков по '+f(divisor)+' м. Сколько целых отрезков?',DD(V(a*divisor),V(divisor)),'Разделим общую длину на длину одного отрезка.',2,'dec'],
-   ['Найди частное '+f(dividend2)+' и '+f(divisor2)+'.',DD(V(dividend2),V(divisor2)),'Чтобы делитель стал целым, перенесём запятую в обоих числах.',1,'dec'],
-   ['Вычисли '+f(dividend)+' : '+f(divisor)+' и увеличь результат в 2 раза.',M(DD(V(dividend),V(divisor)),2),'Деление и умножение на натуральное число.',2,'dec'],
-   ['Сколько полных отрезков по '+f(divisor)+' м получится из '+f(a*divisor*2)+' м?',DD(V(a*divisor*2),V(divisor)),'Деление на десятичную дробь.',2,'dec']
+   ['Вычисли '+f(d)+' : '+f(y)+'.',DD(V(d),V(y)),explain(d,y),1,'dec'],
+   ['Найди частное '+f(w)+' и '+f(v)+'.',DD(V(w),V(v)),explain(w,v),2,'dec'],
+   ['Сколько отрезков длиной '+f(y)+' м получится из верёвки длиной '+f(y*count)+' м?',V(count),explain(y*count,y),2,'int'],
+   ['На какое натуральное число надо разделить '+f(d*100)+' после переноса запятой в примере '+f(d)+' : '+f(y)+'?',V(y/10),explain(d,y),2,'int'],
+   ['Делимое '+f(product(y,u))+' и делитель '+f(y)+'. Найди частное и проверь умножением.',DD(V(product(y,u)),V(y)),explain(product(y,u),y),2,'dec']
   ];
-  else if(t===1)rows=[
-   ['Вычисли '+f(dividend)+' : '+f(divisor)+' + '+f(dividend2)+' : '+f(divisor2)+'.',A(DD(V(dividend),V(divisor)),DD(V(dividend2),V(divisor2))),'Два десятичных частных, затем их сумма.',3,'dec'],
-   ['Найди разницу частных '+f(dividend)+' : '+f(divisor)+' и '+f(dividend2)+' : '+f(divisor2)+'.',Abs(DD(V(dividend),V(divisor)),DD(V(dividend2),V(divisor2))),'Вычислим оба частных и положительную разность.',3,'dec'],
-   ['После деления '+f(dividend)+' на '+f(divisor)+' прибавили '+f(c*100)+'. Найди результат.',A(DD(V(dividend),V(divisor)),V(c*100)),'Деление с запятой и сложение.',2,'dec'],
-   ['Число x разделили на '+f(divisor)+' и получили '+f(quotient)+'. Найди x.',MD(DD(V(dividend),V(divisor)),V(divisor)),'Умножим частное на делитель.',2,'dec'],
-   ['Два одинаковых отрезка по '+f(a*divisor)+' м разделили на части длиной '+f(divisor)+' м. Сколько целых частей всего?',M(DD(V(a*divisor),V(divisor)),2),'Число частей на одном отрезке умножим на два.',3,'dec']
+  if(t===1)rows=[
+   ['Вычисли '+f(d)+' : '+f(y)+' + '+f(w)+' : '+f(v)+'.',A(DD(V(d),V(y)),DD(V(w),V(v))),
+    'По отдельности '+div(d,y)+' и '+div(w,v)+'. Складываем: '+plus(x,u)+'.',3,'dec'],
+   ['Найди разницу частных '+f(d)+' : '+f(y)+' и '+f(w)+' : '+f(v)+'.',Abs(DD(V(d),V(y)),DD(V(w),V(v))),
+    'Частные: '+div(d,y)+' и '+div(w,v)+'. Вычитаем меньшее из большего: '+minus(Math.max(x,u),Math.min(x,u))+'.',3,'dec'],
+   ['После деления '+f(d)+' на '+f(y)+' прибавили '+f(v)+'. Найди результат.',A(DD(V(d),V(y)),V(v)),
+    explain(d,y)+' Прибавляем: '+plus(x,v)+'.',2,'dec'],
+   ['Число x разделили на '+f(v)+' и получили '+f(u)+'. Найди делимое x.',MD(V(u),V(v)),
+    'Умножаем частное на делитель: '+times(u,v)+'. Проверяем: '+div(w,v)+'.',2,'dec'],
+   ['Для двух одинаковых лент отмерили '+f(2*y*count)+' м. Каждую разрезали на части длиной '+f(y)+' м. Сколько частей получилось из одной ленты?',DD(D(V(2*y*count),2),V(y)),
+    'В одной ленте '+f(2*y*count)+' : 2 = '+f(y*count)+' м. '+explain(y*count,y),2,'dec']
   ];
-  else rows=[
-   ['Вычисли ('+f(dividend)+' + '+f(dividend*2)+') : '+f(divisor)+'.',DD(A(V(dividend),V(dividend*2)),V(divisor)),'Сложим два делимых, затем разделим на десятичный делитель.',4,'dec'],
-   ['Из суммы результатов делений '+f(dividend)+' : '+f(divisor)+' и '+f(dividend2)+' : '+f(divisor2)+' вычли '+f(c*100)+'. Найди итог.',S(A(DD(V(dividend),V(divisor)),DD(V(dividend2),V(divisor2))),V(c*100)),'Два деления, сложение и вычитание.',4,'dec'],
-   ['Найди положительную разницу частных ('+f(dividend*2)+' : '+f(divisor)+') и ('+f(dividend2)+' : '+f(divisor2)+').',Abs(DD(V(dividend*2),V(divisor)),DD(V(dividend2),V(divisor2))),'Два частных и разность.',3,'dec'],
-   ['Число x умножили на '+f(divisor)+', прибавили '+f(dividend2)+' и получили '+f(dividend+dividend2)+'. Найди x.',DD(S(V(dividend+dividend2),V(dividend2)),V(divisor)),'Вычтем прибавленное число и разделим на десятичный множитель.',3,'dec'],
-   ['Найди значение ('+f(dividend*3)+' : '+f(divisor)+') + ('+f(dividend2*2)+' : '+f(divisor2)+').',A(DD(V(dividend*3),V(divisor)),DD(V(dividend2*2),V(divisor2))),'Вычислим оба частных и сложим.',4,'dec']
+  if(t===2)rows=[
+   ['Вычисли ('+f(d)+' + '+f(same)+') : '+f(y)+'.',DD(A(V(d),V(same)),V(y)),
+    'Сначала сумма '+plus(d,same)+'. Затем '+explain(d+same,y),3,'dec'],
+   ['Число x умножили на '+f(y)+', прибавили '+f(w)+' и получили '+f(d+w)+'. Найди x.',DD(S(V(d+w),V(w)),V(y)),
+    'Отменяем сложение: '+minus(d+w,w)+'. Затем '+explain(d,y),3,'dec'],
+   ['Из суммы двух частных '+f(d)+' : '+f(y)+' и '+f(w)+' : '+f(v)+' вычли '+f(v)+'. Найди итог.',
+    S(A(DD(V(d),V(y)),DD(V(w),V(v))),V(v)),
+    'Частные: '+div(d,y)+' и '+div(w,v)+'. Сумма: '+plus(x,u)+'. Вычитание: '+minus(x+u,v)+'.',4,'dec'],
+   ['Раздели разность '+f(d+same)+' и '+f(same)+' на '+f(y)+'. Затем прибавь частное '+f(w)+' : '+f(v)+'.',
+    A(DD(S(V(d+same),V(same)),V(y)),DD(V(w),V(v))),
+    'Разность: '+minus(d+same,same)+'. Частные: '+div(d,y)+' и '+div(w,v)+'. Сумма: '+plus(x,u)+'.',4,'dec'],
+   ['Найди делитель x. Число '+f(d)+' разделили на x, затем прибавили '+f(v)+' и получили '+f(x+v)+'.',
+    DD(V(d),S(V(x+v),V(v))),
+    'Восстанавливаем частное: '+minus(x+v,v)+'. Из делимого и частного находим делитель: '+div(d,x)+'. Проверяем деление: '+div(d,y)+'.',3,'dec']
   ];
  }
  if(id==='dec_to_common'){
@@ -265,5 +288,10 @@ function build(id){
    expectedInt:data.mode==='int'?value:null,expectedMilli:data.mode==='dec'?value:null,expectedFraction}};
 }
 makeG5Question=function(id){return available.has(id)?build(id):previous.apply(this,arguments)};
+const previousLesson=g5Lesson;
+g5Lesson=function(id){
+ if(id!=='dec_div_dec')return previousLesson(id);
+ return 'Чтобы разделить на десятичную дробь, перенеси запятую в делимом и делителе вправо на столько знаков, сколько их после запятой в делителе. Если цифр не хватает, допиши нули. Частное сохраняется, потому что оба числа увеличились в одинаковое число раз. Например, 1,44 : 0,12 = 144 : 12 = 12. Проверь: 12 · 0,12 = 1,44.';
+};
 window.mkG5V128Tiered=TOPICS.slice();
 })();
