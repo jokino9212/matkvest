@@ -19,8 +19,14 @@ jobs:
       image: mcr.microsoft.com/playwright:v1.56.1-noble
     steps:
       - uses: actions/checkout@v4
+      - name: Check out the published v191 baseline
+        uses: actions/checkout@v4
+        with:
+          ref: 83c8361f793557d95c275bb8b569f180f977a7b1
+          path: v191-baseline
       - run: python3 audits/g7_stage12_sync_pwa.py --check
       - run: npm install --no-save --no-package-lock playwright@1.56.1
       - run: node audits/g7_textbook_navigation.cjs
       - run: node audits/g7_textbook_sessions.cjs
       - run: node audits/g6_textbook_navigation_browser.cjs
+      - run: node audits/g7_textbook_upgrade.cjs v191-baseline
