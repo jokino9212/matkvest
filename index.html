@@ -14337,7 +14337,7 @@ function g8Make85Discriminant(raw,d){
   const b=-ri(2,9);
   return g8Number85(raw,d,v,`В формуле корней стоит −b. Если b=${b}, чему равно −b?`,-b,`−b=−(${b})=${-b}.`,[b],{b,expected:-b});
  }
- if(v==="compute_D"||v==="restore_D_step"){
+ if(v==="compute_D"||(d!==2&&v==="restore_D_step")){
   const a=g8NonZero85(-5,5),b=ri(-9,9),c=ri(-10,10),D=g8Disc85(a,b,c);
   return g8Number85(raw,d,v,`Для ${g8Eq85(a,b,c)} вычисли дискриминант D.`,D,`${g8DiscLine85(a,b,c,D)}.`,[a,b,c],{a,b,c,D,expected:D});
  }
@@ -14348,6 +14348,27 @@ function g8Make85Discriminant(raw,d){
  if(v==="solve_two_roots"||v==="formula_roots"){
   const m=g8SafeIntRootModel85({double:false,allowA:true}),correct=g8RootPair85(m.r1,m.r2);
   return g8ChoiceDistinct85(raw,d,v,`Реши по формуле корней: ${g8Eq85(m.a,m.b,m.c)}.`,correct,g8RootSetDistractors85(m.r1,m.r2),`${g8DiscLine85(m.a,m.b,m.c,m.D)}. √D=${Math.sqrt(m.D)}. ${frac(`−b ± √D`,`2a`)} даёт ${correct}. Проверка: оба значения обращают левую часть в 0.`,[m.a,m.b,m.c,m.r1,m.r2],{...m,roots:[m.r1,m.r2],expected:[m.r1,m.r2]});
+ }
+ if(d===2&&v==="denominator_2a"){
+  const a=g8Pick([2,3,4,5]),sum=ri(2,9),gap=ri(2,8),D=(a*gap)**2,b=-a*sum;
+  return g8Number85(raw,d,v,`У квадратного уравнения ax² + bx + c = 0 известно a = ${a}, D = ${D}, а сумма корней равна ${sum}. Найди больший корень.`,rational(sum+gap,2),
+   `Сумма корней равна −b/a, поэтому b = ${b}. Больший корень: ${frac(`${-b} + ${a*gap}`,2*a)} = ${rationalUi(rational(sum+gap,2))}.`,[a,sum,gap],{a,b,D,sum,gap,expected:(sum+gap)/2});
+ }
+ if(d===2&&v==="error_plus_4ac"){
+  const a=g8Pick([2,3,4]),r=ri(2,8),b=-2*a*r,c=a*r*r;
+  return g8Number85(raw,d,v,`Для уравнения ${g8Eq85(a,b,c)} ученик вычислил дискриминант как b² + 4ac. На сколько его результат больше правильного дискриминанта?`,8*a*c,
+   `Ученик получил ${b*b+4*a*c}, а по формуле D = b² − 4ac получаем ${b*b-4*a*c}. Разность равна ${8*a*c}.`,[a,b,c],{a,b,c,expected:8*a*c});
+ }
+ if(d===2&&v==="error_denominator"){
+  const a=g8Pick([2,3,4,5]),lo=ri(-5,2),hi=ri(3,9),b=-a*(lo+hi),c=a*lo*hi,D=(a*(hi-lo))**2;
+  return g8Number85(raw,d,v,`Найдя D = ${D} для уравнения ${g8Eq85(a,b,c)}, ученик записал больший корень как ${frac("−b + √D","a")}. На сколько его результат больше настоящего большего корня?`,hi,
+   `Числитель равен ${2*a*hi}. Деление на ${a} даёт ${2*hi}, а верный знаменатель 2a = ${2*a} даёт ${hi}. Разность ${2*hi} − ${hi} = ${hi}.`,[a,b,c],{a,b,c,D,expected:hi});
+ }
+ if(d===2&&v==="restore_D_step"){
+  const a=g8Pick([2,3,4]),sum=ri(4,9),gap=ri(2,7),b=-a*sum,D=(a*gap)**2;
+  const c=rational(a*(sum*sum-gap*gap),4);
+  return g8Number85(raw,d,v,`Уравнение ${a}x² − ${-b}x + c = 0 имеет два корня, которые отличаются на ${gap}. Найди c.`,c,
+   `Разность корней равна √D/a, поэтому √D = ${a*gap}. Из ${b*b} − ${4*a}c = ${D} получаем c = ${rationalUi(c)}.`,[a,sum,gap],{a,b,D,gap,expected:c});
  }
  if(v==="denominator_2a"){
   const a=g8NonZero85(-6,6);
@@ -25655,11 +25676,11 @@ function makeCyclic(raw,d,v){
  if(v==='findB')return number(raw,d,v,`Во вписанном четырёхугольнике ∠D=${p.D}°. Найди ∠B.`,p.B,`∠B=180−${p.D}=${p.B}°.`,M({D:`${p.D}°`,B:'?°'}),'°',{kind:'angle',key:'B',...p});
  if(v==='findD')return number(raw,d,v,`Во вписанном четырёхугольнике ∠B=${p.B}°. Найди ∠D.`,p.D,`∠D=180−${p.B}=${p.D}°.`,M({B:`${p.B}°`,D:'?°'}),'°',{kind:'angle',key:'D',...p});
  if(v==='exterior')return number(raw,d,v,`Во вписанном четырёхугольнике внутренний ∠C=${p.C}°. Чему равен внешний угол при A, смежный с ∠A?`,p.C,'Внешний угол при A равен противоположному внутреннему ∠C.',M({C:`${p.C}°`,A:'?°'}),'°',{kind:'angle',key:'C',...p});
- if(v==='difference')return number(raw,d,v,`У вписанного четырёхугольника ∠A=${p.A}°. На сколько градусов больший из двух противоположных углов A и C больше меньшего?`,Math.abs(180-2*p.A),`∠C=${p.C}°, разность=${Math.abs(180-2*p.A)}°.`,M({A:`${p.A}°`,C:'?°'}),'°',{kind:'differenceAC',...p});
+ if(v==='difference')return number(raw,d,v,`У вписанного четырёхугольника ∠A=${p.A}°. Найди модуль разности противоположных углов A и C.`,Math.abs(180-2*p.A),`∠C=${p.C}°, разность=${Math.abs(180-2*p.A)}°.`,M({A:`${p.A}°`,C:'?°'}),'°',{kind:'differenceAC',...p});
  if(v==='checkSum')return option(raw,d,v,`Если ∠A=${p.A}° и ∠C=${p.C}°, то сумма противоположных углов…`,'равна 180°',['равна 90°','равна 360°','зависит от периметра'],`Вычисляем ${p.A}+${p.C}=180°.`,M({A:`${p.A}°`,C:`${p.C}°`}));
  if(v==='angleSum')return number(raw,d,v,`Во вписанном четырёхугольнике ∠A=${p.A}°, ∠B=${p.B}°. Найди сумму двух остальных углов.`,360-p.A-p.B,`Сумма углов четырёхугольника 360°, значит ${360-p.A-p.B}°.`,M({A:`${p.A}°`,B:`${p.B}°`}),'°',{kind:'sumCD',...p});
  if(v==='twoAngles')return number(raw,d,v,`Во вписанном четырёхугольнике ∠A=${p.A}°, ∠B=${p.B}°. Найди ∠C+∠D.`,p.C+p.D,`∠C=${p.C}°, ∠D=${p.D}°; сумма=${p.C+p.D}°.`,M({A:`${p.A}°`,B:`${p.B}°`}),'°',{kind:'sumCD',...p});
- if(v==='otherDifference')return number(raw,d,v,`Во вписанном четырёхугольнике ∠B=${p.B}°. Найди разность большего и меньшего из ∠B, ∠D.`,Math.abs(2*p.B-180),`∠D=${p.D}°; разность=${Math.abs(p.B-p.D)}°.`,M({B:`${p.B}°`,D:'?°'}),'°',{kind:'differenceBD',...p});
+ if(v==='otherDifference')return number(raw,d,v,`Во вписанном четырёхугольнике ∠B=${p.B}°. Найди модуль разности углов B и D.`,Math.abs(2*p.B-180),`∠D=${p.D}°; разность=${Math.abs(p.B-p.D)}°.`,M({B:`${p.B}°`,D:'?°'}),'°',{kind:'differenceBD',...p});
  if(v==='givenExterior')return number(raw,d,v,`Внешний угол при A равен ${p.C}°. Найди внутренний угол A вписанного четырёхугольника.`,p.A,`Внутренний и внешний при A — смежные: 180−${p.C}=${p.A}°.`,M({A:'?°',C:`${p.C}°`}),'°',{kind:'angle',key:'A',...p});
  return option(raw,d,v,'Достаточно ли для выпуклого четырёхугольника, чтобы сумма противоположных углов была 180°, для возможности описать около него окружность?','да',['нет, нужно равенство сторон','нет, нужны прямые углы','нет, нужен равный периметр диагоналей'],'Для выпуклого четырёхугольника это необходимое и достаточное условие вписанности.',M({}));
 }
@@ -28815,16 +28836,30 @@ function scatterQ(d,v){
   return attachScatter(numberQ(raw,d,v,'Все точки лежат на прямой. Продолжи наблюдаемую закономерность: какое значение y получится при x = 9?',ans,`Зависимость y = ${m.a} + ${m.b}x. При x = 9 получаем ${ans}.`,{...m,targetX:9,expected:ans}),m);
  }
  if(v==='choose_model'){
-  kind=choose(['up','down']);m=scatterData(kind);const answer=kind==='up'?`y = ${m.a} + ${m.b}x`:`y = ${m.a+9*m.b} − ${m.b}x`;
-  return attachScatter(choiceQ(raw,d,v,'Выбери формулу, которой соответствуют все нанесённые точки.',answer,[`y = ${m.a+9*m.b} − ${m.b}x`,`y = ${m.a} + ${m.b}x`,`y = ${m.a} + ${m.b+1}x`,`y = ${m.a} + ${m.b}x + 2`],`Проверяем несколько пар точек: ${answer}.`,{...m,expected:answer}),m);
+  const direction=choose([-1,1]),slope=rand(2,4),intercept=rand(36,42);
+  const slopeTerm=direction===1?`+ ${slope}x`:`− ${slope}x`;
+  const deviations=shuffle([-3,-2,-1,-1,1,1,2,3]);
+  const points=m.xs.map((x,i)=>({x,y:intercept+direction*slope*x+deviations[i]}));
+  const answer=`y = ${intercept} ${slopeTerm}`;
+  const question=choiceQ(raw,d,v,'Выбери прямую, от которой каждая точка диаграммы отклоняется по вертикали не более чем на 3 единицы.',
+   answer,[`y = ${intercept+7} ${slopeTerm}`,`y = ${intercept-7} ${slopeTerm}`,`y = ${intercept} ${direction===1?'−':'+'} ${slope}x`],
+   `Для прямой ${answer} вертикальные отклонения по модулю равны ${deviations.map(Math.abs).join(', ')}. Все они не превышают 3.`,{...m,points,expected:answer});
+  return attachScatter(question,{points});
  }
  if(v==='deviation'){
   kind='up';m=scatterData(kind);const idx=rand(2,5),shift=rand(5,9);m.ys[idx]+=shift;m.points[idx].y+=shift;const x=idx+1;
   return attachScatter(numberQ(raw,d,v,`Точки, кроме одной, лежат на прямой y = ${m.a} + ${m.b}x. На сколько единиц по вертикали отклоняется исключение?`,shift,`При x=${x} прямая даёт y=${m.a+m.b*x}, фактически y=${m.ys[idx]}; разность ${shift}.`,{...m,targetX:x,expected:shift}),m);
  }
  if(v==='weighted_sum'){
-  kind='up';m=scatterData(kind);const x1=rand(1,3),x2=rand(5,8),ans=2*m.ys[x1-1]+m.ys[x2-1];
-  return attachScatter(numberQ(raw,d,v,`Вычисли 2y₁ + y₂, если y₁ — значение при x = ${x1}, y₂ — при x = ${x2}.`,ans,`2·${m.ys[x1-1]} + ${m.ys[x2-1]} = ${ans}.`,{...m,x1,x2,expected:ans}),m);
+  const decreasing=choose([true,false]),base=rand(6,11),delta=rand(4,7);
+  const offsets=shuffle([0,1,2,3,4,5,6,7]);
+  const points=m.xs.map((x,i)=>({x,y:base+offsets[i]+(decreasing?9-x:x)*delta}));
+  const mean=group=>group.reduce((sum,point)=>sum+point.y,0)/group.length;
+  const left=mean(points.slice(0,4)),right=mean(points.slice(4));
+  const answer=decreasing?'В целом значения y уменьшаются':'В целом значения y увеличиваются';
+  return attachScatter(choiceQ(raw,d,v,'Какой общий тренд виден на диаграмме? Сравни облака точек в левой и правой половинах.',
+   answer,[decreasing?'В целом значения y увеличиваются':'В целом значения y уменьшаются','Значения y остаются на одном уровне','Направление тренда меняется дважды'],
+   `Среднее y в левой половине равно ${left}, а в правой — ${right}. ${answer}.`,{...m,points,expected:answer}),{points});
  }
  throw Error('unhandled scatter variant '+v);
 }
@@ -29395,7 +29430,13 @@ function makeQuestion(raw,d,v){
    case 'count_non_edges':SET('Сколько различных пар вершин здесь НЕ соединено непосредственным ребром?',allPairs-e,`Пар вершин ${n}·${n-1}/2=${allPairs}; рёбер ${e}; разность ${allPairs-e}.`);break;
    case 'sum_degrees':SET(`У дерева ${n} вершин. Сколько получится, если сложить степени всех вершин и вычесть число рёбер?`,e,`Сумма степеней 2·${e}, рёбер ${e}; разность ${e}.`);break;
    case 'connect_two':{const k=randint(3,7);SET(`Есть показанное дерево из ${n} вершин и другое дерево из ${k} вершин. Их соединяют ровно одним новым ребром. Сколько рёбер будет в новом дереве?`,n+k-1,`(${n}−1)+(${k}−1)+1=${n+k-1}.`);break;}
-   case 'unique_path':SET(`Сколько различных простых путей между вершинами ${a} и ${b} существует?`,1,'В дереве между любыми двумя вершинами есть ровно один простой путь.');break;
+   case 'unique_path':{
+    const pairs=I.vs.flatMap((x,i)=>I.vs.slice(i+1).filter(y=>I.distance(x,y)>1).map(y=>[x,y]));
+    const [x,y]=pick(pairs),path=I.path(x,y);
+    SET(`Добавили ребро ${x}–${y}, которого раньше не было. Из скольких рёбер состоит возникший цикл?`,path.length,
+     `Путь ${path.join('–')} содержит ${path.length-1} рёбер. Новое ребро замыкает его в цикл из ${path.length} рёбер.`);
+    break;
+   }
    case 'edge_count_by_degrees':{const known=2*e-I.deg[u];SET(`Сумма степеней всех вершин, кроме ${u}, равна ${known}. Степень ${u} равна ${deg}. Сколько рёбер у дерева?`,e,`Сумма степеней ${known}+${deg}=${2*e}; делим на 2, получаем ${e}.`);break;}
   }
  }else if(raw===RAW[1]){
@@ -31983,12 +32024,14 @@ window.G8_QA8_AUDIT={targets:RAW.slice(),levels:LENGTH.slice(),pools:Object.from
    return F(`Для функции f(x)=√(x+${c}) известно, что f(x)=${a}. Найди x+(${shift}).`,ans,`x+${c}=${a*a}, значит x=${x}. Тогда x+(${shift})=${ans}.`,'sqrtinv');
   },
   'square_root_function:sqrt_compare_square':()=>{
-   const a=N(3,11),b=N(2,10),c=N(1,4),ans=a*a-b*b+c;
-   return F(`Найди значение выражения (√${a*a})² − (√${b*b})² + ${c}.`,ans,`Это ${a*a}−${b*b}+${c}=${ans}.`,'sqrtcomb');
+   const k=N(2,6),shift=N(1,8),x=k*k+shift;
+   return F(`Графики y = √(x − ${shift}) и y = ${k} пересекаются в точке A. Найди расстояние от A до левого конца графика y = √(x − ${shift}) по горизонтали.`,
+    k*k,`Левый конец графика имеет абсциссу ${shift}. В точке A верно x − ${shift} = ${k*k}, откуда x = ${x}. Разность абсцисс равна ${k*k}.`,'sqrtcomb');
   },
   'square_root_function:sqrt_two_step':()=>{
-   const a=N(3,10),b=N(2,9),c=N(1,5),ans=a*b+c;
-   return F(`Вычисли √${a*a}·√${b*b}+${c}.`,ans,`√${a*a}=${a}, √${b*b}=${b}. Получаем ${a}·${b}+${c}=${ans}.`,'sqrtmult');
+   const a=N(1,5),b=N(a+1,a+5),c=N(1,8);
+   return F(`На отрезке [${c}; ${b*b+c}] задана функция y = √(x − ${c}). Сколько целых значений x на этом отрезке дают y > ${a}?`,
+    b*b-a*a,`Корень возрастает, поэтому нужно x > ${a*a+c}. Целые значения идут от ${a*a+c+1} до ${b*b+c} включительно. Их ${b*b-a*a}.`,'sqrtmult');
   },
   'absolute_value_function:difference':()=>{
    const a=N(-6,6),b=N(2,9),ans=a+b;
@@ -36617,27 +36660,27 @@ document.addEventListener("keydown",event=>{
 })();
 </script>
 
-<script src="g5-conversion-ux.js?v=193"></script>
-<script src="g5-textbook-topics.js?v=193"></script>
-<script src="g5-textbook-core.js?v=193"></script>
-<script src="g5-textbook-v111.js?v=193"></script>
-<script src="g5-textbook-v112.js?v=193"></script>
-<script src="g5-pedagogy-v113.js?v=193"></script>
-<script src="g5-fractions-v114.js?v=193"></script>
-<script src="g5-fraction-arithmetic-v115.js?v=193"></script>
-<script src="g5-decimals-v116.js?v=193"></script>
-<script src="g7-textbook.js?v=193"></script>
-<script src="g8-textbook.js?v=193"></script>
-<script src="g5-textbook-navigation-v121.js?v=193"></script>
-<script src="g5-live-pedagogy-v122.js?v=193"></script>
-<script src="g5-arithmetic-tiers-v123.js?v=193"></script>
-<script src="g5-textbook-tiers-v124.js?v=193"></script>
-<script src="g5-natural-units-v125.js?v=193"></script>
-<script src="g5-remaining-core-v126.js?v=193"></script>
-<script src="g5-decimal-tiers-v127.js?v=193"></script>
-<script src="g5-decimal-percent-v128.js?v=193"></script>
-<script src="g5-fraction-concepts-v129.js?v=193"></script>
-<script src="g5-fraction-applications-v130.js?v=193"></script>
+<script src="g5-conversion-ux.js?v=194"></script>
+<script src="g5-textbook-topics.js?v=194"></script>
+<script src="g5-textbook-core.js?v=194"></script>
+<script src="g5-textbook-v111.js?v=194"></script>
+<script src="g5-textbook-v112.js?v=194"></script>
+<script src="g5-pedagogy-v113.js?v=194"></script>
+<script src="g5-fractions-v114.js?v=194"></script>
+<script src="g5-fraction-arithmetic-v115.js?v=194"></script>
+<script src="g5-decimals-v116.js?v=194"></script>
+<script src="g7-textbook.js?v=194"></script>
+<script src="g8-textbook.js?v=194"></script>
+<script src="g5-textbook-navigation-v121.js?v=194"></script>
+<script src="g5-live-pedagogy-v122.js?v=194"></script>
+<script src="g5-arithmetic-tiers-v123.js?v=194"></script>
+<script src="g5-textbook-tiers-v124.js?v=194"></script>
+<script src="g5-natural-units-v125.js?v=194"></script>
+<script src="g5-remaining-core-v126.js?v=194"></script>
+<script src="g5-decimal-tiers-v127.js?v=194"></script>
+<script src="g5-decimal-percent-v128.js?v=194"></script>
+<script src="g5-fraction-concepts-v129.js?v=194"></script>
+<script src="g5-fraction-applications-v130.js?v=194"></script>
 <script>
 // The textbook scripts finish extending the catalog before Home shows its totals.
 g5HomeCatalogReady=true;
