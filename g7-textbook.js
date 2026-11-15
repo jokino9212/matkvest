@@ -38,7 +38,11 @@ const reviewedLessons={
  rational_compare_order:'У отрицательных чисел больше то, у которого модуль меньше. Дроби можно сравнить, приведя их к общему знаменателю. В двойном неравенстве должны быть верны оба сравнения.',
  expression_properties:'Переместительное свойство позволяет менять порядок, сочетательное — группировать слагаемые и множители. По распределительному свойству a(b + c) = ab + ac. Можно раскрыть скобки или вынести общий множитель.',
  identities:'Тождество верно при всех допустимых значениях переменных. Чтобы доказать тождество, приведи обе части к одному выражению. Чтобы опровергнуть равенство, достаточно одного допустимого значения, при котором части различны.',
- brackets_like_terms:'Если перед скобками стоит минус, поменяй знак каждого слагаемого. Приводи только подобные слагаемые: складывай коэффициенты при одинаковых буквенных частях.'
+ brackets_like_terms:'Если перед скобками стоит минус, поменяй знак каждого слагаемого. Приводи только подобные слагаемые: складывай коэффициенты при одинаковых буквенных частях.',
+ equation_root_equivalence:'Корень уравнения превращает его в верное равенство. Равносильные уравнения имеют один и тот же набор корней. К обеим частям можно прибавить одно и то же число или умножить обе части на одно и то же ненулевое число.',
+ linear_equation_one_variable:'Раскрой скобки и приведи подобные слагаемые. Собери слагаемые с x слева, числа справа. В уравнении ax = b при a ≠ 0 раздели обе части на a.',
+ linear_equation_cases:'После приведения к ax = b при a ≠ 0 корень один. При a = 0 проверь правую часть: из 0x = 0 следует, что подходит любое число, из 0x = b при b ≠ 0 следует, что корней нет.',
+ equation_word_problems:'Обозначь искомое или удобную для расчёта величину через x. Вырази через x остальные величины и найди в условии равенство. После решения проверь, подходит ли найденное значение.'
 };
 
 function compare(prompt,left,right,explanation){
@@ -49,6 +53,18 @@ const checkStatement=(prompt,truth,explanation)=>choice(prompt,truth?'Да':'Н�
 const simplify=(expression,coefficient,constant,explanation)=>[
  'Упрости '+math(expression)+'.',g7Lin(coefficient,constant),explanation,'linear'
 ];
+const solve=(equation,answer,...steps)=>['Реши уравнение '+equation+'.',answer,steps.join('<br>')];
+function equationCases(prompt,left,right){
+ const kind=g7EquationCase(left,right),labels={one:'Один корень',none:'Нет корней',infinite:'Бесконечно много корней'};
+ const coefficient=rationalSub(left.a,right.a),constant=rationalSub(right.b,left.b);
+ const reasons={
+  one:'Коэффициент при x отличен от нуля. Делим обе части и получаем x = '+(kind.root?exact(kind.root):'')+'.',
+  none:'Равенство ложно при любом x, потому что 0 не равно '+exact(constant)+'.',
+  infinite:'Равенство 0 = 0 верно при любом x.'
+ };
+ return choice(prompt,labels[kind.kind],Object.values(labels).filter(label=>label!==labels[kind.kind]),
+  'После упрощения получаем '+exact(coefficient)+' · x = '+exact(constant)+'. '+reasons[kind.kind]);
+}
 
 function add(section,id,title,rule,build){
  const group=G7_GROUPS.find(item=>item.id===section);
@@ -542,6 +558,176 @@ const reviewed = {
    },
    nested_brackets: ({a,b,c,y})=>simplify(a+'x − ('+b+' − ('+c+'x − '+y+'))',a+c,-b-y,
     'Внешний минус меняет знаки: '+a+'x − '+b+' + ('+c+'x − '+y+'). Собираем подобные: '+g7LinHtml(a+c,-b-y)+'.')
+  }
+ ],
+ equation_root_equivalence: [
+  {
+   direct_check: ({a,b,c})=>{
+    const value=a+b,truth=c%2===0,right=value+Number(!truth);
+    return checkStatement('Является ли '+a+' корнем '+math('x + '+b+' = '+right)+'?',truth,
+     'Подставляем x = '+a+': слева '+value+', справа '+right+'.');
+   },
+   choose_root: ({a,b})=>choice('Какое число является корнем '+math(b+'x = '+b*a)+'?',
+    String(a),[fmt(-a),String(a+1),String(b*a)],b+' · '+a+' = '+b*a+'.'),
+   definition: ({a,b})=>choice('Что нужно проверить, чтобы признать '+a+' корнем уравнения '+math('x + '+b+' = '+(a+b))+'?',
+    'Равенство обеих частей при подстановке '+a,['Равенство обеих частей при x = 0','Наличие x в обеих частях','Равенство коэффициентов при x'],
+    'Вместо x подставляем '+a+'. Обе части принимают значение '+(a+b)+'.'),
+   no_root_shift: ({a,b})=>choice('Сколько корней у '+math('x + '+a+' = x + '+(a+b))+'?',
+    'Нет корней',['Один корень','Два корня','Бесконечно много корней'],'Правая часть всегда на '+b+' больше левой.')
+  },
+  {
+   both_sides_addition: ({a,b,c})=>choice('Выбери результат вычитания '+b+' из обеих частей '+math(a+'x + '+b+' = '+(a*c+b))+'.',
+    math(a+'x = '+a*c),[math(a+'x = '+(a*c+b)),math(a+'x = '+(a*c+2*b)),math('x = '+a*c)],
+    'После вычитания '+b+' слева остаётся '+a+'x, справа '+(a*c+b)+' − '+b+' = '+a*c+'.'),
+   equivalent_equation: ({a,b,c})=>choice('Какое уравнение равносильно '+math(a+'x − '+b+' = '+fmt(a*c-b))+'?',
+    math('x = '+c),[math('x = '+(c+1)),math('x = 0'),math('x = '+fmt(-c))],
+    'Прибавляем '+b+' к обеим частям и делим на '+a+'. Получаем единственный корень x = '+c+'.'),
+   product_root_check: ({a,b,c})=>{
+    const first=a,second=a+b,x=c%2===0?first:a+1,truth=x===first;
+    return checkStatement('Корень ли x = '+x+' для '+math('(x − '+first+')(x − '+second+') = 0')+'?',truth,
+     'При подстановке множители равны '+fmt(x-first)+' и '+fmt(x-second)+'. Их произведение '+(truth?'равно':'отлично от')+' нулю.');
+   },
+   equivalent_negative_multiplier: ({a,b,c})=>choice('Какое уравнение получается после умножения обеих частей '+math(a+'x − '+b+' = '+c)+' на −2?',
+    math('−'+2*a+'x + '+2*b+' = −'+2*c),[math('−'+2*a+'x − '+2*b+' = −'+2*c),math('−'+2*a+'x + '+2*b+' = '+2*c),math(2*a+'x + '+2*b+' = −'+2*c)],
+    'Умножаем каждое слагаемое слева и всё число справа на −2.')
+  },
+  {
+   all_product_roots: ({a,b,c})=>{
+    const second=a+b,third=second+c;
+    return choice('Какие числа составляют все корни '+math('(x − '+a+')(x − '+second+')(x − '+third+') = 0')+'?',
+     [a,second,third].join(', '),[[a,second].join(', '),[a,second,third+1].join(', '),[-a,-second,-third].join(', ')],
+     'Поочерёдно приравниваем к нулю каждый множитель. Если ни один не равен нулю, произведение тоже отлично от нуля.');
+   },
+   reject_bad_operation: ({a,b,c})=>choice('Какое действие может изменить множество корней уравнения '+math(a+'x + '+b+' = '+(a*c+b))+'?',
+    'Умножить обе части на 0',['Вычесть '+b+' из обеих частей','Умножить обе части на '+a,'Разделить обе части на '+a],
+    'После умножения на 0 получаем 0 = 0. В новом уравнении подходит любое x, хотя в исходном единственный корень '+c+'.'),
+   compare_root_sets: ({a,b})=>checkStatement('Равносильны ли '+math('(x − '+a+')(x − '+(a+b)+') = 0')+' и '+math(b+'x = '+a*b)+'?',false,
+    'Первое уравнение имеет корни '+a+' и '+(a+b)+'. У второго единственный корень '+a+'.'),
+   same_fractional_root: ({a,b,c})=>{
+    const first=a+'x = '+b,second=c*a+'x = '+c*b;
+    return checkStatement('Равносильны ли '+math(first)+' и '+math(second)+'?',true,
+     'Второе получено умножением обеих частей на '+c+'. Обе записи имеют один и тот же корень '+g7FracHtml(rational(b,a))+'.');
+   }
+  }
+ ],
+ linear_equation_one_variable: [
+  {
+   isolated_signed_sum: ({a,b})=>solve(math('x + '+a+' = '+fmt(a-b)),-b,
+    'Вычитаем '+a+' из обеих частей.','x = '+fmt(a-b)+' − '+a+' = '+fmt(-b)+'.'),
+   isolated_product: ({a,b})=>solve(math('−'+a+'x = '+a*b),-b,
+    'Делим обе части на (−'+a+').','x = '+a*b+' : (−'+a+') = '+fmt(-b)+'.'),
+   isolated_difference: ({a,b})=>solve(math(a+' − x = '+(a+b)),-b,
+    'Вычитаем '+a+' из обеих частей: −x = '+b+'.','Меняем знаки обеих частей, получаем x = '+fmt(-b)+'.'),
+   isolated_quotient: ({a,b})=>solve(frac('x',a)+' = '+math(fmt(-b)),-a*b,
+    'Умножаем обе части на '+a+'.','x = '+fmt(-b)+' · '+a+' = '+fmt(-a*b)+'.')
+  },
+  {
+   signed_affine: ({a,b,c})=>solve(math(a+'x − '+b+' = '+fmt(a*c-b)),c,
+    'Прибавляем '+b+' к обеим частям: '+a+'x = '+a*c+'.','Делим на '+a+': x = '+c+'.'),
+   variables_both_sides: ({a,b,c})=>solve(math((a+b)+'x + '+c+' = '+a+'x + '+(c+b*a)),a,
+    'Переносим '+a+'x влево и '+c+' вправо.','Получаем '+b+'x = '+b*a+'. Делим на '+b+' и получаем x = '+a+'.'),
+   open_single_bracket: ({a,b,c})=>solve(math(a+'(x − '+b+') = '+fmt(a*(c-b))),c,
+    'Делим обе части на '+a+', получаем x − '+b+' = '+fmt(c-b)+'.','Прибавляем '+b+', получаем x = '+c+'.'),
+   decimal_coefficient: ({a,b,c})=>solve(math(fmt(a/10)+'x + '+fmt(b/10)+' = '+fmt((a*c+b)/10)),c,
+    'Умножаем обе части на 10: '+a+'x + '+b+' = '+(a*c+b)+'.','Вычитаем '+b+', затем делим на '+a+'. Получаем x = '+c+'.')
+  },
+  {
+   signed_two_brackets: ({a,b,c,y})=>{
+    const constant=(a+b)*c-a*y-b*c;
+    return solve(math(a+'(x − '+y+') − '+b+'('+c+' − x) = '+fmt(constant)),c,
+     'Раскрываем обе скобки: '+a+'x − '+a*y+' − '+b*c+' + '+b+'x = '+fmt(constant)+'.',
+     'Собираем подобные: '+(a+b)+'x = '+(a+b)*c+'. Делим на '+(a+b)+' и получаем x = '+c+'.');
+   },
+   denominators_both_sides: ({a,b,c,y})=>{
+    const divisor=a+b,constant=a*c+y,root=rational(constant,b);
+    return solve(frac('x',a)+' = '+frac('x + '+c,divisor)+' + '+frac(y,a*divisor),root,
+     'Умножаем на '+a*divisor+': '+divisor+'x = '+a+'(x + '+c+') + '+y+'.',
+     'После раскрытия и переноса: '+b+'x = '+constant+'. Делим и получаем x = '+exact(root)+'.');
+   },
+   noninteger_root: ({a,b,c})=>{
+    const left=a+b,right=left+c,root=rational(b,c);
+    return solve(math(right+'x + '+a+' = '+left+'x + '+(a+b)),root,
+     'Коэффициент при x слева после переноса равен '+right+' − '+left+' = '+c+'.',
+     'Справа остаётся '+(a+b)+' − '+a+' = '+b+'. Получаем x = '+g7FracHtml(root)+'.');
+   },
+   negative_bracket_fraction: ({a,b,c,y})=>{
+    const root=rational(-b,c);
+    return solve(math('−'+a+'('+c+'x + '+y+') = '+fmt(a*(b-y))),root,
+     'Делим обе части на (−'+a+'): '+c+'x + '+y+' = '+fmt(y-b)+'.',
+     'Вычитаем '+y+': '+c+'x = '+fmt(-b)+'. Делим и получаем x = '+g7FracHtml(root)+'.');
+   }
+  }
+ ],
+ linear_equation_cases: [
+  {
+   zero_equals_zero: ({a})=>equationCases('Сколько корней у '+math('0x + '+a+' = '+a)+'?',g7Lin(0,a),g7Lin(0,a)),
+   zero_equals_positive: ({a,b})=>equationCases('Сколько корней у '+math('0x + '+a+' = '+(a+b))+'?',g7Lin(0,a),g7Lin(0,a+b)),
+   nonzero_coefficient: ({a,b})=>equationCases('Сколько корней у '+math(a+'x = '+b)+'?',g7Lin(a,0),g7Lin(0,b)),
+   negative_coefficient: ({a,b})=>equationCases('Сколько корней у '+math('−'+a+'x = −'+b)+'?',g7Lin(-a,0),g7Lin(0,-b))
+  },
+  {
+   cancel_variable: ({a,b,c})=>equationCases('Сколько корней у '+math(a+'x + '+b+' = '+a+'x + '+(b+c))+'?',g7Lin(a,b),g7Lin(a,b+c)),
+   coinciding_sides: ({a,b})=>equationCases('Сколько корней у '+math(a+'x − '+b+' = −'+b+' + '+a+'x')+'?',g7Lin(a,-b),g7Lin(a,-b)),
+   distinct_coefficients: ({a,b,c})=>equationCases('Сколько корней у '+math((a+b)+'x − '+c+' = '+a+'x + '+c)+'?',g7Lin(a+b,-c),g7Lin(a,c)),
+   from_bracket: ({a,b,c})=>{
+    const extra=c%2,constant=a*b+extra;
+    return equationCases('Сколько корней у '+math(a+'(x + '+b+') = '+a+'x + '+constant)+'?',g7Lin(a,a*b),g7Lin(a,constant));
+   }
+  },
+  {
+   two_brackets_case: ({a,b,c,y})=>{
+    const coef=a+b,constant=a*c,short=constant+y%2;
+    return equationCases('Сколько корней у '+math(a+'(x + '+c+') + '+b+'x = '+coef+'(x + '+y+')'+signed(short-coef*y))+'?',
+     g7Lin(coef,constant),g7Lin(coef,short));
+   },
+   rational_cancellation: ({a,b,c})=>{
+    const second=c%2?b+a:b;
+    return equationCases('Сколько корней у '+frac('x + '+b,a)+' = '+frac('x + '+second,a)+'?',
+     g7Lin(rational(1,a),rational(b,a)),g7Lin(rational(1,a),rational(second,a)));
+   },
+   determine_parameter: ({a,b})=>['При каком числе k у '+math(a+'(x + '+b+') = kx + '+a*b)+' бесконечно много корней?',a,
+    'Обе части должны совпасть при каждом x. Свободные члены равны '+a*b+', поэтому коэффициенты при x тоже должны совпасть: k = '+a+'.'],
+   determine_constant: ({a,b,c})=>choice('При каком k у '+math(a+'x + k = '+a+'(x + '+b+')')+' нет корней?',
+    String(a*b+c),[String(a*b)],'После сокращения '+a+'x остаётся k = '+a*b+'. Если k равно '+(a*b+c)+', это равенство ложно.')
+  }
+ ],
+ equation_word_problems: [
+  {
+   initial_quantity: ({a,b})=>['К нескольким маркерам добавили '+b+', получилось '+(a+b)+'. Сколько маркеров было сначала?',a,
+    'Пусть x — исходное количество. Тогда x + '+b+' = '+(a+b)+'. Вычитаем '+b+' и получаем x = '+a+'.'],
+   price_per_item: ({a,b})=>['За '+b+' одинаковых ручек заплатили '+(10*a*b)+' рублей. Сколько рублей стоит одна ручка?',10*a,
+    'Пусть x — цена одной ручки. Тогда '+b+'x = '+(10*a*b)+'. Делим обе части на '+b+' и получаем '+10*a+' рублей.'],
+   identify_equation: ({a,b,c})=>choice('У Лены было x наклеек. Она отдала '+b+' и получила '+c+'. Стало '+(a+c)+' наклеек. Какое уравнение составить?',
+    math('x − '+b+' + '+c+' = '+(a+c)),[math('x + '+b+' + '+c+' = '+(a+c)),math('x − '+b+' − '+c+' = '+(a+c)),math('x − '+b+' + '+c+' = '+(a+c+b))],
+    'Отданные наклейки вычитаем, полученные прибавляем, получившееся количество приравниваем к '+(a+c)+'.'),
+   age_one_step: ({a,b})=>['Через '+b+' лет Диме будет '+(a+b)+' лет. Сколько ему сейчас?',a,
+    'Если сейчас x лет, через '+b+' лет будет x + '+b+'. Решаем x + '+b+' = '+(a+b)+' и получаем x = '+a+'.']
+  },
+  {
+   two_related_numbers: ({a,b})=>['Сумма двух чисел равна '+(2*a+b)+'. Одно число на '+b+' больше другого. Найди меньшее.',a,
+    'Меньшее равно x, большее — x + '+b+'. Из x + x + '+b+' = '+(2*a+b)+' получаем 2x = '+2*a+' и x = '+a+'.'],
+   rectangle_from_perimeter: ({a,b})=>['Длина прямоугольника на '+b+' см больше ширины, а периметр равен '+2*(2*a+b)+' см. Найди ширину в сантиметрах.',a,
+    'Ширина x, длина x + '+b+'. Получаем 2(x + x + '+b+') = '+2*(2*a+b)+'.<br>Делим на 2 и вычитаем '+b+': 2x = '+2*a+'. Отсюда x = '+a+'.'],
+   journey_time: ({a,b,c})=>['Велосипедист ехал со скоростью '+(10+b)+' км/ч. Ещё '+c+' км он прошёл пешком. Весь путь '+((10+b)*a+c)+' км. Сколько часов он ехал?',a,
+    'Пусть x — время на велосипеде. Тогда '+(10+b)+'x + '+c+' = '+((10+b)*a+c)+'.<br>Вычитаем '+c+' и делим на '+(10+b)+', получаем x = '+a+'.'],
+   consecutive_numbers: ({a})=>['Сумма двух последовательных натуральных чисел равна '+(2*a+1)+'. Найди большее число.',a+1,
+    'Числа x и x + 1. Из 2x + 1 = '+(2*a+1)+' получаем x = '+a+'. Значит, большее равно '+(a+1)+'.']
+  },
+  {
+   transfer_between_groups: ({a,b})=>['Во второй коробке на '+2*b+' карандашей больше, чем в первой. Всего '+(2*a+2*b)+' карандашей. Из второй в первую переложили несколько карандашей, и их стало поровну. Сколько переложили?',b,
+    'Изначально в первой коробке ('+(2*a+2*b)+' − '+2*b+') : 2 = '+a+' карандашей, во второй '+(a+2*b)+'.<br>После переноса x карандашей получаем '+a+' + x = '+(a+2*b)+' − x. Значит, 2x = '+2*b+' и x = '+b+'.'],
+   combined_age: ({a,b,c})=>['Настя на '+b+' лет старше брата. Через '+c+' лет сумма их возрастов составит '+(2*a+b+2*c)+' лет. Сколько лет сейчас брату?',a,
+    'Сейчас брату x, Насте x + '+b+'. Через '+c+' лет их возраста x + '+c+' и x + '+b+' + '+c+'.<br>Сумма равна '+(2*a+b+2*c)+'. Вычитаем '+(b+2*c)+', получаем 2x = '+2*a+', значит x = '+a+'.'],
+   compare_purchases: ({a,b,c})=>{
+    const difference=c*b,base=10*a,expensive=base+c,total=(b+2)*base+b*expensive;
+    return ['Тетрадь в клетку стоит на '+c+' руб. дороже тетради в линейку. За '+b+' тетрадей в клетку и '+(b+2)+' в линейку заплатили '+total+' руб. Сколько стоит тетрадь в клетку?',expensive,
+     'Пусть x — цена тетради в линейку. Тогда '+b+'(x + '+c+') + '+(b+2)+'x = '+total+'.<br>Получаем '+(2*b+2)+'x = '+(total-difference)+', откуда x = '+base+'. Прибавляем '+c+' и получаем '+expensive+' руб.'];
+   },
+   work_before_and_after: ({a,b,c,y})=>{
+    const f=a+2,h=b+y,total=f*b+(f+c)*y;
+    return ['Мастер работал '+h+' ч. Сначала он делал '+f+' деталей в час, затем увеличил выработку на '+c+' '+ruCount(c,'деталь','детали','деталей')+' в час. Всего он изготовил '+total+' деталей. Сколько часов он работал в новом темпе?',y,
+     'Пусть x — число часов в новом темпе. В прежнем темпе он работал '+h+' − x ч.<br>'+f+'('+h+' − x) + '+(f+c)+'x = '+total+'.<br>После упрощения '+c+'x = '+(total-f*h)+'. Получаем x = '+y+'.'];
+   }
   }
  ]
 };
