@@ -86,7 +86,7 @@ function compareOps(xs,ops){
    for(const q of rows){
     const element=document.createElement('div');element.innerHTML=q.text;
     if(q.id==='angle_types'&&q.level===0&&(q.family===0||q.family===1)){
-     const svg=element.querySelector('svg[aria-label^="Чертёж угла"]');
+     const svg=[...element.querySelectorAll('svg[aria-label^="Чертёж угла"]')].at(-1);
      check(svg,'Missing §50 visual angle '+q.family);
      const deg=Number(svg.getAttribute('aria-label').match(/(\d+) градусов/)[1]);
      const ln=[...svg.querySelectorAll('line')];
@@ -99,7 +99,7 @@ function compareOps(xs,ops){
     }
     if(q.id==='angle_types'&&q.level===0&&q.family===4){
      const svg=element.querySelector('svg[aria-label^="Чертёжный треугольник"]');
-     check(svg&&svg.querySelectorAll('path').length===2,'Missing actual set square right-angle marker');
+     check(svg&&svg.querySelector('polygon')&&svg.querySelector('.g5-right-mark'),'Missing actual set square right-angle marker');
      triangleFigures++;
     }
     if(q.id==='angle_types'&&q.level===1&&q.family===1){
