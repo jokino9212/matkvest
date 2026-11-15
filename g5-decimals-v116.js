@@ -5,7 +5,7 @@ const IDS=['dec_compare','dec_add','dec_sub','dec_round'];
 if(typeof G5_DECIMALS==='undefined'||typeof g5DonorQuestion!=='function'||typeof g5q!=='function'||typeof g5nums!=='function'||typeof g5Lesson!=='function')throw Error('G5 v116 missing decimal prerequisites');
 const previousDonor=g5DonorQuestion,previousLesson=g5Lesson;
 const headings={
- dec_compare:['Сравнение десятичных дробей','Сравнение по разрядам, приписывание нулей, сравнение выражений'],
+ dec_compare:['Сравнение десятичных дробей','Сравнение по разрядам, приписывание нулей, порядок и сравнение с границами'],
  dec_add:['Сложение десятичных дробей','Поразрядное сложение, перенос, задачи на несколько действий'],
  dec_sub:['Вычитание десятичных дробей','Поразрядное вычитание, неизвестные компоненты и обратные задачи'],
  dec_round:['Округление десятичных дробей','Округление до целых, десятых и сотых; граничные случаи']
@@ -49,47 +49,98 @@ function fmt(value,places){
  return trim?whole+','+trim:String(whole);
 }
 function unit(n){return Number((n/1000).toFixed(3))}
-function nQ(id,t,p,text,plan,ex,mode='decimal',sources=[]){
+function nQ(id,t,p,text,plan,ex,mode='decimal',sources=[],alternatives=null){
  const value=result(plan),key='g5v116_'+id+'_L'+t+'_F'+p;
  if(!Number.isSafeInteger(value)||value<0||value>2000000)throw Error('Unsafe decimal answer '+key+' '+value);
  const answer=mode==='integer'?value:unit(value);
- const options=mode==='integer'?g5nums(answer,[answer+1,answer+2,answer+3]):g5nums(answer,[unit(value+10),unit(value+100),unit(value+1000)]);
+ const options=g5nums(answer,alternatives||(mode==='integer'?[answer+1,answer+2,answer+3]:[unit(value+10),unit(value+100),unit(value+1000)]));
  const q=g5q(text,options,String(answer),ex+' Ответ: '+(mode==='integer'?answer:fmt(value))+'.',key);
  q.mk116={id,t,p,kind:'numeric',mode,plan,answerMilli:mode==='integer'?null:value,answerInt:mode==='integer'?value:null,sources};
  return q;
 }
 function cQ(id,t,p,text,left,right,ex,sources=[]){
  const x=result(left),y=result(right),correct=x<y?'lt':x>y?'gt':'eq';
- const q=g5q(text,[{label:'<',key:'lt'},{label:'>',key:'gt'},{label:'=',key:'eq'}],correct,ex+' Итак, '+fmt(x)+' '+(x<y?'<':x>y?'>':'=')+' '+fmt(y)+'.','g5v116_'+id+'_L'+t+'_F'+p);
+ const q=g5q(text,[{label:'<',key:'lt'},{label:'>',key:'gt'},{label:'=',key:'eq'}],correct,ex+' Итак, '+fmt(x)+' '+(x<y?'&lt;':x>y?'>':'=')+' '+fmt(y)+'.','g5v116_'+id+'_L'+t+'_F'+p);
  q.mk116={id,t,p,kind:'sign',left,right,sign:x<y?'<':x>y?'>':'=',sources};
  return q;
 }
 function compare(t,p){
- const id='dec_compare';
- const x=rnd(3,17)*1000+rnd(0,999),y=rnd(3,17)*1000+rnd(0,999);
- const b=rnd(120,980),c=rnd(20,790),e=rnd(30,530);
- const X=K(x),Y=K(y),B=K(b),C=K(c),E=K(e);
- const F=fmt;
+ const id='dec_compare',F=fmt;
+ const whole=rnd(0,17+4*t),a=rnd(1,9),b=rnd(0,9),c=rnd(1,9);
+ const base=whole*1000,a10=base+a*100,a100=a10+b*10,a1000=a100+c;
+ const comparePair=(x,y,sx,sy)=>{
+  const columns=['целых','десятых','сотых','тысячных'];
+  const values=n=>[Math.floor(n/1000),Math.floor(n/100)%10,Math.floor(n/10)%10,n%10];
+  const l=values(x),r=values(y),first=l.findIndex((d,i)=>d!==r[i]);
+  const alignment='Запишем с одинаковым числом знаков: '+F(x,3)+' и '+F(y,3)+'. ';
+  const ex=alignment+(first<0?'Все разряды равны.':'Первое различие в разряде '+columns[first]+': '+l[first]+' и '+r[first]+'.');
+  return cQ(id,t,p,'Поставь знак между '+sx+' и '+sy+'.',K(x),K(y),ex,[x,y]);
+ };
+ const reverse=rnd(0,1);
+ const pair=(x,y,dx,dy)=>reverse?comparePair(y,x,F(y,dy),F(x,dx)):comparePair(x,y,F(x,dx),F(y,dy));
+ const ordered=(values,kind)=>{
+  const sorted=[...values].sort((x,y)=>x-y),labels=sh(values).map(v=>F(v)).join('; ');
+  const prompt=kind==='среднее по порядку'?'Упорядочи три числа: '+labels+'. Какое стоит посередине?':
+   'Выбери '+kind+' из чисел: '+labels+'.';
+  const tree=kind==='наибольшее'?maximum(...values.map(K)):kind==='наименьшее'?minimum(...values.map(K)):K(sorted[1]);
+  const answer=result(tree),alternatives=values.filter(v=>v!==answer).map(unit);
+  alternatives.push(unit(sorted.at(-1)+1));
+  return nQ(id,t,p,prompt,tree,'Допишем нули до тысячных и сравним разряды слева направо. От меньшего к большему: '+sorted.map(v=>F(v,3)).join(' &lt; ')+'.','decimal',values,alternatives);
+ };
+ const otherDigits=digit=>[1,2,3].map(offset=>(digit+offset)%10);
+ const chooseDecimal=(prompt,answer,options,ex,sources)=>{
+  const q=g5q(prompt,options.map(x=>({label:F(x,3),key:String(unit(x))})),String(unit(answer)),
+   ex,'g5v116_'+id+'_L'+t+'_F'+p);
+  q.mk116={id,t,p,kind:'numeric',mode:'decimal',plan:K(answer),answerMilli:answer,answerInt:null,sources};
+  return q;
+ };
  if(t===0){
-  if(p===0)return cQ(id,t,p,'Поставь знак между '+F(x)+' и '+F(y)+'.',X,Y,'Сравни целые, затем десятые, сотые и тысячные.',[x,y]);
-  if(p===1)return nQ(id,t,p,'Из чисел '+F(x)+' и '+F(y)+' выбери большее.',maximum(X,Y),'Сравним разряды; выбираем большее.', 'decimal',[x,y]);
-  if(p===2)return nQ(id,t,p,'Из двух чисел '+F(x)+' и '+F(y)+' назови меньшее.',minimum(X,Y),'Выбираем число с меньшей первой различающейся цифрой.', 'decimal',[x,y]);
-  if(p===3){const val=rnd(2,15)*1000+rnd(1,9)*100;return cQ(id,t,p,'Сравни '+F(val,1)+' и '+F(val,2)+' (к первой записи приписали ноль справа).',K(val),K(val),'Приписывание нуля справа после запятой не меняет значение.',[val]);}
-  const whole=rnd(2,8)*1000,less=whole+rnd(1,9)*100,more=whole+rnd(1,9)*100+rnd(1,9)*10;
-  return cQ(id,t,p,'Сравни '+F(less,1)+' и '+F(more,2)+'.',K(less),K(more),'Сначала сравним десятые, затем сотые.',[less,more]);
+  if(p===0){const second=(whole+rnd(1,5))*1000+rnd(0,999);return pair(a1000,second,3,3);}
+  if(p===1){const next=(a+rnd(1,8))%10;return pair(a10,base+next*100+rnd(1,9)*10,1,2);}
+  if(p===2)return pair(a10,a10,1,3);
+  if(p===3)return pair(a100,a1000,2,3);
+  return pair(base+a*10,a*100+base,2,1);
  }
  if(t===1){
-  if(p===0)return cQ(id,t,p,'Сравни выражения ('+F(x)+' + '+F(b)+') и ('+F(y)+' + '+F(c)+').',add(X,B),add(Y,C),'Сначала вычислим суммы, затем сравним результаты.',[x,b,y,c]);
-  if(p===1)return cQ(id,t,p,'Из '+F(x)+' вычли '+F(b)+'. Сравни остаток с '+F(y)+'.',subtract(X,B),Y,'Сначала выполним вычитание, затем сравним разряды.',[x,b,y]);
-  if(p===2)return nQ(id,t,p,'Какое из двух значений больше: '+F(x)+' + '+F(b)+' или '+F(y)+' + '+F(c)+'?',maximum(add(X,B),add(Y,C)),'Вычислим обе суммы и выберем большее.','decimal',[x,b,y,c]);
-  if(p===3)return nQ(id,t,p,'На сколько большее из чисел '+F(x)+' и '+F(y)+' превосходит меньшее?',absolute(subtract(X,Y)),'Находим положительную разность большего и меньшего.','decimal',[x,y]);
-  return cQ(id,t,p,'Первое число '+F(x)+' увеличили на '+F(b)+'. Второе число '+F(x+b)+' оставили без изменений. Сравни результаты.',add(X,B),K(x+b),'Сначала выполняем сложение и проверяем равенство.',[x,b,x+b]);
+  if(p===0)return ordered([a1000,a10,base+(a+1)*100], 'наибольшее');
+  if(p===1)return ordered([a1000,a100,base+(a-1)*100+c], 'наименьшее');
+  if(p===2)return ordered([a1000,a10,base+(a+1)*100], 'среднее по порядку');
+  if(p===3){
+   const x=base+a*100+c,y=base+a*100+b*10;
+   return pair(x,y,3,2);
+  }
+  const target=F(a100,2),variants=[a100,a1000,a100+10,a100-100];
+  return chooseDecimal('Какое число равно '+target+'? Выбери из вариантов.',a100,variants,
+   'Допишем нуль справа: '+target+' = '+F(a100,3)+'. Остальные варианты различаются хотя бы в одном разряде.',variants);
  }
- if(p===0)return cQ(id,t,p,'Сравни ('+F(x)+' + '+F(b)+' − '+F(c)+') и ('+F(y)+' + '+F(e)+').',subtract(add(X,B),C),add(Y,E),'Сначала вычислим обе суммы, затем вычтем и сравним.',[x,b,c,y,e]);
- if(p===1)return nQ(id,t,p,'Вычисли три суммы: '+F(x)+' + '+F(b)+', '+F(y)+' + '+F(c)+', '+F(x)+' + '+F(c)+' + '+F(e)+'. Найди наибольшую.',maximum(add(X,B),add(Y,C),add(X,C,E)),'Найдём значения всех выражений, затем максимум.','decimal',[x,b,y,c,e]);
- if(p===2)return nQ(id,t,p,'Сколько нужно прибавить к меньшему из значений ('+F(x)+' + '+F(b)+') и ('+F(y)+' + '+F(c)+'), чтобы получить большее?',absolute(subtract(add(X,B),add(Y,C))),'Вычисляем обе суммы, затем их положительную разность.','decimal',[x,b,y,c]);
- if(p===3)return cQ(id,t,p,'Округли суммы ('+F(x)+' + '+F(b)+') и ('+F(y)+' + '+F(c)+') до десятых. Сравни полученные значения.',round(add(X,B),100),round(add(Y,C),100),'После вычисления сумм округлим обе до десятых и сравним.',[x,b,y,c]);
- return nQ(id,t,p,'Найди модуль разности значений ('+F(x)+' + '+F(b)+' − '+F(c)+') и ('+F(y)+' + '+F(e)+').',absolute(subtract(subtract(add(X,B),C),add(Y,E))),'Сначала вычислим значения в скобках, затем модуль их разности.','decimal',[x,b,c,y,e]);
+ const lead=rnd(1,8),lower=base+lead*100,upper=lower+100;
+ if(p===0){
+  const options=[lower,(lower+upper)/2,upper,upper+10];
+  const prompt='Какое число строго между '+F(lower)+' и '+F(upper)+'?';
+  const answer=options[1];
+  return chooseDecimal(prompt,answer,options,
+   'Проверяем оба сравнения: '+F(lower)+' &lt; '+F(answer)+' &lt; '+F(upper)+'.',[lower,upper]);
+ }
+ if(p===1){
+  const digit=rnd(1,8),offset=rnd(1,9),cap=base+lead*100+digit*10+offset;
+  const prompt='В записи '+F(base+lead*100,1)+'□ пропущена цифра сотых. Какую наибольшую цифру можно поставить, чтобы число было строго меньше '+F(cap,3)+'?';
+  return nQ(id,t,p,prompt,K(digit),'Допишем нуль в разряде тысячных. При цифре '+digit+' получим '+F(cap-offset,3)+' &lt; '+F(cap,3)+'. При следующей цифре получим '+F(cap-offset+10,3)+' > '+F(cap,3)+'.','integer',[cap],otherDigits(digit));
+ }
+ if(p===2){
+  const low=b*10+c,digit=rnd(2,8),cap=base+digit*100+low,option=base+(digit+1)*100+low;
+  const prompt='В записи '+whole+',□'+b+c+' пропущена цифра десятых. Какую наименьшую цифру можно поставить, чтобы число стало строго больше '+F(cap,3)+'?';
+  return nQ(id,t,p,prompt,K(digit+1),'При цифре '+digit+' числа равны. Следующая цифра даёт '+F(option,3)+' > '+F(cap,3)+'.','integer',[cap],otherDigits(digit+1));
+ }
+ if(p===3){
+  const tied=a10,high=a1000,includeThird=rnd(0,1);
+  const values=[F(tied,1),F(tied,3),F(includeThird?tied:high,3),F(base+(a-1)*100,1)];
+  const prompt='Сколько записей в списке обозначают '+F(tied,1)+'? Список: '+values.join('; ')+'.';
+  return nQ(id,t,p,prompt,K(2+includeThird),'Дополним записи нулями до тысячных: '+[tied,tied,includeThird?tied:high,base+(a-1)*100].map(v=>F(v,3)).join('; ')+'. Сравним каждую с '+F(tied,3)+'.','integer',[tied,high],[0,1,includeThird?2:3]);
+ }
+ const next=rnd(0,1)?a1000+(1000-c)%10:a100;
+ const values=[F(a10,1),F(a1000,3),F(a100,2),F(next,3)];
+ return nQ(id,t,p,'Сколько записей в списке строго больше '+F(a100,2)+'? Список: '+values.join('; ')+'.',
+  K(1+Number(next>a100)),'Дополним границу нулём: '+F(a100,3)+'. Больше неё: '+[a1000,next].filter(v=>v>a100).map(v=>F(v,3)).join('; ')+'.','integer',[a10,a1000,a100,next],[0,3,next>a100?1:2]);
 }
 function addQuestions(t,p){
  const id='dec_add';
@@ -173,7 +224,7 @@ function build(id){
 }
 g5DonorQuestion=function(id){return IDS.includes(id)?build(id):previousDonor(id)};
 const lessons={
- dec_compare:'Сначала сравнивай целые части, затем десятые, сотые и тысячные. Приписывание нуля справа в десятичной части не меняет значение. На более сложных уровнях сначала вычисли выражения, потом сравни их результаты.',
+ dec_compare:'Сначала сравни целые части. Если они равны, допиши нули справа до одинакового числа знаков после запятой и сравни цифры слева направо. Например, 4,3 = 4,30, а 4,30 &lt; 4,37: десятые равны, в сотых 0 &lt; 7. Если все разряды равны, числа равны. Чтобы проверить, что число строго между двумя границами, сравни его с каждой: 4,30 &lt; 4,35 &lt; 4,37.',
  dec_add:'При сложении десятичных дробей запиши числа запятая под запятой. Дополни короткую дробную часть нулями при необходимости. Сложи одинаковые разряды, не меняя положение запятой. Для нескольких действий соблюдай скобки и порядок вычислений.',
  dec_sub:'При вычитании десятичных дробей выровняй запятые, дополни разряды нулями и вычти по разрядам. Неизвестное вычитаемое находи обратным действием. В многошаговых заданиях сначала вычисли скобки.',
  dec_round:'Округляя до десятых, смотри на сотые; до сотых — на тысячные; до целых — на десятые. Если следующая цифра 5–9, увеличь сохраняемый разряд. Последовательное округление иногда отличается от прямого.'
