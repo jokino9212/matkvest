@@ -216,7 +216,7 @@ const grade7Chapters=[
   [9,'Градусная мера',['geo_angle_measure']],
   [10,'Измерение углов на местности',['geo_field_angles']],
   [11,'Смежные и вертикальные углы',['geo_adjacent_vertical_angles']],
-  [12,'Перпендикулярность прямых',['geo_parallel_perpendicular_intro']],
+  [12,'Перпендикулярность прямых',['geo_perpendicular_lines']],
   [13,'Прямые углы на местности',['geo_field_right_angles']]
  ]},
  {part:'Геометрия',chapter:'II',title:'Треугольники',items:[
