@@ -161,28 +161,57 @@ function spec(id,t,p){
   ];
  }
  if(id==='dec_div_nat'){
-  const unit=decWhole(a+b+c,b),base=decWhole(c,d),other=decWhole(b,c);
-  const total=unit*k,larger=base*h;
+  const whole=r(4,24)*1000+r(1,9)*100,small=r(1,9)*10+r(1,9),piece=r(1,6)*1000+r(1,9)*10+2*r(1,4);
+  const n=r(2,8+t*3),m=r(2,5+t*2),remainder=r(1,8)*100+r(1,9)*10;
+  const quot=(amount,count)=>f(amount)+' : '+count+' = '+f(amount/count);
+  const sum=(a,b)=>f(a)+' + '+f(b)+' = '+f(a+b);
+  const diff=(a,b)=>f(a)+' − '+f(b)+' = '+f(a-b);
+  const product=(a,count)=>f(a)+' · '+count+' = '+f(a*count);
+  const verify=(amount,count)=>'Проверка умножением: '+product(amount/count,count)+'.';
+  const division=(amount,count)=>{
+   const digits=f(amount).split(',')[1]?.length||0;
+   const scale=10**digits;
+   const precision=f(amount/count).split(',')[1]?.length||0;
+   const units=['целых','десятых','сотых','тысячных'];
+   const direct=amount*scale/1000;
+   if(direct%count===0)return 'Запишем делимое в '+units[digits]+': '+direct+'. Делим: '+direct+' : '+count+' = '+direct/count+'. В десятичной записи это '+f(amount/count)+'. '+verify(amount,count);
+   const factor=10**precision;
+   const extended=amount*factor/1000;
+   return 'Допишем нули, чтобы выразить делимое в '+units[precision]+': '+extended+'. Делим: '+extended+' : '+count+' = '+extended/count+'. Записываем частное: '+f(amount/count)+'. '+verify(amount,count);
+  };
+  const total=whole*n,group=piece*m,comparison=piece+small;
   if(t===0)rows=[
-   ['Вычисли '+f(total)+' : '+k+'.',D(V(total),k),'Разделим десятичное число на натуральное без остатка.',1,'dec'],
-   ['Длину '+f(unit*q)+' м разрезали на '+q+' равных частей. Найди длину одной.',D(V(unit*q),q),'Общую длину разделим на количество частей.',2,'dec'],
-   [''+f(base*h)+' руб. разделили поровну между '+h+' детьми. Сколько получил каждый?',D(V(base*h),h),'Делим всю сумму поровну.',2,'dec'],
-   ['Чему равна половина десятичного числа '+f(other*2)+'?',D(V(other*2),2),'Чтобы найти половину, разделим число на два.',2,'dec'],
-   ['В '+k+' банках поровну '+f(unit*k)+' кг продукта. Сколько килограммов в одной?',D(V(unit*k),k),'Общее количество разделим на число банок.',2,'dec']
+   ['Вычисли '+f(total)+' : '+n+'.',D(V(total),n),division(total,n),1,'dec'],
+   ['Вычисли '+f(small*n)+' : '+n+' и запиши частное меньше единицы.',D(V(small*n),n),division(small*n,n),2,'dec'],
+   ['Вычисли '+f(piece*10)+' : 10. Сколько получится?',D(V(piece*10),10),'При делении на 10 запятая сдвигается на один разряд влево: '+quot(piece*10,10)+'.',1,'dec'],
+   ['Верёвку длиной '+f(group)+' м разрезали на '+m+' равных частей. Чему равна длина одной?',D(V(group),m),division(group,m),2,'dec'],
+   ['Найди половину числа '+f((piece+1)*2)+'.',D(V((piece+1)*2),2),'Половина — это результат деления на два. '+division((piece+1)*2,2),2,'dec']
   ];
-  else if(t===1)rows=[
-   ['Вычисли ('+f(total)+' + '+f(base*k)+') : '+k+'.',D(A(V(total),V(base*k)),k),'Сначала сумма двух партий, затем деление.',2,'dec'],
-   ['Вычисли '+f(total)+' : '+k+' + '+f(larger)+' : '+h+'.',A(D(V(total),k),D(V(larger),h)),'Два частных и сумма.',3,'dec'],
-   ['После деления '+f(total)+' на '+k+' из результата вычли '+f(base)+'. Сколько получилось?',S(D(V(total),k),V(base)),'Сначала деление, затем вычитание.',2,'dec'],
-   ['Из '+f(total)+' литров разлили по '+k+' равным сосудам. В каждый добавили ещё '+f(base)+' л. Сколько в одном?',A(D(V(total),k),V(base)),'Разделим поровну, затем добавим.',2,'dec'],
-   ['Число x разделили на '+k+' и получили '+f(unit)+'. Найди x.',M(D(V(total),k),k),'Умножим частное на делитель.',2,'dec']
+  if(t===1)rows=[
+   ['Вычисли ('+f(total)+' + '+f(piece*n)+') : '+n+'.',D(A(V(total),V(piece*n)),n),
+    'Сначала объединим партии: '+sum(total,piece*n)+'. Делим: '+quot(total+piece*n,n)+'. '+verify(total+piece*n,n),2,'dec'],
+   ['Вычисли '+f(total)+' : '+n+' + '+f(group)+' : '+m+'.',A(D(V(total),n),D(V(group),m)),
+    'Находим частные: '+quot(total,n)+' и '+quot(group,m)+'. Складываем: '+sum(whole,piece)+'.',3,'dec'],
+   ['В '+n+' ёмкостей поровну разлили '+f(total)+' л. Из каждой перелили '+f(remainder)+' л в другую тару. Сколько литров осталось в одной ёмкости?',S(D(V(total),n),V(remainder)),
+    'В одной ёмкости было '+quot(total,n)+' л. После переливания '+diff(whole,remainder)+' л.',2,'dec'],
+   ['После деления x на '+n+' получили '+f(whole)+'. Найди делимое x.',M(V(whole),n),
+    'Умножаем частное на делитель: '+product(whole,n)+'. Проверяем: '+quot(total,n)+'.',2,'dec'],
+   ['Сравни частные '+f(group)+' : '+m+' и '+f(comparison*n)+' : '+n+'. Чему равно большее частное?',V(comparison),
+    'Вычислим '+quot(group,m)+' и '+quot(comparison*n,n)+'. Второе частное больше на '+diff(comparison,piece)+'.',3,'dec']
   ];
-  else rows=[
-   ['Вычисли ('+f(total)+' + '+f(base*k)+') : '+k+' − '+f(base)+'.',S(D(A(V(total),V(base*k)),k),V(base)),'Сумма, деление и вычитание.',3,'dec'],
-   ['Вычисли '+f(total*h)+' : '+h+' : '+k+'.',D(D(V(total*h),h),k),'Два последовательных деления.',3,'dec'],
-   ['С '+f(total)+' кг разложили поровну по '+k+' мешкам, затем из каждого забрали '+f(base)+' кг. Сколько осталось в одном?',S(D(V(total),k),V(base)),'Найдём массу одного мешка, затем вычтем расход.',3,'dec'],
-   ['Число x увеличили на '+f(base*k)+', разделили на '+k+' и получили '+f(unit+base)+'. Найди x.',S(M(V(unit+base),k),V(base*k)),'Умножим результат на k, затем вычтем прибавку.',4,'dec'],
-   ['Вычисли ('+f(total+base*k)+' − '+f(base*k)+') : '+k+' + '+f(base)+'.',A(D(S(V(total+base*k),V(base*k)),k),V(base)),'Вычтем партию, разделим, затем прибавим.',4,'dec']
+  if(t===2)rows=[
+   ['Вычисли '+f(total*m)+' : '+m+' : '+n+'.',D(D(V(total*m),m),n),
+    'Выполняем слева направо: '+quot(total*m,m)+'. Затем '+quot(total,n)+'. '+verify(total,n),3,'dec'],
+   ['Из '+f(total+group)+' кг сырья '+f(group)+' кг отложили. Остальное разделили на '+n+' равных частей. Из каждой взяли '+f(remainder)+' кг. Сколько килограммов осталось в одной части?',
+    S(D(S(V(total+group),V(group)),n),V(remainder)),
+    'После отбора '+diff(total+group,group)+' кг. Одна часть: '+quot(total,n)+' кг. Осталось '+diff(whole,remainder)+' кг.',3,'dec'],
+   ['Число x увеличили на '+f(piece*n)+', разделили на '+n+' и получили '+f(whole+piece)+'. Найди x.',S(M(V(whole+piece),n),V(piece*n)),
+    'Возвращаем делимое: '+product(whole+piece,n)+'. Вычитаем прибавку: '+diff((whole+piece)*n,piece*n)+'. Проверяем: '+quot((whole+piece)*n,n)+'.',3,'dec'],
+   ['Найди сумму '+f(total)+' : '+n+' и '+f(group)+' : '+m+', затем раздели результат пополам.',D(A(D(V(total),n),D(V(group),m)),2),
+    'Частные: '+quot(total,n)+' и '+quot(group,m)+'. Сумма: '+sum(whole,piece)+'. Половина: '+quot(whole+piece,2)+'.',4,'dec'],
+   ['В одной группе '+n+' участников, им поровну выдали '+f(comparison*n)+' кг материала. В другой группе '+m+' участников и '+f(group)+' кг. На сколько килограммов больше получил один участник первой группы?',
+    S(D(V(comparison*n),n),D(V(group),m)),
+    'В первой группе '+quot(comparison*n,n)+' кг на участника. Во второй '+quot(group,m)+' кг. Разница: '+diff(comparison,piece)+' кг.',3,'dec']
   ];
  }
  if(!rows||rows.length!==5)throw Error('v127 missing families '+id);
@@ -205,6 +234,7 @@ function question(id){
 makeG5Question=function(id){return covered.has(id)?question(id):old.apply(this,arguments)};
 const previousLesson=g5Lesson;
 g5Lesson=function(id){
+ if(id==='dec_div_nat')return 'Дели как натуральные числа. Когда переходишь к первой цифре после запятой в делимом, поставь запятую и в частном. Если делимое меньше делителя, начни частное с 0. При остатке можно дописать справа нуль и продолжить деление. Например, 4,2 : 4 = 1,05. Для проверки умножь частное на делитель: 1,05 · 4 = 4,2.';
  if(id!=='dec_mul_nat')return previousLesson(id);
  return 'Умножь число на натуральный множитель, временно убрав запятую. В произведении отдели справа столько знаков, сколько было после запятой в исходном числе. Если знаков не хватает, допиши нули слева. Например, 0,07 · 3 = 0,21: 7 · 3 = 21, отделяем два знака. В задаче с одинаковыми группами умножаем величину одной группы на количество групп.';
 };
