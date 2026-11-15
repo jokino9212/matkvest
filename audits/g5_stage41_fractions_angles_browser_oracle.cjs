@@ -111,15 +111,20 @@ function compareOps(xs,ops){
      splitFigures++;
     }
     if(q.id==='angles'&&((q.level===0&&(q.family===0||q.family===1))||(q.level===1&&q.family===2))){
-     const svg=element.querySelector('svg[aria-label^="Транспортир"]');
+     const svg=element.querySelector('svg.g5-measure-protractor');
      check(svg,'Missing protractor drawing');
-     const deg=Number(svg.getAttribute('aria-label').match(/углом (\d+) градусов/)[1]);
-     const lines=[...svg.querySelectorAll('line[stroke="#de853c"]')];
-     check(lines.length===2,'Missing two angle rays in protractor');
-     const x=Number(lines[1].getAttribute('x2'))-195,y=189-Number(lines[1].getAttribute('y2'));
-     check(Math.abs(Math.atan2(y,x)*180/Math.PI-deg)<.08,'Protractor shown degree differs from problem');
-     if(q.level===1)check(q.ans===String(180-deg),'Wrong supplementary protractor answer');
-     else check(q.ans===String(deg),'Wrong right/straight protractor answer');
+     const rays=[svg.querySelector('.g5-measure-start'),svg.querySelector('.g5-measure-end')];
+     check(rays.every(Boolean),'Missing two angle rays in protractor');
+     const toward=line=>Math.atan2(Number(line.getAttribute('y1'))-Number(line.getAttribute('y2')),
+      Number(line.getAttribute('x2'))-Number(line.getAttribute('x1')))*180/Math.PI;
+     const measured=Math.abs(toward(rays[0])-toward(rays[1]));
+     const deg=Math.round(measured);
+     check(Math.abs(measured-deg)<.08,'Protractor ray is not aligned with a degree mark');
+     check(svg.querySelectorAll('.g5-protractor-mark').length===37,'Missing scale divisions');
+     if(q.level===1){
+      const increase=Number(element.textContent.match(/увеличь его на (\d+)°/)[1]);
+      check(q.ans===String(deg+increase),'Wrong angle after increase');
+     }else check(q.ans===String(deg),'Wrong measured angle');
      protractors++;
     }
     if(q.id==='frac_parts'&&q.level===1&&q.family===3){
