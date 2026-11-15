@@ -80,7 +80,7 @@ const slots=15,variants=20;
    if(q.id==='frac_add_diff'||q.id==='frac_sub_diff')
     assert(q.ex.includes('Приводим дроби'),'No step-by-step common denominator arithmetic '+prefix);
    if(q.id==='frac_part_number'&&q.level===2&&q.family===3)
-    assert(q.text.includes('Из второй такой же партии'),'Physically impossible doubled portion '+prefix);
+    assert(q.text.includes('Из второй партии того же материала'),'Physically impossible doubled portion '+prefix);
   }
   assert.equal(keys.size,ids.length*slots,'Missing cognitive families');
   for(const id of ids)assert.equal(byTopic.get(id),slots*variants,'Incomplete topic '+id);
