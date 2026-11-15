@@ -6870,6 +6870,177 @@ Object.assign(reviewed,{
  ]
 });
 
+Object.assign(reviewedLessons,{
+ stat_value_frequency:'Абсолютная частота — сколько раз значение встретилось. Относительная частота — отношение этого числа к общему числу наблюдений. Сумма абсолютных частот равна размеру набора.',
+ stat_grouping_histograms:'Соседние интервалы не перекрываются. В промежутке [a; b) число a учитывают, b относят к следующему промежутку. При равной ширине интервалов сравнивай частоты по высотам столбцов.',
+ stat_sample:'Выборка — часть объектов, отобранных из изучаемой совокупности. Проверь, охватывает ли отбор важные группы и имеет ли каждый объект известную возможность попасть в исследование.'
+});
+function frequencyModel(a,b,c,y){
+ const values=[a,a+1,a+3,a+5],counts=[b,c,y,a+15],total=addValues(counts);
+ return {values,counts,total,visual:tableVisual(['Значение','Абсолютная частота'],values.map((value,i)=>[value,counts[i]]))};
+}
+function histogramModel(a,b,c,y){
+ const start=100+10*(a%6),width=10,count=4;
+ const intervals=Array.from({length:count},(_,i)=>{
+  const lo=start+i*width,hi=lo+width;
+  return {lo,hi,label:'['+lo+'; '+hi+')'};
+ });
+ const counts=[2+b%5,3+c%5,8+y%4,1+a%6],total=addValues(counts);
+ const data=intervals.flatMap(({lo},index)=>Array.from({length:counts[index]},(_,i)=>lo+i%width));
+ return {intervals,counts,total,visual:question=>g7S13AttachHistogram(question,{start,width,intervals,counts,data,total})};
+}
+Object.assign(reviewed,{
+ stat_value_frequency:[
+  {
+   count_single_number:({a,b})=>{
+    const x=a+b,values=[x,x+1,x-1,x,x+2,x,x+1];
+    return ['Сколько раз значение '+x+' встречается в наборе '+dataList(values)+'?',3,'Подсчитываем все появления '+x+'.'];
+   },
+   read_absolute_frequency_from_table:({a,b,c,y})=>{
+    const m=frequencyModel(a,b,c,y),i=a%4;
+    return tableTask(m,'Какова абсолютная частота значения '+m.values[i]+'?',m.counts[i],'Считываем число из столбца частот.');
+   },
+   find_value_of_largest_frequency:({a,b,c,y})=>{
+    const m=frequencyModel(a,b,c,y);
+    return tableTask(m,'Какое значение встретилось чаще остальных?',m.values[3],'Самая большая частота '+m.counts[3]+'. Ей отвечает значение '+m.values[3]+'.');
+   },
+   total_observations_by_frequencies:({a,b,c,y})=>{
+    const m=frequencyModel(a,b,c,y);
+    return tableTask(m,'Сколько наблюдений в наборе?',m.total,'Складываем частоты '+m.counts.join(' + ')+'.');
+   }
+  },
+  {
+   compute_relative_frequency_from_table:({a,b,c,y})=>{
+    const m=frequencyModel(a,b,c,y),i=b%4;
+    return tableTask(m,'Найди относительную частоту значения '+m.values[i]+' в виде дроби.',rational(m.counts[i],m.total),
+     'Частоту '+m.counts[i]+' делим на число наблюдений '+m.total+'.');
+   },
+   convert_count_to_percentage:({a,b})=>['Из '+20*(a+b)+' наблюдений значение x встретилось '+2*(a+b)+' раз. Сколько процентов оно составило?',10,
+    'Относительная частота равна '+2*(a+b)+' / '+20*(a+b)+' = 0,1, то есть 10%.'],
+   recover_count_from_relative_frequency:({a,b})=>['Из '+20*(a+b)+' наблюдений доля значения x составила '+(5*b)+'%. Сколько раз встретилось x?',(a+b)*b,
+    'Умножаем число наблюдений на '+(5*b)+' / 100.'],
+   get_frequency_of_higher_values:({a,b,c,y})=>{
+    const m=frequencyModel(a,b,c,y),i=a%3;
+    return tableTask(m,'Сколько наблюдений имеют значение строго больше '+m.values[i]+'?',addValues(m.counts.slice(i+1)),
+     'Складываем частоты значений после '+m.values[i]+'.');
+   }
+  },
+  {
+   infer_missing_frequency_using_total:({a,b,c,y})=>{
+    const m=frequencyModel(a,b,c,y),i=b%4,rows=m.values.map((value,index)=>[value,index===i?'?':m.counts[index]]);
+    return withVisual(['Всего '+m.total+' наблюдений. Найди пропущенную частоту.',m.counts[i],
+     'Из общего количества вычитаем сумму известных частот.'],tableVisual(['Значение','Абсолютная частота'],rows));
+   },
+   combine_experiments_before_forming_fraction:({a,b,c})=>['В первом наборе значение x встретилось '+a+' раз из '+(a+b)+', во втором '+c+' из '+(b+2*c)+'. Какова относительная частота x в объединённом наборе?',rational(a+c,a+2*b+2*c),
+    'Складываем числа появлений и объёмы наборов. Делим '+(a+c)+' на '+(a+2*b+2*c)+'.'],
+   update_frequency_after_adding_same_value:({a,b,c,y})=>{
+    const m=frequencyModel(a,b,c,y),i=a%4;
+    return tableTask(m,'Добавили ещё '+b+' наблюдений, каждое равно '+m.values[i]+'. Найди относительную частоту этого значения после добавления.',
+     rational(m.counts[i]+b,m.total+b),'Прибавляем '+b+' и к частоте, и к общему числу наблюдений.');
+   },
+   reverse_relative_frequency_constraint:({a,b})=>{
+    const count=a+b;
+    return ['Значение x встретилось '+count+' раз. Его относительная частота равна 1 / '+a+'. Сколько наблюдений всего?',count*a,
+     'Относительная частота получена делением '+count+' на число наблюдений. Значит всего '+count+' · '+a+'.'];
+   }
+  }
+ ],
+ stat_grouping_histograms:[
+  {
+   read_frequency_for_interval:({a,b,c,y})=>{
+    const m=histogramModel(a,b,c,y),i=a%4;
+    return tableTask(m,'Сколько наблюдений в интервале '+m.intervals[i].label+'?',m.counts[i],
+     'Считываем высоту столбца над этим промежутком.');
+   },
+   select_group_for_boundary:({a,b,c,y})=>{
+    const m=histogramModel(a,b,c,y),i=b%3+1,labels=m.intervals.map(v=>v.label);
+    return withVisual(choice('К какому интервалу относится значение '+m.intervals[i].lo+'?',labels[i],labels.filter((_,j)=>j!==i),
+     'Включена левая граница. Из предыдущего интервала это значение исключено.'),m.visual);
+   },
+   read_interval_with_maximum_count:({a,b,c,y})=>{
+    const m=histogramModel(a,b,c,y),labels=m.intervals.map(v=>v.label);
+    return withVisual(choice('Какой промежуток содержит больше всего наблюдений?',labels[2],labels.filter((_,i)=>i!==2),
+     'Высота третьего столбца '+m.counts[2]+' выше остальных.'),m.visual);
+   },
+   identify_width_of_intervals:({a,b,c,y})=>{
+    const m=histogramModel(a,b,c,y),i=a%4,{lo,hi,label}=m.intervals[i];
+    return tableTask(m,'Найди ширину интервала '+label+'.',hi-lo,'Из правой границы вычитаем левую.');
+   }
+  },
+  {
+   total_from_grouped_counts:({a,b,c,y})=>{
+    const m=histogramModel(a,b,c,y);
+    return tableTask(m,'Сколько наблюдений представлено на гистограмме?',m.total,'Складываем высоты столбцов: '+m.counts.join(' + ')+'.');
+   },
+   count_in_adjacent_intervals:({a,b,c,y})=>{
+    const m=histogramModel(a,b,c,y),i=b%3;
+    return tableTask(m,'Сколько наблюдений в промежутке ['+m.intervals[i].lo+'; '+m.intervals[i+1].hi+')?',m.counts[i]+m.counts[i+1],
+     'Этот промежуток состоит из двух соседних интервалов. Складываем две частоты.');
+   },
+   sort_raw_data_into_intervals:({a,b,c})=>{
+    const lo=100+10*(a%6),values=[lo-1,lo,lo+b%9,lo+10,lo+11,lo+c%9];
+    return ['Из данных '+dataList(values)+' сколько значений относятся к ['+lo+'; '+(lo+10)+')?',3,
+     'Левая граница включена, правая исключена. Подходят '+lo+', '+(lo+b%9)+' и '+(lo+c%9)+'.'];
+   },
+   show_limitations_of_grouped_data:({a,b,c,y})=>{
+    const m=histogramModel(a,b,c,y),i=a%4;
+    return withVisual(checkStatement('Можно ли по гистограмме точно узнать, сколько раз внутри интервала '+m.intervals[i].label+' встретилось число '+(m.intervals[i].lo+3)+'?',false,
+     'Столбец даёт общее число для интервала. Значения отдельных наблюдений не показаны.'),m.visual);
+   }
+  },
+  {
+   share_of_combined_histogram_intervals:({a,b,c,y})=>{
+    const m=histogramModel(a,b,c,y),i=a%3,n=m.counts[i]+m.counts[i+1];
+    return tableTask(m,'Какую долю всех наблюдений образуют значения в ['+m.intervals[i].lo+'; '+m.intervals[i+1].hi+')?',rational(n,m.total),
+     'Два соседних столбца дают '+n+' наблюдений. Общее количество '+m.total+'.');
+   },
+   infer_missing_interval_count:({a,b,c,y})=>{
+    const m=histogramModel(a,b,c,y),i=b%4,rows=m.intervals.map(({label},j)=>[label,i===j?'?':m.counts[j]]);
+    return withVisual(['Объём набора '+m.total+'. Восстанови пропущенную частоту.',m.counts[i],
+     'Складываем три известные частоты и вычитаем сумму из объёма набора.'],tableVisual(['Интервал','Частота'],rows));
+   },
+   change_of_share_after_reclassifying:({a,b,c,y})=>{
+    const m=histogramModel(a,b,c,y),k=1+b%2;
+    return tableTask(m,'После проверки выяснилось, что '+k+' наблюдения из '+m.intervals[2].label+' относятся к предыдущему интервалу. Найди новую долю интервала '+m.intervals[2].label+'.',
+     rational(m.counts[2]-k,m.total),'Общий объём не меняется. Частота третьего интервала уменьшается на '+k+'.');
+   },
+   derive_exact_bound_from_histogram:({a,b,c,y})=>{
+    const m=histogramModel(a,b,c,y),i=b%3;
+    return tableTask(m,'Сколько наблюдений строго меньше '+m.intervals[i+1].lo+'?',addValues(m.counts.slice(0,i+1)),
+     'Складываем столбцы до заданной границы. Наблюдения на самой границе идут в следующий столбец.');
+   }
+  }
+ ],
+ stat_sample:[
+  {
+   identify_population:({a,b})=>choice('Из '+(100*a+10*b)+' деталей завода случайно взяли '+(a+b)+' для проверки. Что составляет изучаемую совокупность?',
+    'Все '+(100*a+10*b)+' деталей',['Только '+(a+b)+' взятых деталей','Только признанные исправными','Только признанные бракованными'],'Результат исследования хотят распространить на все детали партии.'),
+   count_sample_size:({a,b})=>['В школе '+100*a+' учеников, опросили '+10*b+' разных учеников. Чему равен объём выборки?',10*b,'Объём выборки равен числу опрошенных учеников.'],
+   determine_what_was_sampled:({a,b})=>choice('В магазине проверили '+(a+b)+' упаковок из партии '+(100*a+10*b)+'. Что является выборкой?',
+    'Проверенные '+(a+b)+' упаковок',['Все упаковки в партии','Только бракованные упаковки','Результат одной проверки'],'Выборка состоит из отобранных для проверки упаковок.'),
+   census_or_sample:({a,b})=>checkStatement('В группе '+(a+b)+' человек. На вопрос ответил каждый человек группы, и изучать нужно только эту группу. Это сплошной опрос?',true,'Исследование охватывает всех участников изучаемой группы.')
+  },
+  {
+   spot_selection_bias_from_time:({a,b})=>choice('Опрос о режиме дня '+(100*a)+' жителей провели только среди посетителей магазина в '+(9+b%3)+' часов утра рабочего дня. Какая часть жителей может быть недопредставлена?',
+    'Те, кто в это время работает или учится',['Только проходящие мимо магазина','Все покупатели этого магазина без исключения','Никто, поскольку вопрос одинаковый'],'Место и время отбора влияют на то, кто мог попасть в выборку.'),
+   choose_random_across_all_objects:({a,b})=>choice('Из партии '+(100*a)+' деталей нужно проверить '+(a+b)+'. Какой способ уменьшает зависимость от порядка укладки?',
+    'Пронумеровать детали и случайно выбрать номера',['Взять только верхний слой коробки','Взять только самые лёгкие детали','Взять только детали, внешне похожие на исправные'],'Случайный отбор по номерам даёт каждой детали возможность попасть в проверку.'),
+   compute_sample_fraction:({a,b})=>['Из '+20*(a+b)+' жителей опросили '+(a+b)+'. Какую долю жителей охватил опрос?',rational(1,20),'Делим объём выборки на численность совокупности.'],
+   calculate_number_not_sampled:({a,b})=>['В кружке '+(8*a+4*b)+' человек. Случайно выбрали '+(a+b)+' человек. Сколько осталось вне выборки?',7*a+3*b,'Из общего числа вычитаем объём выборки.']
+  },
+  {
+   choose_two_groups_proportionally:({a,b})=>['В первой группе '+10*a+' человек, во второй '+10*b+'. В выборку попадает каждый пятый из каждой группы. Сколько отбирают из второй?',2*b,
+    'Для второй группы берём одну пятую от '+10*b+'.'],
+   detect_unrepresented_group_despite_size:({a,b})=>choice('Оценивали мнение всех классов школы. Опросили '+(10*(a+b))+' учеников, но все они из одной параллели. Что нужно изменить?',
+    'Включить в отбор учащихся других параллелей',['Задать больше вопросов только этой параллели','Оставить выборку как есть, если опрошенных больше 30','Спросить тех же учеников повторно'],'Размер выборки не устраняет пропуск групп, когда цель — мнение всей школы.'),
+   recompute_after_overlapping_samples:({a,b,c})=>['Первый отбор дал '+(a+b+c)+' объектов, второй '+(a+b)+' объектов. В обе выборки попали '+a+' одних и тех же объектов. Сколько разных объектов отобрали?',a+2*b+c,
+    'Складываем размеры обеих выборок и один раз вычитаем общие объекты.'],
+   compare_representativeness_with_repeated_responses:({a,b})=>choice('Опрос для всех школьников собрал '+(10*a+10*b)+' ответов по публичной ссылке. Оказалось, некоторые отвечали несколько раз. Как лучше оценить число школьников в выборке?',
+    'Посчитать разных участников после устранения повторов',['Приравнять число участников к числу ответов','Умножить ответы на число классов','Считать каждую повторную запись новым человеком'],'Повторный ответ одного школьника не увеличивает число разных участников.')
+  }
+ ]
+});
+
 add('alg_expressions_equations','compare_expression_values','Сравнение значений выражений',
  'Чтобы сравнить выражения, вычисли оба значения или используй свойства действий. При указанном значении переменной сначала подставь его в обе части. Для двойного неравенства проверь обе границы.',
  null);
