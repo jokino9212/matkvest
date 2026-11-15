@@ -4757,7 +4757,7 @@ function findLargestByMeasure(values){
  return values.indexOf(Math.max(...values));
 }
 function shuffledTriangleMeasures(a,b){
- const values=[27+a,47+b,106-a-b],start=(a+b)%3;
+ const values=[27+a,45+b,108-a-b],start=(a+b)%3;
  return values.slice(start).concat(values.slice(0,start));
 }
 function triangleDegreesFromPair(a,b){
@@ -4910,9 +4910,10 @@ Object.assign(reviewed,{
     const A=27+a+b,B=90-A;
     return classifyTriangleTask('Углы треугольника равны '+A+'°, 90° и '+B+'°. Какого он вида по углам?',A,B,90);
    },
-   name_obtuse_triangle:({a,b})=>{
-    const A=90+a,B=25+b,C=180-A-B;
-    return classifyTriangleTask('Какого вида по углам треугольник с углом '+A+'°?',A,B,C);
+   name_obtuse_triangle:({a})=>{
+    const A=90+a;
+    return choice('Какого вида по углам треугольник с углом '+A+'°?','Тупоугольный',
+     triangleKinds.filter(kind=>kind!=='Тупоугольный'),'Угол '+A+'° больше 90°. Наличия одного такого угла достаточно для классификации.');
    },
    count_acute_angles:({a,b})=>{
     const angle=90+a+b;
@@ -4955,8 +4956,8 @@ Object.assign(reviewed,{
    },
    bound_max_angle:({a,b})=>{
     const max=62+a+b;
-    return checkStatement('Наибольший угол в треугольнике '+max+'°. Могут ли два других угла быть тупыми?',false,
-     'Оба остальных угла не больше '+max+'°, а это меньше 90°. Тупым считается угол больше 90°.');
+    return ['Наибольший угол в треугольнике равен '+max+'°. Какова наименьшая возможная градусная мера другого угла?',180-2*max,
+     'Чтобы третий угол был как можно меньше, второй берём равным наибольшему. Из 180° вычитаем два угла по '+max+'°.'];
    }
   }
  ],
@@ -4992,7 +4993,7 @@ Object.assign(reviewed,{
     const order=[A,B,C].map((angle,index)=>[angle,angleSidePairs[index][1]]).sort((u,v)=>u[0]-v[0]);
     const [p,q,r]=order.map(pair=>pair[1]);
     return choice('В ABC угол A равен '+A+'°, угол B — '+B+'°. Укажи порядок сторон по возрастанию.',
-     [p,q,r].join(' < '),[[r,q,p],[p,r,q],[q,p,r]].map(row=>row.join(' < ')),
+     [p,q,r].join(' &lt; '),[[r,q,p],[p,r,q],[q,p,r]].map(row=>row.join(' &lt; ')),
      'Сначала ∠C = '+C+'°. Затем упорядочиваем углы и выписываем стороны напротив них.');
    },
    maximum_angle_from_perimeter:({a,b})=>{
@@ -5029,7 +5030,7 @@ Object.assign(reviewed,{
      'AC короче AB, а AB короче BC. Наименьший угол B лежит напротив AC.');
    },
    equal_angles_checked_with_total:({a,b})=>{
-    const A=40+a,B=A,C=180-2*A;
+    const A=35+a,B=A,C=180-2*A;
     return choice('В треугольнике ABC угол A равен '+A+'°, а внешний угол при C — '+(180-C)+'°. Какие стороны равны?',
      'BC = AC',['AB = BC','AB = AC','Все стороны различны'],
      '∠B = '+(180-C)+'° − '+A+'° = '+B+'°. Напротив равных A и B лежат BC и AC.');
@@ -5086,7 +5087,7 @@ Object.assign(reviewed,{
    },
    choose_valid_perimeter_sequence:({a,b})=>{
     const s=a+b+17;
-    return ['Самая длинная сторона треугольника равна '+s+' см. Какое наименьшее целое значение может иметь периметр?',2*s+1,'Две меньшие стороны в сумме должны составить хотя бы '+(s+1)+' см. Эту сумму можно разбить на две длины не больше '+s+' см.'];
+    return ['Самая длинная сторона треугольника равна '+s+' см. Какое наименьшее целое значение может иметь периметр?',2*s+1,'Периметр строго больше '+2*s+' см. Следующее целое значение — '+(2*s+1)+' см. Оно возможно, например со сторонами 1, '+s+' и '+s+' см.'];
    }
   }
  ],
@@ -5132,8 +5133,8 @@ Object.assign(reviewed,{
    },
    infer_legs_order_from_exterior:({a,b})=>{
     const A=22+a+b,B=90-A;
-    return withVisual(choice('Внешний угол при A равен '+(180-A)+'°. Как соотносятся катеты AC и BC?',A>B?'AC < BC':A<B?'AC > BC':'AC = BC',
-     ['AC < BC','AC > BC','AC = BC'].filter(item=>item!==(A>B?'AC < BC':A<B?'AC > BC':'AC = BC')),
+    return withVisual(choice('Внешний угол при A равен '+(180-A)+'°. Как соотносятся катеты AC и BC?',A>B?'AC &lt; BC':A<B?'AC > BC':'AC = BC',
+     ['AC &lt; BC','AC > BC','AC = BC'].filter(item=>item!==(A>B?'AC &lt; BC':A<B?'AC > BC':'AC = BC')),
      '∠A = '+A+'°, ∠B = '+B+'°. Сравниваем стороны, лежащие напротив этих углов.'),labelledTriangleDiagram(A,B,90,'C'));
    },
    use_split_right_angle:({a,b})=>{
