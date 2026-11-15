@@ -50,6 +50,14 @@ const {chromium}=require('playwright');
  assert.equal(await menu.locator('[data-paragraph]:visible').count(),1);
  await menu.locator('[data-topic-id="g7:geo_incircle_triangle"]:visible').click();
  assert.equal(await page.locator('#modal .stage-card').count(),3);
+ const pie=await page.evaluate(()=>{
+  const chart=makeG7Question('g7:stat_pie_charts',0);
+  const host=document.createElement('div');
+  host.innerHTML=quizVisualHtml(chart);
+  const svg=host.querySelector('svg.g7-pie-svg');
+  return {viewBox:svg?.getAttribute('viewBox'),sectors:svg?.querySelectorAll('path').length};
+ });
+ assert.deepEqual(pie,{viewBox:'65 25 330 330',sectors:4});
  await page.reload();
  await menu.waitFor();
  await page.locator('#modal .stage-card').first().waitFor({state:'visible'});

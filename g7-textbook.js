@@ -6310,10 +6310,22 @@ function populationChart({values,ages}){
  return '<div class="g7-data-title">Численность по возрасту и полу, тыс. чел.</div><svg class="g7-population-svg" viewBox="0 0 560 278" role="img" aria-label="Возрастно-половая диаграмма" style="display:block;width:100%;max-width:560px;margin:auto">'+
   text(145,22,ageGroups[0],19)+text(415,22,ageGroups[1],19)+grids+bars+'</svg>';
 }
-const beforePopulationVisual=quizVisualHtml;
+function textbookPieChart(data){
+ const chart=document.createElement('template');
+ chart.innerHTML=renderG7PieChart(data);
+ const svg=chart.content.querySelector('.g7-pie-svg');
+ // The circle in the shared renderer is centered at (230, 190), with radius 145.
+ svg.setAttribute('viewBox','65 25 330 330');
+ svg.style.maxWidth='330px';
+ for(const label of svg.querySelectorAll('text'))label.style.fontSize='17px';
+ return chart.innerHTML;
+}
+const beforeStatisticsVisual=quizVisualHtml;
 quizVisualHtml=function(question){
  const visual=question?.visual;
- return visual?.type==='g7TextbookPopulation'?populationChart(visual.data):beforePopulationVisual(question);
+ if(visual?.type==='g7TextbookPopulation')return populationChart(visual.data);
+ if(visual?.type==='g7PieChart')return textbookPieChart(visual.data);
+ return beforeStatisticsVisual(question);
 };
 Object.assign(reviewed,{
  stat_bar_charts:[
