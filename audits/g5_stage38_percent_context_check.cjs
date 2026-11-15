@@ -17,7 +17,7 @@ assert(!arithmetic.includes("В каждом большом ящике '+d+' м�
 const fractions=fs.readFileSync('g5-fraction-concepts-v129.js','utf8');
 for(const required of [
  'Найди НОД числителя и знаменателя дроби',
- 'Вторую сторону уменьшили в 2 раза.',
+ 'Сократи перед умножением и вычисли',
  'Последовательно разделим числитель и знаменатель на '
 ])assert(fractions.includes(required),'Missing fraction pedagogy improvement: '+required);
 assert(fractions.includes('ADD(ADD(A,B),ADD(C,Q(1,e)))'),'§36 training must combine two independently computed sums');
