@@ -6008,6 +6008,258 @@ Object.assign(reviewed,{
  ]
 });
 
+Object.assign(reviewedLessons,{
+ stat_tables:'Сначала прочитай заголовки и единицы измерения. Найди нужную строку и нужный столбец. Их пересечение даёт значение показателя.',
+ stat_data_interpretation:'Выбери столбец с нужным показателем, затем упорядочь или отфильтруй строки. Из данных можно вывести сравнение и изменение. Причина изменения может быть неизвестна.',
+ stat_table_calculations:'Чтобы подсчитать значения, отметь каждое в своей строке. В смете стоимость каждой позиции равна количеству, умноженному на цену. Общая стоимость — сумма по строкам.'
+});
+const tableVisual=(headers,rows)=>question=>g6AttachTable(question,{headers,rows});
+const stockNames=['Папки','Ручки','Блокноты','Линейки'];
+function stockModel(a,b,c){
+ const shift=(a+b)%4;
+ const names=stockNames.slice(shift).concat(stockNames.slice(0,shift));
+ const plan=[a+b+5,2*a+1,b+c+3,2*b+4];
+ const counts=[a+b+1,b+2,c+b+6,a+c+4];
+ return {names,plan,counts,visual:tableVisual(['Товар','Заказано, шт.','Получено, шт.'],names.map((name,index)=>[name,plan[index],counts[index]]))};
+}
+function countOccurrence(values,key){
+ return values.filter(value=>value===key).length;
+}
+function addValues(values){
+ return values.reduce((sum,value)=>sum+value,0);
+}
+function tableTask(model,prompt,answer,ex){
+ return withVisual([prompt,answer,ex],model.visual);
+}
+function schedules(a,b){
+ const start=8*60+5+a,rows=[['Рейс 15',start,start+22+b],['Рейс 21',start+15,start+33+b],['Рейс 27',start+28,start+51+b]];
+ const clock=minutes=>Math.floor(minutes/60)+':'+String(minutes%60).padStart(2,'0');
+ return {rows,clock,visual:tableVisual(['Рейс','Отправление','Прибытие'],rows.map(([name,depart,arrive])=>[name,clock(depart),clock(arrive)]))};
+}
+function materialEstimate(a,b,c,y){
+ const products=['Краска','Кисти','Валики'],counts=[b+1,a+2,c+1],prices=[40+y,8+b,18+a];
+ const costs=counts.map((count,index)=>count*prices[index]);
+ return {products,counts,prices,costs,visual:tableVisual(['Материал','Количество, шт.','Цена, ₽/шт.'],products.map((name,index)=>[name,counts[index],prices[index]]))};
+}
+Object.assign(reviewed,{
+ stat_tables:[
+  {
+   read_cell_by_product:args=>{
+    const {a,b,c}=args,m=stockModel(a,b,c),i=a%4;
+    return tableTask(m,'Сколько единиц товара «'+m.names[i]+'» получено?',m.counts[i],
+     'Строка «'+m.names[i]+'», столбец «Получено, шт.» дают '+m.counts[i]+'.');
+   },
+   read_ordered_quantity:({a,b,c})=>{
+    const m=stockModel(a,b,c),i=b%4;
+    return tableTask(m,'Какое количество заказали для строки «'+m.names[i]+'»?',m.plan[i],
+     'В строке «'+m.names[i]+'» смотрим столбец «Заказано, шт.».');
+   },
+   read_departure_time:({a,b})=>{
+    const m=schedules(a,b),i=a%3,[name,depart]=m.rows[i];
+    return withVisual(choice('Во сколько отправляется '+name.toLowerCase()+'?',m.clock(depart),
+     m.rows.filter((_,index)=>index!==i).map(row=>m.clock(row[1])),
+     'Смотрим пересечение строки «'+name+'» и столбца «Отправление». '+m.clock(depart)+'.'),m.visual);
+   },
+   read_selected_unit:({a,b,c,y})=>{
+    const m=materialEstimate(a,b,c,y),i=a%3;
+    return withVisual(choice('Какое из значений показывает цену за одну единицу в строке «'+m.products[i]+'»?',m.prices[i]+' ₽/шт.',
+     [m.counts[i]+' шт.',m.costs[i]+' ₽',m.prices[i]+' шт.'],'Для цены единицы нужен столбец «Цена, ₽/шт.».'),
+     m.visual);
+   }
+  },
+  {
+   compare_received_and_ordered:({a,b,c})=>{
+    const m=stockModel(a,b,c),i=b%4,plan=m.plan[i],received=m.counts[i];
+    return tableTask(m,'На сколько отличаются заказанное и фактически полученное количество в строке «'+m.names[i]+'»?',Math.abs(plan-received),
+     'В одной строке сравниваем '+plan+' и '+received+'. Ищем абсолютную разность.');
+   },
+   how_many_equal_cells:({a,b,c})=>{
+    const m=stockModel(a,b,c),matches=m.plan.filter((value,index)=>value===m.counts[index]).length;
+    return tableTask(m,'У скольких товаров заказ и фактически полученное количество совпали?',matches,
+     'Сравниваем две ячейки каждой строки. Совпадений '+matches+'.');
+   },
+   compute_duration_from_timetable:({a,b})=>{
+    const m=schedules(a,b),i=b%3,[name,depart,arrive]=m.rows[i];
+    return tableTask(m,'Сколько минут занимает поездка на рейсе '+name.slice(5)+'?',arrive-depart,
+     'Из времени прибытия '+m.clock(arrive)+' вычитаем время отправления '+m.clock(depart)+'.');
+   },
+   infer_missing_value_in_a_row:({a,b,c,y})=>{
+    const m=materialEstimate(a,b,c,y),i=a%3;
+    return tableTask(m,'Сколько рублей стоит всё количество по строке «'+m.products[i]+'»?',m.costs[i],
+     'Берём из одной строки количество '+m.counts[i]+' и цену '+m.prices[i]+' ₽, затем перемножаем.');
+   }
+  },
+  {
+   read_latest_arrival_before_threshold:({a,b})=>{
+    const m=schedules(a,b),i=b%2,[name,,arrival]=m.rows[i],limit=arrival+3;
+    return withVisual(choice('Какой рейс прибывает позже остальных рейсов, успевающих не позднее '+m.clock(limit)+'?',name,
+     m.rows.filter((_,index)=>index!==i).map(row=>row[0]),'Из столбца «Прибытие» берём самое позднее время не позже '+m.clock(limit)+'. Это '+m.clock(arrival)+'.'),m.visual);
+   },
+   combine_shortages_only:({a,b,c})=>{
+    const m=stockModel(a,b,c),shortages=m.plan.map((value,index)=>Math.max(value-m.counts[index],0));
+    return tableTask(m,'Сколько единиц в сумме недопоставлено по товарам, которых получили меньше, чем заказали?',addValues(shortages),
+     'В каждой строке берём положительную разность «Заказано» − «Получено». Складываем '+shortages.join(' + ')+'.');
+   },
+   estimate_change_from_one_row:({a,b,c,y})=>{
+    const m=materialEstimate(a,b,c,y),target=a%3,extra=b+2;
+    return tableTask(m,'Сколько будет стоить вся закупка, если количество в строке «'+m.products[target]+'» увеличить на '+extra+' шт.?',addValues(m.costs)+m.prices[target]*extra,
+     'Сумма до изменения '+addValues(m.costs)+' ₽. Добавляем '+extra+' · '+m.prices[target]+' ₽.');
+   },
+   compare_plans_after_threshold:({a,b,c})=>{
+    const m=stockModel(a,b,c),limit=a+b,qualified=m.counts.map((value,i)=>value>=limit?m.plan[i]:0);
+    return tableTask(m,'Сколько единиц в сумме заказано по строкам, где получили не меньше '+limit+' шт.?',addValues(qualified),
+     'Отбираем строки по столбцу «Получено», затем суммируем «Заказано» именно в этих строках.');
+   }
+  }
+ ],
+ stat_data_interpretation:[
+  {
+   identify_largest_received:({a,b,c,y})=>{
+    const names=stockNames.slice(a%4).concat(stockNames.slice(0,a%4)),values=[a+3,a+b+3,a+b+c+3,a+b+c+y+3],i=b%4;
+    const rows=names.map((name,index)=>[name,values[(index+i)%4]]),target=rows.find(([,value])=>value===Math.max(...values))[0];
+    return withVisual(choice('Какого товара получили больше всего?',target,names.filter(name=>name!==target),
+     'Наибольшее значение в столбце — '+Math.max(...values)+'.'),tableVisual(['Товар','Получено, шт.'],rows));
+   },
+   count_above_received_threshold:({a,b,c})=>{
+    const m=stockModel(a,b,c),limit=a+b;
+    return tableTask(m,'У скольких товаров значение в столбце «Получено» строго больше '+limit+'?',m.counts.filter(value=>value>limit).length,'Сравниваем каждое число столбца с '+limit+'. Равенство не учитываем.');
+   },
+   chronological_order_from_rows:({a,b})=>{
+    const start=2019+a%5,years=[start,start+1,start+2],rows=[[years[2],12+a],[years[0],16+b],[years[1],14+a+b]];
+    return withVisual(choice('Как упорядочить строки от более раннего года к более позднему?',years.join(' → '),[years.slice().reverse().join(' → '),[years[1],years[0],years[2]].join(' → ')],
+     'Для хронологического порядка смотрим на год, затем выписываем годы по возрастанию.'),tableVisual(['Год','Поездки, тыс.'],rows));
+   },
+   choose_sort_key:({a,b,c})=>{
+    const m=stockModel(a,b,c);
+    return withVisual(choice('Какой столбец надо использовать для сортировки по фактической поставке строки «'+m.names[a%4]+'» и остальных?',
+     'Получено, шт.',['Заказано, шт.','Товар','Номер строки'],'Фактическая поставка — это результат в столбце «Получено».'),
+     m.visual);
+   }
+  },
+  {
+   ranking_by_cost_not_quantity:({a,b,c,y})=>{
+    const names=['Фломастеры','Карандаши','Ластики'];
+    const rank=a%3;
+    const [p,q,r]=names.slice(rank).concat(names.slice(0,rank));
+    const rows=[[q,a+b+7],[r,a+b+c+7],[p,a+7]];
+    return withVisual(choice('В каком порядке расположить товары по возрастанию цены?', [p,q,r].join(' → '),
+     [[r,q,p],[q,p,r],[r,p,q]].map(row=>row.join(' → ')),
+     'Сравниваем ценники: '+(a+7)+' < '+(a+b+7)+' < '+(a+b+c+7)+'.'),tableVisual(['Товар','Цена, ₽'],rows));
+   },
+   when_increase_was_largest:({a,b,c})=>{
+    const start=2020+a%4,values=[c,c+a,c+a+a+b,c+a+a+b+a-1];
+    return withVisual(choice('По сравнению с предыдущим годом когда число участников увеличилось сильнее всего?',start+2,
+     [start+1,start+3,'Во все годы одинаково'],'Приросты по порядку: '+a+', '+(a+b)+' и '+(a-1)+'. Наибольший — '+(a+b)+'.'),
+     tableVisual(['Год','Участники'],values.map((value,i)=>[start+i,value])));
+   },
+   distinguish_record_from_assumption:({a,b,c})=>{
+    const m=stockModel(a,b,c),i=a%4;
+    return withVisual(choice('Какой вывод следует из таблицы сам по себе?', 'По строке «'+m.names[i]+'» получили '+m.counts[i]+' шт.',
+     ['На следующей неделе количество удвоится','Недостача вызвана поломкой машины','На каждый товар спрос уменьшился'],
+     'Таблица показывает фактически зафиксированное количество. Причин или прогнозов в ней нет.'),m.visual);
+   },
+   estimate_count_at_two_thresholds:({a,b,c})=>{
+    const m=stockModel(a,b,c),lo=a+b,hi=lo+5;
+    return tableTask(m,'У скольких товаров число полученных единиц от '+lo+' до '+hi+' включительно?',m.counts.filter(value=>lo<=value&&value<=hi).length,
+     'Проверяем оба ограничения по столбцу получения. Границы '+lo+' и '+hi+' входят.');
+   }
+  },
+  {
+   filter_on_two_columns:({a,b,c})=>{
+    const m=stockModel(a,b,c),diff=m.counts.map((count,i)=>count-m.plan[i]),target=diff.filter((delta,i)=>delta<0&&m.plan[i]>=a+b).length;
+    return tableTask(m,'У скольких товаров заказали не меньше '+(a+b)+' шт. и при этом получили меньше, чем заказали?',target,
+     'Проверяем два условия в каждой строке. Одновременно должны подходить «Заказано» и разность между двумя столбцами.');
+   },
+   fastest_route_that_departs_after:({a,b})=>{
+    const m=schedules(a,b);
+    return withVisual(choice('После '+m.clock(m.rows[0][1])+' остаются другие рейсы. Какой из них меньше времени проводит в пути?',
+     m.rows[1][0],[m.rows[0][0],m.rows[2][0],'Два рейса идут одинаково по времени'],
+     'У 21-го рейса '+(18+b)+' минут, у 27-го — '+(23+b)+' минуты. Рейс 15 отправляется в указанное время и не подходит.'),m.visual);
+   },
+   compare_gap_trend:({a,b,c})=>{
+    const start=2020+a%4,groups=['Турнир A','Турнир B'],values=[a+b,b+c,a+c],gaps=[b,b+3,b+2];
+    return withVisual(choice('В каком году разность числа участников двух турниров была наибольшей?',start+1,
+     [start,start+2,'Разность не менялась'],'Вычитаем по строкам. Разности '+gaps.join(', ')+', наибольшая во второй строке.'),
+     tableVisual(['Год',...groups],values.map((value,i)=>[start+i,value,value+gaps[i]])));
+   },
+   compare_relative_change:({a,b,c})=>{
+    const left=a+b,right=c+a+3;
+    return withVisual(choice('В какой группе число заявок увеличилось на больший процент?', 'Группа B',
+     ['Группа A','В обеих на один процент','Процент определить нельзя'],'В A прирост составляет половину исходного значения. В B прирост равен всему исходному значению.',
+    ),tableVisual(['Группа','Было','Стало'],[['Группа A',2*left,3*left],['Группа B',right,2*right]]));
+   }
+  }
+ ],
+ stat_table_calculations:[
+  {
+   count_category_from_unsorted_values:({a,b})=>{
+    const names=['Волейбол','Шахматы','Рисование'],key=names[a%3],rows=Array.from({length:9},(_,i)=>[i+1,names[(i*i+a+i*b)%3]]);
+    return withVisual(['Сколько учеников выбрали «'+key+'»?',countOccurrence(rows.map(row=>row[1]),key),
+     'Просматриваем столбец выбора и считаем только строки с указанным кружком.'],tableVisual(['Ученик','Кружок'],rows));
+   },
+   sum_quantities_for_multiple_rows:({a,b,c,y})=>{
+    const m=materialEstimate(a,b,c,y);
+    return tableTask(m,'Сколько единиц всех материалов в смете?',addValues(m.counts),'Складываем столбец количества: '+m.counts.join(' + ')+'.');
+   },
+   calculate_position_cost:({a,b,c,y})=>{
+    const m=materialEstimate(a,b,c,y),i=b%3;
+    return tableTask(m,'Найди стоимость всей позиции «'+m.products[i]+'» в рублях.',m.costs[i],
+     'Стоимость позиции: '+m.counts[i]+' · '+m.prices[i]+' = '+m.costs[i]+' ₽.');
+   },
+   find_remainder_from_given_total:({a,b,c})=>{
+    const m=stockModel(a,b,c),i=a%4,rows=m.names.map((name,index)=>[name,index===i?'?':m.counts[index]]);
+    return withVisual(['Всего получено '+addValues(m.counts)+' шт. Сколько получено в строке с пропуском?',m.counts[i],
+     'Из общего количества вычитаем сумму трёх известных строк.'],tableVisual(['Товар','Получено, шт.'],rows));
+   }
+  },
+  {
+   compute_total_cost:({a,b,c,y})=>{
+    const m=materialEstimate(a,b,c,y);
+    return tableTask(m,'Найди общую стоимость сметы в рублях.',addValues(m.costs),
+     'Умножаем цену на количество для каждой позиции. Стоимости '+m.costs.join(', ')+' ₽ складываем.');
+   },
+   compare_two_row_costs:({a,b,c,y})=>{
+    const m=materialEstimate(a,b,c,y),i=a%3,j=(i+1)%3;
+    return tableTask(m,'На сколько рублей отличаются стоимости строк «'+m.products[i]+'» и «'+m.products[j]+'»?',Math.abs(m.costs[i]-m.costs[j]),
+     'Находим стоимости '+m.costs[i]+' и '+m.costs[j]+' ₽ как произведения количества и цены, затем берём разность.');
+   },
+   find_count_of_two_choices:({a,b,c})=>{
+    const names=['Группа A','Группа B','Группа C'],rows=Array.from({length:9},(_,i)=>[i+1,names[(i*i+a+i*b+c)%3]]),excluded=names[a%3];
+    return withVisual(['Сколько строк относятся к двум группам, кроме «'+excluded+'»?',rows.filter(row=>row[1]!==excluded).length,
+     'Считаем, сколько раз встречается «'+excluded+'», и вычитаем из общего числа строк.'],tableVisual(['Запись','Группа'],rows));
+   },
+   average_price_per_unit_in_group:({a,b,c,y})=>{
+    const m=materialEstimate(a,b,c,y),i=a%3,j=(i+1)%3;
+    return tableTask(m,'Найди среднюю стоимость одной единицы для строк «'+m.products[i]+'» и «'+m.products[j]+'». Запиши точный ответ в рублях.',
+     rational(m.costs[i]+m.costs[j],m.counts[i]+m.counts[j]),'Делим общую стоимость двух строк на их общее количество. Цены имеют разные веса.');
+   }
+  },
+  {
+   recover_missing_price_from_grand_total:({a,b,c,y})=>{
+    const m=materialEstimate(a,b,c,y),i=a%3,rows=m.products.map((name,index)=>[name,m.counts[index],i===index?'?':m.prices[index]]);
+    return withVisual(['Смета в сумме '+addValues(m.costs)+' ₽. Найди пропущенную цену за единицу.',m.prices[i],
+     'Сначала вычитаем стоимости известных строк, затем делим оставшуюся стоимость на количество.'],tableVisual(['Материал','Количество, шт.','Цена, ₽/шт.'],rows));
+   },
+   apply_price_reduction_to_one_category:({a,b,c,y})=>{
+    const m=materialEstimate(a,b,c,y),i=a%3,discount=5;
+    return tableTask(m,'Цена единицы в строке «'+m.products[i]+'» снизилась на '+discount+' ₽. Какова новая общая стоимость сметы?',addValues(m.costs)-discount*m.counts[i],
+     'Снижение относится к каждой из '+m.counts[i]+' единиц. Вычитаем '+discount+' · '+m.counts[i]+' ₽.');
+   },
+   find_quantity_change_to_fit_budget:({a,b,c,y})=>{
+    const m=materialEstimate(a,b,c,y),i=0,extra=b+1,limit=addValues(m.costs)+extra*m.prices[i]+m.prices[i]-1;
+    return tableTask(m,'После покупки по смете можно докупить краску по той же цене. Бюджет всей закупки '+limit+' ₽. Сколько дополнительных единиц краски можно оплатить?',extra,
+     'Из бюджета вычитаем стоимость сметы. Остаток делим на цену краски и берём целую часть.');
+   },
+   estimate_missing_quantity_from_average:({a,b,c,y})=>{
+    const m=materialEstimate(a,b,c,y),i=b%3,rows=m.products.map((name,index)=>[name,i===index?'?':m.counts[index],m.prices[index]]);
+    const average=rational(addValues(m.counts),3);
+    return withVisual(['В среднем на одну строку приходится '+exact(average)+' единиц. Найди пропущенное количество.',m.counts[i],
+     'Умножаем среднее на число строк и вычитаем количества из двух известных строк.'],tableVisual(['Материал','Количество, шт.','Цена, ₽/шт.'],rows));
+   }
+  }
+ ]
+});
+
 add('alg_expressions_equations','compare_expression_values','Сравнение значений выражений',
  'Чтобы сравнить выражения, вычисли оба значения или используй свойства действий. При указанном значении переменной сначала подставь его в обе части. Для двойного неравенства проверь обе границы.',
  null);
