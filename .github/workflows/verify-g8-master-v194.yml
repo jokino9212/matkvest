@@ -1,4 +1,4 @@
-name: Grade 8 areas verification
+name: Grade 8 areas, Pythagoras and similarity verification
 on:
   push:
     branches: [verify/g8-master-v194]
@@ -18,13 +18,13 @@ jobs:
       - run: npm install --no-save --no-package-lock playwright@1.56.1
       - name: Check Grade 8 navigation
         run: MATKVEST_G8_NAV_ONLY=1 node audits/g8_textbook_browser.cjs
-      - name: Check all twenty-two updated Master workouts
+      - name: Check all twenty-four updated Master workouts
         run: |
           node <<'JS'
           const assert=require('node:assert/strict');
           const { pathToFileURL }=require('node:url');
           const { chromium }=require('playwright');
-          const targets=['real_numbers_compare','irrational_numbers_approximations','algebra_grade8_review','absolute_value_function','function_concept','function_representations','function_domain_range','linear_inequalities','equivalent_inequalities','linear_inequality_systems','inequality_proofs','set_union_intersection','number_intervals','polygon_grid_area','median_doubling_method','sets_elements_subsets','set_diagrams_applications','equations_reducible_to_quadratic','linear_system_graphical','area_properties','parallelogram_rhombus_area','triangle_area'];
+          const targets=['real_numbers_compare','irrational_numbers_approximations','algebra_grade8_review','absolute_value_function','function_concept','function_representations','function_domain_range','linear_inequalities','equivalent_inequalities','linear_inequality_systems','inequality_proofs','set_union_intersection','number_intervals','polygon_grid_area','median_doubling_method','sets_elements_subsets','set_diagrams_applications','equations_reducible_to_quadratic','linear_system_graphical','area_properties','parallelogram_rhombus_area','triangle_area','pythagorean_theorem','similar_figures_area_ratio'];
           (async()=>{
            const browser=await chromium.launch({headless:true});
            try{
@@ -120,7 +120,7 @@ jobs:
                nextQ();
                assert(q.audit?.type==='g8Textbook'&&prompt(q)!==previous&&blockSession.done===1,id+' did not restore prompt history');
               }
-              assert(totals.graphs===57&&totals.tables===14&&totals.intervals===5&&totals.venn===10,'missing graph or table scenarios');
+              assert(totals.graphs===62&&totals.tables===14&&totals.intervals===5&&totals.venn===10,'missing graph or table scenarios');
               return totals;
              },targets);
              assert.deepEqual(errors,[]);
