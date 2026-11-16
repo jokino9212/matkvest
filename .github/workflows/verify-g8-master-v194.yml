@@ -77,8 +77,13 @@ jobs:
                 }else if(q.visual){
                  const interval=q.visual.data?.interval??q.visual.data;
                  assert(interval&&typeof interval==='object',id+' missing interval data');
-                 const visual=[...document.querySelectorAll('#qstage svg, #qstage [role="img"], #qstage [class*="numberline"], #qstage [class*="interval"]')].find(el=>el.getBoundingClientRect().width>=120);
-                 assert(visual,id+' interval did not render');
+                 const expectedVisual=document.createElement('div');
+                 expectedVisual.innerHTML=quizVisualHtml(q);
+                 const root=expectedVisual.firstElementChild;
+                 assert(root,id+' renderer returned no interval markup for '+q.visual.type);
+                 const candidates=[...document.querySelector('#qstage').querySelectorAll(root.localName)];
+                 const visual=candidates.find(el=>[...root.classList].every(name=>el.classList.contains(name))&&el.getBoundingClientRect().width>=120);
+                 assert(visual,id+' interval markup not displayed: '+root.outerHTML.slice(0,450)+' / '+[...document.querySelector('#qstage').children].map(x=>x.className).join(', '));
                  const box=visual.getBoundingClientRect();
                  assert(box.left>=-1&&box.right<=innerWidth+1,id+' interval clipped horizontally');
                  totals.intervals++;
