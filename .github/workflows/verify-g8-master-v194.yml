@@ -1,94 +1,33 @@
-name: Grade 8 Master review verification
+name: Inspect Grade 8 graph and table APIs
 on:
   push:
     branches: [verify/g8-master-v194]
 permissions:
   contents: read
 jobs:
-  chromium:
+  inspect:
     runs-on: ubuntu-latest
-    timeout-minutes: 8
-    container:
-      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    timeout-minutes: 4
     steps:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
-      - run: python3 audits/g7_stage12_sync_pwa.py --check
-      - run: npm install --no-save --no-package-lock playwright@1.56.1
-      - name: Check Grade 8 navigation
-        run: MATKVEST_G8_NAV_ONLY=1 node audits/g8_textbook_browser.cjs
-      - name: Check the three new Master workouts
-        run: |
-          node <<'JS'
-          const assert=require('node:assert/strict');
-          const { pathToFileURL }=require('node:url');
-          const { chromium }=require('playwright');
-          const targets=['real_numbers_compare','irrational_numbers_approximations','algebra_grade8_review'];
-          (async()=>{
-           const browser=await chromium.launch({headless:true});
-           try{
-            for(const width of [390,1280]){
-             const page=await browser.newPage({viewport:{width,height:850},isMobile:width===390,hasTouch:width===390});
-             const errors=[];
-             page.on('pageerror',error=>errors.push(error.message));
-             await page.goto(pathToFileURL(process.cwd()+'/index.html').href);
-             await page.locator('button[onclick="openGrade(8)"]').click();
-             const result=await page.evaluate(targets=>{
-              const assert=(ok,message)=>{if(!ok)throw Error(message);};
-              const totals={generated:0,completed:0,accepted:0};
-              for(const raw of targets){
-               const id='g8:'+raw;
-               assert(g8InfoById(id),id+' missing from Grade 8');
-               const warmup=new Set(),advanced=new Set();
-               const prompt=q=>JSON.stringify([q.text,q.visual?.data]);
-               for(let stage=0;stage<3;stage++){
-                for(let i=0;i<300;i++){
-                 const task=makeG8Question(id,stage);
-                 assert(task?.text&&task.ex&&task.sig,id+' incomplete prompt');
-                 if(stage<2){warmup.add(prompt(task));continue;}
-                 assert(task.audit?.type==='g8Textbook'&&task.audit.topic===raw&&task.audit.stage===2,id+' wrong Master pool');
-                 assert(!warmup.has(prompt(task)),id+' duplicate across levels');
-                 advanced.add(task.templateId);
-                 totals.generated++;
-                }
-               }
-               assert(advanced.size===10,id+' requires 10 different types');
-               startG8QuizStage(id,2);
-               const seen=new Set();
-               for(let i=0;i<STAGES[2].count;i++){
-                assert(!seen.has(q.templateId),id+' scenario repeated');
-                seen.add(q.templateId);
-                assert(document.querySelector('#qstage .quizq')?.textContent.trim(),id+' prompt not displayed');
-                if(q.choices?.length){
-                 const answer=q.choices.findIndex(item=>String(item.key)===String(q.ans));
-                 assert(answer>=0,id+' missing correct choice');
-                 document.querySelectorAll('#qstage .answer')[answer].click();
-                }else{
-                 const {n,d}=q.answerRat;
-                 document.querySelector('#quizInput').value=d===1?String(n):n+'/'+d;
-                 checkQuizInput();
-                }
-                assert(blockSession.correct===i+1,id+' correct answer rejected at '+q.templateId);
-                assert(blockSession.done===i+1,id+' incorrect progress at '+q.templateId);
-                if(!blockSession.finished)nextQ();
-                totals.accepted++;
-               }
-               assert(blockSession.finished,id+' was not finished');
-               totals.completed++;
-               startG8QuizStage(id,2);
-               const previous=q.text;
-               assert(skipNormalQuiz(),id+' resume setup failed');
-               blockSession.g8TextbookPlan.order=['legacy-template'];
-               nextQ();
-               assert(q.audit?.type==='g8Textbook'&&q.text!==previous&&blockSession.done===1,id+' did not restore prompt history');
-              }
-              return totals;
-             },targets);
-             assert.deepEqual(errors,[]);
-             console.log(JSON.stringify({width,...result}));
-             await page.close();
-            }
-           }finally{await browser.close();}
-          })().catch(e=>{console.error(e);process.exitCode=1;});
-          JS
+      - run: |
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          source=Path('index.html').read_text()
+          names=r'g7GraphData|g7LineSeries|g7AttachGraph|g7GraphSvg|g7GraphHtml|g7GraphTable|g6AttachTable|g7StrictChoice|g7Number|g8Sup82|g8Function|g8.*?Absolute'
+          declarations=[m for m in re.finditer(r'^(?:function\s+(?:'+names+r')\s*\(|const (?:g7GraphData|g7LineSeries|g7AttachGraph|g6AttachTable)\s*=)',source,re.M)]
+          for match in declarations:
+              excerpt=source[match.start():]
+              end=re.search(r'\n(?:function |const |let |//|/\*|</script>)',excerpt)
+              print('---',match.group(0))
+              for line in excerpt[:end.start() if end else 1300].splitlines()[:55]:
+                  print(line[:650])
+          for identifier in ['function_concept','function_representations','absolute_value_function','function_domain_range']:
+              print('---',identifier)
+              rows=[line for line in source.splitlines() if len(line)<750 and identifier in line]
+              for line in rows[:25]:
+                  print(line)
+          PY
