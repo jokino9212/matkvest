@@ -2139,9 +2139,162 @@ const inequalityMasters={
  }
 };
 
+function gridPolygon(task,...contours){
+ const figure=functionGraph(task,contours.map(points=>[...points,points[0]]));
+ const graphCaption='Контур многоугольника на координатной сетке';
+ figure.graphCaption=graphCaption;
+ figure.graph.caption=graphCaption;
+ figure.graph.series.forEach((path,i)=>{path.label=contours.length===1?'Контур фигуры':i===0?'Внешний контур':'Контур выреза';});
+ return figure;
+}
+function gridRectangle(x,y,w,h){
+ return [[x,y],[x+w,y],[x+w,y+h],[x,y+h]];
+}
+function medianFigure(task,A,B,C,includeExtension=true){
+ const M=[(B[0]+C[0])/2,(B[1]+C[1])/2],D=[2*M[0]-A[0],2*M[1]-A[1]];
+ const curves=[[A,B,C,A],[A,includeExtension?D:M]], marks=[[...A,'A'],[...B,'B'],[...C,'C'],[...M,'M']];
+ if(includeExtension){
+  curves.push([B,D,C]);
+  marks.push([...D,'D']);
+ }
+ const figure=functionGraph(task,curves,marks);
+ figure.graphCaption='Треугольник ABC и построение на медиане AM';
+ figure.graph.caption=figure.graphCaption;
+ figure.graph.series.forEach((path,i)=>{path.label=['Треугольник ABC','Медиана AM','Дополнительные отрезки'][i];});
+ return figure;
+}
+
+const geometryMasters={
+ polygon_grid_area:{
+  scaleLShapedRegion:()=>{
+   const w=ri(5,7),h=ri(4,6),a=ri(2,3),b=ri(2,3),cell=ri(2,4),x=-3,y=-2;
+   const area=w*h-a*b;
+   return gridPolygon(number(`На сетке показана Г-образная фигура. Сторона клетки ${cell} см. Найди площадь фигуры в см².`,area*cell**2,
+    `Внешний прямоугольник содержит ${w} · ${h} клеток, вырез — ${a} · ${b}. Остаётся ${area} клеток. Площадь клетки ${cell**2} см², значит площадь фигуры ${area*cell**2} см².`,'см²'),
+    [[x,y],[x+w,y],[x+w,y+h-b],[x+w-a,y+h-b],[x+w-a,y+h],[x,y+h]]);
+  },
+  areaWithInteriorWindow:()=>{
+   const w=ri(6,8),h=ri(5,7),a=ri(2,4),b=ri(2,3),x=-4,y=-3;
+   return gridPolygon(number('На рисунке внешний прямоугольник обозначает всю деталь, внутренний — вырез. Найди площадь оставшейся детали, если площадь клетки равна 1 см².',
+    w*h-a*b,`Считываем стороны внешнего прямоугольника ${w} и ${h}, выреза — ${a} и ${b}. Разность площадей равна ${w*h} − ${a*b} = ${w*h-a*b} см².`,'см²'),
+    gridRectangle(x,y,w,h),gridRectangle(x+1,y+1,a,b));
+  },
+  twoDifferentCornerCuts:()=>{
+   const w=ri(6,8),h=ri(5,7),a=ri(2,3),b=ri(2,4),c=ri(1,2),d=ri(2,4),x=-4,y=-3;
+   const value=rational(2*w*h-a*b-c*d,2);
+   return gridPolygon(number('От прямоугольника отрезали два угла. По контуру на сетке найди площадь оставшегося многоугольника. Площадь клетки равна 1 см².',value,
+    `Из площади прямоугольника ${w*h} см² вычитаем площади прямоугольных треугольников: ${frac(a+' · '+b,2)} и ${frac(c+' · '+d,2)} см².`,'см²'),
+    [[x+a,y],[x+w,y],[x+w,y+h-d],[x+w-c,y+h],[x,y+h],[x,y+b]]);
+  },
+  trapezoidByMeasuredCellSize:()=>{
+   const b=ri(5,8),t=b-ri(2,3),h=ri(2,5),cell=ri(2,3),x=-4,y=-2;
+   const value=rational((b+t)*h*cell*cell,2);
+   return gridPolygon(number(`Сторона клетки ${cell} см. Найди площадь трапеции на рисунке в см².`,value,
+    `Основания занимают ${b} и ${t} клеток, высота — ${h} клеток. Площадь в клетках равна ${frac('('+b+' + '+t+') · '+h,2)}. Умножаем на площадь клетки ${cell*cell} см².`,'см²'),
+    [[x,y],[x+b,y],[x+1+t,y+h],[x+1,y+h]]);
+  },
+  cellLengthFromWholeArea:()=>{
+   const base=ri(4,7),h=2*ri(2,3),cell=ri(2,5),x=-3,y=-3,cells=base*h/2;
+   return gridPolygon(number(`Площадь треугольника на рисунке ${cells*cell**2} см². Найди длину стороны клетки.`,cell,
+    `Основание треугольника занимает ${base} клеток, высота — ${h}. Площадь треугольника равна ${cells} площадям клетки. Одна клетка имеет площадь ${cell**2} см² и сторону ${cell} см.`,'см'),
+    [[x,y],[x+base,y],[x+2,y+h]]);
+  },
+  tiltedParallelogramBySurroundingRectangle:()=>{
+   const a=ri(3,5),b=ri(3,5),x=-3,y=-3,value=a*b-1;
+   return gridPolygon(number('Найди площадь параллелограмма на сетке, если площадь клетки равна 1 см².',value,
+    `Описываем фигуру прямоугольником ${a+1} × ${b+1}. Разность площадей складывается из двух прямоугольных треугольников с катетами ${a} и 1, двух с катетами ${b} и 1 и двух угловых клеток. Площадь фигуры — ${(a+1)*(b+1)} − ${a} − ${b} − 2 = ${value} см².`,'см²'),
+    [[x,y],[x+a,y+1],[x+a+1,y+b+1],[x+1,y+b]]);
+  },
+  cutTriangleAlongTopSide:()=>{
+   const w=ri(6,8),h=ri(4,6),a=ri(2,4),d=ri(2,h-1),x=-4,y=-3;
+   const removed=rational(a*d,2);
+   return gridPolygon(number('Верхняя сторона прямоугольника имела треугольный вырез. По контуру оставшейся детали найди площадь выреза. Площадь клетки равна 1 см².',
+    removed,`Основание выреза занимает ${a} клеток, высота — ${d}. Умножаем основание на высоту и делим на 2.`,'см²'),
+    [[x,y],[x+w,y],[x+w,y+h],[x+1+a,y+h],[x+2,y+h-d],[x+1,y+h],[x,y+h]]);
+  },
+  twoRegionsWithSameBase:()=>{
+   const b=ri(4,7),h=ri(2,4),g=ri(2,4),x=-3,y=0;
+   return gridPolygon(number('Показан четырёхугольник, у которого горизонтальная диагональ лежит на оси Ox. Найди его площадь. Площадь клетки равна 1 см².',
+    rational(b*(h+g),2),`Диагональ длиной ${b} клеток делит фигуру на два треугольника с высотами ${h} и ${g}. Складываем ${frac(b+' · '+h,2)} и ${frac(b+' · '+g,2)} см².`,'см²'),
+    [[x,y],[x+2,y-h],[x+b,y],[x+1,y+g]]);
+  },
+  areaAfterVerticalStretch:()=>{
+   const w=ri(4,6),h=ri(3,5),a=ri(1,3),b=ri(1,2),factor=ri(2,4),x=-3,y=-2,area=w*h-a*b;
+   return gridPolygon(number(`В показанной фигуре все вертикальные размеры увеличили в ${factor} раза, а горизонтальные сохранили. Какова новая площадь в квадратных клетках?`,
+    area*factor,`Исходная площадь ${w} · ${h} − ${a} · ${b} = ${area} квадратных клеток. После растяжения высота каждой из частей увеличивается в ${factor} раза, поэтому площадь равна ${area*factor}.`),
+    [[x,y],[x+w,y],[x+w,y+h-b],[x+w-a,y+h-b],[x+w-a,y+h],[x,y+h]]);
+  },
+  areaRatioCutShapeToWhole:()=>{
+   const w=ri(5,7),h=ri(4,6),a=ri(2,3),b=ri(2,3),x=-3,y=-2;
+   return gridPolygon(number('Какую долю площади внешнего прямоугольника занимает прямоугольный вырез? Ответ запиши дробью.',
+    rational(a*b,w*h),`Вырез имеет площадь ${a*b} квадратных клеток, весь прямоугольник до вырезания — ${w*h}. Делим площадь выреза на площадь целого.`),
+    gridRectangle(x,y,w,h),gridRectangle(x+1,y+1,a,b));
+  }
+ },
+ median_doubling_method:{
+  perimeterOfConstructedTriangle:()=>{
+   const a=ri(5,10),b=a+ri(-2,4),m=ri(3,Math.min(6,Math.floor((a+b-1)/2)));
+   return number(`В треугольнике ABC медиану AM продолжили за M до точки D так, что AM = MD. AB = ${a} см, AC = ${b} см, AM = ${m} см. Найди периметр треугольника ABD.`,
+    a+b+2*m,`Диагонали AD и BC делятся пополам, поэтому ABDC — параллелограмм и BD = AC = ${b} см. Кроме того, AD = 2AM = ${2*m} см. Складываем стороны ABD.`,'см');
+  },
+  recoverOriginalSide:()=>{
+   const a=ri(5,10),b=a+ri(-2,4),m=ri(3,Math.min(6,Math.floor((a+b-1)/2)));
+   return number(`Медиану AM треугольника ABC удвоили до AD, причём M — середина AD. Периметр ABD равен ${a+b+2*m} см, AB = ${a} см и AM = ${m} см. Найди AC.`,
+    b,`В параллелограмме ABDC стороны AC и BD равны. Вычитаем из периметра ABD стороны AB = ${a} см и AD = ${2*m} см. Получаем BD = AC = ${b} см.`,'см');
+  },
+  angleAcrossParallelSides:()=>{
+   const scale=ri(2,3),h=ri(-1,1),right=g8Pick([true,false]);
+   const A=right?[h-scale,0]:[h-scale,-scale],B=[h+scale,-scale],C=[h-scale,scale];
+   const angle=right?90:45;
+   return medianFigure(number(`Удвоили медиану AM. Какова величина угла BDA, если ∠CAM = ${angle}°?`,angle,
+    'По построению ABDC — параллелограмм. Луч DB противоположно направлен лучу AC, а луч DA — лучу AM. Поворот обоих лучей на 180° сохраняет величину угла.','°'),
+    A,B,C);
+  },
+  upperIntegerMedianByTriangleInequality:()=>{
+   const a=ri(6,12),b=ri(5,11),largest=Math.floor((a+b-1)/2);
+   return number(`Стороны AB и AC треугольника равны ${a} и ${b} см. Найди наибольшую возможную целую длину медианы AM в сантиметрах.`,
+    largest,`После удвоения медианы у треугольника ABD стороны ${a}, ${b} и 2AM. Значит |${a} − ${b}| &lt; 2AM &lt; ${a+b}. Наибольшая целая длина под верхней границей — ${largest} см.`,'см');
+  },
+  findEndpointAfterExtension:()=>{
+   const h=ri(-2,-1),a=ri(2,4),u=ri(1,2),v=ri(2,3);
+   const A=[h,-2],B=[h+2*a,-2],C=[h+2*u,-2+2*v],m=h+a+u,answer=2*m-h;
+   return medianFigure(number('На рисунке показана медиана AM. Её продолжили за M до D, где MD = AM. Найди абсциссу D.',
+    answer,`По рисунку абсциссы A и M равны ${integer(h)} и ${m}. Так как M — середина AD, абсцисса D равна 2 · ${m} − (${integer(h)}) = ${answer}.`),
+    A,B,C,false);
+  },
+  areaFromHeightOfNewTriangle:()=>{
+   const a=ri(2,4),h=ri(2,3),offset=ri(-1,1),A=[-3,-2],B=[2*a-3,-2],C=[2*offset-3,2*h-2];
+   return medianFigure(number(`Медиану AM удвоили до AD. Длина AB равна ${2*a} см, расстояние от D до прямой AB равно ${2*h} см. Найди площадь ABC.`,2*a*h,
+    `Поскольку ABDC — параллелограмм, диагонали AD и BC делят его на равновеликие треугольники. Значит площади ABC и ABD одинаковы. Площадь ABD равна ${frac(2*a+' · '+2*h,2)} = ${2*a*h} см².`,'см²'),A,B,C);
+  },
+  fourEqualRegionsAfterDoubling:()=>{
+   const a=ri(2,4),h=ri(2,3),offset=ri(-1,1),A=[-3,-2],B=[2*a-3,-2],C=[2*offset-3,2*h-2];
+   return medianFigure(number(`Удвоили медиану AM. Площадь треугольника ABM равна ${a*h} см². Найди площадь четырёхугольника ABDC.`,4*a*h,
+    `В параллелограмме ABDC диагонали пересекаются в серединах. Четыре треугольника вокруг M равновелики. Умножаем площадь одного на 4.`,'см²'),A,B,C);
+  },
+  recoverSideFromTwoPerimeters:()=>{
+   const a=ri(5,10),b=a+ri(1,4),c=ri(5,a+b-2);
+   return number(`Медиану AM удвоили до AD. Периметр ABC равен ${a+b+c} см, а периметр ABDC равен ${2*(a+b)} см. Найди BC.`,c,
+    `Четырёхугольник ABDC — параллелограмм. Половина его периметра равна AB + AC, то есть ${a+b} см. Вычитаем эту сумму из периметра ABC.`,'см');
+  },
+  diagnoseMissingCondition:()=>{
+   const area=ri(2,4),a=ri(2,3),b=ri(2,3),A=[-area,-2],B=[2*a-area,-2],C=[-area,2*b-2];
+   return medianFigure(choice('Медиану AM удвоили до AD. Какой факт позволяет сразу доказать, что ABDC — параллелограмм?',
+    'AD и BC делятся точкой M пополам',
+    ['Длины AD и BC обязательно равны','Стороны AB и BD всегда равны','AD и BC всегда перпендикулярны'],
+    'В четырёхугольнике ABDC отрезки AD и BC — диагонали. Они пересекаются в своих серединах, а это признак параллелограмма.'),A,B,C);
+  },
+  doubledLengthFromSumOfTwoPerimeters:()=>{
+   const a=ri(5,10),b=a+ri(-2,4),m=ri(3,Math.min(6,Math.floor((a+b-1)/2))),perimeter=2*(a+b);
+   return number(`Медиану AM удвоили до AD. Сумма периметров ABD и ACD равна ${perimeter+4*m} см, периметр ABDC равен ${perimeter} см. Найди AM.`,m,
+    `В сумме периметров треугольников все стороны четырёхугольника учитываются по одному разу, а диагональ AD — дважды. Вычитаем периметр четырёхугольника и делим остаток на 4, поскольку AD = 2AM.`,'см');
+  }
+ }
+};
+
 function makeQuestion(raw,stage,variant,build){
  const args=scaledTriple();
- const item=build(args),visual=(inequalityMasters[raw]||functionMasters[raw])&&(item.graph??item.table??item.interval);
+ const item=build(args),visual=(geometryMasters[raw]||inequalityMasters[raw]||functionMasters[raw])&&(item.graph??item.table??item.interval);
  const sig=g8Sig(raw,stage,variant,visual?[item.text,JSON.stringify(visual)]:[item.text]);
  const audit={type:'g8Textbook',topic:raw,stage,variant};
  let question;
@@ -2155,7 +2308,8 @@ function makeQuestion(raw,stage,variant,build){
  return question;
 }
 function textbookVariants(raw,stage){
- if(stage===2&&inequalityMasters[raw])return inequalityMasters[raw];
+ const custom=stage===2&&(geometryMasters[raw]??inequalityMasters[raw]);
+ if(custom)return custom;
  return workouts[raw]?.[stage]??(stage===2?algebraReviewMasters[raw]??functionMasters[raw]:undefined);
 }
 makeG8Question=function(id,override=null){
