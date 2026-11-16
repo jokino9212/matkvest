@@ -1307,6 +1307,184 @@ g8Lesson=function(id){
  const lesson=newTopics[rawCourseId(id)]?.[2];
  return lesson?'<div class="g6-theory"><h3>Правило</h3>'+(lesson.startsWith('<p>')?lesson:'<p>'+lesson+'</p>')+'</div>':previousLesson(id);
 };
+const algebraReviewMasters={
+ real_numbers_compare:{
+  compareAfterTranslation:()=>{
+   const a=ri(3,10),shift=ri(2,6),delta=g8Pick([-2,-1,1,2]),n=a*a+delta;
+   return choice(`Сравни √${n} + ${shift} и ${a+shift}. Какой знак сравнения верен?`,delta>0?'>':'&lt;',
+    [delta>0?'&lt;':'>','='],`Вычитаем ${shift} из обеих частей. При сравнении √${n} и ${a} можно сравнить их квадраты ${n} и ${a*a}.`);
+  },
+  countRationalsAfterSimplifying:()=>{
+   const a=ri(2,6),b=ri(2,7),m=g8Pick([2,3,5,7]),n=g8Pick([2,3,5,7]);
+   const items=[`√${a*a}`,`√${b*b*m} − ${b}√${m}`,`√${b*b*m} + √${n}`,frac(a,b),`√${m*n}`];
+   return number(`Сколько рациональных чисел в списке ${items.join('; ')}? Считай каждую запись отдельно.`,m===n?4:3,
+    `Первые два числа равны ${a} и 0. Четвёртое число — дробь из целых. Третья запись — сумма положительных кратных √${m} и √${n}. При равных подкоренных множителях это одно кратное иррационального корня, а при разных квадрат суммы содержит иррациональное слагаемое. Последний корень рационален только при ${m} = ${n}.`);
+  },
+  chooseBetweenNegativeRadicals:()=>{
+   const a=ri(3,11),d=ri(2,7);
+   return number(`Найди наибольшее целое k, при котором дробь ${frac('k',d)} строго между −√${(a+1)**2+1} и −√${a*a+1}.`,
+    Math.ceil(-d*Math.sqrt(a*a+1))-1,
+    `Умножаем обе границы на ${d}. Нужен последний целый k строго левее −${d}√${a*a+1}, который остаётся правее левой границы.`);
+  },
+  countIntegersAfterTranslation:()=>{
+   const a=ri(3,12),steps=ri(2,6),shift=ri(2,9),b=a+steps;
+   return number(`Сколько целых чисел лежит строго между ${shift} − √${b*b+2} и ${shift} − √${a*a-1}?`,steps+1,
+    `Сравнивая квадраты, получаем ${b} &lt; √${b*b+2} &lt; ${b+1} и ${a-1} &lt; √${a*a-1} &lt; ${a}. Подходят целые числа от ${integer(shift-b)} до ${integer(shift-a)} включительно.`);
+  },
+  locateMedian:()=>{
+   const a=ri(4,10),m=g8Pick([2,3,5,7]);
+   const rows=[{text:`−√${(a-1)**2*m}`,rank:2},{text:`−${a}√${m}`,rank:0},
+    {text:`−√${a*a*m-1}`,rank:1},{text:`√${m}`,rank:3},{text:`√${4*m}`,rank:4}];
+   const order=shuffleOptions(rows.slice());
+   const correct=order.findIndex(row=>row.rank===2)+1;
+   return number(`Какое число окажется третьим, если записать пять чисел по возрастанию? Укажи его номер в списке.<br>${order.map((row,i)=>'№'+(i+1)+' — '+row.text).join('; ')}.`,correct,
+    `Первыми идут три отрицательных числа. Наибольшим из них будет −√${(a-1)**2*m}, поскольку модуль этого числа наименьший.`);
+  },
+  restoreRationalSum:()=>{
+   const a=ri(2,8),b=ri(2,7),m=g8Pick([2,3,5,7]);
+   return number(`При каком целом k значение выражения √${a*a*m} + k√${m} + ${b} рационально?`,-a,
+    `Выносим ${a} из первого корня. Получаем (${a} + k)√${m} + ${b}. Корень иррационален, поэтому ${a} + k = 0.`);
+  },
+  compareProductsExactly:()=>{
+   const a=ri(4,12),delta=g8Pick([-2,-1,1,2]),n=a*a+delta;
+   return choice(`Какой знак подходит в записи √(${n} · ${a*a+1}) □ ${a}√${a*a+1}?`,delta>0?'>':'&lt;',
+    [delta>0?'&lt;':'>','='],
+    `Делим обе части на положительный корень √${a*a+1}. Остаётся сравнить √${n} и ${a} по квадратам.`);
+  },
+  irrationalQuotients:()=>{
+   const a=ri(2,8),m=g8Pick([2,3,5,7]),n=g8Pick([2,3,5,7]);
+   const first=frac(`√${a*a*m}`,`√${m}`),second=frac(`√${m*n}`,`√${m}`),third=frac(`√${a*a*n}`,`√${m}`);
+   return number(`Сколько частных в списке ${first}; ${second}; ${third} иррациональны?`,m===n?1:2,
+    `Первое частное равно ${a}, второе равно √${n}. Третье равно ${a}√(${n}/${m}). Оно рационально при одинаковых простых числах ${n} и ${m}.`);
+  },
+  distanceFromInteger:()=>{
+   const a=ri(4,12),d=ri(2,4),n=(a*d)**2+g8Pick([-1,1]);
+   const before=n<(a*d)**2;
+   return choice(`По какую сторону от ${a} на числовой прямой находится ${frac(`√${n}`,d)} и меньше ли расстояние до ${a}, чем ${frac(1,d)}?`,
+    before?'Слева, расстояние меньше':'Справа, расстояние меньше',
+    [before?'Справа, расстояние меньше':'Слева, расстояние меньше','Слева, расстояние не меньше','Справа, расстояние не меньше'],
+    `Число ${n} лежит строго между (${a*d-1})² и (${a*d+1})², а сравнение с ${(a*d)**2} определяет сторону.`);
+  },
+  betweenShiftedRadicals:()=>{
+   const a=ri(4,12),b=a+ri(2,7),shift=ri(2,6),list=[a*a-1,a*a+1,b*b-1,b*b+1];
+   return number(`Сколько из чисел ${list.map(n=>`√${n} − ${shift}`).join('; ')} попадают в открытый промежуток (${integer(a-shift)}; ${b-shift})?`,2,
+    `К каждой границе прибавляем ${shift} и сравниваем квадраты с ${a*a} и ${b*b}. Подходят подкоренные числа ${a*a+1} и ${b*b-1}.`);
+  }
+ },
+ irrational_numbers_approximations:{
+  countRadicandsAfterRounding:()=>{
+   const a=ri(8,22);
+   return number(`Сколько целых n дают √n, который при округлении до целых равен ${a}?`,2*a,
+    `Корень должен быть от ${a-0.5} включительно до ${a+0.5} исключительно. Возводим границы в квадрат и берём целые n от ${a*a-a+1} до ${a*a+a}.`);
+  },
+  locateUsingHundredths:()=>{
+   const a=ri(110,270),left=(a/100).toFixed(2).replace('.',','),right=((a+1)/100).toFixed(2).replace('.',',');
+   return number(`Известно, что ${left} &lt; √(${frac('n',10000)}) &lt; ${right}. Найди наименьшее целое n.`,a*a+1,
+    `Обе границы положительны. Возводим их в квадрат и умножаем на 10 000. Тогда n строго между ${a*a} и ${(a+1)**2}.`);
+  },
+  roundingNegativeRoot:()=>{
+   const a=ri(3,12),n=a*a+ri(1,2*a);
+   return number(`Округли −√${n} до десятых.`,rational(-Math.round(Math.sqrt(n)*10),10),
+    `Сравниваем √${n} с серединами между соседними десятыми. Округляем его модуль, затем возвращаем знак минус.`);
+  },
+  selectGuaranteedSquareRange:()=>{
+   const a=ri(12,29),left=rationalRu(rational(a,10)),right=rationalRu(rational(a+1,10));
+   const low=rationalRu(rational(a*a,100)),up=rationalRu(rational((a+1)**2,100));
+   return choice(`Известно, что ${left} ≤ √n &lt; ${right}. Какая запись точно передаёт границы для n?`,
+    `${low} ≤ n &lt; ${up}`,[`${low} &lt; n ≤ ${up}`,`${left} ≤ n &lt; ${right}`,`${low} ≤ n ≤ ${up}`],
+    `Возводим обе неотрицательные границы в квадрат. Нижняя граница остаётся включённой, верхняя исключённой.`);
+  },
+  errorFromTwoBounds:()=>{
+   const a=ri(12,35),width=ri(1,4),low=rationalRu(rational(a,10)),up=rationalRu(rational(a+width,10));
+   const mid=rationalRu(rational(2*a+width,20)),error=rational(width,20);
+   return number(`Значение корня лежит между ${low} и ${up}. Для приближения взяли середину ${mid}. Какова верхняя граница абсолютной погрешности приближения?`,error,
+    `Расстояние от середины до каждой границы равно половине ширины промежутка: (${up} − ${low}) : 2 = ${rationalRu(error)}.`);
+  },
+  scaledRootRounding:()=>{
+   const a=ri(3,10),n=a*a+ri(1,2*a),scale=ri(2,5);
+   return number(`Вычисли с точностью до десятых значение ${scale}√${n}. Сначала учти множитель ${scale}, затем округли.`,
+    rational(Math.round(10*Math.sqrt(n*scale*scale)),10),
+    `Вносим множитель под знак корня и получаем √${n*scale*scale}. Округляем значение этого корня до десятых.`);
+  },
+  minimumBlankLength:()=>{
+   const a=ri(3,9),n=a*a+ri(1,2*a);
+   return number(`Сторона квадратной детали площадью ${n} см² равна √${n} см. Какова минимальная длина заготовки в миллиметрах, если длина заготовки — целое число и она должна быть не меньше стороны?`,
+    Math.ceil(Math.sqrt(100*n)),
+    `Сторона в миллиметрах равна √${100*n}. Выбираем ближайшее целое сверху, чтобы длины хватило.`,'мм');
+  },
+  adaptBoundAfterDivision:()=>{
+   const a=ri(4,13),k=ri(2,6),n=(a*k)**2+ri(1,k*k-1);
+   return number(`Найди наибольшее целое число, которое не превосходит ${frac(`√${n}`,k)}.`,a,
+    `Квадраты ${a*k} и ${(a+1)*k} дают ${(a*k)**2} &lt; ${n} &lt; ${((a+1)*k)**2}. Извлекаем корни, делим на ${k} и получаем границы ${a} и ${a+1}.`);
+  },
+  roundingThreshold:()=>{
+   const a=ri(21,79),target=rationalRu(rational(a,100),2);
+   const lower=(2*a-1)**2,upper=(2*a+1)**2;
+   return number(`Число √(${frac('n',40000)}) при округлении до сотых даёт ${target}. Если значение ровно посередине, округляй вверх. Найди наибольшее целое n.`,upper-1,
+    `Для округления берём половину сотой слева и справа. После возведения этих границ в квадрат и умножения на 40 000 получаем ${lower} ≤ n &lt; ${upper}.`);
+  },
+  compareEstimatesOnBothSides:()=>{
+   const a=ri(3,12),n=a*a+a;
+   return choice(`Ученик оценил √${n} числом ${a}, а его одноклассник — числом ${a+1}. Какая оценка ближе?`,String(a),
+    [String(a+1),'Оценки одинаково точны'],
+    `Середина между оценками равна ${a},5. Квадрат середины равен ${n},25, он больше ${n}. Поэтому корень находится левее середины.`);
+  }
+ },
+ algebra_grade8_review:{
+  fractionalEquationAfterFactoring:()=>{
+   const a=ri(2,8),x=a+ri(1,6),c=a+x;
+   return number(`Реши уравнение ${frac(`x² − ${a*a}`,`x − ${a}`)} = ${c} при условии x ≠ ${a}. Найди x.`,x,
+    `Разлагаем числитель как (x − ${a})(x + ${a}). Дробь равна x + ${a} при x ≠ ${a}. Отсюда x = ${c} − ${a} = ${x}.`);
+  },
+  countRootsAfterCancelling:()=>{
+   const a=ri(3,13);
+   return number(`Сколько решений у уравнения ${frac(`x² − ${a*a}`,`x − ${a}`)} = x + ${a}, если x — целое число от −${a} до ${a} включительно?`,2*a,
+    `Равенство верно для каждого допустимого x, потому что числитель раскладывается на (x − ${a})(x + ${a}). Из ${2*a+1} целых исключаем x = ${a}.`);
+  },
+  quadraticAndInequality:()=>{
+   const a=ri(3,10),b=a+ri(2,8);
+   return number(`Реши уравнение x² − ${a+b}x + ${a*b} = 0. Какой корень удовлетворяет неравенству 2x &gt; ${a+b}?`,b,
+    `По теореме Виета корни ${a} и ${b}. Неравенство требует, чтобы x был больше среднего корней, поэтому подходит только ${b}.`);
+  },
+  inverseProportionAndLine:()=>{
+   const a=ri(2,6),b=a+ri(2,7);
+   return number(`Графики y = ${frac(a*b,'x')} и y = x + ${b-a} пересекаются при двух значениях x. Найди положительную абсциссу точки пересечения.`,a,
+    `Приравниваем функции и умножаем на x ≠ 0. Получаем x² + ${b-a}x − ${a*b} = 0. Разложение (x − ${a})(x + ${b}) даёт положительный корень ${a}.`);
+  },
+  systemAndRoot:()=>{
+   const a=ri(4,9),b=ri(2,a-1);
+   return number(`Числа x и y удовлетворяют системе x + y = ${a*a+b*b} и x − y = ${integer(a*a-b*b)}. Вычисли √x + √y.`,a+b,
+    `Складываем уравнения и получаем 2x = ${2*a*a}. Вычитание даёт 2y = ${2*b*b}. Следовательно, √x = ${a} и √y = ${b}.`);
+  },
+  exponentAndInequality:()=>{
+   const n=ri(3,7),m=ri(2,5);
+   return number(`Найди наименьшее целое x, для которого ${g8Pow82(2,'x')} · ${g8Pow82(2,-n)} &gt; ${g8Pow82(4,m)}.`,2*m+n+1,
+    `Справа ${g8Pow82(2,2*m)}, слева показатель x − ${n}. При основании 2 > 1 неравенство равносильно x − ${n} > ${2*m}.`);
+  },
+  conjugatesAndCancellation:()=>{
+   const a=ri(3,12),b=ri(2,a-1),m=g8Pick([2,3,5,7]);
+   return number(`Упрости выражение ${frac(`(√${a*a*m} − ${b}√${m})(√${a*a*m} + ${b}√${m})`,m)}. Найди его значение.`,a*a-b*b,
+    `Числитель — произведение суммы и разности. Получаем ${a*a*m} − ${b*b*m}, затем делим на ${m}.`);
+  },
+  functionDomainAndInequality:()=>{
+   const a=ri(2,7),b=a+ri(2,6);
+   return number(`Сколько целых x от 0 до ${b+2} включительно одновременно входят в область определения функции y = ${frac(1,`√(${b} − x)`)} и удовлетворяют неравенству x ≥ ${a}?`,b-a,
+    `Выражение под корнем в знаменателе должно быть строго положительным. Получаем x &lt; ${b}. Остаются целые x от ${a} до ${b-1}.`);
+  },
+  vietaSquareDifference:()=>{
+   const a=ri(3,10),b=a+ri(2,7);
+   return number(`У уравнения x² − ${a+b}x + ${a*b} = 0 два корня. Найди квадрат разности корней, пользуясь их суммой и произведением.`,(b-a)**2,
+    `По теореме Виета сумма равна ${a+b}, произведение равно ${a*b}. Применяем (x₁ − x₂)² = (x₁ + x₂)² − 4x₁x₂.`);
+  },
+  scientificNotationAndSquare:()=>{
+   const a=ri(2,9),k=ri(2,5),n=a*a;
+   const coefficient=n>=10?rationalRu(rational(n,10)):String(n),exponent=2*k+(n>=10?1:0);
+   return number(`В уравнении x² = ${coefficient} · ${g8Pow82(10,exponent)} найди положительный корень и запиши его в стандартном виде. Укажи показатель при основании 10.`,k,
+    `Число справа можно записать как ${n} · ${g8Pow82(10,2*k)}. Положительный корень равен ${a} · ${g8Pow82(10,k)}, где ${a} — коэффициент стандартного вида.`);
+  }
+ }
+};
+
 function makeQuestion(raw,stage,variant,build){
  const args=scaledTriple();
  const item=build(args),sig=g8Sig(raw,stage,variant,[item.text]);
@@ -1320,19 +1498,25 @@ function makeQuestion(raw,stage,variant,build){
  if(item.graph)return g7AttachGraph(question,item.graph,'Прямая на координатной плоскости');
  return question;
 }
+function textbookVariants(raw,stage){
+ return workouts[raw]?.[stage]??(stage===2?algebraReviewMasters[raw]:undefined);
+}
 makeG8Question=function(id,override=null){
- const raw=rawCourseId(id),levels=workouts[raw];
- if(!levels)return previousQuestion(id,override);
+ const raw=rawCourseId(id);
  const stage=Math.max(0,Math.min(2,Number.isInteger(override)?override:activeDifficulty()));
- return makeQuestion(raw,stage,...g8Pick(Object.entries(levels[stage])));
+ const variants=textbookVariants(raw,stage);
+ if(!variants)return previousQuestion(id,override);
+ return makeQuestion(raw,stage,...g8Pick(Object.entries(variants)));
 };
 freshQuiz=function(id){
- const raw=rawCourseId(id),session=blockSession,levels=workouts[raw];
- if(!levels||keyGrade(id)!==8||session?.kind!=='g8quiz'||session.topicId!==raw||session.finished){
+ const raw=rawCourseId(id),session=blockSession,stage=session?.stageIndex,variants=textbookVariants(raw,stage);
+ if(!variants||keyGrade(id)!==8||session?.kind!=='g8quiz'||session.topicId!==raw||session.finished){
   return previousFresh(id);
  }
- const stage=session.stageIndex,variants=levels[stage];
- const plan=session.g8TextbookPlan||(session.g8TextbookPlan={order:shuffleOptions(Object.keys(variants)),prompts:[]});
+ if(!session.g8TextbookPlan?.order?.length||session.g8TextbookPlan.order.some(variant=>!Object.hasOwn(variants,variant))){
+  session.g8TextbookPlan={order:shuffleOptions(Object.keys(variants)),prompts:session.g8TextbookPlan?.prompts??[]};
+ }
+ const plan=session.g8TextbookPlan;
  let question;
  for(let offset=0;offset<plan.order.length;offset++){
   const variant=plan.order[(session.done+offset)%plan.order.length];
