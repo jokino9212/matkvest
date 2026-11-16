@@ -1485,9 +1485,301 @@ const algebraReviewMasters={
  }
 };
 
+function functionGraph(task,curves=[],marks=[]){
+ const values=curves.flat().concat(marks);
+ const range=Math.max(5,...values.flatMap(([x,y])=>[Math.abs(x),Math.abs(y)]));
+ const series=curves.map((curve,i)=>({
+  points:curve.map(([x,y])=>({x:rational(x),y:rational(y)})),
+  label:curves.length===1?'График функции':i===0?'График f':'График g',
+  alt:i>0
+ }));
+ const points=marks.map(([x,y,label])=>g7PointOnLine(x,0,y,label));
+ const graphCaption=curves.length?'График на координатной плоскости':'Отмеченные пары на координатной плоскости';
+ return {...task,graph:g7GraphData(series,{range,points,caption:graphCaption}),graphCaption};
+}
+function valuesTable(task,headers,rows){
+ return {...task,table:{headers,rows}};
+}
+function modulusCurve(h,k,radius,scale=1){
+ return [[h-radius,k+scale*radius],[h,k],[h+radius,k+scale*radius]];
+}
+function shiftedTerm(variable,shift){
+ if(shift===0)return variable;
+ return variable+(shift>0?' + ':' − ')+Math.abs(shift);
+}
+function linearRule(slope,offset){
+ return shiftedTerm(({1:'x','-1':'−x'})[slope]??integer(slope)+'x',offset);
+}
+
+const functionMasters={
+ absolute_value_function:{
+  inverseLevelSpan:()=>{
+   const h=ri(-2,2),k=ri(-2,1),d=ri(2,4);
+   return functionGraph(number(`На рисунке показан график y = f(x). Найди разность большего и меньшего x, для которых f(x) = ${k+d}.`,
+    2*d,`Горизонталь y = ${k+d} пересекает ветви при x = ${integer(h-d)} и x = ${integer(h+d)}. Разность равна ${2*d}.`),
+    [modulusCurve(h,k,d+1)]);
+  },
+  axisBeforeValue:()=>{
+   const h=g8Pick([-2,-1,1,2]),k=ri(-2,1),dx=g8Pick([-2,-1,1,2]),x=h+dx;
+   return functionGraph(number(`На рисунке показан график y = f(x). Абсцисса одной точки равна ${integer(x)}. Найди абсциссу второй точки с той же ординатой.`,
+    h-dx,`Ось симметрии проходит через вершину x = ${integer(h)}. Вторая абсцисса отстоит от неё на ${Math.abs(dx)} в другую сторону.`),
+    [modulusCurve(h,k,4)]);
+  },
+  intersectionWithLine:()=>{
+   const h=ri(-1,1),k=ri(-2,1),d=ri(1,2),left=h-d;
+   
+   return functionGraph(number('На рисунке показаны V-образный график и прямая. Найди сумму координат их единственной общей точки.',
+    left+k+d,`На графике точка пересечения имеет координаты (${integer(left)}; ${integer(k+d)}). Складываем абсциссу и ординату.`),
+    [modulusCurve(h,k,3),[[left-1,k+d-2],[left+1,k+d+2]]]);
+  },
+  compareUnevenBranches:()=>{
+   const h=ri(-2,2),k=ri(-1,2),d=ri(1,2),extra=ri(1,2),left=h-d,right=h+d+extra;
+   return functionGraph(number(`На сколько значение функции при x = ${integer(right)} больше её значения при x = ${integer(left)}? Используй график.`,extra,
+    `Ординаты на ветвях равны ${k+d+extra} и ${k+d}. Вычитаем меньшее из большего.`),
+    [modulusCurve(h,k,4)]);
+  },
+  identifyCoefficientFromGraph:()=>{
+   const h=ri(-2,2),k=ri(-2,1),a=ri(2,3),direction=g8Pick([-1,1]),x=h+direction*2,y=k+2*a;
+   return functionGraph(number(`График задаётся формулой y = a·|${shiftedTerm('x',-h)}|${shiftedTerm('',k)}. По точке A и вершине найди a.`,a,
+    `У точки A абсцисса ${integer(x)} и ордината ${integer(y)}. От вершины до неё 2 единицы по горизонтали и ${2*a} по вертикали. Делим ${2*a} на 2.`),
+    [modulusCurve(h,k,2,a)],[[x,y,'A']]);
+  },
+  countVisibleIntegerInputs:()=>{
+   const h=ri(-2,2),k=ri(-2,1),d=ri(2,4);
+   return functionGraph(number(`Сколько целых x на показанном участке графика удовлетворяют f(x) &lt; ${k+d}?`,
+    2*d-1,`Горизонталь y = ${k+d} пересекает график при x = ${integer(h-d)} и x = ${integer(h+d)}. Берём только целые числа строго между ними.`),
+    [modulusCurve(h,k,d+1)]);
+  },
+  shiftedModulusMinimum:()=>{
+   const h=ri(-3,3),k=ri(-3,3),d=ri(1,3),direction=g8Pick([-1,1]);
+   const lo=direction>0?h+d:h-d-3,hi=direction>0?h+d+3:h-d;
+   return number(`Какое наименьшее значение принимает y = ${shiftedTerm('|'+shiftedTerm('x',-h)+'|',k)} на отрезке [${integer(lo)}; ${integer(hi)}]?`,k+d,
+    `Вершина находится при x = ${integer(h)} вне отрезка. Ближайший к ней конец отрезка отстоит на ${d}, поэтому минимум равен ${integer(k)} + ${d} = ${integer(k+d)}.`);
+  },
+  distanceBetweenRoots:()=>{
+   const h=ri(-4,4),k=ri(2,5),d=ri(2,4);
+   return number(`Найди расстояние на координатной прямой между решениями уравнения |${shiftedTerm('x',-h)}| − ${k} = ${d}.`,2*(k+d),
+    `Каждый корень отстоит от ${integer(h)} на ${k+d}. Они лежат по разные стороны, поэтому расстояние между ними равно ${2*(k+d)}.`);
+  },
+  relateTwoVertices:()=>{
+   const h=g8Pick([-2,-1,1,2]),k=ri(-2,1),delta=ri(1,3),g=h+delta;
+   return functionGraph(number('У двух V-образных графиков вершины лежат на одной горизонтали. На сколько единиц нужно передвинуть левый график вправо, чтобы вершины совпали?',
+    delta,`Абсциссы вершин равны ${integer(h)} и ${integer(g)}. Сдвиг вправо равен разности этих абсцисс, то есть ${delta}.`),
+    [modulusCurve(h,k,3),modulusCurve(g,k,3)]);
+  },
+  sumOfIntercepts:()=>{
+   const h=ri(-2,2),k=ri(2,4);
+   return functionGraph(number('График пересекает ось Ox в двух точках. Найди сумму абсцисс этих точек.',
+    2*h,`Точки пересечения имеют ординату 0 и расположены симметрично относительно x = ${integer(h)}. Их абсциссы ${integer(h-k)} и ${integer(h+k)}.`),
+    [modulusCurve(h,-k,k+1)]);
+  }
+ },
+ function_concept:{
+  repairOutputForRepeatedInput:()=>{
+   const a=ri(2,8),b=ri(-5,5),c=ri(1,4);
+   return valuesTable(number('В таблице перечислены пары аргумента и значения одной функции. Какое число нужно написать вместо вопросительного знака?',b,
+    `Аргумент ${a} встречается дважды. Оба раза значение должно совпадать и равняться ${integer(b)}.`),
+    ['x','y'],[[a,b],[a+1,b+c],[a+2,b-c],[a,'?']]);
+  },
+  removeFewestPairs:()=>{
+   const a=ri(2,7),b=ri(1,6),c=ri(2,3),d=ri(2,3);
+   const rows=[...Array.from({length:c},(_,i)=>[a,b+i]),...Array.from({length:d},(_,i)=>[a+1,b-i]),[a+2,b]];
+   return valuesTable(number('Какое наименьшее число строк надо убрать, чтобы оставшиеся пары задавали функцию?',c+d-2,
+    `У аргумента ${a} можно оставить одну из ${c} строк. У аргумента ${a+1} можно оставить одну из ${d}. Строку с аргументом ${a+2} сохраняем.`),
+    ['x','y'],shuffleOptions(rows));
+  },
+  applyRuleTwiceFromTable:()=>{
+   const a=ri(-3,3),b=a+ri(1,3),c=b+ri(1,3);
+   return valuesTable(number(`Таблица задаёт функцию f. Сначала найди f(${integer(a)}), затем используй найденное значение как аргумент той же функции. Какой результат получишь?`,c,
+    `Из строки с x = ${integer(a)} получаем ${integer(b)}. Из строки с x = ${integer(b)} получаем ${integer(c)}.`),
+    ['x','f(x)'],shuffleOptions([[a,b],[b,c],[c,a]]));
+  },
+  detectGraphConflict:()=>{
+   const a=g8Pick([-3,-2,-1,1,2,3]),b=ri(-2,1);
+   return functionGraph(number('На рисунке отмечены пары (x; y). При каком x эти пары нарушают условие, что функция задаёт только одно значение y?',
+    a,`Две точки с абсциссой ${integer(a)} имеют разные ординаты: ${integer(b)} и ${integer(b+3)}. Остальные абсциссы встречаются по одному разу.`),
+    [],[[a-2,b+1,'A'],[a,b,'B'],[a,b+3,'C'],[a+2,b-1,'D']]);
+  },
+  distinguishRepeatedOutputs:()=>{
+   const a=ri(2,7),y=ri(-4,4);
+   return choice(`Известно, что f(${a}) = f(${a+2}) = ${integer(y)}. Какое утверждение верно?`,
+    'Два разных аргумента могут иметь одно значение функции',
+    ['Если значения совпали, зависимость перестала быть функцией','Значение этой функции одинаково для всех аргументов','При каждом из указанных аргументов значение функции может быть любым'],
+    'Определение требует единственного значения для каждого конкретного аргумента. Значения при разных аргументах могут совпадать.');
+  },
+  joinRulesAtBoundary:()=>{
+   const a=ri(2,7),k=ri(2,4),b=ri(1,4),t=g8Pick([2,3,4,5].filter(slope=>slope!==k));
+   return number(`При x ≤ ${a} действует правило y = ${linearRule(k,b)}, а при x ≥ ${a} — правило y = ${t}x + c. Найди c, при котором оба правила вместе задают функцию.`,
+    (k-t)*a+b,`Области двух правил перекрываются только при x = ${a}. Приравниваем значения ${k*a+b} и ${t*a} + c в этой точке.`);
+  },
+  compositionDistinguishOrder:()=>{
+   const a=ri(2,6),b=ri(1,4),c=-ri(1,3);
+   return number(`Даны f(x) = ${linearRule(2,b)} и g(x) = ${linearRule(1,c)}. Вычисли f(g(${a})) − g(f(${a})).`,c,
+    `Сначала считаем внутренние значения. Получаем f(g(${a})) = ${integer(2*(a+c)+b)}, а g(f(${a})) = ${integer(2*a+b+c)}. Вычитаем в заданном порядке.`);
+  },
+  matchInputOfTwoRecords:()=>{
+   const a=ri(2,8),b=ri(-4,4),c=b+ri(2,4);
+   const rows=[[a,b],[a+1,b],[a+2,c],[a+3,c]];
+   return valuesTable(choice('Какую пару можно добавить в таблицу и по-прежнему получить функцию?',
+    `(${a+4}; ${integer(b)})`,[`(${a}; ${integer(c)})`,`(${a+2}; ${integer(b)})`,`(${a+1}; ${integer(c)})`],
+    `Аргумент ${a+4} новый. Остальные пары присваивают уже использованному аргументу второе значение.`),['x','y'],rows);
+  },
+  countInputsForSharedOutput:()=>{
+   const a=ri(-4,-2),y=ri(-3,3),count=ri(2,4);
+   const rows=Array.from({length:5},(_,i)=>[a+i,i<count?y:y+i+1]);
+   return valuesTable(number(`При скольких различных аргументах функция имеет значение ${integer(y)}?`,count,
+    `Выбираем строки с f(x) = ${integer(y)} и считаем их аргументы. Совпадение выходов допустимо.`),
+    ['x','f(x)'],shuffleOptions(rows));
+  },
+  noRuleForAnInput:()=>{
+   const a=ri(2,7),step=ri(2,4);
+   return number(`На вход можно подать любое целое x от ${a} до ${a+4} включительно. Первое правило задаёт y = x + ${step} только при x ≤ ${a+1}, второе задаёт y = x − ${step} только при x ≥ ${a+3}. Какой аргумент остался без значения?`,
+    a+2,`Левое правило заканчивается на ${a+1}, а правое начинается с ${a+3}. Число ${a+2} не входит ни в одну часть.`);
+  }
+ },
+ function_representations:{
+  readMissingTableCell:()=>{
+   const m=g8Pick([-2,-1,1,2]),b=ri(-2,2),a=g8Pick([-2,-1,1,2]),value=m*a+b;
+   return functionGraph(number(`График соответствует таблице, в которой указаны x = ${integer(a)} и пустая ячейка f(x). Какое число нужно вписать в эту ячейку?`,
+    value,`Проводим вертикаль через x = ${integer(a)} до графика. Считываем ординату ${integer(value)}.`),
+    [[[-3,b-3*m],[3,b+3*m]]]);
+  },
+  restoreCoefficientFromTable:()=>{
+   const m=g8Pick([-3,-2,-1,1,2,3]),b=ri(-3,3),a=ri(-2,1),d=ri(2,3);
+   return valuesTable(number('Таблица задаёт линейную функцию y = kx + b. Найди k по изменению аргумента и значения.',m,
+    `Аргумент меняется на ${d}, значение меняется на ${integer(m*d)}. Делим изменение значения на изменение аргумента.`),
+    ['x','y'],[[a,m*a+b],[a+d,m*(a+d)+b],[a+2*d,m*(a+2*d)+b]]);
+  },
+  restoreInterceptFromGraph:()=>{
+   const m=g8Pick([-2,-1,1,2]),b=ri(-3,3),x=ri(1,3);
+   return functionGraph(number(`Точка A лежит на графике y = ${linearRule(m,0)} + b. Используя её координаты, найди b.`,
+    b,`Подставляем координаты точки A в формулу: ${integer(m*x+b)} = ${m} · ${x} + b. Отсюда b = ${integer(b)}.`),
+    [[[-2,b-2*m],[3,b+3*m]]],[[x,m*x+b,'A']]);
+  },
+  matchTableToFormula:()=>{
+   const a=ri(1,3),b=ri(-3,3),d=ri(1,3),start=ri(-3,-2);
+   const f=x=>a*x+b;
+   return valuesTable(choice('Выбери линейную формулу, которой соответствуют все строки таблицы.',
+    `y = ${linearRule(a,b)}`,[`y = ${linearRule(a+d,b)}`,`y = ${linearRule(a,b+d)}`,`y = ${linearRule(-a,b)}`],
+    `На 1 вправо значение меняется на ${a}. При x = 0 читаем y = ${integer(b)}. Поэтому y = ${linearRule(a,b)}.`),
+    ['x','y'],[[start,f(start)],[start+1,f(start+1)],[0,b]]);
+  },
+  correctMismatchedTable:()=>{
+   const k=g8Pick([-3,-2,-1,1,2,3]),b=ri(-4,4),count=ri(1,3);
+   const inputs=[-2,-1,0,1,2],errors=shuffleOptions(inputs.slice()).slice(0,count);
+   const rows=inputs.map(x=>[x,k*x+b+(errors.includes(x)?ri(1,4):0)]);
+   return valuesTable(number(`Сколько строк таблицы надо исправить, чтобы она соответствовала формуле y = ${linearRule(k,b)}?`,
+    count,`Сравниваем каждое табличное y с ${linearRule(k,b)}. Расхождения при x = ${valueList(errors.slice().sort((a,b)=>a-b))}.`),
+    ['x','y'],rows);
+  },
+  combineFormulaWithGraph:()=>{
+   const k=g8Pick([-2,-1,1,2]),b=ri(-2,2),a=g8Pick([-2,-1,1,2]),offset=ri(1,4),value=k*a+b;
+   return functionGraph(number(`Графиком задана f. Формулой задана g(x) = f(x) + ${offset}. Найди g(${integer(a)}).`,
+    value+offset,`С графика читаем f(${integer(a)}) = ${integer(value)}. Прибавляем ${offset} и получаем ${integer(value+offset)}.`),
+    [[[-3,b-3*k],[3,b+3*k]]]);
+  },
+  recoverLinearStepFromGraph:()=>{
+   const k=g8Pick([-2,-1,1,2]),b=ri(-2,2),a=ri(-2,0),d=ri(2,3);
+   const y=k*a+b,next=k*(a+d)+b;
+   return functionGraph(number('По точкам A и B найди скорость изменения функции — на сколько меняется y при увеличении x на 1.',
+    k,`От A до B абсцисса увеличилась на ${d}, ордината изменилась на ${integer(next-y)}. Делим ${integer(next-y)} на ${d}.`),
+    [[[-3,b-3*k],[3,b+3*k]]],[[a,y,'A'],[a+d,next,'B']]);
+  },
+  retrieveInputFromWordRule:()=>{
+   const b=ri(15,30),k=ri(3,7),t=ri(3,8);
+   return valuesTable(number(`В баке было ${b} л воды. Каждую минуту добавляют по ${k} л. Объём воды через t минут обозначили как V(t). Какое t пропущено в таблице?`,t,
+    `Правило задаёт V(t) = ${b} + ${k}t. Вычитаем начальный объём из ${b+k*t} и делим прирост на ${k}.`,'мин'),
+    ['t, мин','V(t), л'],[[0,b],[1,b+k],['?',b+k*t]]);
+  },
+  applyShiftToTable:()=>{
+   const a=ri(-3,0),b=ri(1,5),step=g8Pick([-2,-1,1,2]);
+   const rows=[[a,b],[a+1,b+step],[a+2,b+2*step],[a+3,b+3*step]];
+   return valuesTable(number(`Таблица задаёт f. Чтобы получить g, к каждому значению f прибавили ${Math.abs(step)}. Найди g(${integer(a+2)}) по таблице.`,
+    b+2*step+Math.abs(step),`При x = ${integer(a+2)} в таблице стоит ${integer(b+2*step)}. Прибавляем ${Math.abs(step)}.`),
+    ['x','f(x)'],shuffleOptions(rows));
+  },
+  twoGraphsSameArgument:()=>{
+   const h=ri(-2,1),a=h+ri(1,2),b=ri(-2,1),g=ri(-2,2),y=b+a-h;
+   return functionGraph(number(`На рисунке V-образный график задаёт f, горизонтальный — g. Вычисли f(${integer(a)}) − g(${integer(a)}).`,
+    y-g,`При x = ${integer(a)} ординаты графиков равны ${integer(y)} и ${integer(g)}. Вычитаем в указанном порядке.`),
+    [modulusCurve(h,b,3),[[h-3,g],[h+3,g]]]);
+  }
+ },
+ function_domain_range:{
+  integerDomainTwoRestrictions:()=>{
+   const a=ri(-4,0),b=a+ri(4,8),c=ri(a,b);
+   return number(`Сколько целых x входят в область определения функции y = ${frac('√('+shiftedTerm('x',-a)+') · √('+shiftedTerm('−x',b)+')',shiftedTerm('x',-c))}?`,b-a,
+    `Два корня дают ограничения x ≥ ${integer(a)} и x ≤ ${b}. В отрезке ${b-a+1} целых чисел, но x = ${integer(c)} обращает знаменатель в нуль.`);
+  },
+  rangeFromNonMonotoneGraph:()=>{
+   const low=ri(-3,-1),high=ri(2,4),middle=ri(0,1),shift=ri(-1,1);
+   const curve=[[-4+shift,middle],[-2+shift,low],[shift,middle],[2+shift,high],[4+shift,middle]];
+   const answer=`[${integer(low)}; ${high}]`;
+   return functionGraph(choice('На рисунке показан весь график функции. Укажи её множество значений.',answer,
+    [`[${integer(-4+shift)}; ${4+shift}]`,`(${integer(low)}; ${high})`,`[${middle}; ${high}]`],
+    `Множество значений читаем по оси Oy. Нижняя точка имеет y = ${integer(low)}, верхняя y = ${high}. Между ними график проходит непрерывно.`),
+    [curve]);
+  },
+  compareDomainAndRangeLengths:()=>{
+   const h=ri(-3,-1),d=ri(3,5),low=ri(-2,1),high=low+ri(2,4);
+   return functionGraph(number('На рисунке показан весь график функции. Из длины её области определения вычти длину множества значений.',
+    d-(high-low),`Область определения [${integer(h)}; ${integer(h+d)}] имеет длину ${d}. Множество значений [${integer(low)}; ${integer(high)}] имеет длину ${high-low}.`),
+    [[[h,low],[h+d,high]]]);
+  },
+  distinctOutputsInFiniteDomain:()=>{
+   const h=ri(-2,2),d=ri(2,5),e=ri(1,4),k=ri(-3,3);
+   return number(`Для функции y = ${shiftedTerm('|'+shiftedTerm('x',-h)+'|',k)} допустимы только целые x от ${integer(h-d)} до ${integer(h+e)} включительно. Сколько различных значений принимает функция?`,
+    Math.max(d,e)+1,`Вершина при x = ${integer(h)} входит в область определения. Расстояния до неё перебираются от 0 до ${Math.max(d,e)}, и каждому расстоянию соответствует одно значение y.`);
+  },
+  commonValuesFromTwoTables:()=>{
+   const a=ri(-4,0),b=ri(-2,3),gap=ri(1,3);
+   const rows=Array.from({length:4},(_,i)=>[a+i,b+i,b+gap+i]);
+   return valuesTable(number('Сколько чисел входят одновременно в множество значений f и множество значений g?',4-gap,
+    `Значения f идут от ${integer(b)} до ${integer(b+3)}. Значения g — от ${integer(b+gap)} до ${integer(b+gap+3)}. Считаем общие числа.`),
+    ['x','f(x)','g(x)'],rows);
+  },
+  denominatorAndRadicalBound:()=>{
+   const a=ri(-3,2),b=a+ri(3,7),upper=b+ri(1,4);
+   return number(`Сколько целых x от ${integer(a-2)} до ${upper} включительно входят в область определения функции y = ${frac('√('+shiftedTerm('x',-a)+')','√('+shiftedTerm('−x',b)+')')}?`,
+    b-a,`Для числителя требуется x ≥ ${integer(a)}. Корень в знаменателе должен быть положительным, поэтому x &lt; ${b}. Считаем целые числа полуинтервала.`);
+  },
+  findIntegerInputsOfGivenOutputs:()=>{
+   const a=ri(-3,0),b=a+ri(4,6),k=ri(-2,1),steps=ri(2,3);
+   return functionGraph(number(`Показан весь график функции f. Сколько целых x из её области определения дают f(x) ≥ ${integer(k+steps)}?`,
+    b-a-steps+1,`По графику заданный уровень достигается при x = ${integer(a+steps)}. Подходят целые x от этой абсциссы до ${integer(b)} включительно.`),
+    [[[a,k],[b,k+b-a]]]);
+  },
+  decideDomainFromFinitePairs:()=>{
+   const a=ri(-4,-1),b=ri(0,2),step=ri(1,3);
+   const xs=[a,a+1,a+3,a+6],ys=[b,b,b+step,b+step];
+   return valuesTable(choice('Таблица содержит все пары данной функции. Как записать её область определения?',
+    `{${valueList(xs)}}`,[`{${valueList([b,b+step])}}`,`[${integer(a)}; ${integer(a+6)}]`,`{${valueList(xs.slice(0,-1))}}`],
+    'Берём только аргументы, явно заданные в таблице. Промежуточные значения между ними из таблицы не следуют.'),
+    ['x','y'],shuffleOptions(xs.map((x,i)=>[x,ys[i]])));
+  },
+  readMaximumWithCutoff:()=>{
+   const a=ri(-4,-2),b=ri(2,4),k=ri(-3,0),d=ri(2,4);
+   const values=[[a,k],[0,k+d],[b,k+1]],cut=ri(1,b-1);
+   const maximum=rational((k+d)*b+(1-d)*cut,b);
+   return functionGraph(number(`На рисунке показан график функции. Оставили только часть с x ≥ ${cut}. Какое наибольшее значение может принять функция на оставшейся части? Ответ при необходимости запиши дробью.`,
+    maximum,
+    `Справа от вершины график убывает от y = ${integer(k+d)} при x = 0 до y = ${integer(k+1)} при x = ${b}. На оставшемся участке максимум при x = ${cut}. На каждом шаге вправо y уменьшается на ${frac(d-1,b)}. Значит y = ${integer(k+d)} − ${cut} · ${frac(d-1,b)} = ${rationalRu(maximum)}.`),
+    [values]);
+  },
+  rangeAfterSubtractingMinimum:()=>{
+   const a=ri(-4,-2),b=ri(1,4),delta=ri(2,5),shift=ri(1,3);
+   const rows=[[a,b],[a+1,b],[a+3,b+delta],[a+5,b-shift]];
+   return valuesTable(number('Функцию задали таблицей. Каждое её значение уменьшили на минимальное значение из таблицы. Каково наибольшее новое значение?',delta+shift,
+    `В исходной таблице минимум ${integer(b-shift)}, максимум ${b+delta}. Новое наибольшее значение есть их разность.`),
+    ['x','y'],shuffleOptions(rows));
+  }
+ }
+};
+
 function makeQuestion(raw,stage,variant,build){
  const args=scaledTriple();
- const item=build(args),sig=g8Sig(raw,stage,variant,[item.text]);
+ const item=build(args),visual=functionMasters[raw]&&(item.graph??item.table);
+ const sig=g8Sig(raw,stage,variant,visual?[item.text,JSON.stringify(visual)]:[item.text]);
  const audit={type:'g8Textbook',topic:raw,stage,variant};
  let question;
  if(item.wrong)question=g7StrictChoice(item.text,item.answer,item.wrong,item.ex,sig,audit);
@@ -1495,11 +1787,12 @@ function makeQuestion(raw,stage,variant,build){
  else question=g7Number(item.text,item.answer,item.ex,sig,{unitSuffix:item.unit,audit});
  question.templateId=variant;
  if(item.interval)return g7AttachInterval(question,item.interval);
- if(item.graph)return g7AttachGraph(question,item.graph,'Прямая на координатной плоскости');
+ if(item.graph)return g7AttachGraph(question,item.graph,item.graphCaption??'Прямая на координатной плоскости');
+ if(item.table)return g6AttachTable(question,item.table);
  return question;
 }
 function textbookVariants(raw,stage){
- return workouts[raw]?.[stage]??(stage===2?algebraReviewMasters[raw]:undefined);
+ return workouts[raw]?.[stage]??(stage===2?algebraReviewMasters[raw]??functionMasters[raw]:undefined);
 }
 makeG8Question=function(id,override=null){
  const raw=rawCourseId(id);
