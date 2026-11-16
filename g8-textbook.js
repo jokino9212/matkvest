@@ -2416,9 +2416,126 @@ const probabilitySetMasters={
  }
 };
 
+function systemPlot(task,k1,b1,k2,b2){
+ const segment=(k,b)=>[[-3,-3*k+b],[3,3*k+b]];
+ return functionGraph(task,[segment(k1,b1),segment(k2,b2)]);
+}
+const equationSystemMasters={
+ equations_reducible_to_quadratic:{
+  keepOnlyPositiveSubstitutionRoot:()=>{
+   const a=ri(2,5),b=ri(1,7),coefficient=b-a*a;
+   const middle=coefficient?signed(coefficient)+'x²':'';
+   return number(`Реши уравнение x⁴${middle}${signed(-a*a*b)} = 0. Найди положительный корень.`,a,
+    `При t = x² получаем (t − ${a*a})(t + ${b}) = 0. Из двух корней t подходит только ${a*a}, потому что x² ≥ 0. Положительный x равен ${a}.`);
+  },
+  productOfFourRoots:()=>{
+   const a=ri(2,4),b=a+ri(1,3);
+   return number(`Найди произведение всех действительных корней уравнения x⁴ − ${a*a+b*b}x² + ${(a*b)**2} = 0.`,(a*b)**2,
+    `Для t = x² корни ${a*a} и ${b*b}. Возвращаемся к x: получаем −${b}, −${a}, ${a}, ${b}. Их произведение равно ${a*a} · ${b*b}.`);
+  },
+  cubicWithFactoringOutX:()=>{
+   const a=ri(2,6),b=a+ri(1,4);
+   return number(`Найди сумму всех различных действительных корней уравнения x³ − ${b-a}x² − ${a*b}x = 0.`,b-a,
+    `Выносим x за скобки: x(x + ${a})(x − ${b}) = 0. Корни 0, −${a}, ${b}. Складываем их.`);
+  },
+  shiftedBiquadraticMinimumRoot:()=>{
+   const a=ri(2,4),b=a+ri(1,3),h=ri(-3,4),v=shiftedTerm('x',-h);
+   return number(`Найди наименьший действительный корень (${v})⁴ − ${a*a+b*b}(${v})² + ${(a*b)**2} = 0.`,h-b,
+    `При t = (${v})² корни ${a*a} и ${b*b}. Расстояния возможных x от ${integer(h)} равны ${a} и ${b}. Самый левый корень — ${integer(h)} − ${b}.`);
+  },
+  checkNegativeBranchOfNestedSquare:()=>{
+   const a=ri(2,7),offset=ri(1,a*a-1),rhs=a*a+offset;
+   return number(`Найди расстояние на координатной прямой между корнями (x² + ${offset})² = ${rhs**2}.`,2*a,
+    `Внутреннее выражение положительно. Поэтому x² + ${offset} = ${rhs}, а отрицательное значение внутреннего выражения исключается. Корни −${a} и ${a}.`);
+  },
+  absoluteValueSubstitutionFiltersNegative:()=>{
+   const a=ri(2,7),b=ri(1,a-1);
+   return number(`Реши |x|² − ${a-b}|x| − ${a*b} = 0. Найди произведение всех действительных корней.`,-a*a,
+    `Для t = |x| получаем t = ${a} и t = −${b}. Второй корень t невозможен. Из |x| = ${a} следуют x = −${a} и x = ${a}.`);
+  },
+  equationWithReciprocalOfSquare:()=>{
+   const a=ri(2,4),b=a+ri(1,3);
+   return number(`Найди сумму положительных корней уравнения x² + ${frac((a*b)**2,'x²')} = ${a*a+b*b}.`,a+b,
+    `Исключаем x = 0 и вводим t = x². Домножаем на t: (t − ${a*a})(t − ${b*b}) = 0. Положительные x равны ${a} и ${b}.`);
+  },
+  rationalSubstitutionTwoBranches:()=>{
+   const a=ri(2,5),value=rational(a*a-1,a);
+   return number(`Найди сумму положительных решений уравнения (x − ${frac(1,'x')})² = ${frac((a*a-1)**2,a*a)}. Ответ запиши дробью.`,rational(a*a+1,a),
+    `После извлечения квадратного корня получаем два уравнения: x − ${frac(1,'x')} = ±${frac(value.n,value.d)}. После умножения на x получаются два квадратных уравнения. Их положительные корни — ${a} и ${frac(1,a)}, складываем их.`);
+  },
+  repeatedQuadraticRootUnderSubstitution:()=>{
+   const a=ri(2,6),h=ri(-3,3),v=shiftedTerm('x',-h);
+   return number(`Реши (${v})⁴ − ${2*a*a}(${v})² + ${a**4} = 0. Найди больший из различных корней.`,h+a,
+    `Левая часть равна квадрату ((${v})² − ${a*a})². Приравниваем внутреннее выражение к нулю. Получаем x = ${integer(h-a)} или x = ${integer(h+a)}.`);
+  },
+  quadraticSubstitutionInPolynomial:()=>{
+   const a=ri(2,6),b=a+ri(1,4),c=ri(1,5);
+   return number(`Реши уравнение (x² + ${c})² − ${a*a+b*b+2*c}(x² + ${c}) + ${(a*a+c)*(b*b+c)} = 0. Найди сумму квадратов всех различных действительных корней.`,
+    2*(a*a+b*b),`Подстановка t = x² + ${c} даёт корни ${a*a+c} и ${b*b+c}. Поэтому квадраты x равны ${a*a} и ${b*b}, каждый получается при двух противоположных знаках x.`);
+  }
+ },
+ linear_system_graphical:{
+  readIntersectionSum:()=>{
+   const x=ri(-2,2),y=ri(-2,2),k=g8Pick([-1,1]),m=-k;
+   return systemPlot(number('На рисунке даны графики двух линейных функций. Найди сумму координат их точки пересечения.',x+y,
+    `Прямые пересекаются в точке (${integer(x)}; ${integer(y)}). Абсциссу и ординату складываем.`),k,y-k*x,m,y-m*x);
+  },
+  recoverRightHandSideOfVerticalLine:()=>{
+   const x=ri(-2,2),k=g8Pick([-1,1,2]),b=ri(-2,2),y=k*x+b;
+   return functionGraph(number('На рисунке вертикальная прямая и график линейной функции. Найди ординату их общей точки.',y,
+    `Вертикальная прямая задаёт x = ${integer(x)}. У наклонного графика при таком x считываем y = ${integer(y)}.`),
+    [[[x,-6],[x,6]],[[-3,b-3*k],[3,b+3*k]]]);
+  },
+  recognizeParallelSeparation:()=>{
+   const k=g8Pick([-1,1]),b=ri(-3,-1),gap=ri(2,4);
+   return systemPlot(number('На рисунке две параллельные прямые. На сколько единиц нужно поднять нижнюю прямую, чтобы у системы стало бесконечно много решений?',gap,
+    `Параллельные прямые совпадут, если сравнять ординаты при одном и том же x. На оси Oy их ординаты ${integer(b)} и ${integer(b+gap)}, разность равна ${gap}.`),k,b,k,b+gap);
+  },
+  chooseCoincidentCoefficient:()=>{
+   const a=ri(2,4),b=ri(2,5),c=ri(3,8),t=ri(2,4);
+   return number(`При каком k система ${a}x + ${b}y = ${c} и ${a*t}x + ky = ${c*t} задаёт две совпадающие прямые?`,b*t,
+    `Чтобы прямые совпали, второе уравнение должно быть первым, умноженным на ${t}. Тогда коэффициент при y равен ${b} · ${t}.`);
+  },
+  findParameterAtGivenIntersectionX:()=>{
+   const x=g8Pick([-2,-1,1,2]),k=g8Pick([-1,1]),b=ri(-2,2),m=2,y=k*x+b;
+   return functionGraph(number(`На рисунке задана первая прямая. Вторую задаёт y = ${m}x + c. При каком c они пересекаются при x = ${integer(x)}?`,y-m*x,
+    `Считываем ординату первой прямой при x = ${integer(x)}: y = ${integer(y)}. Подставляем в y = ${m}x + c и находим c.`),[[[-3,b-3*k],[3,b+3*k]]]);
+  },
+  findRevisedIntersectionAfterVerticalShift:()=>{
+   const x=ri(-1,1),y=ri(-1,2),b1=y+x,b2=y-x,shift=2*ri(1,2);
+   return systemPlot(number(`На рисунке две прямые. Возрастающую прямую сдвинули вниз на ${shift} единиц, убывающую оставили на месте. Найди абсциссу новой общей точки.`,x+shift/2,
+    `По графикам получаем y = ${linear(1,b2)} и y = ${linear(-1,b1)}. После сдвига свободный член первой уменьшается на ${shift}. Приравниваем формулы и получаем x = ${integer(x+shift/2)}.`),
+    1,b2,-1,b1);
+  },
+  areaBoundedBySystemAndYAxis:()=>{
+   const x=ri(1,3),y=ri(-1,1),k=1,b1=y-k*x,b2=y+k*x,area=x*x;
+   return systemPlot(number('Две прямые и ось Oy ограничивают треугольник. По рисунку найди его площадь.',area,
+    `Основание на Oy имеет длину ${2*x}, высота равна расстоянию от точки пересечения до Oy, то есть ${x}. Площадь равна ${frac(2*x+' · '+x,2)}.`),1,b1,-1,b2);
+  },
+  recoverCoefficientForEmptySystem:()=>{
+   const k=ri(2,5),b=ri(1,5),d=ri(1,4);
+   return number(`При каком k система y = ${k}x + ${b} и y = kx + ${b+d} не имеет решений?`,k,
+    `Прямые с разными свободными членами не совпадут. Чтобы они не пересекались, угловые коэффициенты должны быть равны. Значит k = ${k}.`);
+  },
+  checkWhichPointSatisfiesBothLines:()=>{
+   const x=g8Pick([-2,-1,1,2]),y=ri(-2,2),b1=x+y,b2=y-x;
+   const pair=(x,y)=>`(${integer(x)}; ${integer(y)})`;
+   return choice(`Какая точка принадлежит одновременно прямым y = ${linear(-1,b1)} и y = ${linear(1,b2)}?`,pair(x,y),
+    [pair(x+1,y-1),pair(x+1,y+1),pair(x,y+1)],
+    `Приравниваем правые части. Получаем x = ${integer(x)}, затем y = ${integer(y)}. Две точки с абсциссой ${integer(x+1)} лежат каждая только на одной из прямых.`);
+  },
+  intersectionOnXAxisAfterAdjustingOffset:()=>{
+   const x=g8Pick([-2,-1,1,2]),k=g8Pick([-1,1,2]),b=-k*x,m=g8Pick([-3,-2,2,3].filter(z=>z!==k));
+   return functionGraph(number(`На рисунке дана первая прямая. Подбери b для второй прямой y = ${integer(m)}x + b, чтобы система имела решение на оси Ox.`,-m*x,
+    `На оси Ox ордината равна 0. График первой прямой пересекает Ox при x = ${integer(x)}. Для второй прямой в этой точке 0 = ${integer(m)} · (${integer(x)}) + b.`),
+    [[[-3,b-3*k],[3,b+3*k]]]);
+  }
+ }
+};
+
 function makeQuestion(raw,stage,variant,build){
  const args=scaledTriple();
- const item=build(args),visual=(probabilitySetMasters[raw]||geometryMasters[raw]||inequalityMasters[raw]||functionMasters[raw])&&(item.venn??item.graph??item.table??item.interval);
+ const item=build(args),visual=(equationSystemMasters[raw]||probabilitySetMasters[raw]||geometryMasters[raw]||inequalityMasters[raw]||functionMasters[raw])&&(item.venn??item.graph??item.table??item.interval);
  const sig=g8Sig(raw,stage,variant,visual?[item.text,JSON.stringify(visual)]:[item.text]);
  const audit={type:'g8Textbook',topic:raw,stage,variant};
  let question;
@@ -2436,7 +2553,7 @@ function makeQuestion(raw,stage,variant,build){
  return question;
 }
 function textbookVariants(raw,stage){
- const custom=stage===2&&(geometryMasters[raw]??probabilitySetMasters[raw]??inequalityMasters[raw]);
+ const custom=stage===2&&(equationSystemMasters[raw]??geometryMasters[raw]??probabilitySetMasters[raw]??inequalityMasters[raw]);
  if(custom)return custom;
  return workouts[raw]?.[stage]??(stage===2?algebraReviewMasters[raw]??functionMasters[raw]:undefined);
 }
