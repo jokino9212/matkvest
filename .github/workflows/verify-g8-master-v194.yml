@@ -1,4 +1,4 @@
-name: Grade 8 geometry verification
+name: Grade 8 sets and diagrams verification
 on:
   push:
     branches: [verify/g8-master-v194]
@@ -16,31 +16,15 @@ jobs:
           persist-credentials: false
       - run: python3 audits/g7_stage12_sync_pwa.py --check
       - run: npm install --no-save --no-package-lock playwright@1.56.1
-      - name: Inspect the existing set diagram renderer
-        run: |
-          python3 - <<'PY'
-          import re
-          from pathlib import Path
-          source=Path("index.html").read_text()
-          pattern=re.compile(r"venn|set_diagrams_applications|g8.*(?:SetDiagram|Euler)|диаграмм[ауы]\s+(?:Венна|Эйлера)",re.I)
-          lines=source.splitlines()
-          matches=[i for i,line in enumerate(lines) if len(line)<800 and pattern.search(line)]
-          seen=set()
-          for i in matches[:100]:
-              for j in range(max(0,i-2),min(len(lines),i+5)):
-                  if j not in seen and len(lines[j])<800:
-                      print(str(j+1)+": "+lines[j])
-                      seen.add(j)
-          PY
       - name: Check Grade 8 navigation
         run: MATKVEST_G8_NAV_ONLY=1 node audits/g8_textbook_browser.cjs
-      - name: Check fifteen updated Master workouts
+      - name: Check seventeen updated Master workouts
         run: |
           node <<'JS'
           const assert=require('node:assert/strict');
           const { pathToFileURL }=require('node:url');
           const { chromium }=require('playwright');
-          const targets=['real_numbers_compare','irrational_numbers_approximations','algebra_grade8_review','absolute_value_function','function_concept','function_representations','function_domain_range','linear_inequalities','equivalent_inequalities','linear_inequality_systems','inequality_proofs','set_union_intersection','number_intervals','polygon_grid_area','median_doubling_method'];
+          const targets=['real_numbers_compare','irrational_numbers_approximations','algebra_grade8_review','absolute_value_function','function_concept','function_representations','function_domain_range','linear_inequalities','equivalent_inequalities','linear_inequality_systems','inequality_proofs','set_union_intersection','number_intervals','polygon_grid_area','median_doubling_method','sets_elements_subsets','set_diagrams_applications'];
           (async()=>{
            const browser=await chromium.launch({headless:true});
            try{
@@ -52,7 +36,7 @@ jobs:
              await page.locator('button[onclick="openGrade(8)"]').click();
              const result=await page.evaluate(targets=>{
               const assert=(ok,message)=>{if(!ok)throw Error(message);};
-              const totals={generated:0,completed:0,accepted:0,graphs:0,tables:0,intervals:0};
+              const totals={generated:0,completed:0,accepted:0,graphs:0,tables:0,intervals:0,venn:0};
               for(const raw of targets){
                const id='g8:'+raw;
                assert(g8InfoById(id),id+' missing from Grade 8');
@@ -90,6 +74,15 @@ jobs:
                  const box=table.getBoundingClientRect();
                  assert(box.left>=-1&&box.right<=innerWidth+1,id+' table clipped horizontally');
                  totals.tables++;
+                }else if(q.visual?.type==='g8Stat3Venn'){
+                 const svg=[...document.querySelectorAll('#qstage svg')].find(el=>el.querySelectorAll('circle').length===2);
+                 assert(svg,id+' Venn diagram did not render');
+                 const root=svg.getBoundingClientRect();
+                 assert(root.width>=140&&root.left>=-1&&root.right<=innerWidth+1,id+' clipped Venn diagram');
+                 for(const value of Object.values(q.visual.data)){
+                  assert([...svg.querySelectorAll('text')].some(el=>el.textContent.trim()===String(value)),id+' diagram value missing '+value);
+                 }
+                 totals.venn++;
                 }else if(q.visual){
                  const interval=q.visual.data?.interval??q.visual.data;
                  assert(interval&&typeof interval==='object',id+' missing interval data');
@@ -127,7 +120,7 @@ jobs:
                nextQ();
                assert(q.audit?.type==='g8Textbook'&&prompt(q)!==previous&&blockSession.done===1,id+' did not restore prompt history');
               }
-              assert(totals.graphs===33&&totals.tables===13&&totals.intervals===5,'missing graph or table scenarios');
+              assert(totals.graphs===33&&totals.tables===14&&totals.intervals===5&&totals.venn===10,'missing graph or table scenarios');
               return totals;
              },targets);
              assert.deepEqual(errors,[]);
