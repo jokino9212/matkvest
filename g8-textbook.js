@@ -2730,9 +2730,128 @@ const areaMasters={
  }
 };
 
+function similarAreaFigure(task,q,positions){
+ const A=[-q,-q],B=[q,-q],C=[0,q];
+ const guides=positions.map(p=>[[-p,q-2*p],[p,q-2*p]]);
+ const labels=['M','N','P','Q'];
+ const marks=[[...A,'A'],[...B,'B'],[...C,'C'],...guides.flat().map((p,i)=>[...p,labels[i]])];
+ return outlinedArea(task,[A,B,C],guides,marks);
+}
+
+const areaFollowupMasters={
+ pythagorean_theorem:{
+  perimeterGivenLegRatioAndHypotenuse:()=>{
+   const [a,b,c]=g8Pick([[3,4,5],[5,12,13],[8,15,17]]),t=ri(2,4);
+   return number(`Катеты прямоугольного треугольника относятся как ${a} : ${b}, гипотенуза равна ${c*t} см. Найди периметр.`,
+    (a+b+c)*t,`Пусть катеты ${a}x и ${b}x. Тогда по Пифагору гипотенуза ${c}x, откуда x = ${t}. Складываем три стороны.`,'см');
+  },
+  perimeterOfIsoscelesAfterAltitude:()=>{
+   const [a,b,c]=g8Pick([[3,4,5],[4,3,5],[5,12,13],[12,5,13]]),k=ri(1,3);
+   return number(`Боковая сторона равнобедренного треугольника равна ${c*k} см, высота к основанию — ${b*k} см. Найди периметр всего треугольника.`,
+    2*(a+c)*k,`Высота делит основание пополам. Половина основания равна √(${(c*k)**2} − ${(b*k)**2}) = ${a*k} см. Складываем обе боковые стороны и всё основание.`,'см');
+  },
+  compareBrokenPathWithDirectPath:()=>{
+   const [a,b,c]=g8Pick([[3,4,5],[4,3,5]]),shift=ri(-1,1),cell=ri(1,2);
+   const A=[-a+shift,-2],B=[shift,b-2],C=[a+shift,-2];
+   return outlinedArea(number(`Сторона клетки ${cell} м. На сколько маршрут A → B → C длиннее прямого пути от A до C?`,
+    2*(c-a)*cell,`У наклонных отрезков горизонтальное смещение ${a} клеток, вертикальное ${b}. По Пифагору каждый имеет длину ${c*cell} м. Прямой путь AC — ${2*a*cell} м.`,'м'),
+    [A,B,C],[],[[...A,'A'],[...B,'B'],[...C,'C']]);
+  },
+  perimeterIncreaseAfterDiagonalCut:()=>{
+   const [a,b,c]=g8Pick([[3,4,5],[5,12,13],[8,15,17]]),k=ri(1,3);
+   return number(`Прямоугольник со сторонами ${a*k} и ${b*k} см разрезали по диагонали. На сколько сумма периметров двух получившихся треугольников больше периметра прямоугольника?`,
+    2*c*k,`В новой сумме исходные стороны посчитаны по одному разу, а диагональ — дважды. Диагональ по теореме Пифагора ${c*k} см.`,'см');
+  },
+  differenceOfRhombusDiagonals:()=>{
+   const [a,b,c]=g8Pick([[3,4,5],[5,12,13],[8,15,17]]),k=ri(1,3);
+   return number(`Сторона ромба ${c*k} см, большая диагональ ${2*b*k} см. На сколько сантиметров меньшая диагональ короче большей?`,
+    2*(b-a)*k,`Половины диагоналей — катеты прямоугольного треугольника. Из ${(c*k)**2} вычитаем ${(b*k)**2}, извлекаем корень и получаем ${a*k} см. Полная меньшая диагональ ${2*a*k} см.`,'см');
+  },
+  compareHypotenusesWithSharedLeg:()=>{
+   const k=ri(1,4);
+   return number(`У двух прямоугольных треугольников по одному катету длиной ${12*k} см. Другие катеты равны ${5*k} и ${9*k} см. На сколько сантиметров различаются гипотенузы?`,
+    2*k,`Применяем Пифагора к каждому треугольнику: √(${(12*k)**2} + ${(5*k)**2}) = ${13*k} см и √(${(12*k)**2} + ${(9*k)**2}) = ${15*k} см. Берём разность.`,'см');
+  },
+  rectangleMidpointAndDiagonal:()=>{
+   const [a,b,c]=g8Pick([[3,4,5],[4,3,5],[5,12,13],[12,5,13]]),k=ri(1,2);
+   return number(`В прямоугольнике ABCD сторона AB равна ${2*a*k} см, BC равна ${b*k} см. M — середина AB. Найди сумму длин MC и MB.`,
+    (c+a)*k,`MB = ${a*k} см. Треугольник MBC прямоугольный. По Пифагору MC = √(${(a*k)**2} + ${(b*k)**2}) = ${c*k} см. Прибавляем MB.`,'см');
+  },
+  chooseTripleAfterSideModification:()=>{
+   const [a,b,c]=g8Pick([[3,4,5],[5,12,13],[8,15,17]]),k=ri(2,4),p=a*k,q=b*k,r=c*k;
+   const sides=(x,y,z)=>[x,y,z].join(', ')+' см';
+   return choice('У какого из треугольников с перечисленными сторонами угол напротив наибольшей стороны прямой?',
+    sides(p,q,r),[sides(p+1,q,r),sides(p,q-1,r),sides(p,q,r+1)],
+    `Только для ${p}, ${q} и ${r} сумма квадратов двух меньших равна квадрату большей: ${p*p} + ${q*q} = ${r*r}.`);
+  },
+  recoverSideIncreaseFromNewDiagonal:()=>{
+   const k=ri(1,4);
+   return number(`У прямоугольника одна сторона ${12*k} см, другая ${5*k} см. Вторую сторону удлинили, и диагональ стала равна ${20*k} см. На сколько удлинили вторую сторону?`,
+    11*k,`Первая сторона не менялась. По Пифагору новая вторая сторона √(${(20*k)**2} − ${(12*k)**2}) = ${16*k} см. Вычитаем исходные ${5*k} см.`,'см');
+  },
+  perimeterAfterJoiningByHypotenuse:()=>{
+   const [a,b,c]=g8Pick([[3,4,5],[4,3,5],[5,12,13],[12,5,13]]),k=ri(1,2);
+   return number(`В прямоугольном треугольнике гипотенуза ${c*k} см, один катет ${a*k} см. К треугольнику приложили его копию по гипотенузе так, что получился прямоугольник. Найди периметр прямоугольника.`,
+    2*(a+b)*k,`Второй катет равен √(${(c*k)**2} − ${(a*k)**2}) = ${b*k} см. После склейки катеты образуют стороны прямоугольника. Удваиваем сумму катетов.`,'см');
+  }
+ },
+ similar_figures_area_ratio:{
+  areaFromDifferenceAndSideRatio:()=>{
+   const [a,b]=g8Pick([[1,2],[2,3],[3,4],[2,5]]),k=ri(2,7),gap=(b*b-a*a)*k;
+   return number(`Сходственные стороны двух подобных треугольников относятся как ${a} : ${b}. Разность их площадей ${gap} см². Найди площадь большего.`,
+    b*b*k,`Площади относятся как ${a*a} : ${b*b}. Разность соответствует ${b*b-a*a} долям. Одна доля равна ${k} см², у большего ${b*b} таких долей.`,'см²');
+  },
+  findPerimeterFromAreas:()=>{
+   const [p,q]=g8Pick([[1,2],[2,3],[3,4]]),[m,k]=g8Pick([[12,6],[30,30],[40,60]]);
+   return number(`Площади подобных треугольников ${p*p*k} и ${q*q*k} см². Периметр большего ${q*m} см. Найди периметр меньшего.`,
+    p*m,`Отношение площадей ${p*p} : ${q*q}, поэтому отношение длин и периметров ${p} : ${q}. Умножаем ${q*m} на ${frac(p,q)}.`,'см');
+  },
+  areaOutsideAnUpperSimilarTriangle:()=>{
+   const q=ri(3,5),p=ri(1,q-1),cell=ri(1,2),S=2*q*q*cell*cell;
+   return similarAreaFigure(number(`На рисунке MN ∥ AB. Площадь ABC равна ${S} см². Найди площадь трапеции ABNM.`,
+    2*(q*q-p*p)*cell*cell,`По сетке MN : AB = ${p} : ${q}. Площадь CMN равна ${frac(p*p,q*q)} площади ABC. Вычитаем из площади всего треугольника площадь CMN.`,'см²'),q,[p]);
+  },
+  areaChangeAfterTwoScalings:()=>{
+   const a=ri(3,7),S=4*a;
+   return number(`Площадь треугольника равна ${S} см². Его стороны сначала увеличили в 3 раза, затем получившиеся стороны уменьшили в 2 раза. На сколько изменилась площадь?`,
+    5*a,`Итоговый коэффициент длин ${frac(3,2)}, коэффициент площадей ${frac(9,4)}. Новая площадь ${9*a} см², поэтому она увеличилась на ${5*a} см².`,'см²');
+  },
+  areaOfBandBetweenTwoParallelCuts:()=>{
+   const q=ri(4,6),p=ri(1,q-2),r=ri(p+1,q-1),total=2*q*q;
+   return similarAreaFigure(number(`На рисунке MN и PQ параллельны AB. Площадь ABC равна ${total} см². Найди площадь полосы между MN и PQ.`,
+    2*(r*r-p*p),`Коэффициенты подобия для CMN и CPQ относительно ABC равны ${frac(p,q)} и ${frac(r,q)}. Умножаем ${total} на разность квадратов этих коэффициентов.`,'см²'),q,[p,r]);
+  },
+  recoverSideFromAreaOfAParallelCut:()=>{
+   const q=ri(3,5),p=ri(1,q-1),m=ri(1,3),small=2*p*p*m*m,total=2*q*q*m*m;
+   return similarAreaFigure(number(`MN ∥ AB. Площади CMN и CAB равны ${small} и ${total} см² соответственно. Длина MN равна ${2*p*m} см. Найди длину AB.`,
+    2*q*m,`Отношение площадей равно ${p*p} : ${q*q}. Отношение соответствующих сторон MN : AB = ${p} : ${q}. Умножаем ${2*p*m} на ${frac(q,p)}.`,'см'),q,[p]);
+  },
+  areaDifferenceFromTotalAndPerimeterRatio:()=>{
+   const [p,q]=g8Pick([[1,2],[2,3],[3,4],[2,5]]),k=ri(2,6);
+   return number(`Сумма площадей двух подобных треугольников ${(p*p+q*q)*k} см². Периметры относятся как ${p} : ${q}. На сколько площадь большего больше площади меньшего?`,
+    (q*q-p*p)*k,`Площади состоят из ${p*p} и ${q*q} долей. По сумме находим одну долю: ${k} см². В большей площади на ${q*q-p*p} долей больше.`,'см²');
+  },
+  recoverLengthFromAreaRatioBetweenRegions:()=>{
+   const q=ri(3,5),p=ri(1,q-1),m=ri(1,2);
+   return similarAreaFigure(number(`MN ∥ AB. Площади CMN и ABNM относятся как ${p*p} : ${q*q-p*p}. Длина AB равна ${2*q*m} см. Найди MN.`,
+    2*p*m,`Площадь ABC содержит ${p*p} + ${q*q-p*p} = ${q*q} долей. Значит CMN : ABC по площадям равно ${p*p} : ${q*q}, а MN : AB = ${p} : ${q}.`,'см'),q,[p]);
+  },
+  useTwoPerimeterChangesToCompareAreas:()=>{
+   const a=ri(2,5),b=a+ri(1,3),[p,S]=g8Pick([[12,6],[30,30],[40,60]]);
+   return number(`У меньшего из подобных треугольников периметр ${a*p} см. Периметр большего на ${(b-a)*p} см больше, а площадь большего равна ${b*b*S} см². Найди площадь меньшего.`,
+    a*a*S,`Периметр большего ${b*p} см. Отношение длин ${a} : ${b} даёт отношение площадей ${a*a} : ${b*b}. Умножаем ${b*b*S} на ${frac(a*a,b*b)}.`,'см²');
+  },
+  compareAreasAfterDifferentScaleFactors:()=>{
+   const a=ri(2,5),b=a+ri(1,3),S=ri(3,9);
+   return number(`Из двух одинаковых треугольников площадью ${S} см² сделали два подобных им треугольника. Коэффициенты увеличения сторон равны ${a} для первого и ${b} для второго. На сколько различаются их площади?`,
+    (b*b-a*a)*S,`Первый имеет площадь ${a*a} · ${S} см², второй — ${b*b} · ${S} см². Разность равна (${b*b} − ${a*a}) · ${S}.`,'см²');
+  }
+ }
+};
+
 function makeQuestion(raw,stage,variant,build){
  const args=scaledTriple();
- const item=build(args),visual=(areaMasters[raw]||equationSystemMasters[raw]||probabilitySetMasters[raw]||geometryMasters[raw]||inequalityMasters[raw]||functionMasters[raw])&&(item.venn??item.graph??item.table??item.interval);
+ const item=build(args),visual=(areaFollowupMasters[raw]||areaMasters[raw]||equationSystemMasters[raw]||probabilitySetMasters[raw]||geometryMasters[raw]||inequalityMasters[raw]||functionMasters[raw])&&(item.venn??item.graph??item.table??item.interval);
  const sig=g8Sig(raw,stage,variant,visual?[item.text,JSON.stringify(visual)]:[item.text]);
  const audit={type:'g8Textbook',topic:raw,stage,variant};
  let question;
@@ -2750,7 +2869,7 @@ function makeQuestion(raw,stage,variant,build){
  return question;
 }
 function textbookVariants(raw,stage){
- const custom=stage===2&&(areaMasters[raw]??equationSystemMasters[raw]??geometryMasters[raw]??probabilitySetMasters[raw]??inequalityMasters[raw]);
+ const custom=stage===2&&(areaFollowupMasters[raw]??areaMasters[raw]??equationSystemMasters[raw]??geometryMasters[raw]??probabilitySetMasters[raw]??inequalityMasters[raw]);
  if(custom)return custom;
  return workouts[raw]?.[stage]??(stage===2?algebraReviewMasters[raw]??functionMasters[raw]:undefined);
 }
