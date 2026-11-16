@@ -1776,9 +1776,372 @@ const functionMasters={
  }
 };
 
+function inequalityInterval(task,left,right,leftClosed,rightClosed){
+ return {...task,interval:{left,right,leftClosed,rightClosed}};
+}
+
+const inequalityMasters={
+ linear_inequalities:{
+  negativeFractionThreshold:()=>{
+   const p=ri(2,5),q=ri(2,5),h=ri(-4,4),t=ri(1,5),c=q*t+p*h;
+   return choice(`Реши неравенство ${frac(linear(-p,c),q)} ≥ ${t}. Какое условие на x равносильно исходному?`,
+    `x ≤ ${integer(h)}`,[`x ≥ ${integer(h)}`,`x &lt; ${integer(h)}`,`x &gt; ${integer(h)}`],
+    `Умножаем на положительное ${q} и переносим ${integer(c)} вправо. Получаем ${-p}x ≥ ${integer(-p*h)}. При делении на отрицательное число знак меняется.`);
+  },
+  differentDenominators:()=>{
+   const a=ri(2,6),b=ri(2,4),h=ri(-3,4),c=ri(2,7),d=c+ri(1,4),t=d*(a+b)*h-c*b;
+   return number(`Найди наименьшее целое решение неравенства ${frac(linear(a,0),c)} &gt; ${frac(linear(-d*b,t),c*d)}.`,
+    h,`Домножаем обе части на ${c*d}. После переноса получаем ${d*(a+b)}x &gt; ${d*(a+b)*h-c*b}. Граница меньше ${integer(h)} и больше ${integer(h-1)}, поэтому первое целое справа от неё — ${integer(h)}.`);
+  },
+  bracketsBothSides:()=>{
+   const p=ri(2,4),q=ri(2,5),a=ri(1,4),b=ri(1,4),h=ri(-2,4),c=(p+q)*h-p*a+q*b;
+   return number(`Реши неравенство ${shiftedTerm('−'+p+'(x − '+a+')',c)} &lt; ${q}(x + ${b}). Найди наименьшее целое решение.`,
+    h+1,`После раскрытия скобок и переноса получаем ${p+q}x &gt; ${(p+q)*h}, то есть x &gt; ${integer(h)}. Первое целое решение — ${integer(h+1)}.`);
+  },
+  variableCancelsAcrossSides:()=>{
+   const p=ri(2,6),a=ri(1,5),b=ri(1,6),c=p*a+b+g8Pick([-2,-1,1,2]);
+   const all=p*a+b<=c;
+   const answer=all?'Все действительные числа':'Решений нет';
+   return choice(`Найди множество решений неравенства ${p}(x + ${a}) + ${b} ≤ ${linear(p,c)}.`,answer,
+    [all?'Решений нет':'Все действительные числа','Только x = 0','Только x > 0'],
+    `Члены с x сокращаются. Остаётся ${p*a+b} ≤ ${c}. Это ${all?'верно при любом x':'ложно при любом x'}.`);
+  },
+  largestIntegerWithFractionalBoundary:()=>{
+   const p=ri(3,6),h=ri(-5,3),d=ri(1,p-1),b=ri(-5,5),c=b-p*h-d;
+   return number(`Найди наибольшее целое решение неравенства ${linear(-p,b)} &gt; ${integer(c)}.`,h,
+    `Переносим ${integer(b)} и делим на ${integer(-p)}, меняя знак. Получаем x &lt; ${frac(p*h+d,p)} = ${integer(h)} + ${frac(d,p)}. Наибольшее целое решение — ${integer(h)}.`);
+  },
+  transformMarkedInterval:()=>{
+   const a=ri(-5,-1),b=ri(1,5),k=ri(2,4),t=ri(-2,3);
+   return inequalityInterval(number(`На прямой показаны допустимые x. Найди наибольшее значение выражения ${linear(-k,t)} на этом промежутке.`,t-k*a,
+    `Выражение убывает при увеличении x. Максимум достигается в закрашенной левой точке x = ${integer(a)} и равен ${integer(t-k*a)}.`),
+    rational(a),rational(b),true,false);
+  },
+  restoreConstantFromSolution:()=>{
+   const p=ri(2,7),a=ri(-4,4),b=ri(2,12);
+   return number(`Известно, что множество решений неравенства −${p}x + k ≥ ${b} равно (−∞; ${integer(a)}]. Найди k.`,b+p*a,
+    `Правая граница ${integer(a)} удовлетворяет равенству −${p} · (${integer(a)}) + k = ${b}. Отсюда k = ${integer(b+p*a)}.`);
+  },
+  testExcludedEndpoint:()=>{
+   const p=ri(2,6),h=ri(-4,4),b=ri(2,12),c=b-p*h;
+   return choice(`Какое число не удовлетворяет неравенству ${linear(-p,b)} &lt; ${integer(c)}?`,integer(h),
+    [integer(h+1),integer(h+3),integer(h+5)],
+    `После деления на отрицательное число получаем x &gt; ${integer(h)}. Граница не включается из-за строгого знака.`);
+  },
+  budgetWithFixedFee:()=>{
+   const fixed=10*ri(8,16),price=ri(18,35),total=ri(4,9),money=fixed+price*total+ri(1,price-1);
+   return number(`За доставку платят ${fixed} руб. и ещё по ${price} руб. за каждую тетрадь. На покупку и доставку есть ${money} руб. Сколько тетрадей можно купить самое большее?`,total,
+    `Если тетрадей x, то ${fixed} + ${price}x ≤ ${money}. После оплаты доставки остаётся ${money-fixed} руб. Делим на ${price} и берём целую часть.`);
+  },
+  countNegativeCoefficientSolutions:()=>{
+   const p=ri(2,6),h=ri(-3,4),a=h-ri(2,6),b=h+ri(2,5),q=ri(-5,6),c=q-p*h;
+   return number(`Сколько целых x от ${integer(a)} до ${integer(b)} включительно удовлетворяют ${linear(-p,q)} ≥ ${integer(c)}?`,h-a+1,
+    `Неравенство равносильно x ≤ ${integer(h)}. Считаем целые от ${integer(a)} до ${integer(h)} включительно.`);
+  }
+ },
+ equivalent_inequalities:{
+  preserveAtNegativeDivision:()=>{
+   const p=ri(2,7),h=ri(-5,4),b=ri(-6,7),c=b-p*h;
+   return choice(`Выбери неравенство, равносильное ${linear(-p,b)} &gt; ${integer(c)}.`,`x &lt; ${integer(h)}`,
+    [`x &gt; ${integer(h)}`,`x ≤ ${integer(h)}`,`x ≥ ${integer(h)}`],
+    `Вычитаем одно и то же число и делим на −${p}. Направление меняется, строгий знак сохраняется.`);
+  },
+  diagnoseFalseEquivalenceByPoint:()=>{
+   const h=ri(-5,3),a=ri(2,6),b=ri(1,5),c=b-a*h;
+   return choice(`Ученик считает, что ${linear(-a,b)} ≥ ${integer(c)} равносильно x ≥ ${integer(h)}. Какое из чисел удовлетворяет второму условию, но не первому?`,
+    integer(h+1),[integer(h),integer(h-1),integer(h-2)],
+    `Исходное условие даёт x ≤ ${integer(h)}. Число ${integer(h+1)} подходит для второго, но не для первого.`);
+  },
+  retainFractionalBoundaryAndStrictness:()=>{
+   const d=ri(2,7),a=ri(-4,4),r=ri(1,d-1),n=d*a+r;
+   return choice(`Какое неравенство равносильно ${d}x ≤ ${integer(n)}?`,
+    `x ≤ ${frac(n,d)}`,[`x &lt; ${frac(n,d)}`,`x ≤ ${integer(a)}`,`x ≥ ${frac(n,d)}`],
+    `Делим на положительное ${d}. Граница остаётся точной дробью; округлять её до ${integer(a)} для действительных x нельзя.`);
+  },
+  guardAgainstUnknownMultiplierSign:()=>{
+   const k=ri(1,6),a=ri(2,5),b=a+ri(1,4);
+   return choice(`Из верного числового неравенства ${a} &lt; ${b} хотят получить ${a}(x − ${k}) &lt; ${b}(x − ${k}). При каком условии знак действительно сохраняется?`,
+    `x &gt; ${k}`,[`x &lt; ${k}`,`x ≥ ${k}`,'При любом действительном x'],
+    `Для сохранения строгого знака нужен положительный множитель x − ${k}. При x = ${k} получится равенство, слева от ${k} направление меняется.`);
+  },
+  avoidDividingOutEqualityPoint:()=>{
+   const p=ri(1,7),a=ri(2,5);
+   return number(`На отрезке [${p}; ${p+3}] разделили обе части ${a}(x − ${p}) ≤ (${a+1})(x − ${p}) на x − ${p}. Какое решение потеряли?`,p,
+    `При x &gt; ${p} множитель положителен. При x = ${p} делить нельзя, но в исходном неравенстве обе части равны нулю.`);
+  },
+  equivalentOnlyAmongIntegers:()=>{
+   const h=ri(-4,4),d=ri(2,6),a=ri(1,d-1),n=d*h+a;
+   return choice(`Сравни множества решений условий ${d}x ≤ ${integer(n)} и x ≤ ${integer(h)}. Какое утверждение верно?`,
+    'Они совпадают для целых x, а для действительных различаются',
+    ['Они совпадают для всех действительных x','Множества целых решений различаются','Оба условия не имеют решений'],
+    `Граница первого условия равна ${frac(n,d)} = ${integer(h)} + ${frac(a,d)}. Между границами нет целого числа, но есть действительные числа.`);
+  },
+  positiveFactorInBothDirections:()=>{
+   const a=ri(2,6),h=ri(-4,4);
+   return choice(`Множитель x² + ${a} положителен при любом действительном x. Какое условие равносильно (x² + ${a}) · (${linear(1,-h)}) ≤ 0?`,
+    `x ≤ ${integer(h)}`,[`x ≥ ${integer(h)}`,`x &lt; ${integer(h)}`,'Решений нет'],
+    `Деление на x² + ${a} допустимо при всех x. Получаем ${linear(1,-h)} ≤ 0 со включённой границей.`);
+  },
+  parameterFromSameBoundary:()=>{
+   const a=ri(2,7),h=ri(-4,4),b=ri(1,7),k=b+a*h;
+   return number(`Найди k, при котором ${linear(-a,b)} &lt; k и x &gt; ${integer(-h)} равносильны.`,
+    k,`Первое условие имеет границу ${frac(b+' − k',a)}. Приравниваем её к ${integer(-h)}. Оба условия строгие и направлены вправо.`);
+  },
+  equivalentToMarkedRay:()=>{
+   const h=ri(1,5),p=ri(2,6),b=ri(2,9),c=b-p*h;
+   const lhs=linear(-p,b);
+   return inequalityInterval(choice('Какое неравенство задаёт отмеченный на прямой луч?',
+    `${lhs} &lt; ${integer(c)}`,[`${lhs} &gt; ${integer(c)}`,`${lhs} ≤ ${integer(c)}`,`${lhs} ≥ ${integer(c)}`],
+    `Отмечено x &gt; ${h}. Умножаем на −${p} и прибавляем ${b}. Знак меняется, точка ${h} остаётся исключённой.`),
+    rational(h),null,false,false);
+  },
+  explicitSameSolutionAfterBrackets:()=>{
+   const a=ri(2,5),b=ri(1,6),h=ri(-4,4),sum=a*h+a*b;
+   const right=`${a}(x + ${b}) ≥ ${integer(sum)}`;
+   return choice(`Какое неравенство имеет то же множество решений, что и ${right}?`,
+    `${linear(-a,0)} ≤ ${integer(-a*h)}`,[`${linear(-a,0)} ≥ ${integer(-a*h)}`,`${linear(a,0)} &gt; ${integer(a*h)}`,`${linear(a,0)} ≥ ${integer(sum)}`],
+    `После раскрытия скобок получаем ${a}x ≥ ${integer(a*h)}. Для записи с отрицательным коэффициентом умножаем на −1 и меняем знак.`);
+  }
+ },
+ linear_inequality_systems:{
+  countFromOppositeSigns:()=>{
+   const a=ri(-4,2),b=a+ri(3,7),p=ri(2,6),q=ri(2,5),c=ri(-5,5),d=ri(-5,7);
+   return number(`Сколько целых x удовлетворяют одновременно ${linear(-p,c)} &lt; ${integer(c-p*a)} и ${linear(q,d)} ≤ ${integer(q*b+d)}?`,b-a,
+    `Первое неравенство даёт x &gt; ${integer(a)}, второе — x ≤ ${integer(b)}. Подходят целые от ${integer(a+1)} до ${integer(b)} включительно.`);
+  },
+  intersectionIsSingleton:()=>{
+   const h=ri(-4,5),p=ri(2,6),q=ri(2,5),c=ri(-5,5),d=ri(-4,6);
+   return number(`Система ${linear(-p,c)} ≤ ${integer(c-p*h)} и ${linear(q,d)} ≤ ${integer(q*h+d)} имеет одно решение. Найди его.`,h,
+    `Из первого неравенства получаем x ≥ ${integer(h)}, а из второго x ≤ ${integer(h)}. Обе границы включены, значит остаётся одна точка.`);
+  },
+  strictBoundaryLeavesNothing:()=>{
+   const a=ri(-5,4),p=ri(2,6),q=ri(2,6),c=ri(1,6),d=ri(2,7);
+   return choice(`Реши систему ${linear(p,c)} ≥ ${integer(p*a+c)} и ${linear(-q,d)} &gt; ${integer(d-q*a)}.`,'Решений нет',
+    [`{${integer(a)}}`,`(−∞; ${integer(a)})`,`[${integer(a)}; +∞)`],
+    `Первое неравенство требует x ≥ ${integer(a)}. Второе даёт x &lt; ${integer(a)}. Граничная точка не проходит строгое условие.`);
+  },
+  markedIntervalWithSecondBound:()=>{
+   const a=ri(-5,-2),b=ri(3,7),h=ri(a+1,b-1),p=ri(2,5);
+   return inequalityInterval(number(`Первое условие системы отмечено на прямой. Второе условие — ${linear(-p,0)} ≤ ${integer(-p*h)}. Сколько целых решений у системы?`,
+    b-h,`Второе условие даёт x ≥ ${integer(h)}. Из отмеченного промежутка правая граница ${b} исключена. Получаем целые от ${integer(h)} до ${b-1}.`),
+    rational(a),rational(b),true,false);
+  },
+  findExtremeIntegerSum:()=>{
+   const a=ri(-6,-2),b=ri(2,7),p=ri(2,5),q=ri(2,5),d=ri(1,p-1),r=ri(1,q-1);
+   return number(`Найди сумму наименьшего и наибольшего целых чисел, удовлетворяющих обоим условиям: ${p}x ≥ ${integer(p*a+d)} и ${q}x &lt; ${integer(q*b+r)}.`,a+1+b,
+    `Левая граница лежит строго между ${integer(a)} и ${integer(a+1)}; правая — между ${b} и ${b+1}. Крайние целые равны ${integer(a+1)} и ${b}.`);
+  },
+  findRedundantCondition:()=>{
+   const h=ri(-3,2),a=ri(2,4),b=ri(2,5),c=ri(2,4);
+   const strongerA=`${a}x ≥ ${integer(a*h)}`,strongerB=`${b}x ≤ ${b*(h+4)}`,redundant=`${c}x ≥ ${integer(c*(h-2))}`;
+   return choice(`В системе ${strongerA}, ${strongerB}, ${redundant}. Какое одно неравенство можно убрать, сохранив множество решений?`,
+    redundant,[strongerA,strongerB,'Ни одно'],
+    `Первые два дают отрезок [${integer(h)}; ${h+4}]. На нём третье условие x ≥ ${integer(h-2)} выполняется автоматически.`);
+  },
+  upperParameterByIntegerCount:()=>{
+   const a=ri(-5,2),p=ri(2,5),count=ri(2,5);
+   return number(`Система ${p}x ≥ ${integer(p*a)} и x &lt; k имеет ровно ${count} целых решений. Найди целое k.`,a+count,
+    `Целые решения начинаются с ${integer(a)}. Последнее включённое равно ${integer(a+count-1)}. Следующее целое, уже исключённое, и есть k.`);
+  },
+  countFromDoubleAndSeparateBound:()=>{
+   const a=ri(-4,1),h=a+ri(3,5),d=ri(1,3),p=ri(2,4);
+   return number(`Сколько целых x выполняют двойное неравенство ${integer(a-2)} &lt; x ≤ ${h+d} и ещё условие ${linear(-p,0)} ≥ ${integer(-p*h)}?`,
+    h-a+2,`Отдельное условие даёт x ≤ ${h}. Из двойного неравенства остаётся нижняя граница x &gt; ${integer(a-2)}. Считаем целые от ${integer(a-1)} до ${h}.`);
+  },
+  boxesMeetQuantityAndBudget:()=>{
+   const size=ri(8,12),cost=10*ri(10,15),min=ri(3,5),max=min+ri(2,4),needed=size*min-ri(1,size-1),budget=cost*max+ri(1,cost-1);
+   return number(`В коробке ${size} карандашей, коробка стоит ${cost} руб. Нужно купить не меньше ${needed} карандашей, бюджет ${budget} руб. Сколько разных количеств коробок подходит при покупке только целых коробок?`,
+    max-min+1,`По количеству карандашей нужно не меньше ${min} коробок. По бюджету можно взять не больше ${max}. Считаем целые варианты с обеих границ.`);
+  },
+  lengthWithTwoFractionalBounds:()=>{
+   const a=ri(-3,1),b=a+ri(2,6),p=ri(2,5),q=ri(2,6);
+   const lower=rational(p*a+1,p),upper=rational(q*b-1,q),length=rational(p*q*(b-a)-p-q,p*q);
+   return number(`Найди длину промежутка решений системы ${p}x ≥ ${integer(p*a+1)} и ${linear(-q,0)} &gt; ${integer(1-q*b)}. Ответ можно записать дробью.`,length,
+    `После деления получаем x ≥ ${rationalRu(lower)} и x &lt; ${rationalRu(upper)}. Вычитаем нижнюю границу из верхней: ${rationalRu(length)}.`);
+  }
+ },
+ inequality_proofs:{
+  exactUpperBoundBySquare:()=>{
+   const a=ri(2,7),p=ri(2,5),d=ri(1,8),b=p*a*a+d;
+   return number(`Какую наименьшую верхнюю границу имеет выражение ${linear(2*p*a,d)} − ${p}x² при всех действительных x?`,b,
+    `Выделяем квадрат: ${b} − ${p}(x − ${a})². Квадрат неотрицателен, поэтому выше ${b} подняться нельзя. При x = ${a} это значение достигается.`);
+  },
+  squaredExpressionEqualityCount:()=>{
+   const a=ri(2,7),b=a*a,k=ri(2,5);
+   return number(`Неравенство (x² + ${b})² ≥ ${4*b}x² верно при всех x. Приравняй части и найди сумму значений ${k}x² во всех случаях равенства.`,2*b*k,
+    `Разность частей равна (x² − ${b})². Равенство при x = ±${a}. Квадрат каждого равен ${b}; после сложения умножаем на ${k}.`);
+  },
+  counterexampleAtNonzeroCenter:()=>{
+   const a=ri(2,8),k=ri(1,4);
+   return choice(`Какое число опровергает утверждение «(x − ${a})² + ${k} ≥ ${k+1} для всех действительных x»?`,String(a),
+    [String(a-1),String(a+1),String(a+3)],
+    `При x = ${a} квадрат обращается в нуль, левая часть равна ${k}. При x = ${a-1} и x = ${a+1} получается равенство, так что эти числа не опровергают утверждение.`);
+  },
+  proveViaNonnegativeProduct:()=>{
+   const a=ri(-4,1),b=a+ri(3,7),from=ri(a+1,b-1);
+   const f=linear(1,-a),g=linear(-1,b);
+   return number(`Если x ∈ [${integer(a)}; ${b}], верно (${f})(${g}) ≥ 0. Какое число из отрезка [${integer(from)}; ${b+1}] обращает это произведение в нуль?`,b,
+    `На [${integer(a)}; ${b}] оба множителя неотрицательны. Равенство возможно в точках ${integer(a)} и ${b}, но из них в заданный отрезок попадает только ${b}.`);
+  },
+  constrainedProductEquality:()=>{
+   const a=ri(2,6),b=ri(2,8),s=a+b;
+   return number(`Пусть x и y — положительные числа, их сумма равна ${2*s}. Найди наибольшее возможное произведение xy.`,s*s,
+    `Из (x − y)² ≥ 0 следует (x + y)² ≥ 4xy. Подставляем сумму: xy ≤ ${s*s}. Граница достигается при x = y = ${s}.`);
+  },
+  testWhetherDomainIsEnough:()=>{
+   const a=ri(2,6),b=ri(a+1,a+4);
+   return choice(`Дано x ≤ ${a}. Какое дополнительное условие обязательно делает вывод x² ≤ ${a*a} верным?`,
+    `x ≥ −${a}`,[`x ≥ −${b}`,`x ≤ −${a}`,'Достаточно исходного условия'],
+    `Для x² ≤ ${a*a} модуль x не больше ${a}. Кроме верхней границы x ≤ ${a}, нужна нижняя x ≥ −${a}.`);
+  },
+  combineNonnegativeTerms:()=>{
+   const a=ri(2,7),p=ri(2,5),q=ri(2,6),r=ri(2,7);
+   return number(`Найди наименьшее значение ${p}(x − ${a})² + ${q}(y + ${a})² + ${r} при любых действительных x и y.`,r,
+    `Оба слагаемых с квадратами неотрицательны. При x = ${a} и y = −${a} оба одновременно равны нулю. Остаётся ${r}.`);
+  },
+  weightedReciprocalLowerBound:()=>{
+   const p=ri(2,4),a=ri(2,6),r=ri(1,6);
+   return number(`При x &gt; 0 найди точную нижнюю границу выражения ${p}x + ${frac(p*a*a,'x')} + ${r}.`,2*p*a+r,
+    `Вычитаем ${2*p*a+r} и приводим к общему знаменателю: получаем ${frac(p+'(x − '+a+')²','x')} ≥ 0. При x = ${a} граница достигается.`);
+  },
+  deriveBoundFromTwoVariables:()=>{
+   const a=ri(2,7),b=ri(1,5),p=ri(2,4);
+   return number(`Известно x ≥ ${a} и y ≤ −${b}. Найди точную нижнюю границу выражения ${p}x − (${p+1})y.`,
+    p*a+(p+1)*b,`После умножения второго неравенства на −${p+1} получаем −${p+1}y ≥ ${(p+1)*b}. Складываем с ${p}x ≥ ${p*a}. Равенство выходит при x = ${a} и y = −${b}.`);
+  },
+  compareCorrectProofLines:()=>{
+   const a=ri(2,8),b=ri(1,6),p=ri(2,5);
+   const expr=`${p}x² − ${2*p*a}x + ${p*a*a+b}`;
+   return choice(`Какой записью можно обосновать, что ${expr} ≥ ${b} при всех x?`,
+    `${p}(x − ${a})² + ${b}`,[`${p}(x + ${a})² + ${b}`,`${p}(x − ${a})² − ${b}`,`(x − ${a})² + ${b}`],
+    `Выделяем полный квадрат. Он умножен на положительное число ${p}. Прибавление ${b} даёт нижнюю границу ${b}.`);
+  }
+ },
+
+ set_union_intersection:{
+  recoverIntersectionFromTotal:()=>{
+   const shared=ri(2,7),onlyA=ri(4,9),onlyB=ri(4,9);
+   return number(`В кружке робототехники ${shared+onlyA} учеников, в кружке моделирования ${shared+onlyB}. Хотя бы один из них посещают ${shared+onlyA+onlyB} учеников. Сколько учеников ходят в оба кружка?`,
+    shared,`Складывая численности кружков, дважды учитываем тех, кто ходит в оба. Вычитаем число учеников, которые ходят хотя бы в один.`);
+  },
+  countOnlyOneSet:()=>{
+   const common=ri(2,7),a=common+ri(4,8),b=common+ri(3,7);
+   return number(`В A ${a} элементов, в B ${b}, в пересечении ${common}. Сколько элементов принадлежат ровно одному из множеств?`,
+    a+b-2*common,`Только в A находятся ${a-common} элементов, только в B — ${b-common}. Складываем эти два числа.`);
+  },
+  distributeBeforeCounting:()=>{
+   const a=ri(2,9),b=g8Pick([1,3,4]);
+   const sets=[[a,a+1,a+2,a+5],[a+1,a+3,a+5,a+6],[a-1,a+1,a+3,a+7,a+5+b]];
+   const [A,B,C]=sets.map(values=>'{'+valueList(values)+'}');
+   return number(`Даны A = ${A}, B = ${B}, C = ${C}. Сколько элементов в (A ∪ B) ∩ C?`,
+    sets[2].filter(x=>sets[0].includes(x)||sets[1].includes(x)).length,
+    `Оставляем в C те числа, которые есть хотя бы в одном из A или B. Получаем ${valueList(sets[2].filter(x=>sets[0].includes(x)||sets[1].includes(x)))}.`);
+  },
+  unionOfPairedIntersections:()=>{
+   const a=ri(2,8),b=a+ri(7,12);
+   const first=[a,a+2,a+4],middle=[a,a+1,a+2,a+4,b],last=[a+2,a+4,b,b+1];
+   return number(`Пусть A = {${valueList(first)}}, B = {${valueList(middle)}}, C = {${valueList(last)}}. Найди сумму элементов множества (A ∩ B) ∪ (B ∩ C).`,
+    a+(a+2)+(a+4)+b,`Первое пересечение даёт ${valueList(first)}, второе — ${valueList([a+2,a+4,b])}. При объединении повторяющиеся числа учитываем по одному разу.`);
+  },
+  neitherOfTheGroups:()=>{
+   const season=ri(26,38),a=ri(11,15),b=ri(10,14),c=Math.max(4,a+b-season+1)+ri(0,3);
+   return number(`В классе ${season} учеников. Из них ${a} занимаются плаванием, ${b} ходят на танцы, ${c} занимаются и тем и другим. Сколько учеников не занимаются ни плаванием, ни танцами?`,
+    season-a-b+c,`Хотя бы одним из занятий занимаются ${a} + ${b} − ${c} = ${a+b-c} учеников. Вычитаем их число из общего.`);
+  },
+  multiplesUnderTwoConditions:()=>{
+   const lo=ri(3,10),hi=lo+ri(11,18);
+   const count=Math.floor(hi/2)-Math.floor((lo-1)/2)+Math.floor(hi/3)-Math.floor((lo-1)/3)-Math.floor(hi/6)+Math.floor((lo-1)/6);
+   return number(`A состоит из чётных целых от ${lo} до ${hi} включительно, B — из целых на том же отрезке, кратных трём. Сколько элементов в A ∪ B?`,
+    count,'Складываем количества чётных и кратных трём. Вычитаем числа, кратные шести, так как они вошли в оба подсчёта.');
+  },
+  commonResultsOfThreeGroups:()=>{
+   const a=ri(3,7),ab=ri(1,4),bc=ri(1,4),ca=ri(1,4),abc=ri(2,5);
+   const union=3*a+ab+bc+ca+abc;
+   return number(`В каждом из трёх множеств ровно ${a} элементов, которые принадлежат только этому множеству. Ровно двум множествам принадлежат ${ab+bc+ca} элементов. Всего в объединении ${union} элементов. Сколько элементов в пересечении всех трёх?`,
+    abc,`Из ${union} вычитаем ${3*a} элементов, принадлежащих только одному множеству, и ${ab+bc+ca} элементов, принадлежащих ровно двум.`);
+  },
+  counterexampleToUnionClaim:()=>{
+   const x=ri(2,8),a=x+1,b=x+4,c=b+2;
+   return choice(`Даны A = {${x}, ${a}, ${b}}, B = {${a}, ${b}, ${c}}. Какое число опровергает утверждение «каждый элемент A ∪ B входит в B»?`,
+    String(x),[String(a),String(b),String(c)],`Число ${x} входит в A, значит входит в объединение. В B этого числа нет.`);
+  },
+  inferOneCardinality:()=>{
+   const a=ri(9,16),common=ri(3,7),onlyB=ri(4,9);
+   return number(`Во множестве A ${a} элементов, а в A ∪ B их ${a+onlyB}. В пересечении A ∩ B ${common} элементов. Сколько элементов в B?`,
+    onlyB+common,`В объединении на ${onlyB} элементов больше, чем в A. Это элементы, принадлежащие только B. Добавляем ${common} общих элементов.`);
+  },
+  findSetForNeitherCondition:()=>{
+   const a=ri(2,6),u=[a,a+1,a+2,a+3,a+4,a+5];
+   return choice(`В U = {${valueList(u)}} заданы A = {${a}, ${a+2}, ${a+4}} и B = {${a+1}, ${a+2}}. Выбери элементы U, которые не входят ни в A, ни в B.`,
+    `{${a+3}, ${a+5}}`,[`{${a+2}}`,`{${a}, ${a+1}, ${a+2}, ${a+4}}`,`{${a+3}, ${a+4}, ${a+5}}`],
+    `В A ∪ B находятся ${valueList([a,a+1,a+2,a+4])}. Исключаем их из U.`);
+  }
+ },
+ number_intervals:{
+  extremeSumWithFractionalEndpoints:()=>{
+   const a=ri(-7,-2),b=ri(2,7);
+   return number(`Найди сумму наименьшего и наибольшего целого числа в пересечении (${integer(a)},5; ${b+1}] и [${integer(a-2)}; ${b},5).`,
+    a+b,`Пересечение начинается правее ${integer(a)},5 и заканчивается перед ${b},5. Крайние целые — ${integer(a)} и ${b}.`);
+  },
+  missingPointBetweenTwoIntervals:()=>{
+   const a=ri(-5,-2),h=ri(a+1,3),b=h+ri(2,5);
+   return number(`Какое единственное число из отрезка [${integer(a)}; ${b}] не входит в объединение [${integer(a)}; ${integer(h)}) ∪ (${integer(h)}; ${b}]?`,
+    h,`Внутри отрезка обе части покрывают все числа, кроме ${integer(h)}. Обе скобки при этой границе круглые.`);
+  },
+  reflectedAndShiftedMarkedInterval:()=>{
+   const a=ri(-5,-1),b=ri(2,6),c=ri(1,3);
+   const reflected=`(${integer(c-b)}; ${c-a}]`;
+   return inequalityInterval(choice(`x принадлежит отмеченному промежутку. Какому промежутку принадлежит число ${linear(-1,c)}?`,reflected,
+    [`[${integer(c-b)}; ${c-a})`,`(${integer(c-b)}; ${c-a})`,`[${integer(c-b)}; ${c-a}]`],
+    `Меняем знак x и отражаем промежуток: открытая граница переходит в левый конец, закрытая — в правый. Затем прибавляем ${c} к обеим границам.`),
+    rational(a),rational(b),true,false);
+  },
+  markedIntervalWithStrictRay:()=>{
+   const a=ri(-6,-2),b=ri(3,7),h=ri(a+1,b-2);
+   return inequalityInterval(number(`Сколько целых чисел принадлежат отмеченному промежутку и одновременно больше ${integer(h)}?`,
+    b-h,`Из отмеченного промежутка оставляем целые числа от ${integer(h+1)} до закрытой границы ${b} включительно.`),
+    rational(a),rational(b),false,true);
+  },
+  overlappingUnionOuterEndpoints:()=>{
+   const a=ri(-6,-2),b=a+ri(2,4),c=b+ri(2,4),d=c+ri(2,4);
+   const answer=`(${integer(a)}; ${d}]`;
+   return choice(`Запиши объединение промежутков (${integer(a)}; ${integer(c)}) и [${integer(b)}; ${d}].`,answer,
+    [`[${integer(a)}; ${d}]`,`(${integer(a)}; ${d})`,`[${integer(b)}; ${integer(c)})`],
+    `Промежутки перекрываются. Левый внешний конец не входит в объединение, правый входит.`);
+  },
+  countIntegersInIntervalDifference:()=>{
+   const a=ri(-6,-2),c=a+ri(2,4),d=c+ri(2,4),b=d+ri(2,5);
+   return number(`Сколько целых чисел из [${integer(a)}; ${b}) останется, если удалить все числа из (${integer(c)}; ${integer(d)}]?`,
+    c-a+b-d,`Остаются отрезок [${integer(a)}; ${integer(c)}] и промежуток (${integer(d)}; ${b}). Складываем количества целых в этих двух частях.`);
+  },
+  recoverOpenUpperEndpoint:()=>{
+   const a=ri(-5,2),count=ri(3,8);
+   return number(`Промежуток [${integer(a)}; b) содержит ровно ${count} целых чисел. Найди b, если b — целое.`,
+    a+count,`Первое целое равно ${integer(a)}, последнее — ${integer(a+count-1)}. Правая граница исключена и идёт сразу за последним целым.`);
+  },
+  reflectAfterNegativeScale:()=>{
+   const a=ri(-5,-1),b=ri(2,6),k=ri(2,4);
+   return choice(`Известно, что x ∈ (${integer(a)}; ${b}]. В какой промежуток попадает y = ${linear(-k,0)}?`,
+    `[${integer(-k*b)}; ${-k*a})`,[`(${integer(-k*b)}; ${-k*a}]`,`(${integer(k*a)}; ${k*b})`,`[${integer(-k*b)}; ${-k*a}]`],
+    `Умножаем обе границы на −${k}, поэтому их порядок меняется. Включённая граница ${b} станет левой границей ${integer(-k*b)}.`);
+  },
+  sumAllIntegersAfterIntersection:()=>{
+   const a=ri(-4,-2),b=ri(2,6),lo=a+1,hi=b-1;
+   return number(`Найди сумму всех целых чисел, общих для (${integer(a)}; ${b+2}] и [${integer(a-2)}; ${b}).`,
+    (lo+hi)*(hi-lo+1)/2,`Общий промежуток — (${integer(a)}; ${b}). Подходящие целые начинаются с ${integer(lo)} и заканчиваются ${hi}. Суммируем их, попарно складывая числа с концов списка.`);
+  },
+  pointFromBoundedAndUnboundedIntervals:()=>{
+   const a=ri(-5,-2),b=ri(2,6),c=ri(a+1,b-1);
+   return choice(`Из [${integer(a)}; ${b}] исключили все числа из (−∞; ${integer(c)}) и (${integer(c)}; +∞). Что осталось?`,
+    `{${integer(c)}}`,['Пустое множество',`[${integer(a)}; ${integer(c)}]`,`[${integer(c)}; ${b}]`],
+    `Оба исключаемых луча имеют открытую границу в точке ${integer(c)}. Они убирают все остальные числа заданного отрезка.`);
+  }
+ }
+};
+
 function makeQuestion(raw,stage,variant,build){
  const args=scaledTriple();
- const item=build(args),visual=functionMasters[raw]&&(item.graph??item.table);
+ const item=build(args),visual=(inequalityMasters[raw]||functionMasters[raw])&&(item.graph??item.table??item.interval);
  const sig=g8Sig(raw,stage,variant,visual?[item.text,JSON.stringify(visual)]:[item.text]);
  const audit={type:'g8Textbook',topic:raw,stage,variant};
  let question;
@@ -1792,6 +2155,7 @@ function makeQuestion(raw,stage,variant,build){
  return question;
 }
 function textbookVariants(raw,stage){
+ if(stage===2&&inequalityMasters[raw])return inequalityMasters[raw];
  return workouts[raw]?.[stage]??(stage===2?algebraReviewMasters[raw]??functionMasters[raw]:undefined);
 }
 makeG8Question=function(id,override=null){
