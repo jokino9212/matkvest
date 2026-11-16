@@ -1,28 +1,132 @@
-name: Inspect Grade 8 area exercise templates
+name: Grade 8 areas verification
 on:
   push:
     branches: [verify/g8-master-v194]
 permissions:
   contents: read
 jobs:
-  inspect:
+  chromium:
     runs-on: ubuntu-latest
-    timeout-minutes: 4
+    timeout-minutes: 8
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
     steps:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
-      - run: |
-          python3 - <<'PY'
-          import re
-          from pathlib import Path
-          source=Path("index.html").read_text()
-          lines=source.splitlines()
-          p=re.compile(r"рамк|плитку|tileBorder|square_frame|frame_inside|rect_ratio|area_properties:\[|triangle_area:\[|parallelogram_rhombus_area:\[|trapezoid_area:\[|g7-stage5-area6870")
-          near=set()
-          for i,line in enumerate(lines):
-              if len(line)<1400 and p.search(line):
-                  near.update(range(max(0,i-2),min(len(lines),i+4)))
-          for n in sorted(near)[:250]:
-              if len(lines[n])<1400:print(n+1,lines[n])
-          PY
+      - run: python3 audits/g7_stage12_sync_pwa.py --check
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Check Grade 8 navigation
+        run: MATKVEST_G8_NAV_ONLY=1 node audits/g8_textbook_browser.cjs
+      - name: Check all twenty-two updated Master workouts
+        run: |
+          node <<'JS'
+          const assert=require('node:assert/strict');
+          const { pathToFileURL }=require('node:url');
+          const { chromium }=require('playwright');
+          const targets=['real_numbers_compare','irrational_numbers_approximations','algebra_grade8_review','absolute_value_function','function_concept','function_representations','function_domain_range','linear_inequalities','equivalent_inequalities','linear_inequality_systems','inequality_proofs','set_union_intersection','number_intervals','polygon_grid_area','median_doubling_method','sets_elements_subsets','set_diagrams_applications','equations_reducible_to_quadratic','linear_system_graphical','area_properties','parallelogram_rhombus_area','triangle_area'];
+          (async()=>{
+           const browser=await chromium.launch({headless:true});
+           try{
+            for(const width of [390,1280]){
+             const page=await browser.newPage({viewport:{width,height:850},isMobile:width===390,hasTouch:width===390});
+             const errors=[];
+             page.on('pageerror',error=>errors.push(error.message));
+             await page.goto(pathToFileURL(process.cwd()+'/index.html').href);
+             await page.locator('button[onclick="openGrade(8)"]').click();
+             const result=await page.evaluate(targets=>{
+              const assert=(ok,message)=>{if(!ok)throw Error(message);};
+              const totals={generated:0,completed:0,accepted:0,graphs:0,tables:0,intervals:0,venn:0};
+              for(const raw of targets){
+               const id='g8:'+raw;
+               assert(g8InfoById(id),id+' missing from Grade 8');
+               const warmup=new Set(),advanced=new Set();
+               const prompt=q=>JSON.stringify([q.text,q.visual?.data]);
+               for(let stage=0;stage<3;stage++){
+                for(let i=0;i<300;i++){
+                 const task=makeG8Question(id,stage);
+                 assert(task?.text&&task.ex&&task.sig,id+' incomplete prompt');
+                 if(stage<2){warmup.add(prompt(task));continue;}
+                 assert(task.audit?.type==='g8Textbook'&&task.audit.topic===raw&&task.audit.stage===2,id+' wrong Master pool');
+                 assert(!warmup.has(prompt(task)),id+' duplicate across levels');
+                 advanced.add(task.templateId);
+                 totals.generated++;
+                }
+               }
+               assert(advanced.size===10,id+' requires 10 different types');
+               startG8QuizStage(id,2);
+               const seen=new Set();
+               for(let i=0;i<STAGES[2].count;i++){
+                assert(!seen.has(q.templateId),id+' scenario repeated');
+                seen.add(q.templateId);
+                assert(document.querySelector('#qstage .quizq')?.textContent.trim(),id+' prompt not displayed');
+
+                if(q.visual?.type==='coordinatePlane'){
+                 const svg=[...document.querySelectorAll('#qstage svg')].find(s=>s.querySelector('text')&&s.getBoundingClientRect().width>=140);
+                 assert(svg,id+' coordinate plane did not render');
+                 const box=svg.getBoundingClientRect();
+                 assert(box.left>=-1&&box.right<=innerWidth+1,id+' graph clipped horizontally');
+                 assert(svg.querySelector('line, path, polyline, circle'),id+' graph grid is missing');
+                 totals.graphs++;
+                }else if(q.visual?.type==='tableData'){
+                 const table=document.querySelector('#qstage table');
+                 assert(table&&table.rows.length===q.visual.data.rows.length+1,id+' table did not render all rows');
+                 const box=table.getBoundingClientRect();
+                 assert(box.left>=-1&&box.right<=innerWidth+1,id+' table clipped horizontally');
+                 totals.tables++;
+                }else if(q.visual?.type==='g8Stat3Venn'){
+                 const svg=[...document.querySelectorAll('#qstage svg')].find(el=>el.querySelectorAll('circle').length===2);
+                 assert(svg,id+' Venn diagram did not render');
+                 const root=svg.getBoundingClientRect();
+                 assert(root.width>=140&&root.left>=-1&&root.right<=innerWidth+1,id+' clipped Venn diagram');
+                 for(const value of Object.values(q.visual.data)){
+                  assert([...svg.querySelectorAll('text')].some(el=>el.textContent.trim()===String(value)),id+' diagram value missing '+value);
+                 }
+                 totals.venn++;
+                }else if(q.visual){
+                 const interval=q.visual.data?.interval??q.visual.data;
+                 assert(interval&&typeof interval==='object',id+' missing interval data');
+                 const expectedVisual=document.createElement('div');
+                 expectedVisual.innerHTML=quizVisualHtml(q);
+                 const root=expectedVisual.firstElementChild;
+                 assert(root,id+' renderer returned no interval markup for '+q.visual.type);
+                 const candidates=[...document.querySelector('#qstage').querySelectorAll(root.localName)];
+                 const visual=candidates.find(el=>[...root.classList].every(name=>el.classList.contains(name))&&el.getBoundingClientRect().width>=120);
+                 assert(visual,id+' interval markup not displayed: '+root.outerHTML.slice(0,450)+' / '+[...document.querySelector('#qstage').children].map(x=>x.className).join(', '));
+                 const box=visual.getBoundingClientRect();
+                 assert(box.left>=-1&&box.right<=innerWidth+1,id+' interval clipped horizontally');
+                 totals.intervals++;
+                }
+                if(q.choices?.length){
+                 const answer=q.choices.findIndex(item=>String(item.key)===String(q.ans));
+                 assert(answer>=0,id+' missing correct choice');
+                 document.querySelectorAll('#qstage .answer')[answer].click();
+                }else{
+                 const {n,d}=q.answerRat;
+                 document.querySelector('#quizInput').value=d===1?String(n):n+'/'+d;
+                 checkQuizInput();
+                }
+                assert(blockSession.correct===i+1,id+' correct answer rejected at '+q.templateId);
+                assert(blockSession.done===i+1,id+' incorrect progress at '+q.templateId);
+                if(!blockSession.finished)nextQ();
+                totals.accepted++;
+               }
+               assert(blockSession.finished,id+' was not finished');
+               totals.completed++;
+               startG8QuizStage(id,2);
+               const previous=prompt(q);
+               assert(skipNormalQuiz(),id+' resume setup failed');
+               blockSession.g8TextbookPlan.order=['legacy-template'];
+               nextQ();
+               assert(q.audit?.type==='g8Textbook'&&prompt(q)!==previous&&blockSession.done===1,id+' did not restore prompt history');
+              }
+              assert(totals.graphs===57&&totals.tables===14&&totals.intervals===5&&totals.venn===10,'missing graph or table scenarios');
+              return totals;
+             },targets);
+             assert.deepEqual(errors,[]);
+             console.log(JSON.stringify({width,...result}));
+             await page.close();
+            }
+           }finally{await browser.close();}
+          })().catch(e=>{console.error(e);process.exitCode=1;});
+          JS

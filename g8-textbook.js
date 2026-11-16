@@ -2533,9 +2533,206 @@ const equationSystemMasters={
  }
 };
 
+function outlinedArea(task,outline,guides=[],marks=[]){
+ const figure=functionGraph(task,[[...outline,outline[0]],...guides],marks);
+ const caption='Чертёж к задаче на площадь';
+ figure.graph.caption=caption;
+ figure.graphCaption=caption;
+ figure.graph.series.forEach((path,i)=>{
+  path.label=i===0?'Контур фигуры':'Вспомогательный отрезок';
+  if(i>0)path.dashed=true;
+ });
+ return figure;
+}
+function squareOutline(side){
+ const start=-Math.floor(side/2);
+ return gridRectangle(start,start,side,side);
+}
+function centeredRhombus(a,b){
+ return [[-a,0],[0,-b],[a,0],[0,b]];
+}
+
+const areaMasters={
+ area_properties:{
+  frameInsideSquare:()=>{
+   const a=ri(7,11),d=ri(1,2),inner=a-2*d,x=-Math.floor(a/2);
+   return gridPolygon(number(`На квадратной плитке со стороной ${a} см закрасили внутреннюю рамку шириной ${d} см вдоль всех четырёх краёв. Рамка целиком лежит на плитке. Найди её площадь.`,
+    a*a-inner*inner,`Незакрашенный квадрат имеет сторону ${a} − 2 · ${d} = ${inner} см. Площадь рамки равна ${a}² − ${inner}² = ${a*a-inner*inner} см².`,'см²'),
+    squareOutline(a),gridRectangle(x+d,x+d,inner,inner));
+  },
+  outsideBorderWithGivenInnerSquare:()=>{
+   const a=ri(4,7),d=ri(1,2),outer=a+2*d,x=-Math.floor(outer/2);
+   return gridPolygon(number(`Вокруг квадратной клумбы со стороной ${a} м проложили дорожку шириной ${d} м. Клумба и дорожка вместе образуют большой квадрат. Найди площадь только дорожки.`,
+    outer*outer-a*a,`Дорожка снаружи. Сторона большого квадрата ${a} + 2 · ${d} = ${outer} м. Вычитаем площадь клумбы из площади большого квадрата.`,'м²'),
+    squareOutline(outer),gridRectangle(x+d,x+d,a,a));
+  },
+  recoverSquareSideFromAreaGain:()=>{
+   const a=ri(4,11),d=ri(2,5),gain=(a+d)**2-a*a;
+   return number(`Сторону квадрата увеличили на ${d} см, и его площадь выросла на ${gain} см². Найди исходную площадь квадрата.`,
+    a*a,`Пусть сторона x. Тогда (x + ${d})² − x² = ${gain}, то есть ${2*d}x + ${d*d} = ${gain}. Получаем x = ${a} см, площадь ${a*a} см².`,'см²');
+  },
+  countTilesInSquareRegion:()=>{
+   const n=ri(5,8),cut=ri(2,3),side=5*ri(2,4);
+   return number(`Квадратную площадку со стороной ${n*side} см выкладывают квадратными плитками со стороной ${side} см. В углу участка оставляют незамощённый квадрат со стороной ${cut*side} см. Сколько целых плиток нужно для остальной площади?`,
+    n*n-cut*cut,`Вдоль стороны участка помещается ${n} плиток, а вдоль стороны вырезанного квадрата — ${cut}. Из ${n*n} вычитаем ${cut*cut}.`);
+  },
+  compareSquareWithEqualPerimeter:()=>{
+   const a=ri(4,8),d=ri(1,3),long=a+d,short=a-d;
+   return number(`Стороны прямоугольника равны ${long} и ${short} см. Квадрат имеет такой же периметр. На сколько площадь квадрата больше площади прямоугольника?`,
+    d*d,`Четверть общего периметра даёт сторону квадрата ${a} см. Сравниваем площади ${a*a} и ${short*long} см².`,'см²');
+  },
+  rectangleAreaFromPerimeterRatio:()=>{
+   const [p,q]=g8Pick([[2,3],[3,4],[3,5],[4,7]]),k=ri(2,5);
+   return number(`Стороны прямоугольника относятся как ${p} : ${q}, его периметр ${2*k*(p+q)} см. Найди площадь.`,k*k*p*q,
+    `Полупериметр ${k*(p+q)} см делим на ${p+q} долей. Одна доля равна ${k} см. Стороны ${p*k} и ${q*k}, их произведение — площадь.`,'см²');
+  },
+  areaAfterMovingRectangleSides:()=>{
+   const w=ri(8,13),h=ri(5,7),d=ri(2,4);
+   return number(`У прямоугольника длина ${w} см, ширина ${h} см. Длину увеличили на ${d} см, ширину уменьшили на столько же. На сколько уменьшилась площадь?`,
+    w*h-(w+d)*(h-d),`Было ${w} · ${h} = ${w*h} см². Стало ${w+d} · ${h-d} = ${(w+d)*(h-d)} см². Вычитаем новую площадь из исходной.`,'см²');
+  },
+  recoverWidthAfterEqualAreaChange:()=>{
+   const a=ri(3,7),b=ri(2,4),k=ri(2,5);
+   return number(`Размеры прямоугольника были ${a*b} см на ${(b+1)*k} см. Длину изменили до ${a*(b+1)} см и сохранили площадь. Какова новая ширина?`,b*k,
+    `Исходная площадь ${a*b*(b+1)*k} см². Делим её на новую длину ${a*(b+1)} см. Получаем ${b*k} см.`,'см');
+  },
+  areaOfThreeStrips:()=>{
+   const a=ri(3,6),b=ri(2,4),h=ri(4,8);
+   return number(`Прямоугольное полотно разрезали на три полосы одинаковой высоты. Их ширины равны ${a}, ${b} и ${a+b} см, площадь первой ${a*h} см². Найди площадь всего полотна.`,
+    2*(a+b)*h,`Высота равна ${a*h} : ${a} = ${h} см. Ширина полотна равна ${a} + ${b} + ${a+b}. Перемножаем общую ширину и высоту.`,'см²');
+  },
+  areaOfRectangleWithWindowFromRatio:()=>{
+   const a=g8Pick([2,4,6]),b=g8Pick([2,4,6]),w=2*a,h=2*b,x=-a,y=-b;
+   return gridPolygon(number(`Из центра прямоугольника размером ${w} см на ${h} см вырезали прямоугольник. Каждая сторона выреза вдвое меньше соответствующей стороны всей детали. Найди оставшуюся площадь.`,3*a*b,
+    `Стороны выреза ${a} и ${b} см, его площадь ${a*b} см². Из ${w*h} вычитаем ${a*b}.`,'см²'),
+    gridRectangle(x,y,w,h),gridRectangle(x+a/2,y+b/2,a,b));
+  }
+ },
+ parallelogram_rhombus_area:{
+  externalAltitudeOnGrid:()=>{
+   const w=ri(3,5),h=ri(2,5),shift=w+ri(1,2),x=-4,y=-2;
+   const A=[x,y],B=[x+w,y],C=[x+w+shift,y+h],D=[x+shift,y+h],H=[x+shift,y];
+   return outlinedArea(number('Найди площадь параллелограмма по сетке. Площадь одной клетки 1 см².',w*h,
+    `По нижней стороне находим основание ${w} см. Пунктир от верхней вершины до продолжения основания даёт высоту ${h} см. Площадь ${w} · ${h} = ${w*h} см².`,'см²'),
+    [A,B,C,D],[[B,H],[D,H]],[[...A,'A'],[...B,'B'],[...D,'D'],[...H,'H']]);
+  },
+  recoverRhombusAreaFromDiagonalSum:()=>{
+   const [a,b]=g8Pick([[2,3],[2,5],[3,4]]),k=ri(2,6),total=k*(a+b);
+   return number(`Сумма диагоналей ромба ${total} см. Они относятся как ${a} : ${b}. Найди площадь ромба.`,
+    rational(k*k*a*b,2),`Из ${a+b} долей получаем диагонали ${a*k} и ${b*k} см. Площадь равна половине их произведения.`,'см²');
+  },
+  computeHeightAndAreaFromPerimeter:()=>{
+   const a=ri(6,10),b=ri(4,7),h=b-ri(1,3);
+   return number(`Периметр параллелограмма ${2*(a+b)} см. Одна сторона ${a} см. Высота к ней на ${b-h} см короче другой стороны. Найди площадь.`,
+    a*h,`Из полупериметра ${a+b} см вычитаем ${a}, получаем другую сторону ${b} см. Тогда высота равна ${h} см. Умножаем её на основание ${a} см.`,'см²');
+  },
+  rhombusAreaFromSideAndHalfDiagonal:()=>{
+   const [a,b,c]=g8Pick([[3,4,5],[4,3,5],[5,12,13],[12,5,13]]),k=ri(1,2);
+   return number(`Сторона ромба ${c*k} см, одна диагональ ${2*a*k} см. Найди площадь ромба.`,
+    2*a*b*k*k,`Диагонали взаимно перпендикулярны и делятся пополам. Половина известной диагонали равна ${a*k} см. По Пифагору найдём вторую половину: √(${(c*k)**2} − ${(a*k)**2}) = ${b*k} см. Площадь ромба равна половине произведения полных диагоналей.`,'см²');
+  },
+  areaAfterBaseAndHeightChange:()=>{
+   const a=ri(6,10),h=ri(4,7),add=ri(2,4),cut=ri(1,3);
+   return number(`У параллелограмма основание ${a} см, высота к нему ${h} см. Основание удлинили на ${add} см, высоту укоротили на ${cut} см. Найди площадь нового параллелограмма.`,
+    (a+add)*(h-cut),`В формулу площади подставляем новое основание ${a+add} см и новую высоту ${h-cut} см.`,'см²');
+  },
+  deriveHeightFromSecondBase:()=>{
+   const a=ri(5,8),k=ri(2,3),short=a,long=k*a,low=ri(2,a-1);
+   return number(`Соседние стороны параллелограмма равны ${short} и ${long} см. Высота к большей стороне равна ${low} см. Найди площадь параллелограмма, предварительно найдя высоту к меньшей стороне.`,
+    long*low,`У обеих формул площади должен получаться один результат. Поскольку основание ${short} см в ${k} раза меньше, соответствующая высота в ${k} раза больше и равна ${k*low} см. Площадь ${short} · ${k*low} = ${long*low} см².`,'см²');
+  },
+  rhombusWithVerticalDiagonalMoved:()=>{
+   const a=ri(2,5),b=ri(2,4),d=ri(1,2);
+   return outlinedArea(number(`У изображённого ромба увеличили только вертикальную диагональ на ${2*d} см. Сторона клетки равна 1 см. Найди площадь нового ромба.`,
+    2*a*(b+d),`Горизонтальная диагональ равна ${2*a} см. Вертикальная вырастает с ${2*b} до ${2*(b+d)} см. Вычисляем половину произведения диагоналей.`,'см²'),
+    centeredRhombus(a,b),[[[-a,0],[a,0]],[[0,-b],[0,b]]]);
+  },
+  sameHeightDifferentBases:()=>{
+   const a=ri(4,6),b=a+ri(2,4),h=ri(2,4),x=-4,y=-2;
+   return outlinedArea(number('В параллелограмме пунктир отделяет слева второй параллелограмм той же высоты. На сколько площадь всей фигуры больше площади левой части? Площадь клетки 1 см².',
+    (b-a)*h,`Общая высота ${h} см. Длина основания всей фигуры ${b} см, левой части ${a} см. Разность площадей равна (${b} − ${a}) · ${h} = ${(b-a)*h} см².`,'см²'),
+    [[x,y],[x+b,y],[x+b+2,y+h],[x+2,y+h]],[[[x+a,y],[x+a+2,y+h]]]);
+  },
+  useDiagonalDifferenceToFindArea:()=>{
+   const a=ri(2,5),b=a+ri(1,3);
+   return outlinedArea(number(`На рисунке ромб и две его диагонали. Если сторона клетки 1 см, на сколько квадратных сантиметров площадь ромба больше площади квадрата, построенного на половине меньшей диагонали?`,
+    2*a*b-a*a,`Диагонали имеют длины ${2*a} и ${2*b} см. Площадь ромба ${2*a*b} см². Половина меньшей диагонали ${a} см, квадрат на ней имеет площадь ${a*a} см².`,'см²'),
+    centeredRhombus(a,b),[[[-a,0],[a,0]],[[0,-b],[0,b]]]);
+  },
+  combinedDiagonalScaling:()=>{
+   const a=ri(3,5),b=2*ri(2,4),firstArea=a*b*2;
+   return number(`Площадь исходного ромба ${firstArea} см². Первую диагональ увеличили в 3 раза, а вторую уменьшили в 2 раза. Найди новую площадь.`,
+    3*firstArea/2,`Площадь равна половине произведения диагоналей. Произведение увеличилось в 3 · ${frac(1,2)} раза. Новая площадь ${3*firstArea/2} см².`,'см²');
+  }
+ },
+ triangle_area:{
+  readExteriorAltitudeAndArea:()=>{
+   const a=ri(3,5),h=ri(2,5),d=ri(1,3),A=[-4,-2],B=[a-4,-2],H=[a+d-4,-2],C=[a+d-4,h-2];
+   return outlinedArea(number('На рисунке высота треугольника выходит за пределы основания. Найди площадь треугольника, если площадь клетки 1 см².',
+    rational(a*h,2),`Основание AB равно ${a} см. Высота CH, проведённая к продолжению основания, равна ${h} см. Площадь равна половине произведения AB и CH.`,'см²'),
+    [A,B,C],[[B,H],[C,H]],[[...A,'A'],[...B,'B'],[...C,'C'],[...H,'H']]);
+  },
+  readVerticalBaseAndHorizontalAltitude:()=>{
+   const a=ri(3,7),h=ri(2,5),x=-2,y=-3,r=ri(1,a-1);
+   const A=[x,y],B=[x,y+a],C=[x+h,y+r],H=[x,y+r];
+   return outlinedArea(number('Найди площадь треугольника по сетке. В качестве основания используй вертикальную сторону AB. Площадь клетки 1 см².',
+    rational(a*h,2),`AB занимает ${a} клеток. Высота к нему горизонтальна и занимает ${h} клеток. Делим произведение на 2.`,'см²'),
+    [A,B,C],[[C,H]],[[...A,'A'],[...B,'B'],[...C,'C'],[...H,'H']]);
+  },
+  compareTwoTriangleAreasOnOneBase:()=>{
+   const a=ri(4,8),h=ri(2,4),d=ri(1,3),A=[-4,0],B=[a-4,0],C=[-2,h],D=[-2,-h-d];
+   const task=number('Треугольники ABC и ABD имеют общее основание. На сколько площадь ABD больше площади ABC, если площадь клетки 1 см²?',
+    rational(a*d,2),`У обоих основание AB = ${a} см. Высоты ${h+d} и ${h} см отличаются на ${d} см. Разность площадей равна половине произведения основания на разность высот.`,'см²');
+   return outlinedArea(task,[A,C,B,D],[[A,B]],[[...A,'A'],[...B,'B'],[...C,'C'],[...D,'D']]);
+  },
+  middleLineCutsOffQuarter:()=>{
+   const a=ri(2,4),h=ri(2,3),u=ri(1,a),A=[-a,-h],B=[a,-h],C=[2*u-a,h],P=[u-a,0],Q=[u,0];
+   return outlinedArea(number(`На рисунке PQ — средняя линия треугольника ABC. Площадь ABC равна ${2*a*h} см². Найди площадь четырёхугольника ABQP.`,
+    rational(3*a*h,2),`Треугольники CPQ и CAB подобны с коэффициентом 1/2. Площадь CPQ составляет 1/4 от площади ABC. Значит на ABQP приходится 3/4 площади ABC.`,'см²'),
+    [A,B,C],[[P,Q]],[[...A,'A'],[...B,'B'],[...C,'C'],[...P,'P'],[...Q,'Q']]);
+  },
+  readInternalSplitAreaRatio:()=>{
+   const a=ri(2,4),b=ri(2,5),h=ri(3,6),A=[-4,-2],D=[a-4,-2],B=[a+b-4,-2],C=[-1,h-2];
+   return outlinedArea(number('Точка D делит основание AB на две части. Какую долю площади ABC занимает треугольник ACD? Ответ запиши дробью.',
+    rational(a,a+b),`Высота к прямой AB у треугольников ACD и ABC общая. Поэтому отношение площадей равно AD : AB = ${a} : ${a+b}.`),
+    [A,B,C],[[D,C]],[[...A,'A'],[...B,'B'],[...C,'C'],[...D,'D']]);
+  },
+  threeTrianglesCommonAltitude:()=>{
+   const a=ri(2,3),b=ri(1,3),d=ri(2,3),h=ri(2,4),A=[-5,-2],D=[-5+a,-2],E=[-5+a+b,-2],B=[-5+a+b+d,-2],C=[-1,h-2];
+   return outlinedArea(number(`Площадь центрального треугольника CDE равна ${rationalRu(rational(b*h,2))} см². По рисунку найди площадь двух крайних треугольников ACD и CEB вместе.`,
+    rational((a+d)*h,2),`Отрезки AD, DE, EB занимают ${a}, ${b}, ${d} клеток. При общей высоте площади пропорциональны этим отрезкам. Умножаем площадь CDE на ${frac(a+d,b)}.`,'см²'),
+    [A,B,C],[[C,D],[C,E]],[[...A,'A'],[...B,'B'],[...C,'C'],[...D,'D'],[...E,'E']]);
+  },
+  midpointAndSecondCut:()=>{
+   const a=ri(2,4),h=ri(2,3),u=ri(1,a),A=[-a,-h],B=[a,-h],C=[2*u-a,h],M=[0,-h],P=[u-a,0];
+   return outlinedArea(number(`На рисунке M — середина AB, P — середина AC. Площадь ABC равна ${2*a*h} см². Найди площадь AMP.`,
+    rational(a*h,2),`AM вдвое меньше AB, а расстояние от P до AB вдвое меньше расстояния от C до AB. Поэтому площадь AMP в четыре раза меньше площади ABC.`,'см²'),
+    [A,B,C],[[P,M]],[[...A,'A'],[...B,'B'],[...C,'C'],[...M,'M'],[...P,'P']]);
+  },
+  triangleInsideRectangle:()=>{
+   const a=ri(5,8),h=ri(4,7),p=ri(2,a-1),q=ri(2,h-1),x=-4,y=-3;
+   const outer=gridRectangle(x,y,a,h),T=[[x,y],[x+a,y+q],[x+p,y+h]],S=rational(a*h-p*q,2);
+   return outlinedArea(number('Внутри прямоугольника выделен треугольник. По сетке найди его площадь, если площадь клетки равна 1 см².',
+    S,`Площадь прямоугольника ${a*h} см². Вычитаем площади трёх угловых прямоугольных треугольников с катетами ${a} и ${q}, ${p} и ${h}, ${a-p} и ${h-q}.`,'см²'),T,[[...outer,outer[0]]]);
+  },
+  areaAfterChangingBaseAndHeight:()=>{
+   const a=ri(3,6),h=ri(3,5),d=ri(1,3),u=ri(1,2),A=[-3,-2],B=[a-3,-2],C=[-1,h-2],H=[-1,-2];
+   return outlinedArea(number(`Основание AB на рисунке удлинили на ${d} см, высоту к нему укоротили на ${u} см. Сторона клетки 1 см. Найди новую площадь.`,
+    rational((a+d)*(h-u),2),`Исходные основание и высота равны ${a} и ${h} см. Новые ${a+d} и ${h-u} см. Площадь равна половине их произведения.`,'см²'),
+    [A,B,C],[[C,H]],[[...A,'A'],[...B,'B'],[...C,'C'],[...H,'H']]);
+  },
+  areaAfterChangingCellScale:()=>{
+   const a=ri(3,7),h=ri(3,5),cell=ri(2,4),A=[-3,-2],B=[a-3,-2],C=[-1,h-2];
+   return outlinedArea(number(`Найди площадь треугольника на сетке, если сторона клетки равна ${cell} см.`,
+    rational(a*h*cell*cell,2),`Сторона AB занимает ${a} клеток, высота ${h}. В сантиметрах это ${a*cell} и ${h*cell}. Площадь равна половине их произведения.`,'см²'),
+    [A,B,C],[],[[...A,'A'],[...B,'B'],[...C,'C']]);
+  }
+ }
+};
+
 function makeQuestion(raw,stage,variant,build){
  const args=scaledTriple();
- const item=build(args),visual=(equationSystemMasters[raw]||probabilitySetMasters[raw]||geometryMasters[raw]||inequalityMasters[raw]||functionMasters[raw])&&(item.venn??item.graph??item.table??item.interval);
+ const item=build(args),visual=(areaMasters[raw]||equationSystemMasters[raw]||probabilitySetMasters[raw]||geometryMasters[raw]||inequalityMasters[raw]||functionMasters[raw])&&(item.venn??item.graph??item.table??item.interval);
  const sig=g8Sig(raw,stage,variant,visual?[item.text,JSON.stringify(visual)]:[item.text]);
  const audit={type:'g8Textbook',topic:raw,stage,variant};
  let question;
@@ -2553,7 +2750,7 @@ function makeQuestion(raw,stage,variant,build){
  return question;
 }
 function textbookVariants(raw,stage){
- const custom=stage===2&&(equationSystemMasters[raw]??geometryMasters[raw]??probabilitySetMasters[raw]??inequalityMasters[raw]);
+ const custom=stage===2&&(areaMasters[raw]??equationSystemMasters[raw]??geometryMasters[raw]??probabilitySetMasters[raw]??inequalityMasters[raw]);
  if(custom)return custom;
  return workouts[raw]?.[stage]??(stage===2?algebraReviewMasters[raw]??functionMasters[raw]:undefined);
 }
