@@ -2292,9 +2292,133 @@ const geometryMasters={
  }
 };
 
+function masterVenn(task,aOnly,both,bOnly,outside){
+ return {...task,venn:{aOnly,both,bOnly,outside}};
+}
+
+function finiteSet(values){
+ return '{'+values.map(value=>typeof value==='number'?integer(value):value).join(', ')+'}';
+}
+const probabilitySetMasters={
+ sets_elements_subsets:{
+  findSubsetByDivisibility:()=>{
+   const k=ri(2,5),a=ri(1,3),s=k*a,r=k*(a+1),t=k*(a+2);
+   return choice(`A — множество чисел, кратных ${k}. Какой из наборов целиком входит в A?`,
+    finiteSet([s,r,t]),[finiteSet([s,r+1,t]),finiteSet([s-1,r,t]),finiteSet([s,r,t+1])],
+    `Проверяем каждый элемент набора. У чисел ${s}, ${r} и ${t} деление на ${k} даёт целый результат.`);
+  },
+  changeMinimumElementsToBeSubset:()=>{
+   const a=ri(2,7),missing=ri(1,3),A=[a,a+1,a+2,a+3],B=[...A.slice(missing),a+4,a+5];
+   return number(`A = ${finiteSet(A)}, B = ${finiteSet(B)}. Какое наименьшее число элементов нужно удалить из A, чтобы оно стало подмножеством B?`,
+    missing,`Нужно удалить только элементы A, которых нет в B: ${valueList(A.slice(0,missing))}. Остальные уже входят в B.`);
+  },
+  countProperSubsetsInList:()=>{
+   const a=ri(2,7),count=ri(2,4),U=[a,a+1,a+2,a+3,a+4];
+   const listed=[[a],[a,a+2],[a+1,a+3],[a+2,a+4]].slice(0,count).concat([[a-1],[a+2,a+5],U]);
+   const rows=shuffleOptions(listed).map(x=>[finiteSet(x)]);
+   return valuesTable(number(`Сколько наборов в таблице являются собственными подмножествами U = ${finiteSet(U)}, то есть входят в U и отличаются от U?`,
+    count,`Сначала исключаем наборы с числами ${a-1} и ${a+5}, которых нет в U. Затем исключаем набор, равный всему U. Остаётся ${count}.`),
+    ['Набор'],rows);
+  },
+  distinguishElementFromSingleton:()=>{
+   const a=ri(2,9),b=a+ri(2,5);
+   return choice(`Пусть A = ${finiteSet([a,b])}. Какая запись правильно показывает, что одноэлементный набор ${finiteSet([a])} входит в A как подмножество?`,
+    `${finiteSet([a])} ⊆ A`,[`${finiteSet([a])} ∈ A`,`${a} ⊆ A`,`A ⊆ ${finiteSet([a])}`],
+    `Само число ${a} — элемент A. Множество ${finiteSet([a])} состоит из одного элемента A, поэтому является его подмножеством.`);
+  },
+  findAllowedNewMember:()=>{
+   const a=ri(2,8),b=a+ri(2,4),c=b+ri(2,4),d=c+ri(2,4);
+   return choice(`Набор ${finiteSet([a,b,'k'])} должен стать собственным подмножеством A = ${finiteSet([a,b,c,d])} и содержать ровно три элемента. Какое значение подходит для k?`,
+    String(c),[String(a),String(c-1),String(d+1)],
+    `Числа ${a} и ${b} уже есть в наборе. Из предложенных только ${c} входит в A и добавляет третий различный элемент.`);
+  },
+  countSubsetsWithFixedElements:()=>{
+   const a=ri(2,7),n=ri(3,5),U=Array.from({length:n},(_,i)=>a+i);
+   return number(`Для U = ${finiteSet(U)} выбирают подмножество. Оно должно содержать ${a} и не должно содержать ${a+1}. Сколько подмножеств подходит?`,
+    2**(n-2),`Для двух элементов выбор задан. Для каждого из остальных ${n-2} можно независимо решить, включать его или нет. Получаем 2 в степени ${n-2}.`);
+  },
+  countTwoElementSubsetsWithRequirement:()=>{
+   const a=ri(2,8),size=ri(4,7),U=Array.from({length:size},(_,i)=>a+i);
+   return number(`Сколько двухэлементных подмножеств U = ${finiteSet(U)} содержат ${a} и не содержат ${a+size-1}?`,
+    size-2,`Первый элемент задан. В пару подойдёт любое число из U, кроме ${a} и запрещённого ${a+size-1}. Остаётся ${size-2} вариантов.`);
+  },
+  compareDistinctEntriesAndSetSize:()=>{
+   const a=ri(2,6),size=ri(3,5),items=Array.from({length:size},(_,i)=>a+2*i);
+   const list=shuffleOptions(items.concat([items[0],items[1],items[1]]));
+   return number(`Из списка ${valueList(list)} составили множество встретившихся чисел. Сколько его собственных подмножеств содержат все эти числа, кроме одного?`,
+    size,`После удаления повторов получаем ${size} различных чисел. Каждое подходящее подмножество задаётся выбором одного числа, которое исключили.`);
+  },
+  checkInclusionAmongThree:()=>{
+   const a=ri(2,9),out=a+ri(5,7),A=[a,a+1],B=[a,a+1,a+2],C=[a,a+1,out];
+   return choice(`Даны A = ${finiteSet(A)}, B = ${finiteSet(B)}, C = ${finiteSet(C)}. Какая пара включений верна?`,
+    'A ⊆ B и A ⊆ C',['B ⊆ A и C ⊆ A','A ⊆ B и B ⊆ C','A ⊆ C и C ⊆ B'],
+    `Оба элемента A есть в B и C. При этом ${a+2} есть в B, но его нет в C, а ${out} есть в C, но его нет в B.`);
+  },
+  counterexampleToReverseInclusion:()=>{
+   const n=ri(2,5),a=n*ri(2,4);
+   return choice(`Множество A состоит из целых чисел, кратных ${2*n}. Множество B — из целых чисел, кратных ${n}. Какое число показывает, что B не является подмножеством A?`,
+    String(n),[String(2*n),String(2*a),String(n+1)],
+    `Число ${n} кратно ${n}, но не кратно ${2*n}. Числа ${2*n} и ${2*a} входят в оба множества, а ${n+1} не входит в B.`);
+  }
+ },
+ set_diagrams_applications:{
+  recoverIntersectionFromKnownUniverse:()=>{
+   const a=ri(4,9),b=ri(2,6),c=ri(3,8),o=ri(2,6),total=a+b+c+o;
+   return masterVenn(number(`В универсальном множестве U ровно ${total} элементов. Какое число пропущено в общей части A и B?`,b,
+    `Из ${total} вычитаем три известные области: ${a}, ${c} и ${o}. В пересечении остаётся ${b}.`),a,'?',c,o);
+  },
+  recoverOutsideFromComplementOfA:()=>{
+   const a=ri(4,9),b=ri(2,6),c=ri(3,8),o=ri(2,7);
+   return masterVenn(number(`Из U ровно ${c+o} элементов не входят в A. Какое число пропущено вне обоих кругов?`,o,
+    `В дополнение A входят область «только B» и область вне обоих кругов. В первой ${c} элементов. Вычитаем ${c} из ${c+o}.`),a,b,c,'?');
+  },
+  recoverOnlyAFromExactlyOne:()=>{
+   const a=ri(3,9),b=ri(1,6),c=ri(3,8),o=ri(2,7);
+   return masterVenn(number(`Ровно к одному из множеств A и B относятся ${a+c} элементов. Найди число в области «только A».`,a,
+    `В подсчёт входят только две неперекрывающиеся области: «только A» и «только B». Вычитаем ${c}, стоящее в области «только B».`),'?',b,c,o);
+  },
+  transferFromOnlyBIntoIntersection:()=>{
+   const a=ri(4,8),b=ri(2,5),c=ri(4,9),o=ri(2,6),move=ri(2,c-1);
+   return masterVenn(number(`Из области «только B» ${move} элементов включили также в A. На сколько увеличилось значение разности |A| − |B|?`,move,
+    `Эти ${move} элементов остаются в B, но теперь принадлежат и A. Численность B не меняется, а |A| увеличивается на ${move}.`),a,b,c,o);
+  },
+  intersectionFractionAfterRemovingOnlyA:()=>{
+   const a=ri(4,9),b=ri(2,7),c=ri(3,8),o=ri(2,6);
+   return masterVenn(number('Из U удалили все элементы области «только A». Какую долю нового объединения A ∪ B составляет пересечение? Ответ запиши дробью.',
+    rational(b,b+c),`В новом объединении остались пересечение (${b}) и область «только B» (${c}). Доля пересечения равна ${frac(b,b+c)}.`),a,b,c,o);
+  },
+  inferHiddenIntersectionFromTwoTotals:()=>{
+   const a=ri(3,8),b=ri(2,7),c=ri(3,8),o=ri(2,6),membership=a+2*b+c,union=a+b+c;
+   return masterVenn(number(`Сумма |A| + |B| равна ${membership}, а в объединении ${union} элементов. Заполни пропуск в общей части кругов.`,b,
+    `В сумме |A| + |B| общие элементы посчитаны дважды, а в объединении — один раз. Разность ${membership} − ${union} равна числу общих элементов.`),a,'?',c,o);
+  },
+  compareComplementSizes:()=>{
+   const a=ri(5,9),b=ri(2,6),c=ri(2,4),o=ri(2,6);
+   return masterVenn(number('На сколько элементов больше в дополнении B, чем в дополнении A, если оба дополнения берём в U?',a-c,
+    `Вне B находятся ${a} + ${o} элементов, вне A — ${c} + ${o}. Общая область вне кругов сократится при вычитании.`),a,b,c,o);
+  },
+  restoreTwoUnknownRegions:()=>{
+   const a=ri(4,9),b=ri(3,6),c=ri(2,8),o=2*b,total=a+b+c+o;
+   return masterVenn(number(`В U ${total} элементов. Вне кругов их вдвое больше, чем в пересечении. Найди число элементов в пересечении.`,b,
+    `Из ${total} вычитаем ${a} и ${c}. Осталось ${3*b} элементов в двух неизвестных областях. Если в пересечении x элементов, снаружи их 2x, поэтому 3x = ${3*b}.`),a,'?',c,'?');
+  },
+  complementOfIntersectionAfterRemoval:()=>{
+   const a=ri(3,8),b=ri(2,6),c=ri(4,9),o=ri(2,7),remove=ri(1,c-1);
+   return masterVenn(number(`Из области «только B» удалили из U ровно ${remove} элементов. Сколько элементов нового U не принадлежат пересечению A ∩ B?`,
+    a+c+o-remove,`Считаем все области вне пересечения. В «только A» их ${a}, в «только B» осталось ${c-remove}, вне кругов — ${o}. Складываем.`),a,b,c,o);
+  },
+  distinguishEqualGroupsFromEqualParts:()=>{
+   const a=ri(3,7),b=ri(2,6),o=a+ri(1,3);
+   return masterVenn(choice('Числа обозначают количества элементов. Какое равенство можно установить по диаграмме?',
+    '|A| = |B|',['|A ∩ B| = |A ∪ B|','|A ∪ B| = |U|','|A ∖ B| = |U ∖ (A ∪ B)|'],
+    `Области «только A» и «только B» содержат по ${a} элементов. К каждому из этих чисел прибавляем одно и то же пересечение из ${b} элементов.`),a,b,a,o);
+  }
+ }
+};
+
 function makeQuestion(raw,stage,variant,build){
  const args=scaledTriple();
- const item=build(args),visual=(geometryMasters[raw]||inequalityMasters[raw]||functionMasters[raw])&&(item.graph??item.table??item.interval);
+ const item=build(args),visual=(probabilitySetMasters[raw]||geometryMasters[raw]||inequalityMasters[raw]||functionMasters[raw])&&(item.venn??item.graph??item.table??item.interval);
  const sig=g8Sig(raw,stage,variant,visual?[item.text,JSON.stringify(visual)]:[item.text]);
  const audit={type:'g8Textbook',topic:raw,stage,variant};
  let question;
@@ -2305,10 +2429,14 @@ function makeQuestion(raw,stage,variant,build){
  if(item.interval)return g7AttachInterval(question,item.interval);
  if(item.graph)return g7AttachGraph(question,item.graph,item.graphCaption??'Прямая на координатной плоскости');
  if(item.table)return g6AttachTable(question,item.table);
+ if(item.venn){
+  question.visual={type:'g8Stat3Venn',data:item.venn};
+  question.journalPrompt=`${question.text}<br><span class="math">Диаграмма множеств A и B</span>`;
+ }
  return question;
 }
 function textbookVariants(raw,stage){
- const custom=stage===2&&(geometryMasters[raw]??inequalityMasters[raw]);
+ const custom=stage===2&&(geometryMasters[raw]??probabilitySetMasters[raw]??inequalityMasters[raw]);
  if(custom)return custom;
  return workouts[raw]?.[stage]??(stage===2?algebraReviewMasters[raw]??functionMasters[raw]:undefined);
 }
