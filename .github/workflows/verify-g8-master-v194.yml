@@ -105,11 +105,11 @@ jobs:
                assert(blockSession.finished,id+' was not finished');
                totals.completed++;
                startG8QuizStage(id,2);
-               const previous=q.text;
+               const previous=prompt(q);
                assert(skipNormalQuiz(),id+' resume setup failed');
                blockSession.g8TextbookPlan.order=['legacy-template'];
                nextQ();
-               assert(q.audit?.type==='g8Textbook'&&q.text!==previous&&blockSession.done===1,id+' did not restore prompt history');
+               assert(q.audit?.type==='g8Textbook'&&prompt(q)!==previous&&blockSession.done===1,id+' did not restore prompt history');
               }
               assert(totals.graphs===18&&totals.tables===13&&totals.intervals===5,'missing graph or table scenarios');
               return totals;
