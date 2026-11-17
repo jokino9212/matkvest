@@ -1,0 +1,74 @@
+name: Grade 8 release verification
+on:
+  push:
+    branches: [review/g8-warmup-training]
+    paths:
+      - .github/workflows/g8-release-review-once.yml
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/checkout@v4
+        with:
+          ref: 64786fa55ac59ce51717c9454bf411ee5ef3f5d9
+          path: published-v194
+          persist-credentials: false
+      - name: Compare the real site with the pinned published checkout
+        run: |
+          for file in index.html sw.js g8-textbook.js; do
+            curl --fail --silent --show-error --retry 2 -H 'Cache-Control: no-cache' \
+              "https://jokino9212.github.io/matkvest/$file?release-check=${GITHUB_RUN_ID}" -o "live-$file"
+            cmp "live-$file" "published-v194/$file"
+            sha256sum "live-$file"
+          done
+      - name: Prepare the versioned v195 candidate
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          
+          html = Path('index.html')
+          worker = Path('sw.js')
+          page, scripts = re.subn(
+              rb'(<script src="(?:g5-[\w-]+|g[78]-textbook)\.js)\?v=194("></script>)',
+              rb'\g<1>?v=195\g<2>',
+              html.read_bytes(),
+          )
+          source, caches = re.subn(
+              rb'const CACHE_NAME = "matkvest-iphone-v194";',
+              b'const CACHE_NAME = "matkvest-iphone-v195";',
+              worker.read_bytes(),
+          )
+          assert scripts == 21 and caches == 1, (scripts, caches)
+          html.write_bytes(page)
+          worker.write_bytes(source)
+          PY
+          python3 audits/g7_stage12_sync_pwa.py
+          python3 audits/g7_stage12_sync_pwa.py --check
+          git diff --check
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save playwright
+      - run: npx playwright install --with-deps chromium
+      - name: Verify service-worker upgrade and Grade 8 reloads
+        run: node audits/g8_textbook_upgrade.cjs published-v194
+      - name: Verify Grade 8 catalogue and trainers
+        run: node audits/g8_textbook_browser.cjs
+        env:
+          MATKVEST_G8_SHAPE_ONLY: '1'
+      - name: Save the verified candidate on the review branch
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- index.html sw.js
+          git commit -m 'Prepare verified Grade 8 release candidate v195'
+          git push origin HEAD:refs/heads/review/g8-warmup-training
