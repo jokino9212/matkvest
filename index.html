@@ -19863,7 +19863,8 @@ function openG2Topic(id){
   "g2:quantities":G2_QUANTITIES_STAGES,
   "g2:add_sub_100":G2_ADD_SUB_100_STAGES,
   "g2:multiply_divide":G2_MULTIPLY_DIVIDE_STAGES,
-  "g2:operations_100":G2_OPERATIONS_100_STAGES
+  "g2:operations_100":G2_OPERATIONS_100_STAGES,
+  "g2:word_problems":G2_WORD_PROBLEM_STAGES
  })[t.id]||[];
  const descriptions=stages.map(stage=>stage.description);
  show(`<div class="mtop"><h2>2 класс • ${esc(t.title)}</h2><button class="x" onclick="closeModal()">×</button></div><div class="lesson elementary-lesson">${g2TheoryHtml(t.id)}</div><div class="stage-grid">${stageCards(t.id,`startG2QuizStage.bind(null,'${t.id}')`,descriptions)}</div><div class="subtle">Пройдено этапов: <b>${done}/3</b>.</div>`)
@@ -20254,83 +20255,110 @@ function g2StoryVisualHtml(data){
 const PRE843_QUIZ_VISUAL_HTML=quizVisualHtml;
 quizVisualHtml=function(question){const v=question?.visual;if(v?.type==="g2Story")return g2StoryVisualHtml(v.data);return PRE843_QUIZ_VISUAL_HTML(question)};
 
-function g2StoryAddModel({easy=false}={}){
- const obj=g2StoryPickItem();let a,b;
- if(easy){const tens=ri(1,6),ones=ri(0,5);a=tens*10+ones;b=ri(1,Math.min(4,9-ones))}
- else{a=ri(12,75);b=ri(5,Math.min(25,100-a))}
- const result=a+b;return {kind:"add",obj,a,b,result,steps:[{label:"Было",value:`${a}`},{label:"Добавили",value:`+ ${b}`},{label:"Стало",value:"?",answer:true}]}
+const G2_WORD_PROBLEM_STAGES=[
+ {templates:["read_given","choose_action"],description:"Найди нужное число в условии или выбери действие для решения."},
+ {templates:["one_change","equal_groups"],description:"Реши задачу в одно действие и введи числовой ответ."},
+ {templates:["two_changes","groups_then_change"],description:"Реши задачу в два действия и введи ответ на вопрос."}
+];
+const G2_STORY_CHANGE_KINDS=["add","sub","compare"];
+const G2_STORY_GROUP_KINDS=["multiply","share","count_groups"];
+const G2_STORY_ACTIONS=["Сложение","Вычитание","Умножение","Деление"];
+const G2_STORY_PENCILS={one:"карандаш",few:"карандаша",many:"карандашей"};
+const G2_STORY_BOXES={one:"коробка",few:"коробки",many:"коробок"};
+
+function g2StoryCount(n,noun){return `${n} ${g1Noun(n,noun)}`}
+function g2StoryCapitalized(word){return word[0].toUpperCase()+word.slice(1)}
+
+function g2StoryChangeModel(kind){
+ if(kind==="compare"){
+  const less=ri(6,70),more=ri(less+1,100),askMore=ri(0,1)===0;
+  const stickers={one:"наклейка",few:"наклейки",many:"наклеек"};
+  const given=`У Оли ${g2StoryCount(more,stickers)}, у Димы ${g2StoryCount(less,stickers)}.`;
+  const question=askMore?"На сколько наклеек у Оли больше, чем у Димы?":"На сколько наклеек у Димы меньше, чем у Оли?";
+  return {kind,given,question,result:more-less,record:`${more} − ${less}`,action:"Вычитание",
+   known:[{question:"Сколько наклеек у Оли?",value:more},{question:"Сколько наклеек у Димы?",value:less}],
+   steps:[{label:"У Оли",value:more},{label:"У Димы",value:less},{label:"Разница",value:"?",answer:true}]};
+ }
+ const obj=g2StoryPickItem(),add=kind==="add",a=ri(12,add?94:100),b=ri(3,add?Math.min(25,100-a):Math.min(35,a));
+ const verb=add?obj.add:obj.sub,changeLabel=add?"Добавили":"Убрали",result=add?a+b:a-b;
+ const given=`${obj.place} ${g1ExistVerb(a,obj)} ${g2StoryCount(a,obj)}. ${g2StoryCapitalized(verb)} ${add?"ещё ":""}${b} ${g2StoryAccNoun(b,obj)}.`;
+ const question=`Сколько ${obj.many} ${add?"стало":"осталось"}?`;
+ return {kind,given,question,result,record:`${a} ${add?"+":"−"} ${b}`,action:add?"Сложение":"Вычитание",
+  known:[{question:`Сколько ${obj.many} было сначала?`,value:a},{question:`Сколько ${obj.many} ${verb}?`,value:b}],
+  steps:[{label:"Было",value:a},{label:changeLabel,value:b},{label:add?"Стало":"Осталось",value:"?",answer:true}]};
 }
-function g2StorySubModel({easy=false}={}){
- const obj=g2StoryPickItem();let a,b;
- if(easy){const tens=ri(2,8),ones=ri(3,9);a=tens*10+ones;b=ri(1,ones)}
- else{a=ri(25,100);b=ri(5,Math.min(25,a-1))}
- const result=a-b;return {kind:"sub",obj,a,b,result,steps:[{label:"Было",value:`${a}`},{label:"Убрали",value:`− ${b}`},{label:"Осталось",value:"?",answer:true}]}
+
+function g2StoryGroupModel(kind){
+ const groups=ri(2,6),each=ri(2,8),total=groups*each;
+ const boxes=g2StoryCount(groups,G2_STORY_BOXES),pencils=g2StoryCount(each,G2_STORY_PENCILS),all=g2StoryCount(total,G2_STORY_PENCILS);
+ const size={question:"Сколько карандашей положили в каждую коробку?",value:each};
+ const count={question:"Сколько коробок взяли?",value:groups};
+ const totalCount={question:"Сколько карандашей взяли?",value:total};
+ if(kind==="multiply"){
+  return {kind,given:`Взяли ${boxes}. В каждую коробку положили по ${pencils}.`,question:"Сколько карандашей во всех коробках?",
+   result:total,record:`${each} × ${groups}`,action:"Умножение",known:[count,size],
+   visual:{type:"g2EqualGroups",data:{groups,each}}};
+ }
+ if(kind==="share"){
+  return {kind,given:`Взяли ${all} и ${boxes}. Карандаши разложили поровну в коробки.`,question:size.question,
+   result:each,record:`${total} ÷ ${groups}`,action:"Деление",known:[totalCount,count],
+   visual:{type:"g2EqualGroups",data:{mode:"share",total,groups}}};
+ }
+ return {kind,given:`Взяли ${all}. В каждую коробку положили по ${pencils}, пока все карандаши не закончились.`,
+  question:"Сколько коробок понадобилось?",result:groups,record:`${total} ÷ ${each}`,action:"Деление",known:[totalCount,size],
+  visual:{type:"g2EqualGroups",data:{mode:"make_groups",total,each}}};
 }
-function g2StoryMulModel({easy=false}={}){
- const groups=ri(2,easy?4:6),each=ri(2,easy?5:8),total=groups*each;
- return {kind:"mul",groups,each,total,result:total,steps:[{label:"Групп",value:`${groups}`},{label:"В каждой",value:`${each}`},{label:"Всего",value:"?",answer:true}]}
+
+function g2StoryTwoChangesModel(){
+ const obj=g2StoryPickItem(),addFirst=ri(0,1)===0,a=ri(20,75),b=ri(3,Math.min(20,addFirst?100-a:a));
+ const mid=addFirst?a+b:a-b,c=ri(2,Math.min(15,addFirst?mid:100-mid)),result=addFirst?mid-c:mid+c;
+ const first=addFirst?obj.add:obj.sub,second=addFirst?obj.sub:obj.add;
+ const text=`${obj.place} ${g1ExistVerb(a,obj)} ${g2StoryCount(a,obj)}. ${g2StoryCapitalized(first)} ${b} ${g2StoryAccNoun(b,obj)}, потом ${second} ${c} ${g2StoryAccNoun(c,obj)}. Сколько ${obj.many} теперь?`;
+ const ex=`Сначала ${a} ${addFirst?"+":"−"} ${b} = ${mid}. Затем ${mid} ${addFirst?"−":"+"} ${c} = ${result}.`;
+ return {text,ex,result};
 }
-function g2StoryDivModel({easy=false}={}){
- let groups=ri(2,easy?4:6),each=ri(2,easy?5:8);if(groups===each)each=each===2?3:each-1;const total=groups*each;
- return {kind:"div",groups,each,total,result:each,steps:[{label:"Всего",value:`${total}`},{label:"Групп",value:`${groups}`},{label:"В каждой",value:"?",answer:true}]}
+
+function g2StoryGroupsThenChangeModel(){
+ const groups=ri(2,6),each=ri(2,8),total=groups*each,divide=ri(0,1)===0;
+ const boxes=g2StoryCount(groups,G2_STORY_BOXES),pencils=g2StoryCount(each,G2_STORY_PENCILS);
+ const amount=ri(1,divide?Math.min(8,each):12),extra=g2StoryCount(amount,G2_STORY_PENCILS);
+ if(divide){
+  const remove=ri(0,1)===0,result=remove?each-amount:each+amount;
+  const change=remove?`Из первой коробки забрали ${extra}.`:`В первую коробку положили ещё ${extra}.`;
+  const text=`${g2StoryCount(total,G2_STORY_PENCILS)} разложили поровну в ${boxes}. ${change} Сколько карандашей теперь в первой коробке?`;
+  const ex=`Сначала ${total} ÷ ${groups} = ${each}. Затем ${each} ${remove?"−":"+"} ${amount} = ${result}.`;
+  return {text,ex,result};
+ }
+ const result=total+amount;
+ const text=`Взяли ${boxes}. В каждую коробку положили по ${pencils}. Рядом положили ещё ${extra}. Сколько карандашей всего в коробках и рядом?`;
+ const ex=`Сначала ${each} × ${groups} = ${total}. Затем ${total} + ${amount} = ${result}.`;
+ return {text,ex,result};
 }
-function g2StoryOneText(m){
- if(m.kind==="add")return `${m.obj.place} ${g1ExistVerb(m.a,m.obj)} ${m.a} ${g2StoryNoun(m.a,m.obj)}. ${m.obj.add[0].toUpperCase()+m.obj.add.slice(1)} ещё ${m.b} ${g2StoryAccNoun(m.b,m.obj)}. Сколько ${m.obj.many} стало?`;
- if(m.kind==="sub")return `${m.obj.place} ${g1ExistVerb(m.a,m.obj)} ${m.a} ${g2StoryNoun(m.a,m.obj)}. ${m.obj.sub[0].toUpperCase()+m.obj.sub.slice(1)} ${m.b} ${g2StoryAccNoun(m.b,m.obj)}. Сколько ${m.obj.many} осталось?`;
- if(m.kind==="mul")return `Есть ${m.groups} ${g2GroupWord(m.groups)}. В каждой по ${m.each} ${g2ItemWord(m.each)}. Сколько предметов всего?`;
- return `${m.total} предметов разделили поровну на ${m.groups} ${g2GroupWord(m.groups)}. Сколько предметов в каждой группе?`
-}
-function g2StoryOneExplanation(m){
- if(m.kind==="add")return `Нужно узнать, сколько стало: ${m.a} + ${m.b} = ${m.result}.`;
- if(m.kind==="sub")return `Нужно узнать, сколько осталось: ${m.a} − ${m.b} = ${m.result}.`;
- if(m.kind==="mul")return `${m.each} повторяется ${m.groups} ${g2StoryTimes(m.groups)}: ${m.each} · ${m.groups} = ${m.total}.`;
- return `Делим поровну: ${m.total} : ${m.groups} = ${m.each}.`
-}
-function g2StoryCorrectAction(m){return m.kind==="add"?"Сложение":m.kind==="sub"?"Вычитание":m.kind==="mul"?"Умножение":"Деление"}
-function g2StoryCorrectRecord(m){return m.kind==="add"?`${m.a} + ${m.b}`:m.kind==="sub"?`${m.a} − ${m.b}`:m.kind==="mul"?`${m.each} · ${m.groups}`:`${m.total} : ${m.groups}`}
-function g2StoryRecordDistractors(m){
- if(m.kind==="add")return [`${m.a} + ${Math.max(0,m.b-1)}`,`${m.a} + ${m.b+1}`];
- if(m.kind==="sub")return [`${m.a} − ${Math.max(0,m.b-1)}`,`${m.a} − ${m.b+1}`];
- if(m.kind==="mul")return [`${m.each} · ${m.groups-1}`,`${m.each} · ${m.groups+1}`];
- return [`${m.total} : ${m.each}`,`${m.total} − ${m.groups}`]
-}
-function g2StoryTwoAddSubModel(){
- const obj=g2StoryPickItem(),a=ri(20,60),b=ri(5,Math.min(20,100-a)),mid=a+b,c=ri(3,Math.min(15,mid-1)),result=mid-c;
- return {kind:"two_add_sub",obj,a,b,c,mid,result,steps:[{label:"Было",value:`${a}`},{label:"Добавили",value:`+ ${b}`},{label:"После 1-го действия",value:`${mid}`,derived:true},{label:"Убрали",value:`− ${c}`},{label:"Стало",value:"?",answer:true}]}
-}
-function g2StoryTwoSubAddModel(){
- const obj=g2StoryPickItem(),a=ri(30,90),b=ri(5,Math.min(20,a-1)),mid=a-b,c=ri(3,Math.min(15,100-mid)),result=mid+c;
- return {kind:"two_sub_add",obj,a,b,c,mid,result,steps:[{label:"Было",value:`${a}`},{label:"Убрали",value:`− ${b}`},{label:"После 1-го действия",value:`${mid}`,derived:true},{label:"Добавили",value:`+ ${c}`},{label:"Стало",value:"?",answer:true}]}
-}
-function g2StoryTwoMulAddModel(){
- const groups=ri(2,5),each=ri(2,8),product=groups*each,extra=ri(3,Math.min(15,100-product)),result=product+extra;
- return {kind:"two_mul_add",groups,each,product,extra,result,steps:[{label:"Групп",value:`${groups}`},{label:"В каждой",value:`${each}`},{label:"Сначала",value:`${product}`,derived:true},{label:"Добавили",value:`+ ${extra}`},{label:"Стало",value:"?",answer:true}]}
-}
+
 function g2WordProblemsQuestion(d){
- const warm=["add_result","sub_result"],train=["add_result","sub_result","multiply_result","divide_result","choose_action","choose_record"],master=[...train,"two_add_sub","two_sub_add","two_mul_add"],templateId=g2PickTemplate(d===0?warm:d===1?train:master);
- if(["add_result","sub_result","multiply_result","divide_result"].includes(templateId)){
-  const model=templateId==="add_result"?g2StoryAddModel({easy:d===0}):templateId==="sub_result"?g2StorySubModel({easy:d===0}):templateId==="multiply_result"?g2StoryMulModel({easy:d===1}):g2StoryDivModel({easy:d===1}),text=g2StoryOneText(model),ex=g2StoryOneExplanation(model),sig=`g2:word_problems:${d}:${templateId}:${model.a??model.total}:${model.b??model.groups}:${model.each??0}:${model.obj?.one||"items"}`;
-  const visual=model.kind==="mul"?{type:"g2EqualGroups",data:{groups:model.groups,each:model.each}}:model.kind==="div"?{type:"g2EqualGroups",data:{mode:"share",total:model.total,groups:model.groups}}:{type:"g2Story",data:{steps:model.steps,aria:text}};
-  return d===0?g2Choice(text,model.result,g2UniqueNums(model.result,0,100),ex,sig,{model,visual,templateId}):g2NumberInput(text,model.result,ex,sig,{model,visual,templateId})
+ const templateId=g2PickTemplate(G2_WORD_PROBLEM_STAGES[d].templates);
+ const sig=key=>`g2:word_problems:${d}:${templateId}:${key}`;
+ if(d===2){
+  const model=templateId==="two_changes"?g2StoryTwoChangesModel():g2StoryGroupsThenChangeModel();
+  return g2NumberInput(model.text,model.result,model.ex,sig(model.text),{templateId,model});
+ }
+ const kinds=templateId==="one_change"?G2_STORY_CHANGE_KINDS:
+  templateId==="equal_groups"?G2_STORY_GROUP_KINDS:[...G2_STORY_CHANGE_KINDS,...G2_STORY_GROUP_KINDS];
+ const kind=g2PickTemplate(kinds);
+ const model=G2_STORY_CHANGE_KINDS.includes(kind)?g2StoryChangeModel(kind):g2StoryGroupModel(kind);
+ const {given,question,result,record,action,known}=model,opts={model,templateId};
+ if(templateId==="read_given"){
+  const {question:readQuestion,value}=g2PickTemplate(known),text=`${given} ${readQuestion}`;
+  const nearby=g2UniqueNums(value,0,100),other=known.find(item=>item.question!==readQuestion).value;
+  return g2Choice(text,value,[other,...nearby],`Это число дано в условии. Ответ — ${value}.`,sig(text),opts);
  }
  if(templateId==="choose_action"){
-  const kind=ri(0,1)?"add":"sub",model=kind==="add"?g2StoryAddModel():g2StorySubModel(),correct=g2StoryCorrectAction(model),text=`${g2StoryOneText(model)}<br><b>Какое действие нужно выполнить?</b>`,visual={type:"g2Story",data:{steps:model.steps,aria:text}};
-  return g2Choice(text,correct,["Сложение","Вычитание"].filter(x=>x!==correct),`${g2StoryOneExplanation(model)} Значит, выбираем действие «${correct.toLowerCase()}».`,`g2:word_problems:${d}:choose_action:${kind}:${model.a}:${model.b}`,{model,visual,templateId})
+  const text=`${given} Выбери действие для вопроса «${question}».`;
+  return g2Choice(text,action,G2_STORY_ACTIONS.filter(option=>option!==action),
+   `Подходит действие «${action.toLowerCase()}». Запись решения — ${record}.`,sig(text),opts);
  }
- if(templateId==="choose_record"){
-  const kind=["add","sub","mul","div"][ri(0,3)],model=kind==="add"?g2StoryAddModel():kind==="sub"?g2StorySubModel():kind==="mul"?g2StoryMulModel():g2StoryDivModel(),correct=g2StoryCorrectRecord(model),text=`${g2StoryOneText(model)}<br><b>Выбери запись для решения.</b>`,visual=model.kind==="mul"?{type:"g2EqualGroups",data:{groups:model.groups,each:model.each}}:model.kind==="div"?{type:"g2EqualGroups",data:{mode:"share",total:model.total,groups:model.groups}}:{type:"g2Story",data:{steps:model.steps,aria:text}};
-  return g2Choice(text,correct,g2StoryRecordDistractors(model),`По условию подходит запись ${correct}.`,`g2:word_problems:${d}:choose_record:${kind}:${model.a??model.total}:${model.b??model.groups}:${model.each??0}`,{model,visual,templateId})
- }
- if(templateId==="two_add_sub"){
-  const model=g2StoryTwoAddSubModel(),o=model.obj,text=`${o.place} ${g1ExistVerb(model.a,o)} ${model.a} ${g2StoryNoun(model.a,o)}. ${o.add[0].toUpperCase()+o.add.slice(1)} ${model.b} ${g2StoryAccNoun(model.b,o)}, потом ${o.sub} ${model.c} ${g2StoryAccNoun(model.c,o)}. Сколько ${o.many} осталось?`,ex=`Сначала ${model.a} + ${model.b} = ${model.mid}. Потом ${model.mid} − ${model.c} = ${model.result}.`;
-  return g2NumberInput(text,model.result,ex,`g2:word_problems:${d}:two_add_sub:${model.a}:${model.b}:${model.c}:${o.one}`,{model,visual:{type:"g2Story",data:{steps:model.steps,aria:text}},templateId})
- }
- if(templateId==="two_sub_add"){
-  const model=g2StoryTwoSubAddModel(),o=model.obj,text=`${o.place} ${g1ExistVerb(model.a,o)} ${model.a} ${g2StoryNoun(model.a,o)}. ${o.sub[0].toUpperCase()+o.sub.slice(1)} ${model.b} ${g2StoryAccNoun(model.b,o)}, потом ${o.add} ${model.c} ${g2StoryAccNoun(model.c,o)}. Сколько ${o.many} стало?`,ex=`Сначала ${model.a} − ${model.b} = ${model.mid}. Потом ${model.mid} + ${model.c} = ${model.result}.`;
-  return g2NumberInput(text,model.result,ex,`g2:word_problems:${d}:two_sub_add:${model.a}:${model.b}:${model.c}:${o.one}`,{model,visual:{type:"g2Story",data:{steps:model.steps,aria:text}},templateId})
- }
- const model=g2StoryTwoMulAddModel(),text=`Есть ${model.groups} ${g2GroupWord(model.groups)}. В каждой по ${model.each} ${g2ItemWord(model.each)}. Потом добавили ещё ${model.extra} ${g2ItemWord(model.extra)}. Сколько предметов стало всего?`,ex=`Сначала узнаём количество в группах: ${model.each} · ${model.groups} = ${model.product}. Потом ${model.product} + ${model.extra} = ${model.result}.`;
- return g2NumberInput(text,model.result,ex,`g2:word_problems:${d}:two_mul_add:${model.groups}:${model.each}:${model.extra}`,{model,visual:{type:"g2Story",data:{steps:model.steps,aria:text}},templateId:"two_mul_add"})
+ const text=`${given} ${question}`,visual=model.visual||{type:"g2Story",data:{steps:model.steps,aria:given}};
+ return g2NumberInput(text,result,`${record} = ${result}.`,sig(text),{...opts,visual});
 }
 
 const PRE843_MAKE_G2_QUESTION=makeG2Question;
@@ -20651,7 +20679,7 @@ g2TheoryHtml=function(id){
  else if(raw==="word_problems"){
   const one={steps:[{label:"Было",value:"28"},{label:"Добавили",value:"+ 15"},{label:"Стало",value:"?",answer:true}],aria:"Было 28, добавили 15, нужно узнать сколько стало"};
   const two={steps:[{label:"Было",value:"35"},{label:"Добавили",value:"+ 18"},{label:"После 1-го действия",value:"53",derived:true},{label:"Убрали",value:"− 9"},{label:"Осталось",value:"?",answer:true}],aria:"Два действия: сначала прибавить 18, потом вычесть 9"};
-  html=`<div class="elementary-theory"><p><b>В задаче сначала нужно понять, что известно и что спрашивают.</b></p><div class="g2-theory-block"><h3>Один шаг</h3><p>Прочитай вопрос. Если предметы добавили, обычно нужно сложить; если убрали — вычесть.</p>${g2StoryVisualHtml(one)}<div class="elementary-example">28 + 15 = 43. Значит, стало 43.</div></div><div class="g2-theory-block"><h3>Одинаковые группы</h3>${g2EqualGroupsVisualHtml({groups:4,each:5})}<p>4 группы по 5 предметов: <b>5 × 4 = 20</b>.</p></div><div class="g2-theory-block"><h3>Два шага</h3>${g2StoryVisualHtml({...two,showDerived:true})}<p>Сначала 35 + 18 = 53. Потом 53 − 9 = 44.</p></div><div class="elementary-example"><b>Короткое правило:</b> вопрос → действие → вычисление → ответ. Если после первого действия на вопрос ещё нельзя ответить, нужен второй шаг.</div></div>`
+  html=`<div class="elementary-theory"><p><b>В задаче сначала нужно понять, что известно и что спрашивают.</b></p><div class="g2-theory-block"><h3>Один шаг</h3><p>Прочитай вопрос. Если предметы добавили, обычно нужно сложить; если убрали — вычесть.</p>${g2StoryVisualHtml(one)}<div class="elementary-example">28 + 15 = 43. Значит, стало 43.</div></div><div class="g2-theory-block"><h3>Одинаковые группы</h3>${g2EqualGroupsVisualHtml({groups:4,each:5})}<p>4 группы по 5 предметов: <b>5 × 4 = 20</b>.</p></div><div class="g2-theory-block"><h3>Два вопроса на деление</h3><p>Если разложить 20 карандашей поровну в 4 коробки, получится <b>20 ÷ 4 = 5</b> карандашей в каждой. Если класть по 5 карандашей в коробку, понадобится <b>20 ÷ 5 = 4</b> коробки.</p></div><div class="g2-theory-block"><h3>Два шага</h3>${g2StoryVisualHtml({...two,showDerived:true})}<p>Сначала 35 + 18 = 53. Потом 53 − 9 = 44.</p></div><div class="elementary-example"><b>Короткое правило:</b> вопрос → действие → вычисление → ответ. Если после первого действия на вопрос ещё нельзя ответить, нужен второй шаг.</div></div>`
  }
  else if(raw==="geometric_figures")html=`<div class="elementary-theory"><p><b>Фигуры можно различать по форме, сторонам и углам.</b></p><div class="g2-theory-block"><h3>Сравни фигуры</h3>${g1ShapeVisualHtml({mode:"gallery",order:["Круг","Треугольник","Квадрат","Прямоугольник"]})}<p>У треугольника 3 стороны. У квадрата и прямоугольника — по 4.</p><div class="elementary-example">У квадрата все 4 стороны равны. У прямоугольника две длинные стороны равны между собой и две короткие — между собой.</div></div><div class="g2-theory-block"><h3>Точка и отрезок</h3>${g1ShapeVisualHtml({mode:"single",shape:"Отрезок"})}<p>Точка — маленькая отметка. Отрезок — прямая линия между двумя отмеченными концами.</p></div><div class="elementary-example"><b>Короткое правило:</b> сначала посмотри на форму, затем посчитай стороны и углы.</div></div>`;
  else if(raw==="geometric_quantities"){
