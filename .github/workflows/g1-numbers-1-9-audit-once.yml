@@ -1,0 +1,178 @@
+name: Grade 1 Numbers 1 to 9 live audit
+on:
+  push:
+    branches: [audit/g1-g4-content-v195]
+    paths:
+      - .github/workflows/g1-numbers-1-9-audit-once.yml
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save playwright
+      - run: npx playwright install --with-deps chromium
+      - name: Independently solve published Grade 1 questions and compare levels
+        run: |
+          node <<'JS'
+          'use strict';
+          const assert = require('node:assert/strict');
+          const { chromium } = require('playwright');
+          
+          const site = 'https://jokino9212.github.io/matkvest/';
+          const topic = 'g1:numbers_1_9';
+          
+          function auditTopic({ topic, checkLayout }) {
+            function ensure(condition, message) {
+              if (!condition) throw Error(message);
+            }
+            function inspect(prompt, visual) {
+              const next = prompt.match(/^Какое число идёт после (\d+)\?$/);
+              const missing = prompt.match(/^Какого числа не хватает\?\s*(\d+)\s*\?\s*(\d+)$/);
+              if (next) {
+                const n = Number(next[1]);
+                ensure(n >= 1 && n < 9, 'Successor outside 1–9');
+                return { family: 'следующее число', id: 'next:' + n, answer: String(n + 1) };
+              }
+              if (missing) {
+                const low = Number(missing[1]);
+                const high = Number(missing[2]);
+                ensure(low >= 1 && high <= 9 && high - low === 2, 'Invalid sequence');
+                return { family: 'пропуск в ряду', id: 'missing:' + low, answer: String(low + 1) };
+              }
+              if (prompt === 'Сколько кружков?') {
+                const count = visual.querySelectorAll('.g1-counter').length;
+                ensure(count >= 1 && count <= 9, 'Counter picture outside 1–9');
+                return { family: 'счёт кружков', id: 'count:' + count, answer: String(count) };
+              }
+              if (prompt === 'Где кружков больше?') {
+                const groups = [...visual.querySelectorAll('.g1-group-box')];
+                ensure(groups.length === 2, 'Missing groups of circles');
+                const counts = groups.map(group => group.querySelectorAll('.g1-counter').length);
+                ensure(counts.every(n => n >= 1 && n <= 9), 'Group outside 1–9');
+                const [left, right] = counts;
+                return {
+                  family: 'сравнение двух групп',
+                  id: 'compare:' + left + ':' + right,
+                  answer: left === right ? 'Поровну' : left > right ? 'Слева' : 'Справа'
+                };
+              }
+              throw Error('Unrecognised learner-facing task: ' + prompt);
+            }
+            const plain = text => text.replace(/\s+/g, ' ').trim();
+            const levels = [0, 1, 2];
+            const samples = 600;
+            const families = levels.map(() => new Map());
+            const fingerprints = levels.map(() => new Set());
+            const rounds = levels.map(() => []);
+            let generated = 0;
+            let accepted = 0;
+            let duplicateRounds = 0;
+            let equalGroups = 0;
+            let seed = 19501;
+            Math.random = () => ((seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0) / 4294967296);
+          
+            const holder = document.createElement('div');
+            function visibleKey(task, labels) {
+              return JSON.stringify([task.id, labels.slice().sort()]);
+            }
+            for (const level of levels) {
+              for (let i = 0; i < samples; i++) {
+                const task = makeG1Question(topic, level);
+                holder.innerHTML = '<div>' + task.text + '</div>' + quizVisualHtml(task);
+                const seen = inspect(plain(holder.firstElementChild.textContent), holder);
+                const labels = task.choices.map(option => option.label);
+                ensure(task.ans === seen.answer && labels.filter(label => label === seen.answer).length === 1, 'Generated answer disagrees with visible task');
+                ensure(new Set(labels).size === labels.length, 'Duplicate choice');
+                if (!families[level].has(seen.family)) families[level].set(seen.family, 0);
+                families[level].set(seen.family, families[level].get(seen.family) + 1);
+                fingerprints[level].add(visibleKey(seen, labels));
+                if (level === 2 && seen.answer === 'Поровну') equalGroups++;
+                generated++;
+              }
+            }
+          
+            for (const level of levels) {
+              for (let run = 0; run < 6; run++) {
+                openG1Topic(topic);
+                const stage = document.querySelectorAll('#modal .stage-card')[level];
+                ensure(stage && !stage.disabled, 'Ordinary stage did not unlock');
+                stage.click();
+                const pictures = new Set();
+                const methods = new Set();
+                let duplicate = false;
+                for (let i = 0; i < STAGES[level].count; i++) {
+                  const panel = document.querySelector('#qstage');
+                  const node = panel?.querySelector('.quizq');
+                  const choices = [...panel.querySelectorAll('button.answer')];
+                  const labels = choices.map(button => plain(button.textContent));
+                  const task = inspect(plain(node.textContent), panel);
+                  ensure(new Set(labels).size === labels.length && labels.filter(label => label === task.answer).length === 1, 'Rendered choices are inconsistent');
+                  if (checkLayout) {
+                    for (const element of panel.querySelectorAll('.g1-counter, button.answer')) {
+                      const rect = element.getBoundingClientRect();
+                      ensure(rect.width > 0 && rect.left >= -1 && rect.right <= innerWidth + 1, 'Question overflowing viewport');
+                    }
+                  }
+                  duplicate ||= pictures.has(task.id);
+                  pictures.add(task.id);
+                  methods.add(task.family);
+                  choices[labels.indexOf(task.answer)].click();
+                  ensure(blockSession.correct === i + 1 && blockSession.done === i + 1, 'Independently computed answer rejected');
+                  if (!blockSession.finished) nextQ();
+                  accepted++;
+                }
+                const result = [...document.querySelectorAll('#qstage button')].find(button => button.textContent.includes('Посмотреть результат'));
+                ensure(blockSession.finished && result, 'Result button missing');
+                result.click();
+                ensure(progressFor(topic).best[level] === STAGES[level].count, 'Progress result not saved');
+                if (duplicate) duplicateRounds++;
+                rounds[level].push(methods.size);
+              }
+            }
+            const overlaps = [[0, 1], [1, 2], [0, 2]].map(([a, b]) =>
+              [...fingerprints[a]].filter(item => fingerprints[b].has(item)).length);
+            return {
+              generated, accepted, completed: rounds.flat().length, families: families.map(level => Object.fromEntries(level)),
+              overlaps, duplicateRounds, equalGroups, rounds, catalog: g1AllTopics().length
+            };
+          }
+          
+          if (process.env.MATKVEST_G1_EXPORT) {
+            module.exports = auditTopic;
+          } else {
+            (async () => {
+              const browser = await chromium.launch({ headless: true });
+              try {
+                for (const width of [320, 390, 1280]) {
+                  const context = await browser.newContext({ viewport: { width, height: 850 }, isMobile: width < 500, hasTouch: width < 500 });
+                  try {
+                    const page = await context.newPage();
+                    const errors = [];
+                    page.on('pageerror', error => errors.push(error.message));
+                    await page.goto(site, { waitUntil: 'domcontentloaded' });
+                    await page.waitForFunction(() => document.querySelector('#appVersionBadge')?.textContent === 'Сборка v195');
+                    await page.locator('button[onclick="openGrade(1)"]').click();
+                    const card = page.locator('button.topic').filter({ has: page.getByText('Числа от 1 до 9', { exact: true }) });
+                    await card.click();
+                    assert.equal(await page.locator('#modal .stage-card').count(), 3);
+                    const result = await page.evaluate(auditTopic, { topic, checkLayout: true });
+                    assert.deepEqual(errors, []);
+                    console.log(JSON.stringify({ width, ...result }));
+                  } finally {
+                    await context.close();
+                  }
+                }
+              } finally {
+                await browser.close();
+              }
+            })().catch(error => {
+              console.error(error);
+              process.exitCode = 1;
+            });
+          }
+          JS
