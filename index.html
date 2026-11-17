@@ -19677,7 +19677,8 @@ function g2TensOnesVisualHtml(data){
 }
 function g2MeasureCardsHtml(data){
  const rows=Array.isArray(data?.rows)?data.rows:[];
- return `<div class="g2-measure-cards" role="img" aria-label="Сравнение величин">${rows.map(r=>`<div class="g2-measure-card"><b>${esc(r.value)}</b><small>${esc(r.label||"")}</small></div>`).join("")}</div>`
+ const description=rows.map(row=>[row.label,row.value].filter(Boolean).join(". ")).join(". ");
+ return `<div class="g2-measure-cards" role="img" aria-label="${esc(description)}">${rows.map(r=>`<div class="g2-measure-card"><b>${esc(r.value)}</b><small>${esc(r.label||"")}</small></div>`).join("")}</div>`
 }
 const PRE841_QUIZ_VISUAL_HTML=quizVisualHtml;
 quizVisualHtml=function(question){
@@ -19757,41 +19758,77 @@ function g2Numbers100Question(d){
  });
 }
 
-const G2_UNIT_CONTEXTS=[
- {text:"длину карандаша",answer:"см",wrong:["м","кг","ч"]},
- {text:"длину комнаты",answer:"м",wrong:["см","кг","мин"]},
- {text:"массу арбуза",answer:"кг",wrong:["см","м","мин"]},
- {text:"длительность урока",answer:"мин",wrong:["кг","см","м"]},
- {text:"продолжительность ночного сна",answer:"ч",wrong:["мин","кг","см"]}
+const G2_QUANTITIES_STAGES=[
+ {templates:["ruler_zero","choose_unit"],description:"Выбери единицу измерения или измерь отрезок от нуля."},
+ {templates:["convert_unit","compare_quantities"],description:"Переведи единицы измерения и сравни величины."},
+ {templates:["ruler_shifted","remaining_tape","remaining_time"],description:"Измерь отрезок по двум отметкам или реши задачу на длину и время."}
 ];
+const G2_UNIT_CONTEXTS=[
+ {text:"длину карандаша",answer:"см",wrong:["кг","мин","ч"],ex:"Длину небольших предметов удобно измерять в сантиметрах."},
+ {text:"длину комнаты",answer:"м",wrong:["кг","мин","ч"],ex:"Длину комнаты удобно измерять в метрах."},
+ {text:"массу арбуза",answer:"кг",wrong:["см","м","мин"],ex:"Массу арбуза удобно измерять в килограммах."},
+ {text:"длительность урока",answer:"мин",wrong:["кг","см","м"],ex:"Школьный урок длится несколько десятков минут."},
+ {text:"продолжительность ночного сна",answer:"ч",wrong:["кг","см","м"],ex:"Ночной сон длится несколько часов."}
+];
+const G2_UNIT_RELATIONS=[
+ {large:"дм",small:"см",factor:10,max:10},
+ {large:"м",small:"дм",factor:10,max:9},
+ {large:"м",small:"см",factor:100,max:1},
+ {large:"ч",small:"мин",factor:60,max:1}
+];
+const G2_QUANTITY_COMPARISONS=[
+ {leftUnit:"кг",rightUnit:"кг",factor:1,max:20,delta:4},
+ {leftUnit:"дм",rightUnit:"см",factor:10,max:10,delta:9},
+ {leftUnit:"ч",rightUnit:"мин",factor:60,max:1,delta:15}
+];
+
 function g2QuantitiesQuestion(d){
- const warm=["ruler_cm","choose_unit","compare_mass"],train=["ruler_cm","choose_unit","compare_mass","convert_dm_cm","convert_cm_dm","compare_length","compare_time"],master=["ruler_cm","choose_unit","compare_mass","convert_dm_cm","convert_cm_dm","compare_length","compare_time","unit_relation"],templateId=g2PickTemplate(d===0?warm:d===1?train:master);
- if(templateId==="ruler_cm"){
-  const a=ri(2,10),model={a,unit:"см"};return g2Choice("Какова длина отрезка?",a,g2UniqueNums(a,1,10),`Отрезок начинается у 0 и заканчивается у ${a}. Его длина — ${a} см.`,`g2:quantities:${d}:ruler_cm:${a}`,{model,visual:{type:"g1Length",data:{kind:"measure",a}},templateId})
+ const templateId=g2PickTemplate(G2_QUANTITIES_STAGES[d].templates);
+ const sig=key=>`g2:quantities:${d}:${templateId}:${key}`;
+ if(templateId==="ruler_zero"||templateId==="ruler_shifted"){
+  const shifted=templateId==="ruler_shifted",start=shifted?ri(1,9):0,end=ri(start+1,10),answer=end-start;
+  const model={start,end},visual={type:"g1Length",data:{segments:[model]}},options={model,visual,templateId};
+  if(shifted)return g2NumberInput("Найди длину отрезка в сантиметрах по двум отметкам линейки.",answer,
+   `Начало у отметки ${start}, конец у отметки ${end}. Длина отрезка равна ${end} − ${start} = ${answer} см.`,sig(`${start}:${end}`),
+   {...options,unitSuffix:"см",inputHint:"Введи число сантиметров."});
+  return g2Choice("Какова длина отрезка в сантиметрах?",answer,g2UniqueNums(answer,1,10),
+   `Отрезок начинается у 0 и заканчивается у ${end}. Его длина — ${answer} см.`,sig(end),options);
  }
  if(templateId==="choose_unit"){
-  const c=G2_UNIT_CONTEXTS[ri(0,G2_UNIT_CONTEXTS.length-1)],model={context:c.text,answer:c.answer};return g2Choice(`В каких единицах удобно измерять ${c.text}?`,c.answer,c.wrong,`Удобно использовать ${c.answer}.`,`g2:quantities:${d}:choose_unit:${c.answer}:${c.text}`,{model,templateId})
+  const {text,answer,wrong,ex}=g2PickTemplate(G2_UNIT_CONTEXTS);
+  return g2Choice(`В каких единицах удобно измерять ${text}?`,answer,wrong,ex,sig(text),{model:{context:text},templateId});
  }
- if(templateId==="compare_mass"){
-  let a=ri(1,9),b=ri(1,9);if(a===b)b=b<9?b+1:b-1;const answer=a>b?`${a} кг`:`${b} кг`,model={a,b,answer};
-  return g2Choice("Какая масса больше?",answer,[`${a} кг`,`${b} кг`].filter(x=>x!==answer),`Сравниваем ${a} кг и ${b} кг. Больше ${answer}.`,`g2:quantities:${d}:compare_mass:${a}:${b}`,{model,visual:{type:"g2MeasureCards",data:{rows:[{value:`${a} кг`,label:"Первая масса"},{value:`${b} кг`,label:"Вторая масса"}]}},templateId})
+ if(templateId==="convert_unit"){
+  const {large,small,factor,max}=g2PickTemplate(G2_UNIT_RELATIONS),amount=ri(1,max),toSmall=ri(0,1)===0;
+  const given=toSmall?amount:amount*factor,answer=toSmall?amount*factor:amount;
+  const from=toSmall?large:small,to=toSmall?small:large;
+  return g2NumberInput(`Заполни пропуск. <b>${given} ${from} = ? ${to}</b>.`,answer,
+   `1 ${large} = ${factor} ${small}. Значит, ${given} ${from} = ${answer} ${to}.`,sig(`${from}:${to}:${given}`),{
+    model:{given,from,to},templateId,unitSuffix:to
+   });
  }
- if(templateId==="convert_dm_cm"){
-  const dm=ri(1,9),answer=dm*10,model={dm,answer};return g2NumberInput(`Сколько сантиметров в <b>${dm} дм</b>?`,answer,`1 дм = 10 см. Значит, ${dm} дм = ${answer} см.`,`g2:quantities:${d}:convert_dm_cm:${dm}`,{model,visual:{type:"g2MeasureCards",data:{rows:[{value:`${dm} дм`,label:"Дециметры"},{value:`${answer} см`,label:"Сантиметры"}]}},templateId,unitSuffix:"см",inputHint:"Введи число сантиметров."})
+ if(templateId==="compare_quantities"){
+  const {leftUnit,rightUnit,factor,max,delta}=g2PickTemplate(G2_QUANTITY_COMPARISONS);
+  const a=ri(1,max),converted=a*factor,b=converted+ri(-Math.min(delta,converted-1),Math.min(delta,100-converted));
+  const left=`${a} ${leftUnit}`,right=`${b} ${rightUnit}`;
+  const answer=converted===b?"=":converted<b?"<":">";
+  const equation=factor===1?"":`${left} = ${converted} ${rightUnit}. `;
+  const model={a,b,leftUnit,rightUnit},visual={type:"g2MeasureCards",data:{rows:[{value:left,label:"Первая величина"},{value:right,label:"Вторая величина"}]}};
+  return g2Choice("Какой знак верно сравнивает первую величину со второй?",answer,["<","=",">"].filter(sign=>sign!==answer),
+   `${equation}${converted} ${rightUnit} ${answer} ${right}.`,sig(`${left}:${right}`),{model,visual,templateId});
  }
- if(templateId==="convert_cm_dm"){
-  const dm=ri(1,9),cm=dm*10,answer=dm,model={cm,answer};return g2NumberInput(`Сколько дециметров в <b>${cm} см</b>?`,answer,`10 см = 1 дм. Значит, ${cm} см = ${answer} дм.`,`g2:quantities:${d}:convert_cm_dm:${cm}`,{model,visual:{type:"g2MeasureCards",data:{rows:[{value:`${cm} см`,label:"Сантиметры"},{value:`${answer} дм`,label:"Дециметры"}]}},templateId,unitSuffix:"дм",inputHint:"Введи число дециметров."})
+ if(templateId==="remaining_tape"){
+  const decimeters=ri(1,9),used=10*decimeters,answer=100-used;
+  return g2NumberInput(`От ленты длиной <b>1 м</b> отрезали <b>${decimeters} дм</b>. Сколько сантиметров ленты осталось?`,answer,
+   `1 м = 100 см. ${decimeters} дм = ${used} см. Осталось 100 − ${used} = ${answer} см.`,sig(decimeters),{
+    model:{decimeters},templateId,unitSuffix:"см",inputHint:"Введи число сантиметров."
+   });
  }
- if(templateId==="compare_length"){
-  const dm=ri(1,9),base=dm*10,shift=ri(0,2)-1,cm=Math.max(1,Math.min(99,base+shift*10)),left=`${dm} дм`,right=`${cm} см`,answer=base===cm?"Одинаково":base>cm?left:right,model={dm,cm,baseCm:base,answer};
-  return g2Choice("Какая длина больше?",answer,[left,right,"Одинаково"].filter(x=>x!==answer),`${dm} дм = ${base} см. Сравниваем ${base} см и ${cm} см. ${answer==="Одинаково"?"Длины равны.":`Больше ${answer}.`}`,`g2:quantities:${d}:compare_length:${dm}:${cm}`,{model,visual:{type:"g2MeasureCards",data:{rows:[{value:left,label:`это ${base} см`},{value:right,label:"сантиметры"}]}},templateId})
- }
- if(templateId==="compare_time"){
-  const mode=ri(0,2),minutes=mode===0?ri(45,59):mode===1?60:ri(61,75),left="1 ч",right=`${minutes} мин`,answer=minutes===60?"Одинаково":minutes<60?left:right,model={minutes,answer};
-  return g2Choice("Что длится дольше?",answer,[left,right,"Одинаково"].filter(x=>x!==answer),`1 ч = 60 мин. Сравниваем 60 мин и ${minutes} мин. ${answer==="Одинаково"?"Время одинаковое.":`Дольше ${answer}.`}`,`g2:quantities:${d}:compare_time:${minutes}`,{model,visual:{type:"g2MeasureCards",data:{rows:[{value:left,label:"это 60 мин"},{value:right,label:"минуты"}]}},templateId})
- }
- const rels=[{left:"1 дм",right:"10 см",answer:"10",unit:"см"},{left:"1 м",right:"100 см",answer:"100",unit:"см"},{left:"1 ч",right:"60 мин",answer:"60",unit:"мин"}],r=rels[ri(0,rels.length-1)],model={...r};
- return g2Choice(`Какое число пропущено? <b>${r.left} = ? ${r.unit}</b>`,r.answer,g2UniqueNums(Number(r.answer),0,100),`${r.left} = ${r.right}.`,`g2:quantities:${d}:unit_relation:${r.left}`,{model,visual:{type:"g2MeasureCards",data:{rows:[{value:r.left,label:"Слева"},{value:r.right,label:"То же значение"}]}},templateId:"unit_relation"})
+ const first=ri(5,25),second=ri(5,25),answer=60-first-second;
+ return g2NumberInput(`Занятие длилось <b>1 ч</b>. На чтение ушло <b>${first} мин</b>, на письмо — <b>${second} мин</b>. Сколько минут осталось на рисование?`,answer,
+  `1 ч = 60 мин. Чтение и письмо заняли ${first} + ${second} = ${first+second} мин. На рисование осталось 60 − ${first+second} = ${answer} мин.`,sig(`${first}:${second}`),{
+   model:{first,second},templateId,unitSuffix:"мин",inputHint:"Введи число минут."
+  });
 }
 function makeG2Question(id,stageOverride=null){
  const raw=rawCourseId(id),d=stageOverride===null?activeDifficulty():Math.max(0,Math.min(2,Number(stageOverride)||0));
@@ -19821,7 +19858,8 @@ function g2TheoryHtml(id){
 }
 function openG2Topic(id){
  const t=g2InfoById(id);if(!t)return;if(t.implemented===false)return showElementaryTopicSoon(2,id);document.body.classList.add("elementary-mode");blockSession=null;const done=completedStages(t.id);
- const descriptions=t.id==="g2:numbers_100"?G2_NUMBERS_100_STAGES.map(stage=>stage.description):[];
+ const stages=t.id==="g2:numbers_100"?G2_NUMBERS_100_STAGES:t.id==="g2:quantities"?G2_QUANTITIES_STAGES:[];
+ const descriptions=stages.map(stage=>stage.description);
  show(`<div class="mtop"><h2>2 класс • ${esc(t.title)}</h2><button class="x" onclick="closeModal()">×</button></div><div class="lesson elementary-lesson">${g2TheoryHtml(t.id)}</div><div class="stage-grid">${stageCards(t.id,`startG2QuizStage.bind(null,'${t.id}')`,descriptions)}</div><div class="subtle">Пройдено этапов: <b>${done}/3</b>.</div>`)
 }
 function startG2QuizStage(id,stageIndex){const t=g2InfoById(id);if(!t||t.implemented===false)return showElementaryTopicSoon(2,id);beginBlock(t.id,stageIndex,"g2quiz");openG2Quiz(t.id)}
@@ -20499,7 +20537,7 @@ const PRE846_G2_THEORY_HTML=g2TheoryHtml;
 g2TheoryHtml=function(id){
  const raw=rawCourseId(id);let html="";
  if(raw==="numbers_100")html=`<div class="elementary-theory"><p><b>Числа до 100 легче понимать, если увидеть, сколько в них десятков и единиц.</b></p><div class="g2-theory-block"><h3>Соберём число</h3>${g2TensOnesVisualHtml({tens:3,ones:4})}<p>Сначала считаем десятки: 3 десятка — это 30. Потом добавляем 4 единицы. Получаем <b>34</b>.</p><div class="elementary-example"><b>34 = 3 десятка и 4 единицы.</b></div><p>10 десятков — это 1 сотня, или <b>100</b>.</p></div><div class="g2-theory-block"><h3>Где число стоит</h3>${elementaryNumberLineSvg({min:30,max:40,highlight:34})}<p>На числовом луче числа увеличиваются вправо. Перед 34 стоит 33, после 34 — 35.</p></div><div class="elementary-example"><b>Короткое правило:</b> 100 больше всех чисел от 0 до 99. В остальных числах сравни десятки, а если их поровну — единицы.</div></div>`;
- else if(raw==="quantities")html=`<div class="elementary-theory"><p><b>Когда нужно узнать, насколько предмет длинный, тяжёлый или сколько длится событие, его измеряют.</b></p><div class="g2-theory-block"><h3>Выбери подходящую единицу</h3><p>Карандаш удобно измерять в сантиметрах, комнату — в метрах, массу арбуза — в килограммах, урок — в минутах.</p><div class="elementary-example"><b>1 дм = 10 см • 1 м = 100 см • 1 ч = 60 мин</b></div></div><div class="g2-theory-block"><h3>Сравни по шагам</h3><p>1. Посмотри на единицы. 2. Если они разные — переведи в одинаковые. 3. Сравни числа.</p><div class="elementary-example">Например: 4 дм = 40 см, поэтому 4 дм больше 30 см.</div></div><div class="elementary-example"><b>Короткое правило:</b> сравнивать удобно только одинаковые единицы. Длина, масса и время — это величины.</div></div>`;
+ else if(raw==="quantities")html=`<div class="elementary-theory"><p><b>Когда нужно узнать, насколько предмет длинный, тяжёлый или сколько длится событие, его измеряют.</b></p><div class="g2-theory-block"><h3>Выбери подходящую единицу</h3><p>Карандаш удобно измерять в сантиметрах, комнату — в метрах, массу арбуза — в килограммах, урок — в минутах.</p><div class="elementary-example"><b>1 дм = 10 см • 1 м = 10 дм = 100 см • 1 ч = 60 мин</b></div></div><div class="g2-theory-block"><h3>Измерь по линейке</h3>${g1LengthVisualHtml({segments:[{start:3,end:8}]})}<p>Конец отрезка у отметки 8, начало у отметки 3. Длина равна <b>8 − 3 = 5 см</b>.</p></div><div class="g2-theory-block"><h3>Сравни по шагам</h3><p>1. Посмотри на единицы. 2. Если они разные — переведи в одинаковые. 3. Сравни числа.</p><div class="elementary-example">Например: 4 дм = 40 см, поэтому 4 дм больше 30 см.</div></div><div class="elementary-example"><b>Короткое правило:</b> сравнивать удобно только одинаковые единицы. Длина, масса и время — это величины.</div></div>`;
  else if(raw==="add_sub_100")html=`<div class="elementary-theory"><p><b>Считать до 100 легче, если разбивать действие на удобные шаги.</b></p><div class="g2-theory-block"><h3>Прибавляем десятки</h3>${g2ArithmeticStepVisualHtml({expression:"34 + 20",showSteps:true,steps:["30 + 20 = 50","50 + 4 = 54"]})}<p>К 34 прибавили 2 десятка и получили <b>54</b>.</p></div><div class="g2-theory-block"><h3>Переходим через десяток</h3>${g2ArithmeticStepVisualHtml({expression:"38 + 7",showSteps:true,steps:["38 + 2 = 40","от 7 осталось 5","40 + 5 = 45"]})}<p>Сначала доходим до круглого десятка, потом прибавляем остаток.</p></div><div class="g2-theory-block"><h3>Вычитаем так же</h3>${g2ArithmeticStepVisualHtml({expression:"42 − 5",showSteps:true,steps:["42 − 2 = 40","осталось вычесть 3","40 − 3 = 37"]})}</div><div class="elementary-example"><b>Короткое правило:</b> выбирай шаг, после которого считать проще.</div></div>`;
  else if(raw==="multiply_divide")html=`<div class="elementary-theory"><p><b>Если есть несколько одинаковых групп, одно и то же число не обязательно складывать много раз.</b></p><div class="g2-theory-block"><h3>Одинаковые группы</h3>${g2EqualGroupsVisualHtml({groups:3,each:4})}<p>В каждой группе по 4 предмета, групп 3: <b>4 + 4 + 4 = 12</b>. Короткая запись: <b>4 × 3 = 12</b>.</p><p>Такое действие называют <b>умножением</b>.</p></div><div class="g2-theory-block"><h3>Делим поровну</h3><p>Если 12 предметов раздать поровну в 3 группы, в каждой будет по 4: <b>12 ÷ 3 = 4</b>.</p><p>Такое действие называют <b>делением</b>.</p></div><div class="elementary-example"><b>Короткое правило:</b> умножение собирает одинаковые группы, а деление помогает разделить поровну или узнать число групп.</div></div>`;
  else if(raw==="operations_100")html=`<div class="elementary-theory"><p><b>Когда в одной записи несколько действий, важно понять, какое выполнять первым.</b></p><div class="g2-theory-block"><h3>Если только + и −</h3>${g2ExpressionVisualHtml({expression:"30 + 8 − 5",showFocus:true,focus:"30 + 8"})}<p>Считаем слева направо: сначала 30 + 8, потом вычитаем 5.</p></div><div class="g2-theory-block"><h3>× и ÷ раньше + и −</h3>${g2ExpressionVisualHtml({expression:"20 + 3 × 4",showFocus:true,focus:"3 × 4"})}<p>Сначала 3 × 4 = 12. Потом 20 + 12 = 32.</p></div><div class="g2-theory-block"><h3>Скобки — сначала</h3>${g2ExpressionVisualHtml({expression:"(8 + 4) ÷ 3",showFocus:true,focus:"8 + 4"})}<p>Сначала 8 + 4 = 12. Потом 12 ÷ 3 = 4.</p></div><div class="elementary-example"><b>Короткое правило:</b> скобки → × и ÷ → + и −. Запись из чисел и действий называют выражением.</div></div>`;
