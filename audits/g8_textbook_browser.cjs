@@ -2,6 +2,9 @@ const assert=require('node:assert/strict');
 const {pathToFileURL}=require('node:url');
 const {chromium}=require('playwright');
 
+const applicationTopics=[
+ 'triangle_midline','triangle_centers','triangle_centroid','right_triangle_projections','similarity_constructions','similarity_applications'
+];
 const rebuilt=[
  'algebraic_fraction_domain','algebraic_fraction_basic_property','algebraic_fraction_reduction','algebraic_fraction_add_sub',
  'algebraic_fraction_mul_div','rational_expression_transformations','inverse_proportion_function',
@@ -36,7 +39,9 @@ async function testNavigation(page){
  assert.equal(await menu.locator('[data-paragraph]:visible').count(),1);
  for(const [query,id] of [
   ['алгебра 27','rational_equation_word_problems'],['алгебра 38','number_intervals'],['алгебра 44','linear_function'],
-  ['геометрия 66','similarity_by_angles'],['геометрия 67','similarity_by_two_sides'],['геометрия 68','similarity_by_three_sides']
+  ['геометрия 66','similarity_by_angles'],['геометрия 67','similarity_by_two_sides'],['геометрия 68','similarity_by_three_sides'],
+  ['геометрия 69','triangle_midline'],['геометрия 70','triangle_centers'],['геометрия 71','right_triangle_projections'],
+  ['геометрия 72','similarity_constructions'],['геометрия 73','similarity_applications']
  ]){
   await search.fill(query);
   await menu.locator('[data-topic-id="g8:'+id+'"]:visible').waitFor();
@@ -55,7 +60,7 @@ async function testNavigation(page){
  assert.match(await page.locator('#g8HomeProgress').textContent(),/0\/136.*0\/408/);
 }
 async function testSimilarity(page){
- return page.evaluate(()=>{
+ return page.evaluate(applicationTopics=>{
   const check=(condition,message)=>{if(!condition)throw Error(message);};
   const distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
   function checkTriangle(triangle){
@@ -97,16 +102,30 @@ async function testSimilarity(page){
   const legacy='g8:triangle_similarity_tests',legacyProgress=progressFor(legacy);
   legacyProgress.best=[4,6,9];
   check(g8InfoById(legacy)&&makeG8Question(legacy,2)?.text,'Original workout is unavailable');
-  const totals={similarityQuestions:0,similarityDrawings:0};
-  for(const raw of ['similarity_by_angles','similarity_by_two_sides','similarity_by_three_sides']){
+  function checkProjection(model){
+   const svg=document.querySelector('#qstage svg.geometry-svg');
+   check(svg?.querySelectorAll('.geo-right').length===2,'Missing two right-angle marks');
+   const points=svg.querySelector('polygon.geo-face').points;
+   const [a,b,c]=[points[0],points[1],points[2]];
+   const p=c.x-a.x,q=b.x-c.x,h=a.y-c.y;
+   check(p>0&&q>0&&h>0&&Math.abs(p/q-model.p/model.q)<1e-5,'Incorrect projection ratio');
+   check(Math.abs(h*h/(p*q)-1)<1e-5,'Altitude is not the geometric mean of the projections');
+   const box=svg.getBoundingClientRect();
+   check(box.width>100&&box.left>=-1&&box.right<=innerWidth+1,'Altitude drawing is clipped');
+   check([...svg.querySelectorAll('text')].map(label=>label.textContent).join('')==='ABHC','Wrong altitude labels');
+  }
+  const totals={similarityQuestions:0,similarityDrawings:0,applicationQuestions:0,projectionDrawings:0};
+  const criteria=['similarity_by_angles','similarity_by_two_sides','similarity_by_three_sides'];
+  for(const raw of [...criteria,...applicationTopics]){
+   const criterion=criteria.includes(raw);
    const id='g8:'+raw,templates=new Set();
    for(let stage=0;stage<3;stage++){
     const count=STAGES[stage].count,generated=new Set();
     for(let i=0;i<250;i++){
      const task=makeG8Question(id,stage);
-     check(task.audit?.topic===raw&&task.audit?.stage===stage,raw+' generated from the wrong pool');
+     check((task.audit?.topic??task.audit?.raw)===raw&&task.audit?.stage===stage,raw+' generated from the wrong pool');
      generated.add(task.templateId);
-     if(task.visual){
+     if(criterion&&task.visual){
       check(task.visual.type==='geometry',raw+' uses an unexpected visual');
       checkTriangle(task.visual.data.left);
       checkTriangle(task.visual.data.right);
@@ -122,9 +141,12 @@ async function testSimilarity(page){
     for(let i=0;i<count;i++){
      check(!seen.has(q.templateId),raw+' repeated a template');
      seen.add(q.templateId);
-     if(q.visual){
+     if(criterion&&q.visual){
       checkFigure(q.visual.data);
       totals.similarityDrawings++;
+     }else if(q.visual?.data.kind==='g7-g8-altitude-to-hypotenuse'){
+      checkProjection(q.visual.data);
+      totals.projectionDrawings++;
      }
      if(q.choices.length){
       const index=q.choices.findIndex(option=>String(option.key)===String(q.ans));
@@ -138,7 +160,8 @@ async function testSimilarity(page){
      check(blockSession.correct===i+1,raw+' rejected a correct answer in '+q.templateId);
      check(blockSession.done===i+1,raw+' did not record progress');
      if(!blockSession.finished)nextQ();
-     totals.similarityQuestions++;
+     if(criterion)totals.similarityQuestions++;
+     else totals.applicationQuestions++;
     }
     check(blockSession.finished,raw+' did not finish the stage');
     const resultButton=[...document.querySelectorAll('#qstage button')].find(button=>button.textContent.includes('Посмотреть результат'));
@@ -149,8 +172,9 @@ async function testSimilarity(page){
   }
   check(JSON.stringify(legacyProgress.best)==='[4,6,9]', 'Original workout progress changed');
   check(totals.similarityDrawings===9&&totals.similarityQuestions===66,'Missing similarity problems or visuals');
+  check(totals.applicationQuestions===132&&totals.projectionDrawings===5,'Missing application problems or altitude diagrams');
   return totals;
- });
+ },applicationTopics);
 }
 
 async function testSessions(page){
@@ -204,9 +228,9 @@ async function testSessions(page){
    if(raw==='pythagorean_applications'){
     verify(JSON.stringify(families.map(group=>group.size))==='[5,7,10]',id+' lost a scenario');
     verify(new Set(families.flatMap(group=>[...group])).size===22,id+' shares scenarios across levels');
-   }else if(raw==='triangle_centers'){
-    verify(JSON.stringify(families.map(group=>group.size))==='[5,4,4]',id+' lost a scenario');
-    verify(new Set(families.flatMap(group=>[...group])).size===13,id+' shares scenarios across levels');
+   }else if(['triangle_centers','right_triangle_projections','similarity_constructions'].includes(raw)){
+    verify(JSON.stringify(families.map(group=>group.size))==='[5,7,10]',id+' lost a scenario');
+    verify(new Set(families.flatMap(group=>[...group])).size===22,id+' shares scenarios across levels');
    }else if(raw!=='parallelogram_properties'){
     verify(families.every(group=>group.size===4)&&new Set(families.flatMap(group=>[...group])).size===12,id+' lost an exclusive scenario');
    }
