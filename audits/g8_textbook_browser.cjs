@@ -16,7 +16,7 @@ const rebuilt=[
  'pythagorean_applications','parallelogram_properties','number_intervals','linear_function','rational_equation_word_problems'
 ];
 async function testNavigation(page){
- await page.goto(pathToFileURL(process.cwd()+'/index.html').href);
+ await page.goto(pathToFileURL(process.cwd()+'/index.html').href,{waitUntil:'domcontentloaded'});
  await page.locator('button[onclick="openGrade(8)"]').click();
  const menu=page.locator('#mk-g8-textbook-nav');
  const search=page.locator('main input[type=search]:visible');
@@ -56,12 +56,12 @@ async function testNavigation(page){
  assert.equal(await menu.locator('details:visible').count(),1);
  await menu.locator('[data-topic-id="g8:heron_formula"]:visible').click();
  assert.equal(await page.locator('#modal .stage-card').count(),3);
- await page.reload();
+ await page.reload({waitUntil:'domcontentloaded'});
  await page.locator('#modal .stage-card').first().waitFor();
  assert.equal(await page.evaluate(()=>currentGrade),8);
  await page.evaluate(()=>mk872BrandGoHome());
  assert.match(await page.locator('#g8HomeProgress').textContent(),/0\/136.*0\/408/);
- await page.reload();
+ await page.reload({waitUntil:'domcontentloaded'});
  assert.match(await page.locator('#g8HomeProgress').textContent(),/0\/136.*0\/408/);
 }
 async function testSimilarity(page){
