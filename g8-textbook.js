@@ -4654,6 +4654,274 @@ const exponentMasterFixes={
  }
 };
 
+const dieFaces=[1,2,3,4,5,6];
+const orderedDice=dieFaces.flatMap(first=>dieFaces.map(second=>[first,second]));
+function countDice(condition){return orderedDice.filter(([first,second])=>condition(first,second)).length;}
+function dataDescription(values){return values.map(integer).join(', ');}
+function dispersion(values){
+ const sum=values.reduce((total,value)=>total+value,0);
+ const squares=values.reduce((total,value)=>total+value*value,0);
+ return rational(squares*values.length-sum*sum,values.length**2);
+}
+function scatterSeries(base,step){return [base,base+step,base+2*step,base+4*step,base+5*step];}
+function plotObservations(task,values){
+ return functionGraph(task,[],values.map((value,index)=>[index+1,value]));
+}
+const statisticsMasterFixes={
+ elementary_favorable_events:{
+  orderedPairWithAlternatingParity:([a])=>{
+   const n=4+a%5,even=Math.floor(n/2),odd=n-even;
+   return number(`Из карточек с числами от 1 до ${n} последовательно вынимают две разные. Сколько исходов, в которых чётная карточка идёт после нечётной?`,odd*even,
+    `На первом месте ${odd} нечётных вариантов, на втором ${even} чётных. Карточки с разной чётностью всегда различны.`);
+  },
+  diceSquareSum:([a])=>{
+   const limit=6+a%4;
+   return number(`Дважды бросают кубик. Сколько упорядоченных исходов дают сумму очков больше ${limit} и при этом не содержат шестёрку?`,
+    countDice((x,y)=>x+y>limit&&x!==6&&y!==6),
+    `Оба числа берём от 1 до 5. Для каждого возможного первого результата выписываем вторые числа, превышающие ${limit} минус первый результат, и считаем пары.`);
+  },
+  selectionWithOneRepeatedResult:([a])=>{
+   const n=3+a%5;
+   return number(`Трижды с возвращением тянут карточку из ${n} разных карточек. Сколько последовательностей, в которых ровно одна пара соседних результатов совпадает?`,2*n*(n-1),
+    `Повтор стоит в начале либо в конце. Для каждого случая выбираем повторяющуюся карточку ${n} способами и отличную от неё ${n-1} способами.`);
+  },
+  favorableOutcomeFromSuitAndRank:([a,b])=>{
+   const first=2+a%5,second=2+b%5;
+   return number(`В наборе карточек каждая из ${first} мастей встречается с каждым из ${second} номеров. Сколько карточек либо первой масти, либо первого номера, если карточку с обоими признаками надо исключить?`,first+second-2,
+    `В первой масти ${second} карточек, с первым номером ${first}. Общая карточка входит в оба списка, её убираем по одному разу из каждого.`);
+  },
+  ascendingSelections:([a])=>{
+   const n=5+a%7;
+   return number(`Из карточек 1–${n} вытягивают две без возвращения. Сколько исходов, в которых второе число больше первого?`,rational(n*(n-1),2),
+    `Для каждой пары разных карточек ровно один из двух порядков даёт рост. Упорядоченных пар ${n} · ${n-1}, делим пополам.`);
+  },
+  countComplementForThreeCoins:([,b])=>{
+   const n=3+b%3;
+   return number(`Монету подбрасывают ${n} раз. Сколько последовательностей содержат и орла, и решку, причём первый результат — орёл?`,2**(n-1)-1,
+    `После первого орла остаётся ${2**(n-1)} последовательностей. Убираем единственную, в которой решка так и не выпала.`);
+  },
+  countCodesWithOneZero:([a])=>{
+   const n=4+a%5;
+   return number(`Код состоит из трёх цифр от 0 до ${n}. Цифры могут повторяться. Сколько кодов содержат ровно один нуль, если код нельзя начинать с нуля?`,2*n*n,
+    `Нуль ставим на второе или третье место. На каждом из двух оставшихся мест есть ${n} ненулевых цифр.`);
+  },
+  detectEmptyCompoundOutcome:([a])=>choice(`Два кубика показали сумму ${2*(2+a%3)+1}. Может ли при этом произведение выпавших чисел быть нечётным?`,
+   'Нет',['Да, если оба числа нечётны','Да, если оба числа чётны'],
+   'Нечётное произведение требует двух нечётных множителей, а их сумма чётна.'),
+  restrictedDifferenceOnDice:([a])=>{
+   const limit=2+a%3;
+   return number(`Кубик бросают дважды. Сколько исходов, где второй результат превосходит первый не меньше чем на ${limit}?`,
+    countDice((x,y)=>y-x>=limit),
+    `Для первого значения x допустимы вторые от x + ${limit} до 6. Если нижний предел больше 6, подходящих вторых значений нет.`);
+  },
+  competingResidues:([a,b])=>{
+   const n=12+a+b;
+   const answer=Math.floor(n/2)+Math.floor(n/3)-2*Math.floor(n/6);
+   return number(`Выбирают карточку от 1 до ${n}. Сколько чисел кратны ровно одному из двух чисел 2 и 3?`,answer,
+    `Кратных 2 — ${Math.floor(n/2)}, кратных 3 — ${Math.floor(n/3)}. Кратные 6 надо вычесть из обоих подсчётов.`);
+  }
+ },
+ data_dispersion:{
+  translateAndDouble:([a,b])=>number(`Таблица содержит числа ${dataDescription([b-a,b,b+a])}. Каждое умножили на 2 и вычли ${a}. Какова дисперсия нового набора? Используй деление на число значений.`,rational(8*a*a,3),
+   `Начальная дисперсия (${a*a} + 0 + ${a*a}) : 3. Удвоение отклонений умножает дисперсию на 4, общий сдвиг её сохраняет.`),
+  addMeanToSample:([a,b])=>number(`В наборе четыре числа, их среднее ${b}, дисперсия ${a*a}. К набору добавили число ${b}. Найди дисперсию пяти чисел.`,rational(4*a*a,5),
+   `Среднее не меняется, новое отклонение равно 0. Сумма квадратов отклонений ${4*a*a}, делим на 5.`),
+  replaceOutlierWithMean:([a,b])=>{
+   const values=[b-a,b,b,b+a],edited=[b-a,b,b,b];
+   return number(`В наборе ${dataDescription(values)} наибольшее число заменили на ${b}. Найди дисперсию нового набора.`,dispersion(edited),
+    `Новое среднее равно (${4*b} − ${a}) : 4. Отклонения по модулю равны 3 · ${a} : 4 и ${a} : 4 у каждого из остальных трёх чисел. Складываем квадраты и делим на 4.`);
+  },
+  reverseScaleByKnownVariances:([a,b])=>number(`После умножения каждого числа набора на положительное k и прибавления ${b} дисперсия выросла с ${a*a} до ${(2*a)**2}. Найди k.`,2,
+   `При общем сдвиге дисперсия не меняется, при умножении растёт в k² раз. Отношение дисперсий 4. Берём положительный корень.`),
+  combineEqualGroups:([a,b])=>number(`В первой группе записали четыре раза число ${b-a}, во второй — четыре раза число ${b+a}. Найди дисперсию объединённого набора.`,a*a,
+   `Общее среднее равно ${b}. Все восемь отклонений по модулю равны ${a}. Среднее их квадратов равно ${a*a}.`),
+  inferMissingDeviationPair:([a,b])=>number(`Даны числа ${b-a}, ${b+a}, ${b} − x и ${b} + x. Их дисперсия равна ${fraction(a*a+b*b,2)}. Найди положительное x.`,b,
+   `Среднее фиксировано и равно ${b}. Сумма квадратов отклонений 2·${a*a} + 2x². Делим на 4 и решаем уравнение.`),
+  removeBothExtremes:([a,b])=>number(`У набора ${dataDescription([b-2*a,b-a,b,b+a,b+2*a])} убрали наименьшее и наибольшее значения. На сколько уменьшилась дисперсия?`,rational(4*a*a,3),
+   `Среднее в обоих случаях равно ${b}. До удаления дисперсия равна 2·${a*a}, после — (2·${a*a}) : 3. Находим разность.`),
+  changingFrequencyOfMean:([a,b])=>valuesTable(number(`К данным из таблицы добавили ещё три наблюдения со средним значением набора. Найди новую дисперсию.`,rational(4*a*a,8),
+   `Среднее равно ${b}. Четыре крайних наблюдения дают сумму квадратов ${4*a*a}. Новых наблюдений всего 8.`),
+   ['Значение','Частота'],[[b-a,2],[b,1],[b+a,2]]),
+  undoNewSquareSum:([a,b])=>number(`После умножения всех пяти наблюдений на 3 сумма квадратов отклонений от нового среднего равна ${45*a*a}. Найди исходную дисперсию.`,a*a,
+   `Сумма квадратов выросла в 9 раз. Исходная сумма ${5*a*a}, делим её на 5.`),
+  sameRangeDifferentDispersion:([a,b])=>number(`Сравни дисперсии наборов ${dataDescription([b-a,b-a,b+a,b+a])} и ${dataDescription([b-a,b,b,b+a])}. На сколько дисперсия первого больше?`,rational(a*a,2),
+   `Средние совпадают. В первом наборе все четыре отклонения по модулю ${a}. Во втором — только два, остальные нулевые.`)
+ },
+ standard_deviation:{
+  transformWithNegativeScale:([a,b])=>number(`Среднее набора равно ${b}, стандартное отклонение равно ${a}. Каждое значение заменили на ${b} − 3x. Найди стандартное отклонение нового набора.`,3*a,
+   `Прибавление одной константы не влияет на отклонение. Умножение на −3 увеличивает модули отклонений в 3 раза.`),
+  recoverScaleFromDeviation:([a,b])=>number(`Числа умножили на положительное k. Дисперсия была ${a*a}, новое стандартное отклонение равно ${3*a}. Найди k.`,3,
+   `Изначально стандартное отклонение равно ${a}. Его отношение после и до преобразования равно k.`),
+  compareVarianceAfterTwoChanges:([a,b])=>number(`У первого набора стандартное отклонение ${a}. Его значения удвоили. У второго стандартное отклонение ${b}. К его значениям прибавили 5. Найди разность стандартных отклонений первого и второго наборов после изменений.`,2*a-b,
+   `Первое отклонение стало ${2*a}, а у второго сохранилось ${b}. Вычитаем.`),
+  equalGroupsAtUnknownDistance:([a,b])=>number(`Половина наблюдений равна ${b} − x, половина ${b} + x. Стандартное отклонение ${a}. Найди расстояние между двумя значениями, если x положительно.`,2*a,
+   `Среднее равно ${b}. Каждый модуль отклонения равен x, поэтому стандартное отклонение тоже x. Расстояние равно 2x.`),
+  removeZerosToLeaveSymmetry:([a,b])=>number(`Даны восемь наблюдений: по одному со значениями ${b-a} и ${b+a}, остальные равны ${b}. На сколько увеличится стандартное отклонение, если оставить только крайние наблюдения?`,rational(a,2),
+   `Среднее остаётся ${b}. Изначально дисперсия равна 2·${a*a} : 8, затем ${a*a}. Корни равны ${a} : 2 и ${a}.`),
+  differenceBetweenVarianceAndDeviation:([a])=>number(`После уменьшения всех наблюдений в 2 раза стандартное отклонение стало ${a}. Найди разность исходной дисперсии и исходного стандартного отклонения.`,4*a*a-2*a,
+   `Первоначальное стандартное отклонение ${2*a}. Дисперсия — его квадрат. Вычитаем ${2*a}.`),
+  compareShiftWithChangedSpread:([a,b])=>{
+   const options=['В обоих одинаковое','В первом наборе','Во втором наборе'];
+   const correct=options[2*a===b?0:2*a>b?1:2];
+   return choice(`Первый набор имеет стандартное отклонение ${a}, второй — ${b}. К каждому значению первого прибавили ${a+b}, значения второго уменьшили вдвое. Где отклонение теперь больше?`,
+    correct,options.filter(value=>value!==correct),`Сдвиг сохраняет отклонение. Сравниваем ${a} и ${fraction(b,2)}.`);
+  },
+  buildSymmetricDataFromMeanAndDeviation:([a,b])=>number(`Набор состоит из двух разных чисел. Имеет среднее ${b} и стандартное отклонение ${a}. Найди произведение этих чисел.`,b*b-a*a,
+   `Числа находятся симметрично относительно среднего. Их расстояние до ${b} равно ${a}. Перемножаем ${b-a} и ${b+a}.`),
+  squareSumAfterUnitChange:([a])=>number(`У пяти значений стандартное отклонение ${a} м. Их выразили в дециметрах. Найди сумму квадратов отклонений от нового среднего.`,500*a*a,
+   `В дециметрах стандартное отклонение равно ${10*a}. Возводим его в квадрат и умножаем на число наблюдений.`,'дм²'),
+  unknownCountFromSquareSum:([a,b])=>number(`Стандартное отклонение набора ${a}. Сумма квадратов отклонений ${(a*a)*b}. Сколько значений в наборе?`,b,
+   `Дисперсия равна ${a*a}. Она получается делением суммы квадратов на число значений. Находим делитель.`)
+ },
+ scatter_plot:{
+  compareLeftWithRightHalf:([a,b])=>{
+   const base=1+b%3,step=1+a%3,values=scatterSeries(base,step);
+   return plotObservations(number('На сколько среднее значение y двух точек с наибольшими x больше среднего y двух точек с наименьшими x?',4*step,
+    `У правой пары y равны ${values[3]} и ${values[4]}, у левой — ${values[0]} и ${values[1]}. Вычитаем средние этих пар.`),values);
+  },
+  removeOutlierFromSummary:([a,b])=>{
+   const base=1+a%3,step=1+b%2,values=[base,base+step,base+2*step,base+3*step,base+6*step];
+   return plotObservations(number('Убери наблюдение с наибольшим y. На сколько уменьшится размах значений y?',3*step,
+    `Минимум не меняется. Прежний максимум ${values[4]}, новый — ${values[3]}. Берём разность.`),values);
+  },
+  countAboveLevelWithRestrictedX:([a,b])=>{
+   const base=1+a%4,step=1+b%3,values=scatterSeries(base,step),threshold=base+step*(1+a%4);
+   return plotObservations(number(`Рассмотри точки с x ≥ 2. Сколько из них лежит строго выше горизонтали y = ${threshold}?`,
+    values.slice(1).filter(v=>v>threshold).length,`Отбрасываем точку при x = 1. Сравниваем четыре оставшихся ординаты с ${threshold} и считаем строго большие.`),values);
+  },
+  largestAdjacentChange:([a,b])=>{
+   const base=1+a%4,step=1+b%3,values=scatterSeries(base,step);
+   return plotObservations(number('Рассматривая точки по возрастанию x, найди наибольший прирост y между соседними точками.',2*step,
+    `Обычный прирост ${step}, а от x = 3 к x = 4 ордината растёт вдвое сильнее.`),values);
+  },
+  findProjectedValueByRightPair:([a,b])=>{
+   const step=1+a%3,base=1+b%4,values=scatterSeries(base,step);
+   return plotObservations(number('Последние две точки соединяют прямой и продолжают её до x = 6. Какова ордината на этой прямой при x = 6?',base+6*step,
+    `У правой пары абсциссы отличаются на 1, ординаты на ${step}. От последней точки делаем ещё шаг вправо и вверх.`),values);
+  },
+  oppositeTrendsByPairOrder:([a,b])=>{
+   const base=1+a%4,step=1+b%2,values=[base+4*step,base+3*step,base+5*step,base+step,base];
+   return plotObservations(number('Сколько раз ордината уменьшается при переходе от точки к следующей точке по возрастанию абсциссы?',3,
+    'Слева направо первый переход вниз, второй вверх, последние два вниз. Считаем только переходы вниз.'),values);
+  },
+  averageAfterCorrection:([a,b])=>{
+   const base=1+a%4,step=1+b%3,values=[base,base+step,base+2*step,base+3*step,base+4*step];
+   return plotObservations(number(`У точки с x = 4 записали ошибочную ординату. Её нужно уменьшить на ${step}. Найди среднее значение всех пяти исправленных ординат.`,rational(5*base+9*step,5),
+    `Изначальная сумма ординат ${5*base+10*step}. Вычитаем ${step}, затем делим на 5.`),values);
+  },
+  findTrendAfterReversingX:([a,b])=>{
+   const base=1+a%4,step=1+b%3,values=scatterSeries(base,step);
+   return plotObservations(choice('На диаграмме каждой точке присваивают новую абсциссу x′ = 6 − x. Ординаты сохраняются. Каким станет общий тренд при росте x′?',
+    'Убывающим',['Возрастающим','Все ординаты станут равны'],
+    'Замена меняет порядок точек по горизонтали. Точки с большими y оказываются слева.'),values);
+  },
+  sumOfExtremesAfterThreshold:([a,b])=>{
+   const base=1+a%4,step=1+b%3,values=scatterSeries(base,step);
+   return plotObservations(number(`Оставь точки с x ≥ 2 и y ≤ ${values[3]}. Найди сумму наименьшей и наибольшей ординат среди оставшихся.`,2*base+5*step,
+    `Подходят точки при x = 2, 3, 4. Минимум ${values[1]}, максимум ${values[3]}. Складываем.`),values);
+  },
+  differenceOfSlopesByVisiblePairs:([a,b])=>{
+   const base=1+a%3,step=1+b%2,values=scatterSeries(base,step);
+   return plotObservations(number('Проведи одну прямую через точки с x = 1 и x = 2, другую через точки с x = 3 и x = 4. На сколько угловой коэффициент второй больше первого?',step,
+    `У обеих пар разность x равна 1. У первой пары ординаты отличаются на ${step}, у второй — на ${2*step}.`),values);
+  }
+ },
+ disjoint_events_addition:{
+  unionOfDisjointRemainders:([a,b])=>{
+   const n=a+b+13,first=Math.floor(n/3),other=Math.floor((n+2)/3);
+   return number(`Из карточек 1–${n} выбирают одну. Чему равна вероятность остатка 0 или 1 при делении её номера на 3?`,rational(first+other,n),
+    `Остаток может быть только один. Кратных 3 — ${first}; с остатком 1 — ${other}. Складываем и делим на ${n}.`);
+  },
+  sumEndsOnDice:([a])=>{
+   const limit=3+a%3,far=14-limit,low=countDice((x,y)=>x+y<limit),high=countDice((x,y)=>x+y>far-1);
+   return number(`Два кубика бросают независимо. Найди вероятность, что сумма меньше ${limit} или не меньше ${far}.`,rational(low+high,36),
+    `Интервалы сумм раздельны. Для первого условия ${low} упорядоченных пар, для второго ${high}. Делим их сумму на 36.`);
+  },
+  inferThirdSectorProbability:([a,b])=>number(`Из ${a+2*b} карточек номер попадает ровно в одну из трёх групп. В первой ${a}, во второй ${b}. Найди вероятность получить карточку второй или третьей группы.`,rational(2*b,a+2*b),
+   `В третьей группе ${b} карточек. Она не пересекается со второй, поэтому получаем ${2*b} подходящих карточек из ${a+2*b}.`),
+  partitionByExactHeads:([a])=>{
+   const n=4+a%3;
+   return number(`Монету бросают ${n} раз. Какова вероятность ровно одного орла или ровно одной решки?`,rational(2*n,2**n),
+    `Каждое событие даёт ${n} последовательностей. При ${n} бросках они несовместны, поэтому складываем. Всего последовательностей ${2**n}.`);
+  },
+  givenUnionRecoverOne:([a,b])=>number(`События A и B несовместны. Вероятность их объединения ${fraction(a+b,a+2*b)}, а разность P(B) − P(A) равна ${fraction(b-a,a+2*b)}. Найди P(B).`,rational(b,a+2*b),
+   `Сумма равна вероятности объединения. Прибавляем разность к сумме, получаем 2P(B), затем делим пополам.`),
+  eventProbabilityFromAllButOne:([a,b])=>number(`Три исхода A, B и C исчерпывают испытание и попарно несовместны. P(A) = ${fraction(a,2*a+b)}, P(B) = ${fraction(b,2*a+b)}. Найди P(A ∪ C).`,rational(2*a,2*a+b),
+   'Объединение A и C дополняет событие B до достоверного. Из 1 вычитаем P(B).'),
+  twoColorsTwoOrders:([a,b])=>number(`В коробке ${a} красных и ${b} синих шаров. Дважды берут по шару с возвращением. Какова вероятность разных цветов в любом порядке?`,rational(2*a*b,(a+b)**2),
+   'Два порядка несовместны. В каждом случае произведение вероятностей a : (a + b) и b : (a + b). Удваиваем.'),
+  equalColorComplement:([a,b])=>number(`Из коробки с ${a} белыми и ${b} чёрными шарами дважды берут шар с возвращением. Найди вероятность двух шаров одного цвета.`,rational(a*a+b*b,(a+b)**2),
+   'Складываем вероятности двух белых и двух чёрных. Это два несовместных события.'),
+  diagnoseNonDisjointSpecialCase:([a,b])=>{
+   const n=a+b+12,k=6+b%5;
+   return choice(`Из карточек 1–${n} берут одну. A — на ней чётное число, B — число не меньше ${k}. Какую поправку нужно учесть при сложении вероятностей?`,
+    'Вычесть вероятность чётного числа, не меньшего указанной границы',
+    ['Прибавить вероятность чётного числа, не меньшего границы','Поправка не требуется','Вычесть вероятность всех чётных чисел'],
+    'Такая карточка входит и в A, и в B. При простом сложении её вероятность посчитали дважды.');
+  },
+  compareTwoUnionsWithSharedPart:([a,b])=>number(`Карточки распределены в три непересекающиеся группы A, B и C. Размеры — ${a}, ${b}, ${a+b}. Какова разность P(B ∪ C) − P(A ∪ C) при равновероятном выборе одной карточки?`,rational(b-a,2*(a+b)),
+   'При вычитании вероятность общей группы C сокращается. Разность равна P(B) − P(A).')
+ },
+ conditional_probability:{
+  twoDiceGivenEvenSum:([a])=>{
+   const n=2+a%3,allowed=countDice((x,y)=>(x+y)%2===0),hits=countDice((x,y)=>(x+y)%2===0&&x>=n);
+   return number(`Дважды бросили кубик. Известно, что сумма чётная. Найди вероятность того, что первый результат не меньше ${n}.`,rational(hits,allowed),
+    `При чётной сумме результаты имеют одинаковую чётность. Допустимых пар ${allowed}, из них ${hits} удовлетворяют дополнительному условию.`);
+  },
+  conditionOnMultipleThenCompare:([a,b])=>{
+   const n=18+a+b,m=6+b%7,allowed=Math.floor(n/3),matches=allowed-Math.ceil(m/3)+1;
+   return number(`Из чисел от 1 до ${n} выбрали одно. Известно, что оно делится на 3. Какова вероятность, что оно не меньше ${m}?`,rational(matches,allowed),
+    `Оставляем только ${allowed} кратных 3. Подходят от 3 · ${Math.ceil(m/3)} до 3 · ${allowed}, всего ${matches}.`);
+  },
+  removeGivenColorThenChoose:([a,b])=>number(`В коробке ${a} зелёных и ${b} красных шаров. Берут два без возвращения. Известно, что первым был зелёный. Найди вероятность того, что вторым будет шар того же цвета.`,rational(a-1,a+b-1),
+   `После первого выбора остаются ${a-1} зелёных из ${a+b-1} шаров.`),
+  readTwoColumnCondition:([a,b])=>valuesTable(number('Из учащихся таблицы наугад выбрали одного. Известно, что выбранный ученик пришёл во вторую смену. Найди вероятность, что он участвовал в олимпиаде.',
+   rational(a,a+2*b), `Во второй смене в олимпиаде участвовали ${a} из ${a+2*b} учащихся.`),
+   ['Смена','Участвовал','Участия не было'],[['Первая',b,a],['Вторая',a,2*b]]),
+  recoverMissingConditionalNumerator:([a,b])=>number(`Событию B благоприятствуют ${a+b} равновозможных исходов. P(A | B) = ${fraction(a,a+b)}. Скольким исходам одновременно благоприятствуют A и B?`,a,
+   `Умножаем условную вероятность на количество исходов в B, то есть на ${a+b}.`),
+  orderMattersGivenOneColor:([a,b])=>number(`Из ${a} белых и ${b} чёрных шаров берут два без возвращения. Известно, что цвета разные. Найди вероятность того, что первым был белый.`,rational(1,2),
+   'При разных цветах два порядка. Число упорядоченных пар в каждом случае равно произведению количеств белых и чёрных шаров.'),
+  inferBagGivenResult:([a,b])=>number(`Два мешка выбирают с равной вероятностью. В первом ${a} белых и ${b} чёрных шаров, во втором ${b} белых и ${a} чёрных. Из выбранного мешка взяли белый шар. Какова вероятность, что взяли из второго мешка?`,rational(b,a+b),
+   `До наблюдения все ${2*(a+b)} пар «мешок и конкретный шар» равновозможны. При известном белом цвете остаются ${a+b} пар, из них ${b} относятся ко второму мешку.`),
+  compareConditionOrder:([a,b])=>choice(`Для событий A и B известно, что P(A) = ${fraction(a,a+b)}, P(B) = ${fraction(b,a+b)}, а их пересечение имеет положительную вероятность. Какая условная вероятность больше?`,
+   'P(B | A)',['P(A | B)','Они равны'],
+   'Числитель один и тот же. При условии A знаменатель меньше, поэтому P(B | A) больше.'),
+  conditionOnNoSixAndSum:([a,b])=>{
+   const t=2+a%5,hits=countDice((x,y)=>x<6&&y<6&&x+y<=t);
+   return number(`Два независимых броска кубика не дали шестёрок. Какова условная вероятность того, что сумма не больше ${t}?`,rational(hits,25),
+    `Среди допустимых чисел от 1 до 5 всего 25 упорядоченных пар. Условие на сумму выполняют ${hits} пар.`);
+  },
+  winnerGivenOneOfFirstTwo:([a,b])=>number(`Из ${a+b} разных билетов ${a} выигрышных. Купили три по очереди без возвращения. Известно, что среди первых двух ровно один выигрышный. Найди вероятность, что третий тоже выигрышный.`,rational(a-1,a+b-2),
+   `Порядок первых двух не влияет на остаток. В нём ${a-1} выигрышных билетов из ${a+b-2}.`)
+
+ },
+ probability_multiplication_rule:{
+  sequentialSameColorWithoutReplacement:([a,b])=>number(`Из коробки с ${a} белыми и ${b} красными шарами берут три шара без возвращения. Чему равна вероятность, что все три окажутся белыми?`,rational(a*(a-1)*(a-2),(a+b)*(a+b-1)*(a+b-2)),
+   `Число подходящих шаров перед тремя выборами равно ${a}, ${a-1} и ${a-2}. Общее число тоже уменьшается на один. Перемножаем три вероятности.`),
+  orderOfThreeDraws:([a,b])=>number(`Из ${a} синих и ${b} жёлтых шаров подряд вытягивают три без возвращения. Какова вероятность порядка «жёлтый, синий, жёлтый»?`,
+   rational(b*a*(b-1),(a+b)*(a+b-1)*(a+b-2)),
+   `Произведение имеет числитель ${b} · ${a} · ${b-1}. Знаменатель — общее число шаров перед каждым из трёх выборов.`),
+  reverseBranchFromJointProbability:([a,b])=>number(`В испытании P(A) = ${fraction(a,a+b)}, P(A ∩ B) = ${fraction(a,b*(a+b))}. Найди P(B | A).`,rational(1,b),
+   'В правиле умножения P(A ∩ B) = P(A) · P(B | A). Делим вероятность пересечения на вероятность A.'),
+  cooperativeIndependentTasks:([a,b])=>number(`Два датчика работают независимо. Вероятность срабатывания первого ${fraction(a,a+b)}, второго ${fraction(b,a+b)}. Найди вероятность, что сработает первый, а второй промолчит.`,rational(a*a,(a+b)**2),
+   `Вероятность молчания второго также ${fraction(a,a+b)}. Для независимых событий вероятности перемножаем.`),
+  computeFailureOfTwoSteps:([a,b])=>number(`Первый этап успешно проходят с вероятностью ${fraction(a,a+b)}, а второй при успехе на первом — с вероятностью ${fraction(b,a+b)}. Найди вероятность, что участник не завершит оба этапа успешно. Ко второму этапу допускают только тех, кто прошёл первый.`,rational((a+b)**2-a*b,(a+b)**2),
+   'Вероятность успеха на обоих этапах равна произведению. Вычитаем его из 1.'),
+  successInSecondAndThirdSteps:([a,b])=>number(`В наборе ${a} положительных и ${b} отрицательных карточек. Последовательно открывают три разные. Какова вероятность, что первая отрицательна, а обе следующие положительны?`,rational(b*a*(a-1),(a+b)*(a+b-1)*(a+b-2)),
+   `Первый множитель имеет числитель ${b}, второй ${a}, третий ${a-1}. Перед каждым следующим выбором карточек остаётся на одну меньше.`),
+  classifyDependenceFromTwoFractions:([a,b])=>choice(`Если P(A) = ${fraction(a,a+b)}, P(B) = ${fraction(b,a+b)} и P(B | A) = ${fraction(a,a+b)}, как связаны события A и B?`,
+   'Зависимы',['Независимы','Такое условие невозможно'],
+   `При независимости P(B | A) совпадала бы с P(B). Здесь они различаются, так как ${a} и ${b} не равны.`),
+  twoBagsWithDifferentPaths:([a,b])=>number(`Подбрасывают честную монету и выбирают мешок: при орле первый, при решке второй. Первый содержит ${a} белых и ${b} чёрных шаров, второй ${b} белых и ${a} чёрных. Найди вероятность белого шара.`,rational(1,2),
+   `Вероятности ветвей равны половине ${fraction(a,a+b)} и половине ${fraction(b,a+b)}. Складываем обе ветви.`),
+  withoutReplacementVersusWithReplacement:([a,b])=>number(`В коробке ${a} зелёных и ${b} красных шаров. На сколько вероятность двух зелёных при возвращении первого шара больше вероятности двух зелёных без возвращения?`,rational(a*b,(a+b)**2*(a+b-1)),
+   `Первый множитель одинаков: ${fraction(a,a+b)}. Второй равен ${fraction(a,a+b)} при возврате и ${fraction(a-1,a+b-1)} без него. Вычитаем произведения.`),
+  chooseUnknownSecondStage:([a,b])=>number(`Одновременно решить задачи A и B удалось с вероятностью ${fraction(a*b,(a+b)*(a+b))}. Учитывается, что P(A) = ${fraction(a,a+b)}. Сколько исходов из ${a+b} равновозможных исходов события A одновременно входят в B?`,b,
+   `Вычисляем P(B | A) как вероятность пересечения, делённую на ${fraction(a,a+b)}. Получаем ${fraction(b,a+b)}.`)
+ }
+};
+
 function makeQuestion(raw,stage,variant,build){
  let args;
  if(raw==='similarity_by_angles'){
@@ -4665,7 +4933,7 @@ function makeQuestion(raw,stage,variant,build){
  const item=build(args);
  const geometry=similarityTopics[raw]||raw==='triangle_midline'||['g7-g8-altitude-to-hypotenuse','g7-g8-right-trig','g7-g8-circle-line','g7-g8-circle-pair','g7-g8-arc-angle','g7-g8-exact8082','g7-qa-angle7779'].includes(item.model?.kind);
  const visual=geometry?item.model:
-  (linearMasterFixes[raw]||areaFollowupMasters[raw]||areaMasters[raw]||equationSystemMasters[raw]||probabilitySetMasters[raw]||geometryMasters[raw]||inequalityMasters[raw]||functionMasters[raw])&&(item.venn??item.graph??item.table??item.interval);
+  (statisticsMasterFixes[raw]||linearMasterFixes[raw]||areaFollowupMasters[raw]||areaMasters[raw]||equationSystemMasters[raw]||probabilitySetMasters[raw]||geometryMasters[raw]||inequalityMasters[raw]||functionMasters[raw])&&(item.venn??item.graph??item.table??item.interval);
  const sig=g8Sig(raw,stage,variant,visual?[item.text,JSON.stringify(visual)]:[item.text]);
  const audit={type:'g8Textbook',topic:raw,stage,variant};
  let question;
@@ -4683,7 +4951,7 @@ function makeQuestion(raw,stage,variant,build){
  return question;
 }
 function textbookVariants(raw,stage){
- const custom=stage===2&&(radicalMasters[raw]??quadraticMasterFixes[raw]??linearMasterFixes[raw]??exponentMasterFixes[raw]??similarityApplicationMasters[raw]??areaFollowupMasters[raw]??areaMasters[raw]??equationSystemMasters[raw]??geometryMasters[raw]??probabilitySetMasters[raw]??inequalityMasters[raw]);
+ const custom=stage===2&&(radicalMasters[raw]??quadraticMasterFixes[raw]??linearMasterFixes[raw]??exponentMasterFixes[raw]??statisticsMasterFixes[raw]??similarityApplicationMasters[raw]??areaFollowupMasters[raw]??areaMasters[raw]??equationSystemMasters[raw]??geometryMasters[raw]??probabilitySetMasters[raw]??inequalityMasters[raw]);
  if(custom)return custom;
  return similarityTopics[raw]?.[3]?.[stage]??workouts[raw]?.[stage]??(stage===2?algebraReviewMasters[raw]??functionMasters[raw]:undefined);
 }
