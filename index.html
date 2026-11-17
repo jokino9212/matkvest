@@ -19862,7 +19862,8 @@ function openG2Topic(id){
   "g2:numbers_100":G2_NUMBERS_100_STAGES,
   "g2:quantities":G2_QUANTITIES_STAGES,
   "g2:add_sub_100":G2_ADD_SUB_100_STAGES,
-  "g2:multiply_divide":G2_MULTIPLY_DIVIDE_STAGES
+  "g2:multiply_divide":G2_MULTIPLY_DIVIDE_STAGES,
+  "g2:operations_100":G2_OPERATIONS_100_STAGES
  })[t.id]||[];
  const descriptions=stages.map(stage=>stage.description);
  show(`<div class="mtop"><h2>2 класс • ${esc(t.title)}</h2><button class="x" onclick="closeModal()">×</button></div><div class="lesson elementary-lesson">${g2TheoryHtml(t.id)}</div><div class="stage-grid">${stageCards(t.id,`startG2QuizStage.bind(null,'${t.id}')`,descriptions)}</div><div class="subtle">Пройдено этапов: <b>${done}/3</b>.</div>`)
@@ -20098,48 +20099,111 @@ function g2MultiplyDivideQuestion(d){
   sig(`${a}:${b}:${c}:${e}`),{model:{a,b,c,e},templateId});
 }
 
-function g2OpExprAddSubModel(){
- const a=ri(20,70),b=ri(5,Math.min(20,100-a)),mid=a+b,c=ri(1,Math.min(15,mid)),result=mid-c;
- return {expression:`${a} + ${b} − ${c}`,a,b,c,mid,result,first:`${a} + ${b}`,steps:[`${a} + ${b} = ${mid}`,`${mid} − ${c} = ${result}`]}
+const G2_OPERATIONS_100_STAGES=[
+ {templates:["choose_first","same_rank_value"],description:"Определи первое действие и посчитай слева направо при одинаковом приоритете."},
+ {templates:["priority_value","bracket_value"],description:"Вычисли выражения с разным приоритетом действий и со скобками."},
+ {templates:["diagnose_solution","place_brackets"],description:"Найди первый ошибочный шаг или поставь скобки для заданного результата."}
+];
+
+function g2OpExprSameRankModel(){
+ const a=ri(2,10),b=ri(2,5),c=ri(2,10),product=a*b;
+ const kind=ri(0,3),rule="Действия одного приоритета выполняем слева направо.";
+ if(kind===0){
+  return {expression:`${product} ÷ ${b} × ${c}`,first:`${product} ÷ ${b}`,wrongFirst:`${b} × ${c}`,rule,
+   result:a*c,steps:[`${product} ÷ ${b} = ${a}`,`${a} × ${c} = ${a*c}`]};
+ }
+ if(kind===1){
+  const multiple=b*ri(1,2),mid=a*multiple,result=mid/b;
+  return {expression:`${a} × ${multiple} ÷ ${b}`,first:`${a} × ${multiple}`,wrongFirst:`${multiple} ÷ ${b}`,rule,
+   result,steps:[`${a} × ${multiple} = ${mid}`,`${mid} ÷ ${b} = ${result}`]};
+ }
+ const start=ri(10,80),change=ri(0,1)===0?"−":"+",then=change==="+"?"−":"+";
+ const mid=change==="+"?start+b:start-b,result=change==="+"?mid-c:mid+c;
+ return {expression:`${start} ${change} ${b} ${then} ${c}`,first:`${start} ${change} ${b}`,wrongFirst:`${b} ${then} ${c}`,rule,
+  result,steps:[`${start} ${change} ${b} = ${mid}`,`${mid} ${then} ${c} = ${result}`]};
 }
-function g2OpExprMulAddModel(){
- const a=ri(5,40),m1=ri(2,5),m2=ri(2,5),product=m1*m2,result=a+product;if(result>100)return g2OpExprMulAddModel();
- return {expression:`${a} + ${m1} · ${m2}`,a,m1,m2,product,result,first:`${m1} · ${m2}`,steps:[`${m1} · ${m2} = ${product}`,`${a} + ${product} = ${result}`]}
+
+function g2OpExprMixedModel(){
+ const a=ri(2,9),b=ri(2,9),product=a*b,multiply=ri(0,1)===0;
+ const highLeft=multiply?a:product,highSign=multiply?"×":"÷",value=multiply?product:a;
+ const subtract=ri(0,1)===0,lowSign=subtract?"−":"+",other=subtract?ri(value,100):ri(1,100-value);
+ const first=`${highLeft} ${highSign} ${b}`,result=subtract?other-value:other+value;
+ const highFirst=!subtract&&ri(0,1)===0;
+ const expression=highFirst?`${first} + ${other}`:`${other} ${lowSign} ${first}`;
+ const wrongFirst=highFirst?`${b} + ${other}`:`${other} ${lowSign} ${highLeft}`;
+ return {expression,first,wrongFirst,result,rule:"Умножение и деление выполняем раньше сложения и вычитания.",
+  steps:[`${first} = ${value}`,highFirst?`${value} + ${other} = ${result}`:`${other} ${lowSign} ${value} = ${result}`]};
 }
-function g2OpExprDivSubModel(){
- const divisor=ri(2,5),quotient=ri(2,9),division=divisor*quotient,a=ri(division+5,Math.min(100,division+50)),result=a-quotient;
- return {expression:`${a} − ${division} : ${divisor}`,a,division,divisor,quotient,result,first:`${division} : ${divisor}`,steps:[`${division} : ${divisor} = ${quotient}`,`${a} − ${quotient} = ${result}`]}
+
+function g2OpExprBracketModel(){
+ const a=ri(2,9),b=ri(2,9),mid=a*b,rule="Сначала выполняем действие в скобках.";
+ if(ri(0,1)===0){
+  const left=ri(1,mid-1),right=mid-left;
+  return {expression:`(${left} + ${right}) ÷ ${b}`,first:`${left} + ${right}`,wrongFirst:`${right} ÷ ${b}`,rule,
+   result:a,steps:[`${left} + ${right} = ${mid}`,`${mid} ÷ ${b} = ${a}`]};
+ }
+ const remove=ri(1,20),start=a+remove;
+ return {expression:`(${start} − ${remove}) × ${b}`,first:`${start} − ${remove}`,wrongFirst:`${remove} × ${b}`,rule,
+  result:mid,steps:[`${start} − ${remove} = ${a}`,`${a} × ${b} = ${mid}`]};
 }
-function g2OpExprParenModel(){
- const divisor=ri(2,5),quotient=ri(2,10),sum=divisor*quotient,a=ri(1,sum-1),b=sum-a,result=quotient;
- return {expression:`(${a} + ${b}) : ${divisor}`,a,b,divisor,sum,result,first:`${a} + ${b}`,steps:[`${a} + ${b} = ${sum}`,`${sum} : ${divisor} = ${result}`]}
-}
+
 function g2Operations100Question(d){
- const warm=["two_step_add_sub","choose_first"],train=["two_step_add_sub","mul_before_add","div_before_sub","choose_first","compute_input"],master=["two_step_add_sub","mul_before_add","div_before_sub","parentheses_first","choose_first","compute_input","restore_step","find_error"],templateId=g2PickTemplate(d===0?warm:d===1?train:master);
- if(templateId==="two_step_add_sub"){
-  const model=g2OpExprAddSubModel();return g2Choice(`Найди значение выражения: <b>${model.expression}</b>`,model.result,g2UniqueNums(model.result,0,100),model.steps.join(". ")+".",`g2:operations_100:${d}:two_step_add_sub:${model.a}:${model.b}:${model.c}`,{model,visual:{type:"g2Expression",data:{expression:model.expression,focus:model.first}},templateId})
- }
- if(templateId==="mul_before_add"){
-  const model=g2OpExprMulAddModel();return g2Choice(`Найди значение выражения: <b>${model.expression}</b>`,model.result,g2UniqueNums(model.result,0,100),`Сначала умножение: ${model.steps[0]}. Потом сложение: ${model.steps[1]}.`,`g2:operations_100:${d}:mul_before_add:${model.a}:${model.m1}:${model.m2}`,{model,visual:{type:"g2Expression",data:{expression:model.expression,focus:model.first}},templateId})
- }
- if(templateId==="div_before_sub"){
-  const model=g2OpExprDivSubModel();return g2Choice(`Найди значение выражения: <b>${model.expression}</b>`,model.result,g2UniqueNums(model.result,0,100),`Сначала деление: ${model.steps[0]}. Потом вычитание: ${model.steps[1]}.`,`g2:operations_100:${d}:div_before_sub:${model.a}:${model.division}:${model.divisor}`,{model,visual:{type:"g2Expression",data:{expression:model.expression,focus:model.first}},templateId})
- }
- if(templateId==="parentheses_first"){
-  const model=g2OpExprParenModel();return g2NumberInput(`Найди значение выражения: <b>${model.expression}</b>`,model.result,`Сначала действие в скобках: ${model.steps[0]}. Потом ${model.steps[1]}.`,`g2:operations_100:${d}:parentheses_first:${model.a}:${model.b}:${model.divisor}`,{model,visual:{type:"g2Expression",data:{expression:model.expression,focus:model.first}},templateId})
- }
+ const templateId=g2PickTemplate(G2_OPERATIONS_100_STAGES[d].templates);
+ const sig=key=>`g2:operations_100:${d}:${templateId}:${key}`;
  if(templateId==="choose_first"){
-  const kind=ri(0,2),model=kind===0?g2OpExprAddSubModel():kind===1?g2OpExprMulAddModel():g2OpExprParenModel(),answer=model.first,wrong=kind===0?[`${model.b} − ${model.c}`,"Можно начать с любого действия"]:kind===1?[`${model.a} + ${model.m1}`,"Можно начать с любого действия"]:[`${model.b} : ${model.divisor}`,"Можно начать с любого действия"];
-  return g2Choice(`Какое действие выполнить первым?<div class="g1-arithmetic-record">${model.expression}</div>`,answer,wrong,kind===0?`Сложение и вычитание здесь выполняем слева направо. Сначала ${answer}.`:kind===1?`Умножение выполняем раньше сложения. Сначала ${answer}.`:`Сначала выполняем действие в скобках: ${answer}.`,`g2:operations_100:${d}:choose_first:${model.expression}`,{model,templateId})
+  const model=g2PickTemplate([g2OpExprSameRankModel,g2OpExprMixedModel,g2OpExprBracketModel])();
+  const {expression,first,wrongFirst,rule}=model;
+  return g2Choice(`Какое действие по правилу выполняется первым?<div class="g1-arithmetic-record">${expression}</div>`,first,
+   [wrongFirst,"Можно начать с любого действия"],`${rule} Первое действие — ${first}.`,sig(expression),{model,templateId});
  }
- if(templateId==="compute_input"){
-  const model=ri(0,1)?g2OpExprMulAddModel():g2OpExprDivSubModel();return g2NumberInput(`Вычисли: <b>${model.expression}</b>`,model.result,model.steps.join(". ")+".",`g2:operations_100:${d}:compute_input:${model.expression}`,{model,visual:{type:"g2Expression",data:{expression:model.expression,focus:model.first}},templateId})
+ if(d<2){
+  const makeModel=templateId==="same_rank_value"?g2OpExprSameRankModel:templateId==="priority_value"?g2OpExprMixedModel:g2OpExprBracketModel;
+  const model=makeModel(),{expression,result,steps,rule}=model;
+  const text=`Вычисли <b>${expression}</b>.`,ex=`${rule} ${steps.join(". ")}.`;
+  const options={model,templateId};
+  if(d===0)return g2Choice(text,result,g2UniqueNums(result,0,100),ex,sig(expression),options);
+  return g2NumberInput(text,result,ex,sig(expression),options);
  }
- if(templateId==="restore_step"){
-  const model=g2OpExprMulAddModel(),answer=model.product;return g2NumberInput(`Какое число должно быть на первом шаге?<div class="g1-arithmetic-record">${model.expression}<br>${model.m1} · ${model.m2} = ?</div>`,answer,`Сначала умножаем: ${model.m1} · ${model.m2} = ${answer}. После этого можно выполнить сложение.`,`g2:operations_100:${d}:restore_step:${model.a}:${model.m1}:${model.m2}`,{model,templateId})
+ if(templateId==="diagnose_solution"){
+  const a=ri(1,15),b=ri(2,5),c=ri(2,5),product=b*c,result=a+product;
+  const expression=`${a} + ${b} × ${c}`,variant=ri(0,3);
+  const steps=[`${b} × ${c} = ${product}`,`${a} + ${product} = ${result}`];
+  const labels=["1-й шаг","2-й шаг","Ошибок нет"];
+  let answer=labels[2],reason="Оба шага верны.";
+  if(variant===1){
+   steps[0]=`${a} + ${b} = ${a+b}`;
+   steps[1]=`${a+b} × ${c} = ${(a+b)*c}`;
+   answer=labels[0];reason="На первом шаге нарушен порядок действий.";
+  }else if(variant===2){
+   steps[0]=`${b} × ${c} = ${product+1}`;
+   steps[1]=`${a} + ${product+1} = ${result+1}`;
+   answer=labels[0];reason="На первом шаге неверно вычислили произведение.";
+  }else if(variant===3){
+   steps[1]=`${a} + ${product} = ${result+1}`;
+   answer=labels[1];reason="На втором шаге неверно вычислили сумму.";
+  }
+  const text=`Где первая ошибка, если она есть?<div class="g1-arithmetic-record">${expression}</div><div>1) ${steps[0]}</div><div>2) ${steps[1]}</div>`;
+  const ex=`${reason} Сначала ${b} × ${c} = ${product}, затем ${a} + ${product} = ${result}.`;
+  return g2Choice(text,answer,labels.filter(label=>label!==answer),ex,sig(`${expression}:${variant}`),{model:{expression,steps,variant},templateId});
  }
- const model=ri(0,1)?g2OpExprMulAddModel():g2OpExprParenModel(),correct=`${model.expression} = ${model.result}`,wrong1=`${model.expression} = ${Math.min(100,model.result+1)}`,wrong2=`${model.expression} = ${Math.max(0,model.result-1)}`;
- return g2Choice("Выбери верно вычисленное выражение.",correct,[wrong1,wrong2],model.steps.join(". ")+`. Поэтому ${correct}.`,`g2:operations_100:${d}:find_error:${model.expression}`,{model,templateId:"find_error"})
+ const kind=ri(0,2),left=ri(0,1)===0;
+ let a,b,c,sign1,sign2,values;
+ if(kind===0){
+  a=ri(2,15);b=ri(2,5);c=ri(2,5);sign1="+";sign2="×";
+  values=[(a+b)*c,a+b*c];
+ }else if(kind===1){
+  a=ri(2,12);b=ri(3,8);c=ri(2,b-1);sign1="×";sign2="−";
+  values=[a*b-c,a*(b-c)];
+ }else{
+  b=ri(3,9);c=ri(1,b);a=ri(b+c,30);sign1="−";sign2="−";
+  values=[a-b-c,a-(b-c)];
+ }
+ const source=`${a} ${sign1} ${b} ${sign2} ${c}`;
+ const options=[`(${a} ${sign1} ${b}) ${sign2} ${c}`,`${a} ${sign1} (${b} ${sign2} ${c})`];
+ const answer=options[left?0:1],target=values[left?0:1];
+ return g2Choice(`Где поставить одну пару скобок, чтобы получить ${target}?<div class="g1-arithmetic-record">${source}</div>`,
+  answer,[options[left?1:0]],`${options[0]} = ${values[0]}, а ${options[1]} = ${values[1]}. Подходит ${answer}.`,
+  sig(`${source}:${target}`),{model:{source,target},templateId});
 }
 
 const PRE842_MAKE_G2_QUESTION=makeG2Question;
@@ -20583,7 +20647,7 @@ g2TheoryHtml=function(id){
  else if(raw==="quantities")html=`<div class="elementary-theory"><p><b>Когда нужно узнать, насколько предмет длинный, тяжёлый или сколько длится событие, его измеряют.</b></p><div class="g2-theory-block"><h3>Выбери подходящую единицу</h3><p>Карандаш удобно измерять в сантиметрах, комнату — в метрах, массу арбуза — в килограммах, урок — в минутах.</p><div class="elementary-example"><b>1 дм = 10 см • 1 м = 10 дм = 100 см • 1 ч = 60 мин</b></div></div><div class="g2-theory-block"><h3>Измерь по линейке</h3>${g1LengthVisualHtml({segments:[{start:3,end:8}]})}<p>Конец отрезка у отметки 8, начало у отметки 3. Длина равна <b>8 − 3 = 5 см</b>.</p></div><div class="g2-theory-block"><h3>Сравни по шагам</h3><p>1. Посмотри на единицы. 2. Если они разные — переведи в одинаковые. 3. Сравни числа.</p><div class="elementary-example">Например: 4 дм = 40 см, поэтому 4 дм больше 30 см.</div></div><div class="elementary-example"><b>Короткое правило:</b> сравнивать удобно только одинаковые единицы. Длина, масса и время — это величины.</div></div>`;
  else if(raw==="add_sub_100")html=`<div class="elementary-theory"><p><b>Считать до 100 легче, если разбивать действие на удобные шаги.</b></p><div class="g2-theory-block"><h3>Прибавляем десятки</h3>${g2ArithmeticStepVisualHtml({expression:"34 + 20",showSteps:true,steps:["30 + 20 = 50","50 + 4 = 54"]})}<p>К 34 прибавили 2 десятка и получили <b>54</b>.</p></div><div class="g2-theory-block"><h3>Переходим через десяток</h3>${g2ArithmeticStepVisualHtml({expression:"38 + 7",showSteps:true,steps:["38 + 2 = 40","от 7 осталось 5","40 + 5 = 45"]})}<p>Сначала доходим до круглого десятка, потом прибавляем остаток.</p></div><div class="g2-theory-block"><h3>Вычитаем так же</h3>${g2ArithmeticStepVisualHtml({expression:"42 − 5",showSteps:true,steps:["42 − 2 = 40","осталось вычесть 3","40 − 3 = 37"]})}</div><div class="g2-theory-block"><h3>Два двузначных числа</h3><p>Разложи второе число на десятки и единицы. Сначала прибавь или вычти десятки, затем единицы.</p><p><b>37 + 28 = 37 + 20 + 8 = 57 + 8 = 65</b></p><p><b>72 − 36 = 72 − 30 − 6 = 42 − 6 = 36</b></p></div><div class="g2-theory-block"><h3>Число пропущено</h3><p>В записи <b>? − 26 = 38</b> нужно найти число, из которого вычитали. Прибавь 26 к 38. Получится <b>38 + 26 = 64</b>.</p></div><div class="elementary-example"><b>Короткое правило:</b> выбирай шаг, после которого считать проще.</div></div>`;
  else if(raw==="multiply_divide")html=`<div class="elementary-theory"><p><b>Если есть несколько одинаковых групп, одно и то же число не обязательно складывать много раз.</b></p><div class="g2-theory-block"><h3>Одинаковые группы</h3>${g2EqualGroupsVisualHtml({groups:3,each:4})}<p>В каждой группе по 4 предмета, групп 3: <b>4 + 4 + 4 = 12</b>. Короткая запись: <b>4 × 3 = 12</b>.</p><p>Такое действие называют <b>умножением</b>.</p></div><div class="g2-theory-block"><h3>Делим поровну</h3><p>Если 12 предметов раздать поровну в 3 группы, в каждой будет по 4: <b>12 ÷ 3 = 4</b>.</p><p>Такое действие называют <b>делением</b>.</p></div><div class="g2-theory-block"><h3>Ноль и единица</h3><p>При умножении на 0 получается 0, а при умножении на 1 число сохраняется: <b>7 × 0 = 0</b>, <b>7 × 1 = 7</b>. Ноль можно разделить на положительное число. При делении на 1 число сохраняется: <b>0 ÷ 4 = 0</b>, <b>7 ÷ 1 = 7</b>.</p><p>Делить на ноль нельзя.</p></div><div class="g2-theory-block"><h3>Найди неизвестное</h3><p>Если <b>? × 3 = 12</b>, раздели 12 на 3. Если <b>? ÷ 3 = 4</b>, умножь 4 на 3. Если <b>12 ÷ ? = 4</b>, раздели 12 на 4.</p></div><div class="elementary-example"><b>Короткое правило:</b> умножение собирает одинаковые группы, а деление помогает разделить поровну или узнать число групп.</div></div>`;
- else if(raw==="operations_100")html=`<div class="elementary-theory"><p><b>Когда в одной записи несколько действий, важно понять, какое выполнять первым.</b></p><div class="g2-theory-block"><h3>Если только + и −</h3>${g2ExpressionVisualHtml({expression:"30 + 8 − 5",showFocus:true,focus:"30 + 8"})}<p>Считаем слева направо: сначала 30 + 8, потом вычитаем 5.</p></div><div class="g2-theory-block"><h3>× и ÷ раньше + и −</h3>${g2ExpressionVisualHtml({expression:"20 + 3 × 4",showFocus:true,focus:"3 × 4"})}<p>Сначала 3 × 4 = 12. Потом 20 + 12 = 32.</p></div><div class="g2-theory-block"><h3>Скобки — сначала</h3>${g2ExpressionVisualHtml({expression:"(8 + 4) ÷ 3",showFocus:true,focus:"8 + 4"})}<p>Сначала 8 + 4 = 12. Потом 12 ÷ 3 = 4.</p></div><div class="elementary-example"><b>Короткое правило:</b> скобки → × и ÷ → + и −. Запись из чисел и действий называют выражением.</div></div>`;
+ else if(raw==="operations_100")html=`<div class="elementary-theory"><p><b>Когда в одной записи несколько действий, важно понять, какое выполнять первым.</b></p><div class="g2-theory-block"><h3>Если только + и −</h3>${g2ExpressionVisualHtml({expression:"30 + 8 − 5",showFocus:true,focus:"30 + 8"})}<p>Считаем слева направо: сначала 30 + 8, потом вычитаем 5.</p></div><div class="g2-theory-block"><h3>× и ÷ раньше + и −</h3>${g2ExpressionVisualHtml({expression:"20 + 3 × 4",showFocus:true,focus:"3 × 4"})}<p>Сначала 3 × 4 = 12. Потом 20 + 12 = 32.</p></div><div class="g2-theory-block"><h3>Умножение и деление подряд</h3><p>Если в выражении только × и ÷, считай слева направо: <b>36 ÷ 6 × 2 = 6 × 2 = 12</b>.</p></div><div class="g2-theory-block"><h3>Скобки — сначала</h3>${g2ExpressionVisualHtml({expression:"(8 + 4) ÷ 3",showFocus:true,focus:"8 + 4"})}<p>Сначала 8 + 4 = 12. Потом 12 ÷ 3 = 4.</p></div><div class="g2-theory-block"><h3>Скобки меняют результат</h3><p><b>5 + (3 × 4) = 17</b>, а <b>(5 + 3) × 4 = 32</b>. Сначала вычисли действие внутри скобок.</p></div><div class="elementary-example"><b>Короткое правило:</b> скобки → × и ÷ → + и −. Запись из чисел и действий называют выражением.</div></div>`;
  else if(raw==="word_problems"){
   const one={steps:[{label:"Было",value:"28"},{label:"Добавили",value:"+ 15"},{label:"Стало",value:"?",answer:true}],aria:"Было 28, добавили 15, нужно узнать сколько стало"};
   const two={steps:[{label:"Было",value:"35"},{label:"Добавили",value:"+ 18"},{label:"После 1-го действия",value:"53",derived:true},{label:"Убрали",value:"− 9"},{label:"Осталось",value:"?",answer:true}],aria:"Два действия: сначала прибавить 18, потом вычесть 9"};
