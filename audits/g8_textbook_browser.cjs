@@ -580,11 +580,70 @@ async function testSolutionMethods(page,topics,checkLayout=true){
 
   for(const raw of topics){
    const id='g8:'+raw;
+   const systemTypes=new Set(['qa9_find_sum','qa9_unknown_rhs','qa9_linear_parameter','qa9_find_expression']);
+   const formattedSystems=new Set(),shownSystems=new Set(),degrees=new Set();
+   let shownDegree=false;
+
+   function checkFormatting(task,rendered=false){
+    if(raw==='tree_graph_basics'&&task.templateId==='count_degree'){
+     const vertex=task.text.match(/вершины ([A-Z]+)/)?.[1];
+     const edges=task.audit.graphModel.edges;
+     const degree=edges.filter(edge=>edge.from===vertex||edge.to===vertex).length;
+     const noun=degree===1?'сосед':degree>=2&&degree<=4?'соседа':'соседей';
+     const expected=`У вершины ${vertex} ${degree} ${noun}.`;
+     assert(task.answerRat?.d===1&&task.answerRat.n===degree,id+' wrong degree');
+     assert(task.ex.includes(expected),id+' wrong neighbor inflection '+task.ex);
+     if(rendered){
+      assert(document.querySelector('#qfb')?.textContent.includes(expected),id+' missing feedback');
+      shownDegree=true;
+     }
+     degrees.add(degree);
+    }
+    if(raw!=='linear_system_substitution'&&raw!=='linear_system_elimination')return;
+    const presentation=[task.text,task.ex,task.correctHtml,task.correctLabel,...(task.choices??[]).map(choice=>choice.label)];
+    for(const value of presentation.filter(Boolean)){
+     assert(!/(?<![\p{L}\p{N}.,])(?:1|\([−-]?1\))[xy](?![\p{L}\p{N}_])/u.test(value),id+' explicit unit coefficient '+value);
+    }
+    const labels=(task.choices??[]).map(choice=>normalizePromptForCompare(choice.label));
+    assert(new Set(labels).size===labels.length,id+' indistinguishable choices '+variant(task));
+
+    if(!systemTypes.has(task.templateId))return;
+    const container=rendered?document.querySelector('#qstage .quizq'):document.createElement('div');
+    if(!rendered)container.innerHTML=task.text;
+    const block=container.querySelector('.g8-substitution-system');
+    assert(block&&block.querySelectorAll('br').length===1,id+' missing two-row system '+task.templateId);
+    const [first,second]=[...block.childNodes].filter(node=>node.nodeType===Node.TEXT_NODE);
+    const row1=first?.textContent.match(/^⎧ x = (−?)(\d*)y(?: ([+−]) (\d+))?$/);
+    const row2=second?.textContent.match(/^⎩ (−?)(\d*)x ([+−]) (ky|(\d*)y) = (t|−?\d+)$/);
+    assert(row1&&row2,id+' malformed equations '+block.textContent);
+    const value=(sign,digits)=>(sign==='−'?-1:1)*Number(digits||1);
+    const m=task.audit.model;
+    assert(value(row1[1],row1[2])===m.a&&(row1[4]?value(row1[3],row1[4]):0)===m.b,id+' changed first equation');
+    assert(value(row2[1],row2[2])===m.c,id+' changed x coefficient');
+    assert(task.templateId==='qa9_linear_parameter'?row2[3]==='+'&&row2[4]==='ky':value(row2[3],row2[5])===m.d,id+' changed y coefficient');
+    assert(task.templateId==='qa9_unknown_rhs'?row2[6]==='t':Number(row2[6].replace('−','-'))===m.e,id+' changed right side');
+
+    formattedSystems.add(task.templateId);
+    if(rendered){
+     shownSystems.add(task.templateId);
+     if(checkLayout){
+      const boxes=[first,second].map(node=>{
+       const range=document.createRange();
+       range.selectNodeContents(node);
+       const fragments=range.getClientRects();
+       assert(fragments.length===1,id+' an equation wraps within its own row');
+       return fragments[0];
+      });
+      assert(boxes[0].top<boxes[1].top&&boxes.every(box=>box.left>=-1&&box.right<=innerWidth+1),id+' unreadable system layout');
+     }
+    }
+   }
    const stages=[0,1,2].map(stage=>{
     const prompts=new Set(),variants=new Set();
     for(let index=0;index<800;index++){
      const task=makeG8Question(id,stage);
      assert(task?.text&&task.ex&&task.sig&&!/undefined|NaN|Infinity/.test(task.text+task.ex),id+' incomplete prompt');
+     checkFormatting(task);
      prompts.add(shape(task));
      variants.add(variant(task));
     }
@@ -612,6 +671,7 @@ async function testSolutionMethods(page,topics,checkLayout=true){
       }
      }
      submit(task,id);
+     checkFormatting(task,true);
      assert(blockSession.correct===step+1&&blockSession.done===step+1,id+' rejected '+variant(task));
      if(stage===0&&task.audit?.type==='g8Textbook')totals.newWarmup++;
      if(stage===2&&task.audit?.replaces)totals.newMaster++;
@@ -630,6 +690,12 @@ async function testSolutionMethods(page,topics,checkLayout=true){
     assert(!repeated,id+' repeated between '+lower+' and '+upper+': '+repeated);
     const model=[...stages[lower].variants].find(type=>stages[upper].variants.has(type));
     assert(!model,id+' shared type '+model);
+   }
+   if(raw==='linear_system_substitution'){
+    assert(formattedSystems.size===4&&shownSystems.size===4,id+' not all four systems opened');
+   }
+   if(raw==='tree_graph_basics'){
+    assert([1,2,3,4,5].every(degree=>degrees.has(degree))&&shownDegree,id+' neighbor forms not verified');
    }
    totals.topics++;
   }

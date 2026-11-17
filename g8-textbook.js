@@ -5675,11 +5675,56 @@ function textbookVariants(raw,stage){
  if(custom)return custom;
  return similarityTopics[raw]?.[3]?.[stage]??workouts[raw]?.[stage]??(stage===2?algebraReviewMasters[raw]??functionMasters[raw]:undefined);
 }
+const substitutionSystemPrompts={
+ qa9_find_sum:(_m,system)=>`Дана система уравнений.<br>${system}<br>Найди x + y.`,
+ qa9_unknown_rhs:({x,y},system)=>`Пара ${g7PairPlain(x,y)} удовлетворяет системе.<br>${system}<br>Найди t.`,
+ qa9_linear_parameter:({x,y},system)=>`Решение системы — пара ${g7PairPlain(x,y)}.<br>${system}<br>Найди k.`,
+ qa9_find_expression:(_m,system)=>`Реши систему подстановкой.<br>${system}<br>Найди 2x − 3y.`
+};
+function substitutionSystemMarkup(task,model){
+ const first=`x = ${g7AffinePlain(model.a,'y',model.b)}`;
+ const right=task.templateId==='qa9_unknown_rhs'?'t':model.e;
+ const second=task.templateId==='qa9_linear_parameter'
+  ? `${g7CoeffVarPlain(model.c,'x',{first:true})} + ky = ${integer(model.e)}`
+  : g7Eq2Plain({a:model.c,b:model.d,c:right});
+ return `<span class="math g8-substitution-system" role="group" aria-label="Система уравнений">⎧ ${esc(first)}<br>⎩ ${esc(second)}</span>`;
+}
+function omitUnitCoefficients(markup){
+ if(typeof markup!=='string')return markup;
+ // Keep numeric factors in calculations and leave HTML tags intact.
+ return markup.split(/(<[^>]+>)/).map((piece,index)=>index%2===1?piece:piece
+  .replace(/\s*\+\s*\(([−-])1\)(?=[xy](?![\p{L}\p{N}_]))/gu,' − ')
+  .replace(/(?<![\p{L}\p{N}.,])\(([−-]?)1\)(?=[xy](?![\p{L}\p{N}_]))/gu,'$1')
+  .replace(/(?<![\p{L}\p{N}.,])1(?=[xy](?![\p{L}\p{N}_]))/gu,'')).join('');
+}
+function formatLegacyGrade8Question(raw,task){
+ if(!task)return task;
+ if(raw==='tree_graph_basics'&&task.templateId==='count_degree'){
+  task.ex=task.ex.replace(/\b(\d+) соседей\./g,(_,count)=>
+   `${count} ${g8Declension19(Number(count),'сосед','соседа','соседей')}.`);
+ }
+ if(raw!=='linear_system_substitution'&&raw!=='linear_system_elimination')return task;
+
+ const originalText=task.text;
+ if(raw==='linear_system_substitution'&&Object.hasOwn(substitutionSystemPrompts,task.templateId)&&task.audit?.model){
+  const model=task.audit.model;
+  task.text=substitutionSystemPrompts[task.templateId](model,substitutionSystemMarkup(task,model));
+ }
+ task.text=omitUnitCoefficients(task.text);
+ task.ex=omitUnitCoefficients(task.ex);
+ if(task.journalPrompt?.startsWith(originalText)){
+  task.journalPrompt=task.text+task.journalPrompt.slice(originalText.length);
+ }
+ if(typeof task.correctLabel==='string')task.correctLabel=omitUnitCoefficients(task.correctLabel);
+ if(typeof task.correctHtml==='string')task.correctHtml=omitUnitCoefficients(task.correctHtml);
+ for(const option of task.choices??[])option.label=omitUnitCoefficients(option.label);
+ return task;
+}
 makeG8Question=function(id,override=null){
  const raw=rawCourseId(id);
  const stage=Math.max(0,Math.min(2,Number.isInteger(override)?override:activeDifficulty()));
  const variants=textbookVariants(raw,stage);
- if(!variants)return repairMasterScenario(raw,stage,previousQuestion(id,override));
+ if(!variants)return formatLegacyGrade8Question(raw,repairMasterScenario(raw,stage,previousQuestion(id,override)));
  return makeQuestion(raw,stage,...g8Pick(Object.entries(variants)));
 };
 freshQuiz=function(id){
@@ -5694,7 +5739,7 @@ freshQuiz=function(id){
    registerSignature(replacement.sig);
    replacement._signature=replacement.sig;
   }
-  return replacement;
+  return formatLegacyGrade8Question(raw,replacement);
  }
  if(!session.g8TextbookPlan?.order?.length||session.g8TextbookPlan.order.some(variant=>!Object.hasOwn(variants,variant))){
   session.g8TextbookPlan={order:shuffleOptions(Object.keys(variants)),prompts:session.g8TextbookPlan?.prompts??[]};
