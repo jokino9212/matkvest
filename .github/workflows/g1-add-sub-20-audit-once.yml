@@ -1,0 +1,566 @@
+name: Grade 1 Addition and subtraction within 20
+on:
+  push:
+    branches: [audit/g1-g4-content-v195]
+    paths: [.github/workflows/g1-add-sub-20-audit-once.yml]
+permissions:
+  contents: write
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save playwright
+      - run: npx playwright install --with-deps --only-shell chromium
+      - name: Verify ray, answers, input and saved progress
+        run: |
+          git show 4511b41d2f7e114f84127583fb7ef7f011b1540c:index.html > "$RUNNER_TEMP/matkvest-add20-before.html"
+          base64 -d > "$RUNNER_TEMP/grade-one-add20.patch" <<'MATKVEST_PATCH'
+          ZGlmZiAtLWdpdCBhL2luZGV4Lmh0bWwgYi9pbmRleC5odG1sCmluZGV4IGJiMWMyZjIuLmY2NTJm
+          ZDAgMTAwNjQ0Ci0tLSBhL2luZGV4Lmh0bWwKKysrIGIvaW5kZXguaHRtbApAQCAtMTg1NjMsNiAr
+          MTg1NjMsMTEgQEAgY29uc3QgRzFfU1RBR0VfREVTQ1JJUFRJT05TPXsKICAgItCf0L7RgdGH0LjR
+          gtCw0LksINGB0LrQvtC70YzQutC+INC60YDRg9C20LrQvtCyINGB0YLQsNC70L4g0LjQu9C4INC+
+          0YHRgtCw0LvQvtGB0YwuIiwKICAgItCS0YvRh9C40YHQu9C4INGB0YPQvNC80YMg0LjQu9C4INGA
+          0LDQt9C90L7RgdGC0Ywg0Lgg0LLQstC10LTQuCDQvtGC0LLQtdGCLiIsCiAgICLQndCw0LnQtNC4
+          INC/0YDQvtC/0YPRidC10L3QvdC+0LUg0YfQuNGB0LvQviDQuNC70Lgg0YHRgNCw0LLQvdC4INGA
+          0LXQt9GD0LvRjNGC0LDRgtGLINC00LLRg9GFINC00LXQudGB0YLQstC40LkuIgorIF0sCisgImcx
+          OmFkZF9zdWJfMjAiOlsKKyAgItCe0YLRgdGH0LjRgtCw0Lkg0YjQsNCz0Lgg0L7RgiDQvtGC0LzQ
+          tdGH0LXQvdC90L7Qs9C+INGH0LjRgdC70LAg0L3QsCDQu9GD0YfQtS4iLAorICAi0JLRi9GH0LjR
+          gdC70Lgg0YHRg9C80LzRgyDQuNC70Lgg0YDQsNC30L3QvtGB0YLRjCDRgSDQv9C10YDQtdGF0L7Q
+          tNC+0Lwg0YfQtdGA0LXQtyAxMC4iLAorICAi0JLRi9GH0LjRgdC70Lgg0L/QviDQv9C+0YDRj9C0
+          0LrRgyDQtNCy0LAg0LTQtdC50YHRgtCy0LjRjyDQuNC70Lgg0LLQvtGB0YHRgtCw0L3QvtCy0Lgg
+          0L/RgNC+0L/Rg9GB0Log0LIg0YDQsNCy0LXQvdGB0YLQstC1LiIKICBdCiB9OwogZnVuY3Rpb24g
+          b3BlbkcxVG9waWMoaWQpewpAQCAtMTg2MjgsMTEgKzE4NjMzLDEyIEBAIGNvbnN0IFRBUkdFVF9T
+          VEFHRTgzNl9JRFM9WyJnMTphZGRfc3ViXzEwIiwiZzE6YWRkX3N1Yl8yMCJdOwogCiAvKiBTYW1l
+          IGVsZW1lbnRhcnkgbnVtYmVyLWxpbmUgaGVscGVyLCBleHRlbmRlZCBzbyB0aGUgYXJyb3cgcG9p
+          bnRzIGluIHRoZSBhY3R1YWwgbW92ZW1lbnQgZGlyZWN0aW9uLiAqLwogY29uc3QgUFJFODM2X0VM
+          RU1FTlRBUllfTlVNQkVSX0xJTkVfU1ZHPWVsZW1lbnRhcnlOdW1iZXJMaW5lU3ZnOwotZWxlbWVu
+          dGFyeU51bWJlckxpbmVTdmc9ZnVuY3Rpb24oe21pbj0wLG1heD0yMCxoaWdobGlnaHQ9bnVsbCxm
+          cm9tPW51bGwsdG89bnVsbH09e30peworZWxlbWVudGFyeU51bWJlckxpbmVTdmc9ZnVuY3Rpb24o
+          e21pbj0wLG1heD0yMCxoaWdobGlnaHQ9bnVsbCxmcm9tPW51bGwsdG89bnVsbCxjb21wYWN0PWZh
+          bHNlfT17fSl7CiAgbWluPU1hdGguZmxvb3IoTnVtYmVyKG1pbikpO21heD1NYXRoLmZsb29yKE51
+          bWJlcihtYXgpKTtpZighTnVtYmVyLmlzRmluaXRlKG1pbil8fCFOdW1iZXIuaXNGaW5pdGUobWF4
+          KXx8bWF4PD1taW4pe21pbj0wO21heD0yMH0KLSBjb25zdCBXPTY4MCxIPTExOCxMPTMyLFI9MzIs
+          WT01OCxyYW5nZT1tYXgtbWluLHg9bj0+TCsobi1taW4pLyhyYW5nZXx8MSkqKFctTC1SKTsKLSBs
+          ZXQgdGlja3M9IiIsbGFiZWxzPSIiO2ZvcihsZXQgbj1taW47bjw9bWF4O24rKyl7Y29uc3QgeHg9
+          eChuKTt0aWNrcys9YDxsaW5lIHgxPSIke3h4fSIgeTE9IiR7WS04fSIgeDI9IiR7eHh9IiB5Mj0i
+          JHtZKzh9IiBzdHJva2U9IiM2ZDgyNzgiIHN0cm9rZS13aWR0aD0iMiIvPmA7bGFiZWxzKz1gPHRl
+          eHQgeD0iJHt4eH0iIHk9IiR7WSsyOX0iIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0i
+          MTMiIGZpbGw9IiM1MjY4NWUiPiR7bn08L3RleHQ+YH0KLSBjb25zdCBoaT1oaWdobGlnaHQhPT1u
+          dWxsJiZoaWdobGlnaHQhPT11bmRlZmluZWQmJk51bWJlci5pc0Zpbml0ZShOdW1iZXIoaGlnaGxp
+          Z2h0KSk/YDxjaXJjbGUgY3g9IiR7eChOdW1iZXIoaGlnaGxpZ2h0KSl9IiBjeT0iJHtZfSIgcj0i
+          OCIgZmlsbD0iIzI1ODQ1ZiIvPmA6IiI7CisgY29uc3QgVz1jb21wYWN0PzMzMjo2ODAsSD1jb21w
+          YWN0PzgwOjExOCxMPWNvbXBhY3Q/MTg6MzIsUj1MLFk9Y29tcGFjdD8zMTo1ODsKKyBjb25zdCBy
+          YW5nZT1tYXgtbWluLHg9bj0+TCsobi1taW4pLyhyYW5nZXx8MSkqKFctTC1SKTsKKyBsZXQgdGlj
+          a3M9IiIsbGFiZWxzPSIiO2ZvcihsZXQgbj1taW47bjw9bWF4O24rKyl7Y29uc3QgeHg9eChuKTt0
+          aWNrcys9YDxsaW5lIHgxPSIke3h4fSIgeTE9IiR7WS04fSIgeDI9IiR7eHh9IiB5Mj0iJHtZKzh9
+          IiBzdHJva2U9IiM2ZDgyNzgiIHN0cm9rZS13aWR0aD0iMiIvPmA7bGFiZWxzKz1gPHRleHQgeD0i
+          JHt4eH0iIHk9IiR7WSsyOX0iIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iJHtjb21w
+          YWN0PzE2OjEzfSIgZmlsbD0iIzUyNjg1ZSI+JHtufTwvdGV4dD5gfQorIGNvbnN0IGhpPWhpZ2hs
+          aWdodCE9PW51bGwmJmhpZ2hsaWdodCE9PXVuZGVmaW5lZCYmTnVtYmVyLmlzRmluaXRlKE51bWJl
+          cihoaWdobGlnaHQpKT9gPGNpcmNsZSBjeD0iJHt4KE51bWJlcihoaWdobGlnaHQpKX0iIGN5PSIk
+          e1l9IiByPSIke2NvbXBhY3Q/Njo4fSIgZmlsbD0iIzI1ODQ1ZiIvPmA6IiI7CiAgbGV0IG1vdmU9
+          IiI7aWYoZnJvbSE9PW51bGwmJmZyb20hPT11bmRlZmluZWQmJnRvIT09bnVsbCYmdG8hPT11bmRl
+          ZmluZWQmJk51bWJlci5pc0Zpbml0ZShOdW1iZXIoZnJvbSkpJiZOdW1iZXIuaXNGaW5pdGUoTnVt
+          YmVyKHRvKSkpe2NvbnN0IHhmPXgoTnVtYmVyKGZyb20pKSx4dD14KE51bWJlcih0bykpLHdpbmc9
+          TnVtYmVyKHRvKT49TnVtYmVyKGZyb20pPy03Ojc7bW92ZT1gPHBhdGggZD0iTSAke3hmfSAke1kt
+          MTZ9IFEgJHsoeGYreHQpLzJ9ICR7WS00OH0gJHt4dH0gJHtZLTE2fSIgZmlsbD0ibm9uZSIgc3Ry
+          b2tlPSIjNjJiYjkyIiBzdHJva2Utd2lkdGg9IjQiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjxw
+          YXRoIGQ9Ik0gJHt4dCt3aW5nfSAke1ktMjF9IEwgJHt4dH0gJHtZLTE2fSBMICR7eHQrd2luZ30g
+          JHtZLTEwfSIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNjJiYjkyIiBzdHJva2Utd2lkdGg9IjQiIHN0
+          cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPmB9CiAgcmV0dXJu
+          IGA8ZGl2IGNsYXNzPSJlbGVtZW50YXJ5LW51bWJlci1saW5lIj48c3ZnIHZpZXdCb3g9IjAgMCAk
+          e1d9ICR7SH0iIHJvbGU9ImltZyIgYXJpYS1sYWJlbD0i0KfQuNGB0LvQvtCy0L7QuSDQu9GD0Ycg
+          0YEg0LTQtdC70LXQvdC40Y/QvNC4IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmci
+          PjxsaW5lIHgxPSIke0x9IiB5MT0iJHtZfSIgeDI9IiR7Vy1SfSIgeTI9IiR7WX0iIHN0cm9rZT0i
+          IzUyNjg1ZSIgc3Ryb2tlLXdpZHRoPSIzIi8+PHBhdGggZD0iTSAke1ctUi0xMH0gJHtZLTd9IEwg
+          JHtXLVJ9ICR7WX0gTCAke1ctUi0xMH0gJHtZKzd9IiBmaWxsPSJub25lIiBzdHJva2U9IiM1MjY4
+          NWUiIHN0cm9rZS13aWR0aD0iMyIvPiR7dGlja3N9JHtsYWJlbHN9JHttb3ZlfSR7aGl9PC9zdmc+
+          PC9kaXY+YAogfTsKQEAgLTE4Njg2LDYgKzE4NjkyLDExIEBAIGZ1bmN0aW9uIGcxQXJpdGhtZXRp
+          Y1RlblByYWN0aWNlKGQpewogICByZXR1cm4gZzFOdW1iZXJJbnB1dChg0JLRi9GH0LjRgdC70Lgu
+          PGRpdiBjbGFzcz0iZzEtYXJpdGhtZXRpYy1yZWNvcmQiPiR7YX0gJHtzaWdufSAke2J9PC9kaXY+
+          YCxyZXN1bHQsYCR7ZXF1YXRpb259LmAsCiAgICBgJHtrZXl9OiR7YX06JHtifWAse21vZGVsLHRl
+          bXBsYXRlSWR9KTsKICB9CisgcmV0dXJuIGcxTWlzc2luZ0FyaXRobWV0aWNPcGVyYW5kKG1vZGVs
+          LGtleSx0ZW1wbGF0ZUlkKTsKK30KK2Z1bmN0aW9uIGcxTWlzc2luZ0FyaXRobWV0aWNPcGVyYW5k
+          KG1vZGVsLGtleSx0ZW1wbGF0ZUlkKXsKKyBjb25zdCB7YSxiLG9wLHJlc3VsdH09bW9kZWwsc2ln
+          bj1vcD09PSJhZGQiPyIrIjoi4oiSIjsKKyBjb25zdCBlcXVhdGlvbj1gJHthfSAke3NpZ259ICR7
+          Yn0gPSAke3Jlc3VsdH1gOwogIGNvbnN0IGZpcnN0PXJpKDAsMSk9PT0xOwogIGNvbnN0IHJlY29y
+          ZD1maXJzdD9gPyAke3NpZ259ICR7Yn0gPSAke3Jlc3VsdH1gOmAke2F9ICR7c2lnbn0gPyA9ICR7
+          cmVzdWx0fWA7CiAgY29uc3QgYW5zd2VyPWZpcnN0P2E6YjsKQEAgLTE4Njk0LDU0ICsxODcwNSw0
+          OCBAQCBmdW5jdGlvbiBnMUFyaXRobWV0aWNUZW5QcmFjdGljZShkKXsKICAgYCR7aW52ZXJzZX0g
+          PSAke2Fuc3dlcn0uINCf0YDQvtCy0LXRgNC60LA6ICR7ZXF1YXRpb259LmAsYCR7a2V5fToke29w
+          fToke2ZpcnN0PzE6MH06JHthfToke2J9YCwKICAge21vZGVsOnsuLi5tb2RlbCxtaXNzaW5nOmZp
+          cnN0PyJmaXJzdCI6InNlY29uZCJ9LHRlbXBsYXRlSWR9KTsKIH0KK2Z1bmN0aW9uIGcxQXJpdGht
+          ZXRpY1R3ZW50eVF1ZXN0aW9uKGQpeworIGNvbnN0IHN0YWdlPWQ9PT0wPzA6ZD09PTE/MToyOwor
+          IGNvbnN0IHRlbXBsYXRlSWQ9ZzFQaWNrVGVtcGxhdGUoWworICBbImNvdW50X3JpZ2h0IiwiY291
+          bnRfbGVmdCJdLAorICBbImNyb3NzX3Rlbl9hZGQiLCJjcm9zc190ZW5fc3ViIl0sCisgIFsidHdv
+          X29wZXJhdGlvbnMiLCJtaXNzaW5nX2Nyb3NzX3RlbiJdCisgXVtzdGFnZV0pOworIGNvbnN0IGtl
+          eT1gZzE6YWRkX3N1Yl8yMDoke2R9OiR7dGVtcGxhdGVJZH1gOworIGlmKHN0YWdlPT09MCl7Cisg
+          IGNvbnN0IG9wPXRlbXBsYXRlSWQ9PT0iY291bnRfcmlnaHQiPyJhZGQiOiJzdWIiLG1vZGVsPWcx
+          QXJpdGhtZXRpY1BhcmFtcygyMCxvcCx7c21hbGxTdGVwOnRydWV9KTsKKyAgY29uc3Qge2EsYixy
+          ZXN1bHR9PW1vZGVsLHJpZ2h0PW9wPT09ImFkZCIsc2lnbj1yaWdodD8iKyI6IuKIkiIsZGlyZWN0
+          aW9uPXJpZ2h0PyLQstC/0YDQsNCy0L4iOiLQstC70LXQstC+IjsKKyAgY29uc3QgdmlzdWFsPXt0
+          eXBlOiJnMU51bWJlckxpbmUiLGRhdGE6e21pbjpNYXRoLm1heCgwLGEtNSksbWF4Ok1hdGgubWlu
+          KDIwLGErNSksaGlnaGxpZ2h0OmEsY29tcGFjdDp0cnVlfX07CisgIHJldHVybiBnMUNob2ljZShg
+          0J3QsNGH0L3QuCDRgSAke2F9INC4INGB0LTQtdC70LDQuSAke2J9ICR7ZzFTdGVwV29yZChiKX0g
+          JHtkaXJlY3Rpb259LiDQk9C00LUg0L7RgdGC0LDQvdC+0LLQuNGI0YzRgdGPP2AsCisgICByZXN1
+          bHQsZzFVbmlxdWVOdW1zKHJlc3VsdCwwLDIwKSxgJHthfSAke3NpZ259ICR7Yn0gPSAke3Jlc3Vs
+          dH0uYCxgJHtrZXl9OiR7YX06JHtifWAsCisgICB7bW9kZWwsdmlzdWFsLHRlbXBsYXRlSWR9KTsK
+          KyB9CisgY29uc3QgYWRkPXN0YWdlPT09MT90ZW1wbGF0ZUlkPT09ImNyb3NzX3Rlbl9hZGQiOnJp
+          KDAsMSk9PT0xOworIGNvbnN0IGE9YWRkP3JpKDIsOSk6cmkoMTEsMTkpLGI9cmkoYWRkPzExLWE6
+          YS05LDEwKSxyZXN1bHQ9YWRkP2ErYjphLWI7CisgY29uc3QgbW9kZWw9e29wOmFkZD8iYWRkIjoi
+          c3ViIixhLGIscmVzdWx0LGxpbWl0OjIwfSxzaWduPWFkZD8iKyI6IuKIkiI7CisgaWYoc3RhZ2U9
+          PT0xKXsKKyAgY29uc3QgdG9UZW49TWF0aC5hYnMoYS0xMCkscmVzdD1iLXRvVGVuOworICByZXR1
+          cm4gZzFOdW1iZXJJbnB1dChg0JLRi9GH0LjRgdC70Lgg0YEg0L/QtdGA0LXRhdC+0LTQvtC8INGH
+          0LXRgNC10LcgMTAuPGRpdiBjbGFzcz0iZzEtYXJpdGhtZXRpYy1yZWNvcmQiPiR7YX0gJHtzaWdu
+          fSAke2J9PC9kaXY+YCxyZXN1bHQsCisgICBgJHtifSA9ICR7dG9UZW59ICsgJHtyZXN0fS4gJHth
+          fSAke3NpZ259ICR7dG9UZW59ID0gMTAuINCX0LDRgtC10LwgMTAgJHtzaWdufSAke3Jlc3R9ID0g
+          JHtyZXN1bHR9LmAsCisgICBgJHtrZXl9OiR7YX06JHtifWAse21vZGVsLHRlbXBsYXRlSWR9KTsK
+          KyB9CisgaWYodGVtcGxhdGVJZD09PSJtaXNzaW5nX2Nyb3NzX3RlbiIpcmV0dXJuIGcxTWlzc2lu
+          Z0FyaXRobWV0aWNPcGVyYW5kKG1vZGVsLGtleSx0ZW1wbGF0ZUlkKTsKKyBjb25zdCBzZWNvbmRB
+          ZGQ9cmkoMCwxKT09PTEsYz1yaSgxLHNlY29uZEFkZD8yMC1yZXN1bHQ6cmVzdWx0KSxzZWNvbmRT
+          aWduPXNlY29uZEFkZD8iKyI6IuKIkiI7CisgY29uc3QgYW5zd2VyPXNlY29uZEFkZD9yZXN1bHQr
+          YzpyZXN1bHQtYzsKKyByZXR1cm4gZzFOdW1iZXJJbnB1dChg0KHRh9C40YLQsNC5INGB0LvQtdCy
+          0LAg0L3QsNC/0YDQsNCy0L4uPGRpdiBjbGFzcz0iZzEtYXJpdGhtZXRpYy1yZWNvcmQiPiR7YX0g
+          JHtzaWdufSAke2J9ICR7c2Vjb25kU2lnbn0gJHtjfTwvZGl2PmAsYW5zd2VyLAorICBg0KHQvdCw
+          0YfQsNC70LAgJHthfSAke3NpZ259ICR7Yn0gPSAke3Jlc3VsdH0uINCX0LDRgtC10LwgJHtyZXN1
+          bHR9ICR7c2Vjb25kU2lnbn0gJHtjfSA9ICR7YW5zd2VyfS5gLAorICBgJHtrZXl9OiR7YX06JHtz
+          aWdufToke2J9OiR7c2Vjb25kU2lnbn06JHtjfWAse21vZGVsOnsuLi5tb2RlbCxzZWNvbmRBZGQs
+          YyxhbnN3ZXJ9LHRlbXBsYXRlSWR9KTsKK30KIGZ1bmN0aW9uIGcxQXJpdGhtZXRpY1F1ZXN0aW9u
+          KHJhdyxkLGxpbWl0KXsKLSBpZihyYXc9PT0iYWRkX3N1Yl8xMCImJmQhPT0wKXJldHVybiBnMUFy
+          aXRobWV0aWNUZW5QcmFjdGljZShkKTsKLSBjb25zdCB3YXJtPXJhdz09PSJhZGRfc3ViXzEwIj9b
+          ImFkZF9jb3VudGVycyIsInN1Yl9jb3VudGVycyJdOlsiYWRkX2xpbmUiLCJzdWJfbGluZSJdOwot
+          IGNvbnN0IHRyYWluPVsiYWRkX2xpbmUiLCJzdWJfbGluZSIsImFkZF9pbnB1dCIsInN1Yl9pbnB1
+          dCIsImNvbXBsZXRlX2FkZCIsImNvbXBsZXRlX3N1YiJdOwotIGNvbnN0IG1hc3Rlcj1bLi4udHJh
+          aW4sImNob29zZV9yZWNvcmQiLCJjb21wYXJlX3Jlc3VsdHMiLCJyZXN0b3JlX3N0YXJ0Il07Ci0g
+          Y29uc3QgdGVtcGxhdGVJZD1nMVBpY2tUZW1wbGF0ZShkPT09MD93YXJtOmQ9PT0xP3RyYWluOm1h
+          c3Rlciksc21hbGxTdGVwPWQ9PT0wOworIGlmKHJhdz09PSJhZGRfc3ViXzIwIilyZXR1cm4gZzFB
+          cml0aG1ldGljVHdlbnR5UXVlc3Rpb24oZCk7CisgaWYoZCE9PTApcmV0dXJuIGcxQXJpdGhtZXRp
+          Y1RlblByYWN0aWNlKGQpOworIGNvbnN0IHRlbXBsYXRlSWQ9ZzFQaWNrVGVtcGxhdGUoWyJhZGRf
+          Y291bnRlcnMiLCJzdWJfY291bnRlcnMiXSk7CiAgaWYodGVtcGxhdGVJZD09PSJhZGRfY291bnRl
+          cnMiKXsKICAgY29uc3QgbW9kZWw9ZzFBcml0aG1ldGljUGFyYW1zKGxpbWl0LCJhZGQiLHtzbWFs
+          bFN0ZXA6dHJ1ZX0pOwogICByZXR1cm4gZzFDaG9pY2UoItCh0LrQvtC70YzQutC+INGB0YLQsNC7
+          0L4/Iixtb2RlbC5yZXN1bHQsZzFBcml0aG1ldGljV3JvbmcobW9kZWwucmVzdWx0LDAsbGltaXQp
+          LGDQkdGL0LvQviAke21vZGVsLmF9LiDQlNC+0LHQsNCy0LjQu9C4ICR7bW9kZWwuYn0uINCh0YLQ
+          sNC70L4gJHttb2RlbC5yZXN1bHR9LmAsYGcxOiR7cmF3fToke2R9OmFkZF9jb3VudGVyczoke21v
+          ZGVsLmF9OiR7bW9kZWwuYn1gLHttb2RlbCx2aXN1YWw6e3R5cGU6ImcxQXJpdGhtZXRpYyIsZGF0
+          YTp7Li4ubW9kZWwsdW5rbm93bjoicmVzdWx0In19LHRlbXBsYXRlSWR9KQotfQotIGlmKHRlbXBs
+          YXRlSWQ9PT0ic3ViX2NvdW50ZXJzIil7Ci0gIGNvbnN0IG1vZGVsPWcxQXJpdGhtZXRpY1BhcmFt
+          cyhsaW1pdCwic3ViIix7c21hbGxTdGVwOnRydWV9KTsKLSAgcmV0dXJuIGcxQ2hvaWNlKCLQodC6
+          0L7Qu9GM0LrQviDQvtGB0YLQsNC70L7RgdGMPyIsbW9kZWwucmVzdWx0LGcxQXJpdGhtZXRpY1dy
+          b25nKG1vZGVsLnJlc3VsdCwwLGxpbWl0KSxg0JHRi9C70L4gJHttb2RlbC5hfS4g0KPQsdGA0LDQ
+          u9C4ICR7bW9kZWwuYn0uINCe0YHRgtCw0LvQvtGB0YwgJHttb2RlbC5yZXN1bHR9LmAsYGcxOiR7
+          cmF3fToke2R9OnN1Yl9jb3VudGVyczoke21vZGVsLmF9OiR7bW9kZWwuYn1gLHttb2RlbCx2aXN1
+          YWw6e3R5cGU6ImcxQXJpdGhtZXRpYyIsZGF0YTp7Li4ubW9kZWwsdW5rbm93bjoicmVzdWx0In19
+          LHRlbXBsYXRlSWR9KQotIH0KLSBpZih0ZW1wbGF0ZUlkPT09ImFkZF9saW5lInx8dGVtcGxhdGVJ
+          ZD09PSJhZGRfaW5wdXQiKXsKLSAgY29uc3QgcD1nMUFyaXRobWV0aWNQYXJhbXMobGltaXQsImFk
+          ZCIse3NtYWxsU3RlcH0pLG1vZGVsPXsuLi5wfTsKLSAgY29uc3QgdGV4dD10ZW1wbGF0ZUlkPT09
+          ImFkZF9saW5lIj9g0J3QsNGH0L3QuCDRgSAke21vZGVsLmF9INC4INGB0LTQtdC70LDQuSAke21v
+          ZGVsLmJ9ICR7ZzFTdGVwV29yZChtb2RlbC5iKX0g0LLQv9GA0LDQstC+LiDQk9C00LUg0L7RgdGC
+          0LDQvdC+0LLQuNGI0YzRgdGPP2A6YNCS0YvRh9C40YHQu9C4OiA8Yj4ke21vZGVsLmF9ICsgJHtt
+          b2RlbC5ifTwvYj5gOwotICBjb25zdCB2aXN1YWw9e3R5cGU6ImcxTnVtYmVyTGluZSIsZGF0YTp7
+          bWluOjAsbWF4OmxpbWl0LGZyb206bW9kZWwuYSx0bzptb2RlbC5yZXN1bHQsaGlnaGxpZ2h0Om1v
+          ZGVsLnJlc3VsdCxoaWRkZW5MYWJlbHM6W21vZGVsLnJlc3VsdF19fTsKLSAgY29uc3QgZXg9YNCd
+          0LDRh9C40L3QsNC10Lwg0YEgJHttb2RlbC5hfS4g0J/RgNC40LHQsNCy0LvRj9C10LwgJHttb2Rl
+          bC5ifS4g0J/QvtC70YPRh9Cw0LXQvCAke21vZGVsLnJlc3VsdH0uYDsKLSAgcmV0dXJuIHRlbXBs
+          YXRlSWQ9PT0iYWRkX2lucHV0Ij9nMU51bWJlcklucHV0KHRleHQsbW9kZWwucmVzdWx0LGV4LGBn
+          MToke3Jhd306JHtkfTphZGRfaW5wdXQ6JHttb2RlbC5hfToke21vZGVsLmJ9YCx7bW9kZWwsdmlz
+          dWFsLHRlbXBsYXRlSWR9KTpnMUNob2ljZSh0ZXh0LG1vZGVsLnJlc3VsdCxnMUFyaXRobWV0aWNX
+          cm9uZyhtb2RlbC5yZXN1bHQsMCxsaW1pdCksZXgsYGcxOiR7cmF3fToke2R9OmFkZF9saW5lOiR7
+          bW9kZWwuYX06JHttb2RlbC5ifWAse21vZGVsLHZpc3VhbCx0ZW1wbGF0ZUlkfSkKLSB9Ci0gaWYo
+          dGVtcGxhdGVJZD09PSJzdWJfbGluZSJ8fHRlbXBsYXRlSWQ9PT0ic3ViX2lucHV0Iil7Ci0gIGNv
+          bnN0IHA9ZzFBcml0aG1ldGljUGFyYW1zKGxpbWl0LCJzdWIiLHtzbWFsbFN0ZXB9KSxtb2RlbD17
+          Li4ucH07Ci0gIGNvbnN0IHRleHQ9dGVtcGxhdGVJZD09PSJzdWJfbGluZSI/YNCd0LDRh9C90Lgg
+          0YEgJHttb2RlbC5hfSDQuCDRgdC00LXQu9Cw0LkgJHttb2RlbC5ifSAke2cxU3RlcFdvcmQobW9k
+          ZWwuYil9INCy0LvQtdCy0L4uINCT0LTQtSDQvtGB0YLQsNC90L7QstC40YjRjNGB0Y8/YDpg0JLR
+          i9GH0LjRgdC70Lg6IDxiPiR7bW9kZWwuYX0g4oiSICR7bW9kZWwuYn08L2I+YDsKLSAgY29uc3Qg
+          dmlzdWFsPXt0eXBlOiJnMU51bWJlckxpbmUiLGRhdGE6e21pbjowLG1heDpsaW1pdCxmcm9tOm1v
+          ZGVsLmEsdG86bW9kZWwucmVzdWx0LGhpZ2hsaWdodDptb2RlbC5yZXN1bHQsaGlkZGVuTGFiZWxz
+          Olttb2RlbC5yZXN1bHRdfX07Ci0gIGNvbnN0IGV4PWDQndCw0YfQuNC90LDQtdC8INGBICR7bW9k
+          ZWwuYX0uINCS0YvRh9C40YLQsNC10LwgJHttb2RlbC5ifS4g0J/QvtC70YPRh9Cw0LXQvCAke21v
+          ZGVsLnJlc3VsdH0uYDsKLSAgcmV0dXJuIHRlbXBsYXRlSWQ9PT0ic3ViX2lucHV0Ij9nMU51bWJl
+          cklucHV0KHRleHQsbW9kZWwucmVzdWx0LGV4LGBnMToke3Jhd306JHtkfTpzdWJfaW5wdXQ6JHtt
+          b2RlbC5hfToke21vZGVsLmJ9YCx7bW9kZWwsdmlzdWFsLHRlbXBsYXRlSWR9KTpnMUNob2ljZSh0
+          ZXh0LG1vZGVsLnJlc3VsdCxnMUFyaXRobWV0aWNXcm9uZyhtb2RlbC5yZXN1bHQsMCxsaW1pdCks
+          ZXgsYGcxOiR7cmF3fToke2R9OnN1Yl9saW5lOiR7bW9kZWwuYX06JHttb2RlbC5ifWAse21vZGVs
+          LHZpc3VhbCx0ZW1wbGF0ZUlkfSkKLSB9Ci0gaWYodGVtcGxhdGVJZD09PSJjb21wbGV0ZV9hZGQi
+          KXsKLSAgY29uc3QgcD1nMUFyaXRobWV0aWNQYXJhbXMobGltaXQsImFkZCIse3NtYWxsU3RlcDpm
+          YWxzZX0pLG1vZGVsPXsuLi5wfTsKLSAgcmV0dXJuIGcxTnVtYmVySW5wdXQoYNCa0LDQutC+0LUg
+          0YfQuNGB0LvQviDQv9GA0L7Qv9GD0YnQtdC90L4/PGRpdiBjbGFzcz0iZzEtYXJpdGhtZXRpYy1y
+          ZWNvcmQiPiR7bW9kZWwuYX0gKyA/ID0gJHttb2RlbC5yZXN1bHR9PC9kaXY+YCxtb2RlbC5iLGDQ
+          miAke21vZGVsLmF9INC90YPQttC90L4g0LTQvtCx0LDQstC40YLRjCAke21vZGVsLmJ9LCDRh9GC
+          0L7QsdGLINC/0L7Qu9GD0YfQuNGC0YwgJHttb2RlbC5yZXN1bHR9LmAsYGcxOiR7cmF3fToke2R9
+          OmNvbXBsZXRlX2FkZDoke21vZGVsLmF9OiR7bW9kZWwucmVzdWx0fWAse21vZGVsLHZpc3VhbDp7
+          dHlwZToiZzFOdW1iZXJMaW5lIixkYXRhOnttaW46MCxtYXg6bGltaXQsZnJvbTptb2RlbC5hLHRv
+          Om1vZGVsLnJlc3VsdCxoaWdobGlnaHQ6bW9kZWwucmVzdWx0fX0sdGVtcGxhdGVJZH0pCi0gfQot
+          IGlmKHRlbXBsYXRlSWQ9PT0iY29tcGxldGVfc3ViIil7Ci0gIGNvbnN0IHA9ZzFBcml0aG1ldGlj
+          UGFyYW1zKGxpbWl0LCJzdWIiLHtzbWFsbFN0ZXA6ZmFsc2V9KSxtb2RlbD17Li4ucH07Ci0gIHJl
+          dHVybiBnMU51bWJlcklucHV0KGDQmtCw0LrQvtC1INGH0LjRgdC70L4g0L/RgNC+0L/Rg9GJ0LXQ
+          vdC+PzxkaXYgY2xhc3M9ImcxLWFyaXRobWV0aWMtcmVjb3JkIj4ke21vZGVsLmF9IOKIkiA/ID0g
+          JHttb2RlbC5yZXN1bHR9PC9kaXY+YCxtb2RlbC5iLGDQmNC3ICR7bW9kZWwuYX0g0L3Rg9C20L3Q
+          viDQstGL0YfQtdGB0YLRjCAke21vZGVsLmJ9LCDRh9GC0L7QsdGLINC+0YHRgtCw0LvQvtGB0Ywg
+          JHttb2RlbC5yZXN1bHR9LmAsYGcxOiR7cmF3fToke2R9OmNvbXBsZXRlX3N1Yjoke21vZGVsLmF9
+          OiR7bW9kZWwucmVzdWx0fWAse21vZGVsLHZpc3VhbDp7dHlwZToiZzFOdW1iZXJMaW5lIixkYXRh
+          OnttaW46MCxtYXg6bGltaXQsZnJvbTptb2RlbC5hLHRvOm1vZGVsLnJlc3VsdCxoaWdobGlnaHQ6
+          bW9kZWwucmVzdWx0fX0sdGVtcGxhdGVJZH0pCi0gfQotIGlmKHRlbXBsYXRlSWQ9PT0iY2hvb3Nl
+          X3JlY29yZCIpewotICBjb25zdCB1c2VBZGQ9cmkoMCwxKT09PTEscD1nMUFyaXRobWV0aWNQYXJh
+          bXMobGltaXQsdXNlQWRkPyJhZGQiOiJzdWIiLHtzbWFsbFN0ZXA6ZmFsc2V9KSxtb2RlbD17Li4u
+          cH07Ci0gIGNvbnN0IHNpZ249dXNlQWRkPyIrIjoi4oiSIixjb3JyZWN0PWAke21vZGVsLmF9ICR7
+          c2lnbn0gJHttb2RlbC5ifSA9ICR7bW9kZWwucmVzdWx0fWAsdzE9YCR7bW9kZWwuYX0gJHtzaWdu
+          fSAke21vZGVsLmJ9ID0gJHtNYXRoLm1pbihsaW1pdCxtb2RlbC5yZXN1bHQrMSl9YCx3Mj11c2VB
+          ZGQ/YCR7bW9kZWwuYX0g4oiSICR7bW9kZWwuYn0gPSAke01hdGgubWF4KDAsbW9kZWwuYS1tb2Rl
+          bC5iKX1gOmAke21vZGVsLmF9ICsgJHttb2RlbC5ifSA9ICR7TWF0aC5taW4obGltaXQsbW9kZWwu
+          YSttb2RlbC5iKX1gOwotICBjb25zdCB3cm9uZz1bdzEsdzIsYCR7bW9kZWwucmVzdWx0fSAke3Np
+          Z259ICR7bW9kZWwuYn0gPSAke21vZGVsLmF9YF0uZmlsdGVyKHg9PnghPT1jb3JyZWN0KTsKLSAg
+          cmV0dXJuIGcxQ2hvaWNlKCLQktGL0LHQtdGA0Lgg0L/RgNCw0LLQuNC70YzQvdGD0Y4g0LfQsNC/
+          0LjRgdGMLiIsY29ycmVjdCx3cm9uZyxgJHttb2RlbC5hfSAke3NpZ259ICR7bW9kZWwuYn0gPSAk
+          e21vZGVsLnJlc3VsdH0uYCxgZzE6JHtyYXd9OiR7ZH06Y2hvb3NlX3JlY29yZDoke3VzZUFkZD8x
+          OjB9OiR7bW9kZWwuYX06JHttb2RlbC5ifWAse21vZGVsLHZpc3VhbDp7dHlwZToiZzFBcml0aG1l
+          dGljIixkYXRhOm1vZGVsfSx0ZW1wbGF0ZUlkfSkKLSB9Ci0gaWYodGVtcGxhdGVJZD09PSJjb21w
+          YXJlX3Jlc3VsdHMiKXsKLSAgY29uc3QgcDE9ZzFBcml0aG1ldGljUGFyYW1zKGxpbWl0LCJhZGQi
+          LHtzbWFsbFN0ZXA6dHJ1ZX0pLHAyPWcxQXJpdGhtZXRpY1BhcmFtcyhsaW1pdCwic3ViIix7c21h
+          bGxTdGVwOnRydWV9KSxyMT1wMS5yZXN1bHQscjI9cDIucmVzdWx0LGFuc3dlcj1yMT09PXIyPyLQ
+          n9C+0YDQvtCy0L3RgyI6cjE+cjI/IkEiOiJCIixtb2RlbD17cDEscDIscjEscjIsYW5zd2VyLGxp
+          bWl0fTsKLSAgcmV0dXJuIGcxQ2hvaWNlKGDQmtCw0LrQsNGPINC30LDQv9C40YHRjCDQtNCw0ZHR
+          giDQsdC+0LvRjNGI0LU/PGRpdiBjbGFzcz0iZzEtYXJpdGhtZXRpYy1yZWNvcmQiPkE6ICR7cDEu
+          YX0gKyAke3AxLmJ9ICZuYnNwOyZuYnNwOyBCOiAke3AyLmF9IOKIkiAke3AyLmJ9PC9kaXY+YCxh
+          bnN3ZXIsWyJBIiwiQiIsItCf0L7RgNC+0LLQvdGDIl0uZmlsdGVyKHg9PnghPT1hbnN3ZXIpLGBB
+          ID0gJHtyMX0uIEIgPSAke3IyfS4gJHthbnN3ZXI9PT0i0J/QvtGA0L7QstC90YMiPyLQoNC10LfR
+          g9C70YzRgtCw0YLRiyDRgNCw0LLQvdGLLiI6YNCR0L7Qu9GM0YjQtSDRgNC10LfRg9C70YzRgtCw
+          0YIgJHthbnN3ZXJ9LmB9YCxgZzE6JHtyYXd9OiR7ZH06Y29tcGFyZV9yZXN1bHRzOiR7cDEuYX06
+          JHtwMS5ifToke3AyLmF9OiR7cDIuYn1gLHttb2RlbCx0ZW1wbGF0ZUlkfSkKICB9Ci0gY29uc3Qg
+          cD1nMUFyaXRobWV0aWNQYXJhbXMobGltaXQsImFkZCIse3NtYWxsU3RlcDpmYWxzZX0pLHN0YXJ0
+          PXAuYSxyZXN1bHQ9cC5yZXN1bHQsYWRkZWQ9cC5iLG1vZGVsPXtzdGFydCxyZXN1bHQsYWRkZWQs
+          bGltaXR9OwotIHJldHVybiBnMU51bWJlcklucHV0KGDQmtCw0LrQvtC1INGH0LjRgdC70L4g0LHR
+          i9C70L4g0YHQvdCw0YfQsNC70LA/PGRpdiBjbGFzcz0iZzEtYXJpdGhtZXRpYy1yZWNvcmQiPj8g
+          KyAke2FkZGVkfSA9ICR7cmVzdWx0fTwvZGl2PmAsc3RhcnQsYNCR0YvQu9C+ICR7c3RhcnR9LiDQ
+          lNC+0LHQsNCy0LjQu9C4ICR7YWRkZWR9LiDQodGC0LDQu9C+ICR7cmVzdWx0fS5gLGBnMToke3Jh
+          d306JHtkfTpyZXN0b3JlX3N0YXJ0OiR7c3RhcnR9OiR7YWRkZWR9YCx7bW9kZWwsdmlzdWFsOnt0
+          eXBlOiJnMU51bWJlckxpbmUiLGRhdGE6e21pbjowLG1heDpsaW1pdCxmcm9tOnN0YXJ0LHRvOnJl
+          c3VsdCxoaWdobGlnaHQ6cmVzdWx0LGhpZGRlbkxhYmVsczpbc3RhcnRdfX0sdGVtcGxhdGVJZDoi
+          cmVzdG9yZV9zdGFydCJ9KQorIGNvbnN0IG1vZGVsPWcxQXJpdGhtZXRpY1BhcmFtcyhsaW1pdCwi
+          c3ViIix7c21hbGxTdGVwOnRydWV9KTsKKyByZXR1cm4gZzFDaG9pY2UoItCh0LrQvtC70YzQutC+
+          INC+0YHRgtCw0LvQvtGB0Yw/Iixtb2RlbC5yZXN1bHQsZzFBcml0aG1ldGljV3JvbmcobW9kZWwu
+          cmVzdWx0LDAsbGltaXQpLGDQkdGL0LvQviAke21vZGVsLmF9LiDQo9Cx0YDQsNC70LggJHttb2Rl
+          bC5ifS4g0J7RgdGC0LDQu9C+0YHRjCAke21vZGVsLnJlc3VsdH0uYCxgZzE6JHtyYXd9OiR7ZH06
+          c3ViX2NvdW50ZXJzOiR7bW9kZWwuYX06JHttb2RlbC5ifWAse21vZGVsLHZpc3VhbDp7dHlwZToi
+          ZzFBcml0aG1ldGljIixkYXRhOnsuLi5tb2RlbCx1bmtub3duOiJyZXN1bHQifX0sdGVtcGxhdGVJ
+          ZH0pCiB9CiAKIGNvbnN0IFBSRTgzNl9NQUtFX0cxX1FVRVNUSU9OPW1ha2VHMVF1ZXN0aW9uOwpA
+          QCAtMTg3NTYsNyArMTg3NjEsNyBAQCBjb25zdCBQUkU4MzZfRzFfVEhFT1JZX0hUTUw9ZzFUaGVv
+          cnlIdG1sOwogZzFUaGVvcnlIdG1sPWZ1bmN0aW9uKGlkKXsKICBjb25zdCByYXc9cmF3Q291cnNl
+          SWQoaWQpOwogIGlmKHJhdz09PSJhZGRfc3ViXzEwIilyZXR1cm4gYDxkaXYgY2xhc3M9ImVsZW1l
+          bnRhcnktdGhlb3J5Ij48ZGl2IGNsYXNzPSJnMS10aGVvcnktYmxvY2siPjxoMz7QmtC+0LPQtNCw
+          INC00L7QsdCw0LLQu9GP0LXQvDwvaDM+PHA+PGI+0JHRi9C70L4gNCDQutGA0YPQttC60LAuINCU
+          0L7QsdCw0LLQuNC70Lgg0LXRidGRIDMuPC9iPjwvcD4ke2cxQXJpdGhtZXRpY1Zpc3VhbEh0bWwo
+          e29wOiJhZGQiLGE6NCxiOjMscmVzdWx0Ojd9KX08cD7QodGC0LDQu9C+IDcuINCX0LDQv9C40YHR
+          i9Cy0LDQtdC8OiA8Yj40ICsgMyA9IDc8L2I+LjwvcD48cD7QotCw0LrQvtC1INC00LXQudGB0YLQ
+          stC40LUg0L3QsNC30YvQstCw0LXRgtGB0Y8gPGI+0YHQu9C+0LbQtdC90LjQtdC8PC9iPi48L3A+
+          PC9kaXY+PGRpdiBjbGFzcz0iZzEtdGhlb3J5LWJsb2NrIj48aDM+0JrQvtCz0LTQsCDRg9Cx0LjR
+          gNCw0LXQvDwvaDM+PHA+PGI+0JHRi9C70L4gNyDQutGA0YPQttC60L7Qsi4g0KPQsdGA0LDQu9C4
+          IDIuPC9iPjwvcD4ke2cxQXJpdGhtZXRpY1Zpc3VhbEh0bWwoe29wOiJzdWIiLGE6NyxiOjIscmVz
+          dWx0OjV9KX08cD7QntGB0YLQsNC70L7RgdGMIDUuINCX0LDQv9C40YHRi9Cy0LDQtdC8OiA8Yj43
+          IOKIkiAyID0gNTwvYj4uPC9wPjxwPtCi0LDQutC+0LUg0LTQtdC50YHRgtCy0LjQtSDQvdCw0LfR
+          i9Cy0LDQtdGC0YHRjyA8Yj7QstGL0YfQuNGC0LDQvdC40LXQvDwvYj4uPC9wPjwvZGl2PjxkaXYg
+          Y2xhc3M9ImVsZW1lbnRhcnktZXhhbXBsZSI+0JXRgdC70LggPGI+NCArID8gPSA3PC9iPiwg0LLR
+          i9GH0YLQuCA0INC40LcgNy4g0J/QvtC70YPRh9C40YLRgdGPIDMuPC9kaXY+PC9kaXY+YDsKLSBp
+          ZihyYXc9PT0iYWRkX3N1Yl8yMCIpcmV0dXJuIGA8ZGl2IGNsYXNzPSJlbGVtZW50YXJ5LXRoZW9y
+          eSI+PHA+PGI+0KEg0YfQuNGB0LvQsNC80Lgg0LTQviAyMCDRgdC80YvRgdC7INGC0L7RgiDQttC1
+          LjwvYj4g0JTQvtCx0LDQstC70Y/QtdC8IOKAlCDRh9C40YHQu9C+INGB0YLQsNC90L7QstC40YLR
+          gdGPINCx0L7Qu9GM0YjQtS4g0KPQsdC40YDQsNC10Lwg4oCUINC80LXQvdGM0YjQtS48L3A+PGRp
+          diBjbGFzcz0iZzEtdGhlb3J5LWJsb2NrIj48aDM+0KHQu9C+0LbQtdC90LjQtTwvaDM+JHtlbGVt
+          ZW50YXJ5TnVtYmVyTGluZVN2Zyh7bWluOjAsbWF4OjIwLGZyb206OCx0bzoxMyxoaWdobGlnaHQ6
+          MTN9KX08cD7QndCw0YfQuNC90LDQtdC8INGBIDguINCU0LXQu9Cw0LXQvCA1INGI0LDQs9C+0LIg
+          0LLQv9GA0LDQstC+LiDQn9C+0LvRg9GH0LDQtdC8IDEzLjwvcD48ZGl2IGNsYXNzPSJlbGVtZW50
+          YXJ5LWV4YW1wbGUiPjxiPjggKyA1ID0gMTM8L2I+PC9kaXY+PC9kaXY+PGRpdiBjbGFzcz0iZzEt
+          dGhlb3J5LWJsb2NrIj48aDM+0JLRi9GH0LjRgtCw0L3QuNC1PC9oMz4ke2VsZW1lbnRhcnlOdW1i
+          ZXJMaW5lU3ZnKHttaW46MCxtYXg6MjAsZnJvbToxNCx0bzo4LGhpZ2hsaWdodDo4fSl9PHA+0J3Q
+          sNGH0LjQvdCw0LXQvCDRgSAxNC4g0JTQtdC70LDQtdC8IDYg0YjQsNCz0L7QsiDQstC70LXQstC+
+          LiDQn9C+0LvRg9GH0LDQtdC8IDguPC9wPjxkaXYgY2xhc3M9ImVsZW1lbnRhcnktZXhhbXBsZSI+
+          PGI+MTQg4oiSIDYgPSA4PC9iPjwvZGl2PjwvZGl2PjwvZGl2PmA7CisgaWYocmF3PT09ImFkZF9z
+          dWJfMjAiKXJldHVybiBgPGRpdiBjbGFzcz0iZWxlbWVudGFyeS10aGVvcnkiPjxwPjxiPtChINGH
+          0LjRgdC70LDQvNC4INC00L4gMjAg0YHQvNGL0YHQuyDRgtC+0YIg0LbQtS48L2I+INCU0L7QsdCw
+          0LLQu9GP0LXQvCDigJQg0YfQuNGB0LvQviDRgdGC0LDQvdC+0LLQuNGC0YHRjyDQsdC+0LvRjNGI
+          0LUuINCj0LHQuNGA0LDQtdC8IOKAlCDQvNC10L3RjNGI0LUuPC9wPjxkaXYgY2xhc3M9ImcxLXRo
+          ZW9yeS1ibG9jayI+PGgzPtCh0LvQvtC20LXQvdC40LU8L2gzPiR7ZWxlbWVudGFyeU51bWJlckxp
+          bmVTdmcoe21pbjowLG1heDoyMCxmcm9tOjgsdG86MTMsaGlnaGxpZ2h0OjEzfSl9PHA+0JogOCDQ
+          v9GA0LjQsdCw0LLRjCAyLCDRh9GC0L7QsdGLINC/0L7Qu9GD0YfQuNGC0YwgMTAuINCY0LcgNSDQ
+          vtGB0YLQsNC70L7RgdGMINC/0YDQuNCx0LDQstC40YLRjCDQtdGJ0ZEgMy4g0J/QvtC70YPRh9C4
+          0YLRgdGPIDEzLjwvcD48ZGl2IGNsYXNzPSJlbGVtZW50YXJ5LWV4YW1wbGUiPjxiPjggKyA1ID0g
+          MTM8L2I+PC9kaXY+PC9kaXY+PGRpdiBjbGFzcz0iZzEtdGhlb3J5LWJsb2NrIj48aDM+0JLRi9GH
+          0LjRgtCw0L3QuNC1PC9oMz4ke2VsZW1lbnRhcnlOdW1iZXJMaW5lU3ZnKHttaW46MCxtYXg6MjAs
+          ZnJvbToxNCx0bzo4LGhpZ2hsaWdodDo4fSl9PHA+0JjQtyAxNCDQstGL0YfRgtC4IDQsINGH0YLQ
+          vtCx0Ysg0L/QvtC70YPRh9C40YLRjCAxMC4g0JjQtyA2INC+0YHRgtCw0LvQvtGB0Ywg0LLRi9GH
+          0LXRgdGC0Ywg0LXRidGRIDIuINCf0L7Qu9GD0YfQuNGC0YHRjyA4LjwvcD48ZGl2IGNsYXNzPSJl
+          bGVtZW50YXJ5LWV4YW1wbGUiPjxiPjE0IOKIkiA2ID0gODwvYj48L2Rpdj48L2Rpdj48L2Rpdj5g
+          OwogIHJldHVybiBQUkU4MzZfRzFfVEhFT1JZX0hUTUwoaWQpCiB9OwogCg==
+          MATKVEST_PATCH
+          git apply --check "$RUNNER_TEMP/grade-one-add20.patch"
+          git apply "$RUNNER_TEMP/grade-one-add20.patch"
+          git diff --check
+          cat > .grade-one-add20-check.cjs <<'MATKVEST_CHECK'
+          'use strict';
+          
+          const assert = require('node:assert/strict');
+          const fs = require('node:fs');
+          const http = require('node:http');
+          const path = require('node:path');
+          const {chromium} = require('playwright');
+          
+          const topic = 'g1:add_sub_20';
+          const repository = process.env.MATKVEST_CHECK_REPO || path.join(__dirname, 'matkvest-g1-add20');
+          const baseline = fs.readFileSync(process.env.MATKVEST_CHECK_BASELINE || path.join(__dirname, 'matkvest-g1-add20-before.html'));
+          let oldBuild = true;
+          const types = {
+            '.html': 'text/html; charset=utf-8', '.svg': 'image/svg+xml', '.js': 'text/javascript',
+            '.png': 'image/png', '.webp': 'image/webp', '.webmanifest': 'application/manifest+json'
+          };
+          const server = http.createServer((request, response) => {
+            const url = new URL(request.url, 'http://localhost');
+            const asset = path.join(repository, url.pathname === '/' ? 'index.html' : decodeURIComponent(url.pathname));
+            const html = url.pathname === '/';
+            response.setHeader('Cache-Control', 'no-store');
+            response.setHeader('Content-Type', types[path.extname(asset)] || 'application/octet-stream');
+            try {
+              response.end(html && oldBuild ? baseline : fs.readFileSync(asset));
+            } catch {
+              response.writeHead(404).end();
+            }
+          });
+          
+          function inspectBuild({topic, mode}) {
+            function requireThat(condition, message) {
+              if (!condition) throw new Error(message);
+            }
+            const plain = value => value.replace(/\s+/g, ' ').trim();
+            const expectedFamilies = [['count_right','count_left'], ['cross_ten_add','cross_ten_sub'], ['missing_cross_ten','two_operations']];
+            const inRange = numbers => numbers.every(number => Number.isInteger(number) && number >= 0 && number <= 20);
+            const compute = (a, sign, b) => sign==='+' ? a+b : a-b;
+            const crossesTen=(a,b)=>a<10&&b>10||a>10&&b<10;
+            function solve(prompt, visual, labels) {
+              requireThat(new Set(labels).size===labels.length && labels.every(label=>/^\d+$/.test(label)) && inRange(labels.map(Number)), 'Invalid numeric choices');
+              const walk=prompt.match(/^Начни с (\d+) и сделай (\d+) (?:шаг|шага|шагов) (вправо|влево)\. Где остановишься\?$/);
+              if(walk){
+                const [start,steps]=walk.slice(1,3).map(Number),right=walk[3]==='вправо';
+                const answer=right?start+steps:start-steps;
+                const ray=visual.querySelector('.elementary-number-line svg');
+                requireThat(ray && ray.querySelectorAll('circle').length===1 && ray.querySelectorAll('path').length===1, 'The ray shows more than its starting point and axis');
+                const point=ray.querySelector('circle').getAttribute('cx'), ticks=[...ray.querySelectorAll('text')];
+                const tick=ticks.find(label=>label.getAttribute('x')===point);
+                const values=ticks.map(label=>Number(label.textContent));
+                requireThat(inRange(values) && values.length<=11 && values.slice(1).every((n,i)=>n===values[i]+1), 'Wrong or crowded scale');
+                requireThat(tick && Number(tick.textContent)===start && values.includes(answer) && inRange([start,steps,answer]) && labels.length===4,'Wrong starting point or endpoint range');
+                return {family:right?'count_right':'count_left',key:prompt,answer:String(answer),crosses:crossesTen(start,answer)};
+              }
+              requireThat(!visual.querySelector('svg,.g1-arithmetic-model,.elementary-number-line') && labels.length===0, 'Higher level gives a diagram or options');
+              const arithmetic=prompt.match(/^Вычисли с переходом через 10\.\s*(\d+) ([+−]) (\d+)$/);
+              if(arithmetic){
+                const a=Number(arithmetic[1]), b=Number(arithmetic[3]);
+                const sign=arithmetic[2],answer=compute(a,sign,b);
+                requireThat(inRange([a,b,answer]) && crossesTen(a,answer), 'An exercise does not cross ten');
+                return {family:sign==='+'?'cross_ten_add':'cross_ten_sub',key:prompt,answer:String(answer)};
+              }
+              const missing=prompt.match(/^Какое число пропущено\?\s*(\d+|\?) ([+−]) (\d+|\?) = (\d+)$/);
+              if(missing){
+                const [left,sign,right,result]=missing.slice(1);
+                const position=left==='?'?'first':'second';
+                requireThat((left==='?')!==(right==='?'),'Expected one missing operand');
+                const solutions=Array.from({length:21},(_,n)=>n).filter(n=>compute(left==='?'?n:Number(left),sign,right==='?'?n:Number(right))===Number(result));
+                const start=position==='first'?solutions[0]:Number(left);
+                requireThat(solutions.length===1 && inRange([Number(result),Number(position==='first'?right:left)]) && crossesTen(start,Number(result)), 'An equation needs one solution and must cross ten');
+                return {family:'missing_cross_ten',key:prompt,answer:String(solutions[0]),position,sign};
+              }
+              const two=prompt.match(/^Считай слева направо\.\s*(\d+) ([+−]) (\d+) ([+−]) (\d+)$/);
+              if(two){
+                const [left,sign,step,secondSign,last]=two.slice(1);
+                const a=Number(left),b=Number(step),c=Number(last);
+                const intermediate=compute(a,sign,b),answer=compute(intermediate,secondSign,c);
+                requireThat(inRange([a,b,c,intermediate,answer]) && crossesTen(a,intermediate),'Incorrect two-step range or first operation');
+                return {family:'two_operations',key:prompt,answer:String(answer),sign,secondSign};
+              }
+              throw new Error('Unrecognised task: '+prompt);
+            }
+            function submit(panel, answer) {
+              const field=panel.querySelector('#quizInput');
+              if(field){
+                field.value=answer;
+                field.dispatchEvent(new Event('input',{bubbles:true}));
+                panel.querySelector('#quizCheck').click();
+                return;
+              }
+              const button=[...panel.querySelectorAll('button.answer')].find(option=>plain(option.textContent)===answer);
+              requireThat(button,'Independently solved option missing from the screen');
+              button.click();
+            }
+          
+            function seedRandom(value) {
+              Math.random = () => ((value = (Math.imul(value, 1664525) + 1013904223) >>> 0) / 4294967296);
+            }
+            function siblingQuestions() {
+              seedRandom(19503);
+              return g1AllTopics().filter(t=>t.id!==topic).flatMap(t => [0,1,2].flatMap(level =>
+                Array.from({length:12}, () => makeG1Question(t.id, level))));
+            }
+          
+            if (mode === 'baseline') {
+              const siblings = siblingQuestions();
+              seedRandom(195);
+              for (const level of [0,1]) {
+                openG1Topic(topic);
+                document.querySelectorAll('#modal .stage-card')[level].click();
+                for (let i=0; i<STAGES[level].count; i++) {
+                  submit(document.querySelector('#qstage'),q.ans);
+                  document.querySelector('#quizNext').click();
+                }
+              }
+              const stored = deepCopy(progressFor(topic));
+              requireThat(JSON.stringify(stored.best) === '[5,7,0]' && JSON.stringify(stored.bonus) === '[true,true,false]', 'Baseline did not produce saved progress');
+              return {siblings, stored, historyIds:state.attemptHistory.map(attempt=>attempt.id)};
+            }
+          
+            const otherTopics = siblingQuestions();
+            seedRandom(19601);
+            const holder = document.createElement('div');
+            const seen = expectedFamilies.map(() => new Set());
+            const cases = {crossRight:0,crossLeft:0,answerZero:0,answerTwenty:0,missingFirstPlus:0,missingSecondPlus:0,missingFirstMinus:0,missingSecondMinus:0,twoPlusPlus:0,twoPlusMinus:0,twoMinusPlus:0,twoMinusMinus:0};
+            let generated=0, accepted=0, completed=0, rejected=0, entered=0, selected=0;
+            for (const level of [0,1,2]) {
+              for (let i=0; i<600; i++) {
+                const question = makeG1Question(topic, level);
+                holder.innerHTML = '<div>' + question.text + '</div>' + quizVisualHtml(question);
+                const prompt = plain(holder.firstElementChild.textContent);
+                const labels = question.choices.map(option=>option.label);
+                const task = solve(prompt, holder, labels);
+                requireThat(task.answer === String(question.ans) && (question.answerMode==='number' ? labels.length===0 : labels.filter(label=>label===task.answer).length===1), 'Generated answer disagrees with an independent solution');
+                requireThat(expectedFamilies[level].includes(task.family), 'Unexpected family on level ' + level);
+                seen[level].add(task.family);
+                if(task.family==='count_right'&&task.crosses)cases.crossRight++;
+                if(task.family==='count_left'&&task.crosses)cases.crossLeft++;
+                if(task.answer==='0')cases.answerZero++;
+                if(task.answer==='20')cases.answerTwenty++;
+                if(task.family==='missing_cross_ten'){
+                  const pos=task.position==='first'?'First':'Second';
+                  const sign=task.sign==='+'?'Plus':'Minus';
+                  cases['missing'+pos+sign]++;
+                }
+                if(task.family==='two_operations'){
+                  const first=task.sign==='+'?'Plus':'Minus';
+                  const second=task.secondSign==='+'?'Plus':'Minus';
+                  cases['two'+first+second]++;
+                }
+                generated++;
+              }
+              requireThat(seen[level].size===expectedFamilies[level].length, 'Insufficient coverage of the level');
+              for (let run=0; run<6; run++) {
+                openG1Topic(topic);
+                const stages = [...document.querySelectorAll('#modal .stage-card')];
+                for (const stage of stages) {
+                  const rect=stage.getBoundingClientRect();
+                  requireThat(rect.width>0 && rect.left>=-1 && rect.right<=innerWidth+1,'Stage card overflow');
+                }
+                const stage=stages[level];
+                requireThat(!stage.disabled, 'Level not unlocked');
+                stage.click();
+                const keys=new Set(), methods=new Set();
+                for (let i=0; i<STAGES[level].count; i++) {
+                  const panel=document.querySelector('#qstage');
+                  const choices=[...panel.querySelectorAll('button.answer')];
+                  const labels=choices.map(button=>plain(button.textContent));
+                  const task=solve(plain(panel.querySelector('.quizq').textContent),panel,labels);
+                  requireThat(expectedFamilies[level].includes(task.family) && !keys.has(task.key), 'Bad level or repetition inside an attempt');
+                  keys.add(task.key);
+                  methods.add(task.family);
+                  for (const element of panel.querySelectorAll('.elementary-number-line svg, button.answer, #quizInput')) {
+                    const rect=element.getBoundingClientRect();
+                    requireThat(rect.width>0 && rect.left>=-1 && rect.right<=innerWidth+1, 'Question overflowing viewport');
+                  }
+                  for (const tick of panel.querySelectorAll('.elementary-number-line svg text')) {
+                    requireThat(tick.getBoundingClientRect().height>=10,'Number line label is too small');
+                  }
+                  if (run===0 && i===0) {
+                    const wrong=labels.length ? labels.find(label=>label!==task.answer) : String((Number(task.answer)+1)%21);
+                    submit(panel,wrong);
+                    requireThat(blockSession.correct===i && blockSession.done===i && /Пока неверно/.test(document.querySelector('#qfb').textContent), 'Wrong answer was not rejected');
+                    rejected++;
+                  }
+                  submit(panel,task.answer);
+                  if(labels.length)selected++;else entered++;
+                  const item=blockSession.items.at(-1);
+                  const expectedScore=i+1-(run===0?1:0);
+                  requireThat(blockSession.correct===expectedScore && blockSession.done===i+1 &&
+                    item.finalCorrect && item.firstTry===!(run===0 && i===0), 'Answer handling differed from the level scoring rules: '+task.key);
+                  accepted++;
+                  const next=document.querySelector('#quizNext');
+                  if (i+1===STAGES[level].count) requireThat(/Посмотреть результат/.test(next.textContent), 'Result button is missing');
+                  next.click();
+                }
+                requireThat(methods.size===expectedFamilies[level].length, 'An attempt missed an action');
+                const expectedBest=STAGES[level].count-(level===2 && run===0?1:0);
+                requireThat(progressFor(topic).best[level]===expectedBest && progressFor(topic).bonus[level], 'Progress not saved');
+                completed++;
+              }
+            }
+            requireThat(Object.values(cases).every(count=>count>0), 'Coverage of the range endpoints or variants is missing');
+            return {otherTopics, generated, accepted, entered, selected, completed, rejected, cases, familyByLevel:seen.map(level=>[...level].sort()), progress:deepCopy(progressFor(topic))};
+          }
+          
+          (async () => {
+            await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
+            const address = 'http://127.0.0.1:' + server.address().port;
+            let browser;
+            try {
+              browser=await chromium.launch({headless:true,executablePath:process.env.MATKVEST_CHECK_CHROMIUM});
+              for (const width of [320,390,1280]) {
+                const context=await browser.newContext({viewport:{width,height:850},isMobile:width<500,hasTouch:width<500,serviceWorkers:'block'});
+                try {
+                  const page=await context.newPage();
+                  const errors=[];
+                  page.on('pageerror',error=>errors.push(error.message));
+                  oldBuild=true;
+                  await page.goto(address);
+                  await page.locator('button[onclick="openGrade(1)"]').click();
+                  const card=page.locator('button.topic').filter({has:page.getByText('Сложение и вычитание в пределах 20',{exact:true})});
+                  await card.click();
+                  assert.equal(await page.locator('#modal .stage-card:disabled').count(),2);
+                  const old=await page.evaluate(inspectBuild,{topic,mode:'baseline'});
+                  oldBuild=false;
+                  await page.reload();
+                  assert.deepEqual(await page.evaluate(key=>({stored:progressFor(key),historyIds:state.attemptHistory.map(attempt=>attempt.id)}),topic),{stored:old.stored,historyIds:old.historyIds});
+                  const stagePicker = page.locator('#modal .stage-card').first();
+                  if (!(await stagePicker.isVisible())) {
+                    if (!(await card.isVisible())) await page.locator('button[onclick="openGrade(1)"]').click({timeout:8000});
+                    await card.click({timeout:8000});
+                  }
+                  assert.match(await page.locator('#modal h2').textContent(), /Сложение и вычитание в пределах 20/);
+                  assert.equal(await page.locator('#modal .stage-card:disabled').count(),0);
+                  assert.match(await page.locator('#modal .stage-card').nth(2).textContent(), /два действия или восстанови пропуск/);
+                  const {otherTopics,...result}=await page.evaluate(inspectBuild,{topic,mode:'candidate'});
+                  assert.deepEqual(otherTopics,old.siblings);
+                  await page.reload();
+                  assert.deepEqual(await page.evaluate(key=>progressFor(key),topic),{best:[5,7,10],bonus:[true,true,true]});
+                  assert.deepEqual(errors,[]);
+                  console.log(JSON.stringify({width,siblingSamples:otherTopics.length,oldProgress:old.stored,oldHistory:old.historyIds.length,...result}));
+                } finally {
+                  await context.close();
+                }
+              }
+            } finally {
+              await browser?.close();
+              server.close();
+            }
+          })().catch(error=>{console.error(error);process.exitCode=1;});
+          MATKVEST_CHECK
+          MATKVEST_CHECK_REPO="$PWD" MATKVEST_CHECK_BASELINE="$RUNNER_TEMP/matkvest-add20-before.html" node .grade-one-add20-check.cjs
+      - name: Save verified exercises on the audit branch
+        run: |
+          test "$GITHUB_REF" = refs/heads/audit/g1-g4-content-v195
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- index.html
+          git commit -m 'Separate Grade 1 arithmetic within 20 by level'
+          git push origin "HEAD:$GITHUB_REF"
