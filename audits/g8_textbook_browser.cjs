@@ -42,12 +42,15 @@ async function testNavigation(page){
   ['алгебра 27','rational_equation_word_problems'],['алгебра 38','number_intervals'],['алгебра 44','linear_function'],
   ['геометрия 66','similarity_by_angles'],['геометрия 67','similarity_by_two_sides'],['геометрия 68','similarity_by_three_sides'],
   ['геометрия 69','triangle_midline'],['геометрия 70','triangle_centers'],['геометрия 71','right_triangle_projections'],
-  ['геометрия 72','similarity_constructions'],['геометрия 73','similarity_applications'],
-  ['геометрия 74','acute_angle_trig_ratios'],['геометрия 74','trig_identity'],['геометрия 75','special_angles_trig']
+  ['геометрия 72','similarity_constructions'],['геометрия 73','similarity_applications']
  ]){
   await search.fill(query);
   await menu.locator('[data-topic-id="g8:'+id+'"]:visible').waitFor();
  }
+ const trigRows=await menu.locator('.mk-g5-toc-part').nth(1).locator('[data-paragraph="74"], [data-paragraph="75"]').evaluateAll(rows=>
+  rows.map(row=>[...row.querySelectorAll('[data-topic-id]')].map(button=>button.dataset.topicId))
+ );
+ assert.deepEqual(trigRows,[['g8:acute_angle_trig_ratios','g8:trig_identity'],['g8:special_angles_trig']]);
  await search.fill('геометрия 62');
  await menu.locator('[data-topic-id="g8:heron_formula"]:visible').waitFor();
  assert.equal(await menu.locator('details:visible').count(),1);
@@ -281,9 +284,11 @@ async function testSessions(page){
   const browser=await chromium.launch({headless:true,executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE});
   try{
    const page=await browser.newPage({viewport:{width,height:850},isMobile:width<500,hasTouch:width<500});
+   page.setDefaultTimeout(20000);
    const errors=[];
    page.on('pageerror',error=>errors.push(error.message));
    await testNavigation(page);
+   console.log(JSON.stringify({width,navigation:'pass'}));
    const similarity=await testSimilarity(page);
    const result=width===390&&!process.env.MATKVEST_G8_NAV_ONLY?await testSessions(page):{};
    assert.deepEqual(errors,[]);
