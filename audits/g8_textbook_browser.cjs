@@ -5,6 +5,7 @@ const {chromium}=require('playwright');
 const applicationTopics=[
  'triangle_midline','triangle_centers','triangle_centroid','right_triangle_projections','similarity_constructions','similarity_applications'
 ];
+const trigonometryTopics=['acute_angle_trig_ratios','trig_identity','special_angles_trig'];
 const rebuilt=[
  'algebraic_fraction_domain','algebraic_fraction_basic_property','algebraic_fraction_reduction','algebraic_fraction_add_sub',
  'algebraic_fraction_mul_div','rational_expression_transformations','inverse_proportion_function',
@@ -41,7 +42,8 @@ async function testNavigation(page){
   ['алгебра 27','rational_equation_word_problems'],['алгебра 38','number_intervals'],['алгебра 44','linear_function'],
   ['геометрия 66','similarity_by_angles'],['геометрия 67','similarity_by_two_sides'],['геометрия 68','similarity_by_three_sides'],
   ['геометрия 69','triangle_midline'],['геометрия 70','triangle_centers'],['геометрия 71','right_triangle_projections'],
-  ['геометрия 72','similarity_constructions'],['геометрия 73','similarity_applications']
+  ['геометрия 72','similarity_constructions'],['геометрия 73','similarity_applications'],
+  ['геометрия 74','acute_angle_trig_ratios'],['геометрия 74','trig_identity'],['геометрия 75','special_angles_trig']
  ]){
   await search.fill(query);
   await menu.locator('[data-topic-id="g8:'+id+'"]:visible').waitFor();
@@ -60,7 +62,7 @@ async function testNavigation(page){
  assert.match(await page.locator('#g8HomeProgress').textContent(),/0\/136.*0\/408/);
 }
 async function testSimilarity(page){
- return page.evaluate(applicationTopics=>{
+ return page.evaluate(({applicationTopics,trigonometryTopics})=>{
   const check=(condition,message)=>{if(!condition)throw Error(message);};
   const distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
   function checkTriangle(triangle){
@@ -114,10 +116,29 @@ async function testSimilarity(page){
    check(box.width>100&&box.left>=-1&&box.right<=innerWidth+1,'Altitude drawing is clipped');
    check([...svg.querySelectorAll('text')].map(label=>label.textContent).join('')==='ABHC','Wrong altitude labels');
   }
-  const totals={similarityQuestions:0,similarityDrawings:0,applicationQuestions:0,projectionDrawings:0};
+  function checkTrigonometryFigure(model){
+   checkTriangle(model);
+   const svg=document.querySelector('#qstage svg.geometry-svg');
+   check(svg?.querySelectorAll('.geo-right').length===1,'Missing right-angle mark');
+   const [c,a,b]=svg.querySelector('polygon.geo-face').points;
+   check(Math.abs(distance(c,b)/distance(c,a)-model.sides[1]/model.sides[0])<1e-5,'Trigonometry diagram distorts the legs');
+   const box=svg.getBoundingClientRect();
+   check(box.width>100&&box.left>=-1&&box.right<=innerWidth+1,'Trigonometry drawing is clipped');
+   const labels=[...svg.querySelectorAll('text')];
+   for(const value of [...model.vertices,...model.angles,...model.labels].filter(value=>value!=null)){
+    check(labels.some(label=>label.textContent===String(value)),'Missing trigonometry label '+value);
+   }
+   for(const label of labels){
+    const bounds=label.getBoundingClientRect();
+    check(bounds.left>=box.left-1&&bounds.right<=box.right+1&&bounds.top>=box.top-1&&bounds.bottom<=box.bottom+1,
+     'Clipped trigonometry label '+label.textContent);
+   }
+  }
+  const totals={similarityQuestions:0,similarityDrawings:0,applicationQuestions:0,projectionDrawings:0,
+   trigonometryQuestions:0,trigonometryDrawings:0};
   const criteria=['similarity_by_angles','similarity_by_two_sides','similarity_by_three_sides'];
-  for(const raw of [...criteria,...applicationTopics]){
-   const criterion=criteria.includes(raw);
+  for(const raw of [...criteria,...applicationTopics,...trigonometryTopics]){
+   const criterion=criteria.includes(raw),trigonometry=trigonometryTopics.includes(raw);
    const id='g8:'+raw,templates=new Set();
    for(let stage=0;stage<3;stage++){
     const count=STAGES[stage].count,generated=new Set();
@@ -147,6 +168,9 @@ async function testSimilarity(page){
      }else if(q.visual?.data.kind==='g7-g8-altitude-to-hypotenuse'){
       checkProjection(q.visual.data);
       totals.projectionDrawings++;
+     }else if(q.visual?.data.kind==='g7-g8-right-trig'){
+      checkTrigonometryFigure(q.visual.data);
+      totals.trigonometryDrawings++;
      }
      if(q.choices.length){
       const index=q.choices.findIndex(option=>String(option.key)===String(q.ans));
@@ -161,6 +185,7 @@ async function testSimilarity(page){
      check(blockSession.done===i+1,raw+' did not record progress');
      if(!blockSession.finished)nextQ();
      if(criterion)totals.similarityQuestions++;
+     else if(trigonometry)totals.trigonometryQuestions++;
      else totals.applicationQuestions++;
     }
     check(blockSession.finished,raw+' did not finish the stage');
@@ -173,8 +198,9 @@ async function testSimilarity(page){
   check(JSON.stringify(legacyProgress.best)==='[4,6,9]', 'Original workout progress changed');
   check(totals.similarityDrawings===9&&totals.similarityQuestions===66,'Missing similarity problems or visuals');
   check(totals.applicationQuestions===132&&totals.projectionDrawings===5,'Missing application problems or altitude diagrams');
+  check(totals.trigonometryQuestions===66&&totals.trigonometryDrawings===11,'Missing trigonometry problems or diagrams');
   return totals;
- },applicationTopics);
+ },{applicationTopics,trigonometryTopics});
 }
 
 async function testSessions(page){

@@ -1272,12 +1272,12 @@ function drawHypotenuseAltitude({p,q}){
 }
 
 const drawPreviousGeometry=g7GeometryExtraSvg;
-function drawSimilarityTriangle({vertices,sides,angles=[],labels=[],mirrored=false},centerX){
+function drawSimilarityTriangle({vertices,sides,angles=[],labels=[],mirrored=false},centerX,maxWidth=208){
  const [ab,ac,bc]=sides;
  const cx=(ab*ab+ac*ac-bc*bc)/(2*ab);
  const cy=Math.sqrt(ac*ac-cx*cx);
  const minX=Math.min(0,cx),width=Math.max(ab,cx)-minX;
- const scale=Math.min(208/width,200/cy);
+ const scale=Math.min(maxWidth/width,200/cy);
  const points=[[0,0],[ab,0],[cx,cy]].map(([x,y])=>({
   x:centerX+(mirrored?-1:1)*(x-minX-width/2)*scale,
   y:304-y*scale
@@ -1310,6 +1310,7 @@ function similaritySvg(body){
 }
 g7GeometryExtraSvg=function(model){
  if(model?.kind==='g7-g8-altitude-to-hypotenuse')return similaritySvg(drawHypotenuseAltitude(model));
+ if(model?.kind==='g7-g8-right-trig')return similaritySvg(drawSimilarityTriangle(model,320,340));
  if(model?.kind==='g7-g8-similarity-pair'){
   return similaritySvg(drawSimilarityTriangle(model.left,155)+drawSimilarityTriangle(model.right,485));
  }
@@ -3271,6 +3272,175 @@ const similarityApplicationMasters={
  }
 };
 
+function rightTriangleDiagram(task,adjacent,opposite,hypotenuse,labels,angle='α'){
+ return diagram(task,{
+  kind:'g7-g8-right-trig',vertices:['C','A','B'],sides:[adjacent,opposite,hypotenuse],
+  angles:['90°',angle],labels,
+  aria:'Прямоугольный треугольник ABC с прямым углом C. Угол A отмечен на чертеже.'
+ });
+}
+function markedRatio(name,numerator,denominator,rule,a,b,c){
+ return rightTriangleDiagram(number(`Найди ${name} ∠A. Ответ запиши точной дробью.`,rational(numerator,denominator),
+  `${rule}. Получаем ${fraction(numerator,denominator)}.`),b,a,c,[b,a,c]);
+}
+function specialValue(name,angle,answer,ex){
+ const half=frac(1,2),rootTwo=frac('√2',2),rootThree=frac('√3',2),third=frac('√3',3);
+ return choice(`Чему равно ${name} ${angle}°?`,answer,
+  (name==='tg'?[third,'1','√3','2','2√3']:[half,rootTwo,rootThree,'1']).filter(value=>value!==answer),ex);
+}
+const shortLegRatio=frac('√3',3);
+
+workouts.acute_angle_trig_ratios=[
+ {
+  sineOnFigure:([a,b,c])=>markedRatio('sin',a,c,'Синус равен отношению противолежащего катета BC к гипотенузе AB',a,b,c),
+  cosineOnFigure:([a,b,c])=>markedRatio('cos',b,c,'Косинус равен отношению прилежащего катета AC к гипотенузе AB',a,b,c),
+  tangentOnFigure:([a,b,c])=>markedRatio('tg',a,b,'Тангенс равен отношению противолежащего катета BC к прилежащему AC',a,b,c),
+  nameOpposite:([a,b,c])=>rightTriangleDiagram(choice('Какой катет лежит напротив угла A?','BC',['AC','AB'],
+   'Точка A не лежит на стороне BC. Значит, BC — противолежащий катет.'),b,a,c,[]),
+  nameHypotenuse:([a,b,c])=>rightTriangleDiagram(choice('Какой отрезок является гипотенузой?','AB',['AC','BC'],
+   'Гипотенуза лежит напротив прямого угла C.'),b,a,c,[])
+ },
+ {
+  fromSine:([a,b,c])=>rightTriangleDiagram(number(`sin ∠A = ${fraction(a,c)}. Гипотенуза AB = ${2*c} см. Найди BC.`,2*a,
+   'Умножаем синус угла A на длину гипотенузы.','см'),2*b,2*a,2*c,[null,'?',2*c]),
+  fromCosine:([a,b,c])=>rightTriangleDiagram(number(`cos ∠A = ${fraction(b,c)}. Гипотенуза AB = ${3*c} см. Найди AC.`,3*b,
+   'Умножаем косинус угла A на длину гипотенузы.','см'),3*b,3*a,3*c,['?',null,3*c]),
+  hypotenuseFromCosine:([a,b,c])=>number(`В прямоугольном треугольнике ABC угол C прямой. AC = ${2*b} см, cos ∠A = ${fraction(b,c)}. Найди AB.`,2*c,
+   'Прилежащий катет равен гипотенузе, умноженной на косинус. Делим AC на cos ∠A.','см'),
+  oppositeFromTangent:([a,b])=>number(`К острому углу α прилежит катет ${3*b} см. tg α = ${fraction(a,b)}. Найди противолежащий катет.`,3*a,
+   'Умножаем прилежащий катет на тангенс.','см'),
+  adjacentFromTangent:([a,b])=>number(`Противолежащий углу α катет равен ${2*a} см. tg α = ${fraction(a,b)}. Найди прилежащий катет.`,2*b,
+   'Делим противолежащий катет на тангенс.','см'),
+  tangentOfOtherAngle:([a,b,c])=>rightTriangleDiagram(number('Найди tg ∠B. Ответ запиши точной дробью.',rational(b,a),
+   `Для угла B противолежащий катет — AC, прилежащий — BC. Получаем ${fraction(b,a)}.`),b,a,c,[b,a,null]),
+  complement:([a,b,c])=>number(`В прямоугольном треугольнике острые углы α и β. cos α = ${fraction(a,c)}. Найди sin β.`,rational(a,c),
+   'Катет, прилежащий к α, лежит напротив β. Поэтому cos α = sin β.')
+ },
+ {
+  sineWithMissingLeg:([a,b,c])=>number(`В прямоугольном треугольнике гипотенуза равна ${c} см, прилежащий к острому углу α катет равен ${b} см. Найди sin α.`,rational(a,c),
+   `По теореме Пифагора противолежащий катет равен √(${c*c} − ${b*b}) = ${a} см. Делим его на гипотенузу.`),
+  cosineWithMissingLeg:([a,b,c])=>number(`Гипотенуза прямоугольного треугольника равна ${c} см, противолежащий углу α катет равен ${a} см. Найди cos α.`,rational(b,c),
+   `По теореме Пифагора прилежащий катет равен √(${c*c} − ${a*a}) = ${b} см. Делим его на гипотенузу.`),
+  areaFromRatio:([a,b,c])=>number(`В прямоугольном треугольнике гипотенуза ${c} см и sin α = ${fraction(a,c)}. Найди площадь.`,rational(a*b,2),
+   `Умножаем синус на гипотенузу и получаем катет ${a} см. Другой катет по теореме Пифагора равен ${b} см. Берём половину произведения катетов.`,'см²'),
+  perimeterFromTangent:([a,b,c])=>number(`Противолежащий острому углу α катет равен ${2*a} см, tg α = ${fraction(a,b)}. Найди периметр треугольника.`,2*(a+b+c),
+   `Делим ${2*a} на tg α и получаем второй катет ${2*b} см. По теореме Пифагора гипотенуза равна ${2*c} см. Складываем три стороны.`,'см'),
+  legsFromDifference:([a,b,c])=>number(`tg α = ${fraction(a,b)}. Прилежащий катет длиннее противолежащего на ${3*(b-a)} см. Найди гипотенузу.`,3*c,
+   `Записываем отношение катетов как ${a} : ${b}. Их разность составляет ${b-a} долей. По условию одна доля равна 3 см, катеты равны ${3*a} и ${3*b} см. Применяем теорему Пифагора.`,'см'),
+  areaFromLegSum:([a,b])=>number(`Катеты в сумме дают ${3*(a+b)} см. tg α = ${fraction(a,b)}. Найди площадь треугольника.`,rational(9*a*b,2),
+   `Делим сумму на ${a+b}. Одна доля равна 3 см. Катеты ${3*a} и ${3*b} см. Площадь равна половине их произведения.`,'см²'),
+  rightTriangleAltitude:([a,b,c])=>number(`В прямоугольном треугольнике ABC с прямым углом C, AB = ${c} см, tg ∠A = ${fraction(a,b)}. Найди высоту к гипотенузе.`,rational(a*b,c),
+   `Отношение катетов ${a} : ${b} соответствует гипотенузе ${c} см, поэтому это сами их длины. Приравниваем половину произведения катетов и половину произведения гипотенузы на высоту.`,'см'),
+  angleOfRamp:([a,b,c])=>number(`Длина наклонного пандуса ${c} м, его горизонтальная проекция ${b} м. Найди tg угла наклона к земле.`,rational(a,b),
+   `Подъём по теореме Пифагора равен ${a} м. Тангенс равен отношению подъёма к горизонтальной проекции.`),
+  ladderShift:([a,b,c])=>number(`Лестница длиной ${c} м образует с землёй угол α, где sin α = ${fraction(b,c)}. Низ лестницы отодвинули от стены на ${b-a} м. Найди синус нового угла.`,rational(a,c),
+   `Сначала высота равна ${b} м, расстояние до стены — ${a} м. После смещения расстояние равно ${b} м, новая высота — ${a} м. Делим её на длину лестницы.`),
+  projectionOfInclined:([a,b,c])=>number(`У наклонной балки длиной ${2*c} м sin угла наклона равен ${fraction(a,c)}. На сколько горизонтальная проекция длиннее вертикальной?`,2*(b-a),
+   `Вертикальная проекция ${2*a} м. Горизонтальная по теореме Пифагора ${2*b} м. Вычитаем длины.`,'м')
+ }
+];
+
+workouts.trig_identity=[
+ {
+  mainIdentity:()=>choice('Как записывается основное тригонометрическое тождество для острого угла α?',
+   'sin² α + cos² α = 1',['sin α + cos α = 1','sin² α − cos² α = 1','sin² α + cos² α = 2'],
+   'Это теорема Пифагора, в которой обе части разделены на квадрат гипотенузы.'),
+  isolateCosine:()=>choice('Вырази cos² α через sin α.','1 − sin² α',['1 + sin² α','sin² α − 1','1 − sin α'],
+   'Вычитаем sin² α из обеих частей тождества.'),
+  isolateSine:()=>choice('Вырази sin² α через cos α.','1 − cos² α',['1 + cos² α','cos² α − 1','1 − cos α'],
+   'Вычитаем cos² α из обеих частей тождества.'),
+  substituteSineSquare:([a,b,c])=>number(`sin² α = ${fraction(a*a,c*c)}. Найди cos² α.`,rational(b*b,c*c),
+   'Из 1 вычитаем sin² α.'),
+  substituteCosineSquare:([a,b,c])=>number(`cos² α = ${fraction(a*a,c*c)}. Найди sin² α.`,rational(b*b,c*c),
+   'Из 1 вычитаем cos² α.')
+ },
+ {
+  recoverCosine:([a,b,c])=>number(`α — острый угол, sin α = ${fraction(a,c)}. Найди cos α.`,rational(b,c),
+   'Из 1 вычитаем квадрат синуса и извлекаем положительный квадратный корень.'),
+  recoverSine:([a,b,c])=>number(`α — острый угол, cos α = ${fraction(b,c)}. Найди sin α.`,rational(a,c),
+   'Из 1 вычитаем квадрат косинуса и извлекаем положительный квадратный корень.'),
+  differenceOfSquares:([a,b,c])=>number(`sin α = ${fraction(a,c)}. Найди cos² α − sin² α.`,rational(b*b-a*a,c*c),
+   'Выражение равно 1 − 2 sin² α.'),
+  quotientOfRatios:([a,b,c])=>number(`sin α = ${fraction(a,c)}, cos α = ${fraction(b,c)}. Найди tg α.`,rational(a,b),
+   'Делим синус на косинус. Общий знаменатель дробей сокращается.'),
+  checkPair:([a,b,c])=>choice(`Может ли острый угол α одновременно иметь sin α = ${fraction(a,c)} и cos α = ${fraction(b+1,c)}?`,
+   'Нет, сумма квадратов больше 1',['Да, сумма квадратов равна 1','Нет, сумма квадратов меньше 1'],
+   'При cos α, равном b/c, сумма квадратов была бы 1. Указанный косинус больше, поэтому сумма тоже больше.'),
+  doubleSum:([a,b,c])=>number(`sin² α = ${fraction(a*a,c*c)}. Найди 2 sin² α + cos² α.`,rational(c*c+a*a,c*c),
+   'Выделяем сумму sin² α + cos² α, равную 1. Остаётся прибавить sin² α.'),
+  selectSign:()=>choice('Какой корень нужно взять при вычислении cos α из cos² α, если α — острый угол?',
+   'Положительный',['Отрицательный','Любой из двух'],
+   'Для острого угла косинус — отношение двух положительных длин.')
+ },
+ {
+  oneMinusQuotient:([a,b,c])=>number(`cos α = ${fraction(b,c)}. Найди (1 − cos² α) : cos² α.`,rational(a*a,b*b),
+   'Числитель равен sin² α. Отношение квадратов синуса и косинуса равно квадрату тангенса.'),
+  sineFromTangent:([a,b,c])=>number(`α — острый угол, tg α = ${fraction(a,b)}. Найди sin α.`,rational(a,c),
+   'Подставляем sin α = tg α · cos α в основное тождество и находим положительный косинус. Умножаем его на тангенс.'),
+  cosineFromTangent:([a,b,c])=>number(`α — острый угол, tg α = ${fraction(b,a)}. Найди cos α.`,rational(a,c),
+   'Из основного тождества и sin α = tg α · cos α получаем cos² α = 1 : (1 + tg² α). Берём положительный корень.'),
+  productFromSquare:([a,b,c])=>number(`α — острый угол, sin² α = ${fraction(a*a,c*c)}. Найди sin α · cos α.`,rational(a*b,c*c),
+   'Вычитаем sin² α из 1. Извлекаем положительные корни из обоих квадратов и перемножаем.'),
+  sumFromProduct:([a,b,c])=>number(`sin α · cos α = ${fraction(a*b,c*c)}. Найди (sin α + cos α)².`,rational(c*c+2*a*b,c*c),
+   'Раскрываем квадрат суммы. Сумма квадратов равна 1. Прибавляем удвоенное произведение.'),
+  differenceFromProduct:([a,b,c])=>number(`sin α · cos α = ${fraction(a*b,c*c)}. Найди (sin α − cos α)².`,rational(c*c-2*a*b,c*c),
+   'Раскрываем квадрат разности. Из суммы квадратов, равной 1, вычитаем удвоенное произведение.'),
+  sineFromSquaresDifference:([a,b,c])=>number(`cos² α − sin² α = ${fraction(b*b-a*a,c*c)}, α — острый угол. Найди sin α.`,rational(a,c),
+   'Подставляем cos² α = 1 − sin² α. Решаем 1 − 2 sin² α = данная разность и извлекаем положительный корень.'),
+  cosineFromSumSquare:([a,b,c])=>number(`α — острый угол, cos α > sin α. Если sin α = ${fraction(a,c)}, найди (sin α + cos α)(cos α − sin α).`,rational(b*b-a*a,c*c),
+   'Произведение равно cos² α − sin² α = 1 − 2 sin² α.'),
+  reciprocalCosine:([a,b,c])=>number(`tg α = ${fraction(a,b)}. Найди 1 : cos² α.`,rational(c*c,b*b),
+   'Делим тождество на cos² α. Получаем 1 : cos² α = 1 + tg² α.'),
+  substituteFourthPowers:([a,b,c])=>number(`sin α · cos α = ${fraction(a*b,c*c)}. Найди sin⁴ α + cos⁴ α.`,rational(c**4-2*a*a*b*b,c**4),
+   'Из квадрата суммы sin² α + cos² α вычитаем удвоенный квадрат произведения sin α · cos α.')
+ }
+];
+
+workouts.special_angles_trig=[
+ {
+  sineThirty:()=>specialValue('sin',30,frac(1,2),'Катет напротив 30° равен половине гипотенузы.'),
+  cosineSixty:()=>specialValue('cos',60,frac(1,2),'Прилежащий к 60° катет лежит напротив 30°.'),
+  tangentFortyFive:()=>specialValue('tg',45,'1','В прямоугольном треугольнике с углом 45° катеты равны.'),
+  sineSixty:()=>specialValue('sin',60,frac('√3',2),'Отношение длинного катета к гипотенузе в треугольнике с углами 30° и 60°.'),
+  cosineFortyFive:()=>specialValue('cos',45,frac('√2',2),'Если катет равен 1, то гипотенуза равна √2. Отношение 1/√2 равно √2/2.')
+ },
+ {
+  legAtThirty:([a])=>rightTriangleDiagram(number(`В прямоугольном треугольнике AB = ${2*a} см. Найди катет BC напротив угла 30°.`,a,
+   'Умножаем гипотенузу на sin 30°, равный половине.','см'),a*Math.sqrt(3),a,2*a,[null,'?',2*a],'30°'),
+  hypotenuseAtSixty:([a])=>rightTriangleDiagram(number(`Катет AC, прилежащий к углу 60°, равен ${a} см. Найди гипотенузу AB.`,2*a,
+   'cos 60° равен половине. Гипотенуза вдвое длиннее прилежащего катета.','см'),a,a*Math.sqrt(3),2*a,[a,null,'?'],'60°'),
+  adjacentAtFortyFive:([a])=>rightTriangleDiagram(number(`BC = ${a} см. Найди катет AC, прилежащий к углу 45°.`,a,
+   'Тангенс угла 45° равен 1. Катеты равны.','см'),a,a,a*Math.SQRT2,['?',a,null],'45°'),
+  tangentThirty:()=>specialValue('tg',30,shortLegRatio,'Короткий катет относится к длинному как 1 : √3, то есть √3 : 3.'),
+  tangentSixty:()=>specialValue('tg',60,'√3','Длинный катет в √3 раз больше короткого.'),
+  inverseSine:()=>choice(`Какой острый угол имеет синус ${frac('√2',2)}?`,'45°',['30°','60°'],
+   'У угла 45° отношение катета к гипотенузе равно √2/2.'),
+  cosineThirty:()=>specialValue('cos',30,frac('√3',2),'Прилежащий к 30° длинный катет равен половине гипотенузы, умноженной на √3.')
+ },
+ {
+  rampRise:([a])=>number(`Пандус состоит из двух наклонных участков. Первый длиной ${2*a} м идёт вверх под углом 30°. Второй длиной ${a}√2 м идёт вверх под углом 45°. Найди суммарный подъём.`,2*a,
+   `Каждый подъём — произведение длины участка на синус его наклона. Первый и второй подъёмы равны по ${a} м.`,'м'),
+  squareDiagonalArea:([a])=>number(`Диагональ квадрата равна ${2*a} см и образует с его стороной угол 45°. Найди площадь квадрата.`,2*a*a,
+   `Сторона квадрата равна ${2*a} · √2/2 = ${a}√2 см. Возводим её в квадрат.`,'см²'),
+  shadowAtSixty:([a])=>number(`Высота вертикального столба равна ${a}√3 м. Солнечный луч образует с горизонталью угол 60°. Найди длину тени.`,a,
+   'Высота равна длине тени, умноженной на tg 60° = √3. Делим высоту на √3.','м'),
+  equilateralHeight:([a])=>number(`Высота равностороннего треугольника равна ${a}√3 см. Найди его периметр.`,6*a,
+   `Высота — катет, противолежащий углу 60°. Делим её на sin 60° = √3/2 и получаем сторону ${2*a} см. Умножаем на 3.`,'см'),
+  horizontalProjections:([a])=>number(`Первый трос длиной ${2*a} м натянут под углом 60° к земле. Второй трос длиной ${2*a}√2 м натянут под углом 45°. На сколько метров горизонтальная проекция второго троса длиннее?`,a,
+   `Каждую длину умножаем на косинус угла. Проекции равны ${a} и ${2*a} м.`,'м'),
+  rectangleSide:([a])=>number(`Диагональ прямоугольника длиной ${2*a}√3 см образует угол 30° с длинной стороной. Найди длинную сторону.`,3*a,
+   'Умножаем диагональ на cos 30° = √3/2.','см'),
+  angleFromTwoRatios:()=>number('В прямоугольном треугольнике противолежащий углу α катет в √3 раз больше прилежащего. Найди другой острый угол.',30,
+   'Тангенс α равен √3, значит α = 60°. Второй острый угол равен 90° − 60°.','°'),
+  twoTangentProduct:()=>number('Вычисли 2 · tg 30° · tg 60° + tg 45°.',3,
+   'Тангенсы 30° и 60° взаимно обратны. Их произведение равно 1. tg 45° также равен 1.'),
+  isoscelesBase:([a])=>number(`Высота равнобедренного треугольника к основанию равна ${a}√3 см. Каждый угол при основании равен 60°. Найди основание.`,2*a,
+   `Делим высоту на tg 60° = √3. Получаем половину основания ${a} см. Удваиваем её.`,'см'),
+  compareSineSquares:()=>number('Вычисли 4 · (sin² 60° − sin² 30°).',2,
+   'Подставляем значения: квадрат синуса 60° равен 3/4, а квадрат синуса 30° равен 1/4.')
+ }
+];
+
 function makeQuestion(raw,stage,variant,build){
  let args;
  if(raw==='similarity_by_angles'){
@@ -3280,7 +3450,7 @@ function makeQuestion(raw,stage,variant,build){
   args=scaledTriple();
  }
  const item=build(args);
- const geometry=similarityTopics[raw]||raw==='triangle_midline'||item.model?.kind==='g7-g8-altitude-to-hypotenuse';
+ const geometry=similarityTopics[raw]||raw==='triangle_midline'||['g7-g8-altitude-to-hypotenuse','g7-g8-right-trig'].includes(item.model?.kind);
  const visual=geometry?item.model:
   (areaFollowupMasters[raw]||areaMasters[raw]||equationSystemMasters[raw]||probabilitySetMasters[raw]||geometryMasters[raw]||inequalityMasters[raw]||functionMasters[raw])&&(item.venn??item.graph??item.table??item.interval);
  const sig=g8Sig(raw,stage,variant,visual?[item.text,JSON.stringify(visual)]:[item.text]);
