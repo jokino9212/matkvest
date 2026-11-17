@@ -15,7 +15,9 @@ const adjustedMasterTopics=[
  'incomplete_quadratic_equations','quadratic_equation_types','quadratic_roots_cases',
  'quadratic_word_problems','vieta_theorem','quadratic_trinomial_factorization','fractional_rational_equations',
  'two_variable_equation_graph','graphical_equations_systems','numerical_inequalities_properties','direct_proportion_function',
- 'integer_exponent_definition','integer_exponent_properties','scientific_notation','scientific_notation_operations'
+ 'integer_exponent_definition','integer_exponent_properties','scientific_notation','scientific_notation_operations',
+ 'elementary_favorable_events','data_dispersion','standard_deviation','scatter_plot','disjoint_events_addition',
+ 'conditional_probability','probability_multiplication_rule'
 ];
 const rebuilt=[
  'algebraic_fraction_domain','algebraic_fraction_basic_property','algebraic_fraction_reduction','algebraic_fraction_add_sub',
