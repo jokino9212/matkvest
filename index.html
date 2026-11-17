@@ -846,6 +846,7 @@ button,input{font:inherit}button{cursor:pointer}.shell{max-width:1180px;margin:a
 .g1-spatial-blue{fill:#73a9e8;stroke:#3e6f9f;stroke-width:3}.g1-spatial-purple{fill:#b692dc;stroke:#75529a;stroke-width:3}.g1-spatial-pink{fill:#e995aa;stroke:#a7536a;stroke-width:3}.g1-spatial-guide{stroke:#d5e5dd;stroke-width:2;stroke-dasharray:6 7}
 .g1-shape-stroke{stroke:#315d4d;stroke-width:5;stroke-linecap:round;stroke-linejoin:round}.g1-shape-fill{fill:#e9f6ef}.g1-shape-accent{fill:#62bb92;stroke:#257b5b;stroke-width:4}.g1-shape-point{fill:#25845f}.g1-shape-label{font:900 18px/1 system-ui,-apple-system,"Segoe UI",Arial,sans-serif;fill:#315d4d;text-anchor:middle}
 .g1-shape-name-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:9px auto;max-width:700px}.g1-shape-name{padding:9px;border:1px solid #dce9e2;border-radius:12px;background:#fbfdfc;text-align:center;font-weight:850}
+.g1-shape-svg.g1-shape-compact{max-width:480px}.g1-shape-compact .g1-shape-label{font-size:20px}
 @media(max-width:520px){.g1-geometry-wrap{padding:5px}.g1-shape-label{font-size:15px}.g1-shape-name-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.g1-shape-name{font-size:14px;padding:7px}.elementary-mode .mtop{min-width:0}.elementary-mode .mtop h2{min-width:0;overflow-wrap:anywhere;line-height:1.15}}
 
 
@@ -18580,6 +18581,11 @@ const G1_STAGE_DESCRIPTIONS={
   "Определи, с какой стороны, выше или ниже находится кружок.",
   "Найди кружок по направлению или поменяй предмет отсчёта.",
   "Найди клетку по двум шагам или по ряду и столбцу."
+ ],
+ "g1:geometric_figures":[
+  "Назови фигуру или найди её среди других фигур.",
+  "Посчитай стороны или углы либо отличи точку от отрезка.",
+  "Выбери фигуру по свойствам или посчитай стороны либо углы двух фигур вместе."
  ]
 };
 function openG1Topic(id){
@@ -19007,6 +19013,7 @@ function g1ShapePrimitive(shape,cx=340,cy=145,scale=1){
  return `<line class="g1-shape-stroke" x1="${cx-120*s}" y1="${cy}" x2="${cx+120*s}" y2="${cy}"/><circle class="g1-shape-point" cx="${cx-120*s}" cy="${cy}" r="7"/><circle class="g1-shape-point" cx="${cx+120*s}" cy="${cy}" r="7"/>`
 }
 function g1ShapeVisualHtml(data){
+ if(data?.compact)return g1ShapeCompactHtml(data);
  const mode=data?.mode||"single",W=680,H=330;
  let body="";
  if(mode==="gallery"){
@@ -19015,15 +19022,17 @@ function g1ShapeVisualHtml(data){
  }else body=g1ShapePrimitive(data?.shape||"Круг",340,150,1);
  return `<div class="g1-geometry-wrap"><svg class="g1-shape-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Геометрическая фигура" xmlns="http://www.w3.org/2000/svg">${body}</svg></div>`
 }
-function g1ShapeShuffledOrder(target){
- const variants=[
-  ["Круг","Треугольник","Квадрат","Прямоугольник"],
-  ["Треугольник","Прямоугольник","Круг","Квадрат"],
-  ["Квадрат","Круг","Прямоугольник","Треугольник"],
-  ["Прямоугольник","Квадрат","Треугольник","Круг"]
- ];
- const candidates=variants.filter(v=>v.includes(target));return [...candidates[ri(0,candidates.length-1)]]
+function g1ShapeCompactHtml(data){
+ const gallery=data.mode==="gallery";
+ const height=gallery?(data.order.length>2?290:145):225;
+ const body=gallery?data.order.map((shape,i)=>{
+  const x=90+i%2*180,y=65+Math.floor(i/2)*145;
+  return `<g class="g1-shape-option">${g1ShapePrimitive(shape,x,y,.54)}<text class="g1-shape-label" x="${x}" y="${y+64}">${String.fromCharCode(65+i)}</text></g>`;
+ }).join(""):g1ShapePrimitive(data.shape,180,110,1);
+ const label=gallery?"Рисунки фигур с буквами":"Рисунок фигуры";
+ return `<div class="g1-geometry-wrap"><svg class="g1-shape-svg g1-shape-compact" viewBox="0 0 360 ${height}" role="img" aria-label="${label}" xmlns="http://www.w3.org/2000/svg">${body}</svg></div>`;
 }
+function g1ShapeShuffledOrder(){return shuffleOptions(G1_BASIC_SHAPES)}
 function g1ShapeQuestion(d){
  const warm=["identify","find_gallery"],train=["identify","find_gallery","count_sides","count_corners","point_segment"],master=["identify","find_gallery","count_sides","count_corners","point_segment","find_by_sides"];
  const templateId=g1PickTemplate(d===0?warm:d===1?train:master);
@@ -19087,8 +19096,8 @@ g1TheoryHtml=function(id){
   const left={mode:"pair",relation:"Слева",reference:"Оранжевый",subject:"Зелёный"},up={mode:"pair",relation:"Сверху",reference:"Оранжевый",subject:"Зелёный"};
   return `<div class="elementary-theory"><p><b>Предметы могут находиться слева, справа, сверху или снизу друг от друга.</b></p><div class="g1-theory-block"><h3>Слева и справа</h3>${g1SpatialVisualHtml(left)}<p>Зелёный кружок находится <b>слева</b> от оранжевого.</p><p>Значит, оранжевый находится <b>справа</b> от зелёного.</p></div><div class="g1-theory-block"><h3>Сверху и снизу</h3>${g1SpatialVisualHtml(up)}<p>Зелёный кружок находится <b>сверху</b> от оранжевого.</p><p>Значит, оранжевый находится <b>снизу</b> от зелёного.</p></div><div class="elementary-example">Сначала найди предмет, от которого нужно считать направление.</div><p>На клетчатой схеме ряд идёт слева направо, а столбец — сверху вниз.</p></div>`
  }
- const gallery={mode:"gallery",order:["Круг","Треугольник","Квадрат","Прямоугольник"]};
- return `<div class="elementary-theory"><p><b>Фигуры отличаются формой.</b> Сначала внимательно посмотри на рисунок.</p>${g1ShapeVisualHtml(gallery)}<div class="g1-shape-name-grid"><div class="g1-shape-name">A — круг</div><div class="g1-shape-name">B — треугольник</div><div class="g1-shape-name">C — квадрат</div><div class="g1-shape-name">D — прямоугольник</div></div><div class="g1-theory-block"><h3>Стороны и углы</h3><p>У треугольника <b>3 стороны и 3 угла</b>.</p><p>У квадрата и прямоугольника <b>4 стороны и 4 угла</b>.</p><p>У круга углов нет.</p></div><div class="g1-theory-block"><h3>Точка и отрезок</h3>${g1ShapeVisualHtml({mode:"single",shape:"Отрезок"})}<p>Маленькая отметка — это <b>точка</b>. Линия между двумя концами — <b>отрезок</b>.</p></div></div>`
+ const gallery={mode:"gallery",order:["Круг","Треугольник","Квадрат","Прямоугольник"],compact:true};
+ return `<div class="elementary-theory"><p><b>Фигуры отличаются формой.</b> Сначала внимательно посмотри на рисунок.</p>${g1ShapeVisualHtml(gallery)}<div class="g1-shape-name-grid"><div class="g1-shape-name">A — круг</div><div class="g1-shape-name">B — треугольник</div><div class="g1-shape-name">C — квадрат</div><div class="g1-shape-name">D — прямоугольник</div></div><div class="g1-theory-block"><h3>Стороны и углы</h3><p>У треугольника <b>3 стороны и 3 угла</b>.</p><p>У квадрата и прямоугольника <b>4 стороны и 4 угла</b>. Квадрат — прямоугольник, у которого все стороны равны.</p><p>У круга углов нет.</p></div><div class="g1-theory-block"><h3>Точка и отрезок</h3>${g1ShapeVisualHtml({mode:"single",shape:"Отрезок"})}<p>Маленькая отметка — это <b>точка</b>. Линия между двумя концами — <b>отрезок</b>.</p></div></div>`
 };
 
 
@@ -19464,30 +19473,61 @@ g1SpatialQuestion=function(d){
 };
 
 const G1_SHAPE_GENITIVE_840={"Треугольник":"треугольника","Квадрат":"квадрата","Прямоугольник":"прямоугольника","Круг":"круга"};
+const G1_SHAPE_STAGE_TEMPLATES=[
+ ["identify","find_gallery"],
+ ["count_parts","point_segment"],
+ ["find_by_properties","count_two_figures"]
+];
+function g1ShapeGalleryChoice(order,target,text,explanation,key,templateId){
+ const letters=order.map((_,i)=>String.fromCharCode(65+i));
+ const answer=letters[order.indexOf(target)];
+ const model={mode:"gallery",order,target,compact:true};
+ return g1Choice(text,answer,letters.filter(letter=>letter!==answer),`${explanation} Ответ — ${answer}.`,
+  `${key}:${target}:${order.join("-")}`,{model,visual:{type:"g1Shape",data:model},templateId});
+}
 g1ShapeQuestion=function(d){
- const warm=["identify","find_gallery"],train=["identify","find_gallery","count_sides","count_corners","point_segment"],master=["identify","find_gallery","count_sides","count_corners","point_segment","find_by_sides"],templateId=g1PickTemplate(d===0?warm:d===1?train:master);
+ const templateId=g1PickTemplate(G1_SHAPE_STAGE_TEMPLATES[d]??G1_SHAPE_STAGE_TEMPLATES[2]);
+ const key=`g1:geometric_figures:${d}:${templateId}`;
  if(templateId==="identify"){
-  const shape=G1_BASIC_SHAPES[ri(0,G1_BASIC_SHAPES.length-1)],model={mode:"single",shape},wrong=G1_BASIC_SHAPES.filter(x=>x!==shape);
-  return g1Choice("Какая фигура показана?",shape,wrong,`Это ${shape.toLowerCase()}.`,`g1:geometric_figures:${d}:identify:${shape}`,{model,visual:{type:"g1Shape",data:model},templateId})
+  const shape=g1PickTemplate(G1_BASIC_SHAPES),model={mode:"single",shape,compact:true};
+  return g1Choice("Какая фигура показана?",shape,G1_BASIC_SHAPES.filter(option=>option!==shape),
+   `Это ${shape.toLowerCase()}.`,`${key}:${shape}`,{model,visual:{type:"g1Shape",data:model},templateId});
  }
  if(templateId==="find_gallery"){
-  const target=G1_BASIC_SHAPES[ri(0,G1_BASIC_SHAPES.length-1)],order=g1ShapeShuffledOrder(target),index=order.indexOf(target),answer=String.fromCharCode(65+index),model={mode:"gallery",target,order,answer};
-  return g1Choice(`Под какой буквой находится ${target.toLowerCase()}?`,answer,["A","B","C","D"].filter(x=>x!==answer),`${target} находится под буквой ${answer}.`,`g1:geometric_figures:${d}:find_gallery:${target}:${order.join("-")}`,{model,visual:{type:"g1Shape",data:model},templateId})
+  const target=g1PickTemplate(G1_BASIC_SHAPES);
+  return g1ShapeGalleryChoice(g1ShapeShuffledOrder(),target,`Под какой буквой находится ${target.toLowerCase()}?`,
+   `Найди ${target.toLowerCase()} по форме.`,key,templateId);
  }
- if(templateId==="count_sides"){
-  const shapes=["Треугольник","Квадрат","Прямоугольник"],shape=shapes[ri(0,shapes.length-1)],answer=G1_SHAPE_PROPS[shape].sides,model={mode:"single",shape,answer};
-  return g1Choice("Сколько сторон у этой фигуры?",answer,g1UniqueNums(answer,2,5),`У ${G1_SHAPE_GENITIVE_840[shape]} ${answer} стороны.`,`g1:geometric_figures:${d}:count_sides:${shape}`,{model,visual:{type:"g1Shape",data:model},templateId})
- }
- if(templateId==="count_corners"){
-  const shapes=["Треугольник","Квадрат","Прямоугольник"],shape=shapes[ri(0,shapes.length-1)],answer=G1_SHAPE_PROPS[shape].corners,model={mode:"single",shape,answer};
-  return g1Choice("Сколько углов у этой фигуры?",answer,g1UniqueNums(answer,2,5),`У ${G1_SHAPE_GENITIVE_840[shape]} ${answer} угла.`,`g1:geometric_figures:${d}:count_corners:${shape}`,{model,visual:{type:"g1Shape",data:model},templateId})
+ if(templateId==="count_parts"){
+  const part=ri(0,1)===1?"sides":"corners";
+  const available=part==="sides"?G1_BASIC_SHAPES.filter(shape=>shape!=="Круг"):G1_BASIC_SHAPES;
+  const shape=g1PickTemplate(available),answer=G1_SHAPE_PROPS[shape][part];
+  const noun=part==="sides"?"сторон":"углов",ending=part==="sides"?"стороны":"угла";
+  const model={mode:"single",shape,part,compact:true};
+  const explanation=answer===0?"У круга нет углов.":`У ${G1_SHAPE_GENITIVE_840[shape]} ${answer} ${ending}.`;
+  return g1Choice(`Сколько ${noun} у этой фигуры?`,answer,g1UniqueNums(answer,0,5),explanation,
+   `${key}:${part}:${shape}`,{model,visual:{type:"g1Shape",data:model},templateId});
  }
  if(templateId==="point_segment"){
-  const shape=ri(0,1)?"Точка":"Отрезок",model={mode:"single",shape},answer=shape;
-  return g1Choice("Что показано?",answer,["Точка","Отрезок"].filter(x=>x!==answer),shape==="Точка"?"Это точка — маленькая отметка.":"Это отрезок — прямая линия между двумя отмеченными концами.",`g1:geometric_figures:${d}:point_segment:${shape}`,{model,visual:{type:"g1Shape",data:model},templateId})
+  const types=["Точка","Отрезок"],target=g1PickTemplate(types);
+  const explanation=target==="Точка"?"Точка — одна маленькая отметка.":"У отрезка два конца, соединённых прямой линией.";
+  return g1ShapeGalleryChoice(shuffleOptions(types),target,`Под какой буквой показан${target==="Точка"?"а":""} ${target.toLowerCase()}?`,
+   explanation,key,templateId);
  }
- const answer="Треугольник",model={mode:"gallery",target:answer,order:g1ShapeShuffledOrder(answer),answer},wrong=["Круг","Квадрат","Прямоугольник"];
- return g1Choice("У какой фигуры 3 стороны?",answer,wrong,"У треугольника 3 стороны.",`g1:geometric_figures:${d}:find_by_sides:${model.order.join("-")}`,{model,visual:{type:"g1Shape",data:model},templateId:"find_by_sides"})
+ if(templateId==="find_by_properties"){
+  const square=ri(0,1)===1,target=square?"Квадрат":"Прямоугольник";
+  const properties=square?"4 угла и все стороны одной длины":"4 угла, две длинные и две короткие стороны";
+  return g1ShapeGalleryChoice(g1ShapeShuffledOrder(),target,`У какой фигуры на рисунке ${properties}?`,
+   `У нужной фигуры ${properties}.`,key,templateId);
+ }
+ const part=ri(0,1)===1?"sides":"corners";
+ const order=shuffleOptions(part==="sides"?G1_BASIC_SHAPES.filter(shape=>shape!=="Круг"):G1_BASIC_SHAPES).slice(0,2);
+ const [a,b]=order.map(shape=>G1_SHAPE_PROPS[shape][part]),answer=a+b;
+ const noun=part==="sides"?"сторон":"углов";
+ const model={mode:"gallery",order,part,compact:true};
+ return g1Choice(`Сколько ${noun} всего у фигур A и B?`,answer,g1UniqueNums(answer,0,8),
+  `У фигуры A — ${a}, у фигуры B — ${b}. Всего ${a} + ${b} = ${answer}.`,
+  `${key}:${part}:${order.join("-")}`,{model,visual:{type:"g1Shape",data:model},templateId});
 };
 
 /* Признаки: корректные множественные формы и только один общий признак. */
