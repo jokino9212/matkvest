@@ -9890,11 +9890,11 @@ function renderTopics(){
  const el=document.getElementById("topics");if(!el)return;
  el.innerHTML=TOPICS.map(t=>`<button class="topic" onclick="openTopic('${t.id}')"><span class="ico">${t.ico}</span><strong>${t.title}</strong><small>${t.sub}</small><span class="topic-progress">${topicProgressText(t.id)}</span></button>`).join("");
 }
-function stageCards(key,startCall){
+function stageCards(key,startCall,descriptions=[]){
  const p=progressFor(key);
  return STAGES.map((s,i)=>{
    const unlocked=stageUnlocked(key,i),best=p.best[i]||0,passed=stagePassed(key,i);
-   return `<button class="stage-card ${unlocked?"":"locked"}" ${unlocked?`onclick="${startCall}(${i})"`:"disabled"}><span class="stage-lock">${passed?"✅":unlocked?"":"🔒"}</span><span class="stage-ico">${s.ico}</span><strong>${i+1}. ${s.name}</strong><small>${s.count} заданий • пройти: ${s.need}/${s.count}<br>${s.desc}</small><div class="stage-best">${best?`Лучший результат: ${best}/${s.count}`:"Ещё не пройден"}</div></button>`
+   return `<button class="stage-card ${unlocked?"":"locked"}" ${unlocked?`onclick="${startCall}(${i})"`:"disabled"}><span class="stage-lock">${passed?"✅":unlocked?"":"🔒"}</span><span class="stage-ico">${s.ico}</span><strong>${i+1}. ${s.name}</strong><small>${s.count} заданий • пройти: ${s.need}/${s.count}<br>${descriptions[i]??s.desc}</small><div class="stage-best">${best?`Лучший результат: ${best}/${s.count}`:"Ещё не пройден"}</div></button>`
  }).join("");
 }
 /* ЭТАП 8.48 — полноценная Theory 4 класса: смысл → термин → правило → шаги → пример. */
@@ -18516,7 +18516,7 @@ attemptTitle=function(key){
 
 function g1TheoryHtml(id){
  const raw=rawCourseId(id);
- if(raw==="numbers_1_9")return `<div class="elementary-theory"><p><b>Числа помогают узнать, сколько предметов.</b></p>${g1CounterVisualHtml({count:5})}<p>Считаем по одному: 1, 2, 3, 4, 5.</p><div class="elementary-example">Пять кружков — это число <b>5</b>.</div></div>`;
+ if(raw==="numbers_1_9")return `<div class="elementary-theory"><p><b>Числа помогают узнать, сколько предметов.</b></p>${g1CounterVisualHtml({count:5})}<p>Считаем по одному: 1, 2, 3, 4, 5.</p><div class="elementary-example">Пять кружков — это число <b>5</b>.</div><p>При счёте вперёд числа становятся больше, при счёте назад — меньше.</p><div class="elementary-example">Число <b>5</b> больше 3 и меньше 7.</div></div>`;
  if(raw==="numbers_0_10")return `<div class="elementary-theory"><p><b>Иногда предметов не остаётся совсем.</b></p>${g1CounterVisualHtml({count:0})}<p>Тогда говорим: <b>ноль</b>.</p>${elementaryNumberLineSvg({min:0,max:10,highlight:7})}<div class="elementary-example">На луче числа идут по порядку от 0 до 10.</div></div>`;
  if(raw==="numbers_11_20")return `<div class="elementary-theory"><p><b>После 10 счёт продолжается.</b></p>${g1CounterVisualHtml({count:14,splitTen:true})}<p>Десять предметов вместе — это один <b>десяток</b>.</p><p>Остальные считаем по одному — это <b>единицы</b>.</p><div class="elementary-example">Один десяток и ещё четыре единицы — это <b>14</b>.</div></div>`;
  return `<div class="elementary-theory"><p><b>Длина показывает, какой предмет длиннее или короче.</b></p>${g1LengthVisualHtml({kind:"measure",a:5})}<p>Начинаем измерять от 0.</p><div class="elementary-example">Отрезок заканчивается у 5. Его длина — <b>5 см</b>.</div></div>`
@@ -18524,7 +18524,12 @@ function g1TheoryHtml(id){
 function openG1Topic(id){
  const t=g1InfoById(id);if(!t)return;if(t.implemented===false)return showElementaryTopicSoon(1,id);
  document.body.classList.add("elementary-mode");blockSession=null;const done=completedStages(t.id);
- show(`<div class="mtop"><h2>1 класс • ${esc(t.title)}</h2><button class="x" onclick="closeModal()">×</button></div><div class="lesson elementary-lesson">${g1TheoryHtml(t.id)}</div><div class="stage-grid">${stageCards(t.id,`startG1QuizStage.bind(null,'${t.id}')`)}</div><div class="subtle">Пройдено этапов: <b>${done}/3</b>.</div>`)
+ const descriptions=t.id==="g1:numbers_1_9"?[
+  "Посчитай кружки или назови следующее число.",
+  "Восстанови пропуск в ряду или сравни две группы кружков.",
+  "Упорядочи числа или найди число по двум условиям."
+ ]:undefined;
+ show(`<div class="mtop"><h2>1 класс • ${esc(t.title)}</h2><button class="x" onclick="closeModal()">×</button></div><div class="lesson elementary-lesson">${g1TheoryHtml(t.id)}</div><div class="stage-grid">${stageCards(t.id,`startG1QuizStage.bind(null,'${t.id}')`,descriptions)}</div><div class="subtle">Пройдено этапов: <b>${done}/3</b>.</div>`)
 }
 function startG1QuizStage(id,stageIndex){
  const t=g1InfoById(id);if(!t||t.implemented===false)return showElementaryTopicSoon(1,id);
@@ -19147,9 +19152,17 @@ g1Choice=function(text,correct,wrong,ex,sig,{model={},visual=null,templateId="ch
 };
 
 /* Числа: 20 — это два десятка; шаблон «один десяток + единицы» только 11–19. */
+const G1_NUMBERS_TO_NINE_TEMPLATES=[
+ ["count","next"],
+ ["missing","compare"],
+ ["order_four","between_bounds"]
+];
+
 g1NumbersQuestion=function(raw,d,min,max){
- const base=raw==="numbers_1_9"?["count","next","missing","compare"]:raw==="numbers_0_10"?["count","line","missing","compare","before"]:["count","line","missing","compare","ones"];
- const pool=d===0?base.slice(0,2):d===1?base.slice(0,Math.min(4,base.length)):base,templateId=g1PickTemplate(pool);
+ const toNine=raw==="numbers_1_9";
+ const base=raw==="numbers_0_10"?["count","line","missing","compare","before"]:["count","line","missing","compare","ones"];
+ const pool=toNine?(G1_NUMBERS_TO_NINE_TEMPLATES[d]??G1_NUMBERS_TO_NINE_TEMPLATES[2]):d===0?base.slice(0,2):d===1?base.slice(0,4):base;
+ const templateId=g1PickTemplate(pool);
  if(templateId==="count"){
   const count=ri(min,max),model={count,min,max};return g1Choice("Сколько кружков?",count,g1UniqueNums(count,min,max),"Посчитай кружки по одному. Их "+count+".",`g1:${raw}:${d}:count:${count}`,{model,visual:{type:"g1Counters",data:{count,splitTen:max>10}},templateId})
  }
@@ -19166,9 +19179,35 @@ g1NumbersQuestion=function(raw,d,min,max){
   const answer=ri(Math.max(min+1,1),max-1),seq=[answer-1,"?",answer+1],model={answer,seq,min,max};return g1Choice(`Какого числа не хватает?<br><b>${seq.join(" &nbsp; ")}</b>`,answer,g1UniqueNums(answer,min,max),`Считаем по порядку: ${answer-1}, ${answer}, ${answer+1}.`,`g1:${raw}:${d}:missing:${answer}`,{model,templateId})
  }
  if(templateId==="compare"){
-  let a=ri(min,max),b=ri(min,max);if(d<2&&a===b)b=b<max?b+1:Math.max(min,b-1);
-  const answer=a===b?"Поровну":a>b?"Слева":"Справа",model={a,b,answer,min,max};
-  return g1Choice("Где кружков больше?",answer,["Слева","Справа","Поровну"].filter(x=>x!==answer),a===b?"В обеих группах кружков поровну.":`Сравниваем: ${a} и ${b}. Больше ${Math.max(a,b)}.`,`g1:${raw}:${d}:compare:${a}:${b}`,{model,visual:{type:"g1Groups",data:{a,b}},templateId})
+  let a=ri(min,max),b=ri(min,max);if(!toNine&&d<2&&a===b)b=b<max?b+1:Math.max(min,b-1);
+  const options=toNine?["Слева больше","Справа больше","Поровну"]:["Слева","Справа","Поровну"];
+  const answer=a===b?options[2]:a>b?options[0]:options[1],model={a,b,answer,min,max};
+  const text=toNine?"Сравни количество кружков слева и справа.":"Где кружков больше?";
+  const ex=a===b?"В обеих группах кружков поровну.":`Сравниваем: ${a} и ${b}. Больше ${Math.max(a,b)}.`;
+  return g1Choice(text,answer,options.filter(x=>x!==answer),ex,`g1:${raw}:${d}:compare:${a}:${b}`,{model,visual:{type:"g1Groups",data:{a,b}},templateId})
+ }
+ if(templateId==="order_four"){
+  const descending=ri(0,1)===1;
+  const numbers=shuffleOptions(Array.from({length:max-min+1},(_,i)=>min+i)).slice(0,4);
+  const order=numbers.slice().sort((a,b)=>descending?b-a:a-b);
+  const answer=order.join(", ");
+  const wrong=[0,1,2].map(i=>{
+   const row=order.slice();
+   [row[i],row[i+1]]=[row[i+1],row[i]];
+   return row.join(", ");
+  });
+  const direction=descending?"от большего к меньшему":"от меньшего к большему";
+  return g1Choice(`В каком ряду числа идут ${direction}?`,answer,wrong,
+   `Располагаем числа ${direction}: ${answer}.`,`g1:${raw}:${d}:order:${order.join("-")}`,
+   {model:{order,descending,min,max},templateId});
+ }
+ if(templateId==="between_bounds"){
+  const gap=ri(3,5),lower=ri(min,max-gap),upper=lower+gap;
+  const answer=ri(lower+1,upper-1);
+  const outside=Array.from({length:max-min+1},(_,i)=>min+i).filter(n=>n<lower||n>upper);
+  return g1Choice(`Выбери число больше ${lower} и меньше ${upper}.`,answer,[lower,upper,g1PickTemplate(outside)],
+   `${answer} больше ${lower} и меньше ${upper}.`,`g1:${raw}:${d}:between:${lower}:${upper}`,
+   {model:{lower,upper,answer,min,max},templateId});
  }
  const n=ri(11,19),ones=n-10,model={n,ones};return g1Choice(`В числе ${n} есть один десяток. Сколько ещё единиц?`,ones,g1UniqueNums(ones,0,9),`После одного десятка остаётся ${ones} ${ones===1?"единица":"единиц"}.`,`g1:${raw}:${d}:ones:${n}`,{model,visual:{type:"g1Counters",data:{count:n,splitTen:true}},templateId:"ones"})
 };
