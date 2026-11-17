@@ -104,9 +104,9 @@ geometry('VIII','Подобные треугольники',[
  [63,'Пропорциональные отрезки','proportional_segments','thales_theorem'],
  [64,'Подобие треугольников','similar_triangles_coefficient'],
  [65,'Отношение площадей подобных треугольников','similar_figures_area_ratio'],
- [66,'Первый признак подобия','triangle_similarity_tests'],
- [67,'Второй признак подобия','triangle_similarity_tests'],
- [68,'Третий признак подобия','triangle_similarity_tests'],
+ [66,'Первый признак подобия','similarity_by_angles'],
+ [67,'Второй признак подобия','similarity_by_two_sides'],
+ [68,'Третий признак подобия','similarity_by_three_sides'],
  [69,'Средняя линия треугольника','triangle_midline'],
  [70,'Четыре замечательные точки треугольника','triangle_centers','triangle_centroid'],
  [71,'Пропорциональные отрезки в прямоугольном треугольнике','right_triangle_projections'],
@@ -128,6 +128,7 @@ geometry('IX','Окружность',[
 geometry(null,'Дополнительные темы и повторение',[
  [null,'Удвоение медианы','median_doubling_method'],
  [null,'Метод площадей','auxiliary_area_methods'],
+ [null,'Все признаки подобия: повторение','triangle_similarity_tests'],
  [null,'Итоговое повторение геометрии','geometry_grade8_review']
 ]);
 statistics('VII','Множества',[
@@ -1217,7 +1218,227 @@ workouts.rational_equation_word_problems=[
  }
 ];
 
+const drawPreviousGeometry=g7GeometryExtraSvg;
+function drawSimilarityTriangle({vertices,sides,angles=[],labels=[],mirrored=false},centerX){
+ const [ab,ac,bc]=sides;
+ const cx=(ab*ab+ac*ac-bc*bc)/(2*ab);
+ const cy=Math.sqrt(ac*ac-cx*cx);
+ const minX=Math.min(0,cx),width=Math.max(ab,cx)-minX;
+ const scale=Math.min(208/width,200/cy);
+ const points=[[0,0],[ab,0],[cx,cy]].map(([x,y])=>({
+  x:centerX+(mirrored?-1:1)*(x-minX-width/2)*scale,
+  y:304-y*scale
+ }));
+ const center={x:points.reduce((sum,p)=>sum+p.x,0)/3,y:304-cy*scale/3};
+ let svg=`<polygon class="geo-face" points="${points.map(p=>p.x+','+p.y).join(' ')}"></polygon>`;
+ points.forEach((point,i)=>{
+  const others=points.filter((_,j)=>j!==i);
+  svg+=g7TriVertexSvg(point,vertices[i],center);
+  if(angles[i]===undefined||angles[i]===null)return;
+  svg+=g7TriAngleArc(point,...others,23);
+  const rays=others.map(p=>g6GeoNorm({x:p.x-point.x,y:p.y-point.y}));
+  const bisector=g6GeoNorm({x:rays[0].x+rays[1].x,y:rays[0].y+rays[1].y});
+  svg+=g6GeoLabel(point.x+bisector.x*51,point.y+bisector.y*51+6,angles[i],'geo-measure','middle');
+ });
+ [[0,1],[0,2],[1,2]].forEach(([i,j],side)=>{
+  if(labels[side]===undefined||labels[side]===null)return;
+  const mid=g7TriSidePoint(points[i],points[j]);
+  const edge={x:points[j].x-points[i].x,y:points[j].y-points[i].y};
+  const perpendicular=g6GeoNorm({x:-edge.y,y:edge.x});
+  const towardCenter=perpendicular.x*(center.x-mid.x)+perpendicular.y*(center.y-mid.y);
+  const offset=towardCenter>0?-22:22;
+  svg+=g6GeoLabel(mid.x+perpendicular.x*offset,mid.y+perpendicular.y*offset+7,labels[side],'geo-measure','middle');
+ });
+ return svg;
+}
+g7GeometryExtraSvg=function(model){
+ if(model?.kind!=='g7-g8-similarity-pair')return drawPreviousGeometry(model);
+ return drawSimilarityTriangle(model.left,155)+drawSimilarityTriangle(model.right,485);
+};
+function similarityPair(task,left,right){
+ return diagram(task,{kind:'g7-g8-similarity-pair',left,right:{...right,mirrored:true},
+  aria:`Чертёж треугольников ${left.vertices} и ${right.vertices}. Известные величины перечислены в условии.`});
+}
+function sidesFromAngles(a,b,ab=1){
+ const sine=angle=>Math.sin(angle*Math.PI/180);
+ const base=sine(180-a-b);
+ return [ab,ab*sine(b)/base,ab*sine(a)/base];
+}
+function sidesFromIncludedAngle(ab,ac,angle){
+ return [ab,ac,Math.sqrt(ab*ab+ac*ac-2*ab*ac*Math.cos(angle*Math.PI/180))];
+}
+
+const similarityTopics={
+ similarity_by_angles:['triangle_similarity_tests','Первый признак подобия: по двум углам',
+  worked('Если два угла одного треугольника равны двум углам другого, треугольники подобны. Сопоставляй вершины по равным углам.',
+   'Углы 40° и 65° определяют третий угол 75°. Все треугольники с этими двумя углами подобны.'),[
+  {
+   rightAnglePair:([a])=>similarityPair(
+    choice(`В треугольнике ABC ∠A = 90°, ∠B = ${30+a}°. В треугольнике DEF ∠F = 90°, ∠D = ${30+a}°. Какая вершина соответствует B?`,
+     'D',['E','F'],'Вершине B соответствует вершина D с равным острым углом.'),
+    {vertices:'ABC',sides:sidesFromAngles(90,30+a),angles:['90°',`${30+a}°`]},
+    {vertices:'FDE',sides:sidesFromAngles(90,30+a),angles:['90°',`${30+a}°`]}),
+   third:([a,b])=>number(`У треугольника углы ${a+20}° и ${b+40}°. Найди третий угол.`,120-a-b,`Из 180° вычитаем ${a+20}° и ${b+40}°.`,'°'),
+   enough:([a,b])=>choice(`У обоих треугольников есть углы ${a+20}° и ${b+40}°. Достаточно ли этого для подобия?`,'Да, по двум углам',['Нет, нужны три стороны','Да, только если площади равны'],'Две пары равных углов достаточны.'),
+   missingAngle:([a,b])=>number(`В треугольнике ABC угол A равен ${a+20}°, а B — ${b+40}°. У треугольника DEF углы D и F равны углам A и B соответственно. Назови угол E.`,120-a-b,`Третьи углы равны. Получаем 180° − ${a+20}° − ${b+40}° = ${120-a-b}°.`,'°'),
+   rightTriangles:([a])=>number(`У двух прямоугольных треугольников есть одинаковый острый угол ${a+20}°. Найди второй острый угол каждого.`,70-a,`90° − ${a+20}° = ${70-a}°. Прямой и заданный острый углы подтверждают подобие.`,'°')
+  },
+  {
+   equalAngleSide:([a,b])=>similarityPair(
+    choice(`В ABC ∠A = ${30+a}°, ∠C = ${45+b}°. В KLM ∠M = ${30+a}°, ∠L = ${45+b}°. Какая сторона второго треугольника соответствует AB?`,
+     'KM',['KL','LM'],'A соответствует M, C — L, значит B соответствует K.'),
+    {vertices:'ABC',sides:sidesFromAngles(30+a,105-a-b),angles:[`${30+a}°`,null,`${45+b}°`]},
+    {vertices:'MKL',sides:sidesFromAngles(30+a,105-a-b),angles:[`${30+a}°`,null,`${45+b}°`]}),
+   scaleFromOpposite:([a,b,k])=>number(`В подобных по двум углам ABC и DEF вершине A соответствует E. BC = ${b} см, DF = ${b*k} см. Периметр ABC равен ${3*b} см. Найди периметр DEF.`,
+    3*b*k,`Стороны BC и DF лежат напротив равных углов. Отношение периметров равно ${b*k} : ${b} = ${k}.`,'см'),
+   twoKnownAnglesDisagree:([a,b])=>choice(`У первого треугольника есть углы ${30+a}° и ${45+b}°, у второго — ${30+a}° и ${45+b+1}°. Подобны ли треугольники?`,
+    'Нет',['Да, по двум углам','Данных недостаточно'],`Третий угол первого равен ${105-a-b}°, второго — ${104-a-b}°. Наборы углов различаются.`),
+   parallel:([a])=>number(`В треугольнике ABC точки D и E лежат на AB и AC, DE ∥ BC. Если ∠ABC = ${a+30}°, найди ∠ADE.`,a+30,'При параллельных DE и BC соответствующие углы равны. Угол A общий.','°'),
+   proportion:([a,b])=>number(`У треугольников ABC и DEF ∠A = ∠D, ∠B = ∠E. AB = ${a}, DE = ${2*a}, AC = ${b} см. Найди DF.`,2*b,`AB соответствует DE, а AC — DF. Коэффициент подобия 2, значит DF = ${2*b} см.`,'см'),
+   correspondence:([a,b])=>choice(`В ABC угол A равен ${a+20}°, B — ${b+40}°. В KLM угол L равен ${a+20}°, M — ${b+40}°. Какая сторона соответствует AC?`,'LK',['LM','MK'],'A соответствует L, B — M, C — K.'),
+   exterior:([a,b])=>number(`В треугольнике ABC внешний угол при B равен ${150-a}°, а угол A равен ${b+40}°. У подобного ему треугольника D соответствует A, E — B. Найди угол F.`,110-a-b,`Внутренний угол B равен ${30+a}°. Третий угол равен 180° − ${b+40}° − ${30+a}°.`,'°')
+  },
+  {
+   sideAfterMatching:([a,b,k])=>{
+    const first=30+a,second=44+b,third=180-first-second;
+    return similarityPair(
+     number(`В ABC ∠A = ${first}°, ∠B = ${second}°. В KLM ∠K = ${third}°, ∠M = ${first}°. AB = ${a} см, ML = ${a*k} см. Во сколько раз площадь KLM больше площади ABC?`,
+      k*k,`∠C = ${third}°, поэтому C соответствует K, A — M, B — L. Отношение ML : AB = ${k}. Значит отношение площадей равно ${k}² = ${k*k}.`),
+     {vertices:'ABC',sides:sidesFromAngles(first,second,a),angles:[`${first}°`,`${second}°`],labels:[a]},
+     {vertices:'MLK',sides:sidesFromAngles(first,second,a*k),angles:[`${first}°`,null,`${third}°`],labels:[a*k]});
+   },
+   exteriorAngles:([a,b])=>number(`В ABC внешний угол при A равен ${130+a}°, а ∠B = ${45+b}°. В KLM ∠K = ${50-a}°, ∠L = ${45+b}°. Найди общий для двух треугольников угол при третьей вершине.`,
+    85+a-b,`Из 180° вычитаем внешний угол при A и получаем ${50-a}°. Треугольники подобны по двум углам. Третий угол равен 180° − ${50-a}° − ${45+b}°.`,'°'),
+   altitudeLeg:([a,b])=>number(`Из вершины прямого угла C на гипотенузу AB опущена высота CH. AH = ${a*a} см, AB = ${b*b} см. Найди AC.`,
+    a*b,`Треугольники AHC и ACB подобны по углу A и прямому углу. AH : AC = AC : AB, поэтому AC² = ${a*a} · ${b*b}.`,'см'),
+   trapezoidArea:([a,b,k])=>number(`AB и CD — основания трапеции ABCD, а O — точка пересечения диагоналей. CD = ${b} см, AB = ${b*k} см. Площадь COD равна ${a} см². На сколько площадь AOB больше?`,
+    (k*k-1)*a,`По вертикальным углам и углам при параллельных основаниях AOB ∼ COD. Отношение площадей равно ${k*k} : 1. Вычитаем площадь COD.`,'см²'),
+   widthAcrossRiver:([a,b,k])=>number(`Точки B и C лежат на одном берегу, AB ⟂ BC. На продолжении BC за C выбрали D, так что BC = ${a} м, CD = ${a*k} м. Прямая AC пересекает перпендикуляр к BD через D в точке E. DE = ${b*k} м. Найди ширину AB.`,
+    b,`Треугольники ABC и EDC подобны по прямым и вертикальным углам при C. AB : DE = BC : CD = 1 : ${k}.`,'м'),
+   parallelPerimeter:([a,b,k])=>number(`Точки D и E лежат на AB и AC треугольника ABC, DE ∥ BC. AD = ${a} см, DB = ${a*(k-1)} см. Периметр ADE равен ${3*b} см. Найди разность периметров ABC и ADE.`,
+    3*b*(k-1),`Треугольники подобны по общему углу A и углам при параллельных прямых. AB : AD = ${k}. Периметр ABC в ${k} раз больше.`,'см'),
+   intercept:([a,b,c])=>number(`В треугольнике ABC точки D и E лежат на AB и AC, DE ∥ BC. AD = ${a}, DB = ${b-a}, AE = ${a*c} см. Найди EC.`,(b-a)*c,`По равным углам ADE ∼ ABC. AC = AE · AB/AD = ${b*c}. Вычитаем AE: EC = ${(b-a)*c}.`,'см'),
+   crossing:([a,b,c])=>number(`Диагонали трапеции ABCD с основаниями AB и CD пересекаются в O. AB = ${a}, CD = ${b}, AO = ${a*c} см. Найди AC.`,(a+b)*c,`AOB ∼ COD по вертикальным углам и углам при параллельных основаниях. CO = ${b*c} см, AC = AO + CO.`,'см'),
+   altitude:([a,b])=>number(`Из вершины C прямого угла треугольника ABC опустили CD на AB. AD = ${a*a} см, DB = ${b*b} см. Найди CD.`,a*b,`ACD ∼ CBD по двум углам. Из AD/CD = CD/DB следует CD² = ${a*a*b*b}, значит CD = ${a*b}.`,'см'),
+   shadows:([a,b,c])=>number(`Вертикальная рейка высотой ${a} м отбрасывает тень длиной ${b} м. В то же время рядом тень дерева длиннее на ${b*(c-1)} м. Найди высоту дерева.`,a*c,`Два прямоугольных треугольника подобны по углу наклона лучей и прямому углу. Тень дерева в ${c} раз длиннее, поэтому высота ${a*c} м.`,'м')
+  }
+ ]],
+ similarity_by_two_sides:['triangle_similarity_tests','Второй признак подобия: по двум сторонам и углу',
+  worked('Две стороны должны быть пропорциональны. Сравнивай углы, заключённые именно между этими сторонами.',
+   'Сторонам 3 и 5 см соответствуют 6 и 10 см. При равных углах между этими сторонами коэффициент подобия равен 2.'),[
+  {
+   diagramVertex:([a,b])=>similarityPair(
+    choice(`AB = ${a} см, AC = ${b} см, DE = ${2*b} см, DF = ${2*a} см. Какой угол второго треугольника должен быть равен ∠A?`,
+     '∠D',['∠E','∠F'],'Стороны DE и DF образуют угол при вершине D.'),
+    {vertices:'ABC',sides:sidesFromIncludedAngle(a,b,50),labels:[a,b]},
+    {vertices:'DFE',sides:sidesFromIncludedAngle(2*a,2*b,64),labels:[2*a,2*b]}),
+   includedAngle:([a,b])=>choice(`В ABC даны AB = ${a} и AC = ${b}. Какой угол заключён между этими сторонами?`,'∠A',['∠B','∠C'],'AB и AC пересекаются в A.'),
+   scale:([a,b,c])=>number(`Сторона ${a} см соответствует ${a*c} см. При равных углах между пропорциональными сторонами во сколько раз увеличили треугольник?`,c,`${a*c} : ${a} = ${c}.`),
+   missing:([a,b])=>number(`AB = ${a}, AC = ${b}, DE = ${2*a} см. Какой должна быть DF, чтобы при ∠A = ∠D выполнился второй признак?`,2*b,'Сохраняем общий коэффициент 2 для обеих сторон.','см'),
+   compareRatios:([a,b])=>choice(`Стороны первого треугольника ${a} и ${b}, второго — ${2*a} и ${2*b+1}. Можно ли применить второй признак по этим сторонам даже при равных углах между ними?`,'Нет, стороны непропорциональны',['Да, достаточно равных углов','Да, коэффициент равен 2'],'Первая сторона увеличилась ровно вдвое, вторая — больше чем вдвое.')
+  },
+  {
+   mismatchAnglePair:([a,b])=>choice(`Известно, что AB = ${a} см, AC = ${b} см, DE = ${2*a} см, DF = ${2*b} см, ∠B = ∠E. Какой вывод можно сделать по второму признаку?`,
+    'Данных недостаточно',['Треугольники подобны с коэффициентом 2','Треугольники точно не подобны'],'Стороны AB и AC заключают ∠A, а DE и DF — ∠D. Нужно сравнивать эти углы.'),
+   reverseScale:([a,b,c])=>number(`Углы A и D равны, AB = ${3*a} см, AC = ${3*b} см, DE = ${a} см, DF = ${b} см. BC = ${3*c} см. Найди EF.`,
+    c,'Углы заключены между пропорциональными сторонами. От ABC к DEF каждая длина уменьшается втрое.','см'),
+   sideDifference:([a,b,c])=>number(`AB = ${a} см, AC = ${b} см, BC = ${c} см, DE = ${2*a} см, DF = ${2*b} см. Угол между AB и AC равен углу между DE и DF. На сколько EF длиннее BC?`,
+    c,`Коэффициент подобия 2. Поэтому EF = ${2*c} см, а разность равна ${2*c} − ${c}.`,'см'),
+   matching:([a,b])=>choice(`AB = ${a}, AC = ${b}, KL = ${2*b}, KM = ${2*a}, углы A и K равны. Какая сторона соответствует BC?`,'LM',['KL','KM'],'AB соответствует KM, AC — KL. Оставшиеся стороны BC и LM соответствуют друг другу.'),
+   between:([a,b,c])=>choice(`AB = ${a}, AC = ${b}, DE = ${a*c}, DF = ${b*c}. Какого равенства достаточно для подобия по второму признаку?`,'∠A = ∠D',['∠B = ∠D','∠A = ∠E'],'Равными должны быть углы между парами пропорциональных сторон.'),
+   thirdSide:([a,b,c])=>number(`Углы A и K равны. AB = ${a}, AC = ${b}, KM = ${3*a}, KL = ${3*b}, BC = ${c} см. Найди LM.`,3*c,'Треугольники подобны по двум сторонам и углу между ними. Третьи стороны относятся как 3 : 1.','см'),
+   reverse:([a,b,c])=>number(`Треугольник со сторонами ${a}, ${b}, ${c} см подобен другому по двум сторонам и углу между ними. Первым двум сторонам соответствуют ${2*a} и ${2*b}. Найди разность периметров.`,a+b+c,'Коэффициент подобия равен 2. Разность периметров равна периметру меньшего треугольника.','см')
+  },
+  {
+   deriveScaleAndPickSide:([a,b,c])=>{
+    const k=ri(2,4);
+    return similarityPair(
+     number(`AB = ${a} см, AC = ${b} см, BC = ${c} см, DF = ${k*a} см, DE = ${k*b} см. ∠BAC и ∠FDE прямые. На сколько EF длиннее BC?`,
+      (k-1)*c,`AB соответствует DF, AC — DE. Углы между ними равны. По второму признаку EF = ${k} · ${c} = ${k*c} см. Вычитаем ${c} см.`,'см'),
+     {vertices:'ABC',sides:[a,b,c],angles:['90°'],labels:[a,b,c]},
+     {vertices:'DFE',sides:[k*a,k*b,k*c],angles:['90°'],labels:[k*a,k*b,'?']});
+   },
+   determineIncludedAngle:([a,b])=>{
+    const included=ri(48,63);
+    return similarityPair(
+     number(`AB = ${a} см, AC = ${b} см, DE = ${3*b} см, DF = ${3*a} см. ∠BAC = ${included}°. Чему должен быть равен внешний угол при D, смежный с ∠EDF, чтобы выполнился второй признак подобия?`,
+      180-included,`AB соответствует DF, AC — DE. Для подобия угол EDF должен быть равен ${included}°. Его смежный угол равен 180° − ${included}° = ${180-included}°.`,'°'),
+     {vertices:'ABC',sides:sidesFromIncludedAngle(a,b,included),angles:[included+'°'],labels:[a,b]},
+     {vertices:'DFE',sides:sidesFromIncludedAngle(3*a,3*b,included),angles:['?'],labels:[3*a,3*b]});
+   },
+   repairRatio:([a,b])=>number(`В треугольнике ABC AB = ${a} см, AC = ${b} см. ∠FDE = ∠BAC. DF = ${3*a} см, а DE на ${a} см меньше длины, при которой выполняется второй признак. Чему равно DE?`,
+    3*b-a,`Из DF : AB = 3 получаем требуемую длину ${3*b} см. Вычитаем ${a} см.`,'см'),
+   scaleFromPerimeterDifference:([a,b,c])=>number(`ABC и DEF подобны по двум сторонам и углу между ними. AB = ${a} см, AC = ${b} см, BC = ${c} см. Периметр DEF больше на ${2*(a+b+c)} см. Найди сторону DEF, соответствующую AC.`,
+    3*b,'Разность периметров равна двум периметрам ABC. Значит периметр DEF и каждая его сторона втрое больше соответствующих величин ABC.','см'),
+   equalAngleAreaDifference:([a,b])=>number(`В двух треугольниках стороны при равных углах пропорциональны. Стороны меньшего при этом угле равны ${a} и ${b} см, большего — ${2*a} и ${2*b} см. Площади отличаются на ${3*a} см². Найди площадь большего.`,
+    4*a,`По второму признаку коэффициент равен 2. Большая площадь в 4 раза больше меньшей. Разность равна трём меньшим площадям, поэтому меньшая равна ${a} см².`,'см²'),
+   compareOtherAngle:([a,b])=>choice(`Дано AB = ${a} см, AC = ${b} см, DF = ${2*a} см, DE = ${2*b} см, ∠A = ∠D. Ученик заключил, что ∠B = ∠E. Как исправить его вывод?`,
+    '∠B = ∠F',['∠B = ∠D','∠C = ∠F'],`AB соответствует DF, а AC — DE. Отсюда вершины B и F соответствуют друг другу.`),
+   scaleFromPerimeter:([a,b,c])=>number(`Углы между парами сторон равны, а стороны ${a} и ${b} см пропорциональны двум сторонам второго треугольника. Третья сторона первого равна ${c} см, периметр второго — ${3*(a+b+c)} см. Найди сторону второго треугольника, соответствующую стороне ${b} см первого.`,3*b,`По второму признаку треугольники подобны. Коэффициент равен частному периметров: 3. Искомая сторона ${3*b} см.`,'см'),
+   scaleFromArea:([a,b,c])=>number(`У двух треугольников равны углы между пропорциональными сторонами, а площади относятся как 1 : 9. Стороны меньшего треугольника ${a}, ${b}, ${c} см. Найди периметр большего.`,3*(a+b+c),'По второму признаку треугольники подобны. Коэффициент подобия √9 = 3, поэтому умножаем меньший периметр на 3.','см'),
+   split:([a,b,c])=>number(`Из точки O выходят два луча. На первом лежат A и D, на втором — B и E. OA = ${a}, OB = ${b}, OD = ${a*c}, OE = ${b*c}, AB = ${c} см. На сколько DE длиннее AB?`,c*(c-1),`Угол при O общий. Треугольники подобны по второму признаку с коэффициентом ${c}. DE = ${c*c}, разность ${c*(c-1)} см.`,'см'),
+   crossing:([a,b,c])=>number(`Прямые AD и BE пересекаются в O, причём O лежит между A и D, а также между B и E. OA = ${a}, OB = ${b}, OD = ${a*c}, OE = ${b*c}, AB = ${c} см. Найди DE.`,c*c,'Углы AOB и DOE вертикальные. Стороны при них пропорциональны, поэтому DE = AB · OD/OA.','см')
+  }
+ ]],
+ similarity_by_three_sides:['triangle_similarity_tests','Третий признак подобия: по трём сторонам',
+  worked('Если три стороны пропорциональны трём сторонам другого треугольника, треугольники подобны. Для сопоставления удобно упорядочить стороны по длине.',
+   'Треугольники со сторонами 3, 4, 5 и 9, 12, 15 подобны с коэффициентом 3.'),[
+  {
+   oppositeVertex:([a,b,c])=>similarityPair(
+    choice(`AB = ${a} см, AC = ${b} см, BC = ${c} см. EF = ${2*a} см, DE = ${2*b} см, DF = ${2*c} см. Какая вершина второго треугольника соответствует A?`,
+     'E',['D','F'],'AB соответствует EF, AC — DE. Общая вершина EF и DE — E.'),
+    {vertices:'ABC',sides:[a,b,c],labels:[a,b,c]},
+    {vertices:'EFD',sides:[2*a,2*b,2*c],labels:[2*a,2*b,2*c]}),
+   ratio:([a,b,c])=>number(`Треугольники со сторонами ${a}, ${b}, ${c} и ${2*a}, ${2*b}, ${2*c} подобны. Найди коэффициент перехода от первого ко второму.`,2,'Все соответствующие стороны увеличены вдвое.'),
+   missing:([a,b,c])=>number(`Стороны первого треугольника ${a}, ${b}, ${c}, второго — ${3*a}, ${3*b}, x, где x — самая длинная сторона. Найди x при подобии.`,3*c,'Умножаем самую длинную сторону первого треугольника на общий коэффициент 3.'),
+   sort:([a,b,c])=>choice(`У первого треугольника стороны ${c}, ${a}, ${b}, у второго — ${2*b}, ${2*c}, ${2*a}. Подобны ли треугольники?`,'Да, все стороны пропорциональны',['Нет, стороны перечислены в разном порядке','Нет, площади различаются'],'Сопоставляем стороны по возрастанию. Каждое отношение равно 2.'),
+   checkThird:([a,b,c])=>choice(`Подобны ли треугольники со сторонами ${a}, ${b}, ${c} и ${2*a}, ${2*b}, ${2*c+1}?`,'Нет, третье отношение отличается',['Да, первые два отношения равны','Да, коэффициент равен 3'],'Для третьего признака должны совпасть все три отношения.')
+  },
+  {
+   aShorterTriangle:([a,b,c])=>number(`Стороны первого треугольника равны ${3*c}, ${3*a} и ${3*b} см, а второго — ${b}, ${c} и ${a} см. Во сколько раз периметр первого больше второго?`,
+    3,'После сортировки все отношения соответствующих сторон равны 3. В том же отношении находятся периметры.'),
+   coefficientsDisagree:([a,b,c])=>choice(`Длины сторон первого треугольника ${a}, ${b}, ${c} см, второго — ${2*a}, ${2*b}, ${2*c+1} см. Какое отношение отличается от двух остальных?`,
+    `${2*c+1} : ${c}`,[`${2*a} : ${a}`,`${2*b} : ${b}`],'Первые две пары сторон отличаются ровно вдвое, третья — больше чем вдвое.'),
+   findDifferenceAfterCorrespondence:([a,b,c])=>number(`Длины сторон ABC равны ${a}, ${b} и ${c} см. Треугольник DEF подобен ABC, причём его наименьшая сторона равна ${3*a} см. На сколько его наибольшая сторона длиннее средней?`,
+    3*(c-b),`Из отношения наименьших сторон получаем коэффициент 3. Разность искомых сторон равна ${3*c} − ${3*b}.`,'см'),
+   perimeter:([a,b,c])=>number(`Стороны первого треугольника ${a}, ${b}, ${c} см, второго — ${4*a}, ${4*b}, ${4*c} см. На сколько различаются периметры?`,3*(a+b+c),'Коэффициент подобия 4, поэтому разность равна тройному меньшему периметру.','см'),
+   corresponding:([a,b,c])=>choice(`AB = ${a}, BC = ${b}, AC = ${c}. KL = ${2*c}, LM = ${2*a}, KM = ${2*b}. Какой угол второго треугольника равен ∠B?`,'∠M',['∠K','∠L'],'Угол B лежит напротив наибольшей стороны AC. У второго треугольника напротив наибольшей KL лежит угол M.'),
+   perimeterScale:([a,b,c])=>number(`Треугольники подобны. У первого стороны ${a}, ${b}, ${c} см, у второго периметр ${2*(a+b+c)} см. Найди среднюю по длине сторону второго.`,2*b,'Коэффициент подобия равен отношению периметров, то есть 2.','см'),
+   areaScale:([a,b,c])=>number(`У двух треугольников стороны ${a}, ${b}, ${c} и ${3*a}, ${3*b}, ${3*c}. Во сколько раз площадь второго больше?`,9,'Треугольники подобны по трём сторонам с коэффициентом 3. Площади относятся как 3².')
+  },
+  {
+   compareByLabels:([a,b,c])=>{
+    const k=ri(2,4);
+    return similarityPair(
+     choice(`AB = ${a} см, AC = ${b} см, BC = ${c} см, KL = ${k*c} см, KM = ${k*a} см, LM = ${k*b} см. Какая сторона второго треугольника лежит напротив угла, равного ∠B?`,
+      'LM',['KL','KM'],'Напротив ∠B лежит AC. Из отношений сторон AC соответствует LM.'),
+     {vertices:'ABC',sides:[a,b,c],labels:[a,b,c]},
+     {vertices:'MKL',sides:[k*a,k*b,k*c],labels:[k*a,k*b,k*c]});
+   },
+   disagreeByFigure:([a,b,c])=>similarityPair(
+    choice(`AB = ${a} см, AC = ${b} см, BC = ${c} см. KM = ${2*a} см, LM = ${2*b} см, KL = ${2*c+1} см. Подобны ли эти треугольники?`,
+     'Нет',['Да, с коэффициентом 2','Да, с коэффициентом 3'],'Две меньшие стороны увеличены в 2 раза. Самая длинная сторона второго треугольника на 1 см больше удвоенной соответствующей стороны первого.'),
+    {vertices:'ABC',sides:[a,b,c],labels:[a,b,c]},
+    {vertices:'MKL',sides:[2*a,2*b,2*c+1],labels:[2*a,2*b,2*c+1]}),
+   smallestFromSideDifference:([a,b,c])=>number(`Стороны первого треугольника равны ${a}, ${b}, ${c} см. У подобного ему треугольника разность наибольшей и средней сторон составляет ${3*(c-b)} см. Найди его наименьшую сторону.`,
+    3*a,`Разность соответствующих сторон увеличилась в ${3*(c-b)} : ${c-b} = 3 раза. Умножаем наименьшую сторону на 3.`,'см'),
+   perimeterRatio:([a,b,c])=>number(`У двух треугольников стороны ${2*a}, ${2*b}, ${2*c} и ${3*b}, ${3*c}, ${3*a} см. На сколько сантиметров различаются их периметры?`,
+    a+b+c,`Сопоставляем стороны по длине. Разность периметров равна (3 − 2) · (${a} + ${b} + ${c}).`,'см'),
+   correctWrongSide:([a,b,c])=>number(`Стороны первого треугольника ${a}, ${b}, ${c} см. Второй имеет стороны ${3*a-1}, ${3*b}, ${3*c} см. Наименьшую сторону второго заменяют так, чтобы получить подобие. Найди периметр после замены.`,
+    3*(a+b+c),`По средним и наибольшим сторонам коэффициент равен 3. Заменяем короткую сторону на ${3*a} см. После замены периметр увеличится на 1 см.`,'см'),
+   longestFromAreaRatio:([a,b,c])=>number(`ABC имеет стороны ${a}, ${b} и ${c} см. LMN подобен ABC. Площадь LMN относится к площади ABC как 9 : 4. Найди наибольшую сторону LMN.`,
+    rational(3*c,2),'Коэффициент подобия равен √(9/4) = 3/2. Наибольшую сторону ABC умножаем на этот коэффициент.','см'),
+   solve:([a,b,c])=>number(`Стороны треугольника равны ${a}, ${b}, ${c} см. У подобного ему треугольника сумма самой короткой и самой длинной сторон равна ${3*(a+c)} см. Найди его периметр.`,3*(a+b+c),'Суммы соответствующих сторон также относятся как коэффициент подобия. Он равен 3.','см'),
+   areaDifference:([a,b,c])=>number(`Стороны одного треугольника ${a}, ${b}, ${c}, другого — ${2*a}, ${2*b}, ${2*c}. Их площади отличаются на ${frac(3*a*b,2)} см². Найди меньшую площадь.`,rational(a*b,2),'По третьему признаку коэффициент равен 2, поэтому большая площадь в 4 раза больше. Три меньшие площади дают известную разность.','см²'),
+   missingPerimeter:([a,b,c])=>number(`У первого треугольника стороны ${a}, ${b}, ${c}. У второго две короткие стороны ${3*a}, ${3*b}. При каком периметре второго треугольники будут подобны?`,3*(a+b+c),`По третьему признаку длинная сторона должна быть ${3*c}. Складываем три стороны.`),
+   identify:([a,b,c])=>choice(`У ABC стороны AB = ${a}, BC = ${b}, CA = ${c}. У DEF стороны DE = ${3*b}, EF = ${3*c}, FD = ${3*a}. Какие вершины соответствуют A, B, C в этом порядке?`,
+    'F, D, E',['D, F, E','E, D, F'],'AB соответствует FD, BC — DE, CA — EF. Общая вершина FD и DE — D, она соответствует B.')
+  }
+ ]],
+};
+
 const newTopics={
+ ...similarityTopics,
  rational_equation_word_problems:['quadratic_word_problems','Задачи на дробные рациональные уравнения',worked(
   'Выражай время через расстояние и скорость, а производительность через долю работы за единицу времени. Запиши ограничения до умножения на знаменатель. В конце проверь смысл найденного корня.',
   'Если плот проходит 12 км за x часов, а катер за те же x часов проходит 24 км, их скорости равны 12/x и 24/x при x > 0.')],
@@ -2850,15 +3071,23 @@ const areaFollowupMasters={
 };
 
 function makeQuestion(raw,stage,variant,build){
- const args=scaledTriple();
- const item=build(args),visual=(areaFollowupMasters[raw]||areaMasters[raw]||equationSystemMasters[raw]||probabilitySetMasters[raw]||geometryMasters[raw]||inequalityMasters[raw]||functionMasters[raw])&&(item.venn??item.graph??item.table??item.interval);
+ let args;
+ if(raw==='similarity_by_angles'){
+  const a=ri(3,12);
+  args=[a,a+ri(2,9),ri(2,4)];
+ }else{
+  args=scaledTriple();
+ }
+ const item=build(args);
+ const visual=similarityTopics[raw]?item.model:
+  (areaFollowupMasters[raw]||areaMasters[raw]||equationSystemMasters[raw]||probabilitySetMasters[raw]||geometryMasters[raw]||inequalityMasters[raw]||functionMasters[raw])&&(item.venn??item.graph??item.table??item.interval);
  const sig=g8Sig(raw,stage,variant,visual?[item.text,JSON.stringify(visual)]:[item.text]);
  const audit={type:'g8Textbook',topic:raw,stage,variant};
  let question;
  if(item.wrong)question=g7StrictChoice(item.text,item.answer,item.wrong,item.ex,sig,audit);
- else if(item.model)question=g7GeoNumber(item.text,item.answer,item.ex,sig,audit,item.model,'',item.unit);
  else question=g7Number(item.text,item.answer,item.ex,sig,{unitSuffix:item.unit,audit});
  question.templateId=variant;
+ if(item.model)return g7GeoAttach(question,item.model,similarityTopics[raw]?item.model.aria:'');
  if(item.interval)return g7AttachInterval(question,item.interval);
  if(item.graph)return g7AttachGraph(question,item.graph,item.graphCaption??'Прямая на координатной плоскости');
  if(item.table)return g6AttachTable(question,item.table);
@@ -2871,7 +3100,7 @@ function makeQuestion(raw,stage,variant,build){
 function textbookVariants(raw,stage){
  const custom=stage===2&&(areaFollowupMasters[raw]??areaMasters[raw]??equationSystemMasters[raw]??geometryMasters[raw]??probabilitySetMasters[raw]??inequalityMasters[raw]);
  if(custom)return custom;
- return workouts[raw]?.[stage]??(stage===2?algebraReviewMasters[raw]??functionMasters[raw]:undefined);
+ return similarityTopics[raw]?.[3]?.[stage]??workouts[raw]?.[stage]??(stage===2?algebraReviewMasters[raw]??functionMasters[raw]:undefined);
 }
 makeG8Question=function(id,override=null){
  const raw=rawCourseId(id);
