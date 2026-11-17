@@ -1,0 +1,646 @@
+name: Grade 1 Spatial relations
+on:
+  push:
+    branches: [audit/g1-g4-content-v195]
+    paths: [.github/workflows/g1-spatial-relations-audit-once.yml]
+permissions:
+  contents: write
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save playwright
+      - run: npx playwright install --with-deps --only-shell chromium
+      - name: Verify directions, drawings, routes and saved progress
+        run: |
+          git show bc1cf7c1da5aa1400f14514189b99c3a4c3ef483:index.html > "$RUNNER_TEMP/matkvest-spatial-before.html"
+          base64 -d > "$RUNNER_TEMP/grade-one-spatial.patch" <<'MATKVEST_PATCH'
+          ZGlmZiAtLWdpdCBhL2luZGV4Lmh0bWwgYi9pbmRleC5odG1sCmluZGV4IDUwZGQ4ZjkuLjM5NDkz
+          NTYgMTAwNjQ0Ci0tLSBhL2luZGV4Lmh0bWwKKysrIGIvaW5kZXguaHRtbApAQCAtODM5LDcgKzgz
+          OSw5IEBAIGJ1dHRvbixpbnB1dHtmb250OmluaGVyaXR9YnV0dG9ue2N1cnNvcjpwb2ludGVyfS5z
+          aGVsbHttYXgtd2lkdGg6MTE4MHB4O21hcmdpbjphCiAuZzEtZ2VvbWV0cnktd3JhcHttYXgtd2lk
+          dGg6NzIwcHg7bWFyZ2luOjEwcHggYXV0byA0cHg7cGFkZGluZzo5cHg7Ym9yZGVyOjFweCBzb2xp
+          ZCAjZDdlN2RmO2JvcmRlci1yYWRpdXM6MTdweDtiYWNrZ3JvdW5kOmxpbmVhci1ncmFkaWVudCgx
+          ODBkZWcsI2ZiZmZmZCwjZjVmYmY4KTtvdmVyZmxvdzpoaWRkZW59CiAuZzEtc3BhdGlhbC1zdmcs
+          LmcxLXNoYXBlLXN2Z3tkaXNwbGF5OmJsb2NrO3dpZHRoOjEwMCU7aGVpZ2h0OmF1dG87bWFyZ2lu
+          OmF1dG99CiAuZzEtc3BhdGlhbC1jYXB0aW9uLC5nMS1zaGFwZS1jYXB0aW9ue3RleHQtYWxpZ246
+          Y2VudGVyO2NvbG9yOnZhcigtLW11dGVkKTtmb250LXNpemU6MTJweDtsaW5lLWhlaWdodDoxLjM1
+          O21hcmdpbjozcHggMCAwfQotLmcxLXNwYXRpYWwtbGFiZWx7Zm9udDo4NTAgMTRweC8xIHN5c3Rl
+          bS11aSwtYXBwbGUtc3lzdGVtLCJTZWdvZSBVSSIsQXJpYWwsc2Fucy1zZXJpZjtmaWxsOiMzODUz
+          NDg7dGV4dC1hbmNob3I6bWlkZGxlfQorLmcxLXNwYXRpYWwtc3Zne21heC13aWR0aDo0MjBweH0u
+          ZzEtc3BhdGlhbC1zdmcuZzEtc3BhdGlhbC1ncmlke21heC13aWR0aDoyNDVweH0KKy5nMS1zcGF0
+          aWFsLWxhYmVse2ZvbnQ6NzAwIDE2cHgvMSBzeXN0ZW0tdWksLWFwcGxlLXN5c3RlbSwiU2Vnb2Ug
+          VUkiLEFyaWFsLHNhbnMtc2VyaWY7ZmlsbDojMzg1MzQ4O3RleHQtYW5jaG9yOm1pZGRsZX0KKy5n
+          MS1zcGF0aWFsLWNlbGx7ZmlsbDojZmZmO3N0cm9rZTojODBhMzkxO3N0cm9rZS13aWR0aDoxLjV9
+          LmcxLXNwYXRpYWwtY2VsbC5zdGFydHtmaWxsOiNkMWVmZTA7c3Ryb2tlOiMyNTdiNWI7c3Ryb2tl
+          LXdpZHRoOjIuNX0KIC5nMS1zcGF0aWFsLXJlZntmaWxsOiNmM2I5NGQ7c3Ryb2tlOiM5YjZmMTI7
+          c3Ryb2tlLXdpZHRoOjN9LmcxLXNwYXRpYWwtdGFyZ2V0e2ZpbGw6IzYyYmI5MjtzdHJva2U6IzI1
+          N2I1YjtzdHJva2Utd2lkdGg6M30KIC5nMS1zcGF0aWFsLWJsdWV7ZmlsbDojNzNhOWU4O3N0cm9r
+          ZTojM2U2ZjlmO3N0cm9rZS13aWR0aDozfS5nMS1zcGF0aWFsLXB1cnBsZXtmaWxsOiNiNjkyZGM7
+          c3Ryb2tlOiM3NTUyOWE7c3Ryb2tlLXdpZHRoOjN9LmcxLXNwYXRpYWwtcGlua3tmaWxsOiNlOTk1
+          YWE7c3Ryb2tlOiNhNzUzNmE7c3Ryb2tlLXdpZHRoOjN9LmcxLXNwYXRpYWwtZ3VpZGV7c3Ryb2tl
+          OiNkNWU1ZGQ7c3Ryb2tlLXdpZHRoOjI7c3Ryb2tlLWRhc2hhcnJheTo2IDd9CiAuZzEtc2hhcGUt
+          c3Ryb2tle3N0cm9rZTojMzE1ZDRkO3N0cm9rZS13aWR0aDo1O3N0cm9rZS1saW5lY2FwOnJvdW5k
+          O3N0cm9rZS1saW5lam9pbjpyb3VuZH0uZzEtc2hhcGUtZmlsbHtmaWxsOiNlOWY2ZWZ9LmcxLXNo
+          YXBlLWFjY2VudHtmaWxsOiM2MmJiOTI7c3Ryb2tlOiMyNTdiNWI7c3Ryb2tlLXdpZHRoOjR9Lmcx
+          LXNoYXBlLXBvaW50e2ZpbGw6IzI1ODQ1Zn0uZzEtc2hhcGUtbGFiZWx7Zm9udDo5MDAgMThweC8x
+          IHN5c3RlbS11aSwtYXBwbGUtc3lzdGVtLCJTZWdvZSBVSSIsQXJpYWwsc2Fucy1zZXJpZjtmaWxs
+          OiMzMTVkNGQ7dGV4dC1hbmNob3I6bWlkZGxlfQpAQCAtMTg1NzMsNiArMTg1NzUsMTEgQEAgY29u
+          c3QgRzFfU1RBR0VfREVTQ1JJUFRJT05TPXsKICAgItCf0L4g0YDQuNGB0YPQvdC60YMg0L7Qv9GA
+          0LXQtNC10LvQuCwg0YHQutC+0LvRjNC60L4g0L/RgNC10LTQvNC10YLQvtCyINGB0YLQsNC70L4g
+          0LjQu9C4INC+0YHRgtCw0LvQvtGB0YwuIiwKICAgItCf0L4g0YPRgdC70L7QstC40Y4g0Lgg0YHR
+          hdC10LzQtSDQvdCw0LnQtNC4LCDRgdC60L7Qu9GM0LrQviDQv9GA0LXQtNC80LXRgtC+0LIg0LTQ
+          vtCx0LDQstC40LvQuCDQuNC70Lgg0YPQsdGA0LDQu9C4LiIsCiAgICLQoNC10YjQuCDQt9Cw0LTQ
+          sNGH0YMg0L/QviDRgtC10LrRgdGC0YMg0Lgg0L3QsNC50LTQuCwg0YHQutC+0LvRjNC60L4g0L/R
+          gNC10LTQvNC10YLQvtCyINCx0YvQu9C+INGB0L3QsNGH0LDQu9CwLiIKKyBdLAorICJnMTpzcGF0
+          aWFsX3JlbGF0aW9ucyI6WworICAi0J7Qv9GA0LXQtNC10LvQuCwg0YEg0LrQsNC60L7QuSDRgdGC
+          0L7RgNC+0L3Riywg0LLRi9GI0LUg0LjQu9C4INC90LjQttC1INC90LDRhdC+0LTQuNGC0YHRjyDQ
+          utGA0YPQttC+0LouIiwKKyAgItCd0LDQudC00Lgg0LrRgNGD0LbQvtC6INC/0L4g0L3QsNC/0YDQ
+          sNCy0LvQtdC90LjRjiDQuNC70Lgg0L/QvtC80LXQvdGP0Lkg0L/RgNC10LTQvNC10YIg0L7RgtGB
+          0YfRkdGC0LAuIiwKKyAgItCd0LDQudC00Lgg0LrQu9C10YLQutGDINC/0L4g0LTQstGD0Lwg0YjQ
+          sNCz0LDQvCDQuNC70Lgg0L/QviDRgNGP0LTRgyDQuCDRgdGC0L7Qu9Cx0YbRgy4iCiAgXQogfTsK
+          IGZ1bmN0aW9uIG9wZW5HMVRvcGljKGlkKXsKQEAgLTE4OTIzLDYgKzE4OTMwLDcgQEAgZzFUaGVv
+          cnlIdG1sPWZ1bmN0aW9uKGlkKXsKIGNvbnN0IFRBUkdFVF9TVEFHRTgzOF9JRFM9WyJnMTpzcGF0
+          aWFsX3JlbGF0aW9ucyIsImcxOmdlb21ldHJpY19maWd1cmVzIl07CiAKIGNvbnN0IEcxX1NQQVRJ
+          QUxfUkVMQVRJT05TPVsi0KHQu9C10LLQsCIsItCh0L/RgNCw0LLQsCIsItCh0LLQtdGA0YXRgyIs
+          ItCh0L3QuNC30YMiXTsKK2NvbnN0IEcxX1NQQVRJQUxfQ09MT1JfR0VOSVRJVkU9e9Ce0YDQsNC9
+          0LbQtdCy0YvQuToi0L7RgNCw0L3QttC10LLQvtCz0L4iLNCX0LXQu9GR0L3Ri9C5OiLQt9C10LvR
+          kdC90L7Qs9C+IizQodC40L3QuNC5OiLRgdC40L3QtdCz0L4iLNCk0LjQvtC70LXRgtC+0LLRi9C5
+          OiLRhNC40L7Qu9C10YLQvtCy0L7Qs9C+IizQoNC+0LfQvtCy0YvQuToi0YDQvtC30L7QstC+0LPQ
+          viJ9OwogZnVuY3Rpb24gZzFPcHBvc2l0ZVJlbGF0aW9uKHgpe3JldHVybiB4PT09ItCh0LvQtdCy
+          0LAiPyLQodC/0YDQsNCy0LAiOng9PT0i0KHQv9GA0LDQstCwIj8i0KHQu9C10LLQsCI6eD09PSLQ
+          odCy0LXRgNGF0YMiPyLQodC90LjQt9GDIjoi0KHQstC10YDRhdGDIn0KIGZ1bmN0aW9uIGcxU3Bh
+          dGlhbE9mZnNldChyZWxhdGlvbixzdGVwPTEwOCl7cmV0dXJuIHJlbGF0aW9uPT09ItCh0LvQtdCy
+          0LAiP1stc3RlcCwwXTpyZWxhdGlvbj09PSLQodC/0YDQsNCy0LAiP1tzdGVwLDBdOnJlbGF0aW9u
+          PT09ItCh0LLQtdGA0YXRgyI/WzAsLXN0ZXBdOlswLHN0ZXBdfQogZnVuY3Rpb24gZzFTcGF0aWFs
+          UGFpck1vZGVsKHJlbGF0aW9uPW51bGwpewpAQCAtMTg5MzEsMjYgKzE4OTM5LDM1IEBAIGZ1bmN0
+          aW9uIGcxU3BhdGlhbFBhaXJNb2RlbChyZWxhdGlvbj1udWxsKXsKIH0KIGZ1bmN0aW9uIGcxU3Bh
+          dGlhbENyb3NzTW9kZWwodGFyZ2V0UmVsYXRpb249bnVsbCl7CiAgY29uc3QgcmVsPXRhcmdldFJl
+          bGF0aW9ufHxHMV9TUEFUSUFMX1JFTEFUSU9OU1tyaSgwLEcxX1NQQVRJQUxfUkVMQVRJT05TLmxl
+          bmd0aC0xKV07Ci0gY29uc3QgdmFyaWFudHM9WwotICB7ItCh0LvQtdCy0LAiOiLQl9C10LvRkdC9
+          0YvQuSIsItCh0L/RgNCw0LLQsCI6ItCh0LjQvdC40LkiLCLQodCy0LXRgNGF0YMiOiLQpNC40L7Q
+          u9C10YLQvtCy0YvQuSIsItCh0L3QuNC30YMiOiLQoNC+0LfQvtCy0YvQuSJ9LAotICB7ItCh0LvQ
+          tdCy0LAiOiLQodC40L3QuNC5Iiwi0KHQv9GA0LDQstCwIjoi0KDQvtC30L7QstGL0LkiLCLQodCy
+          0LXRgNGF0YMiOiLQl9C10LvRkdC90YvQuSIsItCh0L3QuNC30YMiOiLQpNC40L7Qu9C10YLQvtCy
+          0YvQuSJ9LAotICB7ItCh0LvQtdCy0LAiOiLQpNC40L7Qu9C10YLQvtCy0YvQuSIsItCh0L/RgNCw
+          0LLQsCI6ItCX0LXQu9GR0L3Ri9C5Iiwi0KHQstC10YDRhdGDIjoi0KDQvtC30L7QstGL0LkiLCLQ
+          odC90LjQt9GDIjoi0KHQuNC90LjQuSJ9LAotICB7ItCh0LvQtdCy0LAiOiLQoNC+0LfQvtCy0YvQ
+          uSIsItCh0L/RgNCw0LLQsCI6ItCk0LjQvtC70LXRgtC+0LLRi9C5Iiwi0KHQstC10YDRhdGDIjoi
+          0KHQuNC90LjQuSIsItCh0L3QuNC30YMiOiLQl9C10LvRkdC90YvQuSJ9Ci0gXTsKLSBjb25zdCBw
+          b3NpdGlvbnM9ey4uLnZhcmlhbnRzW3JpKDAsdmFyaWFudHMubGVuZ3RoLTEpXX07CisgY29uc3Qg
+          Y29sb3JzPXNodWZmbGVPcHRpb25zKE9iamVjdC5rZXlzKEcxX1NQQVRJQUxfQ09MT1JfR0VOSVRJ
+          VkUpLmZpbHRlcihjb2xvcj0+Y29sb3IhPT0i0J7RgNCw0L3QttC10LLRi9C5IikpOworIGNvbnN0
+          IHBvc2l0aW9ucz1PYmplY3QuZnJvbUVudHJpZXMoRzFfU1BBVElBTF9SRUxBVElPTlMubWFwKChk
+          aXJlY3Rpb24saSk9PltkaXJlY3Rpb24sY29sb3JzW2ldXSkpOwogIHJldHVybiB7bW9kZToiY3Jv
+          c3MiLHRhcmdldFJlbGF0aW9uOnJlbCxwb3NpdGlvbnMsYW5zd2VyOnBvc2l0aW9uc1tyZWxdLHJl
+          ZmVyZW5jZToi0J7RgNCw0L3QttC10LLRi9C5In0KIH0KIGZ1bmN0aW9uIGcxU3BhdGlhbENvbG9y
+          Q2xhc3MobmFtZSl7cmV0dXJuIG5hbWU9PT0i0J7RgNCw0L3QttC10LLRi9C5Ij8iZzEtc3BhdGlh
+          bC1yZWYiOm5hbWU9PT0i0JfQtdC70ZHQvdGL0LkiPyJnMS1zcGF0aWFsLXRhcmdldCI6bmFtZT09
+          PSLQodC40L3QuNC5Ij8iZzEtc3BhdGlhbC1ibHVlIjpuYW1lPT09ItCk0LjQvtC70LXRgtC+0LLR
+          i9C5Ij8iZzEtc3BhdGlhbC1wdXJwbGUiOiJnMS1zcGF0aWFsLXBpbmsifQotZnVuY3Rpb24gZzFT
+          cGF0aWFsRG90KHgseSxuYW1lKXtyZXR1cm4gYDxjaXJjbGUgY2xhc3M9IiR7ZzFTcGF0aWFsQ29s
+          b3JDbGFzcyhuYW1lKX0iIGN4PSIke3h9IiBjeT0iJHt5fSIgcj0iMzAiLz48dGV4dCBjbGFzcz0i
+          ZzEtc3BhdGlhbC1sYWJlbCIgeD0iJHt4fSIgeT0iJHt5KzUyfSI+JHtuYW1lLnRvTG93ZXJDYXNl
+          KCl9PC90ZXh0PmB9CitmdW5jdGlvbiBnMVNwYXRpYWxEb3QoeCx5LG5hbWUpe3JldHVybiBgPGNp
+          cmNsZSBjbGFzcz0iJHtnMVNwYXRpYWxDb2xvckNsYXNzKG5hbWUpfSIgY3g9IiR7eH0iIGN5PSIk
+          e3l9IiByPSIyMiIvPjx0ZXh0IGNsYXNzPSJnMS1zcGF0aWFsLWxhYmVsIiB4PSIke3h9IiB5PSIk
+          e3krMzl9Ij4ke25hbWUudG9Mb3dlckNhc2UoKX08L3RleHQ+YH0KK2Z1bmN0aW9uIGcxU3BhdGlh
+          bEdyaWRIdG1sKHN0YXJ0KXsKKyBjb25zdCBjZWxscz1BcnJheS5mcm9tKHtsZW5ndGg6OX0sKF8s
+          aSk9PnsKKyAgY29uc3Qgbj1pKzEseD0xMitpJTMqNjQseT0xMitNYXRoLmZsb29yKGkvMykqNjQs
+          YWN0aXZlPXN0YXJ0PT09bjsKKyAgcmV0dXJuIGA8Zz48cmVjdCBjbGFzcz0iZzEtc3BhdGlhbC1j
+          ZWxsJHthY3RpdmU/IiBzdGFydCI6IiJ9IiB4PSIke3h9IiB5PSIke3l9IiB3aWR0aD0iNjAiIGhl
+          aWdodD0iNjAiIHJ4PSI3Ii8+PHRleHQgY2xhc3M9ImcxLXNwYXRpYWwtbGFiZWwiIHg9IiR7eCsz
+          MH0iIHk9IiR7eSszNn0iPiR7bn08L3RleHQ+PC9nPmA7CisgfSkuam9pbigiIik7CisgY29uc3Qg
+          bGFiZWw9YNCi0YDQuCDRgNGP0LTQsCDQv9C+INGC0YDQuCDQutC70LXRgtC60LguINCh0LLQtdGA
+          0YXRgyDQvdC+0LzQtdGA0LAgMSwgMiwgMywg0L/QvtGB0LXRgNC10LTQuNC90LUgNCwgNSwgNiwg
+          0YHQvdC40LfRgyA3LCA4LCA5LiR7c3RhcnQ/YCDQndCw0YfQsNC70L4g0LIg0LrQu9C10YLQutC1
+          ICR7c3RhcnR9LmA6IiJ9YDsKKyByZXR1cm4gYDxkaXYgY2xhc3M9ImcxLWdlb21ldHJ5LXdyYXAi
+          PjxzdmcgY2xhc3M9ImcxLXNwYXRpYWwtc3ZnIGcxLXNwYXRpYWwtZ3JpZCIgdmlld0JveD0iMCAw
+          IDIxMiAyMTIiIHJvbGU9ImltZyIgYXJpYS1sYWJlbD0iJHtsYWJlbH0iIHhtbG5zPSJodHRwOi8v
+          d3d3LnczLm9yZy8yMDAwL3N2ZyI+JHtjZWxsc308L3N2Zz48L2Rpdj5gOworfQogZnVuY3Rpb24g
+          ZzFTcGF0aWFsVmlzdWFsSHRtbChkYXRhKXsKLSBjb25zdCBtb2RlPWRhdGE/Lm1vZGV8fCJwYWly
+          IixXPTY4MCxIPTM2MCxjeD0zNDAsY3k9MTcwOwotIGxldCBib2R5PWA8bGluZSBjbGFzcz0iZzEt
+          c3BhdGlhbC1ndWlkZSIgeDE9IiR7Y3h9IiB5MT0iMzIiIHgyPSIke2N4fSIgeTI9IjMwOCIvPjxs
+          aW5lIGNsYXNzPSJnMS1zcGF0aWFsLWd1aWRlIiB4MT0iMTEyIiB5MT0iJHtjeX0iIHgyPSI1Njgi
+          IHkyPSIke2N5fSIvPmA7CisgY29uc3QgbW9kZT1kYXRhPy5tb2RlfHwicGFpciI7CisgaWYobW9k
+          ZT09PSJncmlkIilyZXR1cm4gZzFTcGF0aWFsR3JpZEh0bWwoZGF0YS5zdGFydCk7CisgY29uc3Qg
+          Vz0zNjAsSD0yNzYsY3g9MTgwLGN5PTEzMjsKKyBjb25zdCBkb3Q9KGRpcmVjdGlvbixjb2xvcik9
+          PnsKKyAgY29uc3QgW2R4LGR5XT1nMVNwYXRpYWxPZmZzZXQoZGlyZWN0aW9uLDEpOworICByZXR1
+          cm4gZzFTcGF0aWFsRG90KGN4K2R4KjEwNCxjeStkeSo4Mixjb2xvcik7CisgfTsKKyBsZXQgYm9k
+          eT1gPGxpbmUgY2xhc3M9ImcxLXNwYXRpYWwtZ3VpZGUiIHgxPSIke2N4fSIgeTE9IjIwIiB4Mj0i
+          JHtjeH0iIHkyPSIyNTEiLz48bGluZSBjbGFzcz0iZzEtc3BhdGlhbC1ndWlkZSIgeDE9IjM4IiB5
+          MT0iJHtjeX0iIHgyPSIzMjIiIHkyPSIke2N5fSIvPmA7CiAgaWYobW9kZT09PSJjZW50ZXIiKWJv
+          ZHkrPWcxU3BhdGlhbERvdChjeCxjeSwi0J7RgNCw0L3QttC10LLRi9C5Iik7CiAgZWxzZSBpZiht
+          b2RlPT09ImNyb3NzIil7CiAgIGJvZHkrPWcxU3BhdGlhbERvdChjeCxjeSwi0J7RgNCw0L3QttC1
+          0LLRi9C5Iik7Ci0gIGZvcihjb25zdCByZWwgb2YgRzFfU1BBVElBTF9SRUxBVElPTlMpe2NvbnN0
+          IFtkeCxkeV09ZzFTcGF0aWFsT2Zmc2V0KHJlbCk7Ym9keSs9ZzFTcGF0aWFsRG90KGN4K2R4LGN5
+          K2R5LGRhdGEucG9zaXRpb25zW3JlbF0pfQorICBmb3IoY29uc3QgcmVsIG9mIEcxX1NQQVRJQUxf
+          UkVMQVRJT05TKWJvZHkrPWRvdChyZWwsZGF0YS5wb3NpdGlvbnNbcmVsXSk7CiAgfWVsc2V7Ci0g
+          IGNvbnN0IFtkeCxkeV09ZzFTcGF0aWFsT2Zmc2V0KGRhdGE/LnJlbGF0aW9ufHwi0KHQu9C10LLQ
+          sCIpO2JvZHkrPWcxU3BhdGlhbERvdChjeCxjeSwi0J7RgNCw0L3QttC10LLRi9C5IikrZzFTcGF0
+          aWFsRG90KGN4K2R4LGN5K2R5LCLQl9C10LvRkdC90YvQuSIpCisgIGJvZHkrPWcxU3BhdGlhbERv
+          dChjeCxjeSxkYXRhPy5yZWZlcmVuY2V8fCLQntGA0LDQvdC20LXQstGL0LkiKStkb3QoZGF0YT8u
+          cmVsYXRpb258fCLQodC70LXQstCwIixkYXRhPy5zdWJqZWN0fHwi0JfQtdC70ZHQvdGL0LkiKTsK
+          ICB9CiAgcmV0dXJuIGA8ZGl2IGNsYXNzPSJnMS1nZW9tZXRyeS13cmFwIj48c3ZnIGNsYXNzPSJn
+          MS1zcGF0aWFsLXN2ZyIgdmlld0JveD0iMCAwICR7V30gJHtIfSIgcm9sZT0iaW1nIiBhcmlhLWxh
+          YmVsPSLQoNCw0YHQv9C+0LvQvtC20LXQvdC40LUg0LrRgNGD0LbQutC+0LIiIHhtbG5zPSJodHRw
+          Oi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+JHtib2R5fTwvc3ZnPjwvZGl2PmAKIH0KQEAgLTE5MDY4
+          LDcgKzE5MDg1LDcgQEAgZzFUaGVvcnlIdG1sPWZ1bmN0aW9uKGlkKXsKICBjb25zdCByYXc9cmF3
+          Q291cnNlSWQoaWQpO2lmKHJhdyE9PSJzcGF0aWFsX3JlbGF0aW9ucyImJnJhdyE9PSJnZW9tZXRy
+          aWNfZmlndXJlcyIpcmV0dXJuIFBSRTgzOF9HMV9USEVPUllfSFRNTChpZCk7CiAgaWYocmF3PT09
+          InNwYXRpYWxfcmVsYXRpb25zIil7CiAgIGNvbnN0IGxlZnQ9e21vZGU6InBhaXIiLHJlbGF0aW9u
+          OiLQodC70LXQstCwIixyZWZlcmVuY2U6ItCe0YDQsNC90LbQtdCy0YvQuSIsc3ViamVjdDoi0JfQ
+          tdC70ZHQvdGL0LkifSx1cD17bW9kZToicGFpciIscmVsYXRpb246ItCh0LLQtdGA0YXRgyIscmVm
+          ZXJlbmNlOiLQntGA0LDQvdC20LXQstGL0LkiLHN1YmplY3Q6ItCX0LXQu9GR0L3Ri9C5In07Ci0g
+          IHJldHVybiBgPGRpdiBjbGFzcz0iZWxlbWVudGFyeS10aGVvcnkiPjxwPjxiPtCf0YDQtdC00LzQ
+          tdGC0Ysg0LzQvtCz0YPRgiDQvdCw0YXQvtC00LjRgtGM0YHRjyDRgdC70LXQstCwLCDRgdC/0YDQ
+          sNCy0LAsINGB0LLQtdGA0YXRgyDQuNC70Lgg0YHQvdC40LfRgyDQtNGA0YPQsyDQvtGCINC00YDR
+          g9Cz0LAuPC9iPjwvcD48ZGl2IGNsYXNzPSJnMS10aGVvcnktYmxvY2siPjxoMz7QodC70LXQstCw
+          INC4INGB0L/RgNCw0LLQsDwvaDM+JHtnMVNwYXRpYWxWaXN1YWxIdG1sKGxlZnQpfTxwPtCX0LXQ
+          u9GR0L3Ri9C5INC60YDRg9C20L7QuiDQvdCw0YXQvtC00LjRgtGB0Y8gPGI+0YHQu9C10LLQsDwv
+          Yj4g0L7RgiDQvtGA0LDQvdC20LXQstC+0LPQvi48L3A+PHA+0JfQvdCw0YfQuNGCLCDQvtGA0LDQ
+          vdC20LXQstGL0Lkg0L3QsNGF0L7QtNC40YLRgdGPIDxiPtGB0L/RgNCw0LLQsDwvYj4g0L7RgiDQ
+          t9C10LvRkdC90L7Qs9C+LjwvcD48L2Rpdj48ZGl2IGNsYXNzPSJnMS10aGVvcnktYmxvY2siPjxo
+          Mz7QodCy0LXRgNGF0YMg0Lgg0YHQvdC40LfRgzwvaDM+JHtnMVNwYXRpYWxWaXN1YWxIdG1sKHVw
+          KX08cD7Ql9C10LvRkdC90YvQuSDQutGA0YPQttC+0Log0L3QsNGF0L7QtNC40YLRgdGPIDxiPtGB
+          0LLQtdGA0YXRgzwvYj4g0L7RgiDQvtGA0LDQvdC20LXQstC+0LPQvi48L3A+PHA+0JfQvdCw0YfQ
+          uNGCLCDQvtGA0LDQvdC20LXQstGL0Lkg0L3QsNGF0L7QtNC40YLRgdGPIDxiPtGB0L3QuNC30YM8
+          L2I+INC+0YIg0LfQtdC70ZHQvdC+0LPQvi48L3A+PC9kaXY+PGRpdiBjbGFzcz0iZWxlbWVudGFy
+          eS1leGFtcGxlIj7QodC90LDRh9Cw0LvQsCDQvdCw0LnQtNC4LCA8Yj7QvtGC0L3QvtGB0LjRgtC1
+          0LvRjNC90L4g0LrQsNC60L7Qs9C+INC/0YDQtdC00LzQtdGC0LA8L2I+INC90YPQttC90L4g0YHQ
+          vNC+0YLRgNC10YLRjC4g0J/QvtGC0L7QvCDQstGL0LHQtdGA0Lgg0L/QvtC70L7QttC10L3QuNC1
+          LjwvZGl2PjwvZGl2PmAKKyAgcmV0dXJuIGA8ZGl2IGNsYXNzPSJlbGVtZW50YXJ5LXRoZW9yeSI+
+          PHA+PGI+0J/RgNC10LTQvNC10YLRiyDQvNC+0LPRg9GCINC90LDRhdC+0LTQuNGC0YzRgdGPINGB
+          0LvQtdCy0LAsINGB0L/RgNCw0LLQsCwg0YHQstC10YDRhdGDINC40LvQuCDRgdC90LjQt9GDINC0
+          0YDRg9CzINC+0YIg0LTRgNGD0LPQsC48L2I+PC9wPjxkaXYgY2xhc3M9ImcxLXRoZW9yeS1ibG9j
+          ayI+PGgzPtCh0LvQtdCy0LAg0Lgg0YHQv9GA0LDQstCwPC9oMz4ke2cxU3BhdGlhbFZpc3VhbEh0
+          bWwobGVmdCl9PHA+0JfQtdC70ZHQvdGL0Lkg0LrRgNGD0LbQvtC6INC90LDRhdC+0LTQuNGC0YHR
+          jyA8Yj7RgdC70LXQstCwPC9iPiDQvtGCINC+0YDQsNC90LbQtdCy0L7Qs9C+LjwvcD48cD7Ql9C9
+          0LDRh9C40YIsINC+0YDQsNC90LbQtdCy0YvQuSDQvdCw0YXQvtC00LjRgtGB0Y8gPGI+0YHQv9GA
+          0LDQstCwPC9iPiDQvtGCINC30LXQu9GR0L3QvtCz0L4uPC9wPjwvZGl2PjxkaXYgY2xhc3M9Imcx
+          LXRoZW9yeS1ibG9jayI+PGgzPtCh0LLQtdGA0YXRgyDQuCDRgdC90LjQt9GDPC9oMz4ke2cxU3Bh
+          dGlhbFZpc3VhbEh0bWwodXApfTxwPtCX0LXQu9GR0L3Ri9C5INC60YDRg9C20L7QuiDQvdCw0YXQ
+          vtC00LjRgtGB0Y8gPGI+0YHQstC10YDRhdGDPC9iPiDQvtGCINC+0YDQsNC90LbQtdCy0L7Qs9C+
+          LjwvcD48cD7Ql9C90LDRh9C40YIsINC+0YDQsNC90LbQtdCy0YvQuSDQvdCw0YXQvtC00LjRgtGB
+          0Y8gPGI+0YHQvdC40LfRgzwvYj4g0L7RgiDQt9C10LvRkdC90L7Qs9C+LjwvcD48L2Rpdj48ZGl2
+          IGNsYXNzPSJlbGVtZW50YXJ5LWV4YW1wbGUiPtCh0L3QsNGH0LDQu9CwINC90LDQudC00Lgg0L/R
+          gNC10LTQvNC10YIsINC+0YIg0LrQvtGC0L7RgNC+0LPQviDQvdGD0LbQvdC+INGB0YfQuNGC0LDR
+          gtGMINC90LDQv9GA0LDQstC70LXQvdC40LUuPC9kaXY+PHA+0J3QsCDQutC70LXRgtGH0LDRgtC+
+          0Lkg0YHRhdC10LzQtSDRgNGP0LQg0LjQtNGR0YIg0YHQu9C10LLQsCDQvdCw0L/RgNCw0LLQviwg
+          0LAg0YHRgtC+0LvQsdC10YYg4oCUINGB0LLQtdGA0YXRgyDQstC90LjQty48L3A+PC9kaXY+YAog
+          IH0KICBjb25zdCBnYWxsZXJ5PXttb2RlOiJnYWxsZXJ5IixvcmRlcjpbItCa0YDRg9CzIiwi0KLR
+          gNC10YPQs9C+0LvRjNC90LjQuiIsItCa0LLQsNC00YDQsNGCIiwi0J/RgNGP0LzQvtGD0LPQvtC7
+          0YzQvdC40LoiXX07CiAgcmV0dXJuIGA8ZGl2IGNsYXNzPSJlbGVtZW50YXJ5LXRoZW9yeSI+PHA+
+          PGI+0KTQuNCz0YPRgNGLINC+0YLQu9C40YfQsNGO0YLRgdGPINGE0L7RgNC80L7QuS48L2I+INCh
+          0L3QsNGH0LDQu9CwINCy0L3QuNC80LDRgtC10LvRjNC90L4g0L/QvtGB0LzQvtGC0YDQuCDQvdCw
+          INGA0LjRgdGD0L3QvtC6LjwvcD4ke2cxU2hhcGVWaXN1YWxIdG1sKGdhbGxlcnkpfTxkaXYgY2xh
+          c3M9ImcxLXNoYXBlLW5hbWUtZ3JpZCI+PGRpdiBjbGFzcz0iZzEtc2hhcGUtbmFtZSI+QSDigJQg
+          0LrRgNGD0LM8L2Rpdj48ZGl2IGNsYXNzPSJnMS1zaGFwZS1uYW1lIj5CIOKAlCDRgtGA0LXRg9Cz
+          0L7Qu9GM0L3QuNC6PC9kaXY+PGRpdiBjbGFzcz0iZzEtc2hhcGUtbmFtZSI+QyDigJQg0LrQstCw
+          0LTRgNCw0YI8L2Rpdj48ZGl2IGNsYXNzPSJnMS1zaGFwZS1uYW1lIj5EIOKAlCDQv9GA0Y/QvNC+
+          0YPQs9C+0LvRjNC90LjQujwvZGl2PjwvZGl2PjxkaXYgY2xhc3M9ImcxLXRoZW9yeS1ibG9jayI+
+          PGgzPtCh0YLQvtGA0L7QvdGLINC4INGD0LPQu9GLPC9oMz48cD7QoyDRgtGA0LXRg9Cz0L7Qu9GM
+          0L3QuNC60LAgPGI+MyDRgdGC0L7RgNC+0L3RiyDQuCAzINGD0LPQu9CwPC9iPi48L3A+PHA+0KMg
+          0LrQstCw0LTRgNCw0YLQsCDQuCDQv9GA0Y/QvNC+0YPQs9C+0LvRjNC90LjQutCwIDxiPjQg0YHR
+          gtC+0YDQvtC90Ysg0LggNCDRg9Cz0LvQsDwvYj4uPC9wPjxwPtCjINC60YDRg9Cz0LAg0YPQs9C7
+          0L7QsiDQvdC10YIuPC9wPjwvZGl2PjxkaXYgY2xhc3M9ImcxLXRoZW9yeS1ibG9jayI+PGgzPtCi
+          0L7Rh9C60LAg0Lgg0L7RgtGA0LXQt9C+0Lo8L2gzPiR7ZzFTaGFwZVZpc3VhbEh0bWwoe21vZGU6
+          InNpbmdsZSIsc2hhcGU6ItCe0YLRgNC10LfQvtC6In0pfTxwPtCc0LDQu9C10L3RjNC60LDRjyDQ
+          vtGC0LzQtdGC0LrQsCDigJQg0Y3RgtC+IDxiPtGC0L7Rh9C60LA8L2I+LiDQm9C40L3QuNGPINC8
+          0LXQttC00YMg0LTQstGD0LzRjyDQutC+0L3RhtCw0LzQuCDigJQgPGI+0L7RgtGA0LXQt9C+0Lo8
+          L2I+LjwvcD48L2Rpdj48L2Rpdj5gCkBAIC0xOTM4MywyNyArMTk0MDAsNjcgQEAgZzFMZW5ndGhR
+          dWVzdGlvbj1mdW5jdGlvbihkKXsKICByZXR1cm4gZzFDaG9pY2UocHJvbXB0LGFuc3dlcixvcHRp
+          b25zLmZpbHRlcihvcHRpb249Pm9wdGlvbiE9PWFuc3dlciksZXhwbGFuYXRpb24sc2lnbmF0dXJl
+          LHttb2RlbCx2aXN1YWwsdGVtcGxhdGVJZH0pOwogfTsKIAotLyog0J/RgNC+0YHRgtGA0LDQvdGB
+          0YLQstC10L3QvdGL0LUg0L7RgtC90L7RiNC10L3QuNGPOiDRg9Cx0LjRgNCw0LXQvCDRgtGA0YPQ
+          tNC90L7QtSDQtNC70Y8g0L/QtdGA0LLQvtC60LvQsNGB0YHQvdC40LrQsCDCq9C+0YLQvdC+0YHQ
+          uNGC0LXQu9GM0L3QvsK7LiAqLworY29uc3QgRzFfU1BBVElBTF9TVEFHRV9URU1QTEFURVM9Wwor
+          IFsiaG9yaXpvbnRhbF9wYWlyIiwidmVydGljYWxfcGFpciJdLAorIFsiZmluZF9uZWlnaGJvciIs
+          InJldmVyc2VfcmVsYXRpb24iXSwKKyBbInR3b19zdGVwcyIsInJvd19jb2x1bW4iXQorXTsKK2Z1
+          bmN0aW9uIGcxU3BhdGlhbFBvc2l0aW9uVGV4dChkaXJlY3Rpb24scmVmZXJlbmNlKXsKKyBjb25z
+          dCBub3VuPUcxX1NQQVRJQUxfQ09MT1JfR0VOSVRJVkVbcmVmZXJlbmNlXTsKKyBjb25zdCBkZXNj
+          cmlwdGlvbj170KHQstC10YDRhdGDOiLQstGL0YjQtSIs0KHQvdC40LfRgzoi0L3QuNC20LUifVtk
+          aXJlY3Rpb25dOworIHJldHVybiBkZXNjcmlwdGlvbj9gJHtkZXNjcmlwdGlvbn0gJHtub3VufWA6
+          YCR7ZGlyZWN0aW9uLnRvTG93ZXJDYXNlKCl9INC+0YIgJHtub3VufWA7Cit9CiBnMVNwYXRpYWxR
+          dWVzdGlvbj1mdW5jdGlvbihkKXsKLSBjb25zdCB3YXJtPVsicmVsYXRpb24iLCJwbGFjZSJdLHRy
+          YWluPVsicmVsYXRpb24iLCJwbGFjZSIsInJldmVyc2UiLCJmaW5kX2NvbG9yIiwidHJ1ZV9zZW50
+          ZW5jZSJdLG1hc3Rlcj1bInJlbGF0aW9uIiwicGxhY2UiLCJyZXZlcnNlIiwiZmluZF9jb2xvciIs
+          InRydWVfc2VudGVuY2UiXSx0ZW1wbGF0ZUlkPWcxUGlja1RlbXBsYXRlKGQ9PT0wP3dhcm06ZD09
+          PTE/dHJhaW46bWFzdGVyKTsKLSBpZih0ZW1wbGF0ZUlkPT09InJlbGF0aW9uIil7Ci0gIGNvbnN0
+          IG1vZGVsPWcxU3BhdGlhbFBhaXJNb2RlbCgpLGFuc3dlcj1tb2RlbC5yZWxhdGlvbjsKLSAgcmV0
+          dXJuIGcxQ2hvaWNlKCLQoSDQutCw0LrQvtC5INGB0YLQvtGA0L7QvdGLINC+0YIg0L7RgNCw0L3Q
+          ttC10LLQvtCz0L4g0L3QsNGF0L7QtNC40YLRgdGPINC30LXQu9GR0L3Ri9C5INC60YDRg9C20L7Q
+          uj8iLGFuc3dlcixHMV9TUEFUSUFMX1JFTEFUSU9OUy5maWx0ZXIoeD0+eCE9PWFuc3dlciksYNCX
+          0LXQu9GR0L3Ri9C5INC60YDRg9C20L7QuiDQvdCw0YXQvtC00LjRgtGB0Y8gJHthbnN3ZXIudG9M
+          b3dlckNhc2UoKX0g0L7RgiDQvtGA0LDQvdC20LXQstC+0LPQvi5gLGBnMTpzcGF0aWFsX3JlbGF0
+          aW9uczoke2R9OnJlbGF0aW9uOiR7YW5zd2VyfWAse21vZGVsLHZpc3VhbDp7dHlwZToiZzFTcGF0
+          aWFsIixkYXRhOm1vZGVsfSx0ZW1wbGF0ZUlkfSkKLSB9Ci0gaWYodGVtcGxhdGVJZD09PSJwbGFj
+          ZSIpewotICBjb25zdCBvcmFuZ2VSZWxhdGl2ZVRvR3JlZW49RzFfU1BBVElBTF9SRUxBVElPTlNb
+          cmkoMCxHMV9TUEFUSUFMX1JFTEFUSU9OUy5sZW5ndGgtMSldLGFuc3dlcj1nMU9wcG9zaXRlUmVs
+          YXRpb24ob3JhbmdlUmVsYXRpdmVUb0dyZWVuKSxtb2RlbD17bW9kZToiY2VudGVyIixvcmFuZ2VS
+          ZWxhdGl2ZVRvR3JlZW4sYW5zd2VyLHJlZmVyZW5jZToi0J7RgNCw0L3QttC10LLRi9C5In07Ci0g
+          IHJldHVybiBnMUNob2ljZShg0J7RgNCw0L3QttC10LLRi9C5INC60YDRg9C20L7QuiAke29yYW5n
+          ZVJlbGF0aXZlVG9HcmVlbi50b0xvd2VyQ2FzZSgpfSDQvtGCINC30LXQu9GR0L3QvtCz0L4uINCh
+          INC60LDQutC+0Lkg0YHRgtC+0YDQvtC90Ysg0L7RgiDQvtGA0LDQvdC20LXQstC+0LPQviDQtNC+
+          0LvQttC10L0g0LHRi9GC0Ywg0LfQtdC70ZHQvdGL0Lk/YCxhbnN3ZXIsRzFfU1BBVElBTF9SRUxB
+          VElPTlMuZmlsdGVyKHg9PnghPT1hbnN3ZXIpLGDQntGA0LDQvdC20LXQstGL0LkgJHtvcmFuZ2VS
+          ZWxhdGl2ZVRvR3JlZW4udG9Mb3dlckNhc2UoKX0g0L7RgiDQt9C10LvRkdC90L7Qs9C+LCDQt9C9
+          0LDRh9C40YIg0LfQtdC70ZHQvdGL0LkgJHthbnN3ZXIudG9Mb3dlckNhc2UoKX0g0L7RgiDQvtGA
+          0LDQvdC20LXQstC+0LPQvi5gLGBnMTpzcGF0aWFsX3JlbGF0aW9uczoke2R9OnBsYWNlOiR7b3Jh
+          bmdlUmVsYXRpdmVUb0dyZWVufWAse21vZGVsLHZpc3VhbDp7dHlwZToiZzFTcGF0aWFsIixkYXRh
+          Om1vZGVsfSx0ZW1wbGF0ZUlkfSkKLSB9Ci0gaWYodGVtcGxhdGVJZD09PSJyZXZlcnNlIil7Ci0g
+          IGNvbnN0IG1vZGVsPWcxU3BhdGlhbFBhaXJNb2RlbCgpLGFuc3dlcj1nMU9wcG9zaXRlUmVsYXRp
+          b24obW9kZWwucmVsYXRpb24pOwotICByZXR1cm4gZzFDaG9pY2UoItChINC60LDQutC+0Lkg0YHR
+          gtC+0YDQvtC90Ysg0L7RgiDQt9C10LvRkdC90L7Qs9C+INC90LDRhdC+0LTQuNGC0YHRjyDQvtGA
+          0LDQvdC20LXQstGL0Lkg0LrRgNGD0LbQvtC6PyIsYW5zd2VyLEcxX1NQQVRJQUxfUkVMQVRJT05T
+          LmZpbHRlcih4PT54IT09YW5zd2VyKSxg0JfQtdC70ZHQvdGL0LkgJHttb2RlbC5yZWxhdGlvbi50
+          b0xvd2VyQ2FzZSgpfSDQvtGCINC+0YDQsNC90LbQtdCy0L7Qs9C+LCDQt9C90LDRh9C40YIg0L7R
+          gNCw0L3QttC10LLRi9C5ICR7YW5zd2VyLnRvTG93ZXJDYXNlKCl9INC+0YIg0LfQtdC70ZHQvdC+
+          0LPQvi5gLGBnMTpzcGF0aWFsX3JlbGF0aW9uczoke2R9OnJldmVyc2U6JHttb2RlbC5yZWxhdGlv
+          bn1gLHttb2RlbCx2aXN1YWw6e3R5cGU6ImcxU3BhdGlhbCIsZGF0YTptb2RlbH0sdGVtcGxhdGVJ
+          ZH0pCi0gfQotIGlmKHRlbXBsYXRlSWQ9PT0iZmluZF9jb2xvciIpewotICBjb25zdCBtb2RlbD1n
+          MVNwYXRpYWxDcm9zc01vZGVsKCksYW5zd2VyPW1vZGVsLmFuc3dlcix3cm9uZz1PYmplY3QudmFs
+          dWVzKG1vZGVsLnBvc2l0aW9ucykuZmlsdGVyKHg9PnghPT1hbnN3ZXIpOwotICByZXR1cm4gZzFD
+          aG9pY2UoYNCa0LDQutC+0Lkg0LrRgNGD0LbQvtC6INC90LDRhdC+0LTQuNGC0YHRjyAke21vZGVs
+          LnRhcmdldFJlbGF0aW9uLnRvTG93ZXJDYXNlKCl9INC+0YIg0L7RgNCw0L3QttC10LLQvtCz0L4/
+          YCxhbnN3ZXIsd3JvbmcsYCR7YW5zd2VyfSDQutGA0YPQttC+0Log0L3QsNGF0L7QtNC40YLRgdGP
+          ICR7bW9kZWwudGFyZ2V0UmVsYXRpb24udG9Mb3dlckNhc2UoKX0g0L7RgiDQvtGA0LDQvdC20LXQ
+          stC+0LPQvi5gLGBnMTpzcGF0aWFsX3JlbGF0aW9uczoke2R9OmZpbmRfY29sb3I6JHttb2RlbC50
+          YXJnZXRSZWxhdGlvbn06JHtPYmplY3QudmFsdWVzKG1vZGVsLnBvc2l0aW9ucykuam9pbigiLSIp
+          fWAse21vZGVsLHZpc3VhbDp7dHlwZToiZzFTcGF0aWFsIixkYXRhOm1vZGVsfSx0ZW1wbGF0ZUlk
+          fSkKLSB9Ci0gY29uc3QgbW9kZWw9ZzFTcGF0aWFsUGFpck1vZGVsKCksY29ycmVjdD1g0JfQtdC7
+          0ZHQvdGL0Lkg0LrRgNGD0LbQvtC6IOKAlCAke21vZGVsLnJlbGF0aW9uLnRvTG93ZXJDYXNlKCl9
+          YCx3cm9uZz1HMV9TUEFUSUFMX1JFTEFUSU9OUy5maWx0ZXIoeD0+eCE9PW1vZGVsLnJlbGF0aW9u
+          KS5tYXAoeD0+YNCX0LXQu9GR0L3Ri9C5INC60YDRg9C20L7QuiDigJQgJHt4LnRvTG93ZXJDYXNl
+          KCl9YCk7Ci0gcmV0dXJuIGcxQ2hvaWNlKCLQktGL0LHQtdGA0Lgg0LLQtdGA0L3QvtC1INC/0YDQ
+          tdC00LvQvtC20LXQvdC40LUuIixjb3JyZWN0LHdyb25nLGDQktC10YDQvdC+OiDQt9C10LvRkdC9
+          0YvQuSDQutGA0YPQttC+0LogJHttb2RlbC5yZWxhdGlvbi50b0xvd2VyQ2FzZSgpfSDQvtGCINC+
+          0YDQsNC90LbQtdCy0L7Qs9C+LmAsYGcxOnNwYXRpYWxfcmVsYXRpb25zOiR7ZH06dHJ1ZV9zZW50
+          ZW5jZToke21vZGVsLnJlbGF0aW9ufWAse21vZGVsLHZpc3VhbDp7dHlwZToiZzFTcGF0aWFsIixk
+          YXRhOm1vZGVsfSx0ZW1wbGF0ZUlkOiJ0cnVlX3NlbnRlbmNlIn0pCisgY29uc3Qgc3RhZ2U9ZD09
+          PTA/MDpkPT09MT8xOjI7CisgY29uc3QgdGVtcGxhdGVJZD1nMVBpY2tUZW1wbGF0ZShHMV9TUEFU
+          SUFMX1NUQUdFX1RFTVBMQVRFU1tzdGFnZV0pOworIGNvbnN0IGtleT1gZzE6c3BhdGlhbF9yZWxh
+          dGlvbnM6JHtkfToke3RlbXBsYXRlSWR9YDsKKyBpZihzdGFnZT09PTApeworICBjb25zdCBob3Jp
+          em9udGFsPXRlbXBsYXRlSWQ9PT0iaG9yaXpvbnRhbF9wYWlyIjsKKyAgY29uc3Qgb3B0aW9ucz1o
+          b3Jpem9udGFsP0cxX1NQQVRJQUxfUkVMQVRJT05TLnNsaWNlKDAsMik6RzFfU1BBVElBTF9SRUxB
+          VElPTlMuc2xpY2UoMik7CisgIGNvbnN0IHJlbGF0aW9uPWcxUGlja1RlbXBsYXRlKG9wdGlvbnMp
+          OworICBjb25zdCBbcmVmZXJlbmNlLHN1YmplY3RdPXNodWZmbGVPcHRpb25zKE9iamVjdC5rZXlz
+          KEcxX1NQQVRJQUxfQ09MT1JfR0VOSVRJVkUpKTsKKyAgY29uc3QgbW9kZWw9e21vZGU6InBhaXIi
+          LHJlbGF0aW9uLHJlZmVyZW5jZSxzdWJqZWN0fTsKKyAgY29uc3QgYXhpcz1ob3Jpem9udGFsPyLQ
+          odC70LXQstCwINC40LvQuCDRgdC/0YDQsNCy0LAiOiLQktGL0YjQtSDQuNC70Lgg0L3QuNC20LUi
+          OworICBjb25zdCB0ZXh0PWAke2F4aXN9INC90LDRhdC+0LTQuNGC0YHRjyAke3N1YmplY3QudG9M
+          b3dlckNhc2UoKX0g0LrRgNGD0LbQvtC6PyDQodC80L7RgtGA0Lgg0L7RgiAke0cxX1NQQVRJQUxf
+          Q09MT1JfR0VOSVRJVkVbcmVmZXJlbmNlXX0g0LrRgNGD0LbQutCwLmA7CisgIHJldHVybiBnMUNo
+          b2ljZSh0ZXh0LHJlbGF0aW9uLG9wdGlvbnMuZmlsdGVyKG9wdGlvbj0+b3B0aW9uIT09cmVsYXRp
+          b24pLAorICAgYCR7c3ViamVjdH0g0LrRgNGD0LbQvtC6INC90LDRhdC+0LTQuNGC0YHRjyAke2cx
+          U3BhdGlhbFBvc2l0aW9uVGV4dChyZWxhdGlvbixyZWZlcmVuY2UpfS5gLAorICAgYCR7a2V5fTok
+          e3JlZmVyZW5jZX06JHtzdWJqZWN0fToke3JlbGF0aW9ufWAse21vZGVsLHZpc3VhbDp7dHlwZToi
+          ZzFTcGF0aWFsIixkYXRhOm1vZGVsfSx0ZW1wbGF0ZUlkfSk7CisgfQorIGlmKHRlbXBsYXRlSWQ9
+          PT0iZmluZF9uZWlnaGJvciIpeworICBjb25zdCBtb2RlbD1nMVNwYXRpYWxDcm9zc01vZGVsKCks
+          e3RhcmdldFJlbGF0aW9uLHJlZmVyZW5jZSxhbnN3ZXIscG9zaXRpb25zfT1tb2RlbDsKKyAgY29u
+          c3Qgd2hlcmU9ZzFTcGF0aWFsUG9zaXRpb25UZXh0KHRhcmdldFJlbGF0aW9uLHJlZmVyZW5jZSk7
+          CisgIHJldHVybiBnMUNob2ljZShg0JrQsNC60L7QuSDQutGA0YPQttC+0Log0L3QsNGF0L7QtNC4
+          0YLRgdGPICR7d2hlcmV9INC60YDRg9C20LrQsD9gLGFuc3dlciwKKyAgIE9iamVjdC52YWx1ZXMo
+          cG9zaXRpb25zKS5maWx0ZXIoY29sb3I9PmNvbG9yIT09YW5zd2VyKSxgJHthbnN3ZXJ9INC60YDR
+          g9C20L7QuiDQvdCw0YXQvtC00LjRgtGB0Y8gJHt3aGVyZX0g0LrRgNGD0LbQutCwLmAsCisgICBg
+          JHtrZXl9OiR7dGFyZ2V0UmVsYXRpb259OiR7T2JqZWN0LnZhbHVlcyhwb3NpdGlvbnMpLmpvaW4o
+          Ii0iKX1gLHttb2RlbCx2aXN1YWw6e3R5cGU6ImcxU3BhdGlhbCIsZGF0YTptb2RlbH0sdGVtcGxh
+          dGVJZH0pOworIH0KKyBpZih0ZW1wbGF0ZUlkPT09InJldmVyc2VfcmVsYXRpb24iKXsKKyAgY29u
+          c3QgcmVsYXRpb249ZzFQaWNrVGVtcGxhdGUoRzFfU1BBVElBTF9SRUxBVElPTlMpOworICBjb25z
+          dCBbcmVmZXJlbmNlLHN1YmplY3RdPXNodWZmbGVPcHRpb25zKE9iamVjdC5rZXlzKEcxX1NQQVRJ
+          QUxfQ09MT1JfR0VOSVRJVkUpKTsKKyAgY29uc3QgYW5zd2VyPWcxT3Bwb3NpdGVSZWxhdGlvbihy
+          ZWxhdGlvbiksbW9kZWw9e3JlbGF0aW9uLHJlZmVyZW5jZSxzdWJqZWN0fTsKKyAgY29uc3Qgc3Rh
+          dGVtZW50PWAke3N1YmplY3R9INC60YDRg9C20L7QuiDQvdCw0YXQvtC00LjRgtGB0Y8gJHtnMVNw
+          YXRpYWxQb3NpdGlvblRleHQocmVsYXRpb24scmVmZXJlbmNlKX0g0LrRgNGD0LbQutCwLmA7Cisg
+          IGNvbnN0IHF1ZXN0aW9uPWDQk9C00LUgJHtyZWZlcmVuY2UudG9Mb3dlckNhc2UoKX0g0LrRgNGD
+          0LbQvtC6PyDQodC80L7RgtGA0Lgg0L7RgiAke0cxX1NQQVRJQUxfQ09MT1JfR0VOSVRJVkVbc3Vi
+          amVjdF19INC60YDRg9C20LrQsC5gOworICByZXR1cm4gZzFDaG9pY2UoYCR7c3RhdGVtZW50fSAk
+          e3F1ZXN0aW9ufWAsYW5zd2VyLEcxX1NQQVRJQUxfUkVMQVRJT05TLmZpbHRlcihkaXJlY3Rpb249
+          PmRpcmVjdGlvbiE9PWFuc3dlciksCisgICBgJHtzdGF0ZW1lbnR9INCX0L3QsNGH0LjRgiwgJHty
+          ZWZlcmVuY2UudG9Mb3dlckNhc2UoKX0g0LrRgNGD0LbQvtC6INC90LDRhdC+0LTQuNGC0YHRjyAk
+          e2cxU3BhdGlhbFBvc2l0aW9uVGV4dChhbnN3ZXIsc3ViamVjdCl9INC60YDRg9C20LrQsC5gLAor
+          ICAgYCR7a2V5fToke3JlZmVyZW5jZX06JHtzdWJqZWN0fToke3JlbGF0aW9ufWAse21vZGVsLHRl
+          bXBsYXRlSWR9KTsKKyB9CisgaWYodGVtcGxhdGVJZD09PSJ0d29fc3RlcHMiKXsKKyAgY29uc3Qg
+          c3RhcnQ9cmkoMSw5KSxjb2x1bW49KHN0YXJ0LTEpJTMscm93PU1hdGguZmxvb3IoKHN0YXJ0LTEp
+          LzMpOworICBjb25zdCBob3Jpem9udGFsPWNvbHVtbj09PTA/MTpjb2x1bW49PT0yPy0xOmcxUGlj
+          a1RlbXBsYXRlKFstMSwxXSk7CisgIGNvbnN0IHZlcnRpY2FsPXJvdz09PTA/Mzpyb3c9PT0yPy0z
+          OmcxUGlja1RlbXBsYXRlKFstMywzXSk7CisgIGNvbnN0IFtmaXJzdCxzZWNvbmRdPXNodWZmbGVP
+          cHRpb25zKFtob3Jpem9udGFsLHZlcnRpY2FsXSksc3RlcHM9eyItMyI6ItCy0LLQtdGA0YUiLCIt
+          MSI6ItCy0LvQtdCy0L4iLDE6ItCy0L/RgNCw0LLQviIsMzoi0LLQvdC40LcifTsKKyAgY29uc3Qg
+          bWlkZGxlPXN0YXJ0K2ZpcnN0LGFuc3dlcj1taWRkbGUrc2Vjb25kLG1vZGVsPXtzdGFydCxmaXJz
+          dCxzZWNvbmQsYW5zd2VyfTsKKyAgcmV0dXJuIGcxQ2hvaWNlKGDQndCw0YfQvdC4INCyINC60LvQ
+          tdGC0LrQtSAke3N0YXJ0fS4g0KHQtNC10LvQsNC5INC+0LTQuNC9INGI0LDQsyAke3N0ZXBzW2Zp
+          cnN0XX0sINC30LDRgtC10Lwg0L7QtNC40L0g0YjQsNCzICR7c3RlcHNbc2Vjb25kXX0uINCSINC6
+          0LDQutC+0Lkg0LrQu9C10YLQutC1INC+0YHRgtCw0L3QvtCy0LjRiNGM0YHRjz9gLAorICAgYW5z
+          d2VyLGcxVW5pcXVlTnVtcyhhbnN3ZXIsMSw5KSxg0JjQtyDQutC70LXRgtC60LggJHtzdGFydH0g
+          0YHQvdCw0YfQsNC70LAg0L/QvtC/0LDQtNCw0LXQvCDQsiDQutC70LXRgtC60YMgJHttaWRkbGV9
+          LCDQsCDQt9Cw0YLQtdC8INCyINC60LvQtdGC0LrRgyAke2Fuc3dlcn0uYCwKKyAgIGAke2tleX06
+          JHtzdGFydH06JHtmaXJzdH06JHtzZWNvbmR9YCx7bW9kZWwsdmlzdWFsOnt0eXBlOiJnMVNwYXRp
+          YWwiLGRhdGE6e21vZGU6ImdyaWQiLHN0YXJ0fX0sdGVtcGxhdGVJZH0pOworIH0KKyBjb25zdCBh
+          bnN3ZXI9cmkoMSw5KSxjb2x1bW49KGFuc3dlci0xKSUzLHJvdz1NYXRoLmZsb29yKChhbnN3ZXIt
+          MSkvMyk7CisgY29uc3Qgcm93Q2VsbD1yb3cqMytnMVBpY2tUZW1wbGF0ZShbMCwxLDJdLmZpbHRl
+          cihpPT5pIT09Y29sdW1uKSkrMTsKKyBjb25zdCBjb2x1bW5DZWxsPWcxUGlja1RlbXBsYXRlKFsw
+          LDEsMl0uZmlsdGVyKGk9PmkhPT1yb3cpKSozK2NvbHVtbisxOworIGNvbnN0IG90aGVyPU1hdGgu
+          Zmxvb3IoKGNvbHVtbkNlbGwtMSkvMykqMysocm93Q2VsbC0xKSUzKzE7CisgY29uc3QgbW9kZWw9
+          e3Jvd0NlbGwsY29sdW1uQ2VsbCxhbnN3ZXJ9OworIHJldHVybiBnMUNob2ljZShg0JrQsNC60LDR
+          jyDQutC70LXRgtC60LAg0L3QsNGF0L7QtNC40YLRgdGPINCyINC+0LTQvdC+0Lwg0YDRj9C00YMg
+          0YEg0LrQu9C10YLQutC+0LkgJHtyb3dDZWxsfSDQuCDQsiDQvtC00L3QvtC8INGB0YLQvtC70LHR
+          htC1INGBINC60LvQtdGC0LrQvtC5ICR7Y29sdW1uQ2VsbH0/YCwKKyAgYW5zd2VyLFtyb3dDZWxs
+          LGNvbHVtbkNlbGwsb3RoZXJdLGDQoNGP0LQg0LrQu9C10YLQutC4ICR7cm93Q2VsbH0g0Lgg0YHR
+          gtC+0LvQsdC10YYg0LrQu9C10YLQutC4ICR7Y29sdW1uQ2VsbH0g0L/QtdGA0LXRgdC10LrQsNGO
+          0YLRgdGPINCyINC60LvQtdGC0LrQtSAke2Fuc3dlcn0uYCwKKyAgYCR7a2V5fToke3Jvd0NlbGx9
+          OiR7Y29sdW1uQ2VsbH1gLHttb2RlbCx2aXN1YWw6e3R5cGU6ImcxU3BhdGlhbCIsZGF0YTp7bW9k
+          ZToiZ3JpZCJ9fSx0ZW1wbGF0ZUlkfSk7CiB9OwogCiBjb25zdCBHMV9TSEFQRV9HRU5JVElWRV84
+          NDA9eyLQotGA0LXRg9Cz0L7Qu9GM0L3QuNC6Ijoi0YLRgNC10YPQs9C+0LvRjNC90LjQutCwIiwi
+          0JrQstCw0LTRgNCw0YIiOiLQutCy0LDQtNGA0LDRgtCwIiwi0J/RgNGP0LzQvtGD0LPQvtC70YzQ
+          vdC40LoiOiLQv9GA0Y/QvNC+0YPQs9C+0LvRjNC90LjQutCwIiwi0JrRgNGD0LMiOiLQutGA0YPQ
+          s9CwIn07Cg==
+          MATKVEST_PATCH
+          git apply --check "$RUNNER_TEMP/grade-one-spatial.patch"
+          git apply "$RUNNER_TEMP/grade-one-spatial.patch"
+          git diff --check
+          cat > .grade-one-spatial-check.cjs <<'MATKVEST_CHECK'
+          'use strict';
+          
+          const assert = require('node:assert/strict');
+          const fs = require('node:fs');
+          const http = require('node:http');
+          const path = require('node:path');
+          const {chromium} = require('playwright');
+          
+          const topic = 'g1:spatial_relations';
+          const repository = process.env.MATKVEST_CHECK_REPO || path.join(__dirname, 'matkvest-g1-spatial');
+          const baseline = fs.readFileSync(process.env.MATKVEST_CHECK_BASELINE || path.join(__dirname, 'matkvest-g1-spatial-before.html'));
+          let oldBuild = true;
+          const types = {
+            '.html': 'text/html; charset=utf-8', '.svg': 'image/svg+xml', '.js': 'text/javascript',
+            '.png': 'image/png', '.webp': 'image/webp', '.webmanifest': 'application/manifest+json'
+          };
+          const server = http.createServer((request, response) => {
+            const url = new URL(request.url, 'http://localhost');
+            const asset = path.join(repository, url.pathname === '/' ? 'index.html' : decodeURIComponent(url.pathname));
+            const html = url.pathname === '/';
+            response.setHeader('Cache-Control', 'no-store');
+            response.setHeader('Content-Type', types[path.extname(asset)] || 'application/octet-stream');
+            try {
+              response.end(html && oldBuild ? baseline : fs.readFileSync(asset));
+            } catch {
+              response.writeHead(404).end();
+            }
+          });
+          
+          function inspectBuild({topic, mode}) {
+            function requireThat(condition, message) {
+              if (!condition) throw new Error(message);
+            }
+            const plain = value => value.replace(/\s+/g, ' ').trim();
+            const expectedFamilies = [['horizontal_pair','vertical_pair'], ['find_neighbor','reverse_relation'], ['two_steps','row_column']];
+            const colors={оранжевого:'оранжевый',зелёного:'зелёный',синего:'синий',фиолетового:'фиолетовый',розового:'розовый'};
+            const directions={'слева от':'Слева','справа от':'Справа',выше:'Сверху',ниже:'Снизу'};
+            const opposite={Слева:'Справа',Справа:'Слева',Сверху:'Снизу',Снизу:'Сверху'};
+            const headings={влево:[-1,0],вправо:[1,0],вверх:[0,-1],вниз:[0,1]};
+            const position=(target,ref)=>{
+              const dx=target[0]-ref[0],dy=target[1]-ref[1];
+              requireThat((dx===0)!==(dy===0),'Objects must align on exactly one axis');
+              return dx ? dx<0?'Слева':'Справа' : dy<0?'Сверху':'Снизу';
+            };
+            function solve(prompt, visual, labels) {
+              requireThat(labels.length>=2 && new Set(labels).size===labels.length,'Invalid options');
+              const svg=visual.querySelector('.g1-spatial-svg');
+              const dots=new Map([...(svg?.querySelectorAll('circle')||[])].map(circle=>[circle.nextElementSibling.textContent,[Number(circle.getAttribute('cx')),Number(circle.getAttribute('cy'))]]));
+              const diagramKey=JSON.stringify([...dots]);
+              const pair=prompt.match(/^(Слева или справа|Выше или ниже) находится (\S+) кружок\? Смотри от (\S+) кружка\.$/);
+              if(pair){
+                const subject=dots.get(pair[2]),reference=dots.get(colors[pair[3]]);
+                requireThat(dots.size===2 && subject && reference && labels.length===2,'A pair must show two named dots and two directions');
+                const answer=position(subject,reference);
+                const horizontal=pair[1]==='Слева или справа';
+                requireThat(horizontal===(subject[1]===reference[1]),'Pair is on the wrong axis');
+                return {family:horizontal?'horizontal_pair':'vertical_pair',key:prompt+diagramKey,answer,direction:answer};
+              }
+              const neighbor=prompt.match(/^Какой кружок находится (слева от|справа от|выше|ниже) (\S+) кружка\?$/);
+              if(neighbor){
+                const refColor=colors[neighbor[2]],ref=dots.get(refColor),direction=directions[neighbor[1]];
+                requireThat(dots.size===5 && ref && labels.length===4,'Expected four neighbors and the reference');
+                const matching=labels.filter(label=>dots.has(label.toLowerCase())&&label.toLowerCase()!==refColor&&position(dots.get(label.toLowerCase()),ref)===direction);
+                requireThat(matching.length===1,'Neighbor direction has no unique color');
+                return {family:'find_neighbor',key:prompt+diagramKey,answer:matching[0],direction};
+              }
+              const reverse=prompt.match(/^(\S+) кружок находится (слева от|справа от|выше|ниже) (\S+) кружка\. Где (\S+) кружок\? Смотри от (\S+) кружка\.$/);
+              if(reverse){
+                requireThat(!svg && reverse[1].toLowerCase()===colors[reverse[5]] && colors[reverse[3]]===reverse[4] && reverse[4]!==colors[reverse[5]] && labels.length===4, 'Wrong reference exchange');
+                const answer=opposite[directions[reverse[2]]];
+                return {family:'reverse_relation',key:prompt,answer,direction:answer};
+              }
+              const cells=[...(svg?.querySelectorAll('rect.g1-spatial-cell')||[])];
+              requireThat(cells.length===9 && labels.length===4,'Expected nine grid cells and four options');
+              const map=new Map(cells.map(cell=>[Number(cell.nextElementSibling.textContent),[Number(cell.getAttribute('x')),Number(cell.getAttribute('y'))]]));
+              const xs=[...new Set([...map.values()].map(p=>p[0]))].sort((a,b)=>a-b);
+              const ys=[...new Set([...map.values()].map(p=>p[1]))].sort((a,b)=>a-b);
+              requireThat(map.size===9&&xs.length===3&&ys.length===3&&[...Array(9)].every((_,i)=>map.get(i+1)?.[0]===xs[i%3]&&map.get(i+1)?.[1]===ys[Math.floor(i/3)]),'Grid cell labels must match their locations');
+              const highlighted=cells.filter(cell=>cell.classList.contains('start'));
+              const route=prompt.match(/^Начни в клетке (\d)\. Сделай один шаг (влево|вправо|вверх|вниз), затем один шаг (влево|вправо|вверх|вниз)\. В какой клетке остановишься\?$/);
+              if(route){
+                const start=Number(route[1]),[x,y]=map.get(start);
+                requireThat(highlighted.length===1 && Number(highlighted[0].nextElementSibling.textContent)===start,'Grid marks the wrong cell');
+                let column=xs.indexOf(x), row=ys.indexOf(y);
+                for(const move of route.slice(2)){
+                  const [dx,dy]=headings[move];
+                  column+=dx;row+=dy;
+                  requireThat(column>=0&&column<3&&row>=0&&row<3,'A step leaves the grid');
+                }
+                const answer=[...map].find(([,p])=>p[0]===xs[column]&&p[1]===ys[row])?.[0];
+                return {family:'two_steps',key:prompt,answer:String(answer),moves:route.slice(2)};
+              }
+              const crossing=prompt.match(/^Какая клетка находится в одном ряду с клеткой (\d) и в одном столбце с клеткой (\d)\?$/);
+              requireThat(crossing && !highlighted.length,'An intersection must not mark its answer');
+              const row=map.get(Number(crossing[1]))[1],column=map.get(Number(crossing[2]))[0];
+              const matches=[...map].filter(([,p])=>p[0]===column&&p[1]===row);
+              requireThat(matches.length===1 && !crossing.slice(1).includes(String(matches[0][0])), 'Clues must each point to a different cell');
+              return {family:'row_column',key:prompt,answer:String(matches[0][0])};
+            }
+            function submit(panel, answer) {
+              const field=panel.querySelector('#quizInput');
+              if(field){
+                field.value=answer;
+                field.dispatchEvent(new Event('input',{bubbles:true}));
+                panel.querySelector('#quizCheck').click();
+                return;
+              }
+              const button=[...panel.querySelectorAll('button.answer')].find(option=>plain(option.textContent)===answer);
+              requireThat(button,'Independently solved option missing from the screen');
+              button.click();
+            }
+          
+            function seedRandom(value) {
+              Math.random = () => ((value = (Math.imul(value, 1664525) + 1013904223) >>> 0) / 4294967296);
+            }
+            function siblingQuestions() {
+              seedRandom(19503);
+              return g1AllTopics().filter(t=>t.id!==topic).flatMap(t => [0,1,2].flatMap(level =>
+                Array.from({length:12}, () => makeG1Question(t.id, level))));
+            }
+          
+            if (mode === 'baseline') {
+              const siblings = siblingQuestions();
+              seedRandom(195);
+              for (const level of [0,1]) {
+                openG1Topic(topic);
+                document.querySelectorAll('#modal .stage-card')[level].click();
+                for (let i=0; i<STAGES[level].count; i++) {
+                  submit(document.querySelector('#qstage'),q.ans);
+                  document.querySelector('#quizNext').click();
+                }
+              }
+              const stored = deepCopy(progressFor(topic));
+              requireThat(JSON.stringify(stored.best) === '[5,7,0]' && JSON.stringify(stored.bonus) === '[true,true,false]', 'Baseline did not produce saved progress');
+              return {siblings, stored, historyIds:state.attemptHistory.map(attempt=>attempt.id)};
+            }
+          
+            const otherTopics = siblingQuestions();
+            seedRandom(19601);
+            const holder = document.createElement('div');
+            const seen = expectedFamilies.map(() => new Set());
+            const coverage=expectedFamilies.map(()=>new Map());
+            const stories = expectedFamilies.map(()=>new Set());
+            let generated=0, accepted=0, completed=0, rejected=0, entered=0, selected=0;
+            for (const level of [0,1,2]) {
+              for (let i=0; i<600; i++) {
+                const question = makeG1Question(topic, level);
+                holder.innerHTML = '<div>' + question.text + '</div>' + quizVisualHtml(question);
+                const prompt = plain(holder.firstElementChild.textContent);
+                const labels = question.choices.map(option=>option.label);
+                const task = solve(prompt, holder, labels);
+                requireThat(task.answer === String(question.ans) && (question.answerMode==='number' ? labels.length===0 : labels.filter(label=>label===task.answer).length===1), 'Generated answer disagrees with an independent solution');
+                requireThat(expectedFamilies[level].includes(task.family), 'Unexpected family on level ' + level);
+                seen[level].add(task.family);
+                stories[level].add(task.key);
+                const values=coverage[level].get(task.family)||new Set();
+                [task.direction, ...(task.moves||[]), task.answer].filter(Boolean).forEach(value=>values.add(value));
+                coverage[level].set(task.family,values);
+                generated++;
+              }
+              requireThat(seen[level].size===expectedFamilies[level].length, 'Insufficient coverage of the level');
+              for (let run=0; run<6; run++) {
+                openG1Topic(topic);
+                const stages = [...document.querySelectorAll('#modal .stage-card')];
+                for (const stage of stages) {
+                  const rect=stage.getBoundingClientRect();
+                  requireThat(rect.width>0 && rect.left>=-1 && rect.right<=innerWidth+1,'Stage card overflow');
+                }
+                const stage=stages[level];
+                requireThat(!stage.disabled, 'Level not unlocked');
+                stage.click();
+                const keys=new Set(), methods=new Set();
+                for (let i=0; i<STAGES[level].count; i++) {
+                  const panel=document.querySelector('#qstage');
+                  const choices=[...panel.querySelectorAll('button.answer')];
+                  const labels=choices.map(button=>plain(button.textContent));
+                  const task=solve(plain(panel.querySelector('.quizq').textContent),panel,labels);
+                  requireThat(expectedFamilies[level].includes(task.family) && !keys.has(task.key), 'Bad level or repetition inside an attempt');
+                  keys.add(task.key);
+                  methods.add(task.family);
+                  for (const element of panel.querySelectorAll('.g1-spatial-svg, button.answer')) {
+                    const rect=element.getBoundingClientRect();
+                    requireThat(rect.width>0 && rect.left>=-1 && rect.right<=innerWidth+1, 'Question overflowing viewport');
+                  }
+                  for(const label of panel.querySelectorAll('.g1-spatial-label')){
+                    requireThat(label.getBoundingClientRect().height>=10,'Diagram label is too small');
+                  }
+                  if (run===0 && i===0) {
+                    const wrong=labels.length ? labels.find(label=>label!==task.answer) : String((Number(task.answer)+1)%21);
+                    submit(panel,wrong);
+                    requireThat(blockSession.correct===i && blockSession.done===i && /Пока неверно/.test(document.querySelector('#qfb').textContent), 'Wrong answer was not rejected');
+                    rejected++;
+                  }
+                  submit(panel,task.answer);
+                  if(labels.length)selected++;else entered++;
+                  const item=blockSession.items.at(-1);
+                  const expectedScore=i+1-(run===0?1:0);
+                  requireThat(blockSession.correct===expectedScore && blockSession.done===i+1 &&
+                    item.finalCorrect && item.firstTry===!(run===0 && i===0), 'Answer handling differed from the level scoring rules: '+task.key);
+                  accepted++;
+                  const next=document.querySelector('#quizNext');
+                  if (i+1===STAGES[level].count) requireThat(/Посмотреть результат/.test(next.textContent), 'Result button is missing');
+                  next.click();
+                }
+                requireThat(methods.size===expectedFamilies[level].length, 'An attempt missed an action');
+                const expectedBest=STAGES[level].count-(level===2 && run===0?1:0);
+                requireThat(progressFor(topic).best[level]===expectedBest && progressFor(topic).bonus[level], 'Progress not saved');
+                completed++;
+              }
+            }
+            const expectedCoverage=[[2,2],[8,4],[13,9]];
+            for(const [level,families] of expectedFamilies.entries()){
+              for(const [i,family] of families.entries()){
+                requireThat(coverage[level].get(family)?.size===expectedCoverage[level][i],'Coverage of directions or targets is missing: '+family+' '+coverage[level].get(family)?.size);
+              }
+            }
+            const cases=Object.fromEntries(coverage.flatMap(level=>[...level].map(([family,values])=>[family,values.size])));
+            const overlaps=[[0,1],[0,2],[1,2]].map(([a,b])=>[...stories[a]].filter(key=>stories[b].has(key)).length);
+            requireThat(overlaps.every(count=>count===0), 'Same prompt exists on more than one level');
+            return {otherTopics, generated, accepted, entered, selected, completed, rejected, cases, overlaps, familyByLevel:seen.map(level=>[...level].sort()), progress:deepCopy(progressFor(topic))};
+          }
+          
+          (async () => {
+            await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
+            const address = 'http://127.0.0.1:' + server.address().port;
+            let browser;
+            try {
+              browser=await chromium.launch({headless:true,executablePath:process.env.MATKVEST_CHECK_CHROMIUM});
+              for (const width of [320,390,1280]) {
+                const context=await browser.newContext({viewport:{width,height:850},isMobile:width<500,hasTouch:width<500,serviceWorkers:'block'});
+                try {
+                  const page=await context.newPage();
+                  const errors=[];
+                  page.on('pageerror',error=>errors.push(error.message));
+                  oldBuild=true;
+                  await page.goto(address);
+                  await page.locator('button[onclick="openGrade(1)"]').click();
+                  const card=page.locator('button.topic').filter({has:page.getByText('Пространственные отношения',{exact:true})});
+                  await card.click();
+                  assert.equal(await page.locator('#modal .stage-card:disabled').count(),2);
+                  const old=await page.evaluate(inspectBuild,{topic,mode:'baseline'});
+                  oldBuild=false;
+                  await page.reload();
+                  assert.deepEqual(await page.evaluate(key=>({stored:progressFor(key),historyIds:state.attemptHistory.map(attempt=>attempt.id)}),topic),{stored:old.stored,historyIds:old.historyIds});
+                  const stagePicker = page.locator('#modal .stage-card').first();
+                  if (!(await stagePicker.isVisible())) {
+                    if (!(await card.isVisible())) await page.locator('button[onclick="openGrade(1)"]').click({timeout:8000});
+                    await card.click({timeout:8000});
+                  }
+                  assert.match(await page.locator('#modal h2').textContent(), /Пространственные отношения/);
+                  assert.equal(await page.locator('#modal .stage-card:disabled').count(),0);
+                  assert.match(await page.locator('#modal .stage-card').nth(2).textContent(), /по двум шагам или по ряду и столбцу/);
+                  const {otherTopics,...result}=await page.evaluate(inspectBuild,{topic,mode:'candidate'});
+                  assert.deepEqual(otherTopics,old.siblings);
+                  await page.reload();
+                  assert.deepEqual(await page.evaluate(key=>progressFor(key),topic),{best:[5,7,10],bonus:[true,true,true]});
+                  assert.deepEqual(errors,[]);
+                  console.log(JSON.stringify({width,siblingSamples:otherTopics.length,oldProgress:old.stored,oldHistory:old.historyIds.length,...result}));
+                } finally {
+                  await context.close();
+                }
+              }
+            } finally {
+              await browser?.close();
+              server.close();
+            }
+          })().catch(error=>{console.error(error);process.exitCode=1;});
+          MATKVEST_CHECK
+          MATKVEST_CHECK_REPO="$PWD" MATKVEST_CHECK_BASELINE="$RUNNER_TEMP/matkvest-spatial-before.html" node .grade-one-spatial-check.cjs
+      - name: Save verified exercises on the audit branch
+        run: |
+          test "$GITHUB_REF" = refs/heads/audit/g1-g4-content-v195
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- index.html
+          git commit -m 'Separate Grade 1 spatial relations by level'
+          git push origin "HEAD:$GITHUB_REF"
