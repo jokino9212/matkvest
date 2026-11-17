@@ -18563,6 +18563,11 @@ const G1_STAGE_DESCRIPTIONS={
   "Посчитай, сколько кружков стало или осталось.",
   "Вычисли сумму или разность и введи ответ.",
   "Найди пропущенное число или сравни результаты двух действий."
+ ],
+ "g1:add_sub_20":[
+  "Отсчитай шаги от отмеченного числа на луче.",
+  "Вычисли сумму или разность с переходом через 10.",
+  "Вычисли по порядку два действия или восстанови пропуск в равенстве."
  ]
 };
 function openG1Topic(id){
@@ -18628,11 +18633,12 @@ const TARGET_STAGE836_IDS=["g1:add_sub_10","g1:add_sub_20"];
 
 /* Same elementary number-line helper, extended so the arrow points in the actual movement direction. */
 const PRE836_ELEMENTARY_NUMBER_LINE_SVG=elementaryNumberLineSvg;
-elementaryNumberLineSvg=function({min=0,max=20,highlight=null,from=null,to=null}={}){
+elementaryNumberLineSvg=function({min=0,max=20,highlight=null,from=null,to=null,compact=false}={}){
  min=Math.floor(Number(min));max=Math.floor(Number(max));if(!Number.isFinite(min)||!Number.isFinite(max)||max<=min){min=0;max=20}
- const W=680,H=118,L=32,R=32,Y=58,range=max-min,x=n=>L+(n-min)/(range||1)*(W-L-R);
- let ticks="",labels="";for(let n=min;n<=max;n++){const xx=x(n);ticks+=`<line x1="${xx}" y1="${Y-8}" x2="${xx}" y2="${Y+8}" stroke="#6d8278" stroke-width="2"/>`;labels+=`<text x="${xx}" y="${Y+29}" text-anchor="middle" font-size="13" fill="#52685e">${n}</text>`}
- const hi=highlight!==null&&highlight!==undefined&&Number.isFinite(Number(highlight))?`<circle cx="${x(Number(highlight))}" cy="${Y}" r="8" fill="#25845f"/>`:"";
+ const W=compact?332:680,H=compact?80:118,L=compact?18:32,R=L,Y=compact?31:58;
+ const range=max-min,x=n=>L+(n-min)/(range||1)*(W-L-R);
+ let ticks="",labels="";for(let n=min;n<=max;n++){const xx=x(n);ticks+=`<line x1="${xx}" y1="${Y-8}" x2="${xx}" y2="${Y+8}" stroke="#6d8278" stroke-width="2"/>`;labels+=`<text x="${xx}" y="${Y+29}" text-anchor="middle" font-size="${compact?16:13}" fill="#52685e">${n}</text>`}
+ const hi=highlight!==null&&highlight!==undefined&&Number.isFinite(Number(highlight))?`<circle cx="${x(Number(highlight))}" cy="${Y}" r="${compact?6:8}" fill="#25845f"/>`:"";
  let move="";if(from!==null&&from!==undefined&&to!==null&&to!==undefined&&Number.isFinite(Number(from))&&Number.isFinite(Number(to))){const xf=x(Number(from)),xt=x(Number(to)),wing=Number(to)>=Number(from)?-7:7;move=`<path d="M ${xf} ${Y-16} Q ${(xf+xt)/2} ${Y-48} ${xt} ${Y-16}" fill="none" stroke="#62bb92" stroke-width="4" stroke-linecap="round"/><path d="M ${xt+wing} ${Y-21} L ${xt} ${Y-16} L ${xt+wing} ${Y-10}" fill="none" stroke="#62bb92" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>`}
  return `<div class="elementary-number-line"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Числовой луч с делениями" xmlns="http://www.w3.org/2000/svg"><line x1="${L}" y1="${Y}" x2="${W-R}" y2="${Y}" stroke="#52685e" stroke-width="3"/><path d="M ${W-R-10} ${Y-7} L ${W-R} ${Y} L ${W-R-10} ${Y+7}" fill="none" stroke="#52685e" stroke-width="3"/>${ticks}${labels}${move}${hi}</svg></div>`
 };
@@ -18686,6 +18692,11 @@ function g1ArithmeticTenPractice(d){
   return g1NumberInput(`Вычисли.<div class="g1-arithmetic-record">${a} ${sign} ${b}</div>`,result,`${equation}.`,
    `${key}:${a}:${b}`,{model,templateId});
  }
+ return g1MissingArithmeticOperand(model,key,templateId);
+}
+function g1MissingArithmeticOperand(model,key,templateId){
+ const {a,b,op,result}=model,sign=op==="add"?"+":"−";
+ const equation=`${a} ${sign} ${b} = ${result}`;
  const first=ri(0,1)===1;
  const record=first?`? ${sign} ${b} = ${result}`:`${a} ${sign} ? = ${result}`;
  const answer=first?a:b;
@@ -18694,54 +18705,48 @@ function g1ArithmeticTenPractice(d){
   `${inverse} = ${answer}. Проверка: ${equation}.`,`${key}:${op}:${first?1:0}:${a}:${b}`,
   {model:{...model,missing:first?"first":"second"},templateId});
 }
+function g1ArithmeticTwentyQuestion(d){
+ const stage=d===0?0:d===1?1:2;
+ const templateId=g1PickTemplate([
+  ["count_right","count_left"],
+  ["cross_ten_add","cross_ten_sub"],
+  ["two_operations","missing_cross_ten"]
+ ][stage]);
+ const key=`g1:add_sub_20:${d}:${templateId}`;
+ if(stage===0){
+  const op=templateId==="count_right"?"add":"sub",model=g1ArithmeticParams(20,op,{smallStep:true});
+  const {a,b,result}=model,right=op==="add",sign=right?"+":"−",direction=right?"вправо":"влево";
+  const visual={type:"g1NumberLine",data:{min:Math.max(0,a-5),max:Math.min(20,a+5),highlight:a,compact:true}};
+  return g1Choice(`Начни с ${a} и сделай ${b} ${g1StepWord(b)} ${direction}. Где остановишься?`,
+   result,g1UniqueNums(result,0,20),`${a} ${sign} ${b} = ${result}.`,`${key}:${a}:${b}`,
+   {model,visual,templateId});
+ }
+ const add=stage===1?templateId==="cross_ten_add":ri(0,1)===1;
+ const a=add?ri(2,9):ri(11,19),b=ri(add?11-a:a-9,10),result=add?a+b:a-b;
+ const model={op:add?"add":"sub",a,b,result,limit:20},sign=add?"+":"−";
+ if(stage===1){
+  const toTen=Math.abs(a-10),rest=b-toTen;
+  return g1NumberInput(`Вычисли с переходом через 10.<div class="g1-arithmetic-record">${a} ${sign} ${b}</div>`,result,
+   `${b} = ${toTen} + ${rest}. ${a} ${sign} ${toTen} = 10. Затем 10 ${sign} ${rest} = ${result}.`,
+   `${key}:${a}:${b}`,{model,templateId});
+ }
+ if(templateId==="missing_cross_ten")return g1MissingArithmeticOperand(model,key,templateId);
+ const secondAdd=ri(0,1)===1,c=ri(1,secondAdd?20-result:result),secondSign=secondAdd?"+":"−";
+ const answer=secondAdd?result+c:result-c;
+ return g1NumberInput(`Считай слева направо.<div class="g1-arithmetic-record">${a} ${sign} ${b} ${secondSign} ${c}</div>`,answer,
+  `Сначала ${a} ${sign} ${b} = ${result}. Затем ${result} ${secondSign} ${c} = ${answer}.`,
+  `${key}:${a}:${sign}:${b}:${secondSign}:${c}`,{model:{...model,secondAdd,c,answer},templateId});
+}
 function g1ArithmeticQuestion(raw,d,limit){
- if(raw==="add_sub_10"&&d!==0)return g1ArithmeticTenPractice(d);
- const warm=raw==="add_sub_10"?["add_counters","sub_counters"]:["add_line","sub_line"];
- const train=["add_line","sub_line","add_input","sub_input","complete_add","complete_sub"];
- const master=[...train,"choose_record","compare_results","restore_start"];
- const templateId=g1PickTemplate(d===0?warm:d===1?train:master),smallStep=d===0;
+ if(raw==="add_sub_20")return g1ArithmeticTwentyQuestion(d);
+ if(d!==0)return g1ArithmeticTenPractice(d);
+ const templateId=g1PickTemplate(["add_counters","sub_counters"]);
  if(templateId==="add_counters"){
   const model=g1ArithmeticParams(limit,"add",{smallStep:true});
   return g1Choice("Сколько стало?",model.result,g1ArithmeticWrong(model.result,0,limit),`Было ${model.a}. Добавили ${model.b}. Стало ${model.result}.`,`g1:${raw}:${d}:add_counters:${model.a}:${model.b}`,{model,visual:{type:"g1Arithmetic",data:{...model,unknown:"result"}},templateId})
-}
- if(templateId==="sub_counters"){
-  const model=g1ArithmeticParams(limit,"sub",{smallStep:true});
-  return g1Choice("Сколько осталось?",model.result,g1ArithmeticWrong(model.result,0,limit),`Было ${model.a}. Убрали ${model.b}. Осталось ${model.result}.`,`g1:${raw}:${d}:sub_counters:${model.a}:${model.b}`,{model,visual:{type:"g1Arithmetic",data:{...model,unknown:"result"}},templateId})
  }
- if(templateId==="add_line"||templateId==="add_input"){
-  const p=g1ArithmeticParams(limit,"add",{smallStep}),model={...p};
-  const text=templateId==="add_line"?`Начни с ${model.a} и сделай ${model.b} ${g1StepWord(model.b)} вправо. Где остановишься?`:`Вычисли: <b>${model.a} + ${model.b}</b>`;
-  const visual={type:"g1NumberLine",data:{min:0,max:limit,from:model.a,to:model.result,highlight:model.result,hiddenLabels:[model.result]}};
-  const ex=`Начинаем с ${model.a}. Прибавляем ${model.b}. Получаем ${model.result}.`;
-  return templateId==="add_input"?g1NumberInput(text,model.result,ex,`g1:${raw}:${d}:add_input:${model.a}:${model.b}`,{model,visual,templateId}):g1Choice(text,model.result,g1ArithmeticWrong(model.result,0,limit),ex,`g1:${raw}:${d}:add_line:${model.a}:${model.b}`,{model,visual,templateId})
- }
- if(templateId==="sub_line"||templateId==="sub_input"){
-  const p=g1ArithmeticParams(limit,"sub",{smallStep}),model={...p};
-  const text=templateId==="sub_line"?`Начни с ${model.a} и сделай ${model.b} ${g1StepWord(model.b)} влево. Где остановишься?`:`Вычисли: <b>${model.a} − ${model.b}</b>`;
-  const visual={type:"g1NumberLine",data:{min:0,max:limit,from:model.a,to:model.result,highlight:model.result,hiddenLabels:[model.result]}};
-  const ex=`Начинаем с ${model.a}. Вычитаем ${model.b}. Получаем ${model.result}.`;
-  return templateId==="sub_input"?g1NumberInput(text,model.result,ex,`g1:${raw}:${d}:sub_input:${model.a}:${model.b}`,{model,visual,templateId}):g1Choice(text,model.result,g1ArithmeticWrong(model.result,0,limit),ex,`g1:${raw}:${d}:sub_line:${model.a}:${model.b}`,{model,visual,templateId})
- }
- if(templateId==="complete_add"){
-  const p=g1ArithmeticParams(limit,"add",{smallStep:false}),model={...p};
-  return g1NumberInput(`Какое число пропущено?<div class="g1-arithmetic-record">${model.a} + ? = ${model.result}</div>`,model.b,`К ${model.a} нужно добавить ${model.b}, чтобы получить ${model.result}.`,`g1:${raw}:${d}:complete_add:${model.a}:${model.result}`,{model,visual:{type:"g1NumberLine",data:{min:0,max:limit,from:model.a,to:model.result,highlight:model.result}},templateId})
- }
- if(templateId==="complete_sub"){
-  const p=g1ArithmeticParams(limit,"sub",{smallStep:false}),model={...p};
-  return g1NumberInput(`Какое число пропущено?<div class="g1-arithmetic-record">${model.a} − ? = ${model.result}</div>`,model.b,`Из ${model.a} нужно вычесть ${model.b}, чтобы осталось ${model.result}.`,`g1:${raw}:${d}:complete_sub:${model.a}:${model.result}`,{model,visual:{type:"g1NumberLine",data:{min:0,max:limit,from:model.a,to:model.result,highlight:model.result}},templateId})
- }
- if(templateId==="choose_record"){
-  const useAdd=ri(0,1)===1,p=g1ArithmeticParams(limit,useAdd?"add":"sub",{smallStep:false}),model={...p};
-  const sign=useAdd?"+":"−",correct=`${model.a} ${sign} ${model.b} = ${model.result}`,w1=`${model.a} ${sign} ${model.b} = ${Math.min(limit,model.result+1)}`,w2=useAdd?`${model.a} − ${model.b} = ${Math.max(0,model.a-model.b)}`:`${model.a} + ${model.b} = ${Math.min(limit,model.a+model.b)}`;
-  const wrong=[w1,w2,`${model.result} ${sign} ${model.b} = ${model.a}`].filter(x=>x!==correct);
-  return g1Choice("Выбери правильную запись.",correct,wrong,`${model.a} ${sign} ${model.b} = ${model.result}.`,`g1:${raw}:${d}:choose_record:${useAdd?1:0}:${model.a}:${model.b}`,{model,visual:{type:"g1Arithmetic",data:model},templateId})
- }
- if(templateId==="compare_results"){
-  const p1=g1ArithmeticParams(limit,"add",{smallStep:true}),p2=g1ArithmeticParams(limit,"sub",{smallStep:true}),r1=p1.result,r2=p2.result,answer=r1===r2?"Поровну":r1>r2?"A":"B",model={p1,p2,r1,r2,answer,limit};
-  return g1Choice(`Какая запись даёт больше?<div class="g1-arithmetic-record">A: ${p1.a} + ${p1.b} &nbsp;&nbsp; B: ${p2.a} − ${p2.b}</div>`,answer,["A","B","Поровну"].filter(x=>x!==answer),`A = ${r1}. B = ${r2}. ${answer==="Поровну"?"Результаты равны.":`Больше результат ${answer}.`}`,`g1:${raw}:${d}:compare_results:${p1.a}:${p1.b}:${p2.a}:${p2.b}`,{model,templateId})
- }
- const p=g1ArithmeticParams(limit,"add",{smallStep:false}),start=p.a,result=p.result,added=p.b,model={start,result,added,limit};
- return g1NumberInput(`Какое число было сначала?<div class="g1-arithmetic-record">? + ${added} = ${result}</div>`,start,`Было ${start}. Добавили ${added}. Стало ${result}.`,`g1:${raw}:${d}:restore_start:${start}:${added}`,{model,visual:{type:"g1NumberLine",data:{min:0,max:limit,from:start,to:result,highlight:result,hiddenLabels:[start]}},templateId:"restore_start"})
+ const model=g1ArithmeticParams(limit,"sub",{smallStep:true});
+ return g1Choice("Сколько осталось?",model.result,g1ArithmeticWrong(model.result,0,limit),`Было ${model.a}. Убрали ${model.b}. Осталось ${model.result}.`,`g1:${raw}:${d}:sub_counters:${model.a}:${model.b}`,{model,visual:{type:"g1Arithmetic",data:{...model,unknown:"result"}},templateId})
 }
 
 const PRE836_MAKE_G1_QUESTION=makeG1Question;
@@ -18756,7 +18761,7 @@ const PRE836_G1_THEORY_HTML=g1TheoryHtml;
 g1TheoryHtml=function(id){
  const raw=rawCourseId(id);
  if(raw==="add_sub_10")return `<div class="elementary-theory"><div class="g1-theory-block"><h3>Когда добавляем</h3><p><b>Было 4 кружка. Добавили ещё 3.</b></p>${g1ArithmeticVisualHtml({op:"add",a:4,b:3,result:7})}<p>Стало 7. Записываем: <b>4 + 3 = 7</b>.</p><p>Такое действие называется <b>сложением</b>.</p></div><div class="g1-theory-block"><h3>Когда убираем</h3><p><b>Было 7 кружков. Убрали 2.</b></p>${g1ArithmeticVisualHtml({op:"sub",a:7,b:2,result:5})}<p>Осталось 5. Записываем: <b>7 − 2 = 5</b>.</p><p>Такое действие называется <b>вычитанием</b>.</p></div><div class="elementary-example">Если <b>4 + ? = 7</b>, вычти 4 из 7. Получится 3.</div></div>`;
- if(raw==="add_sub_20")return `<div class="elementary-theory"><p><b>С числами до 20 смысл тот же.</b> Добавляем — число становится больше. Убираем — меньше.</p><div class="g1-theory-block"><h3>Сложение</h3>${elementaryNumberLineSvg({min:0,max:20,from:8,to:13,highlight:13})}<p>Начинаем с 8. Делаем 5 шагов вправо. Получаем 13.</p><div class="elementary-example"><b>8 + 5 = 13</b></div></div><div class="g1-theory-block"><h3>Вычитание</h3>${elementaryNumberLineSvg({min:0,max:20,from:14,to:8,highlight:8})}<p>Начинаем с 14. Делаем 6 шагов влево. Получаем 8.</p><div class="elementary-example"><b>14 − 6 = 8</b></div></div></div>`;
+ if(raw==="add_sub_20")return `<div class="elementary-theory"><p><b>С числами до 20 смысл тот же.</b> Добавляем — число становится больше. Убираем — меньше.</p><div class="g1-theory-block"><h3>Сложение</h3>${elementaryNumberLineSvg({min:0,max:20,from:8,to:13,highlight:13})}<p>К 8 прибавь 2, чтобы получить 10. Из 5 осталось прибавить ещё 3. Получится 13.</p><div class="elementary-example"><b>8 + 5 = 13</b></div></div><div class="g1-theory-block"><h3>Вычитание</h3>${elementaryNumberLineSvg({min:0,max:20,from:14,to:8,highlight:8})}<p>Из 14 вычти 4, чтобы получить 10. Из 6 осталось вычесть ещё 2. Получится 8.</p><div class="elementary-example"><b>14 − 6 = 8</b></div></div></div>`;
  return PRE836_G1_THEORY_HTML(id)
 };
 
