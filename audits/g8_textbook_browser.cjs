@@ -88,6 +88,7 @@ async function testSimilarity(page){
     });
    });
    for(const label of labels){
+    check(parseFloat(getComputedStyle(label).fontSize)>=23,'Small SVG label '+label.textContent);
     const labelBox=label.getBoundingClientRect();
     check(labelBox.left>=box.left-1&&labelBox.right<=box.right+1&&labelBox.top>=box.top-1&&labelBox.bottom<=box.bottom+1,
      'Clipped SVG label '+label.textContent);

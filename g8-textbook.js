@@ -1235,8 +1235,8 @@ function drawSimilarityTriangle({vertices,sides,angles=[],labels=[],mirrored=fal
   const others=points.filter((_,j)=>j!==i);
   svg+=g7TriVertexSvg(point,vertices[i],center);
   if(angles[i]===undefined||angles[i]===null)return;
-  svg+=g7TriAngleArc(point,...others,23);
   const rays=others.map(p=>g6GeoNorm({x:p.x-point.x,y:p.y-point.y}));
+  svg+=angles[i]==='90°'?g6RightAngleMarker(point,...rays,20):g7TriAngleArc(point,...others,23);
   const bisector=g6GeoNorm({x:rays[0].x+rays[1].x,y:rays[0].y+rays[1].y});
   svg+=g6GeoLabel(point.x+bisector.x*51,point.y+bisector.y*51+6,angles[i],'geo-measure','middle');
  });
@@ -1253,7 +1253,9 @@ function drawSimilarityTriangle({vertices,sides,angles=[],labels=[],mirrored=fal
 }
 g7GeometryExtraSvg=function(model){
  if(model?.kind!=='g7-g8-similarity-pair')return drawPreviousGeometry(model);
- return drawSimilarityTriangle(model.left,155)+drawSimilarityTriangle(model.right,485);
+ const triangles=drawSimilarityTriangle(model.left,155)+drawSimilarityTriangle(model.right,485);
+ return `<style>.g8-similarity-figure .geo-label{font-size:25px}.g8-similarity-figure .geo-measure{font-size:23px}</style>
+  <g class="g8-similarity-figure">${triangles}</g>`;
 };
 function similarityPair(task,left,right){
  return diagram(task,{kind:'g7-g8-similarity-pair',left,right:{...right,mirrored:true},
