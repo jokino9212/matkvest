@@ -18517,19 +18517,26 @@ attemptTitle=function(key){
 function g1TheoryHtml(id){
  const raw=rawCourseId(id);
  if(raw==="numbers_1_9")return `<div class="elementary-theory"><p><b>Числа помогают узнать, сколько предметов.</b></p>${g1CounterVisualHtml({count:5})}<p>Считаем по одному: 1, 2, 3, 4, 5.</p><div class="elementary-example">Пять кружков — это число <b>5</b>.</div><p>При счёте вперёд числа становятся больше, при счёте назад — меньше.</p><div class="elementary-example">Число <b>5</b> больше 3 и меньше 7.</div></div>`;
- if(raw==="numbers_0_10")return `<div class="elementary-theory"><p><b>Иногда предметов не остаётся совсем.</b></p>${g1CounterVisualHtml({count:0})}<p>Тогда говорим: <b>ноль</b>.</p>${elementaryNumberLineSvg({min:0,max:10,highlight:7})}<div class="elementary-example">На луче числа идут по порядку от 0 до 10.</div></div>`;
+ if(raw==="numbers_0_10")return `<div class="elementary-theory"><p><b>Иногда предметов не остаётся совсем.</b></p>${g1CounterVisualHtml({count:0})}<p>Тогда говорим: <b>ноль</b>.</p>${elementaryNumberLineSvg({min:0,max:10,highlight:7})}<div class="elementary-example">От 7 два шага влево: сначала к 6, потом к 5.</div><p>На луче вправо числа становятся больше, влево — меньше.</p></div>`;
  if(raw==="numbers_11_20")return `<div class="elementary-theory"><p><b>После 10 счёт продолжается.</b></p>${g1CounterVisualHtml({count:14,splitTen:true})}<p>Десять предметов вместе — это один <b>десяток</b>.</p><p>Остальные считаем по одному — это <b>единицы</b>.</p><div class="elementary-example">Один десяток и ещё четыре единицы — это <b>14</b>.</div></div>`;
  return `<div class="elementary-theory"><p><b>Длина показывает, какой предмет длиннее или короче.</b></p>${g1LengthVisualHtml({kind:"measure",a:5})}<p>Начинаем измерять от 0.</p><div class="elementary-example">Отрезок заканчивается у 5. Его длина — <b>5 см</b>.</div></div>`
 }
-function openG1Topic(id){
- const t=g1InfoById(id);if(!t)return;if(t.implemented===false)return showElementaryTopicSoon(1,id);
- document.body.classList.add("elementary-mode");blockSession=null;const done=completedStages(t.id);
- const descriptions=t.id==="g1:numbers_1_9"?[
+const G1_NUMBER_STAGE_DESCRIPTIONS={
+ "g1:numbers_1_9":[
   "Посчитай кружки или назови следующее число.",
   "Восстанови пропуск в ряду или сравни две группы кружков.",
   "Упорядочи числа или найди число по двум условиям."
- ]:undefined;
- show(`<div class="mtop"><h2>1 класс • ${esc(t.title)}</h2><button class="x" onclick="closeModal()">×</button></div><div class="lesson elementary-lesson">${g1TheoryHtml(t.id)}</div><div class="stage-grid">${stageCards(t.id,`startG1QuizStage.bind(null,'${t.id}')`,descriptions)}</div><div class="subtle">Пройдено этапов: <b>${done}/3</b>.</div>`)
+ ],
+ "g1:numbers_0_10":[
+  "Посчитай кружки или прочитай число на луче.",
+  "Восстанови пропуск в ряду или сравни две группы кружков.",
+  "Пройди несколько шагов по лучу или заполни два пропуска при счёте назад."
+ ]
+};
+function openG1Topic(id){
+ const t=g1InfoById(id);if(!t)return;if(t.implemented===false)return showElementaryTopicSoon(1,id);
+ document.body.classList.add("elementary-mode");blockSession=null;const done=completedStages(t.id);
+ show(`<div class="mtop"><h2>1 класс • ${esc(t.title)}</h2><button class="x" onclick="closeModal()">×</button></div><div class="lesson elementary-lesson">${g1TheoryHtml(t.id)}</div><div class="stage-grid">${stageCards(t.id,`startG1QuizStage.bind(null,'${t.id}')`,G1_NUMBER_STAGE_DESCRIPTIONS[t.id])}</div><div class="subtle">Пройдено этапов: <b>${done}/3</b>.</div>`)
 }
 function startG1QuizStage(id,stageIndex){
  const t=g1InfoById(id);if(!t||t.implemented===false)return showElementaryTopicSoon(1,id);
@@ -19152,17 +19159,15 @@ g1Choice=function(text,correct,wrong,ex,sig,{model={},visual=null,templateId="ch
 };
 
 /* Числа: 20 — это два десятка; шаблон «один десяток + единицы» только 11–19. */
-const G1_NUMBERS_TO_NINE_TEMPLATES=[
- ["count","next"],
- ["missing","compare"],
- ["order_four","between_bounds"]
-];
+const G1_NUMBER_STAGE_TEMPLATES={
+ numbers_1_9:[["count","next"],["missing","compare"],["order_four","between_bounds"]],
+ numbers_0_10:[["count","line"],["missing","compare"],["line_steps","two_missing_backwards"]],
+ numbers_11_20:[["count","line"],["count","line","missing","compare"],["count","line","missing","compare","ones"]]
+};
 
 g1NumbersQuestion=function(raw,d,min,max){
- const toNine=raw==="numbers_1_9";
- const base=raw==="numbers_0_10"?["count","line","missing","compare","before"]:["count","line","missing","compare","ones"];
- const pool=toNine?(G1_NUMBERS_TO_NINE_TEMPLATES[d]??G1_NUMBERS_TO_NINE_TEMPLATES[2]):d===0?base.slice(0,2):d===1?base.slice(0,4):base;
- const templateId=g1PickTemplate(pool);
+ const stages=G1_NUMBER_STAGE_TEMPLATES[raw]??G1_NUMBER_STAGE_TEMPLATES.numbers_11_20;
+ const templateId=g1PickTemplate(stages[d]??stages[2]);
  if(templateId==="count"){
   const count=ri(min,max),model={count,min,max};return g1Choice("Сколько кружков?",count,g1UniqueNums(count,min,max),"Посчитай кружки по одному. Их "+count+".",`g1:${raw}:${d}:count:${count}`,{model,visual:{type:"g1Counters",data:{count,splitTen:max>10}},templateId})
  }
@@ -19172,17 +19177,15 @@ g1NumbersQuestion=function(raw,d,min,max){
  if(templateId==="next"){
   const n=ri(min,max-1),answer=n+1,model={n,answer,min,max};return g1Choice(`Какое число идёт после ${n}?`,answer,g1UniqueNums(answer,min,max),`После ${n} идёт ${answer}.`,`g1:${raw}:${d}:next:${n}`,{model,templateId})
  }
- if(templateId==="before"){
-  const n=ri(Math.max(min+1,1),max),answer=n-1,model={n,answer,min,max};return g1Choice(`Какое число идёт перед ${n}?`,answer,g1UniqueNums(answer,min,max),`Перед ${n} стоит ${answer}.`,`g1:${raw}:${d}:before:${n}`,{model,templateId})
- }
  if(templateId==="missing"){
   const answer=ri(Math.max(min+1,1),max-1),seq=[answer-1,"?",answer+1],model={answer,seq,min,max};return g1Choice(`Какого числа не хватает?<br><b>${seq.join(" &nbsp; ")}</b>`,answer,g1UniqueNums(answer,min,max),`Считаем по порядку: ${answer-1}, ${answer}, ${answer+1}.`,`g1:${raw}:${d}:missing:${answer}`,{model,templateId})
  }
  if(templateId==="compare"){
-  let a=ri(min,max),b=ri(min,max);if(!toNine&&d<2&&a===b)b=b<max?b+1:Math.max(min,b-1);
-  const options=toNine?["Слева больше","Справа больше","Поровну"]:["Слева","Справа","Поровну"];
+  const compareAllCounts=raw==="numbers_1_9"||raw==="numbers_0_10";
+  let a=ri(min,max),b=ri(min,max);if(!compareAllCounts&&d<2&&a===b)b=b<max?b+1:Math.max(min,b-1);
+  const options=compareAllCounts?["Слева больше","Справа больше","Поровну"]:["Слева","Справа","Поровну"];
   const answer=a===b?options[2]:a>b?options[0]:options[1],model={a,b,answer,min,max};
-  const text=toNine?"Сравни количество кружков слева и справа.":"Где кружков больше?";
+  const text=compareAllCounts?"Сравни количество кружков слева и справа.":"Где кружков больше?";
   const ex=a===b?"В обеих группах кружков поровну.":`Сравниваем: ${a} и ${b}. Больше ${Math.max(a,b)}.`;
   return g1Choice(text,answer,options.filter(x=>x!==answer),ex,`g1:${raw}:${d}:compare:${a}:${b}`,{model,visual:{type:"g1Groups",data:{a,b}},templateId})
  }
@@ -19208,6 +19211,28 @@ g1NumbersQuestion=function(raw,d,min,max){
   return g1Choice(`Выбери число больше ${lower} и меньше ${upper}.`,answer,[lower,upper,g1PickTemplate(outside)],
    `${answer} больше ${lower} и меньше ${upper}.`,`g1:${raw}:${d}:between:${lower}:${upper}`,
    {model:{lower,upper,answer,min,max},templateId});
+ }
+ if(templateId==="line_steps"){
+  const steps=ri(2,4),right=ri(0,1)===1;
+  const start=right?ri(min,max-steps):ri(min+steps,max);
+  const direction=right?"вправо":"влево",stepWord=g1StepWord(steps);
+  const answer=right?start+steps:start-steps;
+  return g1Choice(`Сделай ${steps} ${stepWord} ${direction} от точки. На каком числе остановишься?`,answer,
+   g1UniqueNums(answer,min,max),`От ${start} ${steps} ${stepWord} ${direction}. Получится ${answer}.`,
+   `g1:${raw}:${d}:line_steps:${start}:${direction}:${steps}`,
+   {model:{start,steps,direction,answer,min,max},visual:{type:"g1NumberLine",data:{min,max,highlight:start}},templateId});
+ }
+ if(templateId==="two_missing_backwards"){
+  const start=ri(min+4,max),secondIndex=ri(2,3);
+  const row=Array.from({length:5},(_,i)=>start-i);
+  const first=row[1],second=row[secondIndex];
+  const answer=`${first} и ${second}`;
+  const wrong=[`${first+1} и ${second+1}`,`${first-1} и ${second-1}`,`${second} и ${first}`];
+  const visibleRow=row.map((n,i)=>i===1||i===secondIndex?"?":n);
+  return g1Choice(`Считай назад по одному. Какие числа пропущены?<br><b>${visibleRow.join(" &nbsp; ")}</b>`,
+   answer,wrong,`Считаем назад: ${row.join(", ")}. Пропущены ${answer}.`,
+   `g1:${raw}:${d}:two_missing_backwards:${start}:${secondIndex}`,
+   {model:{row,visibleRow,first,second,min,max},templateId});
  }
  const n=ri(11,19),ones=n-10,model={n,ones};return g1Choice(`В числе ${n} есть один десяток. Сколько ещё единиц?`,ones,g1UniqueNums(ones,0,9),`После одного десятка остаётся ${ones} ${ones===1?"единица":"единиц"}.`,`g1:${raw}:${d}:ones:${n}`,{model,visual:{type:"g1Counters",data:{count:n,splitTen:true}},templateId:"ones"})
 };
