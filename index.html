@@ -18591,6 +18591,11 @@ const G1_STAGE_DESCRIPTIONS={
   "Назови цвет или форму одной фигуры либо сравни две фигуры по размеру.",
   "Найди фигуру по двум признакам или определи общий признак группы.",
   "Посчитай фигуры по двум признакам или найди фигуру, которая нарушает правило."
+ ],
+ "g1:tables":[
+  "Найди число по строке или строку по числу.",
+  "Сравни количества или найди, на сколько одно больше другого.",
+  "Сложи числа из двух строк или найди пропуск по общему количеству."
  ]
 };
 function openG1Topic(id){
@@ -19211,36 +19216,61 @@ function g1InfoObjectQuestion(d){
 const G1_TABLE_LABELS=["Круги","Квадраты","Треугольники"];
 const G1_TABLE_GENITIVE={"Круги":"кругов","Квадраты":"квадратов","Треугольники":"треугольников"};
 function g1TableRows(){
- const base=ri(1,5),step=ri(1,2),counts=[base,Math.min(9,base+step),Math.min(9,base+step*2)];
- if(new Set(counts).size<3)return [{label:"Круги",count:2},{label:"Квадраты",count:4},{label:"Треугольники",count:6}];
- return G1_TABLE_LABELS.map((label,i)=>({label,count:counts[i]}))
+ const [first,second,...remaining]=shuffleOptions([1,2,3,4,5,6,7,8,9]);
+ const counts=[first,second,remaining.find(count=>first+second+count<=20)];
+ return G1_TABLE_LABELS.map((label,i)=>({label,count:counts[i]}));
 }
 function g1TableShapeForLabel(label){return label==="Круги"?"Круг":label==="Квадраты"?"Квадрат":"Треугольник"}
 function g1SimpleTableVisualHtml(data){
  const rows=Array.isArray(data?.rows)?data.rows:[],missing=data?.missingLabel||null,picture=data?.picture||null;
  const pictureHtml=picture?`<div class="g1-table-picture"><div class="g1-table-picture-title">${esc(picture.label)}</div>${g1ObjectGroupsVisualHtml({mode:"set",labels:false,objects:Array.from({length:picture.count},()=>({shape:g1TableShapeForLabel(picture.label),color:"Зелёный",size:"Маленький"}))})}</div>`:"";
- return `${pictureHtml}<div class="g1-simple-table-wrap"><table class="g1-simple-table" aria-label="Простая таблица"><thead><tr><th>Фигуры</th><th>Сколько</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${esc(r.label)}</td><td>${r.label===missing?'<span class="g1-table-missing">?</span>':esc(String(r.count))}</td></tr>`).join("")}</tbody></table></div>`
+ return `${pictureHtml}<div class="g1-simple-table-wrap"><table class="g1-simple-table" aria-label="Количество фигур"><thead><tr><th scope="col">Фигуры</th><th scope="col">Сколько</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${esc(r.label)}</td><td>${r.label===missing?'<span class="g1-table-missing">?</span>':esc(String(r.count))}</td></tr>`).join("")}</tbody></table></div>`
 }
+const G1_TABLE_STAGE_TEMPLATES=[
+ ["lookup_value","find_row"],
+ ["compare_rows","compare_difference"],
+ ["sum_rows","fill_from_total"]
+];
 function g1TableQuestion(d){
- const warm=["lookup_value","find_row"],train=["lookup_value","find_row","compare_rows","correct_statement"],master=["lookup_value","find_row","compare_rows","correct_statement","fill_cell"],templateId=g1PickTemplate(d===0?warm:d===1?train:master),rows=g1TableRows();
- if(templateId==="lookup_value"){
-  const target=rows[ri(0,rows.length-1)],model={rows,target:target.label};
-  return g1Choice(`Сколько ${G1_TABLE_GENITIVE[target.label]} в таблице?`,target.count,g1UniqueNums(target.count,0,9),`В строке «${target.label}» стоит число ${target.count}.`,`g1:tables:${d}:lookup_value:${rows.map(r=>r.label+r.count).join("-")}:${target.label}`,{model,visual:{type:"g1SimpleTable",data:model},templateId})
- }
- if(templateId==="find_row"){
-  const target=rows[ri(0,rows.length-1)],model={rows,targetCount:target.count};
-  return g1Choice(`Каких фигур ${target.count}?`,target.label,G1_TABLE_LABELS.filter(x=>x!==target.label),`Число ${target.count} стоит в строке «${target.label}».`,`g1:tables:${d}:find_row:${rows.map(r=>r.label+r.count).join("-")}:${target.count}`,{model,visual:{type:"g1SimpleTable",data:model},templateId})
+ const templateId=g1PickTemplate(G1_TABLE_STAGE_TEMPLATES[d]??G1_TABLE_STAGE_TEMPLATES[2]);
+ const rows=g1TableRows();
+ const key=`g1:tables:${d}:${templateId}:${rows.map(row=>row.count).join("-")}`;
+ const make=(text,answer,options,explanation,data={})=>{
+  const model={rows,...data};
+  return g1Choice(text,answer,options.filter(option=>option!==answer),explanation,`${key}:${text}`,
+   {model,visual:{type:"g1SimpleTable",data:model},templateId});
+ };
+ if(templateId==="lookup_value"||templateId==="find_row"){
+  const {label,count}=g1PickTemplate(rows);
+  const explanation=`В строке «${label}» стоит число ${count}.`;
+  return templateId==="lookup_value"?
+   make(`Сколько ${G1_TABLE_GENITIVE[label]} в таблице?`,count,[count,...g1UniqueNums(count,0,9)],explanation):
+   make(`Каких фигур в таблице ровно ${count}?`,label,G1_TABLE_LABELS,explanation);
  }
  if(templateId==="compare_rows"){
-  const more=ri(0,1)===1,sorted=[...rows].sort((a,b)=>a.count-b.count),target=more?sorted[sorted.length-1]:sorted[0],model={rows,compare:more?"more":"less"};
-  return g1Choice(more?"Каких фигур больше всего?":"Каких фигур меньше всего?",target.label,G1_TABLE_LABELS.filter(x=>x!==target.label),`${target.label}: ${target.count}. Это ${more?"самое большое":"самое маленькое"} число в таблице.`,`g1:tables:${d}:compare_rows:${more?"more":"less"}:${rows.map(r=>r.label+r.count).join("-")}`,{model,visual:{type:"g1SimpleTable",data:model},templateId})
+  const more=ri(0,1)===1;
+  const best=rows.reduce((chosen,row)=>(more?row.count>chosen.count:row.count<chosen.count)?row:chosen);
+  return make(more?"Каких фигур больше всего?":"Каких фигур меньше всего?",best.label,G1_TABLE_LABELS,
+   `В строке «${best.label}» стоит ${best.count}. Это ${more?"самое большое":"самое маленькое"} число в таблице.`);
  }
- if(templateId==="correct_statement"){
-  const target=rows[ri(0,rows.length-1)],correct=`${target.label} — ${target.count}`,wrong=rows.filter(r=>r.label!==target.label).map(r=>`${r.label} — ${Math.min(9,r.count+1)}`);while(wrong.length<3)wrong.push(`${target.label} — ${target.count===9?8:target.count+1}`);const model={rows,statement:correct};
-  return g1Choice("Какая запись верна?",correct,wrong.slice(0,3),`В таблице верно: ${correct}.`,`g1:tables:${d}:correct_statement:${rows.map(r=>r.label+r.count).join("-")}:${target.label}`,{model,visual:{type:"g1SimpleTable",data:model},templateId})
+ if(templateId==="fill_from_total"){
+  const target=g1PickTemplate(rows),known=rows.filter(row=>row!==target).map(row=>row.count);
+  const given=known[0]+known[1],total=given+target.count;
+  return make(`Всего ${total} фигур. Какое число поставить в пустую ячейку?`,target.count,
+   [target.count,...g1UniqueNums(target.count,0,9)],`В двух заполненных строках ${known[0]} + ${known[1]} = ${given}. В пустую ячейку ставим ${total} − ${given} = ${target.count}.`,
+   {missingLabel:target.label,total});
  }
- const target=rows[ri(0,rows.length-1)],model={rows,missingLabel:target.label,picture:{label:target.label,count:target.count}};
- return g1Choice("Какое число нужно поставить вместо ?",target.count,g1UniqueNums(target.count,0,9),`Посчитай ${target.label.toLowerCase()}: их ${target.count}. В таблицу нужно поставить ${target.count}.`,`g1:tables:${d}:fill_cell:${rows.map(r=>r.label+r.count).join("-")}:${target.label}`,{model,visual:{type:"g1SimpleTable",data:model},templateId:"fill_cell"})
+ const [left,right]=shuffleOptions(rows).slice(0,2);
+ if(templateId==="compare_difference"){
+  const [more,less]=left.count>right.count?[left,right]:[right,left];
+  const answer=more.count-less.count;
+  return make(`На сколько ${G1_TABLE_GENITIVE[more.label]} больше, чем ${G1_TABLE_GENITIVE[less.label]}?`,
+   answer,[answer,...g1UniqueNums(answer,0,9)],`${more.count} − ${less.count} = ${answer}.`);
+ }
+ const [first,second]=[left,right].sort((a,b)=>rows.indexOf(a)-rows.indexOf(b));
+ const answer=first.count+second.count;
+ return make(`Сколько всего ${G1_TABLE_GENITIVE[first.label]} и ${G1_TABLE_GENITIVE[second.label]}?`,
+  answer,[answer,...g1UniqueNums(answer,0,20)],`${first.count} + ${second.count} = ${answer}.`);
 }
 
 const PRE839_QUIZ_VISUAL_HTML=quizVisualHtml;
@@ -19279,7 +19309,7 @@ g1TheoryHtml=function(id){
   return `<div class="elementary-theory"><p><b>Предметы можно описывать: какого они цвета, какой формы и какого размера.</b></p>${g1ObjectGroupsVisualHtml(one)}<p>Эта фигура синяя, квадратная и большая.</p><div class="elementary-example">Цвет, форма и размер — это <b>признаки</b> предмета.</div><div class="g1-theory-block"><h3>Группа по общему признаку</h3>${g1ObjectGroupsVisualHtml(group)}<p>Фигуры разные по форме, но у всех один цвет — зелёный. Их можно собрать в одну группу по цвету.</p></div></div>`
  }
  const demo={rows:[{label:"Круги",count:3},{label:"Квадраты",count:5},{label:"Треугольники",count:2}]};
- return `<div class="elementary-theory"><p><b>Таблица помогает быстро найти нужные сведения.</b></p>${g1SimpleTableVisualHtml(demo)}<p>Сначала найди нужную строку. Потом посмотри на число рядом.</p><div class="elementary-example">В строке «Квадраты» стоит 5. Значит, квадратов — <b>5</b>.</div></div>`
+ return `<div class="elementary-theory"><p><b>Таблица помогает быстро найти нужные сведения.</b></p>${g1SimpleTableVisualHtml(demo)}<p>Сначала найди нужную строку. Потом посмотри на число рядом.</p><div class="elementary-example">В строке «Квадраты» стоит 5. Значит, квадратов — <b>5</b>.</div><p>Чтобы узнать, на сколько квадратов больше, чем кругов, вычисли <b>5 − 3 = 2</b>.</p><p>Если известно общее количество, сложи числа из заполненных строк и вычти их сумму из общего количества.</p></div>`
 };
 
 /* G1 is now fully implemented; the existing home card computes 11 available topics automatically. */
@@ -19566,16 +19596,6 @@ g1ShapeQuestion=function(d){
  return g1Choice(`Сколько ${noun} всего у фигур A и B?`,answer,g1UniqueNums(answer,0,8),
   `У фигуры A — ${a}, у фигуры B — ${b}. Всего ${a} + ${b} = ${answer}.`,
   `${key}:${part}:${order.join("-")}`,{model,visual:{type:"g1Shape",data:model},templateId});
-};
-
-/* Таблицы: неверная запись никогда не совпадает с реальным значением строки. */
-const PRE840_G1_TABLE_QUESTION=g1TableQuestion;
-g1TableQuestion=function(d){
- const q=PRE840_G1_TABLE_QUESTION(d);if(q?.templateId!=="correct_statement")return q;
- const rows=q.model?.rows||[],correct=String(q.ans),wrong=rows.map(r=>`${r.label} — ${r.count===9?8:r.count+1}`).filter(x=>x!==correct);
- const target=rows.find(r=>`${r.label} — ${r.count}`===correct);
- while(wrong.length<3&&target){const v=Math.max(0,target.count-(wrong.length+1));const text=`${target.label} — ${v}`;if(text!==correct&&!wrong.includes(text))wrong.push(text);else break}
- return g1Choice(q.text,correct,wrong.slice(0,3),q.ex,q.sig,{model:q.model,visual:q.visual,templateId:q.templateId})
 };
 
 /* Общий bounded anti-repeat для всех 11 G1 тем: тот же history/signature, без 240 пустых попыток. */
