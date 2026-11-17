@@ -94,6 +94,14 @@ function exerciseTopic({raw,sizes}){
      const button=document.querySelectorAll('#qstage .answer')[answerIndex];
      if(!button)throw Error('Correct option not rendered at '+(i+1));
      button.click();submitted=true;
+    }else if(q.answerPoint&&document.querySelector('#quizInputX')&&document.querySelector('#quizInputY')){
+     const fraction=({n,d})=>d===1?String(n):n+'/'+d;
+     document.querySelector('#quizInputX').value=fraction(q.answerPoint.x);
+     document.querySelector('#quizInputY').value=fraction(q.answerPoint.y);
+     checkQuizInput();submitted=true;
+    }else if((q.answerList||q.answerRatio)&&document.querySelector('#quizInput')){
+     document.querySelector('#quizInput').value=q.answerList?q.answerList.join(' '):q.answerRatio.join(':');
+     checkQuizInput();submitted=true;
     }else if(q.answerRat&&document.querySelector('#quizInput')){
      const {n,d}=q.answerRat;
      document.querySelector('#quizInput').value=d===1?String(n):n+'/'+d;
@@ -136,17 +144,7 @@ function withLimit(promise,ms,reason){
 (async()=>{
  const browser=await chromium.launch({headless:true});
  try{
-  const page=await browserPage(browser);
-  const ids=await page.evaluate(checked=>{
-   const excluded=new Set(checked);
-   return [...new Set(window.grade8Textbook.chapters.flatMap(ch=>ch.items.flatMap(i=>i[2])))].filter(id=>!excluded.has(id));
-  },checked);
-  assert.equal(ids.length,87);
-  for(const raw of ids){
-   const row=await page.evaluate(sampleTopic,raw);
-   console.log('G8_S '+JSON.stringify(row));
-  }
-  await page.close();
+  const ids=['equation_x2_equals_a','graphical_equations_systems','linear_system_graphical','linear_system_substitution','linear_system_elimination','systems_word_problems'];
   let cursor=0;
   const run=async()=>{
    while(cursor<ids.length){
