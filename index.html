@@ -18518,7 +18518,7 @@ function g1TheoryHtml(id){
  const raw=rawCourseId(id);
  if(raw==="numbers_1_9")return `<div class="elementary-theory"><p><b>Числа помогают узнать, сколько предметов.</b></p>${g1CounterVisualHtml({count:5})}<p>Считаем по одному: 1, 2, 3, 4, 5.</p><div class="elementary-example">Пять кружков — это число <b>5</b>.</div><p>При счёте вперёд числа становятся больше, при счёте назад — меньше.</p><div class="elementary-example">Число <b>5</b> больше 3 и меньше 7.</div></div>`;
  if(raw==="numbers_0_10")return `<div class="elementary-theory"><p><b>Иногда предметов не остаётся совсем.</b></p>${g1CounterVisualHtml({count:0})}<p>Тогда говорим: <b>ноль</b>.</p>${elementaryNumberLineSvg({min:0,max:10,highlight:7})}<div class="elementary-example">От 7 два шага влево: сначала к 6, потом к 5.</div><p>На луче вправо числа становятся больше, влево — меньше.</p></div>`;
- if(raw==="numbers_11_20")return `<div class="elementary-theory"><p><b>После 10 счёт продолжается.</b></p>${g1CounterVisualHtml({count:14,splitTen:true})}<p>Десять предметов вместе — это один <b>десяток</b>.</p><p>Остальные считаем по одному — это <b>единицы</b>.</p><div class="elementary-example">Один десяток и ещё четыре единицы — это <b>14</b>.</div></div>`;
+ if(raw==="numbers_11_20")return `<div class="elementary-theory"><p><b>После 10 счёт продолжается.</b></p>${g1CounterVisualHtml({count:14,splitTen:true})}<p>Десять предметов вместе — это один <b>десяток</b>.</p><p>Остальные считаем по одному — это <b>единицы</b>.</p><div class="elementary-example">Один десяток и ещё четыре единицы — это <b>14</b>.</div><p>В числе <b>20</b> два десятка и ни одной отдельной единицы.</p></div>`;
  return `<div class="elementary-theory"><p><b>Длина показывает, какой предмет длиннее или короче.</b></p>${g1LengthVisualHtml({kind:"measure",a:5})}<p>Начинаем измерять от 0.</p><div class="elementary-example">Отрезок заканчивается у 5. Его длина — <b>5 см</b>.</div></div>`
 }
 const G1_NUMBER_STAGE_DESCRIPTIONS={
@@ -18531,6 +18531,11 @@ const G1_NUMBER_STAGE_DESCRIPTIONS={
   "Посчитай кружки или прочитай число на луче.",
   "Восстанови пропуск в ряду или сравни две группы кружков.",
   "Пройди несколько шагов по лучу или заполни два пропуска при счёте назад."
+ ],
+ "g1:numbers_11_20":[
+  "Посчитай кружки или прочитай число на луче.",
+  "Заполни пропуск или составь число из десятков и единиц.",
+  "Сравни числа по их записи или найди ошибку в разложении числа."
  ]
 };
 function openG1Topic(id){
@@ -19158,12 +19163,16 @@ g1Choice=function(text,correct,wrong,ex,sig,{model={},visual=null,templateId="ch
  if(visual)q.visual=visual;return q
 };
 
-/* Числа: 20 — это два десятка; шаблон «один десяток + единицы» только 11–19. */
 const G1_NUMBER_STAGE_TEMPLATES={
  numbers_1_9:[["count","next"],["missing","compare"],["order_four","between_bounds"]],
  numbers_0_10:[["count","line"],["missing","compare"],["line_steps","two_missing_backwards"]],
- numbers_11_20:[["count","line"],["count","line","missing","compare"],["count","line","missing","compare","ones"]]
+ numbers_11_20:[["count","line"],["missing","compose_tens"],["compare_tens","find_wrong_decomposition"]]
 };
+
+function g1TensAndOnes(n){
+ const tens=Math.floor(n/10),units=n%10;
+ return `${tens} ${g2TensWord(tens)} и ${units} ${g2UnitsWord(units)}`;
+}
 
 g1NumbersQuestion=function(raw,d,min,max){
  const stages=G1_NUMBER_STAGE_TEMPLATES[raw]??G1_NUMBER_STAGE_TEMPLATES.numbers_11_20;
@@ -19181,13 +19190,10 @@ g1NumbersQuestion=function(raw,d,min,max){
   const answer=ri(Math.max(min+1,1),max-1),seq=[answer-1,"?",answer+1],model={answer,seq,min,max};return g1Choice(`Какого числа не хватает?<br><b>${seq.join(" &nbsp; ")}</b>`,answer,g1UniqueNums(answer,min,max),`Считаем по порядку: ${answer-1}, ${answer}, ${answer+1}.`,`g1:${raw}:${d}:missing:${answer}`,{model,templateId})
  }
  if(templateId==="compare"){
-  const compareAllCounts=raw==="numbers_1_9"||raw==="numbers_0_10";
-  let a=ri(min,max),b=ri(min,max);if(!compareAllCounts&&d<2&&a===b)b=b<max?b+1:Math.max(min,b-1);
-  const options=compareAllCounts?["Слева больше","Справа больше","Поровну"]:["Слева","Справа","Поровну"];
+  const a=ri(min,max),b=ri(min,max),options=["Слева больше","Справа больше","Поровну"];
   const answer=a===b?options[2]:a>b?options[0]:options[1],model={a,b,answer,min,max};
-  const text=compareAllCounts?"Сравни количество кружков слева и справа.":"Где кружков больше?";
   const ex=a===b?"В обеих группах кружков поровну.":`Сравниваем: ${a} и ${b}. Больше ${Math.max(a,b)}.`;
-  return g1Choice(text,answer,options.filter(x=>x!==answer),ex,`g1:${raw}:${d}:compare:${a}:${b}`,{model,visual:{type:"g1Groups",data:{a,b}},templateId})
+  return g1Choice("Сравни количество кружков слева и справа.",answer,options.filter(x=>x!==answer),ex,`g1:${raw}:${d}:compare:${a}:${b}`,{model,visual:{type:"g1Groups",data:{a,b}},templateId})
  }
  if(templateId==="order_four"){
   const descending=ri(0,1)===1;
@@ -19234,7 +19240,31 @@ g1NumbersQuestion=function(raw,d,min,max){
    `g1:${raw}:${d}:two_missing_backwards:${start}:${secondIndex}`,
    {model:{row,visibleRow,first,second,min,max},templateId});
  }
- const n=ri(11,19),ones=n-10,model={n,ones};return g1Choice(`В числе ${n} есть один десяток. Сколько ещё единиц?`,ones,g1UniqueNums(ones,0,9),`После одного десятка остаётся ${ones} ${ones===1?"единица":"единиц"}.`,`g1:${raw}:${d}:ones:${n}`,{model,visual:{type:"g1Counters",data:{count:n,splitTen:true}},templateId:"ones"})
+ if(templateId==="compose_tens"){
+  const n=ri(min,max),composition=g1TensAndOnes(n);
+  return g1Choice(`Какое это число?<br><b>${composition}</b>`,n,g1UniqueNums(n,min,max),
+   `${composition} — это ${n}.`,`g1:${raw}:${d}:compose_tens:${n}`,
+   {model:{n,min,max},templateId});
+ }
+ if(templateId==="compare_tens"){
+  const left=ri(min,max),right=ri(min,max),composition=g1TensAndOnes(left);
+  const options=["Слева больше","Справа больше","Поровну"];
+  const answer=left>right?options[0]:left<right?options[1]:options[2];
+  const comparison=left===right?"Числа равны.":`Число ${Math.max(left,right)} больше ${Math.min(left,right)}.`;
+  return g1Choice(`Сравни два числа.<br>Слева — ${composition}.<br>Справа — ${right}.`,answer,
+   options.filter(option=>option!==answer),`Слева число ${left}, справа число ${right}. ${comparison}`,
+   `g1:${raw}:${d}:compare_tens:${left}:${right}`,{model:{left,right,min,max},templateId});
+ }
+ const available=Array.from({length:max-min+1},(_,i)=>min+i);
+ const [wrongNumber,...otherNumbers]=shuffleOptions(available).slice(0,4);
+ const misreadAs=g1PickTemplate(g1UniqueNums(wrongNumber,min,max));
+ const answer=`${wrongNumber} — ${g1TensAndOnes(misreadAs)}`;
+ const wrong=otherNumbers.map(n=>`${n} — ${g1TensAndOnes(n)}`);
+ const signature=otherNumbers.slice().sort((a,b)=>a-b).join("-");
+ return g1Choice("В какой записи ошибка?",answer,wrong,
+  `У числа ${wrongNumber} такой состав: ${g1TensAndOnes(wrongNumber)}.`,
+  `g1:${raw}:${d}:find_wrong_decomposition:${wrongNumber}:${misreadAs}:${signature}`,
+  {model:{wrongNumber,misreadAs,otherNumbers,min,max},templateId});
 };
 
 /* Длина: выбор A/B входит в model до формирования answer; формулировка проще. */
