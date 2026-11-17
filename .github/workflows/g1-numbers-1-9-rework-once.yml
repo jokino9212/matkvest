@@ -227,7 +227,7 @@ jobs:
                 for (let i=0; i<STAGES[level].count; i++) {
                   const buttons = [...document.querySelectorAll('#qstage button.answer')];
                   buttons[q.choices.findIndex(option => option.key === q.ans)].click();
-                  document.querySelector('#qnext').click();
+                  document.querySelector('#quizNext').click();
                 }
               }
               const stored = deepCopy(progressFor(topic));
@@ -294,7 +294,7 @@ jobs:
                   button.click();
                   requireThat(blockSession.correct===i+1 && blockSession.done===i+1, 'Independently solved answer rejected');
                   accepted++;
-                  const next=document.querySelector('#qnext');
+                  const next=document.querySelector('#quizNext');
                   if (i+1===STAGES[level].count) requireThat(/Посмотреть результат/.test(next.textContent), 'Result button is missing');
                   next.click();
                 }
