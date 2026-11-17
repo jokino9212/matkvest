@@ -13,7 +13,9 @@ const adjustedMasterTopics=[
  'square_root_arithmetic','equation_x2_equals_a','square_root_properties',
  'root_expression_transformations','root_calculations_applications',
  'incomplete_quadratic_equations','quadratic_equation_types','quadratic_roots_cases',
- 'quadratic_word_problems','vieta_theorem','quadratic_trinomial_factorization','fractional_rational_equations'
+ 'quadratic_word_problems','vieta_theorem','quadratic_trinomial_factorization','fractional_rational_equations',
+ 'two_variable_equation_graph','graphical_equations_systems','numerical_inequalities_properties','direct_proportion_function',
+ 'integer_exponent_definition','integer_exponent_properties','scientific_notation','scientific_notation_operations'
 ];
 const rebuilt=[
  'algebraic_fraction_domain','algebraic_fraction_basic_property','algebraic_fraction_reduction','algebraic_fraction_add_sub',
@@ -365,6 +367,12 @@ async function testAdjustedMaster(page,topics){
    for(let index=0;index<STAGES[2].count;index++){
     verify(!seen.has(q.templateId),id+' repeated a Master type');
     seen.add(q.templateId);
+    if(q.visual?.type==='coordinatePlane'){
+     const plot=[...document.querySelectorAll('#qstage svg')].find(el=>el.querySelector('line,polyline,path')&&el.getBoundingClientRect().width>100);
+     verify(plot,id+' did not display the graph');
+     const bounds=plot.getBoundingClientRect();
+     verify(bounds.left>=-1&&bounds.right<=innerWidth+1,id+' cropped the graph');
+    }
     if(q.choices.length){
      const answer=q.choices.findIndex(option=>String(option.key)===String(q.ans));
      verify(answer>=0,id+' has no correct choice');
