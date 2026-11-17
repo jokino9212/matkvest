@@ -8,6 +8,7 @@ const applicationTopics=[
 const trigonometryTopics=['acute_angle_trig_ratios','trig_identity','special_angles_trig'];
 const circleTopics=['line_and_circle','circle_relative_positions','circle_tangency','common_tangents_two_circles'];
 const arcTopics=['arc_degree_measure','central_inscribed_angles'];
+const circleAngleTopics=['tangent_chord_angle','chords_secants_angles','tangential_quadrilateral','cyclic_quadrilateral'];
 const rebuilt=[
  'algebraic_fraction_domain','algebraic_fraction_basic_property','algebraic_fraction_reduction','algebraic_fraction_add_sub',
  'algebraic_fraction_mul_div','rational_expression_transformations','inverse_proportion_function',
@@ -50,13 +51,14 @@ async function testNavigation(page){
   await menu.locator('[data-topic-id="g8:'+id+'"]:visible').waitFor();
  }
  const geometryRows=await menu.locator('.mk-g5-toc-part').nth(1).locator('[data-paragraph]').evaluateAll(rows=>
-  rows.filter(row=>Number(row.dataset.paragraph)>=74&&Number(row.dataset.paragraph)<=80)
+  rows.filter(row=>Number(row.dataset.paragraph)>=74&&Number(row.dataset.paragraph)<=83)
    .map(row=>[...row.querySelectorAll('[data-topic-id]')].map(button=>button.dataset.topicId))
  );
  assert.deepEqual(geometryRows,[
   ['g8:acute_angle_trig_ratios','g8:trig_identity'],['g8:special_angles_trig'],
   ['g8:line_and_circle'],['g8:circle_relative_positions','g8:circle_tangency'],['g8:common_tangents_two_circles'],
-  ['g8:arc_degree_measure'],['g8:central_inscribed_angles']
+  ['g8:arc_degree_measure'],['g8:central_inscribed_angles'],['g8:tangent_chord_angle','g8:chords_secants_angles'],
+  ['g8:tangential_quadrilateral'],['g8:cyclic_quadrilateral']
  ]);
  await search.fill('геометрия 62');
  await menu.locator('[data-topic-id="g8:heron_formula"]:visible').waitFor();
@@ -72,7 +74,7 @@ async function testNavigation(page){
  assert.match(await page.locator('#g8HomeProgress').textContent(),/0\/137.*0\/411/);
 }
 async function testGeometry(page,section='similarity'){
- return page.evaluate(({applicationTopics,trigonometryTopics,circleTopics,arcTopics,section})=>{
+ return page.evaluate(({applicationTopics,trigonometryTopics,circleTopics,arcTopics,circleAngleTopics,section})=>{
   const check=(condition,message)=>{if(!condition)throw Error(message);};
   const distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
   function checkTriangle(triangle){
@@ -193,14 +195,52 @@ async function testGeometry(page,section='similarity'){
    const degrees=Math.acos((a*a+b*b-c*c)/(2*a*b))*180/Math.PI;
    check(Math.abs(degrees-model.arc/(model.mode==='central'?1:2))<0.002,'Drawn angle does not match the arc');
   }
+  function checkCircleAngleFigure(model){
+   const svg=document.querySelector('#qstage svg.geometry-svg');
+   const box=svg?.getBoundingClientRect();
+   check(box?.width>100&&box.left>=-1&&box.right<=innerWidth+1,'Circle angle figure is clipped');
+   const center={x:model.cx,y:model.cy};
+   const angle=(a,o,b)=>{
+    const u={x:a.x-o.x,y:a.y-o.y},v={x:b.x-o.x,y:b.y-o.y};
+    return Math.acos((u.x*v.x+u.y*v.y)/(Math.hypot(u.x,u.y)*Math.hypot(v.x,v.y)))*180/Math.PI;
+   };
+   const near=(actual,expected)=>Math.abs(actual-expected)<1e-5;
+   const onCircle=p=>near(distance(p,center),model.r);
+   const text=[...svg.querySelectorAll('text')].map(label=>label.textContent);
+   for(const value of Object.values(model.labels)){
+    check(text.includes(value),'Missing figure label '+value);
+   }
+   if(model.type==='tangent'){
+    const {A,B,arc}=model;
+    check(onCircle(A)&&onCircle(B)&&near(angle(B,A,{x:A.x,y:A.y-1}),arc/2),'Tangent-chord angle disagrees with the arc');
+   }else if(model.type==='inside'){
+    const {A,B,C,D,P}=model;
+    check([A,B,C,D].every(onCircle),'Chord endpoint outside the circle');
+    check(near(distance(C,P)+distance(P,D),distance(C,D))&&near(distance(A,P)+distance(P,B),distance(A,B)),
+     'The chord intersection does not lie on both chords');
+    check(near(angle(A,P,C),(angle(A,center,C)+angle(B,center,D))/2),'Crossing chords give an incorrect angle');
+   }else{
+    const {A,B,C,D}=model.vertices;
+    if(model.type==='cyclic'){
+     check([A,B,C,D].every(onCircle)&&near(angle(D,A,B)+angle(B,C,D),180),'Invalid cyclic quadrilateral');
+     if(model.labels.A)check(near(angle(D,A,B),parseFloat(model.labels.A)),'Label at A is not the drawn angle');
+    }else{
+     for(const [a,b] of [[A,B],[B,C],[C,D],[D,A]]){
+      const dx=b.x-a.x,dy=b.y-a.y;
+      const signedDistance=(dx*(center.y-a.y)-dy*(center.x-a.x))/Math.hypot(dx,dy);
+      check(near(Math.abs(signedDistance),model.r),'Inscribed circle is not tangent to the trapezoid');
+     }
+    }
+   }
+  }
   if(section==='arcs'){
    progressFor('g8:central_inscribed_angles').best=[3,5,7];
    check(progressFor('g8:arc_degree_measure').best.every(value=>value===0),'The new arc workout shares the inscribed-angle progress');
   }
   const totals={similarityQuestions:0,similarityDrawings:0,applicationQuestions:0,projectionDrawings:0,
-   trigonometryQuestions:0,trigonometryDrawings:0,circleQuestions:0,circleDrawings:0,arcQuestions:0,arcDrawings:0};
+   trigonometryQuestions:0,trigonometryDrawings:0,circleQuestions:0,circleDrawings:0,arcQuestions:0,arcDrawings:0,circleAngleQuestions:0,circleAngleDrawings:0};
   const criteria=['similarity_by_angles','similarity_by_two_sides','similarity_by_three_sides'];
-  const topics={circles:circleTopics,trigonometry:trigonometryTopics,arcs:arcTopics,similarity:[...criteria,...applicationTopics]}[section];
+  const topics={circles:circleTopics,trigonometry:trigonometryTopics,arcs:arcTopics,circleAngles:circleAngleTopics,similarity:[...criteria,...applicationTopics]}[section];
   for(const raw of topics){
    const criterion=criteria.includes(raw);
    const id='g8:'+raw,templates=new Set();
@@ -241,6 +281,9 @@ async function testGeometry(page,section='similarity'){
      }else if(q.visual?.data.kind==='g7-g8-arc-angle'){
       checkArcFigure(q.visual.data);
       totals.arcDrawings++;
+     }else if(section==='circleAngles'&&q.visual){
+      checkCircleAngleFigure(q.visual.data);
+      totals.circleAngleDrawings++;
      }
      if(q.choices.length){
       const index=q.choices.findIndex(option=>String(option.key)===String(q.ans));
@@ -258,6 +301,7 @@ async function testGeometry(page,section='similarity'){
      else if(section==='trigonometry')totals.trigonometryQuestions++;
      else if(section==='circles')totals.circleQuestions++;
      else if(section==='arcs')totals.arcQuestions++;
+     else if(section==='circleAngles')totals.circleAngleQuestions++;
      else totals.applicationQuestions++;
     }
     check(blockSession.finished,raw+' did not finish the stage');
@@ -268,6 +312,10 @@ async function testGeometry(page,section='similarity'){
    }
   }
   check(JSON.stringify(legacyProgress.best)==='[4,6,9]', 'Original workout progress changed');
+  if(section==='circleAngles'){
+   check(totals.circleAngleQuestions===88&&totals.circleAngleDrawings===7,'Missing circle angle questions or diagrams');
+   return {circleAngleQuestions:totals.circleAngleQuestions,circleAngleDrawings:totals.circleAngleDrawings};
+  }
   if(section==='arcs'){
    check(totals.arcQuestions===44&&totals.arcDrawings===6,'Missing arc questions or diagrams');
    return {arcQuestions:totals.arcQuestions,arcDrawings:totals.arcDrawings};
@@ -284,7 +332,7 @@ async function testGeometry(page,section='similarity'){
   check(totals.applicationQuestions===132&&totals.projectionDrawings===5,'Missing application problems or altitude diagrams');
   return {similarityQuestions:totals.similarityQuestions,similarityDrawings:totals.similarityDrawings,
    applicationQuestions:totals.applicationQuestions,projectionDrawings:totals.projectionDrawings};
- },{applicationTopics,trigonometryTopics,circleTopics,arcTopics,section});
+ },{applicationTopics,trigonometryTopics,circleTopics,arcTopics,circleAngleTopics,section});
 }
 
 async function testSessions(page){
@@ -363,7 +411,7 @@ async function testSessions(page){
   try{
    const options={viewport:{width,height:850},isMobile:width<500,hasTouch:width<500};
    const errors=[];
-   for(const section of ['arcs','circles','trigonometry']){
+   for(const section of ['circleAngles','arcs','circles','trigonometry']){
     const geometryPage=await browser.newPage(options);
     geometryPage.on('pageerror',error=>errors.push(error.message));
     await geometryPage.goto(pathToFileURL(process.cwd()+'/index.html').href,{waitUntil:'domcontentloaded'});
