@@ -11,7 +11,9 @@ const arcTopics=['arc_degree_measure','central_inscribed_angles'];
 const circleAngleTopics=['tangent_chord_angle','chords_secants_angles','tangential_quadrilateral','cyclic_quadrilateral'];
 const adjustedMasterTopics=[
  'square_root_arithmetic','equation_x2_equals_a','square_root_properties',
- 'root_expression_transformations','root_calculations_applications'
+ 'root_expression_transformations','root_calculations_applications',
+ 'incomplete_quadratic_equations','quadratic_equation_types','quadratic_roots_cases',
+ 'quadratic_word_problems','vieta_theorem','quadratic_trinomial_factorization','fractional_rational_equations'
 ];
 const rebuilt=[
  'algebraic_fraction_domain','algebraic_fraction_basic_property','algebraic_fraction_reduction','algebraic_fraction_add_sub',
