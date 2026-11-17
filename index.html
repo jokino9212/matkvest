@@ -18668,7 +18668,10 @@ function g1ArithmeticTenPractice(d){
  const templateId=g1PickTemplate(templates),key=`g1:add_sub_10:${d}:${templateId}`;
  const sample=op=>g1ArithmeticParams(10,op,{allowZero:true});
  if(templateId==="compare_calculations"){
-  const sum=sample("add"),difference=sample("sub"),a=sum.result,b=difference.result;
+  const a=ri(0,10),b=ri(0,10);
+  const addend=ri(0,a),minuend=ri(b,10);
+  const sum={op:"add",a:addend,b:a-addend,result:a,limit:10};
+  const difference={op:"sub",a:minuend,b:minuend-b,result:b,limit:10};
   const options=["А больше","Б больше","Поровну"];
   const answer=a>b?options[0]:a<b?options[1]:options[2];
   return g1Choice(`Сравни результаты.<div class="g1-arithmetic-record">А: ${sum.a} + ${sum.b}<br>Б: ${difference.a} − ${difference.b}</div>`,
