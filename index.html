@@ -18413,12 +18413,29 @@ function g1GroupCompareHtml(data){
  return `<div class="g1-groups"><div class="g1-group-box"><b>Слева</b>${g1CounterVisualHtml({count:a})}</div><div class="g1-group-box"><b>Справа</b>${g1CounterVisualHtml({count:b})}</div></div>`
 }
 function g1LengthVisualHtml(data){
+ if(Array.isArray(data?.segments))return g1LengthExerciseHtml(data.segments,data.showRuler!==false);
  const kind=data?.kind||"measure",a=Math.max(1,Math.min(10,Math.trunc(Number(data?.a||1)))),b=Math.max(1,Math.min(10,Math.trunc(Number(data?.b||1)))),hidden=new Set((Array.isArray(data?.hiddenLabels)?data.hiddenLabels:[]).map(Number)),W=680,H=kind==="compare"?230:155,L=55,unit=52;
  let out=`<svg class="g1-length-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Измерение длины по шкале" xmlns="http://www.w3.org/2000/svg">`;
  const ruler=(y,max=10)=>{let z=`<line x1="${L}" y1="${y}" x2="${L+max*unit}" y2="${y}" stroke="#566b61" stroke-width="3"/>`;for(let i=0;i<=max;i++){const x=L+i*unit;z+=`<line x1="${x}" y1="${y-9}" x2="${x}" y2="${y+9}" stroke="#566b61" stroke-width="2"/>${hidden.has(i)?"":`<text x="${x}" y="${y+28}" text-anchor="middle" font-size="15" fill="#50655b">${i}</text>`}` }return z};
  if(kind==="measure"){out+=`<line x1="${L}" y1="48" x2="${L+a*unit}" y2="48" stroke="#25845f" stroke-width="8" stroke-linecap="round"/>${ruler(94)}`}
  else{out+=`<text x="18" y="49" font-size="18" fill="#50655b">A</text><line x1="${L}" y1="44" x2="${L+a*unit}" y2="44" stroke="#25845f" stroke-width="8" stroke-linecap="round"/><text x="18" y="111" font-size="18" fill="#50655b">B</text><line x1="${L}" y1="106" x2="${L+b*unit}" y2="106" stroke="#e0a93d" stroke-width="8" stroke-linecap="round"/>${ruler(166)}`}
  return out+`</svg>`
+}
+function g1LengthExerciseHtml(segments,showRuler){
+ const width=332,rowHeight=showRuler?80:35,left=36,unit=25;
+ const x=mark=>left+mark*unit;
+ const rows=segments.map(({start,end},i)=>{
+  const y=17+i*rowHeight,rulerY=y+26,color=i===0?"#25845f":"#b27612";
+  const name=i===0?"А":"Б",x1=x(start),x2=x(end);
+  const label=segments.length===1?"":`<text x="13" y="${y+5}" font-size="16" fill="#43574d">${name}</text>`;
+  const segment=`<line class="g1-length-segment" x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${color}" stroke-width="5"/>`;
+  if(!showRuler)return label+segment;
+  const guides=[x1,x2].map(xx=>`<line x1="${xx}" y1="${y+3}" x2="${xx}" y2="${rulerY}" stroke="#707f75" stroke-dasharray="3 2"/>`).join("");
+  const marks=Array.from({length:11},(_,n)=>`<line x1="${x(n)}" y1="${rulerY-4}" x2="${x(n)}" y2="${rulerY+5}" stroke="#566b61"/><text class="g1-length-mark" x="${x(n)}" y="${rulerY+21}" text-anchor="middle" font-size="16" fill="#43574d">${n}</text>`).join("");
+  return label+segment+guides+`<line x1="${x(0)}" y1="${rulerY}" x2="${x(10)}" y2="${rulerY}" stroke="#566b61" stroke-width="2"/>${marks}<text x="299" y="${rulerY+21}" font-size="13" fill="#43574d">см</text>`;
+ });
+ const label=showRuler?segments.map(({start,end},i)=>`${segments.length>1?`Отрезок ${i===0?"А":"Б"}. `:""}Начало у отметки ${start}, конец у отметки ${end}.`).join(" "):"Два отрезка А и Б с общим началом для сравнения длины";
+ return `<svg class="g1-length-svg" viewBox="0 0 ${width} ${segments.length*rowHeight}" role="img" aria-label="${label}" xmlns="http://www.w3.org/2000/svg">${rows.join("")}</svg>`;
 }
 const PRE835_QUIZ_VISUAL_HTML=quizVisualHtml;
 quizVisualHtml=function(question){
@@ -18519,9 +18536,9 @@ function g1TheoryHtml(id){
  if(raw==="numbers_1_9")return `<div class="elementary-theory"><p><b>Числа помогают узнать, сколько предметов.</b></p>${g1CounterVisualHtml({count:5})}<p>Считаем по одному: 1, 2, 3, 4, 5.</p><div class="elementary-example">Пять кружков — это число <b>5</b>.</div><p>При счёте вперёд числа становятся больше, при счёте назад — меньше.</p><div class="elementary-example">Число <b>5</b> больше 3 и меньше 7.</div></div>`;
  if(raw==="numbers_0_10")return `<div class="elementary-theory"><p><b>Иногда предметов не остаётся совсем.</b></p>${g1CounterVisualHtml({count:0})}<p>Тогда говорим: <b>ноль</b>.</p>${elementaryNumberLineSvg({min:0,max:10,highlight:7})}<div class="elementary-example">От 7 два шага влево: сначала к 6, потом к 5.</div><p>На луче вправо числа становятся больше, влево — меньше.</p></div>`;
  if(raw==="numbers_11_20")return `<div class="elementary-theory"><p><b>После 10 счёт продолжается.</b></p>${g1CounterVisualHtml({count:14,splitTen:true})}<p>Десять предметов вместе — это один <b>десяток</b>.</p><p>Остальные считаем по одному — это <b>единицы</b>.</p><div class="elementary-example">Один десяток и ещё четыре единицы — это <b>14</b>.</div><p>В числе <b>20</b> два десятка и ни одной отдельной единицы.</p></div>`;
- return `<div class="elementary-theory"><p><b>Длина показывает, какой предмет длиннее или короче.</b></p>${g1LengthVisualHtml({kind:"measure",a:5})}<p>Начинаем измерять от 0.</p><div class="elementary-example">Отрезок заканчивается у 5. Его длина — <b>5 см</b>.</div></div>`
+ return `<div class="elementary-theory"><p><b>Длину можно измерить линейкой в сантиметрах.</b></p>${g1LengthVisualHtml({segments:[{start:2,end:5}]})}<p>Посчитай промежутки между отметками от начала до конца отрезка. Можно вычесть меньшую отметку из большей.</p><div class="elementary-example">От 2 до 5 три промежутка. Длина отрезка — <b>3 см</b>.</div></div>`
 }
-const G1_NUMBER_STAGE_DESCRIPTIONS={
+const G1_STAGE_DESCRIPTIONS={
  "g1:numbers_1_9":[
   "Посчитай кружки или назови следующее число.",
   "Восстанови пропуск в ряду или сравни две группы кружков.",
@@ -18536,12 +18553,17 @@ const G1_NUMBER_STAGE_DESCRIPTIONS={
   "Посчитай кружки или прочитай число на луче.",
   "Заполни пропуск или составь число из десятков и единиц.",
   "Сравни числа по их записи или найди ошибку в разложении числа."
+ ],
+ "g1:length_measurement":[
+  "Измерь отрезок от нуля или сравни два отрезка на рисунке.",
+  "Измерь отрезок от другой отметки или найди, где он заканчивается.",
+  "Измерь два отрезка и сравни их длины или сложи их."
  ]
 };
 function openG1Topic(id){
  const t=g1InfoById(id);if(!t)return;if(t.implemented===false)return showElementaryTopicSoon(1,id);
  document.body.classList.add("elementary-mode");blockSession=null;const done=completedStages(t.id);
- show(`<div class="mtop"><h2>1 класс • ${esc(t.title)}</h2><button class="x" onclick="closeModal()">×</button></div><div class="lesson elementary-lesson">${g1TheoryHtml(t.id)}</div><div class="stage-grid">${stageCards(t.id,`startG1QuizStage.bind(null,'${t.id}')`,G1_NUMBER_STAGE_DESCRIPTIONS[t.id])}</div><div class="subtle">Пройдено этапов: <b>${done}/3</b>.</div>`)
+ show(`<div class="mtop"><h2>1 класс • ${esc(t.title)}</h2><button class="x" onclick="closeModal()">×</button></div><div class="lesson elementary-lesson">${g1TheoryHtml(t.id)}</div><div class="stage-grid">${stageCards(t.id,`startG1QuizStage.bind(null,'${t.id}')`,G1_STAGE_DESCRIPTIONS[t.id])}</div><div class="subtle">Пройдено этапов: <b>${done}/3</b>.</div>`)
 }
 function startG1QuizStage(id,stageIndex){
  const t=g1InfoById(id);if(!t||t.implemented===false)return showElementaryTopicSoon(1,id);
@@ -19267,21 +19289,44 @@ g1NumbersQuestion=function(raw,d,min,max){
   {model:{wrongNumber,misreadAs,otherNumbers,min,max},templateId});
 };
 
-/* Длина: выбор A/B входит в model до формирования answer; формулировка проще. */
+const G1_LENGTH_STAGE_TEMPLATES=[
+ ["measure_zero","compare_by_sight"],
+ ["measure_shifted","find_endpoint"],
+ ["compare_shifted","total_length"]
+];
 g1LengthQuestion=function(d){
- const templateId=g1PickTemplate(d===0?["measure","compare"]:d===1?["measure","compare","match"]:["measure","compare","match","shorter"]);
- if(templateId==="measure"){
-  const a=ri(1,d===0?6:10),model={a};return g1Choice("Какова длина отрезка?",a,g1UniqueNums(a,1,10),`Отрезок начинается у 0 и заканчивается у ${a}. Его длина — ${a} см.`,`g1:length_measurement:${d}:measure:${a}`,{model,visual:{type:"g1Length",data:{kind:"measure",a}},templateId})
+ const templateId=g1PickTemplate(G1_LENGTH_STAGE_TEMPLATES[d]??G1_LENGTH_STAGE_TEMPLATES[2]);
+ const key=`g1:length_measurement:${d}:${templateId}`;
+ if(templateId==="measure_zero"||templateId==="measure_shifted"||templateId==="find_endpoint"){
+  const start=templateId==="measure_zero"?0:ri(1,7),end=ri(start+1,10),length=end-start;
+  const model={start,end,length};
+  if(templateId==="find_endpoint"){
+   return g1Choice(`Отрезок начинается у отметки ${start}. Его длина ${length} см. У какой отметки он заканчивается?`,
+    end,g1UniqueNums(end,1,10),`${start} + ${length} = ${end}. Конец отрезка у отметки ${end}.`,
+    `${key}:${start}:${end}`,{model,templateId});
+  }
+  const visual={type:"g1Length",data:{segments:[{start,end}]}};
+  return g1Choice("Какова длина отрезка в сантиметрах?",length,g1UniqueNums(length,1,10),
+   `От ${start} до ${end} ${length} см. ${end} − ${start} = ${length}.`,
+   `${key}:${start}:${end}`,{model,visual,templateId});
  }
- let a=ri(1,9),b=ri(1,9);if(templateId!=="match"&&a===b)b=b<9?b+1:b-1;
- if(templateId==="compare"){
-  const answer=a>b?"A":b>a?"B":"Одинаковые",model={a,b,answer};return g1Choice("Какой отрезок длиннее?",answer,["A","B","Одинаковые"].filter(x=>x!==answer),a===b?"Оба отрезка одинаковой длины.":`Отрезок ${answer} длиннее.`,`g1:length_measurement:${d}:compare:${a}:${b}`,{model,visual:{type:"g1Length",data:{kind:"compare",a,b}},templateId})
+ const a=ri(1,8),b=ri(1,templateId==="total_length"?Math.min(8,10-a):8);
+ const bySight=templateId==="compare_by_sight";
+ const startA=bySight?0:ri(1,10-a);
+ const startB=bySight?0:g1PickTemplate(Array.from({length:10-b},(_,i)=>i+1).filter(start=>start!==startA));
+ const segments=[{start:startA,end:startA+a},{start:startB,end:startB+b}];
+ const model={a,b,segments},visual={type:"g1Length",data:{segments,showRuler:!bySight}};
+ const signature=`${key}:${startA}:${a}:${startB}:${b}`;
+ if(templateId==="total_length"){
+  return g1Choice("Отрезки А и Б положили один за другим. Какова их общая длина в сантиметрах?",
+   a+b,g1UniqueNums(a+b,1,10),`Длина А — ${a} см, длина Б — ${b} см. Вместе ${a} + ${b} = ${a+b} см.`,
+   signature,{model,visual,templateId});
  }
- if(templateId==="shorter"){
-  const answer=a<b?"A":b<a?"B":"Одинаковые",model={a,b,answer};return g1Choice("Какой отрезок короче?",answer,["A","B","Одинаковые"].filter(x=>x!==answer),a===b?"Оба отрезка одинаковой длины.":`Отрезок ${answer} короче.`,`g1:length_measurement:${d}:shorter:${a}:${b}`,{model,visual:{type:"g1Length",data:{kind:"compare",a,b}},templateId})
- }
- const askA=ri(0,1)===1,answer=askA?a:b,model={a,b,askA,answer};
- return g1Choice(`Какова длина отрезка ${askA?"A":"B"}?`,answer,g1UniqueNums(answer,1,10),`По шкале длина отрезка ${askA?"A":"B"} — ${answer} см.`,`g1:length_measurement:${d}:match:${a}:${b}:${askA?1:0}`,{model,visual:{type:"g1Length",data:{kind:"compare",a,b}},templateId})
+ const options=["А","Б","Одинаковые"],answer=a>b?options[0]:a<b?options[1]:options[2];
+ const result=a===b?"Длины отрезков равны.":`Отрезок ${answer} длиннее.`;
+ const explanation=bySight?`Начала отрезков совпадают. ${result}`:`Длина А — ${a} см, длина Б — ${b} см. ${result}`;
+ const prompt=bySight?"Какой отрезок на рисунке длиннее?":"Измерь оба отрезка. Какой длиннее?";
+ return g1Choice(prompt,answer,options.filter(option=>option!==answer),explanation,signature,{model,visual,templateId});
 };
 
 /* Пространственные отношения: убираем трудное для первоклассника «относительно». */
