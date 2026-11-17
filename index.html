@@ -19858,7 +19858,12 @@ function g2TheoryHtml(id){
 }
 function openG2Topic(id){
  const t=g2InfoById(id);if(!t)return;if(t.implemented===false)return showElementaryTopicSoon(2,id);document.body.classList.add("elementary-mode");blockSession=null;const done=completedStages(t.id);
- const stages=({"g2:numbers_100":G2_NUMBERS_100_STAGES,"g2:quantities":G2_QUANTITIES_STAGES,"g2:add_sub_100":G2_ADD_SUB_100_STAGES})[t.id]||[];
+ const stages=({
+  "g2:numbers_100":G2_NUMBERS_100_STAGES,
+  "g2:quantities":G2_QUANTITIES_STAGES,
+  "g2:add_sub_100":G2_ADD_SUB_100_STAGES,
+  "g2:multiply_divide":G2_MULTIPLY_DIVIDE_STAGES
+ })[t.id]||[];
  const descriptions=stages.map(stage=>stage.description);
  show(`<div class="mtop"><h2>2 класс • ${esc(t.title)}</h2><button class="x" onclick="closeModal()">×</button></div><div class="lesson elementary-lesson">${g2TheoryHtml(t.id)}</div><div class="stage-grid">${stageCards(t.id,`startG2QuizStage.bind(null,'${t.id}')`,descriptions)}</div><div class="subtle">Пройдено этапов: <b>${done}/3</b>.</div>`)
 }
@@ -19927,13 +19932,13 @@ function g2EqualGroupsVisualHtml(data){
   const total=Math.max(1,Math.min(100,Math.trunc(Number(data?.total||1)))),groups=Math.max(1,Math.min(10,Math.trunc(Number(data?.groups||1))));
   const pool=Array.from({length:total},()=>'<span class="g2-group-dot" aria-hidden="true"></span>').join("");
   const boxes=Array.from({length:groups},(_,i)=>`<div class="g2-equal-group"><small>${i+1}</small><div class="subtle">?</div></div>`).join("");
-  return `<div class="g2-groups-visual" role="img" aria-label="${total} предметов нужно разделить поровну на ${groups} ${g2GroupWord(groups)}"><div class="g2-equal-group"><small>Всего</small><div>${pool}</div></div><div class="g2-groups-grid">${boxes}</div><div class="g2-groups-caption">${total} предметов → ${groups} ${g2GroupWord(groups)} поровну</div></div>`
+  return `<div class="g2-groups-visual" role="img" aria-label="${total} ${g2ItemWord(total)} нужно разделить поровну на ${groups} ${g2GroupWord(groups)}"><div class="g2-equal-group"><small>Всего</small><div>${pool}</div></div><div class="g2-groups-grid">${boxes}</div><div class="g2-groups-caption">${total} ${g2ItemWord(total)} → ${groups} ${g2GroupWord(groups)} поровну</div></div>`
  }
  if(mode==="make_groups"){
   const total=Math.max(1,Math.min(100,Math.trunc(Number(data?.total||1)))),each=Math.max(1,Math.min(10,Math.trunc(Number(data?.each||1))));
   const pool=Array.from({length:total},()=>'<span class="g2-group-dot" aria-hidden="true"></span>').join("");
   const sample=Array.from({length:each},()=>'<span class="g2-group-dot" aria-hidden="true"></span>').join("");
-  return `<div class="g2-groups-visual" role="img" aria-label="${total} предметов нужно раскладывать по ${each} в каждую группу"><div class="g2-equal-group"><small>Всего</small><div>${pool}</div></div><div class="g2-equal-group"><small>В одну группу</small><div>${sample}</div></div><div class="g2-groups-caption">Раскладывай по ${each}. Сколько групп получится?</div></div>`
+  return `<div class="g2-groups-visual" role="img" aria-label="${total} ${g2ItemWord(total)} нужно раскладывать по ${each} в каждую группу"><div class="g2-equal-group"><small>Всего</small><div>${pool}</div></div><div class="g2-equal-group"><small>В одну группу</small><div>${sample}</div></div><div class="g2-groups-caption">Раскладывай по ${each}. Сколько групп получится?</div></div>`
  }
  const groups=Math.max(1,Math.min(10,Math.trunc(Number(data?.groups||1)))),each=Math.max(0,Math.min(10,Math.trunc(Number(data?.each||0))));
  return `<div class="g2-groups-visual" role="img" aria-label="Одинаковых групп ${groups}, в каждой по ${each}"><div class="g2-groups-grid">${Array.from({length:groups},(_,i)=>`<div class="g2-equal-group"><small>${i+1}</small><div>${Array.from({length:each},()=>'<span class="g2-group-dot" aria-hidden="true"></span>').join("")}</div></div>`).join("")}</div><div class="g2-groups-caption">${groups} ${g2GroupWord(groups)} по ${each}</div></div>`
@@ -20027,38 +20032,70 @@ function g2AddSub100Question(d){
   sig(`${left}:${right}`),options({...model,rightA,rightB}));
 }
 
-function g2GroupsModel({maxFactor=5}={}){const groups=ri(2,maxFactor),each=ri(2,maxFactor),total=groups*each;return {groups,each,total}}
-function g2FactModel(){const a=ri(2,10),b=ri(2,10);return {a,b,result:a*b}}
+const G2_MULTIPLY_DIVIDE_STAGES=[
+ {templates:["group_picture","repeat_as_product"],description:"Посчитай предметы по группам и замени сумму одинаковых слагаемых умножением."},
+ {templates:["multiply_fact","divide_fact"],description:"Введи результаты умножения и деления."},
+ {templates:["missing_operand","compare_products"],description:"Найди число, пропущенное в равенстве, или сравни два произведения."}
+];
+
 function g2MultiplyDivideQuestion(d){
- const warm=["groups_total","repeated_addition","share_equal"],train=[...warm,"make_groups","multiply_fact","divide_fact"],master=[...train,"missing_factor","inverse_record","compare_products"],templateId=g2PickTemplate(d===0?warm:d===1?train:master);
- if(templateId==="groups_total"){
-  const model=g2GroupsModel(),answer=model.total;return g2Choice(`Одинаковых групп: ${model.groups}. В каждой по ${model.each} ${g2ItemWord(model.each)}. Сколько предметов всего?`,answer,g2UniqueNums(answer,1,30),`${model.each} повторяется ${model.groups} ${g2StoryTimes(model.groups)}: ${Array.from({length:model.groups},()=>model.each).join(" + ")} = ${answer}.`,`g2:multiply_divide:${d}:groups_total:${model.groups}:${model.each}`,{model,visual:{type:"g2EqualGroups",data:model},templateId})
+ const templateId=g2PickTemplate(G2_MULTIPLY_DIVIDE_STAGES[d].templates);
+ const sig=key=>`g2:multiply_divide:${d}:${templateId}:${key}`;
+ if(templateId==="group_picture"){
+  const groups=ri(2,5),each=ri(2,5),total=groups*each,mode=g2PickTemplate(["groups","share","make_groups"]);
+  const model={groups,each,total,mode},visual={type:"g2EqualGroups",data:model};
+  const items=`${total} ${g2ItemWord(total)}`;
+  let text,answer,ex;
+  if(mode==="groups"){
+   text="Сколько предметов во всех группах?";
+   answer=total;ex=`${groups} ${g2GroupWord(groups)} по ${each}. Всего ${each} × ${groups} = ${total}.`;
+  }else if(mode==="share"){
+   text=`Разложи ${items} поровну в ${groups} ${g2GroupWord(groups)}. Сколько предметов будет в каждой группе?`;
+   answer=each;ex=`${total} ÷ ${groups} = ${each}. В каждой группе по ${each}.`;
+  }else{
+   text=`Есть ${items}. В каждую группу кладут по ${each} ${g2ItemWord(each)}. Сколько групп получится?`;
+   answer=groups;ex=`${total} ÷ ${each} = ${groups}. Получится ${groups} ${g2GroupWord(groups)}.`;
+  }
+  return g2Choice(text,answer,g2UniqueNums(answer,1,30),ex,sig(`${mode}:${groups}:${each}`),{model,visual,templateId});
  }
- if(templateId==="repeated_addition"){
-  const model=g2GroupsModel(),sum=Array.from({length:model.groups},()=>model.each).join(" + "),correct=`${model.each} · ${model.groups} = ${model.total}`,wrong=[`${model.groups} · ${model.each} = ${model.groups+model.each}`,`${model.each} + ${model.groups} = ${model.total}`,`${model.total} : ${model.groups} = ${model.total}`],answer=correct;
-  return g2Choice(`Какая запись заменяет сумму <b>${sum}</b>?`,answer,wrong,`${model.each} складываем ${model.groups} ${g2StoryTimes(model.groups)}. Это можно записать: ${answer}.`,`g2:multiply_divide:${d}:repeated_addition:${model.groups}:${model.each}`,{model,visual:{type:"g2EqualGroups",data:model},templateId})
- }
- if(templateId==="share_equal"){
-  const model=g2GroupsModel(),answer=model.each;return g2Choice(`${model.total} предметов разделили поровну на ${model.groups} ${g2GroupWord(model.groups)}. Сколько предметов в каждой группе?`,answer,g2UniqueNums(answer,1,10),`${model.total} : ${model.groups} = ${answer}. В каждой группе по ${answer}.`,`g2:multiply_divide:${d}:share_equal:${model.total}:${model.groups}`,{model,visual:{type:"g2EqualGroups",data:{mode:"share",total:model.total,groups:model.groups}},templateId})
-}
- if(templateId==="make_groups"){
-  const model=g2GroupsModel(),answer=model.groups;return g2NumberInput(`${model.total} предметов разложили по ${model.each} в каждую группу. Сколько получилось групп?`,answer,`${model.total} : ${model.each} = ${answer}. Получилось ${answer} группы.`,`g2:multiply_divide:${d}:make_groups:${model.total}:${model.each}`,{model,visual:{type:"g2EqualGroups",data:{mode:"make_groups",total:model.total,each:model.each}},templateId,inputHint:"Введи число групп."})
+ if(templateId==="repeat_as_product"){
+  const groups=ri(2,5),each=ri(2,5),total=groups*each;
+  const sum=Array.from({length:groups},()=>each).join(" + "),answer=`${each} × ${groups}`;
+  const otherFactor=each+(each===groups?2:1);
+  const wrong=[`${each} × ${groups-1}`,`${each} × ${groups+1}`,`${otherFactor} × ${groups}`];
+  return g2Choice(`Каким произведением можно заменить сумму <b>${sum}</b>?`,answer,wrong,
+   `Число ${each} повторяется ${groups} ${g2StoryTimes(groups)}. ${sum} = ${answer} = ${total}.`,
+   sig(`${groups}:${each}`),{model:{groups,each},templateId});
  }
  if(templateId==="multiply_fact"){
-  const model=g2FactModel();return g2NumberInput(`Вычисли: <b>${model.a} · ${model.b}</b>`,model.result,`${model.a} · ${model.b} = ${model.result}.`,`g2:multiply_divide:${d}:multiply_fact:${model.a}:${model.b}`,{model,templateId})
+  const a=ri(0,10),b=ri(0,10),answer=a*b;
+  return g2NumberInput(`Вычисли <b>${a} × ${b}</b>.`,answer,`${a} × ${b} = ${answer}.`,
+   sig(`${a}:${b}`),{model:{a,b},templateId});
  }
  if(templateId==="divide_fact"){
-  const f=g2FactModel(),useA=ri(0,1)===1,divisor=useA?f.a:f.b,answer=useA?f.b:f.a,model={total:f.result,divisor,answer};return g2NumberInput(`Вычисли: <b>${model.total} : ${model.divisor}</b>`,answer,`${model.total} : ${model.divisor} = ${answer}, потому что ${answer} · ${model.divisor} = ${model.total}.`,`g2:multiply_divide:${d}:divide_fact:${model.total}:${model.divisor}`,{model,templateId})
+  const divisor=ri(1,10),answer=ri(0,10),total=answer*divisor;
+  return g2NumberInput(`Вычисли <b>${total} ÷ ${divisor}</b>.`,answer,
+   `${total} ÷ ${divisor} = ${answer}, потому что ${answer} × ${divisor} = ${total}.`,
+   sig(`${total}:${divisor}`),{model:{total,divisor},templateId});
  }
- if(templateId==="missing_factor"){
-  const f=g2FactModel(),model={a:f.a,b:f.b,result:f.result};return g2NumberInput(`Какое число пропущено?<div class="g1-arithmetic-record">${model.a} · ? = ${model.result}</div>`,model.b,`${model.result} : ${model.a} = ${model.b}. Значит, пропущено ${model.b}.`,`g2:multiply_divide:${d}:missing_factor:${model.a}:${model.result}`,{model,templateId})
+ if(templateId==="missing_operand"){
+  const a=ri(1,10),b=ri(1,10),total=a*b,hideFirst=ri(0,1)===0,multiply=ri(0,1)===0;
+  const left=multiply?a:total,right=b,result=multiply?total:a,sign=multiply?"×":"÷",answer=hideFirst?left:right;
+  const equation=`${hideFirst?"?":left} ${sign} ${hideFirst?right:"?"} = ${result}`;
+  const term=multiply?"множитель":hideFirst?"делимое":"делитель";
+  const check=multiply?`${total} ÷ ${hideFirst?b:a}`:hideFirst?`${a} × ${b}`:`${total} ÷ ${a}`;
+  return g2NumberInput(`Какое число пропущено?<div class="g1-arithmetic-record">${equation}</div>`,answer,
+   `Находим неизвестный элемент равенства (${term}). ${check} = ${answer}. Проверка: ${left} ${sign} ${right} = ${result}.`,
+   sig(equation),{model:{left,right,result,sign,hideFirst},templateId});
  }
- if(templateId==="inverse_record"){
-  const f=g2FactModel(),model={a:f.a,b:f.b,result:f.result},correct=`${model.result} : ${model.a} = ${model.b}`,wrong=[`${model.result} : ${model.b} = ${model.result}`,`${model.a} : ${model.b} = ${model.result}`,`${model.result} − ${model.a} = ${model.b}`];
-return g2Choice(`Известно: <b>${model.a} · ${model.b} = ${model.result}</b>. Какая запись деления верна?`,correct,wrong,`Если ${model.a} · ${model.b} = ${model.result}, то ${correct}.`,`g2:multiply_divide:${d}:inverse_record:${model.a}:${model.b}`,{model,templateId})
- }
- const p1=g2GroupsModel(),p2=g2GroupsModel(),r1=p1.total,r2=p2.total,answer=r1===r2?"Поровну":r1>r2?"A":"B",model={p1,p2,r1,r2,answer};
- return g2Choice(`Какое произведение больше?<div class="g1-arithmetic-record">A: ${p1.each} · ${p1.groups} &nbsp;&nbsp; B: ${p2.each} · ${p2.groups}</div>`,answer,["A","B","Поровну"].filter(x=>x!==answer),`A = ${r1}. B = ${r2}. ${answer==="Поровну"?"Значения равны.":`Больше значение ${answer}.`}`,`g2:multiply_divide:${d}:compare_products:${p1.each}:${p1.groups}:${p2.each}:${p2.groups}`,{model,templateId:"compare_products"})
+ const a=ri(2,10),b=ri(2,10),swap=a!==b&&ri(0,3)===0;
+ const c=swap?b:ri(2,10);
+ let e=swap?a:ri(2,10);
+ if(c===a&&e===b)e=b===10?9:b+1;
+ const left=a*b,right=c*e,answer=left===right?"=":left<right?"<":">";
+ return g2Choice(`Какой знак сравнения поставить?<div class="g1-arithmetic-record">(${a} × ${b}) &nbsp; ? &nbsp; (${c} × ${e})</div>`,
+  answer,["<","=",">"].filter(sign=>sign!==answer),`${a} × ${b} = ${left}. ${c} × ${e} = ${right}. Сравниваем результаты: ${left} ${answer} ${right}.`,
+  sig(`${a}:${b}:${c}:${e}`),{model:{a,b,c,e},templateId});
 }
 
 function g2OpExprAddSubModel(){
@@ -20535,23 +20572,6 @@ g2NumberInput=function(text,answer,ex,sig,opts={}){
  return PRE846_G2_NUMBER_INPUT(g2SchoolText846(text),answer,g2SchoolText846(ex),sig,o)
 };
 
-/* Дистракторы проверяют именно умножение/деление и не могут стать вторым верным ответом. */
-const PRE846_G2_MULTIPLY_DIVIDE_QUESTION=g2MultiplyDivideQuestion;
-g2MultiplyDivideQuestion=function(d){
- const q=PRE846_G2_MULTIPLY_DIVIDE_QUESTION(d),m=q?.model||{};
- if(q?.templateId==="repeated_addition"){
-  const sum=Array.from({length:m.groups},()=>m.each).join(" + "),correct=`${m.each} · ${m.groups} = ${m.total}`;
-  const wrong=g2UniqueNums(m.total,1,100).map(v=>`${m.each} · ${m.groups} = ${v}`);
-  return g2Choice(`Какая запись умножением заменяет сумму <b>${sum}</b>?`,correct,wrong,`${m.each} складываем ${m.groups} ${g2StoryTimes(m.groups)}. Это можно записать: ${correct}.`,q.sig,{model:m,visual:{type:"g2EqualGroups",data:m},templateId:q.templateId})
- }
- if(q?.templateId==="inverse_record"){
-  const correct=`${m.result} : ${m.a} = ${m.b}`,wrong=g2UniqueNums(m.b,0,100).map(v=>`${m.result} : ${m.a} = ${v}`);
-  return g2Choice(`Известно: <b>${m.a} · ${m.b} = ${m.result}</b>. Какая запись деления верна?`,correct,wrong,`Если ${m.a} · ${m.b} = ${m.result}, то ${correct}.`,q.sig,{model:m,templateId:q.templateId})
- }
- if(q?.templateId==="make_groups")q.ex=g2SchoolText846(`${m.total} ÷ ${m.each} = ${m.groups}. Получилось ${m.groups} ${g2GroupWord(m.groups)}.`);
- return q
-};
-
 const PRE846_QUIZ_VISUAL_HTML=quizVisualHtml;
 quizVisualHtml=function(question){const v=question?.visual;if(v?.type==="g2NumberLineRead846")return g2NumberLineReadVisualHtml846(v.data);return PRE846_QUIZ_VISUAL_HTML(question)};
 
@@ -20562,7 +20582,7 @@ g2TheoryHtml=function(id){
  if(raw==="numbers_100")html=`<div class="elementary-theory"><p><b>Числа до 100 легче понимать, если увидеть, сколько в них десятков и единиц.</b></p><div class="g2-theory-block"><h3>Соберём число</h3>${g2TensOnesVisualHtml({tens:3,ones:4})}<p>Сначала считаем десятки: 3 десятка — это 30. Потом добавляем 4 единицы. Получаем <b>34</b>.</p><div class="elementary-example"><b>34 = 3 десятка и 4 единицы.</b></div><p>10 десятков — это 1 сотня, или <b>100</b>.</p></div><div class="g2-theory-block"><h3>Где число стоит</h3>${elementaryNumberLineSvg({min:30,max:40,highlight:34})}<p>На числовом луче числа увеличиваются вправо. Перед 34 стоит 33, после 34 — 35.</p></div><div class="elementary-example"><b>Короткое правило:</b> 100 больше всех чисел от 0 до 99. В остальных числах сравни десятки, а если их поровну — единицы.</div></div>`;
  else if(raw==="quantities")html=`<div class="elementary-theory"><p><b>Когда нужно узнать, насколько предмет длинный, тяжёлый или сколько длится событие, его измеряют.</b></p><div class="g2-theory-block"><h3>Выбери подходящую единицу</h3><p>Карандаш удобно измерять в сантиметрах, комнату — в метрах, массу арбуза — в килограммах, урок — в минутах.</p><div class="elementary-example"><b>1 дм = 10 см • 1 м = 10 дм = 100 см • 1 ч = 60 мин</b></div></div><div class="g2-theory-block"><h3>Измерь по линейке</h3>${g1LengthVisualHtml({segments:[{start:3,end:8}]})}<p>Конец отрезка у отметки 8, начало у отметки 3. Длина равна <b>8 − 3 = 5 см</b>.</p></div><div class="g2-theory-block"><h3>Сравни по шагам</h3><p>1. Посмотри на единицы. 2. Если они разные — переведи в одинаковые. 3. Сравни числа.</p><div class="elementary-example">Например: 4 дм = 40 см, поэтому 4 дм больше 30 см.</div></div><div class="elementary-example"><b>Короткое правило:</b> сравнивать удобно только одинаковые единицы. Длина, масса и время — это величины.</div></div>`;
  else if(raw==="add_sub_100")html=`<div class="elementary-theory"><p><b>Считать до 100 легче, если разбивать действие на удобные шаги.</b></p><div class="g2-theory-block"><h3>Прибавляем десятки</h3>${g2ArithmeticStepVisualHtml({expression:"34 + 20",showSteps:true,steps:["30 + 20 = 50","50 + 4 = 54"]})}<p>К 34 прибавили 2 десятка и получили <b>54</b>.</p></div><div class="g2-theory-block"><h3>Переходим через десяток</h3>${g2ArithmeticStepVisualHtml({expression:"38 + 7",showSteps:true,steps:["38 + 2 = 40","от 7 осталось 5","40 + 5 = 45"]})}<p>Сначала доходим до круглого десятка, потом прибавляем остаток.</p></div><div class="g2-theory-block"><h3>Вычитаем так же</h3>${g2ArithmeticStepVisualHtml({expression:"42 − 5",showSteps:true,steps:["42 − 2 = 40","осталось вычесть 3","40 − 3 = 37"]})}</div><div class="g2-theory-block"><h3>Два двузначных числа</h3><p>Разложи второе число на десятки и единицы. Сначала прибавь или вычти десятки, затем единицы.</p><p><b>37 + 28 = 37 + 20 + 8 = 57 + 8 = 65</b></p><p><b>72 − 36 = 72 − 30 − 6 = 42 − 6 = 36</b></p></div><div class="g2-theory-block"><h3>Число пропущено</h3><p>В записи <b>? − 26 = 38</b> нужно найти число, из которого вычитали. Прибавь 26 к 38. Получится <b>38 + 26 = 64</b>.</p></div><div class="elementary-example"><b>Короткое правило:</b> выбирай шаг, после которого считать проще.</div></div>`;
- else if(raw==="multiply_divide")html=`<div class="elementary-theory"><p><b>Если есть несколько одинаковых групп, одно и то же число не обязательно складывать много раз.</b></p><div class="g2-theory-block"><h3>Одинаковые группы</h3>${g2EqualGroupsVisualHtml({groups:3,each:4})}<p>В каждой группе по 4 предмета, групп 3: <b>4 + 4 + 4 = 12</b>. Короткая запись: <b>4 × 3 = 12</b>.</p><p>Такое действие называют <b>умножением</b>.</p></div><div class="g2-theory-block"><h3>Делим поровну</h3><p>Если 12 предметов раздать поровну в 3 группы, в каждой будет по 4: <b>12 ÷ 3 = 4</b>.</p><p>Такое действие называют <b>делением</b>.</p></div><div class="elementary-example"><b>Короткое правило:</b> умножение собирает одинаковые группы, а деление помогает разделить поровну или узнать число групп.</div></div>`;
+ else if(raw==="multiply_divide")html=`<div class="elementary-theory"><p><b>Если есть несколько одинаковых групп, одно и то же число не обязательно складывать много раз.</b></p><div class="g2-theory-block"><h3>Одинаковые группы</h3>${g2EqualGroupsVisualHtml({groups:3,each:4})}<p>В каждой группе по 4 предмета, групп 3: <b>4 + 4 + 4 = 12</b>. Короткая запись: <b>4 × 3 = 12</b>.</p><p>Такое действие называют <b>умножением</b>.</p></div><div class="g2-theory-block"><h3>Делим поровну</h3><p>Если 12 предметов раздать поровну в 3 группы, в каждой будет по 4: <b>12 ÷ 3 = 4</b>.</p><p>Такое действие называют <b>делением</b>.</p></div><div class="g2-theory-block"><h3>Ноль и единица</h3><p>При умножении на 0 получается 0, а при умножении на 1 число сохраняется: <b>7 × 0 = 0</b>, <b>7 × 1 = 7</b>. Ноль можно разделить на положительное число. При делении на 1 число сохраняется: <b>0 ÷ 4 = 0</b>, <b>7 ÷ 1 = 7</b>.</p><p>Делить на ноль нельзя.</p></div><div class="g2-theory-block"><h3>Найди неизвестное</h3><p>Если <b>? × 3 = 12</b>, раздели 12 на 3. Если <b>? ÷ 3 = 4</b>, умножь 4 на 3. Если <b>12 ÷ ? = 4</b>, раздели 12 на 4.</p></div><div class="elementary-example"><b>Короткое правило:</b> умножение собирает одинаковые группы, а деление помогает разделить поровну или узнать число групп.</div></div>`;
  else if(raw==="operations_100")html=`<div class="elementary-theory"><p><b>Когда в одной записи несколько действий, важно понять, какое выполнять первым.</b></p><div class="g2-theory-block"><h3>Если только + и −</h3>${g2ExpressionVisualHtml({expression:"30 + 8 − 5",showFocus:true,focus:"30 + 8"})}<p>Считаем слева направо: сначала 30 + 8, потом вычитаем 5.</p></div><div class="g2-theory-block"><h3>× и ÷ раньше + и −</h3>${g2ExpressionVisualHtml({expression:"20 + 3 × 4",showFocus:true,focus:"3 × 4"})}<p>Сначала 3 × 4 = 12. Потом 20 + 12 = 32.</p></div><div class="g2-theory-block"><h3>Скобки — сначала</h3>${g2ExpressionVisualHtml({expression:"(8 + 4) ÷ 3",showFocus:true,focus:"8 + 4"})}<p>Сначала 8 + 4 = 12. Потом 12 ÷ 3 = 4.</p></div><div class="elementary-example"><b>Короткое правило:</b> скобки → × и ÷ → + и −. Запись из чисел и действий называют выражением.</div></div>`;
  else if(raw==="word_problems"){
   const one={steps:[{label:"Было",value:"28"},{label:"Добавили",value:"+ 15"},{label:"Стало",value:"?",answer:true}],aria:"Было 28, добавили 15, нужно узнать сколько стало"};
