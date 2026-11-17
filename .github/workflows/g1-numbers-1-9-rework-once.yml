@@ -292,14 +292,18 @@ jobs:
                     rejected++;
                   }
                   button.click();
-                  requireThat(blockSession.correct===i+1 && blockSession.done===i+1, 'Independently solved answer rejected');
+                  const item=blockSession.items.at(-1);
+                  const expectedScore=i+1-(run===0?1:0);
+                  requireThat(blockSession.correct===expectedScore && blockSession.done===i+1 &&
+                    item.finalCorrect && item.firstTry===!(run===0 && i===0), 'Answer handling differed from the level scoring rules: '+task.key);
                   accepted++;
                   const next=document.querySelector('#quizNext');
                   if (i+1===STAGES[level].count) requireThat(/Посмотреть результат/.test(next.textContent), 'Result button is missing');
                   next.click();
                 }
                 requireThat(methods.size===expectedFamilies[level].length, 'An attempt missed an action');
-                requireThat(progressFor(topic).best[level]===STAGES[level].count && progressFor(topic).bonus[level], 'Progress not saved');
+                const expectedBest=STAGES[level].count-(level===2 && run===0?1:0);
+                requireThat(progressFor(topic).best[level]===expectedBest && progressFor(topic).bonus[level], 'Progress not saved');
                 completed++;
               }
             }
