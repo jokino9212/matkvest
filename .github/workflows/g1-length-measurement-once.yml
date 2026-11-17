@@ -1,0 +1,511 @@
+name: Grade 1 Length measurement audit
+on:
+  push:
+    branches: [audit/g1-g4-content-v195]
+    paths: [.github/workflows/g1-length-measurement-once.yml]
+permissions:
+  contents: write
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save playwright
+      - run: npx playwright install --with-deps --only-shell chromium
+      - name: Verify diagrams, answers, three levels and progress
+        run: |
+          git show 3fc61702a1ef5fb7f5458213ae084ed3f0665439:index.html > "$RUNNER_TEMP/matkvest-length-before.html"
+          base64 -d > "$RUNNER_TEMP/grade-one-length.patch" <<'MATKVEST_PATCH'
+          ZGlmZiAtLWdpdCBhL2luZGV4Lmh0bWwgYi9pbmRleC5odG1sCmluZGV4IDk3ODY2NzguLjE5MzE1
+          MTkgMTAwNjQ0Ci0tLSBhL2luZGV4Lmh0bWwKKysrIGIvaW5kZXguaHRtbApAQCAtMTg0MTMsNiAr
+          MTg0MTMsNyBAQCBmdW5jdGlvbiBnMUdyb3VwQ29tcGFyZUh0bWwoZGF0YSl7CiAgcmV0dXJuIGA8
+          ZGl2IGNsYXNzPSJnMS1ncm91cHMiPjxkaXYgY2xhc3M9ImcxLWdyb3VwLWJveCI+PGI+0KHQu9C1
+          0LLQsDwvYj4ke2cxQ291bnRlclZpc3VhbEh0bWwoe2NvdW50OmF9KX08L2Rpdj48ZGl2IGNsYXNz
+          PSJnMS1ncm91cC1ib3giPjxiPtCh0L/RgNCw0LLQsDwvYj4ke2cxQ291bnRlclZpc3VhbEh0bWwo
+          e2NvdW50OmJ9KX08L2Rpdj48L2Rpdj5gCiB9CiBmdW5jdGlvbiBnMUxlbmd0aFZpc3VhbEh0bWwo
+          ZGF0YSl7CisgaWYoQXJyYXkuaXNBcnJheShkYXRhPy5zZWdtZW50cykpcmV0dXJuIGcxTGVuZ3Ro
+          RXhlcmNpc2VIdG1sKGRhdGEuc2VnbWVudHMsZGF0YS5zaG93UnVsZXIhPT1mYWxzZSk7CiAgY29u
+          c3Qga2luZD1kYXRhPy5raW5kfHwibWVhc3VyZSIsYT1NYXRoLm1heCgxLE1hdGgubWluKDEwLE1h
+          dGgudHJ1bmMoTnVtYmVyKGRhdGE/LmF8fDEpKSkpLGI9TWF0aC5tYXgoMSxNYXRoLm1pbigxMCxN
+          YXRoLnRydW5jKE51bWJlcihkYXRhPy5ifHwxKSkpKSxoaWRkZW49bmV3IFNldCgoQXJyYXkuaXNB
+          cnJheShkYXRhPy5oaWRkZW5MYWJlbHMpP2RhdGEuaGlkZGVuTGFiZWxzOltdKS5tYXAoTnVtYmVy
+          KSksVz02ODAsSD1raW5kPT09ImNvbXBhcmUiPzIzMDoxNTUsTD01NSx1bml0PTUyOwogIGxldCBv
+          dXQ9YDxzdmcgY2xhc3M9ImcxLWxlbmd0aC1zdmciIHZpZXdCb3g9IjAgMCAke1d9ICR7SH0iIHJv
+          bGU9ImltZyIgYXJpYS1sYWJlbD0i0JjQt9C80LXRgNC10L3QuNC1INC00LvQuNC90Ysg0L/QviDR
+          iNC60LDQu9C1IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPmA7CiAgY29uc3Qg
+          cnVsZXI9KHksbWF4PTEwKT0+e2xldCB6PWA8bGluZSB4MT0iJHtMfSIgeTE9IiR7eX0iIHgyPSIk
+          e0wrbWF4KnVuaXR9IiB5Mj0iJHt5fSIgc3Ryb2tlPSIjNTY2YjYxIiBzdHJva2Utd2lkdGg9IjMi
+          Lz5gO2ZvcihsZXQgaT0wO2k8PW1heDtpKyspe2NvbnN0IHg9TCtpKnVuaXQ7eis9YDxsaW5lIHgx
+          PSIke3h9IiB5MT0iJHt5LTl9IiB4Mj0iJHt4fSIgeTI9IiR7eSs5fSIgc3Ryb2tlPSIjNTY2YjYx
+          IiBzdHJva2Utd2lkdGg9IjIiLz4ke2hpZGRlbi5oYXMoaSk/IiI6YDx0ZXh0IHg9IiR7eH0iIHk9
+          IiR7eSsyOH0iIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMTUiIGZpbGw9IiM1MDY1
+          NWIiPiR7aX08L3RleHQ+YH1gIH1yZXR1cm4gen07CkBAIC0xODQyMCw2ICsxODQyMSwyMiBAQCBm
+          dW5jdGlvbiBnMUxlbmd0aFZpc3VhbEh0bWwoZGF0YSl7CiAgZWxzZXtvdXQrPWA8dGV4dCB4PSIx
+          OCIgeT0iNDkiIGZvbnQtc2l6ZT0iMTgiIGZpbGw9IiM1MDY1NWIiPkE8L3RleHQ+PGxpbmUgeDE9
+          IiR7TH0iIHkxPSI0NCIgeDI9IiR7TCthKnVuaXR9IiB5Mj0iNDQiIHN0cm9rZT0iIzI1ODQ1ZiIg
+          c3Ryb2tlLXdpZHRoPSI4IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48dGV4dCB4PSIxOCIgeT0i
+          MTExIiBmb250LXNpemU9IjE4IiBmaWxsPSIjNTA2NTViIj5CPC90ZXh0PjxsaW5lIHgxPSIke0x9
+          IiB5MT0iMTA2IiB4Mj0iJHtMK2IqdW5pdH0iIHkyPSIxMDYiIHN0cm9rZT0iI2UwYTkzZCIgc3Ry
+          b2tlLXdpZHRoPSI4IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4ke3J1bGVyKDE2Nil9YH0KICBy
+          ZXR1cm4gb3V0K2A8L3N2Zz5gCiB9CitmdW5jdGlvbiBnMUxlbmd0aEV4ZXJjaXNlSHRtbChzZWdt
+          ZW50cyxzaG93UnVsZXIpeworIGNvbnN0IHdpZHRoPTMzMixyb3dIZWlnaHQ9c2hvd1J1bGVyPzgw
+          OjM1LGxlZnQ9MzYsdW5pdD0yNTsKKyBjb25zdCB4PW1hcms9PmxlZnQrbWFyayp1bml0OworIGNv
+          bnN0IHJvd3M9c2VnbWVudHMubWFwKCh7c3RhcnQsZW5kfSxpKT0+eworICBjb25zdCB5PTE3K2kq
+          cm93SGVpZ2h0LHJ1bGVyWT15KzI2LGNvbG9yPWk9PT0wPyIjMjU4NDVmIjoiI2IyNzYxMiI7Cisg
+          IGNvbnN0IG5hbWU9aT09PTA/ItCQIjoi0JEiLHgxPXgoc3RhcnQpLHgyPXgoZW5kKTsKKyAgY29u
+          c3QgbGFiZWw9c2VnbWVudHMubGVuZ3RoPT09MT8iIjpgPHRleHQgeD0iMTMiIHk9IiR7eSs1fSIg
+          Zm9udC1zaXplPSIxNiIgZmlsbD0iIzQzNTc0ZCI+JHtuYW1lfTwvdGV4dD5gOworICBjb25zdCBz
+          ZWdtZW50PWA8bGluZSBjbGFzcz0iZzEtbGVuZ3RoLXNlZ21lbnQiIHgxPSIke3gxfSIgeTE9IiR7
+          eX0iIHgyPSIke3gyfSIgeTI9IiR7eX0iIHN0cm9rZT0iJHtjb2xvcn0iIHN0cm9rZS13aWR0aD0i
+          NSIvPmA7CisgIGlmKCFzaG93UnVsZXIpcmV0dXJuIGxhYmVsK3NlZ21lbnQ7CisgIGNvbnN0IGd1
+          aWRlcz1beDEseDJdLm1hcCh4eD0+YDxsaW5lIHgxPSIke3h4fSIgeTE9IiR7eSszfSIgeDI9IiR7
+          eHh9IiB5Mj0iJHtydWxlcll9IiBzdHJva2U9IiM3MDdmNzUiIHN0cm9rZS1kYXNoYXJyYXk9IjMg
+          MiIvPmApLmpvaW4oIiIpOworICBjb25zdCBtYXJrcz1BcnJheS5mcm9tKHtsZW5ndGg6MTF9LChf
+          LG4pPT5gPGxpbmUgeDE9IiR7eChuKX0iIHkxPSIke3J1bGVyWS00fSIgeDI9IiR7eChuKX0iIHky
+          PSIke3J1bGVyWSs1fSIgc3Ryb2tlPSIjNTY2YjYxIi8+PHRleHQgY2xhc3M9ImcxLWxlbmd0aC1t
+          YXJrIiB4PSIke3gobil9IiB5PSIke3J1bGVyWSsyMX0iIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZv
+          bnQtc2l6ZT0iMTYiIGZpbGw9IiM0MzU3NGQiPiR7bn08L3RleHQ+YCkuam9pbigiIik7CisgIHJl
+          dHVybiBsYWJlbCtzZWdtZW50K2d1aWRlcytgPGxpbmUgeDE9IiR7eCgwKX0iIHkxPSIke3J1bGVy
+          WX0iIHgyPSIke3goMTApfSIgeTI9IiR7cnVsZXJZfSIgc3Ryb2tlPSIjNTY2YjYxIiBzdHJva2Ut
+          d2lkdGg9IjIiLz4ke21hcmtzfTx0ZXh0IHg9IjI5OSIgeT0iJHtydWxlclkrMjF9IiBmb250LXNp
+          emU9IjEzIiBmaWxsPSIjNDM1NzRkIj7RgdC8PC90ZXh0PmA7CisgfSk7CisgY29uc3QgbGFiZWw9
+          c2hvd1J1bGVyP3NlZ21lbnRzLm1hcCgoe3N0YXJ0LGVuZH0saSk9PmAke3NlZ21lbnRzLmxlbmd0
+          aD4xP2DQntGC0YDQtdC30L7QuiAke2k9PT0wPyLQkCI6ItCRIn0uIGA6IiJ90J3QsNGH0LDQu9C+
+          INGDINC+0YLQvNC10YLQutC4ICR7c3RhcnR9LCDQutC+0L3QtdGGINGDINC+0YLQvNC10YLQutC4
+          ICR7ZW5kfS5gKS5qb2luKCIgIik6ItCU0LLQsCDQvtGC0YDQtdC30LrQsCDQkCDQuCDQkSDRgSDQ
+          vtCx0YnQuNC8INC90LDRh9Cw0LvQvtC8INC00LvRjyDRgdGA0LDQstC90LXQvdC40Y8g0LTQu9C4
+          0L3RiyI7CisgcmV0dXJuIGA8c3ZnIGNsYXNzPSJnMS1sZW5ndGgtc3ZnIiB2aWV3Qm94PSIwIDAg
+          JHt3aWR0aH0gJHtzZWdtZW50cy5sZW5ndGgqcm93SGVpZ2h0fSIgcm9sZT0iaW1nIiBhcmlhLWxh
+          YmVsPSIke2xhYmVsfSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4ke3Jvd3Mu
+          am9pbigiIil9PC9zdmc+YDsKK30KIGNvbnN0IFBSRTgzNV9RVUlaX1ZJU1VBTF9IVE1MPXF1aXpW
+          aXN1YWxIdG1sOwogcXVpelZpc3VhbEh0bWw9ZnVuY3Rpb24ocXVlc3Rpb24pewogIGNvbnN0IHY9
+          cXVlc3Rpb24/LnZpc3VhbDsKQEAgLTE4NTE5LDkgKzE4NTM2LDkgQEAgZnVuY3Rpb24gZzFUaGVv
+          cnlIdG1sKGlkKXsKICBpZihyYXc9PT0ibnVtYmVyc18xXzkiKXJldHVybiBgPGRpdiBjbGFzcz0i
+          ZWxlbWVudGFyeS10aGVvcnkiPjxwPjxiPtCn0LjRgdC70LAg0L/QvtC80L7Qs9Cw0Y7RgiDRg9C3
+          0L3QsNGC0YwsINGB0LrQvtC70YzQutC+INC/0YDQtdC00LzQtdGC0L7Qsi48L2I+PC9wPiR7ZzFD
+          b3VudGVyVmlzdWFsSHRtbCh7Y291bnQ6NX0pfTxwPtCh0YfQuNGC0LDQtdC8INC/0L4g0L7QtNC9
+          0L7QvNGDOiAxLCAyLCAzLCA0LCA1LjwvcD48ZGl2IGNsYXNzPSJlbGVtZW50YXJ5LWV4YW1wbGUi
+          PtCf0Y/RgtGMINC60YDRg9C20LrQvtCyIOKAlCDRjdGC0L4g0YfQuNGB0LvQviA8Yj41PC9iPi48
+          L2Rpdj48cD7Qn9GA0Lgg0YHRh9GR0YLQtSDQstC/0LXRgNGR0LQg0YfQuNGB0LvQsCDRgdGC0LDQ
+          vdC+0LLRj9GC0YHRjyDQsdC+0LvRjNGI0LUsINC/0YDQuCDRgdGH0ZHRgtC1INC90LDQt9Cw0LQg
+          4oCUINC80LXQvdGM0YjQtS48L3A+PGRpdiBjbGFzcz0iZWxlbWVudGFyeS1leGFtcGxlIj7Qp9C4
+          0YHQu9C+IDxiPjU8L2I+INCx0L7Qu9GM0YjQtSAzINC4INC80LXQvdGM0YjQtSA3LjwvZGl2Pjwv
+          ZGl2PmA7CiAgaWYocmF3PT09Im51bWJlcnNfMF8xMCIpcmV0dXJuIGA8ZGl2IGNsYXNzPSJlbGVt
+          ZW50YXJ5LXRoZW9yeSI+PHA+PGI+0JjQvdC+0LPQtNCwINC/0YDQtdC00LzQtdGC0L7QsiDQvdC1
+          INC+0YHRgtCw0ZHRgtGB0Y8g0YHQvtCy0YHQtdC8LjwvYj48L3A+JHtnMUNvdW50ZXJWaXN1YWxI
+          dG1sKHtjb3VudDowfSl9PHA+0KLQvtCz0LTQsCDQs9C+0LLQvtGA0LjQvDogPGI+0L3QvtC70Yw8
+          L2I+LjwvcD4ke2VsZW1lbnRhcnlOdW1iZXJMaW5lU3ZnKHttaW46MCxtYXg6MTAsaGlnaGxpZ2h0
+          Ojd9KX08ZGl2IGNsYXNzPSJlbGVtZW50YXJ5LWV4YW1wbGUiPtCe0YIgNyDQtNCy0LAg0YjQsNCz
+          0LAg0LLQu9C10LLQvjog0YHQvdCw0YfQsNC70LAg0LogNiwg0L/QvtGC0L7QvCDQuiA1LjwvZGl2
+          PjxwPtCd0LAg0LvRg9GH0LUg0LLQv9GA0LDQstC+INGH0LjRgdC70LAg0YHRgtCw0L3QvtCy0Y/R
+          gtGB0Y8g0LHQvtC70YzRiNC1LCDQstC70LXQstC+IOKAlCDQvNC10L3RjNGI0LUuPC9wPjwvZGl2
+          PmA7CiAgaWYocmF3PT09Im51bWJlcnNfMTFfMjAiKXJldHVybiBgPGRpdiBjbGFzcz0iZWxlbWVu
+          dGFyeS10aGVvcnkiPjxwPjxiPtCf0L7RgdC70LUgMTAg0YHRh9GR0YIg0L/RgNC+0LTQvtC70LbQ
+          sNC10YLRgdGPLjwvYj48L3A+JHtnMUNvdW50ZXJWaXN1YWxIdG1sKHtjb3VudDoxNCxzcGxpdFRl
+          bjp0cnVlfSl9PHA+0JTQtdGB0Y/RgtGMINC/0YDQtdC00LzQtdGC0L7QsiDQstC80LXRgdGC0LUg
+          4oCUINGN0YLQviDQvtC00LjQvSA8Yj7QtNC10YHRj9GC0L7QujwvYj4uPC9wPjxwPtCe0YHRgtCw
+          0LvRjNC90YvQtSDRgdGH0LjRgtCw0LXQvCDQv9C+INC+0LTQvdC+0LzRgyDigJQg0Y3RgtC+IDxi
+          PtC10LTQuNC90LjRhtGLPC9iPi48L3A+PGRpdiBjbGFzcz0iZWxlbWVudGFyeS1leGFtcGxlIj7Q
+          ntC00LjQvSDQtNC10YHRj9GC0L7QuiDQuCDQtdGJ0ZEg0YfQtdGC0YvRgNC1INC10LTQuNC90LjR
+          htGLIOKAlCDRjdGC0L4gPGI+MTQ8L2I+LjwvZGl2PjxwPtCSINGH0LjRgdC70LUgPGI+MjA8L2I+
+          INC00LLQsCDQtNC10YHRj9GC0LrQsCDQuCDQvdC4INC+0LTQvdC+0Lkg0L7RgtC00LXQu9GM0L3Q
+          vtC5INC10LTQuNC90LjRhtGLLjwvcD48L2Rpdj5gOwotIHJldHVybiBgPGRpdiBjbGFzcz0iZWxl
+          bWVudGFyeS10aGVvcnkiPjxwPjxiPtCU0LvQuNC90LAg0L/QvtC60LDQt9GL0LLQsNC10YIsINC6
+          0LDQutC+0Lkg0L/RgNC10LTQvNC10YIg0LTQu9C40L3QvdC10LUg0LjQu9C4INC60L7RgNC+0YfQ
+          tS48L2I+PC9wPiR7ZzFMZW5ndGhWaXN1YWxIdG1sKHtraW5kOiJtZWFzdXJlIixhOjV9KX08cD7Q
+          ndCw0YfQuNC90LDQtdC8INC40LfQvNC10YDRj9GC0Ywg0L7RgiAwLjwvcD48ZGl2IGNsYXNzPSJl
+          bGVtZW50YXJ5LWV4YW1wbGUiPtCe0YLRgNC10LfQvtC6INC30LDQutCw0L3Rh9C40LLQsNC10YLR
+          gdGPINGDIDUuINCV0LPQviDQtNC70LjQvdCwIOKAlCA8Yj41INGB0Lw8L2I+LjwvZGl2PjwvZGl2
+          PmAKKyByZXR1cm4gYDxkaXYgY2xhc3M9ImVsZW1lbnRhcnktdGhlb3J5Ij48cD48Yj7QlNC70LjQ
+          vdGDINC80L7QttC90L4g0LjQt9C80LXRgNC40YLRjCDQu9C40L3QtdC50LrQvtC5INCyINGB0LDQ
+          vdGC0LjQvNC10YLRgNCw0YUuPC9iPjwvcD4ke2cxTGVuZ3RoVmlzdWFsSHRtbCh7c2VnbWVudHM6
+          W3tzdGFydDoyLGVuZDo1fV19KX08cD7Qn9C+0YHRh9C40YLQsNC5INC/0YDQvtC80LXQttGD0YLQ
+          utC4INC80LXQttC00YMg0L7RgtC80LXRgtC60LDQvNC4INC+0YIg0L3QsNGH0LDQu9CwINC00L4g
+          0LrQvtC90YbQsCDQvtGC0YDQtdC30LrQsC4g0JzQvtC20L3QviDQstGL0YfQtdGB0YLRjCDQvNC1
+          0L3RjNGI0YPRjiDQvtGC0LzQtdGC0LrRgyDQuNC3INCx0L7Qu9GM0YjQtdC5LjwvcD48ZGl2IGNs
+          YXNzPSJlbGVtZW50YXJ5LWV4YW1wbGUiPtCe0YIgMiDQtNC+IDUg0YLRgNC4INC/0YDQvtC80LXQ
+          ttGD0YLQutCwLiDQlNC70LjQvdCwINC+0YLRgNC10LfQutCwIOKAlCA8Yj4zINGB0Lw8L2I+Ljwv
+          ZGl2PjwvZGl2PmAKIH0KLWNvbnN0IEcxX05VTUJFUl9TVEFHRV9ERVNDUklQVElPTlM9eworY29u
+          c3QgRzFfU1RBR0VfREVTQ1JJUFRJT05TPXsKICAiZzE6bnVtYmVyc18xXzkiOlsKICAgItCf0L7R
+          gdGH0LjRgtCw0Lkg0LrRgNGD0LbQutC4INC40LvQuCDQvdCw0LfQvtCy0Lgg0YHQu9C10LTRg9GO
+          0YnQtdC1INGH0LjRgdC70L4uIiwKICAgItCS0L7RgdGB0YLQsNC90L7QstC4INC/0YDQvtC/0YPR
+          gdC6INCyINGA0Y/QtNGDINC40LvQuCDRgdGA0LDQstC90Lgg0LTQstC1INCz0YDRg9C/0L/RiyDQ
+          utGA0YPQttC60L7Qsi4iLApAQCAtMTg1MzYsMTIgKzE4NTUzLDE3IEBAIGNvbnN0IEcxX05VTUJF
+          Ul9TVEFHRV9ERVNDUklQVElPTlM9ewogICAi0J/QvtGB0YfQuNGC0LDQuSDQutGA0YPQttC60Lgg
+          0LjQu9C4INC/0YDQvtGH0LjRgtCw0Lkg0YfQuNGB0LvQviDQvdCwINC70YPRh9C1LiIsCiAgICLQ
+          l9Cw0L/QvtC70L3QuCDQv9GA0L7Qv9GD0YHQuiDQuNC70Lgg0YHQvtGB0YLQsNCy0Ywg0YfQuNGB
+          0LvQviDQuNC3INC00LXRgdGP0YLQutC+0LIg0Lgg0LXQtNC40L3QuNGGLiIsCiAgICLQodGA0LDQ
+          stC90Lgg0YfQuNGB0LvQsCDQv9C+INC40YUg0LfQsNC/0LjRgdC4INC40LvQuCDQvdCw0LnQtNC4
+          INC+0YjQuNCx0LrRgyDQsiDRgNCw0LfQu9C+0LbQtdC90LjQuCDRh9C40YHQu9CwLiIKKyBdLAor
+          ICJnMTpsZW5ndGhfbWVhc3VyZW1lbnQiOlsKKyAgItCY0LfQvNC10YDRjCDQvtGC0YDQtdC30L7Q
+          uiDQvtGCINC90YPQu9GPINC40LvQuCDRgdGA0LDQstC90Lgg0LTQstCwINC+0YLRgNC10LfQutCw
+          INC90LAg0YDQuNGB0YPQvdC60LUuIiwKKyAgItCY0LfQvNC10YDRjCDQvtGC0YDQtdC30L7QuiDQ
+          vtGCINC00YDRg9Cz0L7QuSDQvtGC0LzQtdGC0LrQuCDQuNC70Lgg0L3QsNC50LTQuCwg0LPQtNC1
+          INC+0L0g0LfQsNC60LDQvdGH0LjQstCw0LXRgtGB0Y8uIiwKKyAgItCY0LfQvNC10YDRjCDQtNCy
+          0LAg0L7RgtGA0LXQt9C60LAg0Lgg0YHRgNCw0LLQvdC4INC40YUg0LTQu9C40L3RiyDQuNC70Lgg
+          0YHQu9C+0LbQuCDQuNGFLiIKICBdCiB9OwogZnVuY3Rpb24gb3BlbkcxVG9waWMoaWQpewogIGNv
+          bnN0IHQ9ZzFJbmZvQnlJZChpZCk7aWYoIXQpcmV0dXJuO2lmKHQuaW1wbGVtZW50ZWQ9PT1mYWxz
+          ZSlyZXR1cm4gc2hvd0VsZW1lbnRhcnlUb3BpY1Nvb24oMSxpZCk7CiAgZG9jdW1lbnQuYm9keS5j
+          bGFzc0xpc3QuYWRkKCJlbGVtZW50YXJ5LW1vZGUiKTtibG9ja1Nlc3Npb249bnVsbDtjb25zdCBk
+          b25lPWNvbXBsZXRlZFN0YWdlcyh0LmlkKTsKLSBzaG93KGA8ZGl2IGNsYXNzPSJtdG9wIj48aDI+
+          MSDQutC70LDRgdGBIOKAoiAke2VzYyh0LnRpdGxlKX08L2gyPjxidXR0b24gY2xhc3M9IngiIG9u
+          Y2xpY2s9ImNsb3NlTW9kYWwoKSI+w5c8L2J1dHRvbj48L2Rpdj48ZGl2IGNsYXNzPSJsZXNzb24g
+          ZWxlbWVudGFyeS1sZXNzb24iPiR7ZzFUaGVvcnlIdG1sKHQuaWQpfTwvZGl2PjxkaXYgY2xhc3M9
+          InN0YWdlLWdyaWQiPiR7c3RhZ2VDYXJkcyh0LmlkLGBzdGFydEcxUXVpelN0YWdlLmJpbmQobnVs
+          bCwnJHt0LmlkfScpYCxHMV9OVU1CRVJfU1RBR0VfREVTQ1JJUFRJT05TW3QuaWRdKX08L2Rpdj48
+          ZGl2IGNsYXNzPSJzdWJ0bGUiPtCf0YDQvtC50LTQtdC90L4g0Y3RgtCw0L/QvtCyOiA8Yj4ke2Rv
+          bmV9LzM8L2I+LjwvZGl2PmApCisgc2hvdyhgPGRpdiBjbGFzcz0ibXRvcCI+PGgyPjEg0LrQu9Cw
+          0YHRgSDigKIgJHtlc2ModC50aXRsZSl9PC9oMj48YnV0dG9uIGNsYXNzPSJ4IiBvbmNsaWNrPSJj
+          bG9zZU1vZGFsKCkiPsOXPC9idXR0b24+PC9kaXY+PGRpdiBjbGFzcz0ibGVzc29uIGVsZW1lbnRh
+          cnktbGVzc29uIj4ke2cxVGhlb3J5SHRtbCh0LmlkKX08L2Rpdj48ZGl2IGNsYXNzPSJzdGFnZS1n
+          cmlkIj4ke3N0YWdlQ2FyZHModC5pZCxgc3RhcnRHMVF1aXpTdGFnZS5iaW5kKG51bGwsJyR7dC5p
+          ZH0nKWAsRzFfU1RBR0VfREVTQ1JJUFRJT05TW3QuaWRdKX08L2Rpdj48ZGl2IGNsYXNzPSJzdWJ0
+          bGUiPtCf0YDQvtC50LTQtdC90L4g0Y3RgtCw0L/QvtCyOiA8Yj4ke2RvbmV9LzM8L2I+LjwvZGl2
+          PmApCiB9CiBmdW5jdGlvbiBzdGFydEcxUXVpelN0YWdlKGlkLHN0YWdlSW5kZXgpewogIGNvbnN0
+          IHQ9ZzFJbmZvQnlJZChpZCk7aWYoIXR8fHQuaW1wbGVtZW50ZWQ9PT1mYWxzZSlyZXR1cm4gc2hv
+          d0VsZW1lbnRhcnlUb3BpY1Nvb24oMSxpZCk7CkBAIC0xOTI2NywyMSArMTkyODksNDQgQEAgZzFO
+          dW1iZXJzUXVlc3Rpb249ZnVuY3Rpb24ocmF3LGQsbWluLG1heCl7CiAgIHttb2RlbDp7d3JvbmdO
+          dW1iZXIsbWlzcmVhZEFzLG90aGVyTnVtYmVycyxtaW4sbWF4fSx0ZW1wbGF0ZUlkfSk7CiB9Owog
+          Ci0vKiDQlNC70LjQvdCwOiDQstGL0LHQvtGAIEEvQiDQstGF0L7QtNC40YIg0LIgbW9kZWwg0LTQ
+          viDRhNC+0YDQvNC40YDQvtCy0LDQvdC40Y8gYW5zd2VyOyDRhNC+0YDQvNGD0LvQuNGA0L7QstC6
+          0LAg0L/RgNC+0YnQtS4gKi8KK2NvbnN0IEcxX0xFTkdUSF9TVEFHRV9URU1QTEFURVM9WworIFsi
+          bWVhc3VyZV96ZXJvIiwiY29tcGFyZV9ieV9zaWdodCJdLAorIFsibWVhc3VyZV9zaGlmdGVkIiwi
+          ZmluZF9lbmRwb2ludCJdLAorIFsiY29tcGFyZV9zaGlmdGVkIiwidG90YWxfbGVuZ3RoIl0KK107
+          CiBnMUxlbmd0aFF1ZXN0aW9uPWZ1bmN0aW9uKGQpewotIGNvbnN0IHRlbXBsYXRlSWQ9ZzFQaWNr
+          VGVtcGxhdGUoZD09PTA/WyJtZWFzdXJlIiwiY29tcGFyZSJdOmQ9PT0xP1sibWVhc3VyZSIsImNv
+          bXBhcmUiLCJtYXRjaCJdOlsibWVhc3VyZSIsImNvbXBhcmUiLCJtYXRjaCIsInNob3J0ZXIiXSk7
+          Ci0gaWYodGVtcGxhdGVJZD09PSJtZWFzdXJlIil7Ci0gIGNvbnN0IGE9cmkoMSxkPT09MD82OjEw
+          KSxtb2RlbD17YX07cmV0dXJuIGcxQ2hvaWNlKCLQmtCw0LrQvtCy0LAg0LTQu9C40L3QsCDQvtGC
+          0YDQtdC30LrQsD8iLGEsZzFVbmlxdWVOdW1zKGEsMSwxMCksYNCe0YLRgNC10LfQvtC6INC90LDR
+          h9C40L3QsNC10YLRgdGPINGDIDAg0Lgg0LfQsNC60LDQvdGH0LjQstCw0LXRgtGB0Y8g0YMgJHth
+          fS4g0JXQs9C+INC00LvQuNC90LAg4oCUICR7YX0g0YHQvC5gLGBnMTpsZW5ndGhfbWVhc3VyZW1l
+          bnQ6JHtkfTptZWFzdXJlOiR7YX1gLHttb2RlbCx2aXN1YWw6e3R5cGU6ImcxTGVuZ3RoIixkYXRh
+          OntraW5kOiJtZWFzdXJlIixhfX0sdGVtcGxhdGVJZH0pCi0gfQotIGxldCBhPXJpKDEsOSksYj1y
+          aSgxLDkpO2lmKHRlbXBsYXRlSWQhPT0ibWF0Y2giJiZhPT09YiliPWI8OT9iKzE6Yi0xOwotIGlm
+          KHRlbXBsYXRlSWQ9PT0iY29tcGFyZSIpewotICBjb25zdCBhbnN3ZXI9YT5iPyJBIjpiPmE/IkIi
+          OiLQntC00LjQvdCw0LrQvtCy0YvQtSIsbW9kZWw9e2EsYixhbnN3ZXJ9O3JldHVybiBnMUNob2lj
+          ZSgi0JrQsNC60L7QuSDQvtGC0YDQtdC30L7QuiDQtNC70LjQvdC90LXQtT8iLGFuc3dlcixbIkEi
+          LCJCIiwi0J7QtNC40L3QsNC60L7QstGL0LUiXS5maWx0ZXIoeD0+eCE9PWFuc3dlciksYT09PWI/
+          ItCe0LHQsCDQvtGC0YDQtdC30LrQsCDQvtC00LjQvdCw0LrQvtCy0L7QuSDQtNC70LjQvdGLLiI6
+          YNCe0YLRgNC10LfQvtC6ICR7YW5zd2VyfSDQtNC70LjQvdC90LXQtS5gLGBnMTpsZW5ndGhfbWVh
+          c3VyZW1lbnQ6JHtkfTpjb21wYXJlOiR7YX06JHtifWAse21vZGVsLHZpc3VhbDp7dHlwZToiZzFM
+          ZW5ndGgiLGRhdGE6e2tpbmQ6ImNvbXBhcmUiLGEsYn19LHRlbXBsYXRlSWR9KQotIH0KLSBpZih0
+          ZW1wbGF0ZUlkPT09InNob3J0ZXIiKXsKLSAgY29uc3QgYW5zd2VyPWE8Yj8iQSI6YjxhPyJCIjoi
+          0J7QtNC40L3QsNC60L7QstGL0LUiLG1vZGVsPXthLGIsYW5zd2VyfTtyZXR1cm4gZzFDaG9pY2Uo
+          ItCa0LDQutC+0Lkg0L7RgtGA0LXQt9C+0Log0LrQvtGA0L7Rh9C1PyIsYW5zd2VyLFsiQSIsIkIi
+          LCLQntC00LjQvdCw0LrQvtCy0YvQtSJdLmZpbHRlcih4PT54IT09YW5zd2VyKSxhPT09Yj8i0J7Q
+          sdCwINC+0YLRgNC10LfQutCwINC+0LTQuNC90LDQutC+0LLQvtC5INC00LvQuNC90YsuIjpg0J7R
+          gtGA0LXQt9C+0LogJHthbnN3ZXJ9INC60L7RgNC+0YfQtS5gLGBnMTpsZW5ndGhfbWVhc3VyZW1l
+          bnQ6JHtkfTpzaG9ydGVyOiR7YX06JHtifWAse21vZGVsLHZpc3VhbDp7dHlwZToiZzFMZW5ndGgi
+          LGRhdGE6e2tpbmQ6ImNvbXBhcmUiLGEsYn19LHRlbXBsYXRlSWR9KQotIH0KLSBjb25zdCBhc2tB
+          PXJpKDAsMSk9PT0xLGFuc3dlcj1hc2tBP2E6Yixtb2RlbD17YSxiLGFza0EsYW5zd2VyfTsKLSBy
+          ZXR1cm4gZzFDaG9pY2UoYNCa0LDQutC+0LLQsCDQtNC70LjQvdCwINC+0YLRgNC10LfQutCwICR7
+          YXNrQT8iQSI6IkIifT9gLGFuc3dlcixnMVVuaXF1ZU51bXMoYW5zd2VyLDEsMTApLGDQn9C+INGI
+          0LrQsNC70LUg0LTQu9C40L3QsCDQvtGC0YDQtdC30LrQsCAke2Fza0E/IkEiOiJCIn0g4oCUICR7
+          YW5zd2VyfSDRgdC8LmAsYGcxOmxlbmd0aF9tZWFzdXJlbWVudDoke2R9Om1hdGNoOiR7YX06JHti
+          fToke2Fza0E/MTowfWAse21vZGVsLHZpc3VhbDp7dHlwZToiZzFMZW5ndGgiLGRhdGE6e2tpbmQ6
+          ImNvbXBhcmUiLGEsYn19LHRlbXBsYXRlSWR9KQorIGNvbnN0IHRlbXBsYXRlSWQ9ZzFQaWNrVGVt
+          cGxhdGUoRzFfTEVOR1RIX1NUQUdFX1RFTVBMQVRFU1tkXT8/RzFfTEVOR1RIX1NUQUdFX1RFTVBM
+          QVRFU1syXSk7CisgY29uc3Qga2V5PWBnMTpsZW5ndGhfbWVhc3VyZW1lbnQ6JHtkfToke3RlbXBs
+          YXRlSWR9YDsKKyBpZih0ZW1wbGF0ZUlkPT09Im1lYXN1cmVfemVybyJ8fHRlbXBsYXRlSWQ9PT0i
+          bWVhc3VyZV9zaGlmdGVkInx8dGVtcGxhdGVJZD09PSJmaW5kX2VuZHBvaW50Iil7CisgIGNvbnN0
+          IHN0YXJ0PXRlbXBsYXRlSWQ9PT0ibWVhc3VyZV96ZXJvIj8wOnJpKDEsNyksZW5kPXJpKHN0YXJ0
+          KzEsMTApLGxlbmd0aD1lbmQtc3RhcnQ7CisgIGNvbnN0IG1vZGVsPXtzdGFydCxlbmQsbGVuZ3Ro
+          fTsKKyAgaWYodGVtcGxhdGVJZD09PSJmaW5kX2VuZHBvaW50Iil7CisgICByZXR1cm4gZzFDaG9p
+          Y2UoYNCe0YLRgNC10LfQvtC6INC90LDRh9C40L3QsNC10YLRgdGPINGDINC+0YLQvNC10YLQutC4
+          ICR7c3RhcnR9LiDQldCz0L4g0LTQu9C40L3QsCAke2xlbmd0aH0g0YHQvC4g0KMg0LrQsNC60L7Q
+          uSDQvtGC0LzQtdGC0LrQuCDQvtC9INC30LDQutCw0L3Rh9C40LLQsNC10YLRgdGPP2AsCisgICAg
+          ZW5kLGcxVW5pcXVlTnVtcyhlbmQsMSwxMCksYCR7c3RhcnR9ICsgJHtsZW5ndGh9ID0gJHtlbmR9
+          LiDQmtC+0L3QtdGGINC+0YLRgNC10LfQutCwINGDINC+0YLQvNC10YLQutC4ICR7ZW5kfS5gLAor
+          ICAgIGAke2tleX06JHtzdGFydH06JHtlbmR9YCx7bW9kZWwsdGVtcGxhdGVJZH0pOworICB9Cisg
+          IGNvbnN0IHZpc3VhbD17dHlwZToiZzFMZW5ndGgiLGRhdGE6e3NlZ21lbnRzOlt7c3RhcnQsZW5k
+          fV19fTsKKyAgcmV0dXJuIGcxQ2hvaWNlKCLQmtCw0LrQvtCy0LAg0LTQu9C40L3QsCDQvtGC0YDQ
+          tdC30LrQsCDQsiDRgdCw0L3RgtC40LzQtdGC0YDQsNGFPyIsbGVuZ3RoLGcxVW5pcXVlTnVtcyhs
+          ZW5ndGgsMSwxMCksCisgICBg0J7RgiAke3N0YXJ0fSDQtNC+ICR7ZW5kfSAke2xlbmd0aH0g0YHQ
+          vC4gJHtlbmR9IOKIkiAke3N0YXJ0fSA9ICR7bGVuZ3RofS5gLAorICAgYCR7a2V5fToke3N0YXJ0
+          fToke2VuZH1gLHttb2RlbCx2aXN1YWwsdGVtcGxhdGVJZH0pOworIH0KKyBjb25zdCBhPXJpKDEs
+          OCksYj1yaSgxLHRlbXBsYXRlSWQ9PT0idG90YWxfbGVuZ3RoIj9NYXRoLm1pbig4LDEwLWEpOjgp
+          OworIGNvbnN0IGJ5U2lnaHQ9dGVtcGxhdGVJZD09PSJjb21wYXJlX2J5X3NpZ2h0IjsKKyBjb25z
+          dCBzdGFydEE9YnlTaWdodD8wOnJpKDEsMTAtYSk7CisgY29uc3Qgc3RhcnRCPWJ5U2lnaHQ/MDpn
+          MVBpY2tUZW1wbGF0ZShBcnJheS5mcm9tKHtsZW5ndGg6MTAtYn0sKF8saSk9PmkrMSkuZmlsdGVy
+          KHN0YXJ0PT5zdGFydCE9PXN0YXJ0QSkpOworIGNvbnN0IHNlZ21lbnRzPVt7c3RhcnQ6c3RhcnRB
+          LGVuZDpzdGFydEErYX0se3N0YXJ0OnN0YXJ0QixlbmQ6c3RhcnRCK2J9XTsKKyBjb25zdCBtb2Rl
+          bD17YSxiLHNlZ21lbnRzfSx2aXN1YWw9e3R5cGU6ImcxTGVuZ3RoIixkYXRhOntzZWdtZW50cyxz
+          aG93UnVsZXI6IWJ5U2lnaHR9fTsKKyBjb25zdCBzaWduYXR1cmU9YCR7a2V5fToke3N0YXJ0QX06
+          JHthfToke3N0YXJ0Qn06JHtifWA7CisgaWYodGVtcGxhdGVJZD09PSJ0b3RhbF9sZW5ndGgiKXsK
+          KyAgcmV0dXJuIGcxQ2hvaWNlKCLQntGC0YDQtdC30LrQuCDQkCDQuCDQkSDQv9C+0LvQvtC20LjQ
+          u9C4INC+0LTQuNC9INC30LAg0LTRgNGD0LPQuNC8LiDQmtCw0LrQvtCy0LAg0LjRhSDQvtCx0YnQ
+          sNGPINC00LvQuNC90LAg0LIg0YHQsNC90YLQuNC80LXRgtGA0LDRhT8iLAorICAgYStiLGcxVW5p
+          cXVlTnVtcyhhK2IsMSwxMCksYNCU0LvQuNC90LAg0JAg4oCUICR7YX0g0YHQvCwg0LTQu9C40L3Q
+          sCDQkSDigJQgJHtifSDRgdC8LiDQktC80LXRgdGC0LUgJHthfSArICR7Yn0gPSAke2ErYn0g0YHQ
+          vC5gLAorICAgc2lnbmF0dXJlLHttb2RlbCx2aXN1YWwsdGVtcGxhdGVJZH0pOworIH0KKyBjb25z
+          dCBvcHRpb25zPVsi0JAiLCLQkSIsItCe0LTQuNC90LDQutC+0LLRi9C1Il0sYW5zd2VyPWE+Yj9v
+          cHRpb25zWzBdOmE8Yj9vcHRpb25zWzFdOm9wdGlvbnNbMl07CisgY29uc3QgcmVzdWx0PWE9PT1i
+          PyLQlNC70LjQvdGLINC+0YLRgNC10LfQutC+0LIg0YDQsNCy0L3Riy4iOmDQntGC0YDQtdC30L7Q
+          uiAke2Fuc3dlcn0g0LTQu9C40L3QvdC10LUuYDsKKyBjb25zdCBleHBsYW5hdGlvbj1ieVNpZ2h0
+          P2DQndCw0YfQsNC70LAg0L7RgtGA0LXQt9C60L7QsiDRgdC+0LLQv9Cw0LTQsNGO0YIuICR7cmVz
+          dWx0fWA6YNCU0LvQuNC90LAg0JAg4oCUICR7YX0g0YHQvCwg0LTQu9C40L3QsCDQkSDigJQgJHti
+          fSDRgdC8LiAke3Jlc3VsdH1gOworIGNvbnN0IHByb21wdD1ieVNpZ2h0PyLQmtCw0LrQvtC5INC+
+          0YLRgNC10LfQvtC6INC90LAg0YDQuNGB0YPQvdC60LUg0LTQu9C40L3QvdC10LU/Ijoi0JjQt9C8
+          0LXRgNGMINC+0LHQsCDQvtGC0YDQtdC30LrQsC4g0JrQsNC60L7QuSDQtNC70LjQvdC90LXQtT8i
+          OworIHJldHVybiBnMUNob2ljZShwcm9tcHQsYW5zd2VyLG9wdGlvbnMuZmlsdGVyKG9wdGlvbj0+
+          b3B0aW9uIT09YW5zd2VyKSxleHBsYW5hdGlvbixzaWduYXR1cmUse21vZGVsLHZpc3VhbCx0ZW1w
+          bGF0ZUlkfSk7CiB9OwogCiAvKiDQn9GA0L7RgdGC0YDQsNC90YHRgtCy0LXQvdC90YvQtSDQvtGC
+          0L3QvtGI0LXQvdC40Y86INGD0LHQuNGA0LDQtdC8INGC0YDRg9C00L3QvtC1INC00LvRjyDQv9C1
+          0YDQstC+0LrQu9Cw0YHRgdC90LjQutCwIMKr0L7RgtC90L7RgdC40YLQtdC70YzQvdC+wrsuICov
+          Cg==
+          MATKVEST_PATCH
+          git apply --check "$RUNNER_TEMP/grade-one-length.patch"
+          git apply "$RUNNER_TEMP/grade-one-length.patch"
+          git diff --check
+          cat > .grade-one-length-check.cjs <<'MATKVEST_CHECK'
+          'use strict';
+          
+          const assert = require('node:assert/strict');
+          const fs = require('node:fs');
+          const http = require('node:http');
+          const path = require('node:path');
+          const {chromium} = require('playwright');
+          
+          const topic = 'g1:length_measurement';
+          const repository = process.env.MATKVEST_CHECK_REPO || path.join(__dirname, 'matkvest-g1-length');
+          const baseline = fs.readFileSync(process.env.MATKVEST_CHECK_BASELINE || path.join(__dirname, 'matkvest-g1-length-before.html'));
+          let oldBuild = true;
+          const types = {
+            '.html': 'text/html; charset=utf-8', '.svg': 'image/svg+xml', '.js': 'text/javascript',
+            '.png': 'image/png', '.webp': 'image/webp', '.webmanifest': 'application/manifest+json'
+          };
+          const server = http.createServer((request, response) => {
+            const url = new URL(request.url, 'http://localhost');
+            const asset = path.join(repository, url.pathname === '/' ? 'index.html' : decodeURIComponent(url.pathname));
+            const html = url.pathname === '/';
+            response.setHeader('Cache-Control', 'no-store');
+            response.setHeader('Content-Type', types[path.extname(asset)] || 'application/octet-stream');
+            try {
+              response.end(html && oldBuild ? baseline : fs.readFileSync(asset));
+            } catch {
+              response.writeHead(404).end();
+            }
+          });
+          
+          function inspectBuild({topic, mode}) {
+            function requireThat(condition, message) {
+              if (!condition) throw new Error(message);
+            }
+            const plain = value => value.replace(/\s+/g, ' ').trim();
+            const expectedFamilies = [['zero','sight'], ['shifted','endpoint'], ['compare','total']];
+            const inRange = numbers => numbers.every(number => Number.isInteger(number) && number >= 1 && number <= 10);
+            const comparison = (a,b) => a>b?'А':a<b?'Б':'Одинаковые';
+            function solve(prompt, visual, labels) {
+              requireThat(labels.length>=3 && new Set(labels).size===labels.length, 'Invalid choices');
+              const numericChoice = labels.every(label=>/^\d+$/.test(label));
+              if (numericChoice) requireThat(inRange(labels.map(Number)), 'An option is outside 1–10');
+              const endpoint=prompt.match(/^Отрезок начинается у отметки (\d+)\. Его длина (\d+) см\. У какой отметки он заканчивается\?$/);
+              if (endpoint) {
+                const [start,length]=endpoint.slice(1).map(Number),end=start+length;
+                requireThat(numericChoice && inRange([start,length,end]),'Endpoint is outside the scale');
+                return {family:'endpoint',key:prompt,answer:String(end)};
+              }
+              const svg=visual.querySelector('svg.g1-length-svg');
+              requireThat(svg,'Missing diagram');
+              const lines=[...svg.querySelectorAll('line.g1-length-segment')].map(line=>[Number(line.getAttribute('x1')),Number(line.getAttribute('x2'))]);
+              requireThat(lines.length>=1 && lines.every(([start,end])=>end>start),'Malformed segment');
+              const marks=[...svg.querySelectorAll('.g1-length-mark')];
+              if (prompt==='Какой отрезок на рисунке длиннее?') {
+                requireThat(lines.length===2 && marks.length===0 && lines[0][0]===lines[1][0], 'Sight comparison requires aligned starts');
+                const answer=comparison(lines[0][1],lines[1][1]);
+                return {family:'sight',key:prompt+JSON.stringify(lines),answer};
+              }
+              requireThat(marks.length===lines.length*11 && [...svg.querySelectorAll('text')].filter(t=>t.textContent==='см').length===lines.length,'Missing centimetre scale');
+              for (let i=0;i<lines.length;i++) {
+                requireThat(marks.slice(i*11,i*11+11).map(mark=>mark.textContent).join(',')==='0,1,2,3,4,5,6,7,8,9,10','Invalid scale marks');
+              }
+              const positions=lines.map(([start,end],i)=>[start,end].map(x=>marks.slice(i*11,i*11+11).find(mark=>Number(mark.getAttribute('x'))===x)));
+              requireThat(positions.flat().every(Boolean),'Segment does not align with scale');
+              const pairs=positions.map(pair=>pair.map(mark=>Number(mark.textContent)));
+              const lengths=pairs.map(([start,end])=>end-start);
+              requireThat(inRange(lengths),'Wrong length');
+              const key=prompt+JSON.stringify(pairs);
+              if (prompt==='Какова длина отрезка в сантиметрах?') {
+                requireThat(pairs.length===1 && numericChoice,'Expected one measured segment');
+                return {family:pairs[0][0]===0?'zero':'shifted',key,answer:String(lengths[0])};
+              }
+              requireThat(pairs.length===2 && pairs.every(([start])=>start>0) && pairs[0][0]!==pairs[1][0],'Pair needs distinct positive starts');
+              const [a,b]=lengths;
+              if (prompt==='Измерь оба отрезка. Какой длиннее?') {
+                const answer=comparison(a,b), endOrder=comparison(pairs[0][1],pairs[1][1]);
+                return {family:'compare',key,answer,misleadingEnd:endOrder!==answer};
+              }
+              if (prompt==='Отрезки А и Б положили один за другим. Какова их общая длина в сантиметрах?') {
+                requireThat(numericChoice && inRange([a+b]), 'Total length is outside 1–10');
+                return {family:'total',key,answer:String(a+b)};
+              }
+              throw new Error('Unrecognised task: '+prompt);
+            }
+          
+            function seedRandom(value) {
+              Math.random = () => ((value = (Math.imul(value, 1664525) + 1013904223) >>> 0) / 4294967296);
+            }
+            function siblingQuestions() {
+              seedRandom(19503);
+              return g1AllTopics().filter(t=>t.id!==topic).flatMap(t => [0,1,2].flatMap(level =>
+                Array.from({length:12}, () => makeG1Question(t.id, level))));
+            }
+          
+            if (mode === 'baseline') {
+              const siblings = siblingQuestions();
+              seedRandom(195);
+              for (const level of [0,1]) {
+                openG1Topic(topic);
+                document.querySelectorAll('#modal .stage-card')[level].click();
+                for (let i=0; i<STAGES[level].count; i++) {
+                  const buttons = [...document.querySelectorAll('#qstage button.answer')];
+                  buttons[q.choices.findIndex(option => option.key === q.ans)].click();
+                  document.querySelector('#quizNext').click();
+                }
+              }
+              const stored = deepCopy(progressFor(topic));
+              requireThat(JSON.stringify(stored.best) === '[5,7,0]' && JSON.stringify(stored.bonus) === '[true,true,false]', 'Baseline did not produce saved progress');
+              return {siblings, stored, historyIds:state.attemptHistory.map(attempt=>attempt.id)};
+            }
+          
+            const otherTopics = siblingQuestions();
+            seedRandom(19601);
+            const holder = document.createElement('div');
+            const seen = expectedFamilies.map(() => new Set());
+            const cases = {zeroAtTen:0, shiftedLengthOne:0, endpointTen:0, sightEqual:0, equalShifted:0, misleadingEnd:0, totalTen:0};
+            let generated=0, accepted=0, completed=0, rejected=0;
+            for (const level of [0,1,2]) {
+              for (let i=0; i<600; i++) {
+                const question = makeG1Question(topic, level);
+                holder.innerHTML = '<div>' + question.text + '</div>' + quizVisualHtml(question);
+                const prompt = plain(holder.firstElementChild.textContent);
+                const labels = question.choices.map(option=>option.label);
+                const task = solve(prompt, holder, labels);
+                requireThat(task.answer === String(question.ans) && labels.filter(label=>label===task.answer).length===1, 'Generated answer disagrees with an independent solution');
+                requireThat(expectedFamilies[level].includes(task.family), 'Unexpected family on level ' + level);
+                seen[level].add(task.family);
+                if (task.family==='zero' && task.answer==='10') cases.zeroAtTen++;
+                if (task.family==='shifted' && task.answer==='1') cases.shiftedLengthOne++;
+                if (task.family==='endpoint' && task.answer==='10') cases.endpointTen++;
+                if (task.family==='sight' && task.answer==='Одинаковые') cases.sightEqual++;
+                if (task.family==='compare' && task.answer==='Одинаковые') cases.equalShifted++;
+                if (task.misleadingEnd) cases.misleadingEnd++;
+                if (task.family==='total' && task.answer==='10') cases.totalTen++;
+                generated++;
+              }
+              requireThat(seen[level].size===expectedFamilies[level].length, 'Insufficient coverage of the level');
+              for (let run=0; run<6; run++) {
+                openG1Topic(topic);
+                const stages = [...document.querySelectorAll('#modal .stage-card')];
+                for (const stage of stages) {
+                  const rect=stage.getBoundingClientRect();
+                  requireThat(rect.width>0 && rect.left>=-1 && rect.right<=innerWidth+1,'Stage card overflow');
+                }
+                const stage=stages[level];
+                requireThat(!stage.disabled, 'Level not unlocked');
+                stage.click();
+                const keys=new Set(), methods=new Set();
+                for (let i=0; i<STAGES[level].count; i++) {
+                  const panel=document.querySelector('#qstage');
+                  const choices=[...panel.querySelectorAll('button.answer')];
+                  const labels=choices.map(button=>plain(button.textContent));
+                  const task=solve(plain(panel.querySelector('.quizq').textContent),panel,labels);
+                  requireThat(expectedFamilies[level].includes(task.family) && !keys.has(task.key), 'Bad level or repetition inside an attempt');
+                  const button=choices[labels.indexOf(task.answer)];
+                  requireThat(button, 'Independently solved answer missing from the screen');
+                  keys.add(task.key);
+                  methods.add(task.family);
+                  for (const element of panel.querySelectorAll('.g1-length-svg, button.answer')) {
+                    const rect=element.getBoundingClientRect();
+                    requireThat(rect.width>0 && rect.left>=-1 && rect.right<=innerWidth+1, 'Question overflowing viewport');
+                  }
+                  for (const mark of panel.querySelectorAll('.g1-length-mark')) {
+                    requireThat(mark.getBoundingClientRect().height>=10,'A ruler label is too small to read');
+                  }
+                  if (run===0 && i===0) {
+                    choices.find(option=>option!==button).click();
+                    requireThat(blockSession.correct===i && blockSession.done===i && /Пока неверно/.test(document.querySelector('#qfb').textContent), 'Wrong answer was not rejected');
+                    rejected++;
+                  }
+                  button.click();
+                  const item=blockSession.items.at(-1);
+                  const expectedScore=i+1-(run===0?1:0);
+                  requireThat(blockSession.correct===expectedScore && blockSession.done===i+1 &&
+                    item.finalCorrect && item.firstTry===!(run===0 && i===0), 'Answer handling differed from the level scoring rules: '+task.key);
+                  accepted++;
+                  const next=document.querySelector('#quizNext');
+                  if (i+1===STAGES[level].count) requireThat(/Посмотреть результат/.test(next.textContent), 'Result button is missing');
+                  next.click();
+                }
+                requireThat(methods.size===expectedFamilies[level].length, 'An attempt missed an action');
+                const expectedBest=STAGES[level].count-(level===2 && run===0?1:0);
+                requireThat(progressFor(topic).best[level]===expectedBest && progressFor(topic).bonus[level], 'Progress not saved');
+                completed++;
+              }
+            }
+            requireThat(Object.values(cases).every(count=>count>0), 'Coverage of the range endpoints or variants is missing');
+            return {otherTopics, generated, accepted, completed, rejected, cases, familyByLevel:seen.map(level=>[...level].sort()), progress:deepCopy(progressFor(topic))};
+          }
+          
+          (async () => {
+            await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
+            const address = 'http://127.0.0.1:' + server.address().port;
+            let browser;
+            try {
+              browser=await chromium.launch({headless:true,executablePath:process.env.MATKVEST_CHECK_CHROMIUM});
+              for (const width of [320,390,1280]) {
+                const context=await browser.newContext({viewport:{width,height:850},isMobile:width<500,hasTouch:width<500,serviceWorkers:'block'});
+                try {
+                  const page=await context.newPage();
+                  const errors=[];
+                  page.on('pageerror',error=>errors.push(error.message));
+                  oldBuild=true;
+                  await page.goto(address);
+                  await page.locator('button[onclick="openGrade(1)"]').click();
+                  const card=page.locator('button.topic').filter({has:page.getByText('Длина. Измерение длины',{exact:true})});
+                  await card.click();
+                  assert.equal(await page.locator('#modal .stage-card:disabled').count(),2);
+                  const old=await page.evaluate(inspectBuild,{topic,mode:'baseline'});
+                  oldBuild=false;
+                  await page.reload();
+                  assert.deepEqual(await page.evaluate(key=>({stored:progressFor(key),historyIds:state.attemptHistory.map(attempt=>attempt.id)}),topic),{stored:old.stored,historyIds:old.historyIds});
+                  const stagePicker = page.locator('#modal .stage-card').first();
+                  if (!(await stagePicker.isVisible())) {
+                    if (!(await card.isVisible())) await page.locator('button[onclick="openGrade(1)"]').click({timeout:8000});
+                    await card.click({timeout:8000});
+                  }
+                  assert.match(await page.locator('#modal h2').textContent(), /Длина\. Измерение длины/);
+                  assert.equal(await page.locator('#modal .stage-card:disabled').count(),0);
+                  assert.match(await page.locator('#modal .stage-card').nth(2).textContent(), /сравни их длины или сложи их/);
+                  const {otherTopics,...result}=await page.evaluate(inspectBuild,{topic,mode:'candidate'});
+                  assert.deepEqual(otherTopics,old.siblings);
+                  await page.reload();
+                  assert.deepEqual(await page.evaluate(key=>progressFor(key),topic),{best:[5,7,10],bonus:[true,true,true]});
+                  assert.deepEqual(errors,[]);
+                  console.log(JSON.stringify({width,siblingSamples:otherTopics.length,oldProgress:old.stored,oldHistory:old.historyIds.length,...result}));
+                } finally {
+                  await context.close();
+                }
+              }
+            } finally {
+              await browser?.close();
+              server.close();
+            }
+          })().catch(error=>{console.error(error);process.exitCode=1;});
+          MATKVEST_CHECK
+          MATKVEST_CHECK_REPO="$PWD" MATKVEST_CHECK_BASELINE="$RUNNER_TEMP/matkvest-length-before.html" node .grade-one-length-check.cjs
+      - name: Save verified exercises on the audit branch
+        run: |
+          test "$GITHUB_REF" = refs/heads/audit/g1-g4-content-v195
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- index.html
+          git commit -m 'Separate Grade 1 length measurement practice by level'
+          git push origin "HEAD:$GITHUB_REF"
