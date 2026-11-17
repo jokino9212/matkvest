@@ -16,7 +16,7 @@ const rebuilt=[
  'pythagorean_applications','parallelogram_properties','number_intervals','linear_function','rational_equation_word_problems'
 ];
 async function testNavigation(page){
- await page.goto(pathToFileURL(process.cwd()+'/index.html').href);
+ await page.goto(pathToFileURL(process.cwd()+'/index.html').href,{waitUntil:'domcontentloaded'});
  await page.locator('button[onclick="openGrade(8)"]').click();
  const menu=page.locator('#mk-g8-textbook-nav');
  const search=page.locator('main input[type=search]:visible');
@@ -56,16 +56,16 @@ async function testNavigation(page){
  assert.equal(await menu.locator('details:visible').count(),1);
  await menu.locator('[data-topic-id="g8:heron_formula"]:visible').click();
  assert.equal(await page.locator('#modal .stage-card').count(),3);
- await page.reload();
+ await page.reload({waitUntil:'domcontentloaded'});
  await page.locator('#modal .stage-card').first().waitFor();
  assert.equal(await page.evaluate(()=>currentGrade),8);
  await page.evaluate(()=>mk872BrandGoHome());
  assert.match(await page.locator('#g8HomeProgress').textContent(),/0\/136.*0\/408/);
- await page.reload();
+ await page.reload({waitUntil:'domcontentloaded'});
  assert.match(await page.locator('#g8HomeProgress').textContent(),/0\/136.*0\/408/);
 }
-async function testSimilarity(page){
- return page.evaluate(({applicationTopics,trigonometryTopics})=>{
+async function testGeometry(page,exerciseTrigonometry=false){
+ return page.evaluate(({applicationTopics,trigonometryTopics,exerciseTrigonometry})=>{
   const check=(condition,message)=>{if(!condition)throw Error(message);};
   const distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
   function checkTriangle(triangle){
@@ -140,11 +140,10 @@ async function testSimilarity(page){
   const totals={similarityQuestions:0,similarityDrawings:0,applicationQuestions:0,projectionDrawings:0,
    trigonometryQuestions:0,trigonometryDrawings:0};
   const criteria=['similarity_by_angles','similarity_by_two_sides','similarity_by_three_sides'];
-  for(const raw of trigonometryTopics){
+  for(const raw of exerciseTrigonometry?trigonometryTopics:[...criteria,...applicationTopics]){
    const criterion=criteria.includes(raw),trigonometry=trigonometryTopics.includes(raw);
    const id='g8:'+raw,templates=new Set();
    for(let stage=0;stage<3;stage++){
-    console.log('trig starting: '+raw+' '+stage);
     const count=STAGES[stage].count,generated=new Set();
     for(let i=0;i<250;i++){
      const task=makeG8Question(id,stage);
@@ -200,11 +199,15 @@ async function testSimilarity(page){
    }
   }
   check(JSON.stringify(legacyProgress.best)==='[4,6,9]', 'Original workout progress changed');
-
-
-  check(totals.trigonometryQuestions===66&&totals.trigonometryDrawings===11,'Missing trigonometry problems or diagrams');
-  return totals;
- },{applicationTopics,trigonometryTopics});
+  if(exerciseTrigonometry){
+   check(totals.trigonometryQuestions===66&&totals.trigonometryDrawings===11,'Missing trigonometry problems or diagrams');
+   return {trigonometryQuestions:totals.trigonometryQuestions,trigonometryDrawings:totals.trigonometryDrawings};
+  }
+  check(totals.similarityDrawings===9&&totals.similarityQuestions===66,'Missing similarity problems or visuals');
+  check(totals.applicationQuestions===132&&totals.projectionDrawings===5,'Missing application problems or altitude diagrams');
+  return {similarityQuestions:totals.similarityQuestions,similarityDrawings:totals.similarityDrawings,
+   applicationQuestions:totals.applicationQuestions,projectionDrawings:totals.projectionDrawings};
+ },{applicationTopics,trigonometryTopics,exerciseTrigonometry});
 }
 
 async function testSessions(page){
@@ -281,26 +284,27 @@ async function testSessions(page){
 }
 
 (async()=>{
- const stop=setTimeout(()=>{console.error('Trigonometry check timed out');process.exit(1)},90000);
  for(const width of [390,320,1280]){
   const browser=await chromium.launch({headless:true,executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE});
   try{
-   const page=await browser.newPage({viewport:{width,height:850},isMobile:width<500,hasTouch:width<500});
-   page.setDefaultTimeout(20000);
+   const options={viewport:{width,height:850},isMobile:width<500,hasTouch:width<500};
    const errors=[];
+   const trigonometryPage=await browser.newPage(options);
+   trigonometryPage.on('pageerror',error=>errors.push(error.message));
+   await trigonometryPage.goto(pathToFileURL(process.cwd()+'/index.html').href,{waitUntil:'domcontentloaded'});
+   await trigonometryPage.locator('button[onclick="openGrade(8)"]').click({timeout:20000});
+   const trigonometry=await testGeometry(trigonometryPage,true);
+   await trigonometryPage.close();
+   console.log(JSON.stringify({width,...trigonometry}));
+   const page=await browser.newPage(options);
+   page.setDefaultTimeout(20000);
    page.on('pageerror',error=>errors.push(error.message));
-   page.on('console',msg=>{if(msg.text().startsWith('trig ')) console.log(msg.text());});
-   console.log('Opening site');
-   await page.goto(pathToFileURL(process.cwd()+'/index.html').href,{waitUntil:'domcontentloaded'});
-   console.log('Site loaded');
-   await page.locator('button[onclick="openGrade(8)"]').click();
-   console.log('Grade opened');
+   await testNavigation(page);
    console.log(JSON.stringify({width,navigation:'pass'}));
-   const similarity=await testSimilarity(page);
+   const similarity=await testGeometry(page);
    const result=width===390&&!process.env.MATKVEST_G8_NAV_ONLY?await testSessions(page):{};
    assert.deepEqual(errors,[]);
    console.log(JSON.stringify({width,...similarity,...result}));
   }finally{await browser.close();}
  }
- clearTimeout(stop);
 })().catch(error=>{console.error(error);process.exitCode=1;});
