@@ -139,7 +139,11 @@ async function testSimilarity(page){
      if(!blockSession.finished)nextQ();
      totals.similarityQuestions++;
     }
-    check(blockSession.finished&&progressFor(id).best[stage]===count,raw+' did not save the stage result');
+    check(blockSession.finished,raw+' did not finish the stage');
+    const resultButton=[...document.querySelectorAll('#qstage button')].find(button=>button.textContent.includes('Посмотреть результат'));
+    check(resultButton,raw+' did not show the result button');
+    resultButton.click();
+    check(progressFor(id).best[stage]===count,raw+' did not save the stage result');
    }
   }
   check(JSON.stringify(legacyProgress.best)==='[4,6,9]', 'Original workout progress changed');
