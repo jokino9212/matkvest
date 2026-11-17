@@ -19858,7 +19858,7 @@ function g2TheoryHtml(id){
 }
 function openG2Topic(id){
  const t=g2InfoById(id);if(!t)return;if(t.implemented===false)return showElementaryTopicSoon(2,id);document.body.classList.add("elementary-mode");blockSession=null;const done=completedStages(t.id);
- const stages=t.id==="g2:numbers_100"?G2_NUMBERS_100_STAGES:t.id==="g2:quantities"?G2_QUANTITIES_STAGES:[];
+ const stages=({"g2:numbers_100":G2_NUMBERS_100_STAGES,"g2:quantities":G2_QUANTITIES_STAGES,"g2:add_sub_100":G2_ADD_SUB_100_STAGES})[t.id]||[];
  const descriptions=stages.map(stage=>stage.description);
  show(`<div class="mtop"><h2>2 класс • ${esc(t.title)}</h2><button class="x" onclick="closeModal()">×</button></div><div class="lesson elementary-lesson">${g2TheoryHtml(t.id)}</div><div class="stage-grid">${stageCards(t.id,`startG2QuizStage.bind(null,'${t.id}')`,descriptions)}</div><div class="subtle">Пройдено этапов: <b>${done}/3</b>.</div>`)
 }
@@ -19967,41 +19967,64 @@ function g2SubOnesNoCrossModel(){
  const tens=ri(1,9),ones=ri(1,9),b=ri(1,ones),a=tens*10+ones,result=a-b;
  return {kind:"sub_ones",op:"sub",a,b,result,steps:[`Единицы: ${ones} − ${b} = ${ones-b}`,`Получаем ${result}`]}
 }
-function g2AddCrossModel(){
- const tens=ri(1,8),ones=ri(5,9),a=tens*10+ones,toTen=10-ones,rest=ri(1,Math.min(5,100-(a+toTen))),b=toTen+rest,bridge=a+toTen,result=bridge+rest;
- return {kind:"add_cross",op:"add",a,b,result,toTen,rest,bridge,steps:[`${a} + ${toTen} = ${bridge}`,`Из ${b} уже прибавили ${toTen}. Осталось ${rest}`,`${bridge} + ${rest} = ${result}`]}
+const G2_ADD_SUB_100_STAGES=[
+ {templates:["round_tens","single_units"],description:"Прибавляй и вычитай круглые десятки или единицы в пределах одного десятка."},
+ {templates:["cross_ten","two_digits"],description:"Считай с переходом через десяток. Разбивай числа на десятки и единицы. Вводи ответ."},
+ {templates:["missing_operand","compare_expressions"],description:"Найди неизвестное число в равенстве или сравни значения двух выражений."}
+];
+
+function g2AddSubCrossTenModel(add){
+ const tens=ri(1,9),ones=ri(add?1:0,add?9:8);
+ const a=!add&&ones===0&&ri(0,1)===0?100:tens*10+ones;
+ const toTen=add?10-ones:ones,b=ri(add?toTen:toTen+1,add?Math.min(9,100-a):9);
+ const sign=add?"+":"−",bridge=add?a+toTen:a-toTen,rest=b-toTen,result=add?a+b:a-b;
+ const steps=[];
+ if(toTen>0)steps.push(`${a} ${sign} ${toTen} = ${bridge}`);
+ if(rest>0)steps.push(`${bridge} ${sign} ${rest} = ${result}`);
+ return {a,b,result,op:add?"add":"sub",steps};
 }
-function g2SubCrossModel(){
- const tens=ri(2,9),ones=ri(1,4),a=tens*10+ones,toTen=ones,rest=ri(1,Math.min(5,a-toTen)),b=toTen+rest,bridge=a-toTen,result=bridge-rest;
- return {kind:"sub_cross",op:"sub",a,b,result,toTen,rest,bridge,steps:[`${a} − ${toTen} = ${bridge}`,`Из ${b} уже вычли ${toTen}. Осталось вычесть ${rest}`,`${bridge} − ${rest} = ${result}`]}
+
+function g2AddSubTwoDigitsModel(add){
+ const a=add?ri(11,89):ri(11,100);
+ let b=ri(11,add?100-a:a);
+ if(b%10===0)b-=1;
+ const sign=add?"+":"−",tens=Math.floor(b/10)*10,step=add?a+tens:a-tens,units=b%10,result=add?a+b:a-b;
+ return {a,b,result,op:add?"add":"sub",steps:[`${b} = ${tens} + ${units}`,`${a} ${sign} ${tens} = ${step}`,`${step} ${sign} ${units} = ${result}`]};
 }
+
 function g2AddSub100Question(d){
- const warm=["add_tens","sub_tens","add_ones","sub_ones"],train=[...warm,"add_cross","sub_cross","compute_input"],master=[...train,"missing_addend","missing_subtrahend","choose_record"],templateId=g2PickTemplate(d===0?warm:d===1?train:master);
- let model;
- if(templateId==="add_tens")model=g2AddTensModel();
- else if(templateId==="sub_tens")model=g2SubTensModel();
- else if(templateId==="add_ones")model=g2AddOnesNoCrossModel();
- else if(templateId==="sub_ones")model=g2SubOnesNoCrossModel();
- else if(templateId==="add_cross")model=g2AddCrossModel();
- else if(templateId==="sub_cross")model=g2SubCrossModel();
- if(model){
-  const sign=model.op==="add"?"+":"−",verb=model.op==="add"?"Складываем":"Вычитаем",ex=model.steps.join(". ")+".";
-  return g2Choice(`Вычисли: <b>${model.a} ${sign} ${model.b}</b>`,model.result,g2UniqueNums(model.result,0,100),ex,`g2:add_sub_100:${d}:${templateId}:${model.a}:${model.b}`,{model,visual:{type:"g2ArithmeticSteps",data:{expression:`${model.a} ${sign} ${model.b}`,steps:d===0?[]:model.steps.slice(0,-1),aria:`${verb} ${model.a} и ${model.b}`}},templateId})
+ const templateId=g2PickTemplate(G2_ADD_SUB_100_STAGES[d].templates),add=ri(0,1)===0,sign=add?"+":"−";
+ const sig=key=>`g2:add_sub_100:${d}:${templateId}:${key}`;
+ const options=model=>({model,templateId});
+ if(d===0){
+  const tens=templateId==="round_tens";
+  const model=add?(tens?g2AddTensModel():g2AddOnesNoCrossModel()):(tens?g2SubTensModel():g2SubOnesNoCrossModel());
+  const {a,b,result,steps}=model;
+  return g2Choice(`Вычисли <b>${a} ${sign} ${b}</b>.`,result,g2UniqueNums(result,0,100),steps.join(". ")+".",
+   sig(`${sign}:${a}:${b}`),options(model));
  }
- if(templateId==="compute_input"){
-  const useAdd=ri(0,1)===1;model=useAdd?g2AddCrossModel():g2SubCrossModel();const sign=useAdd?"+":"−";
-  return g2NumberInput(`Вычисли: <b>${model.a} ${sign} ${model.b}</b>`,model.result,model.steps.join(". ")+".",`g2:add_sub_100:${d}:compute_input:${model.a}:${model.b}:${useAdd?1:0}`,{model,visual:{type:"g2ArithmeticSteps",data:{expression:`${model.a} ${sign} ${model.b}`,steps:model.steps.slice(0,-1)}},templateId})
+ if(d===1){
+  const model=templateId==="cross_ten"?g2AddSubCrossTenModel(add):g2AddSubTwoDigitsModel(add);
+  const {a,b,result,steps}=model;
+  return g2NumberInput(`Вычисли <b>${a} ${sign} ${b}</b>.`,result,steps.join(". ")+".",sig(`${sign}:${a}:${b}`),options(model));
  }
- if(templateId==="missing_addend"){
-  const p=ri(0,1)?g2AddCrossModel():g2AddOnesNoCrossModel(),model={a:p.a,b:p.b,result:p.result};
-  return g2NumberInput(`Какое число пропущено?<div class="g1-arithmetic-record">${model.a} + ? = ${model.result}</div>`,model.b,`От ${model.a} до ${model.result} нужно прибавить ${model.b}. Значит, пропущено ${model.b}.`,`g2:add_sub_100:${d}:missing_addend:${model.a}:${model.result}`,{model,templateId})
+ const model=ri(0,1)===0?g2AddSubCrossTenModel(add):g2AddSubTwoDigitsModel(add);
+ const {a,b,result}=model;
+ if(templateId==="missing_operand"){
+  const hideFirst=ri(0,1)===0,answer=hideFirst?a:b;
+  const equation=`${hideFirst?"?":a} ${sign} ${hideFirst?b:"?"} = ${result}`;
+  const check=add?`${result} − ${hideFirst?b:a}`:hideFirst?`${result} + ${b}`:`${a} − ${result}`;
+  const term=add?"слагаемое":hideFirst?"уменьшаемое":"вычитаемое";
+  return g2NumberInput(`Какое число пропущено?<div class="g1-arithmetic-record">${equation}</div>`,answer,
+   `Находим неизвестное ${term}. ${check} = ${answer}. Проверка: ${a} ${sign} ${b} = ${result}.`,sig(equation),options({...model,hideFirst}));
  }
- if(templateId==="missing_subtrahend"){
-  const p=ri(0,1)?g2SubCrossModel():g2SubOnesNoCrossModel(),model={a:p.a,b:p.b,result:p.result};
-  return g2NumberInput(`Какое число пропущено?<div class="g1-arithmetic-record">${model.a} − ? = ${model.result}</div>`,model.b,`Из ${model.a} вычли ${model.b} и получили ${model.result}. Значит, пропущено ${model.b}.`,`g2:add_sub_100:${d}:missing_subtrahend:${model.a}:${model.result}`,{model,templateId})
- }
- const useAdd=ri(0,1)===1,p=useAdd?g2AddCrossModel():g2SubCrossModel(),sign=useAdd?"+":"−",correct=`${p.a} ${sign} ${p.b} = ${p.result}`,wrong=[`${p.a} ${sign} ${p.b} = ${Math.max(0,Math.min(100,p.result+1))}`,`${p.a} ${sign} ${p.b} = ${Math.max(0,Math.min(100,p.result-1))}`,`${p.result} ${sign} ${p.b} = ${p.a}`].filter(x=>x!==correct);model={...p,correct};
- return g2Choice("Выбери верную запись.",correct,wrong,`${p.a} ${sign} ${p.b} = ${p.result}.`,`g2:add_sub_100:${d}:choose_record:${p.a}:${p.b}:${useAdd?1:0}`,{model,templateId:"choose_record"})
+ const target=result+ri(-Math.min(6,result),Math.min(6,100-result));
+ const limit=add?100-target:target,rightB=limit>0?ri(1,limit):0,rightA=add?target+rightB:target-rightB;
+ const left=`${a} ${sign} ${b}`,right=`${rightA} ${add?"−":"+"} ${rightB}`;
+ const answer=result===target?"=":result<target?"<":">";
+ return g2Choice(`Какой знак сравнения поставить?<div class="g1-arithmetic-record">(${left}) &nbsp; ? &nbsp; (${right})</div>`,
+  answer,["<","=",">"].filter(value=>value!==answer),`${left} = ${result}. ${right} = ${target}. Сравниваем результаты: ${result} ${answer} ${target}.`,
+  sig(`${left}:${right}`),options({...model,rightA,rightB}));
 }
 
 function g2GroupsModel({maxFactor=5}={}){const groups=ri(2,maxFactor),each=ri(2,maxFactor),total=groups*each;return {groups,each,total}}
@@ -20538,7 +20561,7 @@ g2TheoryHtml=function(id){
  const raw=rawCourseId(id);let html="";
  if(raw==="numbers_100")html=`<div class="elementary-theory"><p><b>Числа до 100 легче понимать, если увидеть, сколько в них десятков и единиц.</b></p><div class="g2-theory-block"><h3>Соберём число</h3>${g2TensOnesVisualHtml({tens:3,ones:4})}<p>Сначала считаем десятки: 3 десятка — это 30. Потом добавляем 4 единицы. Получаем <b>34</b>.</p><div class="elementary-example"><b>34 = 3 десятка и 4 единицы.</b></div><p>10 десятков — это 1 сотня, или <b>100</b>.</p></div><div class="g2-theory-block"><h3>Где число стоит</h3>${elementaryNumberLineSvg({min:30,max:40,highlight:34})}<p>На числовом луче числа увеличиваются вправо. Перед 34 стоит 33, после 34 — 35.</p></div><div class="elementary-example"><b>Короткое правило:</b> 100 больше всех чисел от 0 до 99. В остальных числах сравни десятки, а если их поровну — единицы.</div></div>`;
  else if(raw==="quantities")html=`<div class="elementary-theory"><p><b>Когда нужно узнать, насколько предмет длинный, тяжёлый или сколько длится событие, его измеряют.</b></p><div class="g2-theory-block"><h3>Выбери подходящую единицу</h3><p>Карандаш удобно измерять в сантиметрах, комнату — в метрах, массу арбуза — в килограммах, урок — в минутах.</p><div class="elementary-example"><b>1 дм = 10 см • 1 м = 10 дм = 100 см • 1 ч = 60 мин</b></div></div><div class="g2-theory-block"><h3>Измерь по линейке</h3>${g1LengthVisualHtml({segments:[{start:3,end:8}]})}<p>Конец отрезка у отметки 8, начало у отметки 3. Длина равна <b>8 − 3 = 5 см</b>.</p></div><div class="g2-theory-block"><h3>Сравни по шагам</h3><p>1. Посмотри на единицы. 2. Если они разные — переведи в одинаковые. 3. Сравни числа.</p><div class="elementary-example">Например: 4 дм = 40 см, поэтому 4 дм больше 30 см.</div></div><div class="elementary-example"><b>Короткое правило:</b> сравнивать удобно только одинаковые единицы. Длина, масса и время — это величины.</div></div>`;
- else if(raw==="add_sub_100")html=`<div class="elementary-theory"><p><b>Считать до 100 легче, если разбивать действие на удобные шаги.</b></p><div class="g2-theory-block"><h3>Прибавляем десятки</h3>${g2ArithmeticStepVisualHtml({expression:"34 + 20",showSteps:true,steps:["30 + 20 = 50","50 + 4 = 54"]})}<p>К 34 прибавили 2 десятка и получили <b>54</b>.</p></div><div class="g2-theory-block"><h3>Переходим через десяток</h3>${g2ArithmeticStepVisualHtml({expression:"38 + 7",showSteps:true,steps:["38 + 2 = 40","от 7 осталось 5","40 + 5 = 45"]})}<p>Сначала доходим до круглого десятка, потом прибавляем остаток.</p></div><div class="g2-theory-block"><h3>Вычитаем так же</h3>${g2ArithmeticStepVisualHtml({expression:"42 − 5",showSteps:true,steps:["42 − 2 = 40","осталось вычесть 3","40 − 3 = 37"]})}</div><div class="elementary-example"><b>Короткое правило:</b> выбирай шаг, после которого считать проще.</div></div>`;
+ else if(raw==="add_sub_100")html=`<div class="elementary-theory"><p><b>Считать до 100 легче, если разбивать действие на удобные шаги.</b></p><div class="g2-theory-block"><h3>Прибавляем десятки</h3>${g2ArithmeticStepVisualHtml({expression:"34 + 20",showSteps:true,steps:["30 + 20 = 50","50 + 4 = 54"]})}<p>К 34 прибавили 2 десятка и получили <b>54</b>.</p></div><div class="g2-theory-block"><h3>Переходим через десяток</h3>${g2ArithmeticStepVisualHtml({expression:"38 + 7",showSteps:true,steps:["38 + 2 = 40","от 7 осталось 5","40 + 5 = 45"]})}<p>Сначала доходим до круглого десятка, потом прибавляем остаток.</p></div><div class="g2-theory-block"><h3>Вычитаем так же</h3>${g2ArithmeticStepVisualHtml({expression:"42 − 5",showSteps:true,steps:["42 − 2 = 40","осталось вычесть 3","40 − 3 = 37"]})}</div><div class="g2-theory-block"><h3>Два двузначных числа</h3><p>Разложи второе число на десятки и единицы. Сначала прибавь или вычти десятки, затем единицы.</p><p><b>37 + 28 = 37 + 20 + 8 = 57 + 8 = 65</b></p><p><b>72 − 36 = 72 − 30 − 6 = 42 − 6 = 36</b></p></div><div class="g2-theory-block"><h3>Число пропущено</h3><p>В записи <b>? − 26 = 38</b> нужно найти число, из которого вычитали. Прибавь 26 к 38. Получится <b>38 + 26 = 64</b>.</p></div><div class="elementary-example"><b>Короткое правило:</b> выбирай шаг, после которого считать проще.</div></div>`;
  else if(raw==="multiply_divide")html=`<div class="elementary-theory"><p><b>Если есть несколько одинаковых групп, одно и то же число не обязательно складывать много раз.</b></p><div class="g2-theory-block"><h3>Одинаковые группы</h3>${g2EqualGroupsVisualHtml({groups:3,each:4})}<p>В каждой группе по 4 предмета, групп 3: <b>4 + 4 + 4 = 12</b>. Короткая запись: <b>4 × 3 = 12</b>.</p><p>Такое действие называют <b>умножением</b>.</p></div><div class="g2-theory-block"><h3>Делим поровну</h3><p>Если 12 предметов раздать поровну в 3 группы, в каждой будет по 4: <b>12 ÷ 3 = 4</b>.</p><p>Такое действие называют <b>делением</b>.</p></div><div class="elementary-example"><b>Короткое правило:</b> умножение собирает одинаковые группы, а деление помогает разделить поровну или узнать число групп.</div></div>`;
  else if(raw==="operations_100")html=`<div class="elementary-theory"><p><b>Когда в одной записи несколько действий, важно понять, какое выполнять первым.</b></p><div class="g2-theory-block"><h3>Если только + и −</h3>${g2ExpressionVisualHtml({expression:"30 + 8 − 5",showFocus:true,focus:"30 + 8"})}<p>Считаем слева направо: сначала 30 + 8, потом вычитаем 5.</p></div><div class="g2-theory-block"><h3>× и ÷ раньше + и −</h3>${g2ExpressionVisualHtml({expression:"20 + 3 × 4",showFocus:true,focus:"3 × 4"})}<p>Сначала 3 × 4 = 12. Потом 20 + 12 = 32.</p></div><div class="g2-theory-block"><h3>Скобки — сначала</h3>${g2ExpressionVisualHtml({expression:"(8 + 4) ÷ 3",showFocus:true,focus:"8 + 4"})}<p>Сначала 8 + 4 = 12. Потом 12 ÷ 3 = 4.</p></div><div class="elementary-example"><b>Короткое правило:</b> скобки → × и ÷ → + и −. Запись из чисел и действий называют выражением.</div></div>`;
  else if(raw==="word_problems"){
