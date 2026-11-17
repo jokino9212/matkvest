@@ -329,8 +329,14 @@ jobs:
                   oldBuild=false;
                   await page.reload();
                   assert.deepEqual(await page.evaluate(key=>({stored:progressFor(key),historyIds:state.attemptHistory.map(attempt=>attempt.id)}),topic),{stored:old.stored,historyIds:old.historyIds});
-                  await page.locator('button[onclick="openGrade(1)"]').click();
-                  await card.click();
+                  if (!(await card.isVisible())) {
+                    const grade = page.locator('button[onclick="openGrade(1)"]');
+                    if (await grade.isVisible()) await grade.click();
+                  }
+                  await card.click({timeout:8000}).catch(async error => {
+                    console.error('After upgrade:', await page.locator('body').innerText({timeout:1000}).then(text=>text.slice(0,600)), errors);
+                    throw error;
+                  });
                   assert.equal(await page.locator('#modal .stage-card:disabled').count(),0);
                   assert.match(await page.locator('#modal .stage-card').nth(2).textContent(), /найди число по двум условиям/);
                   const {otherTopics,...result}=await page.evaluate(inspectBuild,{topic,mode:'candidate'});
