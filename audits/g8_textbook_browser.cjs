@@ -109,7 +109,9 @@ async function testSimilarity(page){
    const [a,b,c]=[points[0],points[1],points[2]];
    const p=c.x-a.x,q=b.x-c.x,h=a.y-c.y;
    check(p>0&&q>0&&h>0&&Math.abs(p/q-model.p/model.q)<1e-5,'Incorrect projection ratio');
-   check(Math.abs(h*h-p*q)<1e-3,'Altitude is not the geometric mean of the projections');
+   check(Math.abs(h*h/(p*q)-1)<1e-5,'Altitude is not the geometric mean of the projections');
+   const box=svg.getBoundingClientRect();
+   check(box.width>100&&box.left>=-1&&box.right<=innerWidth+1,'Altitude drawing is clipped');
    check([...svg.querySelectorAll('text')].map(label=>label.textContent).join('')==='ABHC','Wrong altitude labels');
   }
   const totals={similarityQuestions:0,similarityDrawings:0,applicationQuestions:0,projectionDrawings:0};
