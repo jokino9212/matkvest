@@ -18568,6 +18568,11 @@ const G1_STAGE_DESCRIPTIONS={
   "Отсчитай шаги от отмеченного числа на луче.",
   "Вычисли сумму или разность с переходом через 10.",
   "Вычисли по порядку два действия или восстанови пропуск в равенстве."
+ ],
+ "g1:word_problems":[
+  "По рисунку определи, сколько предметов стало или осталось.",
+  "По условию и схеме найди, сколько предметов добавили или убрали.",
+  "Реши задачу по тексту и найди, сколько предметов было сначала."
  ]
 };
 function openG1Topic(id){
@@ -18835,12 +18840,17 @@ const G1_STORY_OBJECTS=[
 function g1Noun(n,o){n=Math.abs(Math.trunc(Number(n)||0));const m10=n%10,m100=n%100;return m10===1&&m100!==11?o.one:m10>=2&&m10<=4&&(m100<12||m100>14)?o.few:o.many}
 function g1StoryObjectsHtml(count,obj){
  const n=Math.max(0,Math.min(20,Math.trunc(Number(count)||0))),glyph=esc(obj?.icon||"●");
- if(n===0)return `<div class="g1-counter-wrap"><span style="font-size:38px">∅</span></div>`;
+ if(n===0)return `<div class="g1-counter-wrap">Нет предметов</div>`;
  return `<div class="g1-counter-wrap" aria-label="Группа предметов">${Array.from({length:n},()=>`<span aria-hidden="true" style="font-size:29px;line-height:1">${glyph}</span>`).join("")}</div>`
 }
 function g1StoryVisualHtml(data){
  const kind=data?.kind||"add",a=Math.max(0,Math.min(20,Math.trunc(Number(data?.a)||0))),b=Math.max(0,Math.min(20,Math.trunc(Number(data?.b)||0))),result=Math.max(0,Math.min(20,Math.trunc(Number(data?.result)||0))),unknown=data?.unknown||"result",obj=data?.obj||G1_STORY_OBJECTS[0];
- const box=(label,count,key)=>`<div class="g1-story-step ${unknown===key?"unknown":""}"><b>${label}</b>${unknown===key?'<span class="g1-story-question">?</span>':g1StoryObjectsHtml(count,obj)}</div>`;
+ const box=(label,count,key)=>{
+  const missing=unknown===key;
+  const knownValue=data?.showCounts?`<div class="g1-story-record">${count}</div>`:g1StoryObjectsHtml(count,obj);
+  const value=missing?'<span class="g1-story-question">?</span>':knownValue;
+  return `<div class="g1-story-step ${missing?"unknown":""}"><b>${label}</b>${value}</div>`;
+ };
  const aria=kind==="add"?(unknown==="result"?`Было ${a}; добавили ${b}; сколько стало — неизвестно`:unknown==="a"?`Начальное количество неизвестно; добавили ${b}; стало ${result}`:unknown==="b"?`Было ${a}; сколько добавили — неизвестно; стало ${result}`:`Схема задачи на сложение`):(unknown==="result"?`Было ${a}; убрали ${b}; сколько осталось — неизвестно`:unknown==="a"?`Начальное количество неизвестно; убрали ${b}; осталось ${result}`:unknown==="b"?`Было ${a}; сколько убрали — неизвестно; осталось ${result}`:`Схема задачи на вычитание`);
  if(kind==="add")return `<div class="g1-story-model" role="img" aria-label="${aria}">${box("Было",a,"a")}<div class="g1-story-arrow">→</div>${box("Добавили",b,"b")}<div class="g1-story-arrow">→</div>${box("Стало",result,"result")}</div>`;
  return `<div class="g1-story-model" role="img" aria-label="${aria}">${box("Было",a,"a")}<div class="g1-story-arrow">→</div>${box("Убрали",b,"b")}<div class="g1-story-arrow">→</div>${box("Осталось",result,"result")}</div>`
@@ -18859,37 +18869,39 @@ function g1StorySentence(m,{name="У Маши"}={}){
  const o=m.obj;if(m.kind==="add")return `${name} ${g1ExistVerb(m.a,o)} ${m.a} ${g1Noun(m.a,o)}. Ей дали ещё ${m.b} ${g1ActionNoun(m.b,o)}. Сколько ${o.many} стало?`;
  return `${name} ${g1ExistVerb(m.a,o)} ${m.a} ${g1Noun(m.a,o)}. Убрали ${m.b} ${g1ActionNoun(m.b,o)}. Сколько ${o.many} осталось?`
 }
+const G1_STORY_STAGE_TEMPLATES=[
+ ["add_result","sub_result"],
+ ["find_added","find_removed"],
+ ["find_start_add","find_start_sub"]
+];
 function g1StoryQuestion(d){
- const warm=["add_result","sub_result"];
- const train=["add_result","sub_result","choose_action","choose_record","find_added"];
- const master=["add_result","sub_result","choose_action","choose_record","find_added","find_removed","find_start_add","find_start_sub"];
- const templateId=g1PickTemplate(d===0?warm:d===1?train:master),small=d===0;
- if(templateId==="add_result"||templateId==="sub_result"){
-  const m=g1StoryBase(templateId==="add_result"?"add":"sub",{small}),model={...m,unknown:"result"},text=g1StorySentence(model),ex=model.kind==="add"?`Было ${model.a}. Добавили ${model.b}. Стало ${model.result}.`:`Было ${model.a}. Убрали ${model.b}. Осталось ${model.result}.`;
-  return d===0?g1Choice(text,model.result,g1UniqueNums(model.result,0,20),ex,`g1:word_problems:${d}:${templateId}:${model.a}:${model.b}:${model.obj.one}`,{model,visual:{type:"g1Story",data:model},templateId}):g1NumberInput(text,model.result,ex,`g1:word_problems:${d}:${templateId}:${model.a}:${model.b}:${model.obj.one}`,{model,visual:{type:"g1Story",data:model},templateId})
+ const stage=d===0?0:d===1?1:2;
+ const templateId=g1PickTemplate(G1_STORY_STAGE_TEMPLATES[stage]);
+ const add=["add_result","find_added","find_start_add"].includes(templateId);
+ const m=g1StoryBase(add?"add":"sub",{small:stage===0});
+ const {a,b,result,obj}=m;
+ const key=`g1:word_problems:${d}:${templateId}`;
+ if(stage===0){
+  const model={...m,unknown:"result"};
+  const explanation=add?`Было ${a}. Добавили ${b}. ${a} + ${b} = ${result}.`:`Было ${a}. Убрали ${b}. ${a} − ${b} = ${result}.`;
+  return g1Choice(g1StorySentence(model),result,g1UniqueNums(result,0,20),explanation,
+   `${key}:${a}:${b}:${obj.one}`,{model,visual:{type:"g1Story",data:model},templateId});
  }
- if(templateId==="choose_action"){
-  const m=g1StoryBase(ri(0,1)?"add":"sub",{small:false}),model={...m,unknown:"result"},correct=m.kind==="add"?"Сложение":"Вычитание",text=`${g1StorySentence(model)}<br><b>Какое действие поможет решить задачу?</b>`,ex=m.kind==="add"?"Предметы добавили, значит нужно сложить.":"Часть предметов убрали, значит нужно вычесть.";
-  return g1Choice(text,correct,["Сложение","Вычитание"].filter(x=>x!==correct),ex,`g1:word_problems:${d}:choose_action:${m.kind}:${m.a}:${m.b}:${m.obj.one}`,{model,visual:{type:"g1Story",data:model},templateId})
+ const now=`Теперь в коробке ${result} ${g1Noun(result,obj)}.`;
+ if(stage===1){
+  const model={...m,unknown:"b"};
+  const initial=`В коробке ${g1ExistVerb(a,obj)} ${a} ${g1Noun(a,obj)}.`;
+  const question=add?`Сколько ${obj.many} положили в коробку?`:`Сколько ${obj.many} убрали из коробки?`;
+  const explanation=add?`Из нового количества вычти начальное. ${result} − ${a} = ${b}.`:`Из начального количества вычти то, что осталось. ${a} − ${result} = ${b}.`;
+  const visual={type:"g1Story",data:{...model,showCounts:true}};
+  return g1NumberInput(`${initial} ${now} ${question}`,b,explanation,
+   `${key}:${a}:${result}:${obj.one}`,{model,visual,templateId});
  }
- if(templateId==="choose_record"){
-  const m=g1StoryBase(ri(0,1)?"add":"sub",{small:true}),model={...m,unknown:"result"},correct=m.kind==="add"?`${m.a} + ${m.b}`:`${m.a} − ${m.b}`,wrong=m.kind==="add"?[`${Math.max(m.a,m.b)} − ${Math.min(m.a,m.b)}`]:[`${m.a} + ${m.b}`],text=`${g1StorySentence(model)}<br><b>Выбери запись для решения.</b>`,ex=`Подходит запись: ${correct}.`;
-  return g1Choice(text,correct,wrong,ex,`g1:word_problems:${d}:choose_record:${m.kind}:${m.a}:${m.b}:${m.obj.one}`,{model,visual:{type:"g1Story",data:model},templateId})
- }
- if(templateId==="find_added"){
-  const m=g1StoryBase("add",{small:false}),model={...m,unknown:"b"},text=`${g1ExistVerb(m.a,m.obj,true)} ${m.a} ${g1Noun(m.a,m.obj)}. Стало ${m.result}. Сколько ${m.obj.many} добавили?`,ex=`От ${m.a} до ${m.result} нужно добавить ${m.b}.`;
-  return g1NumberInput(text,m.b,ex,`g1:word_problems:${d}:find_added:${m.a}:${m.result}:${m.obj.one}`,{model,visual:{type:"g1Story",data:model},templateId})
- }
- if(templateId==="find_removed"){
-  const m=g1StoryBase("sub",{small:false}),model={...m,unknown:"b"},text=`${g1ExistVerb(m.a,m.obj,true)} ${m.a} ${g1Noun(m.a,m.obj)}. Осталось ${m.result}. Сколько ${m.obj.many} убрали?`,ex=`Из ${m.a} убрали ${m.b}, осталось ${m.result}.`;
-  return g1NumberInput(text,m.b,ex,`g1:word_problems:${d}:find_removed:${m.a}:${m.result}:${m.obj.one}`,{model,visual:{type:"g1Story",data:model},templateId})
- }
- if(templateId==="find_start_add"){
-  const m=g1StoryBase("add",{small:false}),model={...m,unknown:"a"},text=`Добавили ${m.b} ${g1ActionNoun(m.b,m.obj)}, и стало ${m.result}. Сколько ${m.obj.many} было сначала?`,ex=`Сначала было ${m.a}. Добавили ${m.b}. Стало ${m.result}.`;
-  return g1NumberInput(text,m.a,ex,`g1:word_problems:${d}:find_start_add:${m.b}:${m.result}:${m.obj.one}`,{model,visual:{type:"g1Story",data:model},templateId})
- }
- const m=g1StoryBase("sub",{small:false}),model={...m,unknown:"a"},text=`Убрали ${m.b} ${g1ActionNoun(m.b,m.obj)}, и осталось ${m.result}. Сколько ${m.obj.many} было сначала?`,ex=`Сначала было ${m.a}. Убрали ${m.b}. Осталось ${m.result}.`;
- return g1NumberInput(text,m.a,ex,`g1:word_problems:${d}:find_start_sub:${m.b}:${m.result}:${m.obj.one}`,{model,visual:{type:"g1Story",data:model},templateId:"find_start_sub"})
+ const model={...m,unknown:"a"},amount=`${b} ${g1ActionNoun(b,obj)}`;
+ const event=add?`В коробку положили ещё ${amount}.`:`Из коробки убрали ${amount}.`;
+ const explanation=add?`Из нового количества вычти то, что добавили. ${result} − ${b} = ${a}.`:`К тому, что осталось, прибавь то, что убрали. ${result} + ${b} = ${a}.`;
+ return g1NumberInput(`${event} ${now} Сколько ${obj.many} было в коробке сначала?`,a,explanation,
+  `${key}:${b}:${result}:${obj.one}`,{model,templateId});
 }
 
 const PRE837_MAKE_G1_QUESTION=makeG1Question;
@@ -18899,7 +18911,7 @@ const PRE837_G1_THEORY_HTML=g1TheoryHtml;
 g1TheoryHtml=function(id){
  const raw=rawCourseId(id);if(raw!=="word_problems")return PRE837_G1_THEORY_HTML(id);
  const add={kind:"add",a:4,b:3,result:7,obj:G1_STORY_OBJECTS[0],unknown:"result"},sub={kind:"sub",a:8,b:2,result:6,obj:G1_STORY_OBJECTS[1],unknown:"result"};
- return `<div class="elementary-theory"><p><b>В задаче сначала понимаем, что произошло.</b></p><div class="g1-theory-block"><h3>Если предметы добавили</h3><div class="g1-story-text">Было 4 карандаша. Дали ещё 3. Сколько карандашей стало?</div>${g1StoryVisualHtml(add)}<p>Было 4. Добавили 3. Стало 7.</p><div class="elementary-example"><b>4 + 3 = 7</b></div></div><div class="g1-theory-block"><h3>Если предметы убрали</h3><div class="g1-story-text">Было 8 кубиков. 2 убрали. Сколько кубиков осталось?</div>${g1StoryVisualHtml(sub)}<p>Было 8. Убрали 2. Осталось 6.</p><div class="elementary-example"><b>8 − 2 = 6</b></div></div><p>Сначала решаем, нужно <b>добавить</b> или <b>убрать</b>. Потом выполняем одно действие.</p><div class="g1-theory-block"><h3>Что именно нужно найти?</h3><p>Знак <b>?</b> может стоять не только в конце схемы.</p>${g1StoryVisualHtml({kind:"add",a:5,b:3,result:8,obj:G1_STORY_OBJECTS[2],unknown:"b"})}<p>Было 5, стало 8. Значит, добавили 3.</p></div></div>`
+ return `<div class="elementary-theory"><p><b>В задаче сначала понимаем, что произошло.</b></p><div class="g1-theory-block"><h3>Если предметы добавили</h3><div class="g1-story-text">Было 4 карандаша. Дали ещё 3. Сколько карандашей стало?</div>${g1StoryVisualHtml(add)}<p>Было 4. Добавили 3. Стало 7.</p><div class="elementary-example"><b>4 + 3 = 7</b></div></div><div class="g1-theory-block"><h3>Если предметы убрали</h3><div class="g1-story-text">Было 8 кубиков. 2 убрали. Сколько кубиков осталось?</div>${g1StoryVisualHtml(sub)}<p>Было 8. Убрали 2. Осталось 6.</p><div class="elementary-example"><b>8 − 2 = 6</b></div></div><p>Сначала решаем, нужно <b>добавить</b> или <b>убрать</b>. Потом выполняем одно действие.</p><div class="g1-theory-block"><h3>Что именно нужно найти?</h3><p>Знак <b>?</b> может стоять не только в конце схемы.</p>${g1StoryVisualHtml({kind:"add",a:5,b:3,result:8,obj:G1_STORY_OBJECTS[2],unknown:"b"})}<p>Было 5, стало 8. Добавили <b>8 − 5 = 3</b> мяча.</p></div><div class="elementary-example">Убрали 3 мяча, осталось 6. Сначала было <b>6 + 3 = 9</b> мячей.</div></div>`
 };
 
 
