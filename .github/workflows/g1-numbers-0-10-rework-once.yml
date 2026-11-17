@@ -257,7 +257,7 @@ jobs:
               requireThat(labels.length >= 3 && new Set(labels).size === labels.length, 'Invalid choices');
               const missing = prompt.match(/^Какого числа не хватает\?\s*(\d+)\s*\?\s*(\d+)$/);
               const steps = prompt.match(/^Сделай (\d+) шага (вправо|влево) от точки\. На каком числе остановишься\?$/);
-              const backwards = prompt.match(/^Считай назад по одному\. Какие числа пропущены\? ((?:\d+|\?)(?: (?:\d+|\?)){4})$/);
+              const backwards = prompt.match(/^Считай назад по одному\. Какие числа пропущены\?\s*((?:\d+|\?)(?: (?:\d+|\?)){4})$/);
               if (steps || prompt === 'Какое число отмечено на луче?') {
                 const ray = visual.querySelector('.elementary-number-line svg');
                 requireThat(ray && ray.querySelectorAll('circle').length === 1, 'Expected one point on the ray');
