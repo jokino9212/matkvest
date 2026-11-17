@@ -119,7 +119,7 @@ geometry('IX','Окружность',[
  [76,'Взаимное расположение прямой и окружности','line_and_circle'],
  [77,'Взаимное положение окружностей','circle_relative_positions','circle_tangency'],
  [78,'Общие касательные двух окружностей','common_tangents_two_circles'],
- [79,'Градусная мера дуги','central_inscribed_angles'],
+ [79,'Градусная мера дуги','arc_degree_measure'],
  [80,'Теорема о вписанном угле','central_inscribed_angles'],
  [81,'Углы между хордами, касательными и секущими','tangent_chord_angle','chords_secants_angles'],
  [82,'Вписанная окружность: четырёхугольники','tangential_quadrilateral'],
@@ -1559,6 +1559,7 @@ function similaritySvg(body){
 }
 g7GeometryExtraSvg=function(model){
  if(model?.kind==='g7-g8-altitude-to-hypotenuse')return similaritySvg(drawHypotenuseAltitude(model));
+ if(model?.kind==='g7-g8-arc-angle')return similaritySvg(drawArcAngle(model));
  if(model?.kind==='g7-g8-circle-line')return similaritySvg(drawCircleLine(model));
  if(model?.kind==='g7-g8-circle-pair')return similaritySvg(drawCirclePair(model));
  if(model?.kind==='g7-g8-right-trig')return similaritySvg(drawSimilarityTriangle(model,320,340));
@@ -1797,6 +1798,9 @@ const newTopics={
  similarity_constructions:['similarity_applications','Метод подобия в задачах на построение',worked(
   'Сначала построй вспомогательный треугольник нужной формы по углам или отношениям сторон. Затем вычисли коэффициент подобия по заданной длине и построй треугольник нужного размера.',
   'Если вспомогательная сторона равна 3 см, а искомая 6 см, все длины увеличиваются вдвое.')],
+ arc_degree_measure:['central_inscribed_angles','Градусная мера дуги',worked(
+  'Полная окружность имеет меру 360°. Меньшая дуга равна центральному углу, который её стягивает. Большая дуга дополняет меньшую до 360°.',
+  'При ∠AOB = 80° меньшая дуга AB равна 80°, а большая равна 360° − 80° = 280°.')],
  line_and_circle:['circle_relative_positions','Взаимное расположение прямой и окружности',worked(
   'Сравни расстояние d от центра до прямой с радиусом r. При d < r две общие точки, при d = r одна, при d > r общих точек нет.',
   'Если r = 5 см и d = 5 см, прямая касается окружности. Радиус в точке касания перпендикулярен прямой.')],
@@ -1837,6 +1841,9 @@ g8CatalogAudit=function(){
 };
 
 const circleLessons={
+ central_inscribed_angles:worked(
+  'Вершина вписанного угла лежит на окружности. Угол равен половине меры дуги между точками пересечения его сторон с окружностью. Эта дуга не содержит вершину угла.',
+  'Если дуга AB без C равна 106°, то ∠ACB = 53°. Если AB — диаметр, то ∠ACB = 90°.'),
  circle_relative_positions:worked(
   'Обозначь расстояние между центрами через d, радиусы через R и r, где R ≥ r. Сравни d с разностью R − r и суммой R + r. Равенство границе даёт касание, между границами есть две точки пересечения. При равных радиусах и общем центре окружности совпадают.',
   'Радиусы равны 5 и 3 см, расстояние между центрами 6 см. Так как 2 &lt; 6 &lt; 8, точки пересечения две.'),
@@ -3704,6 +3711,142 @@ workouts.special_angles_trig=[
  }
 ];
 
+function arcAngleDiagram(task,arc,mode){
+ return diagram(task,{kind:'g7-g8-arc-angle',arc,mode,
+  aria:mode==='central'?'Дуга AB и центральный угол AOB.':'Дуга AB, на которую опирается вписанный угол ACB.'});
+}
+function drawArcAngle({arc,mode}){
+ const center={x:320,y:205},radius=130;
+ const a=g8CirclePoint815(center,radius,270-arc/2),b=g8CirclePoint815(center,radius,270+arc/2);
+ const vertex=mode==='central'?center:g8CirclePoint815(center,radius,90);
+ const sideA=g6GeoLine(vertex.x,vertex.y,a.x,a.y,'geo-segment g8-arc-ray');
+ const sideB=g6GeoLine(vertex.x,vertex.y,b.x,b.y,'geo-segment g8-arc-ray');
+ const highlight=`<path class="geo-segment alt g8-marked-arc" fill="none" d="M ${a.x} ${a.y} A ${radius} ${radius} 0 0 0 ${b.x} ${b.y}"></path>`;
+ const label=mode==='central'?g6GeoPoint(vertex.x,vertex.y,'O',-13,-13):g6GeoPoint(vertex.x,vertex.y,'C',-10,-14);
+ return g6GeoCircle(center.x,center.y,radius)+highlight+sideA+sideB+label+
+  g6GeoPoint(a.x,a.y,'A',-22,15)+g6GeoPoint(b.x,b.y,'B',12,15);
+}
+const measuredArc=a=>50+2*(a%30);
+workouts.arc_degree_measure=[
+ {
+  fromCentral:([a])=>{
+   const arc=measuredArc(a);
+   return arcAngleDiagram(number(`Центральный угол AOB равен ${arc}°. Найди градусную меру меньшей дуги AB.`,arc,
+    'Градусная мера меньшей дуги равна центральному углу, который её стягивает.','°'),arc,'central');
+  },
+  centralFromArc:([a])=>{
+   const arc=measuredArc(a)+20;
+   return arcAngleDiagram(number(`Меньшая дуга AB равна ${arc}°. Найди центральный угол AOB.`,arc,
+    'Центральный угол измеряется градусной мерой меньшей дуги между его сторонами.','°'),arc,'central');
+  },
+  fullCircle:()=>number('Сколько градусов составляет полная окружность?',360,'Полный оборот составляет 360°.','°'),
+  diameter:()=>number('Диаметр AB делит окружность на две равные дуги. Сколько градусов в каждой из них?',180,
+   'Обе дуги составляют полную окружность. Делим 360° пополам.','°'),
+  whichAngle:([a])=>arcAngleDiagram(choice('Какой из указанных углов является центральным?','∠AOB',
+   ['∠OAB','∠OBA'],'Вершина центрального угла находится в центре O.'),measuredArc(a),'central')
+ },
+ {
+  fromMinor:([a])=>number(`Меньшая дуга AB равна ${measuredArc(a)}°. Найди большую дугу между A и B.`,360-measuredArc(a),
+   'Две дуги между A и B образуют полную окружность. Вычитаем меньшую из 360°.','°'),
+  fromMajor:([a])=>number(`Большая дуга AB равна ${360-measuredArc(a)}°. Найди центральный угол AOB, не превышающий 180°.`,measuredArc(a),
+   'Из 360° вычитаем большую дугу. Получаем меньшую дугу и равный ей центральный угол.','°'),
+  splitSemicircle:([a])=>number(`Точка C лежит на полуокружности с концами A и B. Дуга AC этой полуокружности равна ${measuredArc(a)}°. Найди дугу CB на той же полуокружности.`,180-measuredArc(a),
+   'Дуги AC и CB вместе составляют полуокружность. Вычитаем первую из 180°.','°'),
+  twoAdjacentArcs:([a])=>number(`Точки A, B, C последовательно идут по окружности. Дуга AB без C равна ${measuredArc(a)}°, дуга BC без A равна 35°. Найди дугу AC, проходящую через B.`,measuredArc(a)+35,
+   'Складываем меры соседних дуг AB и BC.','°'),
+  fractionOfTurn:()=>{
+   const pieces=g8Pick([6,8,9,10,12]);
+   return number(`Окружность разделили на ${pieces} равных дуг. Сколько градусов в одной дуге?`,360/pieces,
+    `Делим полный угол 360° на ${pieces}.`,'°');
+  },
+  partitionByRays:([a])=>number(`Три луча из центра делят окружность на три дуги. Меры двух дуг 43° и ${measuredArc(a)}°. Какова мера третьей дуги?`,317-measuredArc(a),
+   'Сумма мер всех трёх дуг равна 360°. Вычитаем две известные.','°'),
+  sameChordSizes:([a])=>number(`Хорда AB стягивает две дуги. Центральный угол AOB равен 90° + ${a}°. На сколько градусов мера большей дуги AB больше меры меньшей?`,180-2*a,
+   `Малая дуга равна ${90+a}°, большая — ${270-a}°. Вычитаем первую из второй.`,'°')
+ },
+ {
+  recoverFromDifference:([a])=>number(`Градусная мера большей дуги AB превышает меру меньшей на ${4*a}°. Найди градусную меру меньшей дуги.`,180-2*a,
+   `Если вычесть разность из 360°, останется удвоенная меньшая дуга. Делим ${360-4*a}° на 2.`,'°'),
+  nonadjacentArc:([a])=>number(`Точки A, B, C, D идут по окружности в указанном порядке. Дуга AB без C равна ${measuredArc(a)}°, BC без D равна 48°, CD без A равна 37°. Найди дугу AD, не содержащую B.`,275-measuredArc(a),
+   'Из полной окружности вычитаем сумму трёх последовательных дуг AB, BC и CD.','°'),
+  ratioOnSemicircle:()=>{
+   const parts=g8Pick([2,3,4,5,8]);
+   return number(`Две смежные дуги образуют полуокружность. Одна в ${parts} раза больше другой. Найди больший из соответствующих центральных углов.`,rational(180*parts,parts+1),
+    `Считаем ${parts+1} равных долей на 180°. Большая дуга и её центральный угол составляют ${parts} таких долей.`,'°');
+  },
+  arcOrderFromAlgebra:([a])=>number(`Меры трёх последовательных дуг, образующих окружность, равны x°, (x + ${3*a})° и (x + ${6*a})°. Найди градусную меру самой большой дуги.`,120+3*a,
+   `Из уравнения 3x + ${9*a} = 360 получаем x = ${120-3*a}. Прибавляем ${6*a}.`,'°'),
+  identifyLargerBetweenEndpoints:([a])=>choice(`Точки A, B и C идут по окружности. Дуга AB без C равна ${measuredArc(a)}°, а дуга BC без A равна 151°. Проходит ли меньшая дуга AC через B?`,'Нет',
+   ['Да','Известных данных недостаточно'],'Сумма дуг AB и BC больше 180°. Дуга через B является большей.'),
+  oppositeEnds:([a])=>number(`Диаметры AB и CD пересекаются в O. Меньшая дуга AC равна ${measuredArc(a)}°. Найди меньшую дугу AD.`,180-measuredArc(a),
+   'Лучи OC и OD противоположны. Меры центральных углов AOC и AOD в сумме дают 180°.','°'),
+  findVerticalArc:([a])=>number(`Диаметры AB и CD пересекаются в O. Меньшая дуга AD равна ${measuredArc(a)}°. Сколько градусов в сумме мер меньших дуг AD и BC?`,2*measuredArc(a),
+   'Центральные углы AOD и BOC вертикальные. Дуги AD и BC равны, поэтому удваиваем известную меру.','°'),
+  perimeterDegrees:([a])=>number(`Четыре точки A, B, C, D последовательно лежат на окружности. Дуги AB и BC равны между собой и на ${2*a}° меньше каждой из равных дуг CD и DA. Найди меру дуги AB.`,90-a,
+   `Две меньшие и две большие дуги дают 360°. Если убрать по ${2*a}° из обеих больших, на четыре равные дуги останется ${360-4*a}°.`,'°'),
+  chordInMiddle:([a])=>number(`Точки A, B, C идут по окружности. Дуга ABC равна ${2*measuredArc(a)}°, а мера дуги AB без C на 20° меньше меры дуги BC без A. Найди меру дуги BC.`,measuredArc(a)+10,
+   'К сумме двух дуг прибавляем их разность. Получаем удвоенную меру дуги BC.','°'),
+  shortestOfTwo:([a])=>number(`Точка C лежит на большей дуге AB. Эта дуга состоит из дуг AC и CB, причём их меры равны ${180-a}° и ${3*a}°. Найди градусную меру меньшей дуги AB.`,180-2*a,
+   `Дуга ACB имеет меру ${180+2*a}°. Меньшая дуга дополняет её до 360°.`,'°')
+ }
+];
+
+workouts.central_inscribed_angles=[
+ {
+  vertex:([a])=>arcAngleDiagram(choice('В какой точке находится вершина вписанного угла ACB?','В точке C на окружности',
+   ['В центре O','В точке B','В точке A'],'Средняя буква в записи ACB обозначает вершину угла.'),measuredArc(a),'inscribed'),
+  interceptedArc:([a])=>arcAngleDiagram(choice('На какую дугу опирается угол ACB?','На дугу AB без точки C',
+   ['На дугу AC без точки B','На дугу BC без точки A','На дугу AB, содержащую C'],'Дугу ограничивают точки A и B, в которых стороны угла пересекают окружность. Вершина C на этой дуге не лежит.'),measuredArc(a),'inscribed'),
+  halfArc:([a])=>arcAngleDiagram(number(`Вписанный угол ACB опирается на дугу AB величиной ${measuredArc(a)}°. Найди ∠ACB.`,measuredArc(a)/2,
+   'Вписанный угол равен половине меры своей дуги.','°'),measuredArc(a),'inscribed'),
+  arcFromInscribed:([a])=>number(`Вписанный угол равен ${measuredArc(a)/2}°. Сколько градусов в дуге, на которую он опирается?`,measuredArc(a),
+   'Удваиваем вписанный угол, чтобы найти градусную меру дуги.','°'),
+  diameterAngle:()=>number('Вписанный угол опирается на диаметр. Чему он равен?',90,
+   'Диаметр стягивает полуокружность величиной 180°. Вписанный угол равен её половине.','°')
+ },
+ {
+  sharedArc:([a])=>number(`Вписанные углы ACB и ADB опираются на одну и ту же дугу AB. ∠ACB = ${measuredArc(a)/2}°. Найди ∠ADB.`,measuredArc(a)/2,
+   'Вписанные углы, опирающиеся на одну дугу, равны.','°'),
+  centralFromInscribed:([a])=>number(`Вписанный угол ACB равен ${measuredArc(a)/2}°. Центральный угол AOB опирается на ту же дугу AB. Найди ∠AOB.`,measuredArc(a),
+   'Центральный угол по той же дуге вдвое больше вписанного.','°'),
+  oppositeSideOfChord:([a])=>number(`Точки C и D лежат на окружности по разные стороны от хорды AB. ∠ACB = ${measuredArc(a)/2}°. Найди ∠ADB.`,180-measuredArc(a)/2,
+   'Углы опираются на две дополняющие друг друга дуги AB. Половина суммы их мер равна 180°.','°'),
+  majorArc:([a])=>number(`Вписанный угол опирается на большую дугу величиной ${360-measuredArc(a)}°. Найди этот угол.`,180-measuredArc(a)/2,
+   'Делим градусную меру большей дуги пополам. Получается тупой угол.','°'),
+  triangleAtDiameter:([a])=>number(`Треугольник ABC вписан в окружность, AB — диаметр. Угол BAC равен ${measuredArc(a)/2}°. Найди ∠ABC.`,90-measuredArc(a)/2,
+   'Угол ACB опирается на диаметр и равен 90°. Два остальных угла в сумме дают 90°.','°'),
+  sameMeasureDifferentArcs:([a])=>choice(`Дуги AB и CD одной окружности имеют одинаковую меру ${measuredArc(a)}°. Сравни вписанные углы, опирающиеся на эти дуги.`,
+   'Вписанные углы равны',['Первый вдвое больше второго','Они обязательно дополняют друг друга до 180°'],
+   'Каждый вписанный угол равен половине меры своей дуги.'),
+  mismatch:([a])=>choice(`Вписанный угол равен ${measuredArc(a)/2}°. Ученик назвал мерой его дуги ${360-measuredArc(a)}°. В чём ошибка?`,
+   'Вместо нужной дуги взята другая дуга между концами хорды',['Угол должен равняться всей дуге','Окружность делится на дуги равной меры'],
+   `Мера нужной дуги — удвоенный угол, то есть ${measuredArc(a)}°.`)
+ },
+ {
+  sumAngleFromTwoArcs:([a])=>number(`Точки A, B, C, D идут по окружности. Дуга AB без C равна ${measuredArc(a)}°, дуга BC без D равна 44°. Найди ∠ADC.`,measuredArc(a)/2+22,
+   'Угол ADC опирается на дугу AC через B. Складываем меры AB и BC и делим сумму пополам.','°'),
+  reflexComparison:([a])=>number(`Меньшая дуга AB равна ${measuredArc(a)}°. Точка C находится на ней, а точка D — на большей дуге AB. На сколько ∠ACB больше ∠ADB?`,180-measuredArc(a),
+   'Первый угол опирается на большую дугу, второй — на меньшую. Берём половину разности мер дуг.','°'),
+  angleRatio:([a])=>number(`Точки C и D лежат по разные стороны от хорды AB. Угол ACB в ${a} раза больше угла ADB. Найди ∠ADB.`,rational(180,a+1),
+   `Углы опираются на дополняющие дуги и в сумме равны 180°. Меньший угол составляет одну из ${a+1} равных долей.`,'°'),
+  triangleThirdArc:([a])=>number(`Треугольник ABC вписан в окружность. ∠BAC = ${measuredArc(a)/2}°, ∠ABC = 51°. Найди меру дуги AB, не содержащей C.`,258-measuredArc(a),
+   `Вычитаем известные углы из 180° и удваиваем оставшийся угол C. Получаем ${258-measuredArc(a)}°.`,'°'),
+  twoArcsAndAnAngle:([a])=>number(`Точки A, B, C, D идут по окружности. ∠ADB равен ${measuredArc(a)/2}°, а ∠BAC равен 38°. Найди градусную меру дуги AC через B.`,measuredArc(a)+76,
+   'Удваиваем ∠ADB, чтобы найти дугу AB, и удваиваем ∠BAC, чтобы найти дугу BC. Складываем.','°'),
+  angleBisectorArc:([a])=>number(`В треугольнике ABC, вписанном в окружность, биссектриса угла ACB пересекает дугу AB без C в точке E. Угол ACB равен ${measuredArc(a)/2}°. Какова мера дуги AE без B?`,measuredArc(a)/2,
+   'Биссектриса делит вписанный угол пополам, значит разбивает стягиваемую дугу на две равные части.','°'),
+  isoscelesByArc:([a])=>number(`Точки A, B и C лежат на окружности. Дуги AB без C и AC без B равны, а дуга BC без A равна ${2*measuredArc(a)}°. Найди угол ABC.`,90-measuredArc(a)/2,
+   'Угол A равен половине дуги BC. Равные дуги AB и AC дают равные углы при C и B. Делим остаток от 180° пополам.','°'),
+  rightAngleRecognition:([a])=>choice(`Точки A, B, C лежат на окружности радиуса ${a} см. Угол ACB прямой. Какой вывод верен?`,'Длина AB равна диаметру окружности',
+   ['Длина AB равна радиусу','Точка C находится в центре окружности','Угол ABC тоже прямой'],
+   'Вписанный угол 90° опирается на дугу 180°. Концы такой дуги — концы диаметра.'),
+  cyclicAlgebra:([a])=>number(`Вписанные углы ACB и ADB имеют вершины по разные стороны от хорды AB. Их величины (x + ${2*a})° и (2x + ${a})°. Найди x.`,60-a,
+   `Дуги дополняют друг друга до 360°, поэтому сумма углов 180°. Из 3x + ${3*a} = 180 получаем x = ${60-a}.`),
+  inscribedChange:([a])=>number(`Хорда AB стягивает меньшую дугу ${measuredArc(a)}°. Точка C переходит с большей дуги AB на меньшую. На сколько градусов увеличивается угол ACB?`,180-measuredArc(a),
+   'Сначала угол равен половине меньшей дуги, затем — половине большей. Их разность равна 180° минус мера меньшей дуги.','°')
+ }
+];
+
 function makeQuestion(raw,stage,variant,build){
  let args;
  if(raw==='similarity_by_angles'){
@@ -3713,7 +3856,7 @@ function makeQuestion(raw,stage,variant,build){
   args=scaledTriple();
  }
  const item=build(args);
- const geometry=similarityTopics[raw]||raw==='triangle_midline'||['g7-g8-altitude-to-hypotenuse','g7-g8-right-trig','g7-g8-circle-line','g7-g8-circle-pair'].includes(item.model?.kind);
+ const geometry=similarityTopics[raw]||raw==='triangle_midline'||['g7-g8-altitude-to-hypotenuse','g7-g8-right-trig','g7-g8-circle-line','g7-g8-circle-pair','g7-g8-arc-angle'].includes(item.model?.kind);
  const visual=geometry?item.model:
   (areaFollowupMasters[raw]||areaMasters[raw]||equationSystemMasters[raw]||probabilitySetMasters[raw]||geometryMasters[raw]||inequalityMasters[raw]||functionMasters[raw])&&(item.venn??item.graph??item.table??item.interval);
  const sig=g8Sig(raw,stage,variant,visual?[item.text,JSON.stringify(visual)]:[item.text]);
