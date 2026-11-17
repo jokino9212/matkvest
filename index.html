@@ -18558,6 +18558,11 @@ const G1_STAGE_DESCRIPTIONS={
   "Измерь отрезок от нуля или сравни два отрезка на рисунке.",
   "Измерь отрезок от другой отметки или найди, где он заканчивается.",
   "Измерь два отрезка и сравни их длины или сложи их."
+ ],
+ "g1:add_sub_10":[
+  "Посчитай, сколько кружков стало или осталось.",
+  "Вычисли сумму или разность и введи ответ.",
+  "Найди пропущенное число или сравни результаты двух действий."
  ]
 };
 function openG1Topic(id){
@@ -18658,10 +18663,39 @@ const maxStep=smallStep?Math.min(5,limit):limit,a=ri(allowZero?0:1,Math.max(allo
  return {op,a,b,result,limit}
 }
 function g1ArithmeticWrong(correct,min,max){return g1UniqueNums(correct,min,max)}
+function g1ArithmeticTenPractice(d){
+ const templates=d===1?["compute_add","compute_sub"]:["missing_operand","compare_calculations"];
+ const templateId=g1PickTemplate(templates),key=`g1:add_sub_10:${d}:${templateId}`;
+ const sample=op=>g1ArithmeticParams(10,op,{allowZero:true});
+ if(templateId==="compare_calculations"){
+  const sum=sample("add"),difference=sample("sub"),a=sum.result,b=difference.result;
+  const options=["А больше","Б больше","Поровну"];
+  const answer=a>b?options[0]:a<b?options[1]:options[2];
+  return g1Choice(`Сравни результаты.<div class="g1-arithmetic-record">А: ${sum.a} + ${sum.b}<br>Б: ${difference.a} − ${difference.b}</div>`,
+   answer,options.filter(option=>option!==answer),`${sum.a} + ${sum.b} = ${a}. ${difference.a} − ${difference.b} = ${b}. ${answer}.`,
+   `${key}:${sum.a}:${sum.b}:${difference.a}:${difference.b}`,{model:{sum,difference},templateId});
+ }
+ const missing=templateId==="missing_operand";
+ const op=(missing?ri(0,1)===1:templateId==="compute_add")?"add":"sub";
+ const model=sample(op),{a,b,result}=model,sign=op==="add"?"+":"−";
+ const equation=`${a} ${sign} ${b} = ${result}`;
+ if(!missing){
+  return g1NumberInput(`Вычисли.<div class="g1-arithmetic-record">${a} ${sign} ${b}</div>`,result,`${equation}.`,
+   `${key}:${a}:${b}`,{model,templateId});
+ }
+ const first=ri(0,1)===1;
+ const record=first?`? ${sign} ${b} = ${result}`:`${a} ${sign} ? = ${result}`;
+ const answer=first?a:b;
+ const inverse=op==="add"?`${result} − ${first?b:a}`:first?`${result} + ${b}`:`${a} − ${result}`;
+ return g1NumberInput(`Какое число пропущено?<div class="g1-arithmetic-record">${record}</div>`,answer,
+  `${inverse} = ${answer}. Проверка: ${equation}.`,`${key}:${op}:${first?1:0}:${a}:${b}`,
+  {model:{...model,missing:first?"first":"second"},templateId});
+}
 function g1ArithmeticQuestion(raw,d,limit){
+ if(raw==="add_sub_10"&&d!==0)return g1ArithmeticTenPractice(d);
  const warm=raw==="add_sub_10"?["add_counters","sub_counters"]:["add_line","sub_line"];
- const train=raw==="add_sub_10"?["add_counters","sub_counters","add_line","sub_line","complete_add","complete_sub"]:["add_line","sub_line","add_input","sub_input","complete_add","complete_sub"];
- const master=raw==="add_sub_10"?["add_counters","sub_counters","add_line","sub_line","complete_add","complete_sub","choose_record","compare_results"]:["add_line","sub_line","add_input","sub_input","complete_add","complete_sub","choose_record","compare_results","restore_start"];
+ const train=["add_line","sub_line","add_input","sub_input","complete_add","complete_sub"];
+ const master=[...train,"choose_record","compare_results","restore_start"];
  const templateId=g1PickTemplate(d===0?warm:d===1?train:master),smallStep=d===0;
  if(templateId==="add_counters"){
   const model=g1ArithmeticParams(limit,"add",{smallStep:true});
@@ -18718,7 +18752,7 @@ makeG1Question=function(id,stageOverride=null){
 const PRE836_G1_THEORY_HTML=g1TheoryHtml;
 g1TheoryHtml=function(id){
  const raw=rawCourseId(id);
- if(raw==="add_sub_10")return `<div class="elementary-theory"><div class="g1-theory-block"><h3>Когда добавляем</h3><p><b>Было 4 кружка. Добавили ещё 3.</b></p>${g1ArithmeticVisualHtml({op:"add",a:4,b:3,result:7})}<p>Стало 7. Записываем: <b>4 + 3 = 7</b>.</p><p>Такое действие называется <b>сложением</b>.</p></div><div class="g1-theory-block"><h3>Когда убираем</h3><p><b>Было 7 кружков. Убрали 2.</b></p>${g1ArithmeticVisualHtml({op:"sub",a:7,b:2,result:5})}<p>Осталось 5. Записываем: <b>7 − 2 = 5</b>.</p><p>Такое действие называется <b>вычитанием</b>.</p></div></div>`;
+ if(raw==="add_sub_10")return `<div class="elementary-theory"><div class="g1-theory-block"><h3>Когда добавляем</h3><p><b>Было 4 кружка. Добавили ещё 3.</b></p>${g1ArithmeticVisualHtml({op:"add",a:4,b:3,result:7})}<p>Стало 7. Записываем: <b>4 + 3 = 7</b>.</p><p>Такое действие называется <b>сложением</b>.</p></div><div class="g1-theory-block"><h3>Когда убираем</h3><p><b>Было 7 кружков. Убрали 2.</b></p>${g1ArithmeticVisualHtml({op:"sub",a:7,b:2,result:5})}<p>Осталось 5. Записываем: <b>7 − 2 = 5</b>.</p><p>Такое действие называется <b>вычитанием</b>.</p></div><div class="elementary-example">Если <b>4 + ? = 7</b>, вычти 4 из 7. Получится 3.</div></div>`;
  if(raw==="add_sub_20")return `<div class="elementary-theory"><p><b>С числами до 20 смысл тот же.</b> Добавляем — число становится больше. Убираем — меньше.</p><div class="g1-theory-block"><h3>Сложение</h3>${elementaryNumberLineSvg({min:0,max:20,from:8,to:13,highlight:13})}<p>Начинаем с 8. Делаем 5 шагов вправо. Получаем 13.</p><div class="elementary-example"><b>8 + 5 = 13</b></div></div><div class="g1-theory-block"><h3>Вычитание</h3>${elementaryNumberLineSvg({min:0,max:20,from:14,to:8,highlight:8})}<p>Начинаем с 14. Делаем 6 шагов влево. Получаем 8.</p><div class="elementary-example"><b>14 − 6 = 8</b></div></div></div>`;
  return PRE836_G1_THEORY_HTML(id)
 };
