@@ -6,6 +6,7 @@ const applicationTopics=[
  'triangle_midline','triangle_centers','triangle_centroid','right_triangle_projections','similarity_constructions','similarity_applications'
 ];
 const trigonometryTopics=['acute_angle_trig_ratios','trig_identity','special_angles_trig'];
+const circleTopics=['line_and_circle','circle_relative_positions','circle_tangency','common_tangents_two_circles'];
 const rebuilt=[
  'algebraic_fraction_domain','algebraic_fraction_basic_property','algebraic_fraction_reduction','algebraic_fraction_add_sub',
  'algebraic_fraction_mul_div','rational_expression_transformations','inverse_proportion_function',
@@ -47,10 +48,14 @@ async function testNavigation(page){
   await search.fill(query);
   await menu.locator('[data-topic-id="g8:'+id+'"]:visible').waitFor();
  }
- const trigRows=await menu.locator('.mk-g5-toc-part').nth(1).locator('[data-paragraph="74"], [data-paragraph="75"]').evaluateAll(rows=>
-  rows.map(row=>[...row.querySelectorAll('[data-topic-id]')].map(button=>button.dataset.topicId))
+ const geometryRows=await menu.locator('.mk-g5-toc-part').nth(1).locator('[data-paragraph]').evaluateAll(rows=>
+  rows.filter(row=>Number(row.dataset.paragraph)>=74&&Number(row.dataset.paragraph)<=78)
+   .map(row=>[...row.querySelectorAll('[data-topic-id]')].map(button=>button.dataset.topicId))
  );
- assert.deepEqual(trigRows,[['g8:acute_angle_trig_ratios','g8:trig_identity'],['g8:special_angles_trig']]);
+ assert.deepEqual(geometryRows,[
+  ['g8:acute_angle_trig_ratios','g8:trig_identity'],['g8:special_angles_trig'],
+  ['g8:line_and_circle'],['g8:circle_relative_positions','g8:circle_tangency'],['g8:common_tangents_two_circles']
+ ]);
  await search.fill('геометрия 62');
  await menu.locator('[data-topic-id="g8:heron_formula"]:visible').waitFor();
  assert.equal(await menu.locator('details:visible').count(),1);
@@ -64,8 +69,8 @@ async function testNavigation(page){
  await page.reload({waitUntil:'domcontentloaded'});
  assert.match(await page.locator('#g8HomeProgress').textContent(),/0\/136.*0\/408/);
 }
-async function testGeometry(page,exerciseTrigonometry=false){
- return page.evaluate(({applicationTopics,trigonometryTopics,exerciseTrigonometry})=>{
+async function testGeometry(page,section='similarity'){
+ return page.evaluate(({applicationTopics,trigonometryTopics,circleTopics,section})=>{
   const check=(condition,message)=>{if(!condition)throw Error(message);};
   const distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
   function checkTriangle(triangle){
@@ -137,11 +142,43 @@ async function testGeometry(page,exerciseTrigonometry=false){
      'Clipped trigonometry label '+label.textContent);
    }
   }
+  function checkCircleFigure(model,question){
+   const svg=document.querySelector('#qstage svg.geometry-svg');
+   const box=svg.getBoundingClientRect();
+   check(box.width>100&&box.left>=-1&&box.right<=innerWidth+1,'Circle drawing is clipped');
+   const circles=[...svg.querySelectorAll('circle.geo-circle')].map(circle=>({
+    x:Number(circle.getAttribute('cx')),y:Number(circle.getAttribute('cy')),r:Number(circle.getAttribute('r'))
+   }));
+   const lineDistance=(point,line)=>{
+    const [x1,y1,x2,y2]=['x1','y1','x2','y2'].map(name=>Number(line.getAttribute(name)));
+    return Math.abs((x2-x1)*(point.y-y1)-(y2-y1)*(point.x-x1))/Math.hypot(x2-x1,y2-y1);
+   };
+   if(model.kind==='g7-g8-circle-line'){
+    check(circles.length===1,'Missing circle');
+    const [circle]=circles,line=svg.querySelector('line.g8-tested-line');
+    check(Math.abs(lineDistance(circle,line)/circle.r-model.distance/model.radius)<1e-5,'Incorrect center-to-line distance');
+   }else{
+    check(circles.length===2,'Missing pair of circles');
+    const [big,small]=circles,scale=big.r/model.big;
+    check(Math.abs(small.r/scale-model.small)<1e-7,'Misdrawn circle radius');
+    check(Math.abs(distance(big,small)/scale-model.distance)<1e-7,'Incorrect distance between drawn centers');
+    if(model.tangents){
+     const direct=[1,-1].map(side=>model.big-side*model.small)
+      .reduce((total,bound)=>total+(model.distance>bound?2:model.distance===bound?1:0),0);
+     const lines=[...svg.querySelectorAll('.g8-common-tangent')];
+     check(lines.length===direct&&Number(question.ans)===direct,'Incorrect number of common tangents');
+     for(const line of lines){
+      for(const circle of circles)check(Math.abs(lineDistance(circle,line)-circle.r)<0.01,'A common tangent misses a circle');
+     }
+    }
+   }
+  }
   const totals={similarityQuestions:0,similarityDrawings:0,applicationQuestions:0,projectionDrawings:0,
-   trigonometryQuestions:0,trigonometryDrawings:0};
+   trigonometryQuestions:0,trigonometryDrawings:0,circleQuestions:0,circleDrawings:0};
   const criteria=['similarity_by_angles','similarity_by_two_sides','similarity_by_three_sides'];
-  for(const raw of exerciseTrigonometry?trigonometryTopics:[...criteria,...applicationTopics]){
-   const criterion=criteria.includes(raw),trigonometry=trigonometryTopics.includes(raw);
+  const topics=section==='circles'?circleTopics:section==='trigonometry'?trigonometryTopics:[...criteria,...applicationTopics];
+  for(const raw of topics){
+   const criterion=criteria.includes(raw);
    const id='g8:'+raw,templates=new Set();
    for(let stage=0;stage<3;stage++){
     const count=STAGES[stage].count,generated=new Set();
@@ -174,6 +211,9 @@ async function testGeometry(page,exerciseTrigonometry=false){
      }else if(q.visual?.data.kind==='g7-g8-right-trig'){
       checkTrigonometryFigure(q.visual.data);
       totals.trigonometryDrawings++;
+     }else if(['g7-g8-circle-line','g7-g8-circle-pair'].includes(q.visual?.data.kind)){
+      checkCircleFigure(q.visual.data,q);
+      totals.circleDrawings++;
      }
      if(q.choices.length){
       const index=q.choices.findIndex(option=>String(option.key)===String(q.ans));
@@ -188,7 +228,8 @@ async function testGeometry(page,exerciseTrigonometry=false){
      check(blockSession.done===i+1,raw+' did not record progress');
      if(!blockSession.finished)nextQ();
      if(criterion)totals.similarityQuestions++;
-     else if(trigonometry)totals.trigonometryQuestions++;
+     else if(section==='trigonometry')totals.trigonometryQuestions++;
+     else if(section==='circles')totals.circleQuestions++;
      else totals.applicationQuestions++;
     }
     check(blockSession.finished,raw+' did not finish the stage');
@@ -199,7 +240,11 @@ async function testGeometry(page,exerciseTrigonometry=false){
    }
   }
   check(JSON.stringify(legacyProgress.best)==='[4,6,9]', 'Original workout progress changed');
-  if(exerciseTrigonometry){
+  if(section==='circles'){
+   check(totals.circleQuestions===88&&totals.circleDrawings===15,'Missing circle problems or diagrams');
+   return {circleQuestions:totals.circleQuestions,circleDrawings:totals.circleDrawings};
+  }
+  if(section==='trigonometry'){
    check(totals.trigonometryQuestions===66&&totals.trigonometryDrawings===11,'Missing trigonometry problems or diagrams');
    return {trigonometryQuestions:totals.trigonometryQuestions,trigonometryDrawings:totals.trigonometryDrawings};
   }
@@ -207,7 +252,7 @@ async function testGeometry(page,exerciseTrigonometry=false){
   check(totals.applicationQuestions===132&&totals.projectionDrawings===5,'Missing application problems or altitude diagrams');
   return {similarityQuestions:totals.similarityQuestions,similarityDrawings:totals.similarityDrawings,
    applicationQuestions:totals.applicationQuestions,projectionDrawings:totals.projectionDrawings};
- },{applicationTopics,trigonometryTopics,exerciseTrigonometry});
+ },{applicationTopics,trigonometryTopics,circleTopics,section});
 }
 
 async function testSessions(page){
@@ -258,10 +303,7 @@ async function testSessions(page){
      result.sessions++;
     }
    }
-   if(raw==='pythagorean_applications'){
-    verify(JSON.stringify(families.map(group=>group.size))==='[5,7,10]',id+' lost a scenario');
-    verify(new Set(families.flatMap(group=>[...group])).size===22,id+' shares scenarios across levels');
-   }else if(['triangle_centers','right_triangle_projections','similarity_constructions'].includes(raw)){
+   if(['pythagorean_applications','triangle_centers','right_triangle_projections','similarity_constructions','line_and_circle'].includes(raw)){
     verify(JSON.stringify(families.map(group=>group.size))==='[5,7,10]',id+' lost a scenario');
     verify(new Set(families.flatMap(group=>[...group])).size===22,id+' shares scenarios across levels');
    }else if(raw!=='parallelogram_properties'){
@@ -289,13 +331,15 @@ async function testSessions(page){
   try{
    const options={viewport:{width,height:850},isMobile:width<500,hasTouch:width<500};
    const errors=[];
-   const trigonometryPage=await browser.newPage(options);
-   trigonometryPage.on('pageerror',error=>errors.push(error.message));
-   await trigonometryPage.goto(pathToFileURL(process.cwd()+'/index.html').href,{waitUntil:'domcontentloaded'});
-   await trigonometryPage.locator('button[onclick="openGrade(8)"]').click({timeout:20000});
-   const trigonometry=await testGeometry(trigonometryPage,true);
-   await trigonometryPage.close();
-   console.log(JSON.stringify({width,...trigonometry}));
+   for(const section of ['circles','trigonometry']){
+    const geometryPage=await browser.newPage(options);
+    geometryPage.on('pageerror',error=>errors.push(error.message));
+    await geometryPage.goto(pathToFileURL(process.cwd()+'/index.html').href,{waitUntil:'domcontentloaded'});
+    await geometryPage.locator('button[onclick="openGrade(8)"]').click({timeout:20000});
+    const result=await testGeometry(geometryPage,section);
+    await geometryPage.close();
+    console.log(JSON.stringify({width,...result}));
+   }
    const page=await browser.newPage(options);
    page.setDefaultTimeout(20000);
    page.on('pageerror',error=>errors.push(error.message));
