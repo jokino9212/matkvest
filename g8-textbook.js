@@ -4399,6 +4399,261 @@ const quadraticMasterFixes={
  }
 };
 
+const linearMasterFixes={
+ two_variable_equation_graph:{
+  axisTriangleArea:([a,b])=>number(`Прямая ${g7Eq2Plain({a:b,b:a,c:a*b})} пересекает обе оси координат. Найди площадь треугольника, ограниченного прямой и осями.`,rational(a*b,2),
+   `Подстановка y = 0 даёт x = ${a}, а при x = 0 получаем y = ${b}. Катеты равны ${a} и ${b}.`),
+  missingCoefficientThenIntercept:([a,b])=>number(`Прямая kx + ${a}y = ${a*b} проходит через точку (${a}; ${b-1}). Найди абсциссу её пересечения с осью Ox.`,a*b,
+   `Подстановка точки даёт k · ${a} + ${a*(b-1)} = ${a*b}, поэтому k = 1. При y = 0 остаётся x = ${a*b}.`),
+  intersectionParameterWithAxis:([a,b])=>number(`Прямая ${b}x + ky = ${a*b} пересекает ось Oy в точке с ординатой ${a}. Найди её угловой коэффициент.`,-1,
+   `При x = 0 получаем k·${a} = ${a*b}, значит k = ${b}. Выражаем y и находим коэффициент −1 при x.`),
+  midwayPointOnLine:([a,b])=>number(`Известны две точки прямой A(−${a}; ${b}) и B(${a}; ${a+b}). Найди свободный член в записи y = kx + m.`,rational(a+2*b,2),
+   'Середина AB лежит на прямой и имеет x = 0. Её ордината равна среднему арифметическому ординат A и B.'),
+  shiftThenReadIntercept:([a,b])=>number(`График ${g7Eq2Plain({a:a,b:-1,c:b})} сдвинули вверх на ${a+b} единиц. Найди ординату, в которой новая прямая пересекает ось Oy.`,a,
+   `Первоначально y = ${a}x − ${b}. Сдвиг вверх прибавляет ${a+b} к свободному члену.`),
+  sumOfCoordinatesAtIntersection:([a,b])=>number(`Какова сумма координат общей точки прямой ${g7Eq2Plain({a:1,b:1,c:a+b})} и прямой y = x + ${b-a}?`,a+b,
+   `Подставляем y = x + ${b-a}. Получаем 2x = ${2*a} и y = ${b}. Складываем координаты.`),
+  equationUsingTwoAxisPoints:([a,b])=>number(`Прямая проходит через (0; ${b}) и (${a}; 0). Найди ординату точки на этой прямой при x = ${2*a}.`,-b,
+   `На каждом промежутке длиной ${a} абсцисса растёт на ${a}, а ордината убывает на ${b}. От точки (${a}; 0) делаем ещё один такой шаг.`),
+  signOfSlopeFromCoefficients:([a,b])=>choice(`Сравни угловые коэффициенты прямых ${g7Eq2Plain({a:a,b:1,c:b})} и ${g7Eq2Plain({a:b,b:1,c:a})}.`,
+   'У первой больше',['У второй больше','Они равны'],
+   `Угловые коэффициенты −${a} и −${b}. Так как ${a} меньше ${b}, число −${a} больше.`),
+  readSumOfIntercepts:([a,b])=>number(`Прямая x + y = ${a+b} пересекает оси в двух точках. Найди сумму расстояний от начала координат до этих точек.`,2*(a+b),
+   `Приравниваем к нулю по одной координате. Каждый отрезок имеет длину ${a+b}. Складываем.`),
+  reconstructConstantWithSymmetricCoordinates:([a,b])=>number(`На прямой ${a}x − ${b}y = m лежит точка, у которой координаты противоположны, а абсцисса равна ${a}. Найди m.`,a*(a+b),
+   `Точка имеет координаты (${a}; −${a}). Подставляем, поэтому m = ${a*a} + ${a*b}.`)
+ },
+ graphical_equations_systems:{
+  intersectionThenDifference:([a,b])=>number(`Найди разность y − x для общей точки графиков y = x + ${b-a} и y = −x + ${a+b}.`,b-a,
+   `Приравниваем правые части. Абсцисса ${a}, ордината ${b}. Вычитаем.`),
+  interceptForTargetIntersection:([a,b])=>number(`При каком k прямые y = 2x + k и y = −x + ${a+b} пересекаются на вертикали x = ${a}?`,b-2*a,
+   `При x = ${a} вторая прямая даёт y = ${b}. Подставляем в первое уравнение и вычитаем ${2*a}.`),
+  identifyEquivalentLines:([a,b])=>number(`При каком k графики уравнений ${g7Eq2Plain({a:a,b:1,c:b})} и ${2*a}x + 2y = k совпадают?`,2*b,
+   `Левая часть второго уравнения вдвое больше. Для совпадения нужно удвоить и правую часть ${b}.`),
+  shiftIntersectionHorizontally:([a,b])=>number(`Прямые y = x и y = −x + ${2*a} пересекаются. Вторую подняли на ${2*b} единиц. На сколько увеличилась абсцисса точки пересечения?`,b,
+   `В первом положении 2x = ${2*a}, во втором 2x = ${2*(a+b)}. Абсцисса выросла на ${b}.`),
+  normalizeBothSidesForNoSolution:([a,b])=>choice(`Сколько общих точек у прямых ${g7Eq2Plain({a:a,b:-1,c:b})} и ${g7Eq2Plain({a:2*a,b:-2,c:2*b+1})}?`,
+   'Ни одной',['Одна','Бесконечно много'],
+   `После деления второго уравнения на 2 у прямых одинаковый угловой коэффициент, свободные члены различны. Они параллельны.`),
+  reflectionOfGraphIntersection:([a])=>number(`Графики y = x + ${2*a} и y = −x пересекаются. Первую прямую отразили относительно оси Oy. Сколько общих точек теперь у графиков?`,0,
+   `Отражение заменяет x на −x. Получаем y = −x + ${2*a}. Она параллельна прямой y = −x и не совпадает с ней.`),
+  compareBeforeAndAfterSlope:([a])=>number(`График y = x пересекается с y = −x + ${6*a}. Вторую прямую заменили на y = −2x + ${6*a}. На сколько изменилась абсцисса пересечения по модулю?`,a,
+   `До замены x = ${3*a}, после x = ${2*a}. Модуль разности равен ${a}.`),
+  sumOfInterceptsAfterAdding:([a,b])=>number(`У двух прямых уравнения y = ${a}x + ${b} и y = −${a}x + ${b}. Каково расстояние между точками пересечения этих прямых с осью Ox?`,rational(2*b,a),
+   `Из y = 0 получаем противоположные абсциссы −${fraction(b,a)} и ${fraction(b,a)}. Складываем их модули.`),
+  boundaryPointAndParameterRange:([a,b])=>number(`Найди наибольшее целое k, при котором абсцисса пересечения y = x + k и y = −x + ${2*b} больше ${a}.`,2*(b-a)-1,
+   `Из 2x = ${2*b} − k следует условие k &lt; ${2*(b-a)}. Берём ближайшее меньшее целое.`),
+  visibleIntersectionThenDistance:([a,b])=>{
+   const x=a%3-1,y=b%5-2,first=y-x,second=y+x;
+   return systemPlot(number('По графикам определи точку пересечения прямых. Найди сумму модулей её координат.',Math.abs(x)+Math.abs(y),
+    `Графики пересекаются в точке (${integer(x)}; ${integer(y)}). Складываем расстояния её координат от нуля.`),1,first,-1,second);
+  }
+ },
+ numerical_inequalities_properties:{
+  negativeMultiplicationAndShift:([a,b])=>number(`Из ${a} &lt; x &lt; ${b} найди верхнюю границу выражения ${a+b} − 2x.`,b-a,
+   `При умножении на −2 знаки меняются. Верхняя граница получается из меньшей границы x = ${a}. Прибавляем ${a+b}.`),
+  compareDividedBounds:([a,b])=>choice(`Что верно для положительного x при ${a} &lt; x &lt; ${b}?`,
+   `${frac(1,b)} &lt; ${frac(1,'x')} &lt; ${frac(1,a)}`,
+   [`${frac(1,a)} &lt; ${frac(1,'x')} &lt; ${frac(1,b)}`,`${frac(1,'x')} &gt; ${frac(1,a)}`],
+   'При переходе к обратным положительным числам порядок меняется на противоположный.'),
+  compareDifferenceAndSum:([a,b])=>number(`Известно, что ${a} &lt; x &lt; ${b} и ${a} + 1 &lt; y &lt; ${b} + 1. Найди нижнюю границу для x − y.`,a-b-1,
+   `Для нижней границы разности берём нижнюю границу x и верхнюю границу y. Получаем ${a} − (${b} + 1).`),
+  squareBoundsOverNegativeRange:([a,b])=>number(`Если −${b} &lt; x &lt; −${a}, то между какими числами находится x²? В ответ запиши разность верхней и нижней границ.`,b*b-a*a,
+   `Получаем ${a} &lt; |x| &lt; ${b}. Квадраты положительных чисел сохраняют порядок. Разность искомых границ ${b*b} − ${a*a}.`),
+  combinationOfBounds:([a,b])=>number(`Из ${a} &lt; x &lt; ${b} и 1 &lt; y &lt; ${a} найди одну верхнюю границу для 3x − 2y, полученную из этих границ.`,3*b-2,
+   'Для верхней границы берём наибольшее предельное x и наименьшее предельное y. Вычисляем 3b − 2.'),
+  estimateFractionWithoutDecimal:([a,b])=>number(`Для положительного x известно ${a} &lt; x &lt; ${b}. Найди нижнюю границу для ${frac(String(a*b),'x')}.`,a,
+   `Для меньшего значения частного нужна большая граница знаменателя. Делим ${a*b} на ${b}.`),
+  estimateSumAfterTranslations:([a,b])=>number(`Известно, что ${a} &lt; x + 1 &lt; ${b} и ${a} &lt; y − 1 &lt; ${b}. Запиши верхнюю границу суммы x + y.`,2*b,
+   `Складываем два верхних ограничения. Слагаемые +1 и −1 сокращаются, остаётся x + y &lt; ${2*b}.`),
+  integerValuesAfterReverse:([a,b])=>number(`Если ${a} &lt; −x &lt; ${b}, сколько целых значений может иметь x?`,b-a-1,
+   `Получаем −${b} &lt; x &lt; −${a}. Целые значения между двумя целыми границами считаем без концов.`),
+  productWithChangedSign:([a,b])=>number(`При −${b} &lt; x &lt; −${a} и ${a} &lt; y &lt; ${b} найди нижнюю границу произведения xy.`,-b*b,
+   `Произведение отрицательно. Наибольшая граница его модуля равна произведению верхних границ |x| и y, то есть ${b*b}.`),
+  addThreeStrictBounds:([a,b])=>number(`Дано x &lt; ${a}, y &lt; ${b}, z &gt; −${a}. Найди верхнюю границу для 2x + y − z.`,3*a+b,
+   `Из z &gt; −${a} следует −z &lt; ${a}. Складываем верхние границы ${2*a}, ${b} и ${a}.`)
+ },
+ direct_proportion_function:{
+  twoMovesWithRate:([a,b])=>number(`Станок выпускает ${a*b} деталей за ${a} минут. После настройки производительность увеличилась на ${b-a} деталей в минуту. Сколько деталей он выпустит за следующие ${a+2} минуты?`,(2*b-a)*(a+2),
+   `Сначала скорость равна ${b} деталей в минуту, после настройки ${2*b-a}. Умножаем на ${a+2}.`),
+  compareTwoRates:([a,b])=>number(`Первый рабочий за ${a} минут делает ${a*b} деталей. Второй за ${b} минут делает ${a*b} деталей. На сколько больше деталей сделает первый за ${a+b} минут?`,(b-a)*(a+b),
+   `Производительности равны ${b} и ${a} деталей в минуту. Умножаем разность на общее время.`),
+  findRateFromChanges:([a,b])=>number(`Для прямой пропорциональности при увеличении x на ${a} значение y уменьшается на ${a*b}. Найди y при x = −${a+b}.`,b*(a+b),
+   `Коэффициент равен −${b}. Умножаем его на отрицательное значение x.`),
+  restoreParameterFromDifference:([a,b])=>number(`Для функции y = kx разность её значений при x = ${b} и x = ${a} равна ${2*(b-a)}. Найди значение при x = ${a+b}.`,2*(a+b),
+   `Разность равна k(${b} − ${a}), поэтому k = 2. Подставляем новую абсциссу.`),
+  conversionThenDifference:([a,b])=>number(`Автономная тележка идёт с постоянной скоростью и за ${a} минут проходит ${a*b} м. На сколько дальше она уйдёт за ${b} минут, чем за ${a} минут?`,b*(b-a),
+   `Скорость ${b} м/мин. Разность времени ${b-a} мин. Умножаем.`,'м'),
+  proportionalVariablesWithSum:([a,b])=>number(`Величины x и y прямо пропорциональны. Когда x = ${a}, y = ${b}. Найди y, если x + y = ${2*(a+b)}.`,2*b,
+   `Отношение x : y сохраняется. Сумма удвоилась, поэтому удвоилась и каждая из величин.`),
+  recoverUnknownPointFromSlope:([a,b])=>number(`Прямая пропорциональность проходит через (${a}; ${a*b}). Найди абсциссу точки графика, у которой ордината меньше ${a*b} на ${b}.`,a-1,
+   `Коэффициент равен ${b}, поэтому уменьшение y на ${b} означает уменьшение x на 1.`),
+  proportionalityAfterScale:([a,b])=>number(`На графике y = kx есть точка (${a}; ${b}). Все абсциссы умножают на 2, а ординаты на 3. Найди коэффициент новой пропорциональности.`,rational(3*b,2*a),
+   `Новая точка (${2*a}; ${3*b}) лежит на графике. Коэффициент — отношение её ординаты к абсциссе.`),
+  sumAndDifferenceWithKnownRate:([a,b])=>number(`Для прямо пропорциональных положительных величин x и y известно, что y = ${a}x и y − x = ${(a-1)*b}. Найди x + y.`,(a+1)*b,
+   `Из (${a} − 1)x = ${(a-1)*b} получаем x = ${b}. Прибавляем y = ${a*b}.`),
+  compareProportionsAtOppositeArguments:([a,b])=>number(`Даны прямо пропорциональные зависимости y₁ = ${a}x и y₂ = ${b}x. На сколько больше значение y₂ при x = ${a} значения y₁ при x = −${a}?`,a*(a+b),
+   `Первое из сравниваемых значений ${a*b}, второе отрицательно и равно −${a*a}. Вычитаем отрицательное число.`)
+ }
+};
+
+function decimalText(value){return String(value).replace('.',',');}
+function standardText(coefficient,exponent){return `${decimalText(coefficient)} · 10${superscriptInt(exponent)}`;}
+
+const exponentMasterFixes={
+ integer_exponent_definition:{
+  combineOppositePowers:([a])=>number(`Вычисли ${a}⁻² + ${a}⁻¹. Ответ запиши дробью.`,rational(a+1,a*a),
+   `Заменяем отрицательные степени обратными дробями и приводим к знаменателю ${a*a}.`),
+  inverseFractionToNegativePower:([a,b])=>number(`Вычисли (${fraction(a,b)})⁻² − (${fraction(a,b)})⁻¹.`,rational(b*(b-a),a*a),
+   `Переворачиваем дробь. Из её квадрата вычитаем саму дробь. Общий знаменатель ${a*a}.`),
+  evenAndOddWithSign:([a])=>number(`Найди (−${a})⁻² + (−${a})⁻³.`,rational(a-1,a**3),
+   `Первая степень положительна, вторая отрицательна. Слагаемые имеют общий знаменатель ${a**3}.`),
+  compareNegativeAfterInverting:([a,b])=>choice(`Какое из чисел больше: (−${a})⁻³ или (−${b})⁻³?`,
+   'Второе число',['Первое число','Они равны'],
+   `Оба числа отрицательны. Поскольку ${b}³ больше ${a}³, у второго числа меньше модуль.`),
+  reciprocalPairWithSameDenominator:([a,b])=>number(`Известно, что x = (${a}⁻¹ + ${b}⁻¹)⁻¹. Вычисли x.`,rational(a*b,a+b),
+   `В скобках получаем дробь ${fraction(a+b,a*b)}. Показатель −1 означает обращение дроби.`),
+  oneAtZeroPowerAndDifference:([a,b])=>number(`Вычисли ${a}⁰ − (${fraction(a,b)})⁻¹.`,rational(a-b,a),
+   `Нулевая степень ненулевого числа равна 1. Обратная дробь равна ${fraction(b,a)}. Вычитаем.`),
+  nestedReciprocalOfSum:([a,b])=>number(`Вычисли (${a}⁻¹ + ${a}⁻¹)⁻².`,rational(a*a,4),
+   `Сумма в скобках равна ${fraction(2,a)}. Переворачиваем её и возводим в квадрат.`),
+  findBaseFromReciprocalSquare:([a])=>number(`Положительное число x удовлетворяет x⁻² + ${fraction(1,a*a)} = ${fraction(2,a*a)}. Найди x.`,a,
+   `Вычитаем одно слагаемое. Из x⁻² = ${fraction(1,a*a)} получаем x² = ${a*a}. Берём положительный корень.`),
+  equalPowersWithNegativeBases:([a])=>number(`Найди сумму всех различных x, для которых одновременно x⁻² = (−${a})⁻² и x⁻³ = (−${a})⁻³.`,-a,
+   `Первое равенство даёт ±${a}, второе сохраняет отрицательный знак основания и выбирает −${a}.`),
+  formRatioFromReciprocals:([a,b])=>number(`Вычисли отношение ${a}⁻² к (${a} · ${b})⁻².`,b*b,
+   `При делении дробей их знаменатели переходят в числитель. Квадраты ${a} сокращаются, остаётся ${b}².`)
+ },
+ integer_exponent_properties:{
+  aggregatePowersAsRatios:([a,b])=>number(`Упрости ${frac(a+'⁻³ · '+b+'² · '+a+'⁵',a+' · '+b+'³')}. Ответ запиши числом.`,rational(a,b),
+   `У основания ${a} итоговый показатель −3 + 5 − 1 = 1. У основания ${b} он равен 2 − 3 = −1. Получаем ${a} : ${b}.`),
+  powersAcrossNestedNegative:([a,b])=>number(`Упрости (${a}⁻² · ${b}³)⁻² · ${a}⁻⁵ · ${b}⁵.`,rational(1,a*b),
+   `Степень произведения даёт ${a}⁴ · ${b}⁻⁶. После сложения показателей остаются две степени с показателем −1.`),
+  fixedRationalBaseEquivalence:([a])=>number(`Найди n из равенства (${a}²)⁻³ · ${a}⁴ = ${a}${superscriptInt(2)} · ${a}ⁿ.`,-4,
+   'Показатель слева равен −6 + 4 = −2, справа 2 + n. Приравниваем показатели.'),
+  removeParenthesisWithDifferentBases:([a,b])=>number(`Вычисли ${frac('('+a+' · '+b+')⁻² · '+a+'⁴',b+'⁻³ · '+a)}.`,a*b,
+   `Раскрываем степень произведения. Для ${a} получаем показатель −2 + 4 − 1 = 1, для ${b} — −2 − (−3) = 1.`),
+  equationWithTwoExponentTerms:([a])=>number(`Найди n, если ${a}ⁿ · ${a}ⁿ · ${a}⁻³ = ${a}⁵.`,4,
+   'При умножении складываем показатели. Решаем линейное уравнение 2n − 3 = 5.'),
+  whatExponentMakesReciprocal:([a])=>number(`Какой показатель n нужно поставить у основания ${a}, чтобы (${a}⁻⁴)⁻² : ${a}ⁿ равнялось ${a}⁻³?`,11,
+   'После возведения степени в степень показатель равен 8. После деления получаем 8 − n = −3.'),
+  collectCommonBasesFirst:([a,b])=>number(`Вычисли ${frac('('+a+'² · '+b+'⁻¹)³',a+'⁷ · '+b+'⁻⁵')}.`,rational(b*b,a),
+   `В числителе показатели 6 и −3. Вычитаем показатели знаменателя 7 и −5. Получаем ${a}⁻¹ · ${b}².`),
+  ratioOfReciprocalPowers:([a,b])=>number(`Вычисли (${fraction(a,b)})⁻³ · (${fraction(b,a)})⁻².`,rational(b,a),
+   `Первая степень превращается в (${fraction(b,a)})³. Показатели одного основания складываем. Остаётся показатель 1.`),
+  reduceWithRepeatedFactor:([a,b])=>number(`Вычисли (${a} · ${b})² · (${a}²)⁻¹ · (${b}³)⁻¹.`,rational(1,b),
+   `После раскрытия скобок показатели основания ${a} сокращаются, у основания ${b} получается 2 − 3 = −1.`),
+  differenceOfTwoEquivalentBases:([a])=>number(`Значения выражений (${a}³)⁻¹ · ${a}⁵ и (${a}⁻³)⁻² : ${a}⁵ различны. На сколько первое больше второго?`,a*a-a,
+   `Показатели после упрощения равны −3 + 5 = 2 и 6 − 5 = 1. Вычитаем ${a} из ${a}².`)
+ },
+ scientific_notation:{
+  normalizeAfterPointShift:([,b])=>{
+   const m=11+b%79;
+   return number(`Числа ${standardText(m,4)} и ${standardText(m/10,'ⁿ')} равны. Найди n.`,5,
+    'Коэффициент уменьшили в 10 раз, поэтому показатель при 10 нужно увеличить на 1.');
+  },
+  inferMantissaFromFraction:([,b])=>{
+   const m=12+b%37;
+   return number(`Число (${standardText(m,-3)}) : 2 записали в стандартном виде. Найди показатель степени 10.`,m>=20?-2:-3,
+    `После деления коэффициент ${decimalText(m/2)}. Если он не меньше 10, переносим запятую на один знак и увеличиваем показатель на 1.`);
+  },
+  compareAcrossNonstandardInput:([a])=>{
+   const m=2+a%6;
+   return choice(`Какое число больше: ${standardText(10*m,-8)} или ${standardText(m+1,-7)}?`,
+    'Второе число',['Первое число','Числа равны'],
+    `Первое равно ${standardText(m,-7)}. При одинаковых порядках сравниваем коэффициенты ${m} и ${m+1}.`);
+  },
+  orderDifferenceForInvertedNumber:([a,b])=>{
+   const power=3+a%6;
+   return number(`Найди показатель степени 10 в стандартной записи числа, обратного к ${standardText(2,power)}.`,-power-1,
+    `Обратное число записывается как ${standardText(0.5,-power)}. Переносим запятую, стандартный коэффициент становится 5.`);
+  },
+  normalizeSmallProduct:([a,b])=>{
+   const coefficient=2+a%7,power=3+b%4;
+   return number(`В выражении (${standardText(coefficient/100,-2)}) · 10${superscriptInt(power)} найди коэффициент стандартной записи результата.`,coefficient,
+    `Коэффициент ${decimalText(coefficient/100)} превращается в ${coefficient} после переноса запятой на два знака. Итоговый порядок ${power-4}.`);
+  },
+  convertThenFindOrder:([a,b])=>{
+   const m=2+b%7,power=2+a%5;
+   return number(`Длина детали равна ${standardText(m,power)} мм. Найди показатель степени 10, если длина в метрах записана в стандартном виде.`,power-3,
+    'В одном метре 1000 миллиметров. Коэффициент остаётся прежним, показатель уменьшается на 3.');
+  },
+  compareExponentDifferenceWithOneShift:([a])=>{
+   const m=2+a%6;
+   return number(`На сколько различаются порядки чисел ${standardText(m*10,-6)} и ${standardText(m,4)} после записи обоих в стандартном виде?`,9,
+    `У первого коэффициент больше нормы. После переноса запятой порядок равен −5. У второго порядок 4. Их разность по модулю 9.`);
+  },
+  exponentRecoveredFromExpandedDecimal:([a,b])=>{
+   const mantissa=12+a%74,power=2+b%4;
+   const expanded='0,'+'0'.repeat(power-1)+mantissa;
+   return number(`Если ${expanded} = k · 10ⁿ в стандартном виде, чему равно k − n?`,rational(mantissa+10*power,10),
+    `Первый ненулевой разряд на ${power}-м месте после запятой. Поэтому k = ${decimalText(mantissa/10)}, n = −${power}. Вычитаем отрицательное число.`);
+  },
+  findSmallestPowerToReachOne:([a])=>{
+   const power=2+a%7;
+   return number(`Число ${standardText(7,-power)} умножают на 10ⁿ. Найди наименьшее целое n, при котором результат не меньше 1.`,power,
+    `При n = ${power-1} получаем 0,7. После увеличения n на единицу результат равен 7.`);
+  },
+  normalizeTwoAndTakeDifference:([a,b])=>{
+   const first=43+a%23,second=12+b%19;
+   return number(`Преобразуй ${standardText(first/100,-2)} и ${standardText(second*10,-4)} к стандартному виду. Найди разность коэффициентов первого и второго чисел.`,rational(first-second,10),
+    `Первое равняется ${standardText(first/10,-3)}, второе — ${standardText(second/10,-2)}. Вычитаем коэффициенты.`);
+  }
+ },
+ scientific_notation_operations:{
+  addAcrossOrders:([a,b])=>{
+   const first=20+a%47,second=21+b%54,power=2+a%6;
+   return number(`Сложи ${standardText(first/10,power)} и ${standardText(second/10,power-1)}. Найди коэффициент стандартной записи суммы.`,rational(10*first+second,100),
+    `При общем множителе 10${superscriptInt(power)} коэффициенты равны ${decimalText(first/10)} и ${decimalText(second/100)}. Складываем.`);
+  },
+  subtractAndChangeOrder:([a,b])=>{
+   const first=32+a%10,gap=1+b%7,power=3+a%5;
+   return number(`Запиши разность ${standardText(first/10,power)} − ${standardText((first-gap)/10,power)} в стандартном виде. Найди показатель степени 10.`,power-1,
+    `Разность коэффициентов равна ${decimalText(gap/10)}, она меньше 1. Стандартный коэффициент ${gap}, порядок уменьшается на 1.`);
+  },
+  composeThreePowers:([a,b])=>{
+   const first=2+a%3,third=2+b%2,power=2+a%5,multiplier=first*third*5;
+   return number(`Вычисли произведение (${standardText(first,power)}) · (${standardText(5,-2)}) · (${standardText(third,-1)}). Найди коэффициент стандартной записи.`,rational(multiplier,10),
+    `Произведение коэффициентов равно ${multiplier}. Делим его на 10 и прибавляем 1 к сумме показателей.`);
+  },
+  normalizeQuotientBelowOne:([a,b])=>{
+   const first=2+a%2,second=6+b%4,power=4+a%5,other=-1-b%4;
+   return number(`Пусть x = (${standardText(first,power)}) : (${standardText(second,other)}). Найди показатель степени 10 в стандартной записи x.`,power-other-1,
+    `Частное коэффициентов лежит между 0,1 и 1. Разность показателей ${power-other}. Для нормализации нужно уменьшить её на 1.`);
+  },
+  scaleThenSubtract:([a,b])=>{
+   const first=4+a%2,second=3*first-10,power=2+b%7;
+   return number(`Найди коэффициент стандартной записи выражения 3 · (${standardText(first,power)}) − ${standardText(second,power)}.`,1,
+    `При общем множителе 10${superscriptInt(power)} коэффициент равен ${3*first} − ${second} = 10. В стандартной записи он равен 1.`);
+  },
+  inverseDifferenceOfMagnitudes:([a,b])=>{
+   const first=5+a%3,second=2+b%2,power=2+a%5;
+   return number(`Пусть x = ${standardText(first,power)} − ${standardText(second,power)}. Найди показатель стандартной записи 1/x.`,-power-1,
+    `Разность равна ${standardText(first-second,power)}. У обратного числа коэффициент от 0,1 до 1, поэтому порядок уменьшаем ещё на 1.`);
+  },
+  squareThenNormalize:([a,b])=>{
+   const coefficient=4+a%5,power=-1-b%7;
+   return number(`Возведи ${standardText(coefficient,power)} в квадрат и найди коэффициент стандартной записи результата.`,rational(coefficient*coefficient,10),
+    `Квадрат коэффициента равен ${coefficient*coefficient}, показатель удваивается. После переноса запятой новый коэффициент равен ${decimalText(coefficient*coefficient/10)}.`);
+  },
+  missingDivisorAfterNormalization:([a])=>{
+   const power=3+a%5;
+   return number(`При делении ${standardText(6,power)} на ${standardText(3,'ⁿ')} получилось ${standardText(2,1)}. Найди n.`,power-1,
+    `Частное коэффициентов 6 : 3 = 2. Разность показателей равна 1, значит ${power} − n = 1.`);
+  },
+  ratioOfThreeMeasurements:([a,b])=>{
+   const first=2+a%6,second=2+b%7,power=2+b%5;
+   return number(`Во сколько раз сумма ${standardText(first,power+1)} + ${standardText(second,power)} больше ${standardText(2,power)}?`,rational(10*first+second,2),
+    `Общий множитель 10${superscriptInt(power)} сокращается. В числителе остаётся ${10*first} + ${second}, в знаменателе 2.`);
+  },
+  subtractionBelowBoundary:([a,b])=>{
+   const gap=1+a%8,power=3+b%5;
+   return number(`Из ${standardText(1,power)} вычли ${standardText((100-gap)/10,power-1)}. Найди показатель степени 10 в стандартной записи разности.`,power-2,
+    `В единицах 10${superscriptInt(power-2)} уменьшаемое равно 100, вычитаемое ${100-gap}. Разность ${gap}, это уже стандартный коэффициент.`);
+  }
+ }
+};
+
 function makeQuestion(raw,stage,variant,build){
  let args;
  if(raw==='similarity_by_angles'){
@@ -4410,7 +4665,7 @@ function makeQuestion(raw,stage,variant,build){
  const item=build(args);
  const geometry=similarityTopics[raw]||raw==='triangle_midline'||['g7-g8-altitude-to-hypotenuse','g7-g8-right-trig','g7-g8-circle-line','g7-g8-circle-pair','g7-g8-arc-angle','g7-g8-exact8082','g7-qa-angle7779'].includes(item.model?.kind);
  const visual=geometry?item.model:
-  (areaFollowupMasters[raw]||areaMasters[raw]||equationSystemMasters[raw]||probabilitySetMasters[raw]||geometryMasters[raw]||inequalityMasters[raw]||functionMasters[raw])&&(item.venn??item.graph??item.table??item.interval);
+  (linearMasterFixes[raw]||areaFollowupMasters[raw]||areaMasters[raw]||equationSystemMasters[raw]||probabilitySetMasters[raw]||geometryMasters[raw]||inequalityMasters[raw]||functionMasters[raw])&&(item.venn??item.graph??item.table??item.interval);
  const sig=g8Sig(raw,stage,variant,visual?[item.text,JSON.stringify(visual)]:[item.text]);
  const audit={type:'g8Textbook',topic:raw,stage,variant};
  let question;
@@ -4428,7 +4683,7 @@ function makeQuestion(raw,stage,variant,build){
  return question;
 }
 function textbookVariants(raw,stage){
- const custom=stage===2&&(radicalMasters[raw]??quadraticMasterFixes[raw]??similarityApplicationMasters[raw]??areaFollowupMasters[raw]??areaMasters[raw]??equationSystemMasters[raw]??geometryMasters[raw]??probabilitySetMasters[raw]??inequalityMasters[raw]);
+ const custom=stage===2&&(radicalMasters[raw]??quadraticMasterFixes[raw]??linearMasterFixes[raw]??exponentMasterFixes[raw]??similarityApplicationMasters[raw]??areaFollowupMasters[raw]??areaMasters[raw]??equationSystemMasters[raw]??geometryMasters[raw]??probabilitySetMasters[raw]??inequalityMasters[raw]);
  if(custom)return custom;
  return similarityTopics[raw]?.[3]?.[stage]??workouts[raw]?.[stage]??(stage===2?algebraReviewMasters[raw]??functionMasters[raw]:undefined);
 }
