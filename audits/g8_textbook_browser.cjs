@@ -1,4 +1,5 @@
 const assert=require('node:assert/strict');
+const fs=require('node:fs');
 const {pathToFileURL}=require('node:url');
 const {chromium}=require('playwright');
 
@@ -467,12 +468,105 @@ async function testSessions(page){
  return total;
 }
 
+async function testWarmupTraining(page,topics,checkLayout=true){
+ return page.evaluate(({topics,checkLayout})=>{
+  const verify=(ok,message)=>{if(!ok)throw Error(message);};
+  const normalized=task=>normalizePromptForCompare(task.text);
+  const shape=task=>JSON.stringify([normalized(task).replace(/\d+(?:[.,]\d+)*/g,'#'),task.visual?.type??'']);
+  let seed=39781;
+  Math.random=()=>((seed=(Math.imul(seed,1664525)+1013904223)>>>0)/4294967296);
+  const totals={topics:0,types:0,sessions:0,answers:0};
+  for(const raw of topics){
+   const id='g8:'+raw,training=new Set(),warmup=new Set();
+   const expectedTypes=raw==='geometry_grade8_review'?8:5;
+   for(let index=0;index<600;index++)training.add(shape(makeG8Question(id,1)));
+   for(let index=0;index<300;index++){
+    const task=makeG8Question(id,0);
+    verify(task.audit?.type==='g8Textbook'&&task.audit.topic===raw&&task.audit.stage===0,id+' bypassed the new Warm-up generator');
+    verify(task.text&&task.ex&&task.sig&&!/undefined|NaN|Infinity/.test(task.text+task.ex),id+' invalid content '+task.templateId);
+    verify(!training.has(shape(task)),id+' overlaps Training: '+normalized(task));
+    const items=task.choices.map(option=>normalizePromptForCompare(option.label));
+    verify(items.every(Boolean)&&new Set(items).size===items.length,id+' invalid options '+task.templateId);
+    warmup.add(task.templateId);
+   }
+   verify(warmup.size===expectedTypes,id+' missing Warm-up types');
+   const seen=new Set(),count=STAGES[0].count;
+   let attempts=0;
+   while(seen.size<expectedTypes&&attempts<20){
+    startG8QuizStage(id,0);
+    const inSession=new Set();
+    for(let step=0;step<count;step++){
+     const task=q;
+     verify(document.querySelector('#qstage .quizq')?.textContent.trim(),id+' prompt is missing');
+     verify(warmup.has(task.templateId)&&!inSession.has(task.templateId),id+' unexpected or repeated type '+task.templateId);
+     inSession.add(task.templateId);
+     seen.add(task.templateId);
+     if(task.visual){
+      const visual=task.visual.type==='tableData'?'#qstage table':'#qstage svg';
+      const element=document.querySelector(visual);
+      verify(element,id+' visual is missing '+task.templateId);
+      if(checkLayout){
+       const size=element.getBoundingClientRect();
+       verify(size.width>100&&size.left>=-1&&size.right<=innerWidth+1,id+' visual is clipped '+task.templateId);
+      }
+     }
+     if(task.choices.length){
+      const index=task.choices.findIndex(option=>String(option.key)===String(task.ans));
+      verify(index>=0,id+' missing correct option '+task.templateId);
+      document.querySelectorAll('#qstage .answer')[index].click();
+     }else{
+      const {n,d}=task.answerRat;
+      if(stage18UsesFractionBoxes(task)){
+       document.querySelector('#quizFracNum').value=String(n);
+       document.querySelector('#quizFracDen').value=String(d);
+      }else{
+       document.querySelector('#quizInput').value=d===1?String(n):n+'/'+d;
+      }
+      checkQuizInput();
+     }
+     verify(blockSession.correct===step+1&&blockSession.done===step+1,id+' answer rejected '+task.templateId);
+     totals.answers++;
+     if(!blockSession.finished)nextQ();
+    }
+    const button=[...document.querySelectorAll('#qstage button')].find(el=>el.textContent.includes('Посмотреть результат'));
+    verify(blockSession.finished&&button,id+' result is missing');
+    button.click();
+    verify(progressFor(id).best[0]===count,id+' result was not saved');
+    totals.sessions++;
+    attempts++;
+   }
+   verify(seen.size===expectedTypes,id+' not all types opened in a session');
+   totals.types+=seen.size;
+   totals.topics++;
+  }
+  return totals;
+ },{topics,checkLayout});
+}
+
 (async()=>{
  for(const width of [390,320,1280]){
   const browser=await chromium.launch({headless:true,executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE});
   try{
    const options={viewport:{width,height:850},isMobile:width<500,hasTouch:width<500};
    const errors=[];
+   const report=fs.readFileSync('audits/g8_remaining_audit_2026-11-17.md','utf8');
+   const flagged=new Set([...report.matchAll(/^\| .+? \| `(\w+)` \| \d+\/\d+\/\d+ \| [1-9]\d*\/\d+\/\d+ \|/gm)].map(match=>match[1]));
+   assert.equal(flagged.size,39);
+   const ordered=[...flagged];
+   const totals={topics:0,types:0,sessions:0,answers:0};
+   for(let start=0;start<ordered.length;start+=5){
+    const warmupPage=await browser.newPage(options);
+    try{
+     warmupPage.on('pageerror',error=>errors.push(error.message));
+     await warmupPage.goto(pathToFileURL(process.cwd()+'/index.html').href,{waitUntil:'domcontentloaded'});
+     const result=await testWarmupTraining(warmupPage,ordered.slice(start,start+5));
+     for(const key of Object.keys(totals))totals[key]+=result[key];
+    }finally{await warmupPage.close();}
+   }
+   assert.equal(totals.types,198);
+   assert.deepEqual(errors,[]);
+   console.log(JSON.stringify({width,warmup:totals}));
+   if(process.env.MATKVEST_G8_WARMUP_ONLY)continue;
    for(let start=0;start<adjustedMasterTopics.length;start+=6){
     const masterPage=await browser.newPage(options);
     try{
