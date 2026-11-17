@@ -839,12 +839,14 @@ button,input{font:inherit}button{cursor:pointer}.shell{max-width:1180px;margin:a
 .g1-geometry-wrap{max-width:720px;margin:10px auto 4px;padding:9px;border:1px solid #d7e7df;border-radius:17px;background:linear-gradient(180deg,#fbfffd,#f5fbf8);overflow:hidden}
 .g1-spatial-svg,.g1-shape-svg{display:block;width:100%;height:auto;margin:auto}
 .g1-spatial-caption,.g1-shape-caption{text-align:center;color:var(--muted);font-size:12px;line-height:1.35;margin:3px 0 0}
-.g1-spatial-label{font:850 14px/1 system-ui,-apple-system,"Segoe UI",Arial,sans-serif;fill:#385348;text-anchor:middle}
+.g1-spatial-svg{max-width:420px}.g1-spatial-svg.g1-spatial-grid{max-width:245px}
+.g1-spatial-label{font:700 16px/1 system-ui,-apple-system,"Segoe UI",Arial,sans-serif;fill:#385348;text-anchor:middle}
+.g1-spatial-cell{fill:#fff;stroke:#80a391;stroke-width:1.5}.g1-spatial-cell.start{fill:#d1efe0;stroke:#257b5b;stroke-width:2.5}
 .g1-spatial-ref{fill:#f3b94d;stroke:#9b6f12;stroke-width:3}.g1-spatial-target{fill:#62bb92;stroke:#257b5b;stroke-width:3}
 .g1-spatial-blue{fill:#73a9e8;stroke:#3e6f9f;stroke-width:3}.g1-spatial-purple{fill:#b692dc;stroke:#75529a;stroke-width:3}.g1-spatial-pink{fill:#e995aa;stroke:#a7536a;stroke-width:3}.g1-spatial-guide{stroke:#d5e5dd;stroke-width:2;stroke-dasharray:6 7}
 .g1-shape-stroke{stroke:#315d4d;stroke-width:5;stroke-linecap:round;stroke-linejoin:round}.g1-shape-fill{fill:#e9f6ef}.g1-shape-accent{fill:#62bb92;stroke:#257b5b;stroke-width:4}.g1-shape-point{fill:#25845f}.g1-shape-label{font:900 18px/1 system-ui,-apple-system,"Segoe UI",Arial,sans-serif;fill:#315d4d;text-anchor:middle}
 .g1-shape-name-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:9px auto;max-width:700px}.g1-shape-name{padding:9px;border:1px solid #dce9e2;border-radius:12px;background:#fbfdfc;text-align:center;font-weight:850}
-@media(max-width:520px){.g1-geometry-wrap{padding:5px}.g1-spatial-label{font-size:12px}.g1-shape-label{font-size:15px}.g1-shape-name-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.g1-shape-name{font-size:14px;padding:7px}.elementary-mode .mtop{min-width:0}.elementary-mode .mtop h2{min-width:0;overflow-wrap:anywhere;line-height:1.15}}
+@media(max-width:520px){.g1-geometry-wrap{padding:5px}.g1-shape-label{font-size:15px}.g1-shape-name-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.g1-shape-name{font-size:14px;padding:7px}.elementary-mode .mtop{min-width:0}.elementary-mode .mtop h2{min-width:0;overflow-wrap:anywhere;line-height:1.15}}
 
 
 /* ЭТАП 8.39 — 1 класс: математическая информация */
@@ -18573,6 +18575,11 @@ const G1_STAGE_DESCRIPTIONS={
   "По рисунку определи, сколько предметов стало или осталось.",
   "По условию и схеме найди, сколько предметов добавили или убрали.",
   "Реши задачу по тексту и найди, сколько предметов было сначала."
+ ],
+ "g1:spatial_relations":[
+  "Определи, с какой стороны, выше или ниже находится кружок.",
+  "Найди кружок по направлению или поменяй предмет отсчёта.",
+  "Найди клетку по двум шагам или по ряду и столбцу."
  ]
 };
 function openG1Topic(id){
@@ -18923,6 +18930,7 @@ g1TheoryHtml=function(id){
 const TARGET_STAGE838_IDS=["g1:spatial_relations","g1:geometric_figures"];
 
 const G1_SPATIAL_RELATIONS=["Слева","Справа","Сверху","Снизу"];
+const G1_SPATIAL_COLOR_GENITIVE={Оранжевый:"оранжевого",Зелёный:"зелёного",Синий:"синего",Фиолетовый:"фиолетового",Розовый:"розового"};
 function g1OppositeRelation(x){return x==="Слева"?"Справа":x==="Справа"?"Слева":x==="Сверху"?"Снизу":"Сверху"}
 function g1SpatialOffset(relation,step=108){return relation==="Слева"?[-step,0]:relation==="Справа"?[step,0]:relation==="Сверху"?[0,-step]:[0,step]}
 function g1SpatialPairModel(relation=null){
@@ -18931,26 +18939,35 @@ function g1SpatialPairModel(relation=null){
 }
 function g1SpatialCrossModel(targetRelation=null){
  const rel=targetRelation||G1_SPATIAL_RELATIONS[ri(0,G1_SPATIAL_RELATIONS.length-1)];
- const variants=[
-  {"Слева":"Зелёный","Справа":"Синий","Сверху":"Фиолетовый","Снизу":"Розовый"},
-  {"Слева":"Синий","Справа":"Розовый","Сверху":"Зелёный","Снизу":"Фиолетовый"},
-  {"Слева":"Фиолетовый","Справа":"Зелёный","Сверху":"Розовый","Снизу":"Синий"},
-  {"Слева":"Розовый","Справа":"Фиолетовый","Сверху":"Синий","Снизу":"Зелёный"}
- ];
- const positions={...variants[ri(0,variants.length-1)]};
+ const colors=shuffleOptions(Object.keys(G1_SPATIAL_COLOR_GENITIVE).filter(color=>color!=="Оранжевый"));
+ const positions=Object.fromEntries(G1_SPATIAL_RELATIONS.map((direction,i)=>[direction,colors[i]]));
  return {mode:"cross",targetRelation:rel,positions,answer:positions[rel],reference:"Оранжевый"}
 }
 function g1SpatialColorClass(name){return name==="Оранжевый"?"g1-spatial-ref":name==="Зелёный"?"g1-spatial-target":name==="Синий"?"g1-spatial-blue":name==="Фиолетовый"?"g1-spatial-purple":"g1-spatial-pink"}
-function g1SpatialDot(x,y,name){return `<circle class="${g1SpatialColorClass(name)}" cx="${x}" cy="${y}" r="30"/><text class="g1-spatial-label" x="${x}" y="${y+52}">${name.toLowerCase()}</text>`}
+function g1SpatialDot(x,y,name){return `<circle class="${g1SpatialColorClass(name)}" cx="${x}" cy="${y}" r="22"/><text class="g1-spatial-label" x="${x}" y="${y+39}">${name.toLowerCase()}</text>`}
+function g1SpatialGridHtml(start){
+ const cells=Array.from({length:9},(_,i)=>{
+  const n=i+1,x=12+i%3*64,y=12+Math.floor(i/3)*64,active=start===n;
+  return `<g><rect class="g1-spatial-cell${active?" start":""}" x="${x}" y="${y}" width="60" height="60" rx="7"/><text class="g1-spatial-label" x="${x+30}" y="${y+36}">${n}</text></g>`;
+ }).join("");
+ const label=`Три ряда по три клетки. Сверху номера 1, 2, 3, посередине 4, 5, 6, снизу 7, 8, 9.${start?` Начало в клетке ${start}.`:""}`;
+ return `<div class="g1-geometry-wrap"><svg class="g1-spatial-svg g1-spatial-grid" viewBox="0 0 212 212" role="img" aria-label="${label}" xmlns="http://www.w3.org/2000/svg">${cells}</svg></div>`;
+}
 function g1SpatialVisualHtml(data){
- const mode=data?.mode||"pair",W=680,H=360,cx=340,cy=170;
- let body=`<line class="g1-spatial-guide" x1="${cx}" y1="32" x2="${cx}" y2="308"/><line class="g1-spatial-guide" x1="112" y1="${cy}" x2="568" y2="${cy}"/>`;
+ const mode=data?.mode||"pair";
+ if(mode==="grid")return g1SpatialGridHtml(data.start);
+ const W=360,H=276,cx=180,cy=132;
+ const dot=(direction,color)=>{
+  const [dx,dy]=g1SpatialOffset(direction,1);
+  return g1SpatialDot(cx+dx*104,cy+dy*82,color);
+ };
+ let body=`<line class="g1-spatial-guide" x1="${cx}" y1="20" x2="${cx}" y2="251"/><line class="g1-spatial-guide" x1="38" y1="${cy}" x2="322" y2="${cy}"/>`;
  if(mode==="center")body+=g1SpatialDot(cx,cy,"Оранжевый");
  else if(mode==="cross"){
   body+=g1SpatialDot(cx,cy,"Оранжевый");
-  for(const rel of G1_SPATIAL_RELATIONS){const [dx,dy]=g1SpatialOffset(rel);body+=g1SpatialDot(cx+dx,cy+dy,data.positions[rel])}
+  for(const rel of G1_SPATIAL_RELATIONS)body+=dot(rel,data.positions[rel]);
  }else{
-  const [dx,dy]=g1SpatialOffset(data?.relation||"Слева");body+=g1SpatialDot(cx,cy,"Оранжевый")+g1SpatialDot(cx+dx,cy+dy,"Зелёный")
+  body+=g1SpatialDot(cx,cy,data?.reference||"Оранжевый")+dot(data?.relation||"Слева",data?.subject||"Зелёный");
  }
  return `<div class="g1-geometry-wrap"><svg class="g1-spatial-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Расположение кружков" xmlns="http://www.w3.org/2000/svg">${body}</svg></div>`
 }
@@ -19068,7 +19085,7 @@ g1TheoryHtml=function(id){
  const raw=rawCourseId(id);if(raw!=="spatial_relations"&&raw!=="geometric_figures")return PRE838_G1_THEORY_HTML(id);
  if(raw==="spatial_relations"){
   const left={mode:"pair",relation:"Слева",reference:"Оранжевый",subject:"Зелёный"},up={mode:"pair",relation:"Сверху",reference:"Оранжевый",subject:"Зелёный"};
-  return `<div class="elementary-theory"><p><b>Предметы могут находиться слева, справа, сверху или снизу друг от друга.</b></p><div class="g1-theory-block"><h3>Слева и справа</h3>${g1SpatialVisualHtml(left)}<p>Зелёный кружок находится <b>слева</b> от оранжевого.</p><p>Значит, оранжевый находится <b>справа</b> от зелёного.</p></div><div class="g1-theory-block"><h3>Сверху и снизу</h3>${g1SpatialVisualHtml(up)}<p>Зелёный кружок находится <b>сверху</b> от оранжевого.</p><p>Значит, оранжевый находится <b>снизу</b> от зелёного.</p></div><div class="elementary-example">Сначала найди, <b>относительно какого предмета</b> нужно смотреть. Потом выбери положение.</div></div>`
+  return `<div class="elementary-theory"><p><b>Предметы могут находиться слева, справа, сверху или снизу друг от друга.</b></p><div class="g1-theory-block"><h3>Слева и справа</h3>${g1SpatialVisualHtml(left)}<p>Зелёный кружок находится <b>слева</b> от оранжевого.</p><p>Значит, оранжевый находится <b>справа</b> от зелёного.</p></div><div class="g1-theory-block"><h3>Сверху и снизу</h3>${g1SpatialVisualHtml(up)}<p>Зелёный кружок находится <b>сверху</b> от оранжевого.</p><p>Значит, оранжевый находится <b>снизу</b> от зелёного.</p></div><div class="elementary-example">Сначала найди предмет, от которого нужно считать направление.</div><p>На клетчатой схеме ряд идёт слева направо, а столбец — сверху вниз.</p></div>`
  }
  const gallery={mode:"gallery",order:["Круг","Треугольник","Квадрат","Прямоугольник"]};
  return `<div class="elementary-theory"><p><b>Фигуры отличаются формой.</b> Сначала внимательно посмотри на рисунок.</p>${g1ShapeVisualHtml(gallery)}<div class="g1-shape-name-grid"><div class="g1-shape-name">A — круг</div><div class="g1-shape-name">B — треугольник</div><div class="g1-shape-name">C — квадрат</div><div class="g1-shape-name">D — прямоугольник</div></div><div class="g1-theory-block"><h3>Стороны и углы</h3><p>У треугольника <b>3 стороны и 3 угла</b>.</p><p>У квадрата и прямоугольника <b>4 стороны и 4 угла</b>.</p><p>У круга углов нет.</p></div><div class="g1-theory-block"><h3>Точка и отрезок</h3>${g1ShapeVisualHtml({mode:"single",shape:"Отрезок"})}<p>Маленькая отметка — это <b>точка</b>. Линия между двумя концами — <b>отрезок</b>.</p></div></div>`
@@ -19383,27 +19400,67 @@ g1LengthQuestion=function(d){
  return g1Choice(prompt,answer,options.filter(option=>option!==answer),explanation,signature,{model,visual,templateId});
 };
 
-/* Пространственные отношения: убираем трудное для первоклассника «относительно». */
+const G1_SPATIAL_STAGE_TEMPLATES=[
+ ["horizontal_pair","vertical_pair"],
+ ["find_neighbor","reverse_relation"],
+ ["two_steps","row_column"]
+];
+function g1SpatialPositionText(direction,reference){
+ const noun=G1_SPATIAL_COLOR_GENITIVE[reference];
+ const description={Сверху:"выше",Снизу:"ниже"}[direction];
+ return description?`${description} ${noun}`:`${direction.toLowerCase()} от ${noun}`;
+}
 g1SpatialQuestion=function(d){
- const warm=["relation","place"],train=["relation","place","reverse","find_color","true_sentence"],master=["relation","place","reverse","find_color","true_sentence"],templateId=g1PickTemplate(d===0?warm:d===1?train:master);
- if(templateId==="relation"){
-  const model=g1SpatialPairModel(),answer=model.relation;
-  return g1Choice("С какой стороны от оранжевого находится зелёный кружок?",answer,G1_SPATIAL_RELATIONS.filter(x=>x!==answer),`Зелёный кружок находится ${answer.toLowerCase()} от оранжевого.`,`g1:spatial_relations:${d}:relation:${answer}`,{model,visual:{type:"g1Spatial",data:model},templateId})
+ const stage=d===0?0:d===1?1:2;
+ const templateId=g1PickTemplate(G1_SPATIAL_STAGE_TEMPLATES[stage]);
+ const key=`g1:spatial_relations:${d}:${templateId}`;
+ if(stage===0){
+  const horizontal=templateId==="horizontal_pair";
+  const options=horizontal?G1_SPATIAL_RELATIONS.slice(0,2):G1_SPATIAL_RELATIONS.slice(2);
+  const relation=g1PickTemplate(options);
+  const [reference,subject]=shuffleOptions(Object.keys(G1_SPATIAL_COLOR_GENITIVE));
+  const model={mode:"pair",relation,reference,subject};
+  const axis=horizontal?"Слева или справа":"Выше или ниже";
+  const text=`${axis} находится ${subject.toLowerCase()} кружок? Смотри от ${G1_SPATIAL_COLOR_GENITIVE[reference]} кружка.`;
+  return g1Choice(text,relation,options.filter(option=>option!==relation),
+   `${subject} кружок находится ${g1SpatialPositionText(relation,reference)}.`,
+   `${key}:${reference}:${subject}:${relation}`,{model,visual:{type:"g1Spatial",data:model},templateId});
  }
- if(templateId==="place"){
-  const orangeRelativeToGreen=G1_SPATIAL_RELATIONS[ri(0,G1_SPATIAL_RELATIONS.length-1)],answer=g1OppositeRelation(orangeRelativeToGreen),model={mode:"center",orangeRelativeToGreen,answer,reference:"Оранжевый"};
-  return g1Choice(`Оранжевый кружок ${orangeRelativeToGreen.toLowerCase()} от зелёного. С какой стороны от оранжевого должен быть зелёный?`,answer,G1_SPATIAL_RELATIONS.filter(x=>x!==answer),`Оранжевый ${orangeRelativeToGreen.toLowerCase()} от зелёного, значит зелёный ${answer.toLowerCase()} от оранжевого.`,`g1:spatial_relations:${d}:place:${orangeRelativeToGreen}`,{model,visual:{type:"g1Spatial",data:model},templateId})
+ if(templateId==="find_neighbor"){
+  const model=g1SpatialCrossModel(),{targetRelation,reference,answer,positions}=model;
+  const where=g1SpatialPositionText(targetRelation,reference);
+  return g1Choice(`Какой кружок находится ${where} кружка?`,answer,
+   Object.values(positions).filter(color=>color!==answer),`${answer} кружок находится ${where} кружка.`,
+   `${key}:${targetRelation}:${Object.values(positions).join("-")}`,{model,visual:{type:"g1Spatial",data:model},templateId});
  }
- if(templateId==="reverse"){
-  const model=g1SpatialPairModel(),answer=g1OppositeRelation(model.relation);
-  return g1Choice("С какой стороны от зелёного находится оранжевый кружок?",answer,G1_SPATIAL_RELATIONS.filter(x=>x!==answer),`Зелёный ${model.relation.toLowerCase()} от оранжевого, значит оранжевый ${answer.toLowerCase()} от зелёного.`,`g1:spatial_relations:${d}:reverse:${model.relation}`,{model,visual:{type:"g1Spatial",data:model},templateId})
+ if(templateId==="reverse_relation"){
+  const relation=g1PickTemplate(G1_SPATIAL_RELATIONS);
+  const [reference,subject]=shuffleOptions(Object.keys(G1_SPATIAL_COLOR_GENITIVE));
+  const answer=g1OppositeRelation(relation),model={relation,reference,subject};
+  const statement=`${subject} кружок находится ${g1SpatialPositionText(relation,reference)} кружка.`;
+  const question=`Где ${reference.toLowerCase()} кружок? Смотри от ${G1_SPATIAL_COLOR_GENITIVE[subject]} кружка.`;
+  return g1Choice(`${statement} ${question}`,answer,G1_SPATIAL_RELATIONS.filter(direction=>direction!==answer),
+   `${statement} Значит, ${reference.toLowerCase()} кружок находится ${g1SpatialPositionText(answer,subject)} кружка.`,
+   `${key}:${reference}:${subject}:${relation}`,{model,templateId});
  }
- if(templateId==="find_color"){
-  const model=g1SpatialCrossModel(),answer=model.answer,wrong=Object.values(model.positions).filter(x=>x!==answer);
-  return g1Choice(`Какой кружок находится ${model.targetRelation.toLowerCase()} от оранжевого?`,answer,wrong,`${answer} кружок находится ${model.targetRelation.toLowerCase()} от оранжевого.`,`g1:spatial_relations:${d}:find_color:${model.targetRelation}:${Object.values(model.positions).join("-")}`,{model,visual:{type:"g1Spatial",data:model},templateId})
+ if(templateId==="two_steps"){
+  const start=ri(1,9),column=(start-1)%3,row=Math.floor((start-1)/3);
+  const horizontal=column===0?1:column===2?-1:g1PickTemplate([-1,1]);
+  const vertical=row===0?3:row===2?-3:g1PickTemplate([-3,3]);
+  const [first,second]=shuffleOptions([horizontal,vertical]),steps={"-3":"вверх","-1":"влево",1:"вправо",3:"вниз"};
+  const middle=start+first,answer=middle+second,model={start,first,second,answer};
+  return g1Choice(`Начни в клетке ${start}. Сделай один шаг ${steps[first]}, затем один шаг ${steps[second]}. В какой клетке остановишься?`,
+   answer,g1UniqueNums(answer,1,9),`Из клетки ${start} сначала попадаем в клетку ${middle}, а затем в клетку ${answer}.`,
+   `${key}:${start}:${first}:${second}`,{model,visual:{type:"g1Spatial",data:{mode:"grid",start}},templateId});
  }
- const model=g1SpatialPairModel(),correct=`Зелёный кружок — ${model.relation.toLowerCase()}`,wrong=G1_SPATIAL_RELATIONS.filter(x=>x!==model.relation).map(x=>`Зелёный кружок — ${x.toLowerCase()}`);
- return g1Choice("Выбери верное предложение.",correct,wrong,`Верно: зелёный кружок ${model.relation.toLowerCase()} от оранжевого.`,`g1:spatial_relations:${d}:true_sentence:${model.relation}`,{model,visual:{type:"g1Spatial",data:model},templateId:"true_sentence"})
+ const answer=ri(1,9),column=(answer-1)%3,row=Math.floor((answer-1)/3);
+ const rowCell=row*3+g1PickTemplate([0,1,2].filter(i=>i!==column))+1;
+ const columnCell=g1PickTemplate([0,1,2].filter(i=>i!==row))*3+column+1;
+ const other=Math.floor((columnCell-1)/3)*3+(rowCell-1)%3+1;
+ const model={rowCell,columnCell,answer};
+ return g1Choice(`Какая клетка находится в одном ряду с клеткой ${rowCell} и в одном столбце с клеткой ${columnCell}?`,
+  answer,[rowCell,columnCell,other],`Ряд клетки ${rowCell} и столбец клетки ${columnCell} пересекаются в клетке ${answer}.`,
+  `${key}:${rowCell}:${columnCell}`,{model,visual:{type:"g1Spatial",data:{mode:"grid"}},templateId});
 };
 
 const G1_SHAPE_GENITIVE_840={"Треугольник":"треугольника","Квадрат":"квадрата","Прямоугольник":"прямоугольника","Круг":"круга"};
