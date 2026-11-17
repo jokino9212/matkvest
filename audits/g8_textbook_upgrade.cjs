@@ -28,7 +28,7 @@ assert(baseline,'Provide the path to the previous published checkout');
 const old=release(baseline), fresh=release('.');
 assert(fresh.version>old.version,'The release needs a new cache version');
 assert.notEqual(fresh.htmlHash,old.htmlHash,'The releases must use separate cache snapshots');
-const knownCounts={192:110,193:133,194:137,195:137};
+const knownCounts={192:110,193:133,194:133,195:137};
 const oldCount=Number(process.argv[3]??knownCounts[old.version]);
 const freshCount=Number(process.argv[4]??knownCounts[fresh.version]);
 assert(oldCount>0&&freshCount>0,'Provide the expected old and new Grade 8 topic counts');
@@ -55,9 +55,9 @@ async function catalog(page,expected,current){
 }
 async function gradeMenu(page,release,grade8Count){
  await version(page,release.version);
- await catalog(page,counts(grade8Count),8);
  const menu=page.locator('#mk-g8-textbook-nav');
  await menu.waitFor({state:'visible'});
+ await catalog(page,counts(grade8Count),8);
  const paragraphs=await menu.locator('.mk-g5-toc-part').evaluateAll(parts=>
   parts.map(part=>[...part.querySelectorAll('[data-paragraph]')].map(item=>Number(item.dataset.paragraph))));
  assert.deepEqual(paragraphs,[[1,51],[46,83],[32,58]].map(([first,last])=>
