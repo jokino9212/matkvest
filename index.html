@@ -19684,41 +19684,77 @@ quizVisualHtml=function(question){
  const v=question?.visual;if(v?.type==="g2TensOnes")return g2TensOnesVisualHtml(v.data);if(v?.type==="g2MeasureCards")return g2MeasureCardsHtml(v.data);return PRE841_QUIZ_VISUAL_HTML(question)
 };
 
-function g2Numbers100Model(){const tens=ri(1,9),ones=ri(0,9);return {tens,ones,n:tens*10+ones}}
+const G2_NUMBERS_100_STAGES=[
+ {templates:["line_read","count_place"],description:"Прочитай число на луче, посчитай десятки или единицы на рисунке."},
+ {templates:["build_number","neighbor","compare"],description:"Составь число, напиши соседнее или сравни два числа."},
+ {templates:["order_numbers","find_by_clues"],description:"Упорядочь четыре числа или найди число по нескольким условиям."}
+];
+
 function g2Numbers100Question(d){
- const warm=["line_read","build_number","after"],train=["line_read","build_number","tens_count","ones_count","before","after","missing"],master=["line_read","build_number","tens_count","ones_count","before","after","missing","compare","write_number"],templateId=g2PickTemplate(d===0?warm:d===1?train:master);
+ const templateId=g2PickTemplate(G2_NUMBERS_100_STAGES[d].templates);
+ const sig=key=>`g2:numbers_100:${d}:${templateId}:${key}`;
  if(templateId==="line_read"){
-  const n=ri(0,100),w=g2NumberWindow(n),model={n,...w};
-  return g2Choice("Какое число отмечено на числовом луче?",n,g2UniqueNums(n,w.min,w.max),`Точка стоит у числа ${n}.`,`g2:numbers_100:${d}:line_read:${n}`,{model,visual:{type:"g1NumberLine",data:{min:w.min,max:w.max,highlight:n}},templateId})
+  const n=ri(0,100),window=g2NumberWindow(n),model={n,...window};
+  return g2Choice("Какое число отмечено на числовом луче?",n,g2UniqueNums(n,window.min,window.max),`Точка стоит у числа ${n}.`,sig(n),{
+   model,visual:{type:"g1NumberLine",data:{...window,highlight:n}},templateId
+  });
+ }
+ if(templateId==="count_place"){
+  const tens=ri(1,9),ones=ri(0,9),countTens=ri(0,1)===0;
+  const answer=countTens?tens:ones;
+  const text=countTens?"Сколько десятков показано палочками?":"Сколько единиц показано точками?";
+  const ex=countTens?`Каждая палочка — один десяток. Всего ${tens} ${g2TensWord(tens)}.`:
+   `Каждая точка — одна единица. Всего ${ones} ${g2UnitsWord(ones)}.`;
+  const model={tens,ones,countTens};
+  const data={tens,ones,hideTensCaption:countTens,hideOnesCaption:!countTens,ariaMode:"generic"};
+  return g2Choice(text,answer,g2UniqueNums(answer,0,9),ex,sig(`${tens}:${ones}:${countTens}`),{
+   model,visual:{type:"g2TensOnes",data},templateId
+  });
  }
  if(templateId==="build_number"){
-  const model=g2Numbers100Model(),answer=model.n;
-  return g2Choice("Какое число показано десятками и единицами?",answer,g2UniqueNums(answer,10,99),`${model.tens} ${g2TensWord(model.tens)} — это ${model.tens*10}. Ещё ${model.ones} ${g2UnitsWord(model.ones)}. Получаем ${answer}.`,`g2:numbers_100:${d}:build_number:${model.tens}:${model.ones}`,{model,visual:{type:"g2TensOnes",data:model},templateId})
+  const n=ri(0,100),tens=Math.floor(n/10),ones=n%10;
+  const text=`Запиши число, в котором <b>${tens} ${g2TensWord(tens)} и ${ones} ${g2UnitsWord(ones)}</b>.`;
+  return g2NumberInput(text,n,`${tens} ${g2TensWord(tens)} — это ${tens*10}. ${tens*10} + ${ones} = ${n}.`,sig(n),{
+   model:{n,tens,ones},templateId
+  });
  }
- if(templateId==="tens_count"){
-  const model=g2Numbers100Model(),answer=model.tens;
-  return g2Choice(`Сколько десятков в числе ${model.n}?`,answer,g2UniqueNums(answer,0,9),`В числе ${model.n} — ${answer} ${g2TensWord(answer)} и ${model.ones} ${g2UnitsWord(model.ones)}.`,`g2:numbers_100:${d}:tens_count:${model.n}`,{model,visual:{type:"g2TensOnes",data:{...model,hideTensCaption:true,ariaMode:"generic"}},templateId})
- }
- if(templateId==="ones_count"){
-  const model=g2Numbers100Model(),answer=model.ones;
-  return g2Choice(`Сколько единиц в числе ${model.n}?`,answer,g2UniqueNums(answer,0,9),`В числе ${model.n} — ${model.tens} ${g2TensWord(model.tens)} и ${answer} ${g2UnitsWord(answer)}.`,`g2:numbers_100:${d}:ones_count:${model.n}`,{model,visual:{type:"g2TensOnes",data:{...model,hideOnesCaption:true,ariaMode:"generic"}},templateId})
- }
- if(templateId==="before"){
-  const n=ri(1,100),answer=n-1,model={n,answer};return g2Choice(`Какое число идёт перед ${n}?`,answer,g2UniqueNums(answer,0,100),`Перед ${n} стоит ${answer}.`,`g2:numbers_100:${d}:before:${n}`,{model,templateId})
- }
- if(templateId==="after"){
-  const n=ri(0,99),answer=n+1,model={n,answer};return g2Choice(`Какое число идёт после ${n}?`,answer,g2UniqueNums(answer,0,100),`После ${n} идёт ${answer}.`,`g2:numbers_100:${d}:after:${n}`,{model,templateId})
- }
- if(templateId==="missing"){
-  const answer=ri(1,99),model={answer,left:answer-1,right:answer+1};return g2Choice(`Какого числа не хватает?<div class="g1-arithmetic-record">${model.left} &nbsp; ? &nbsp; ${model.right}</div>`,answer,g2UniqueNums(answer,0,100),`Числа идут по порядку: ${model.left}, ${answer}, ${model.right}.`,`g2:numbers_100:${d}:missing:${answer}`,{model,templateId})
+ if(templateId==="neighbor"){
+  const before=ri(0,1)===0,n=before?ri(1,100):ri(0,99),answer=before?n-1:n+1;
+  const position=before?"перед":"после";
+  return g2NumberInput(`Какое число идёт сразу ${position} <b>${n}</b>?`,answer,
+   `На числовом луче сразу ${position} числа ${n} стоит ${answer}.`,sig(`${position}:${n}`),{model:{n,before},templateId});
  }
  if(templateId==="compare"){
-  let a=ri(0,100),b=ri(0,100);const equal=ri(0,4)===0;if(equal)b=a;else if(a===b)b=b<100?b+1:b-1;
-  const answer=a===b?"=":a>b?">":"<",model={a,b,answer};
-  return g2Choice(`Какой знак подходит?<div class="g1-arithmetic-record">${a} &nbsp; ? &nbsp; ${b}</div>`,answer,[">","<","="].filter(x=>x!==answer),a===b?`${a} и ${b} равны, поэтому ставим знак =.`:`Сравниваем ${a} и ${b}. ${a} ${answer} ${b}.`,`g2:numbers_100:${d}:compare:${a}:${b}`,{model,templateId})
+  const a=ri(0,100),b=ri(0,4)===0?a:ri(0,100);
+  const answer=a===b?"=":a>b?">":"<";
+  return g2Choice(`Какой знак подходит?<div class="g1-arithmetic-record">${a} &nbsp; ? &nbsp; ${b}</div>`,
+   answer,[">","<","="].filter(sign=>sign!==answer),`Сравниваем ${a} и ${b}. ${a} ${answer} ${b}.`,sig(`${a}:${b}`),{model:{a,b},templateId});
  }
- const model=g2Numbers100Model(),answer=model.n;
- return g2NumberInput(`Запиши число: <b>${model.tens} ${g2TensWord(model.tens)} и ${model.ones} ${g2UnitsWord(model.ones)}</b>.`,answer,`${model.tens} ${g2TensWord(model.tens)} — ${model.tens*10}. Добавляем ${model.ones} ${g2UnitsWord(model.ones)} и получаем ${answer}.`,`g2:numbers_100:${d}:write_number:${model.tens}:${model.ones}`,{model,visual:{type:"g2TensOnes",data:model},templateId:"write_number"})
+ if(templateId==="order_numbers"){
+  const base=ri(0,90),numbers=[base,base+ri(1,4),base+ri(5,8),base+ri(9,10)];
+  const ascending=ri(0,1)===0;
+  const order=ascending?numbers:numbers.slice().reverse(),answer=order.join(", ");
+  const given=shuffleOptions(numbers);
+  if(given.join(", ")===answer)given.push(given.shift());
+  const wrong=order.slice(0,-1).map((_,i)=>{
+   const row=order.slice();
+   [row[i],row[i+1]]=[row[i+1],row[i]];
+   return row.join(", ");
+  });
+  const direction=ascending?"по возрастанию":"по убыванию";
+  return g2Choice(`Выбери ряд ${direction} для чисел <b>${given.join(", ")}</b>.`,answer,wrong,
+   `От ${ascending?"меньшего к большему":"большего к меньшему"}: ${answer}.`,sig(`${direction}:${numbers.join(":")}`),{
+   model:{numbers,ascending},templateId
+  });
+ }
+ const n=ri(2,98),min=n-ri(2,Math.min(8,n)),max=n+ri(2,Math.min(8,100-n)),ones=n%10;
+ const text=`Какое число больше <b>${min}</b>, меньше <b>${max}</b>, а его последняя цифра — <b>${ones}</b>?`;
+ // Внутри заданных границ числа с одной и той же последней цифрой разделены хотя бы десятью.
+ const wrong=[n-1,n+1,n<=90?n+10:n-10];
+ return g2Choice(text,n,wrong,
+  `${n} больше ${min} и меньше ${max}. В разряде единиц у него цифра ${ones}.`,sig(`${min}:${max}:${ones}`),{
+   model:{min,max,ones},templateId
+ });
 }
 
 const G2_UNIT_CONTEXTS=[
@@ -19785,7 +19821,8 @@ function g2TheoryHtml(id){
 }
 function openG2Topic(id){
  const t=g2InfoById(id);if(!t)return;if(t.implemented===false)return showElementaryTopicSoon(2,id);document.body.classList.add("elementary-mode");blockSession=null;const done=completedStages(t.id);
- show(`<div class="mtop"><h2>2 класс • ${esc(t.title)}</h2><button class="x" onclick="closeModal()">×</button></div><div class="lesson elementary-lesson">${g2TheoryHtml(t.id)}</div><div class="stage-grid">${stageCards(t.id,`startG2QuizStage.bind(null,'${t.id}')`)}</div><div class="subtle">Пройдено этапов: <b>${done}/3</b>.</div>`)
+ const descriptions=t.id==="g2:numbers_100"?G2_NUMBERS_100_STAGES.map(stage=>stage.description):[];
+ show(`<div class="mtop"><h2>2 класс • ${esc(t.title)}</h2><button class="x" onclick="closeModal()">×</button></div><div class="lesson elementary-lesson">${g2TheoryHtml(t.id)}</div><div class="stage-grid">${stageCards(t.id,`startG2QuizStage.bind(null,'${t.id}')`,descriptions)}</div><div class="subtle">Пройдено этапов: <b>${done}/3</b>.</div>`)
 }
 function startG2QuizStage(id,stageIndex){const t=g2InfoById(id);if(!t||t.implemented===false)return showElementaryTopicSoon(2,id);beginBlock(t.id,stageIndex,"g2quiz");openG2Quiz(t.id)}
 function openG2Quiz(id){qid=String(id).startsWith("g2:")?String(id):`g2:${id}`;const t=g2InfoById(qid);show(`<div class="mtop"><h2>2 класс • ${esc(t?.title||"Задание")}</h2><button class="x" onclick="closeModal()">×</button></div>${blockHead()}<div id="qstage" class="elementary-quiz"></div>`);nextQ()}
@@ -20398,14 +20435,14 @@ function g2SchoolText846(value){
 function g2NumberLineReadVisualHtml846(data){
  let min=Math.floor(Number(data?.min)),max=Math.floor(Number(data?.max)),highlight=Number(data?.highlight);
  if(!Number.isFinite(min)||!Number.isFinite(max)||max<=min){min=0;max=20}
- const W=680,H=118,L=32,R=32,Y=58,range=max-min,x=n=>L+(n-min)/(range||1)*(W-L-R);
+ const W=360,H=72,L=20,R=30,Y=29,arrow=W-7,range=max-min,x=n=>L+(n-min)/range*(W-L-R);
  let ticks="",labels="";
  for(let n=min;n<=max;n++){
   const xx=x(n);ticks+=`<line x1="${xx}" y1="${Y-8}" x2="${xx}" y2="${Y+8}" stroke="#6d8278" stroke-width="2"/>`;
-  if(n!==highlight)labels+=`<text x="${xx}" y="${Y+29}" text-anchor="middle" font-size="13" fill="#52685e">${n}</text>`;
+  if(n!==highlight)labels+=`<text x="${xx}" y="${Y+29}" text-anchor="middle" font-size="16" fill="#52685e">${n}</text>`;
  }
- const hi=Number.isFinite(highlight)?`<circle cx="${x(highlight)}" cy="${Y}" r="8" fill="#25845f"/>`:"";
- return `<div class="elementary-number-line"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Числовой луч: одна точка отмечена без подписи" xmlns="http://www.w3.org/2000/svg"><line x1="${L}" y1="${Y}" x2="${W-R}" y2="${Y}" stroke="#52685e" stroke-width="3"/><path d="M ${W-R-10} ${Y-7} L ${W-R} ${Y} L ${W-R-10} ${Y+7}" fill="none" stroke="#52685e" stroke-width="3"/>${ticks}${labels}${hi}</svg></div>`
+ const hi=Number.isFinite(highlight)?`<circle cx="${x(highlight)}" cy="${Y}" r="6" fill="#25845f"/>`:"";
+ return `<div class="elementary-number-line"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Числовой луч. Первая отметка — ${min}. От неё до точки ${Number.isFinite(highlight)?highlight-min:0} шагов вправо." xmlns="http://www.w3.org/2000/svg"><line x1="${L}" y1="${Y}" x2="${arrow}" y2="${Y}" stroke="#52685e" stroke-width="3"/><path d="M ${arrow-9} ${Y-7} L ${arrow} ${Y} L ${arrow-9} ${Y+7}" fill="none" stroke="#52685e" stroke-width="3"/>${ticks}${labels}${hi}</svg></div>`
 }
 function g2GuardVisual846(visual,templateId,model){
  if(!visual)return visual;
@@ -20461,7 +20498,7 @@ quizVisualHtml=function(question){const v=question?.visual;if(v?.type==="g2Numbe
 const PRE846_G2_THEORY_HTML=g2TheoryHtml;
 g2TheoryHtml=function(id){
  const raw=rawCourseId(id);let html="";
- if(raw==="numbers_100")html=`<div class="elementary-theory"><p><b>Числа до 100 легче понимать, если увидеть, сколько в них десятков и единиц.</b></p><div class="g2-theory-block"><h3>Соберём число</h3>${g2TensOnesVisualHtml({tens:3,ones:4})}<p>Сначала считаем десятки: 3 десятка — это 30. Потом добавляем 4 единицы. Получаем <b>34</b>.</p><div class="elementary-example"><b>34 = 3 десятка и 4 единицы.</b></div></div><div class="g2-theory-block"><h3>Где число стоит</h3>${elementaryNumberLineSvg({min:30,max:40,highlight:34})}<p>На числовом луче числа увеличиваются вправо. Перед 34 стоит 33, после 34 — 35.</p></div><div class="elementary-example"><b>Короткое правило:</b> сначала сравни десятки, а если их поровну — единицы. Десятки и единицы называют разрядами числа.</div></div>`;
+ if(raw==="numbers_100")html=`<div class="elementary-theory"><p><b>Числа до 100 легче понимать, если увидеть, сколько в них десятков и единиц.</b></p><div class="g2-theory-block"><h3>Соберём число</h3>${g2TensOnesVisualHtml({tens:3,ones:4})}<p>Сначала считаем десятки: 3 десятка — это 30. Потом добавляем 4 единицы. Получаем <b>34</b>.</p><div class="elementary-example"><b>34 = 3 десятка и 4 единицы.</b></div><p>10 десятков — это 1 сотня, или <b>100</b>.</p></div><div class="g2-theory-block"><h3>Где число стоит</h3>${elementaryNumberLineSvg({min:30,max:40,highlight:34})}<p>На числовом луче числа увеличиваются вправо. Перед 34 стоит 33, после 34 — 35.</p></div><div class="elementary-example"><b>Короткое правило:</b> 100 больше всех чисел от 0 до 99. В остальных числах сравни десятки, а если их поровну — единицы.</div></div>`;
  else if(raw==="quantities")html=`<div class="elementary-theory"><p><b>Когда нужно узнать, насколько предмет длинный, тяжёлый или сколько длится событие, его измеряют.</b></p><div class="g2-theory-block"><h3>Выбери подходящую единицу</h3><p>Карандаш удобно измерять в сантиметрах, комнату — в метрах, массу арбуза — в килограммах, урок — в минутах.</p><div class="elementary-example"><b>1 дм = 10 см • 1 м = 100 см • 1 ч = 60 мин</b></div></div><div class="g2-theory-block"><h3>Сравни по шагам</h3><p>1. Посмотри на единицы. 2. Если они разные — переведи в одинаковые. 3. Сравни числа.</p><div class="elementary-example">Например: 4 дм = 40 см, поэтому 4 дм больше 30 см.</div></div><div class="elementary-example"><b>Короткое правило:</b> сравнивать удобно только одинаковые единицы. Длина, масса и время — это величины.</div></div>`;
  else if(raw==="add_sub_100")html=`<div class="elementary-theory"><p><b>Считать до 100 легче, если разбивать действие на удобные шаги.</b></p><div class="g2-theory-block"><h3>Прибавляем десятки</h3>${g2ArithmeticStepVisualHtml({expression:"34 + 20",showSteps:true,steps:["30 + 20 = 50","50 + 4 = 54"]})}<p>К 34 прибавили 2 десятка и получили <b>54</b>.</p></div><div class="g2-theory-block"><h3>Переходим через десяток</h3>${g2ArithmeticStepVisualHtml({expression:"38 + 7",showSteps:true,steps:["38 + 2 = 40","от 7 осталось 5","40 + 5 = 45"]})}<p>Сначала доходим до круглого десятка, потом прибавляем остаток.</p></div><div class="g2-theory-block"><h3>Вычитаем так же</h3>${g2ArithmeticStepVisualHtml({expression:"42 − 5",showSteps:true,steps:["42 − 2 = 40","осталось вычесть 3","40 − 3 = 37"]})}</div><div class="elementary-example"><b>Короткое правило:</b> выбирай шаг, после которого считать проще.</div></div>`;
  else if(raw==="multiply_divide")html=`<div class="elementary-theory"><p><b>Если есть несколько одинаковых групп, одно и то же число не обязательно складывать много раз.</b></p><div class="g2-theory-block"><h3>Одинаковые группы</h3>${g2EqualGroupsVisualHtml({groups:3,each:4})}<p>В каждой группе по 4 предмета, групп 3: <b>4 + 4 + 4 = 12</b>. Короткая запись: <b>4 × 3 = 12</b>.</p><p>Такое действие называют <b>умножением</b>.</p></div><div class="g2-theory-block"><h3>Делим поровну</h3><p>Если 12 предметов раздать поровну в 3 группы, в каждой будет по 4: <b>12 ÷ 3 = 4</b>.</p><p>Такое действие называют <b>делением</b>.</p></div><div class="elementary-example"><b>Короткое правило:</b> умножение собирает одинаковые группы, а деление помогает разделить поровну или узнать число групп.</div></div>`;
