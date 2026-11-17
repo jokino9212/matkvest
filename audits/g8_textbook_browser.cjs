@@ -20,6 +20,11 @@ const adjustedMasterTopics=[
  'elementary_favorable_events','data_dispersion','standard_deviation','scatter_plot','disjoint_events_addition',
  'conditional_probability','probability_multiplication_rule'
 ];
+const solutionMethodTopics=[
+ 'linear_system_substitution','linear_system_elimination','set_union_intersection',
+ 'central_symmetry','sets_elements_subsets','set_complement_properties',
+ 'set_diagrams_applications','tree_graph_basics','tree_unique_path_leaves'
+];
 const rebuilt=[
  'algebraic_fraction_domain','algebraic_fraction_basic_property','algebraic_fraction_reduction','algebraic_fraction_add_sub',
  'algebraic_fraction_mul_div','rational_expression_transformations','inverse_proportion_function',
@@ -543,12 +548,117 @@ async function testWarmupTraining(page,topics,checkLayout=true){
  },{topics,checkLayout});
 }
 
+async function testSolutionMethods(page,topics,checkLayout=true){
+ return page.evaluate(({topics,checkLayout})=>{
+  const assert=(ok,message)=>{if(!ok)throw Error(message);};
+  const shape=task=>JSON.stringify([normalizePromptForCompare(task.text)
+   .replace(/−/g,'-').replace(/[-+]?\d+(?:[.,]\d+)*/g,'#'),task.visual?.type??'']);
+  const variant=task=>task.templateId??task.audit?.variant;
+  const answer=rat=>rat.d===1?String(rat.n):rat.n+'/'+rat.d;
+  let seed=39781;
+  Math.random=()=>((seed=(Math.imul(seed,1664525)+1013904223)>>>0)/4294967296);
+  const totals={topics:0,sessions:0,answers:0,newWarmup:0,newMaster:0};
+
+  function submit(task,id){
+   if(task.choices?.length){
+    const slot=task.choices.findIndex(option=>String(option.key)===String(task.ans));
+    assert(slot>=0,id+' missing choice '+variant(task));
+    document.querySelectorAll('#qstage .answer')[slot].click();
+    return;
+   }
+   if(task.answerMode==='coordinate'){
+    document.querySelector('#quizInputX').value=answer(task.answerPoint.x);
+    document.querySelector('#quizInputY').value=answer(task.answerPoint.y);
+   }else{
+    const response=task.answerMode==='multi'?task.answerList.join(' '):
+     task.answerRat?answer(task.answerRat):task.correctText;
+    assert(response!==undefined,id+' unsupported answer '+task.answerMode);
+    document.querySelector('#quizInput').value=response;
+   }
+   checkQuizInput();
+  }
+
+  for(const raw of topics){
+   const id='g8:'+raw;
+   const stages=[0,1,2].map(stage=>{
+    const prompts=new Set(),variants=new Set();
+    for(let index=0;index<800;index++){
+     const task=makeG8Question(id,stage);
+     assert(task?.text&&task.ex&&task.sig&&!/undefined|NaN|Infinity/.test(task.text+task.ex),id+' incomplete prompt');
+     prompts.add(shape(task));
+     variants.add(variant(task));
+    }
+    return {prompts,variants};
+   });
+
+   for(const stage of [0,1,2]){
+    startG8QuizStage(id,stage);
+    const seen=new Set();
+    const count=STAGES[stage].count;
+    for(let step=0;step<count;step++){
+     const task=q;
+     assert(document.querySelector('#qstage .quizq')?.textContent.trim(),id+' missing prompt');
+     assert(!seen.has(variant(task)),id+' repeated type '+variant(task));
+     stages[stage].prompts.add(shape(task));
+     stages[stage].variants.add(variant(task));
+     seen.add(variant(task));
+     if(task.visual){
+      const visual=task.visual.type==='tableData'?'#qstage table':'#qstage svg';
+      const element=document.querySelector(visual);
+      assert(element,id+' missing drawing '+variant(task));
+      if(checkLayout){
+       const size=element.getBoundingClientRect();
+       assert(size.width>100&&size.left>=-1&&size.right<=innerWidth+1,id+' clipped drawing '+variant(task));
+      }
+     }
+     submit(task,id);
+     assert(blockSession.correct===step+1&&blockSession.done===step+1,id+' rejected '+variant(task));
+     if(stage===0&&task.audit?.type==='g8Textbook')totals.newWarmup++;
+     if(stage===2&&task.audit?.replaces)totals.newMaster++;
+     totals.answers++;
+     if(!blockSession.finished)nextQ();
+    }
+    const button=[...document.querySelectorAll('#qstage button')].find(el=>el.textContent.includes('Посмотреть результат'));
+    assert(blockSession.finished&&button,id+' missing result');
+    button.click();
+    assert(progressFor(id).best[stage]===count,id+' result was not saved');
+    totals.sessions++;
+   }
+
+   for(const [lower,upper] of [[0,1],[1,2],[0,2]]){
+    const repeated=[...stages[lower].prompts].find(prompt=>stages[upper].prompts.has(prompt));
+    assert(!repeated,id+' repeated between '+lower+' and '+upper+': '+repeated);
+    const model=[...stages[lower].variants].find(type=>stages[upper].variants.has(type));
+    assert(!model,id+' shared type '+model);
+   }
+   totals.topics++;
+  }
+  return totals;
+ },{topics,checkLayout});
+}
+
 (async()=>{
  for(const width of [390,320,1280]){
   const browser=await chromium.launch({headless:true,executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE});
   try{
    const options={viewport:{width,height:850},isMobile:width<500,hasTouch:width<500};
    const errors=[];
+   if(!process.env.MATKVEST_G8_WARMUP_ONLY){
+    const solutionMethods={topics:0,sessions:0,answers:0,newWarmup:0,newMaster:0};
+    for(let start=0;start<solutionMethodTopics.length;start+=3){
+     const checkPage=await browser.newPage(options);
+     try{
+      checkPage.on('pageerror',error=>errors.push(error.message));
+      await checkPage.goto(pathToFileURL(process.cwd()+'/index.html').href,{waitUntil:'domcontentloaded'});
+      const batch=await testSolutionMethods(checkPage,solutionMethodTopics.slice(start,start+3));
+      for(const key of Object.keys(solutionMethods))solutionMethods[key]+=batch[key];
+     }finally{await checkPage.close();}
+    }
+    assert.deepEqual(solutionMethods,{topics:9,sessions:27,answers:198,newWarmup:35,newMaster:11});
+    assert.deepEqual(errors,[]);
+    console.log(JSON.stringify({width,solutionMethods}));
+    if(process.env.MATKVEST_G8_SHAPE_ONLY)continue;
+   }
    const report=fs.readFileSync('audits/g8_remaining_audit_2026-11-17.md','utf8');
    const flagged=new Set([...report.matchAll(/^\| .+? \| `(\w+)` \| \d+\/\d+\/\d+ \| [1-9]\d*\/\d+\/\d+ \|/gm)].map(match=>match[1]));
    assert.equal(flagged.size,39);

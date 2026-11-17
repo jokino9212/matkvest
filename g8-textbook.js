@@ -5447,7 +5447,199 @@ const warmupFixes={
   recognizeSeparateTrials:()=>choice('Монету и кубик бросают независимо. После сообщения о результате монеты что случится с вероятностью шестёрки на кубике?',
    'Останется прежней',['Станет нулевой','Удвоится'],'Результат монеты не меняет распределение результатов кубика.')
  },
+ linear_system_substitution:{
+  isolateOneVariable:([a,b])=>choice(`Из равенства x − ${a}y = ${b} вырази x. Пока работай только с этой строкой.`,
+   `${a}y + ${b}`,[`−${a}y + ${b}`,`${a}y − ${b}`],
+   `К обеим частям прибавляем ${a}y, поэтому x = ${a}y + ${b}.`),
+  identifyReplacement:([a,b])=>choice(`В первой строке уже получили y = ${a}x − ${b}. В другой строке нужно сделать подстановку. Какую переменную в ней заменят целиком?`,
+   'y',['x','Обе переменные'],'Из первой строки известно выражение для y. Оно и заменяет y в другой строке.'),
+  keepOuterFactor:([a,b])=>number(`Подставили x = y + ${a} в член −${b}x. Чему равен множитель перед всей скобкой в полученной записи?`,-b,
+   `Выходит −${b}(y + ${a}). Знак минус относится ко всей скобке.`),
+  distributeConstant:([a,b])=>number(`После подстановки нужно раскрыть скобки в ${a}(y − ${b}). Запиши только свободное слагаемое со знаком.`,-a*b,
+   `На ${a} умножают и y, и −${b}. Свободное слагаемое равно −${a*b}.`),
+  orderOfSteps:()=>choice('После подстановки во второй строке остался только y. Когда по первой строке находят значение x?',
+   'После нахождения y',['До решения уравнения с y','Сразу после выбора переменной для подстановки'],
+   'Сначала решаем уравнение с одной переменной. Затем подставляем найденное значение обратно.')
+ },
+ linear_system_elimination:{
+  findCancelledTerm:([a,b])=>choice(`При сложении двух строк встречаются слагаемые ${a}x и −${a}x, а также y и ${b}y. Какая переменная исчезнет?`,
+   'x',['y','Обе переменные'],`Слагаемые с x противоположны. Коэффициенты при y складываются в ${b+1}.`),
+  formOppositeCoefficient:([a])=>number(`В первой строке стоит ${a}x. Какой коэффициент при x нужно получить во второй строке, чтобы x сократился при сложении?`,-a,
+   `Для сокращения сумма двух коэффициентов должна быть нулём.`),
+  prepareSingleMultiplier:([a,b])=>number(`В одной строке коэффициент при y равен 1, а в другой равен ${b}. На какое число умножить первую строку, чтобы эти коэффициенты стали противоположными?`,-b,
+   `1 · (−${b}) = −${b}. Умножают всю строку, включая правую часть.`),
+  combineRightSides:([a,b])=>number(`К первой строке системы прибавляют вторую. Справа в первой строке стоит −${a}, во второй ${b}. Какое число будет справа после сложения?`,b-a,
+   `Правые части складывают так же, как левые: −${a} + ${b} = ${b-a}.`),
+  chooseSubtraction:([a])=>choice(`В обеих строках коэффициент при y равен ${a}. Какая операция сразу уберёт y?`,
+   'Вычесть одну строку из другой',['Сложить строки','Умножить обе строки на 2'],
+   'При вычитании равные коэффициенты дают ноль.')
+ },
+ set_union_intersection:{
+  translateUnionSymbol:()=>choice('Какое условие обозначает x ∈ A ∪ B?',
+   'x входит хотя бы в одно из множеств',['x входит строго в одно множество','x входит только в общую часть'],
+   'Для объединения достаточно принадлежности одному множеству. Принадлежность обоим тоже подходит.'),
+  translateIntersectionSymbol:()=>choice('Какими двумя проверками подтверждают x ∈ A ∩ B?',
+   'x входит в A и x входит в B',['x входит в A или x входит в B','x входит в A, но не входит в B'],
+   'Пересечение требует принадлежности одновременно обоим множествам.'),
+  countOneSharedEntry:([a])=>number(`Число ${a} записано в обоих множествах. Сколько раз его записывают при перечислении элементов объединения?`,1,
+   'Одинаковое число относится к одному элементу объединения.'),
+  locateOnlyA:()=>choice('Элемент лежит внутри круга A, но вне круга B. В каком из выражений он есть?',
+   'Только в A ∪ B',['Только в A ∩ B','В обоих выражениях'],
+   'Для объединения достаточно круга A. Для пересечения нужно находиться ещё и внутри B.'),
+  emptyIntersectionMeaning:()=>choice('Что можно сказать о множествах, если A ∩ B = ∅?',
+   'У них нет общих элементов',['Оба множества обязательно пусты','У них одинаковые элементы'],
+   'Пустое пересечение исключает общие элементы, но каждое множество может содержать свои.')
+ },
+ central_symmetry:{
+  centerBetweenImages:()=>diagram(choice('На чертеже A′ — образ A при центральной симметрии. Какую роль играет O на отрезке AA′?',
+   'Середина отрезка',['Начало отрезка','Точка, равноудалённая от отрезка вне его'],
+   'Центр лежит между точкой и её образом и делит отрезок пополам.'),{kind:'g7-g8-qa6-geometry',shape:'symmetry',aria:'Точки A и A′ отмечены по разные стороны от центра O'}),
+  rayForImage:()=>choice('Если A не совпадает с O, на каком луче относительно луча OA лежит образ A′?',
+   'На противоположном луче с началом O',['На луче OA','На луче, перпендикулярном OA'],
+   'Точки O, A и A′ лежат на одной прямой. Центр находится между A и A′.'),
+  angleOfHalfTurn:()=>number('На сколько градусов поворачивают луч вокруг центра, чтобы получить его образ при центральной симметрии?',180,
+   'Центральная симметрия переводит луч в противоположный, что даёт пол-оборота.'),
+  fixedCenterImage:()=>choice('Какой образ получается для самой точки O при симметрии относительно неё?',
+   'O',['Любая точка на расстоянии 1 от O','У O нет образа'],
+   'От центра до его образа должно сохраниться нулевое расстояние.'),
+  unequalRadiiReject:([a])=>choice(`Точки P и Q лежат по разные стороны от O на одной прямой. OP = ${a} см, OQ = ${a+1} см. Какого свойства не хватает для симметрии?`,
+   'Равенства расстояний до O',['Принадлежности одной прямой','Расположения по разные стороны от O'],
+   'Чтобы точки были симметричны, центр должен делить отрезок PQ на равные части.')
+ },
+ sets_elements_subsets:{
+  readElementOf:([a])=>choice(`Как правильно прочитать запись ${a} ∈ A?`,
+   `Число ${a} принадлежит множеству A`,[`Число ${a} содержит A`,`Число ${a} не принадлежит A`],
+   'Знак ∈ связывает отдельный элемент с множеством, которому он принадлежит.'),
+  readSubsetDirection:()=>choice('Как правильно прочитать запись C ⊆ A?',
+   'Каждый элемент C входит в A',['Каждый элемент A входит в C','A и C не имеют общих элементов'],
+   'Знак ⊆ указывает включение множества слева в множество справа.'),
+  ignoreDuplicateEntry:([a,b])=>choice(`В список элементов A = ${finiteSet([a,b])} по ошибке повторно записали число ${a}. Изменилось ли множество?`,
+   'Нет',['Да'],'Повтор записи не создаёт нового элемента.'),
+  singleCounterexample:([a,b])=>choice(`Известно, что ${a} ∈ C и ${a} ∉ A. Можно ли считать C подмножеством A?`,
+   'Нет',['Да','Можно, если C содержит также число '+b],
+   'Достаточно одного элемента C, которого нет в A, чтобы опровергнуть включение.'),
+  distinguishTwoKinds:([a])=>choice(`Что из перечисленного является множеством из одного элемента, а не самим числом?`,
+   finiteSet([a]),[String(a),finiteSet([a,a+1])],
+   'Фигурные скобки обозначают множество. Внутри указан единственный элемент.')
+ },
+ set_complement_properties:{
+  identifyUniverseRole:()=>choice('Относительно какой области определяют дополнение множества A в записи U ∖ A?',
+   'Относительно U',['Относительно A','Относительно любого другого множества'],
+   'В дополнение могут входить только элементы выбранного универсального множества U.'),
+  testOutsideUniverse:([a])=>choice(`Число ${a} не принадлежит U. Может ли оно входить в дополнение A относительно U?`,
+   'Нет',['Да','Да, если оно также не входит в A'],
+   'Условие x ∈ U обязательно. Нахождения вне A недостаточно.'),
+  translateComplement:()=>choice('Какое условие должен выполнить элемент x внутри U, чтобы попасть в U ∖ A?',
+   'x не принадлежит A',['x принадлежит A','x должен быть общим элементом U и A'],
+   'Из всех элементов U сохраняем ровно те, которые не относятся к A.'),
+  checkDisjointFromComplement:()=>choice('Может ли элемент U входить одновременно в A и в его дополнение относительно U?',
+   'Нет',['Да','Только если A = U'],
+   'Принадлежность A и непринадлежность A исключают друг друга.'),
+  compareTwoUniverses:([a,b])=>choice(`Пусть A = ${finiteSet([a])}. Элемент ${b} добавили в универсальное множество U и не добавляли в A. Появится ли он в дополнении A для нового U?`,
+   'Да',['Нет'],'Теперь элемент принадлежит U и по-прежнему не принадлежит A.')
+ },
+ set_diagrams_applications:{
+  sharedRegion:([a,b])=>masterVenn(choice('Как называется общая область двух кругов, где элементы одновременно принадлежат A и B?',
+   'Пересечение A и B',['Только A','Область вне обоих кругов'],
+   'В пересечении выполняются оба условия принадлежности.'),a,2,b,1),
+  readOnlyOneRegion:([a,b])=>masterVenn(number('На диаграмме числа обозначают количества элементов. Найди число в области «только B».',b,
+   'Читаем часть круга B за пределами A.'),a,2,b,1),
+  outsideCount:([a,b])=>masterVenn(number('Сколько элементов записано за пределами обоих кругов, но внутри прямоугольника U?',a,
+   'Смотрим только в область прямоугольника вне кругов.'),b,2,a+1,a),
+  boundaryOfUniverse:([a,b])=>masterVenn(choice('Какая фигура на рисунке задаёт границу универсального множества U?',
+   'Прямоугольник',['Левый круг A','Правый круг B'],
+   'Круги показывают подмножества U, прямоугольник охватывает все четыре области.'),a,2,b,1),
+  matchOnlyAStatement:([a,b])=>masterVenn(choice('Какая запись словами описывает элемент в левой части круга A вне круга B?',
+   'Входит в A и не входит в B',['Входит в оба множества','Не входит ни в одно множество'],
+   'Элемент находится в A, но не в общей области двух кругов.'),a,2,b,1)
+ },
 };
+
+// Replace overlapping Master scenarios while retaining their positions in existing plans.
+const masterScenarioRepairs={
+ linear_system_substitution:{
+  solve_pair:['detectInconsistentAfterSubstituting',([a,b])=>{
+   const k=2+a%4,c=1+b%7,m=2+b%3;
+   const system=g7SystemHtml(g7Eq2(1,-k,c),g7Eq2(m,-m*k,m*c+1));
+   return choice(`Подставь выражение для x из первой строки во вторую. Сколько решений у системы?<br>${system}`,
+    'Ни одного',['Одно','Бесконечно много'],
+    `Из первой строки x = ${k}y + ${c}. Во второй коэффициент при y становится нулём, и остаётся равенство ${m*c} = ${m*c+1}. Оно неверно при любом y.`);
+  }],
+  choose_equation:['inferOriginalCoefficient',([a,b])=>{
+   const slope=2+a%4,intercept=2+b%5,target=2*slope+3+a%5;
+   return number(`Первое уравнение даёт x = ${slope}y + ${intercept}. Во второе уравнение 2x + ky = t подставили это выражение. После раскрытия скобок коэффициент при y стал равен ${target}. Восстанови k.`,
+    target-2*slope,`От слагаемого 2x приходит ${2*slope}y. Вместе с ky коэффициент равен ${target}, поэтому k = ${target} − ${2*slope}.`);
+  }],
+  qa9_two_step:['compareSolutionsAfterChangingConstant',([a,b])=>{
+   const offset=2+a%5,initial=2*b+offset,change=2*(2+b%4);
+   const system=g7SystemHtml(g7Eq2(1,-1,offset),g7Eq2(1,1,initial));
+   return number(`Во второй строке этой системы правую часть увеличили на ${change}. На сколько возросла координата x её решения?<br>${system}`,
+    change/2,`Выражаем y как x − ${offset}. Второе уравнение после подстановки имеет вид 2x − ${offset} = ${initial}. При увеличении правой части на ${change} координата x увеличивается вдвое меньше.`);
+  }]
+ },
+ set_complement_properties:{
+  intersect_not:['deriveIntersectionFromComplements',([a,b])=>{
+   const onlyA=2+a%5,onlyB=3+b%6,both=2+b%4,outside=1+a%4;
+   const total=onlyA+onlyB+both+outside,notA=onlyB+outside,notB=onlyA+outside;
+   return number(`Число элементов U равно ${total}. Число элементов вне A равно ${notA}, вне B — ${notB}, вне обоих множеств — ${outside}. Сколько элементов содержится одновременно в A и B?`,
+    both,`Сумма ${notA} + ${notB} дважды считает область вне обоих множеств. Число элементов вне пересечения равно ${notA} + ${notB} − ${outside}. Вычитаем его из ${total}.`);
+  }],
+  difference:['rebuildSetFromComplementAndIntersection',([a])=>{
+   const start=1+a%5;
+   const insideBoth=start,onlyB=start+2,outside=start+4;
+   const intersection=finiteSet([insideBoth]),notA=finiteSet([onlyB,outside]),neither=finiteSet([outside]);
+   return choice(`Известно, что A ∩ B = ${intersection}, U ∖ A = ${notA}, U ∖ (A ∪ B) = ${neither}. Какое множество B?`,
+    finiteSet([insideBoth,onlyB]),[notA,finiteSet([insideBoth,outside]),intersection],
+    `В B есть ${insideBoth} из пересечения и ${onlyB} из области вне A. Число ${outside} вне обоих множеств.`);
+  }],
+  de_morgan_union:['chooseMinimumGuaranteedContainment',([a])=>{
+   const x=2+a%6;
+   const expression='(U ∖ A) ∩ (U ∖ B)';
+   return choice(`Известно, что A ⊆ B ⊆ U и ${x} ∈ U. Нужно выяснить, входит ли элемент ${x} в ${expression}, одной проверкой. Какую проверку достаточно выполнить?`,
+    `Проверить, что ${x} не входит в B`,
+    [`Проверить лишь, что ${x} не входит в A`,`Проверить, что ${x} входит в B`,`Проверить лишь, что ${x} входит в U`],
+    'При A ⊆ B дополнение B внутри U содержится в дополнении A. Значит, их пересечение равно U ∖ B.');
+  }],
+  inverse_universe:['varyUniverseAndMembership',([a,b])=>{
+   const only=2+b%3,fromA=1+a%3,join=2+b%5;
+   return number(`Из U удалили ${fromA} элементов A и ещё ${only} элементов, которые не принадлежали A. Затем из оставшихся элементов A перевели ещё ${join} в его дополнение, то есть убрали их из A, оставив в U. На сколько изменилось число элементов дополнения A? Для уменьшения используй минус.`,
+    join-only,`Удаление элементов самого A не меняет его дополнение. Сначала дополнение уменьшилось на ${only}, а затем увеличилось на ${join}. Изменение равно ${join} − ${only}.`);
+  }],
+  complement_union_count:['fillComplementAfterOneSetExpands',([a,b])=>{
+   const onlyA=2+a%4,onlyB=3+b%4,both=1+a%3,outside=4+b%5,move=2+a%3;
+   const total=onlyA+onlyB+both+outside;
+   return number(`Универсальное множество содержит всего ${total} объектов. В A их ${onlyA+both}, в B — ${onlyB+both}, а в обоих множествах — ${both}. В A добавили ${move} элементов, ранее не входивших ни в A, ни в B. Сколько элементов теперь вне обоих множеств?`,
+    outside-move,`Исходно в объединении ${onlyA+both} + ${onlyB+both} − ${both} = ${total-outside} элементов. Вне его было ${outside}, а после добавления осталось ${outside} − ${move}.`);
+  }]
+ },
+ tree_graph_basics:{
+  tree_test:['breakTwoCyclesWithoutDisconnecting',([a,b])=>{
+   const left=3+a%5,right=3+b%5;
+   return number(`Граф состоит из двух непересекающихся простых циклов и одного ребра, соединяющего их. Длины циклов в рёбрах равны ${left} и ${right}. Сколькими способами можно удалить два ребра так, чтобы получившийся граф стал деревом?`,
+    left*right,`Соединяющее ребро нужно сохранить для связности. В каждом цикле удаляем по одному ребру: ${left} вариантов для первого и ${right} для второго.`);
+  }]
+ },
+ tree_unique_path_leaves:{
+  path_length:['recoverSharedRouteLength',([a,b])=>{
+   const shared=1+a%5,toB=2+b%4,toC=2+a%4;
+   return number(`Длины путей в дереве в рёбрах: от A до B — ${shared+toB}, от A до C — ${shared+toC}, от B до C — ${toB+toC}. Сколько рёбер составляет общая начальная часть путей из A к B и к C?`,
+    shared,`Сумма первых двух расстояний учитывает общую часть дважды. Если вычесть расстояние между B и C, остаются 2 · ${shared} рёбер. Делим на 2.`);
+  }],
+  longest_path:['countPathsChangedBySubdivision',([a,b])=>{
+   const left=2+a%4,right=2+b%5;
+   return number(`Если удалить выбранное ребро дерева, по разные стороны от него останутся части из ${left} и ${right} вершин. Ребро не удалили, а поставили на нём новую вершину, заменив ребро двумя. У скольких неупорядоченных пар старых вершин расстояние увеличилось?`,
+    left*right,`Путь удлиняется только между вершинами из разных частей. Выбираем одну старую вершину с каждой стороны: ${left} · ${right}.`);
+  }]
+ }
+};
+
+function repairMasterScenario(raw,stage,task){
+ const repair=stage===2&&masterScenarioRepairs[raw]?.[task?.templateId];
+ if(!repair)return task;
+ const replacement=makeQuestion(raw,stage,...repair);
+ replacement.audit.replaces=task.templateId;
+ return replacement;
+}
 
 function makeQuestion(raw,stage,variant,build){
  let args;
@@ -5459,7 +5651,7 @@ function makeQuestion(raw,stage,variant,build){
  }
  const item=build(args);
  const geometry=similarityTopics[raw]||raw==='triangle_midline'||['g7-g8-altitude-to-hypotenuse','g7-g8-right-trig','g7-g8-circle-line','g7-g8-circle-pair','g7-g8-arc-angle','g7-g8-exact8082','g7-qa-angle7779'].includes(item.model?.kind);
- const visual=stage===0&&warmupFixes[raw]?(item.model??item.graph??item.table):geometry?item.model:
+ const visual=stage===0&&warmupFixes[raw]?(item.model??item.graph??item.table??item.venn):geometry?item.model:
   (statisticsMasterFixes[raw]||linearMasterFixes[raw]||areaFollowupMasters[raw]||areaMasters[raw]||equationSystemMasters[raw]||probabilitySetMasters[raw]||geometryMasters[raw]||inequalityMasters[raw]||functionMasters[raw])&&(item.venn??item.graph??item.table??item.interval);
  const sig=g8Sig(raw,stage,variant,visual?[item.text,JSON.stringify(visual)]:[item.text]);
  const audit={type:'g8Textbook',topic:raw,stage,variant};
@@ -5487,13 +5679,22 @@ makeG8Question=function(id,override=null){
  const raw=rawCourseId(id);
  const stage=Math.max(0,Math.min(2,Number.isInteger(override)?override:activeDifficulty()));
  const variants=textbookVariants(raw,stage);
- if(!variants)return previousQuestion(id,override);
+ if(!variants)return repairMasterScenario(raw,stage,previousQuestion(id,override));
  return makeQuestion(raw,stage,...g8Pick(Object.entries(variants)));
 };
 freshQuiz=function(id){
  const raw=rawCourseId(id),session=blockSession,stage=session?.stageIndex,variants=textbookVariants(raw,stage);
- if(!variants||keyGrade(id)!==8||session?.kind!=='g8quiz'||session.topicId!==raw||session.finished){
+ if(keyGrade(id)!==8||session?.kind!=='g8quiz'||session.topicId!==raw||session.finished){
   return previousFresh(id);
+ }
+ if(!variants){
+  const original=previousFresh(id);
+  const replacement=repairMasterScenario(raw,stage,original);
+  if(replacement!==original){
+   registerSignature(replacement.sig);
+   replacement._signature=replacement.sig;
+  }
+  return replacement;
  }
  if(!session.g8TextbookPlan?.order?.length||session.g8TextbookPlan.order.some(variant=>!Object.hasOwn(variants,variant))){
   session.g8TextbookPlan={order:shuffleOptions(Object.keys(variants)),prompts:session.g8TextbookPlan?.prompts??[]};
