@@ -9,6 +9,10 @@ const trigonometryTopics=['acute_angle_trig_ratios','trig_identity','special_ang
 const circleTopics=['line_and_circle','circle_relative_positions','circle_tangency','common_tangents_two_circles'];
 const arcTopics=['arc_degree_measure','central_inscribed_angles'];
 const circleAngleTopics=['tangent_chord_angle','chords_secants_angles','tangential_quadrilateral','cyclic_quadrilateral'];
+const adjustedMasterTopics=[
+ 'square_root_arithmetic','equation_x2_equals_a','square_root_properties',
+ 'root_expression_transformations','root_calculations_applications'
+];
 const rebuilt=[
  'algebraic_fraction_domain','algebraic_fraction_basic_property','algebraic_fraction_reduction','algebraic_fraction_add_sub',
  'algebraic_fraction_mul_div','rational_expression_transformations','inverse_proportion_function',
@@ -335,6 +339,52 @@ async function testGeometry(page,section='similarity'){
  },{applicationTopics,trigonometryTopics,circleTopics,arcTopics,circleAngleTopics,section});
 }
 
+async function testAdjustedMaster(page,topics){
+ return page.evaluate(topics=>{
+  const verify=(ok,message)=>{if(!ok)throw Error(message);};
+  const shape=task=>JSON.stringify([
+   normalizePromptForCompare(task.text).replace(/\d+(?:[.,]\d+)*/g,'#'),task.visual?.type??''
+  ]);
+  let masterQuestions=0;
+  for(const topic of topics){
+   const id='g8:'+topic,lower=new Set(),types=new Set();
+   for(const stage of [0,1]){
+    for(let index=0;index<150;index++)lower.add(shape(makeG8Question(id,stage)));
+   }
+   for(let index=0;index<250;index++){
+    const task=makeG8Question(id,2);
+    verify(task.audit?.type==='g8Textbook'&&task.audit.topic===topic&&task.audit.stage===2,id+' bypassed the updated Master generator');
+    verify(!lower.has(shape(task)),id+' reused a lower-level prompt: '+normalizePromptForCompare(task.text));
+    types.add(task.templateId);
+   }
+   verify(types.size===10,id+' needs ten different Master types');
+   startG8QuizStage(id,2);
+   const seen=new Set();
+   for(let index=0;index<STAGES[2].count;index++){
+    verify(!seen.has(q.templateId),id+' repeated a Master type');
+    seen.add(q.templateId);
+    if(q.choices.length){
+     const answer=q.choices.findIndex(option=>String(option.key)===String(q.ans));
+     verify(answer>=0,id+' has no correct choice');
+     document.querySelectorAll('#qstage .answer')[answer].click();
+    }else{
+     const {n,d}=q.answerRat;
+     document.querySelector('#quizInput').value=d===1?String(n):n+'/'+d;
+     checkQuizInput();
+    }
+    verify(blockSession.correct===index+1&&blockSession.done===index+1,id+' rejected '+q.templateId);
+    if(!blockSession.finished)nextQ();
+    masterQuestions++;
+   }
+   const button=[...document.querySelectorAll('#qstage button')].find(el=>el.textContent.includes('Посмотреть результат'));
+   verify(blockSession.finished&&button,id+' did not show the training result');
+   button.click();
+   verify(progressFor(id).best[2]===10,id+' did not save the Master result');
+  }
+  return {masterQuestions};
+ },topics);
+}
+
 async function testSessions(page){
  const total={generated:0,questions:0,sessions:0};
  for(const id of rebuilt){
@@ -411,6 +461,15 @@ async function testSessions(page){
   try{
    const options={viewport:{width,height:850},isMobile:width<500,hasTouch:width<500};
    const errors=[];
+   for(let start=0;start<adjustedMasterTopics.length;start+=6){
+    const masterPage=await browser.newPage(options);
+    try{
+     masterPage.on('pageerror',error=>errors.push(error.message));
+     await masterPage.goto(pathToFileURL(process.cwd()+'/index.html').href,{waitUntil:'domcontentloaded'});
+     const result=await testAdjustedMaster(masterPage,adjustedMasterTopics.slice(start,start+6));
+     console.log(JSON.stringify({width,...result}));
+    }finally{await masterPage.close();}
+   }
    for(const section of ['circleAngles','arcs','circles','trigonometry']){
     const geometryPage=await browser.newPage(options);
     geometryPage.on('pageerror',error=>errors.push(error.message));
