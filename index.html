@@ -18586,6 +18586,11 @@ const G1_STAGE_DESCRIPTIONS={
   "Назови фигуру или найди её среди других фигур.",
   "Посчитай стороны или углы либо отличи точку от отрезка.",
   "Выбери фигуру по свойствам или посчитай стороны либо углы двух фигур вместе."
+ ],
+ "g1:object_properties":[
+  "Назови цвет или форму одной фигуры либо сравни две фигуры по размеру.",
+  "Найди фигуру по двум признакам или определи общий признак группы.",
+  "Посчитай фигуры по двум признакам или найди фигуру, которая нарушает правило."
  ]
 };
 function openG1Topic(id){
@@ -19118,56 +19123,89 @@ const G1_INFO_SHAPE_PLURAL={"Круг":"круги","Треугольник":"т
 const G1_INFO_COLOR_GEN={"Красный":"красного","Синий":"синего","Зелёный":"зелёного","Жёлтый":"жёлтого"};
 function g1InfoColor(name){return G1_INFO_COLORS.find(x=>x.name===name)||G1_INFO_COLORS[0]}
 function g1InfoRotate(arr,shift){const a=[...arr],n=a.length,k=((Number(shift)||0)%n+n)%n;return a.slice(k).concat(a.slice(0,k))}
-function g1InfoObjectSvg(obj,ariaOmit=""){
+function g1InfoObjectSvg(obj,ariaOmit="",proportionalSizes=false){
  const shape=obj?.shape||"Круг",color=g1InfoColor(obj?.color),size=obj?.size==="Маленький"?"small":"large",c=color.fill,st=color.stroke;
  let body="";
  if(shape==="Круг")body=`<circle cx="60" cy="60" r="39" fill="${c}" stroke="${st}" stroke-width="5"/>`;
  else if(shape==="Треугольник")body=`<polygon points="60,16 18,98 102,98" fill="${c}" stroke="${st}" stroke-width="5" stroke-linejoin="round"/>`;
  else if(shape==="Квадрат")body=`<rect x="21" y="21" width="78" height="78" rx="3" fill="${c}" stroke="${st}" stroke-width="5"/>`;
  else body=`<rect x="13" y="29" width="94" height="62" rx="3" fill="${c}" stroke="${st}" stroke-width="5"/>`;
- const aria=ariaOmit==="color"?`${obj?.size||"Большая"} фигура формы ${String(shape).toLowerCase()}`:ariaOmit==="shape"?`${obj?.size||"Большая"} фигура ${String(color.name).toLowerCase()} цвета`:`${obj?.size||"Большой"} ${String(color.name).toLowerCase()} ${String(shape).toLowerCase()}`;
- return `<svg class="g1-info-symbol ${size}" viewBox="0 0 120 120" role="img" aria-label="${aria}" xmlns="http://www.w3.org/2000/svg">${body}</svg>`
+ const sizeFeminine=size==="small"?"Маленькая":"Большая";
+ const aria=ariaOmit==="color"?`${sizeFeminine} фигура. Форма — ${shape.toLowerCase()}.`:ariaOmit==="shape"?`${sizeFeminine} фигура ${G1_INFO_COLOR_GEN[color.name]} цвета.`:`${obj?.size||"Большой"} ${color.name.toLowerCase()} ${shape.toLowerCase()}`;
+ const drawing=proportionalSizes&&size==="small"?`<g transform="translate(60 60) scale(.65) translate(-60 -60)">${body}</g>`:body;
+ const className=proportionalSizes?"g1-info-symbol":`g1-info-symbol ${size}`;
+ return `<svg class="${className}" viewBox="0 0 120 120" role="img" aria-label="${aria}" xmlns="http://www.w3.org/2000/svg">${drawing}</svg>`
 }
 function g1ObjectGroupsVisualHtml(data){
  const mode=data?.mode||"set",objects=Array.isArray(data?.objects)?data.objects:[];
- if(mode==="single"){const o=data.object||objects[0]||{shape:"Круг",color:"Зелёный",size:"Большой"};return `<div class="g1-info-wrap"><div class="g1-info-set"><div class="g1-info-item">${g1InfoObjectSvg(o,data?.ask||"")}</div></div></div>`}
+ if(mode==="single"){const o=data.object||objects[0]||{shape:"Круг",color:"Зелёный",size:"Большой"};return `<div class="g1-info-wrap"><div class="g1-info-set"><div class="g1-info-item">${g1InfoObjectSvg(o,data?.ask||"",data?.proportionalSizes)}</div></div></div>`}
  const labels=data?.labels!==false;
- return `<div class="g1-info-wrap"><div class="g1-info-set">${objects.map((o,i)=>`<div class="g1-info-item">${labels?`<b>${String.fromCharCode(65+i)}</b>`:""}${g1InfoObjectSvg(o)}</div>`).join("")}</div>${data?.rule?`<div class="g1-info-rule">${esc(data.rule)}</div>`:""}</div>`
+ return `<div class="g1-info-wrap"><div class="g1-info-set">${objects.map((o,i)=>`<div class="g1-info-item">${labels?`<b>${String.fromCharCode(65+i)}</b>`:""}${g1InfoObjectSvg(o,"",data?.proportionalSizes)}</div>`).join("")}</div>${data?.rule?`<div class="g1-info-rule">${esc(data.rule)}</div>`:""}</div>`
 }
+const G1_OBJECT_STAGE_TEMPLATES=[
+ ["name_property","compare_size"],
+ ["find_object","common_property"],
+ ["count_two_properties","group_rule"]
+];
 function g1InfoObjectQuestion(d){
- const warm=["name_property","find_object"],train=["name_property","find_object","compare_size","common_property","count_property"],master=["name_property","find_object","compare_size","common_property","count_property","odd_one_out"];
- const templateId=g1PickTemplate(d===0?warm:d===1?train:master);
+ const templateId=g1PickTemplate(G1_OBJECT_STAGE_TEMPLATES[d]??G1_OBJECT_STAGE_TEMPLATES[2]);
+ const colors=shuffleOptions(G1_INFO_COLORS.map(item=>item.name));
+ const shapes=shuffleOptions(G1_INFO_SHAPES);
+ const sizes=shuffleOptions(["Большой","Маленький"]);
+ const [color,otherColor]=colors,[shape,otherShape,thirdShape]=shapes,[size,otherSize]=sizes;
+ const letters=["A","B","C","D"];
+ const make=(text,answer,options,explanation,data)=>{
+  const model={...data,proportionalSizes:true};
+  return g1Choice(text,answer,options.filter(option=>option!==answer),explanation,
+   `g1:object_properties:${d}:${templateId}:${JSON.stringify(data)}`,{model,visual:{type:"g1ObjectGroups",data:model},templateId});
+ };
  if(templateId==="name_property"){
-  const ask=ri(0,1)?"color":"shape",color=G1_INFO_COLORS[ri(0,G1_INFO_COLORS.length-1)].name,shape=G1_INFO_SHAPES[ri(0,G1_INFO_SHAPES.length-1)],size=ri(0,1)?"Большой":"Маленький",model={mode:"single",object:{color,shape,size},ask};
-  if(ask==="color")return g1Choice("Какого цвета фигура?",color,G1_INFO_COLORS.map(x=>x.name).filter(x=>x!==color),`Фигура ${G1_INFO_COLOR_GEN[color]} цвета.`,`g1:object_properties:${d}:name_property:color:${color}:${shape}:${size}`,{model,visual:{type:"g1ObjectGroups",data:model},templateId});
-  return g1Choice("Какой формы фигура?",shape,G1_INFO_SHAPES.filter(x=>x!==shape),`Это ${shape.toLowerCase()}.`,`g1:object_properties:${d}:name_property:shape:${color}:${shape}:${size}`,{model,visual:{type:"g1ObjectGroups",data:model},templateId})
- }
- if(templateId==="find_object"){
-  const targetColor=G1_INFO_COLORS[ri(0,G1_INFO_COLORS.length-1)].name,targetShape=G1_INFO_SHAPES[ri(0,G1_INFO_SHAPES.length-1)],two=d>0&&ri(0,1)===1,shift=ri(0,3),colors=g1InfoRotate(G1_INFO_COLORS.map(x=>x.name),shift),shapes=g1InfoRotate(G1_INFO_SHAPES,ri(0,3));
-  const targetIndex=ri(0,3),otherColors=G1_INFO_COLORS.map(x=>x.name).filter(x=>x!==targetColor),otherShapes=G1_INFO_SHAPES.filter(x=>x!==targetShape);
-  let objects=Array.from({length:4},(_,i)=>{if(i===targetIndex)return {color:targetColor,shape:targetShape,size:"Большой"};const j=i<targetIndex?i:i-1;if(two)return j%2===0?{color:targetColor,shape:otherShapes[j%otherShapes.length],size:"Большой"}:{color:otherColors[j%otherColors.length],shape:targetShape,size:"Большой"};return {color:otherColors[j%otherColors.length],shape:shapes[i],size:"Большой"}});
-  const answer=String.fromCharCode(65+targetIndex),model={mode:"set",objects,criterion:two?{color:targetColor,shape:targetShape}:{color:targetColor},answer};
-  const q=two?`Под какой буквой ${targetColor.toLowerCase()} ${targetShape.toLowerCase()}?`:`Под какой буквой фигура ${G1_INFO_COLOR_GEN[targetColor]} цвета?`;
-  const ex=two?`Под буквой ${answer} находится ${targetColor.toLowerCase()} ${targetShape.toLowerCase()}.`:`Под буквой ${answer} находится фигура ${G1_INFO_COLOR_GEN[targetColor]} цвета.`;
-  return g1Choice(q,answer,["A","B","C","D"].filter(x=>x!==answer),ex,`g1:object_properties:${d}:find_object:${two?"two":"color"}:${targetColor}:${targetShape}:${objects.map(o=>o.color+o.shape).join("-")}`,{model,visual:{type:"g1ObjectGroups",data:model},templateId})
+  const ask=ri(0,1)===1?"color":"shape",model={mode:"single",object:{color,shape,size},ask};
+  return ask==="color"?make("Какого цвета фигура?",color,colors,`Фигура ${G1_INFO_COLOR_GEN[color]} цвета.`,model):
+   make("Какой формы фигура?",shape,shapes,`Это ${shape.toLowerCase()}.`,model);
  }
  if(templateId==="compare_size"){
-  const shape=G1_INFO_SHAPES[ri(0,G1_INFO_SHAPES.length-1)],color=G1_INFO_COLORS[ri(0,G1_INFO_COLORS.length-1)].name,bigIndex=ri(0,1),objects=[{shape,color,size:bigIndex===0?"Большой":"Маленький"},{shape,color,size:bigIndex===1?"Большой":"Маленький"}],answer=bigIndex===0?"A":"B",model={mode:"set",objects,answer,property:"size"};
-  return g1Choice("Какая фигура большая?",answer,[answer==="A"?"B":"A"],`Фигура ${answer} больше.`,`g1:object_properties:${d}:compare_size:${shape}:${color}:${answer}`,{model,visual:{type:"g1ObjectGroups",data:model},templateId})
+  const objects=sizes.map(value=>({color,shape,size:value}));
+  const answer=letters[objects.findIndex(item=>item.size==="Большой")];
+  return make("Какая фигура больше?",answer,letters.slice(0,2),`Фигура ${answer} больше.`,{mode:"set",objects});
+ }
+ if(templateId==="find_object"){
+  const objects=shuffleOptions([{color,shape,size},{color,shape:otherShape,size},
+   {color:otherColor,shape,size},{color:otherColor,shape:thirdShape,size}]);
+  const answer=letters[objects.findIndex(item=>item.color===color&&item.shape===shape)];
+  const target=`${color.toLowerCase()} ${shape.toLowerCase()}`;
+  return make(`Под какой буквой находится ${target}?`,answer,letters,`Под буквой ${answer} находится ${target}.`,
+   {mode:"set",objects,criterion:{color,shape}});
  }
  if(templateId==="common_property"){
-  const byColor=ri(0,1)===1,commonColor=G1_INFO_COLORS[ri(0,G1_INFO_COLORS.length-1)].name,commonShape=G1_INFO_SHAPES[ri(0,G1_INFO_SHAPES.length-1)],objects=Array.from({length:3},(_,i)=>({color:byColor?commonColor:G1_INFO_COLORS[(i+ri(0,3))%G1_INFO_COLORS.length].name,shape:byColor?G1_INFO_SHAPES[i%G1_INFO_SHAPES.length]:commonShape,size:"Большой"}));
-  const correct=byColor?`Все ${commonColor.toLowerCase()}`:`Все — ${G1_INFO_SHAPE_PLURAL[commonShape]}`,wrong=byColor?["Все одной формы","Все маленькие","Все одинаковые"]:["Все одного цвета","Все маленькие","Все одинаковые"],model={mode:"set",objects,labels:false,common:byColor?{type:"color",value:commonColor}:{type:"shape",value:commonShape}};
-  const ex=byColor?`У всех фигур один цвет — ${commonColor.toLowerCase()}.`:`У всех фигур одна форма — ${commonShape.toLowerCase()}.`;
-  return g1Choice("Что общего у всех фигур?",correct,wrong,ex,`g1:object_properties:${d}:common_property:${byColor?"color":"shape"}:${byColor?commonColor:commonShape}:${objects.map(o=>o.color+o.shape).join("-")}`,{model,visual:{type:"g1ObjectGroups",data:model},templateId})
+  const labels={color:"Одинаковый цвет",shape:"Одинаковая форма",size:"Одинаковый размер"};
+  const common=g1PickTemplate(Object.keys(labels));
+  const objects=shuffleOptions([0,1,2].map(i=>({color:common==="color"?color:colors[i],
+   shape:common==="shape"?shape:shapes[i],size:common==="size"?size:sizes[i%2]})));
+  const answer=labels[common];
+  return make("Какой признак общий у всех фигур?",answer,Object.values(labels),`У всех фигур ${answer.toLowerCase()}.`,
+   {mode:"set",objects,labels:false,common});
  }
- if(templateId==="count_property"){
-  const criterionColor=G1_INFO_COLORS[ri(0,G1_INFO_COLORS.length-1)].name,count=ri(1,4),other=G1_INFO_COLORS[(G1_INFO_COLORS.findIndex(x=>x.name===criterionColor)+1)%G1_INFO_COLORS.length].name,objects=Array.from({length:5},(_,i)=>({color:i<count?criterionColor:other,shape:G1_INFO_SHAPES[i%G1_INFO_SHAPES.length],size:"Большой"})),shift=ri(0,4),ordered=g1InfoRotate(objects,shift),model={mode:"set",objects:ordered,labels:false,criterion:{color:criterionColor},count};
-  return g1Choice(`Сколько фигур ${G1_INFO_COLOR_GEN[criterionColor]} цвета?`,count,g1UniqueNums(count,0,5),`Фигур ${G1_INFO_COLOR_GEN[criterionColor]} цвета — ${count}.`,`g1:object_properties:${d}:count_property:${criterionColor}:${count}:${shift}`,{model,visual:{type:"g1ObjectGroups",data:model},templateId})
+ if(templateId==="count_two_properties"){
+  const count=ri(0,3);
+  const objects=shuffleOptions([
+   ...Array.from({length:count},(_,i)=>({color,shape,size:sizes[i%2]})),
+   {color,shape:otherShape,size},{color:otherColor,shape,size:otherSize},
+   ...Array.from({length:4-count},(_,i)=>({color:colors[1+i%3],shape:shapes[1+i%3],size:sizes[i%2]}))
+  ]);
+  const target=`${G1_INFO_COLOR_GEN[color]} цвета`;
+  return make(`Сколько на рисунке фигур ${target} в форме ${G1_SHAPE_GENITIVE_840[shape]}?`,count,
+   [count,...g1UniqueNums(count,0,6)],`Обоим признакам подходят ${count} из 6 фигур.`,
+   {mode:"set",objects,labels:false,criterion:{color,shape}});
  }
- const byColor=ri(0,1)===1,baseColor=G1_INFO_COLORS[ri(0,G1_INFO_COLORS.length-1)].name,otherColor=G1_INFO_COLORS[(G1_INFO_COLORS.findIndex(x=>x.name===baseColor)+1)%G1_INFO_COLORS.length].name,baseShape=G1_INFO_SHAPES[ri(0,G1_INFO_SHAPES.length-1)],otherShape=G1_INFO_SHAPES[(G1_INFO_SHAPES.indexOf(baseShape)+1)%G1_INFO_SHAPES.length],odd=ri(0,3),objects=Array.from({length:4},(_,i)=>({color:byColor?(i===odd?otherColor:baseColor):G1_INFO_COLORS[i%G1_INFO_COLORS.length].name,shape:byColor?G1_INFO_SHAPES[i%G1_INFO_SHAPES.length]:(i===odd?otherShape:baseShape),size:"Большой"})),answer=String.fromCharCode(65+odd),model={mode:"set",objects,answer,rule:byColor?`Три фигуры одного цвета.`:`Три фигуры одной формы.`};
- const ex=byColor?`Фигура ${answer} другого цвета. Остальные фигуры ${G1_INFO_COLOR_GEN[baseColor]} цвета.`:`Фигура ${answer} другой формы. Остальные — ${G1_INFO_SHAPE_PLURAL[baseShape]}.`;
- return g1Choice("Какая фигура не подходит к группе?",answer,["A","B","C","D"].filter(x=>x!==answer),ex,`g1:object_properties:${d}:odd_one_out:${byColor?"color":"shape"}:${odd}:${baseColor}:${baseShape}`,{model,visual:{type:"g1ObjectGroups",data:model},templateId:"odd_one_out"})
+ const unwanted=g1PickTemplate(["color","size","both"]);
+ const objects=shuffleOptions(shapes.map((figure,i)=>({shape:figure,
+  color:i===0&&unwanted!=="size"?otherColor:color,size:i===0&&unwanted!=="color"?otherSize:size})));
+ const answer=letters[objects.findIndex(item=>item.color!==color||item.size!==size)];
+ const requiredSize=size==="Большой"?"большие":"маленькие";
+ const reason={color:"другого цвета",size:"другого размера",both:"другого цвета и размера"}[unwanted];
+ return make(`Подходят только ${requiredSize} фигуры ${G1_INFO_COLOR_GEN[color]} цвета. Какая фигура не подходит?`,
+  answer,letters,`Фигура ${answer} ${reason}.`,{mode:"set",objects,criterion:{color,size}});
 }
 
 const G1_TABLE_LABELS=["Круги","Квадраты","Треугольники"];
@@ -19237,7 +19275,7 @@ const PRE839_G1_THEORY_HTML=g1TheoryHtml;
 g1TheoryHtml=function(id){
  const raw=rawCourseId(id);if(raw!=="object_properties"&&raw!=="tables")return PRE839_G1_THEORY_HTML(id);
  if(raw==="object_properties"){
-  const one={mode:"single",object:{shape:"Квадрат",color:"Синий",size:"Большой"}},group={mode:"set",labels:false,objects:[{shape:"Круг",color:"Зелёный",size:"Большой"},{shape:"Квадрат",color:"Зелёный",size:"Большой"},{shape:"Треугольник",color:"Зелёный",size:"Большой"}]};
+  const one={mode:"single",object:{shape:"Квадрат",color:"Синий",size:"Большой"}},group={mode:"set",labels:false,objects:[{shape:"Круг",color:"Зелёный",size:"Большой"},{shape:"Квадрат",color:"Зелёный",size:"Маленький"},{shape:"Треугольник",color:"Зелёный",size:"Большой"}]};
   return `<div class="elementary-theory"><p><b>Предметы можно описывать: какого они цвета, какой формы и какого размера.</b></p>${g1ObjectGroupsVisualHtml(one)}<p>Эта фигура синяя, квадратная и большая.</p><div class="elementary-example">Цвет, форма и размер — это <b>признаки</b> предмета.</div><div class="g1-theory-block"><h3>Группа по общему признаку</h3>${g1ObjectGroupsVisualHtml(group)}<p>Фигуры разные по форме, но у всех один цвет — зелёный. Их можно собрать в одну группу по цвету.</p></div></div>`
  }
  const demo={rows:[{label:"Круги",count:3},{label:"Квадраты",count:5},{label:"Треугольники",count:2}]};
@@ -19528,26 +19566,6 @@ g1ShapeQuestion=function(d){
  return g1Choice(`Сколько ${noun} всего у фигур A и B?`,answer,g1UniqueNums(answer,0,8),
   `У фигуры A — ${a}, у фигуры B — ${b}. Всего ${a} + ${b} = ${answer}.`,
   `${key}:${part}:${order.join("-")}`,{model,visual:{type:"g1Shape",data:model},templateId});
-};
-
-/* Признаки: корректные множественные формы и только один общий признак. */
-const PRE840_G1_INFO_OBJECT_QUESTION=g1InfoObjectQuestion;
-const G1_INFO_COLOR_PLURAL_840={"Красный":"красные","Синий":"синие","Зелёный":"зелёные","Жёлтый":"жёлтые"};
-g1InfoObjectQuestion=function(d){
- const q=PRE840_G1_INFO_OBJECT_QUESTION(d);
- if(q?.templateId!=="common_property")return q;
- const common=q.model?.common;
- if(common?.type==="color"){
-  const old=String(q.ans),fresh=`Все ${G1_INFO_COLOR_PLURAL_840[common.value]||String(common.value).toLowerCase()}`;
-  q.ans=fresh;q.choices=(q.choices||[]).map(r=>String(r.key)===old?{...r,key:fresh,label:fresh}:r);return q
- }
- if(common?.type==="shape"){
-  const colors=G1_INFO_COLORS.map(x=>x.name),off=Math.max(0,G1_INFO_SHAPES.indexOf(common.value));
-  q.model.objects=q.model.objects.map((o,i)=>({...o,color:colors[(off+i)%colors.length]}));
-  if(q.visual?.data)q.visual.data=q.model;if(q.audit)q.audit.model=q.model;
-  q.sig=`g1:object_properties:${d}:common_property:shape:${common.value}:${q.model.objects.map(o=>o.color+o.shape).join("-")}`;
- }
- return q
 };
 
 /* Таблицы: неверная запись никогда не совпадает с реальным значением строки. */
