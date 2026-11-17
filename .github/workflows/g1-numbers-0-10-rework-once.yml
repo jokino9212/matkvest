@@ -1,0 +1,398 @@
+name: Grade 1 Numbers 0 to 10 audit
+on:
+  push:
+    branches: [audit/g1-g4-content-v195]
+    paths: [.github/workflows/g1-numbers-0-10-rework-once.yml]
+permissions:
+  contents: write
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save playwright
+      - run: npx playwright install --with-deps --only-shell chromium
+      - name: Check mathematical answers, three levels and retained progress
+        run: |
+          git show 2fa8f5333e4824dbeb1080bda8a6ce08c6dd67ed:index.html > "$RUNNER_TEMP/matkvest-zero-before.html"
+          cat > "$RUNNER_TEMP/grade-one-zero.patch" <<'MATKVEST_PATCH'
+          diff --git a/index.html b/index.html
+          index bd57b02..ff8bf8e 100644
+          --- a/index.html
+          +++ b/index.html
+          @@ -18517,19 +18517,26 @@ attemptTitle=function(key){
+           function g1TheoryHtml(id){
+            const raw=rawCourseId(id);
+            if(raw==="numbers_1_9")return `<div class="elementary-theory"><p><b>Числа помогают узнать, сколько предметов.</b></p>${g1CounterVisualHtml({count:5})}<p>Считаем по одному: 1, 2, 3, 4, 5.</p><div class="elementary-example">Пять кружков — это число <b>5</b>.</div><p>При счёте вперёд числа становятся больше, при счёте назад — меньше.</p><div class="elementary-example">Число <b>5</b> больше 3 и меньше 7.</div></div>`;
+          - if(raw==="numbers_0_10")return `<div class="elementary-theory"><p><b>Иногда предметов не остаётся совсем.</b></p>${g1CounterVisualHtml({count:0})}<p>Тогда говорим: <b>ноль</b>.</p>${elementaryNumberLineSvg({min:0,max:10,highlight:7})}<div class="elementary-example">На луче числа идут по порядку от 0 до 10.</div></div>`;
+          + if(raw==="numbers_0_10")return `<div class="elementary-theory"><p><b>Иногда предметов не остаётся совсем.</b></p>${g1CounterVisualHtml({count:0})}<p>Тогда говорим: <b>ноль</b>.</p>${elementaryNumberLineSvg({min:0,max:10,highlight:7})}<div class="elementary-example">От 7 два шага влево: сначала к 6, потом к 5.</div><p>На луче вправо числа становятся больше, влево — меньше.</p></div>`;
+            if(raw==="numbers_11_20")return `<div class="elementary-theory"><p><b>После 10 счёт продолжается.</b></p>${g1CounterVisualHtml({count:14,splitTen:true})}<p>Десять предметов вместе — это один <b>десяток</b>.</p><p>Остальные считаем по одному — это <b>единицы</b>.</p><div class="elementary-example">Один десяток и ещё четыре единицы — это <b>14</b>.</div></div>`;
+            return `<div class="elementary-theory"><p><b>Длина показывает, какой предмет длиннее или короче.</b></p>${g1LengthVisualHtml({kind:"measure",a:5})}<p>Начинаем измерять от 0.</p><div class="elementary-example">Отрезок заканчивается у 5. Его длина — <b>5 см</b>.</div></div>`
+           }
+          -function openG1Topic(id){
+          - const t=g1InfoById(id);if(!t)return;if(t.implemented===false)return showElementaryTopicSoon(1,id);
+          - document.body.classList.add("elementary-mode");blockSession=null;const done=completedStages(t.id);
+          - const descriptions=t.id==="g1:numbers_1_9"?[
+          +const G1_NUMBER_STAGE_DESCRIPTIONS={
+          + "g1:numbers_1_9":[
+             "Посчитай кружки или назови следующее число.",
+             "Восстанови пропуск в ряду или сравни две группы кружков.",
+             "Упорядочи числа или найди число по двум условиям."
+          - ]:undefined;
+          - show(`<div class="mtop"><h2>1 класс • ${esc(t.title)}</h2><button class="x" onclick="closeModal()">×</button></div><div class="lesson elementary-lesson">${g1TheoryHtml(t.id)}</div><div class="stage-grid">${stageCards(t.id,`startG1QuizStage.bind(null,'${t.id}')`,descriptions)}</div><div class="subtle">Пройдено этапов: <b>${done}/3</b>.</div>`)
+          + ],
+          + "g1:numbers_0_10":[
+          +  "Посчитай кружки или прочитай число на луче.",
+          +  "Восстанови пропуск в ряду или сравни две группы кружков.",
+          +  "Пройди несколько шагов по лучу или заполни два пропуска при счёте назад."
+          + ]
+          +};
+          +function openG1Topic(id){
+          + const t=g1InfoById(id);if(!t)return;if(t.implemented===false)return showElementaryTopicSoon(1,id);
+          + document.body.classList.add("elementary-mode");blockSession=null;const done=completedStages(t.id);
+          + show(`<div class="mtop"><h2>1 класс • ${esc(t.title)}</h2><button class="x" onclick="closeModal()">×</button></div><div class="lesson elementary-lesson">${g1TheoryHtml(t.id)}</div><div class="stage-grid">${stageCards(t.id,`startG1QuizStage.bind(null,'${t.id}')`,G1_NUMBER_STAGE_DESCRIPTIONS[t.id])}</div><div class="subtle">Пройдено этапов: <b>${done}/3</b>.</div>`)
+           }
+           function startG1QuizStage(id,stageIndex){
+            const t=g1InfoById(id);if(!t||t.implemented===false)return showElementaryTopicSoon(1,id);
+          @@ -19152,17 +19159,15 @@ g1Choice=function(text,correct,wrong,ex,sig,{model={},visual=null,templateId="ch
+           };
+           
+           /* Числа: 20 — это два десятка; шаблон «один десяток + единицы» только 11–19. */
+          -const G1_NUMBERS_TO_NINE_TEMPLATES=[
+          - ["count","next"],
+          - ["missing","compare"],
+          - ["order_four","between_bounds"]
+          -];
+          +const G1_NUMBER_STAGE_TEMPLATES={
+          + numbers_1_9:[["count","next"],["missing","compare"],["order_four","between_bounds"]],
+          + numbers_0_10:[["count","line"],["missing","compare"],["line_steps","two_missing_backwards"]],
+          + numbers_11_20:[["count","line"],["count","line","missing","compare"],["count","line","missing","compare","ones"]]
+          +};
+           
+           g1NumbersQuestion=function(raw,d,min,max){
+          - const toNine=raw==="numbers_1_9";
+          - const base=raw==="numbers_0_10"?["count","line","missing","compare","before"]:["count","line","missing","compare","ones"];
+          - const pool=toNine?(G1_NUMBERS_TO_NINE_TEMPLATES[d]??G1_NUMBERS_TO_NINE_TEMPLATES[2]):d===0?base.slice(0,2):d===1?base.slice(0,4):base;
+          - const templateId=g1PickTemplate(pool);
+          + const stages=G1_NUMBER_STAGE_TEMPLATES[raw]??G1_NUMBER_STAGE_TEMPLATES.numbers_11_20;
+          + const templateId=g1PickTemplate(stages[d]??stages[2]);
+            if(templateId==="count"){
+             const count=ri(min,max),model={count,min,max};return g1Choice("Сколько кружков?",count,g1UniqueNums(count,min,max),"Посчитай кружки по одному. Их "+count+".",`g1:${raw}:${d}:count:${count}`,{model,visual:{type:"g1Counters",data:{count,splitTen:max>10}},templateId})
+            }
+          @@ -19172,17 +19177,15 @@ g1NumbersQuestion=function(raw,d,min,max){
+            if(templateId==="next"){
+             const n=ri(min,max-1),answer=n+1,model={n,answer,min,max};return g1Choice(`Какое число идёт после ${n}?`,answer,g1UniqueNums(answer,min,max),`После ${n} идёт ${answer}.`,`g1:${raw}:${d}:next:${n}`,{model,templateId})
+            }
+          - if(templateId==="before"){
+          -  const n=ri(Math.max(min+1,1),max),answer=n-1,model={n,answer,min,max};return g1Choice(`Какое число идёт перед ${n}?`,answer,g1UniqueNums(answer,min,max),`Перед ${n} стоит ${answer}.`,`g1:${raw}:${d}:before:${n}`,{model,templateId})
+          - }
+            if(templateId==="missing"){
+             const answer=ri(Math.max(min+1,1),max-1),seq=[answer-1,"?",answer+1],model={answer,seq,min,max};return g1Choice(`Какого числа не хватает?<br><b>${seq.join(" &nbsp; ")}</b>`,answer,g1UniqueNums(answer,min,max),`Считаем по порядку: ${answer-1}, ${answer}, ${answer+1}.`,`g1:${raw}:${d}:missing:${answer}`,{model,templateId})
+            }
+            if(templateId==="compare"){
+          -  let a=ri(min,max),b=ri(min,max);if(!toNine&&d<2&&a===b)b=b<max?b+1:Math.max(min,b-1);
+          -  const options=toNine?["Слева больше","Справа больше","Поровну"]:["Слева","Справа","Поровну"];
+          +  const compareAllCounts=raw==="numbers_1_9"||raw==="numbers_0_10";
+          +  let a=ri(min,max),b=ri(min,max);if(!compareAllCounts&&d<2&&a===b)b=b<max?b+1:Math.max(min,b-1);
+          +  const options=compareAllCounts?["Слева больше","Справа больше","Поровну"]:["Слева","Справа","Поровну"];
+             const answer=a===b?options[2]:a>b?options[0]:options[1],model={a,b,answer,min,max};
+          -  const text=toNine?"Сравни количество кружков слева и справа.":"Где кружков больше?";
+          +  const text=compareAllCounts?"Сравни количество кружков слева и справа.":"Где кружков больше?";
+             const ex=a===b?"В обеих группах кружков поровну.":`Сравниваем: ${a} и ${b}. Больше ${Math.max(a,b)}.`;
+             return g1Choice(text,answer,options.filter(x=>x!==answer),ex,`g1:${raw}:${d}:compare:${a}:${b}`,{model,visual:{type:"g1Groups",data:{a,b}},templateId})
+            }
+          @@ -19209,6 +19212,28 @@ g1NumbersQuestion=function(raw,d,min,max){
+              `${answer} больше ${lower} и меньше ${upper}.`,`g1:${raw}:${d}:between:${lower}:${upper}`,
+              {model:{lower,upper,answer,min,max},templateId});
+            }
+          + if(templateId==="line_steps"){
+          +  const steps=ri(2,4),right=ri(0,1)===1;
+          +  const start=right?ri(min,max-steps):ri(min+steps,max);
+          +  const direction=right?"вправо":"влево",stepWord=g1StepWord(steps);
+          +  const answer=right?start+steps:start-steps;
+          +  return g1Choice(`Сделай ${steps} ${stepWord} ${direction} от точки. На каком числе остановишься?`,answer,
+          +   g1UniqueNums(answer,min,max),`От ${start} ${steps} ${stepWord} ${direction}. Получится ${answer}.`,
+          +   `g1:${raw}:${d}:line_steps:${start}:${direction}:${steps}`,
+          +   {model:{start,steps,direction,answer,min,max},visual:{type:"g1NumberLine",data:{min,max,highlight:start}},templateId});
+          + }
+          + if(templateId==="two_missing_backwards"){
+          +  const start=ri(min+4,max),secondIndex=ri(2,3);
+          +  const row=Array.from({length:5},(_,i)=>start-i);
+          +  const first=row[1],second=row[secondIndex];
+          +  const answer=`${first} и ${second}`;
+          +  const wrong=[`${first+1} и ${second+1}`,`${first-1} и ${second-1}`,`${second} и ${first}`];
+          +  const visibleRow=row.map((n,i)=>i===1||i===secondIndex?"?":n);
+          +  return g1Choice(`Считай назад по одному. Какие числа пропущены?<br><b>${visibleRow.join(" &nbsp; ")}</b>`,
+          +   answer,wrong,`Считаем назад: ${row.join(", ")}. Пропущены ${answer}.`,
+          +   `g1:${raw}:${d}:two_missing_backwards:${start}:${secondIndex}`,
+          +   {model:{row,visibleRow,first,second,min,max},templateId});
+          + }
+            const n=ri(11,19),ones=n-10,model={n,ones};return g1Choice(`В числе ${n} есть один десяток. Сколько ещё единиц?`,ones,g1UniqueNums(ones,0,9),`После одного десятка остаётся ${ones} ${ones===1?"единица":"единиц"}.`,`g1:${raw}:${d}:ones:${n}`,{model,visual:{type:"g1Counters",data:{count:n,splitTen:true}},templateId:"ones"})
+           };
+          MATKVEST_PATCH
+          git apply --check "$RUNNER_TEMP/grade-one-zero.patch"
+          git apply "$RUNNER_TEMP/grade-one-zero.patch"
+          git diff --check
+          cat > .grade-one-zero-check.cjs <<'MATKVEST_CHECK'
+          'use strict';
+          
+          const assert = require('node:assert/strict');
+          const fs = require('node:fs');
+          const http = require('node:http');
+          const path = require('node:path');
+          const {chromium} = require('playwright');
+          
+          const topic = 'g1:numbers_0_10';
+          const repository = process.env.MATKVEST_CHECK_REPO || path.join(__dirname, 'matkvest-g1-zero');
+          const baseline = fs.readFileSync(process.env.MATKVEST_CHECK_BASELINE || path.join(__dirname, 'matkvest-g1-zero-before.html'));
+          let oldBuild = true;
+          const types = {
+            '.html': 'text/html; charset=utf-8', '.svg': 'image/svg+xml', '.js': 'text/javascript',
+            '.png': 'image/png', '.webp': 'image/webp', '.webmanifest': 'application/manifest+json'
+          };
+          const server = http.createServer((request, response) => {
+            const url = new URL(request.url, 'http://localhost');
+            const asset = path.join(repository, url.pathname === '/' ? 'index.html' : decodeURIComponent(url.pathname));
+            const html = url.pathname === '/';
+            response.setHeader('Cache-Control', 'no-store');
+            response.setHeader('Content-Type', types[path.extname(asset)] || 'application/octet-stream');
+            try {
+              response.end(html && oldBuild ? baseline : fs.readFileSync(asset));
+            } catch {
+              response.writeHead(404).end();
+            }
+          });
+          
+          function inspectBuild({topic, mode}) {
+            function requireThat(condition, message) {
+              if (!condition) throw new Error(message);
+            }
+            const plain = value => value.replace(/\s+/g, ' ').trim();
+            const inRange = numbers => numbers.every(number => number >= 0 && number <= 10);
+            const readNumbers = value => (value.match(/\d+/g) || []).map(Number);
+            const expectedFamilies = [['count','line'], ['compare','missing'], ['steps','backwards']];
+            function solve(prompt, visual, labels) {
+              requireThat(inRange(readNumbers(prompt + ' ' + labels.join(' '))), 'An item is outside 0–10');
+              requireThat(labels.length >= 3 && new Set(labels).size === labels.length, 'Invalid choices');
+              const missing = prompt.match(/^Какого числа не хватает\?\s*(\d+)\s*\?\s*(\d+)$/);
+              const steps = prompt.match(/^Сделай (\d+) шага (вправо|влево) от точки\. На каком числе остановишься\?$/);
+              const backwards = prompt.match(/^Считай назад по одному\. Какие числа пропущены\? ((?:\d+|\?)(?: (?:\d+|\?)){4})$/);
+              if (steps || prompt === 'Какое число отмечено на луче?') {
+                const ray = visual.querySelector('.elementary-number-line svg');
+                requireThat(ray && ray.querySelectorAll('circle').length === 1, 'Expected one point on the ray');
+                const point = ray.querySelector('circle').getAttribute('cx');
+                const ticks = [...ray.querySelectorAll('text')];
+                requireThat(ticks.map(tick => tick.textContent).join(',') === '0,1,2,3,4,5,6,7,8,9,10', 'The ray is missing labels');
+                const tickIndex = ticks.findIndex(tick => tick.getAttribute('x') === point);
+                requireThat(tickIndex >= 0, 'Point is not aligned with a labelled tick');
+                if (!steps) return {family:'line', key:prompt + tickIndex, answer:ticks[tickIndex].textContent};
+                const distance = Number(steps[1]);
+                const offset = steps[2] === 'вправо' ? distance : -distance;
+                const destination = ticks[tickIndex+offset];
+                requireThat(distance>=2 && distance<=4 && destination, 'Movement is outside the labelled ray');
+                return {family:'steps', key:prompt + tickIndex, answer:destination.textContent, offset};
+              }
+              if (missing) {
+                requireThat(Number(missing[2]) - Number(missing[1]) === 2, 'Broken sequence');
+                return {family:'missing', key:prompt, answer:String(Number(missing[1]) + 1)};
+              }
+              if (prompt === 'Сколько кружков?') {
+                const count = visual.querySelectorAll('.g1-counter').length;
+                requireThat(inRange([count]), 'Invalid size of a group');
+                return {family:'count', key:prompt + count, answer:String(count)};
+              }
+              if (prompt === 'Сравни количество кружков слева и справа.') {
+                const groups = [...visual.querySelectorAll('.g1-group-box')];
+                requireThat(groups.length === 2, 'Expected two groups');
+                const [left, right] = groups.map(group => group.querySelectorAll('.g1-counter').length);
+                requireThat(inRange([left, right]), 'Invalid size of a group');
+                return {family:'compare', key:prompt + left + '/' + right,
+                  answer:left === right ? 'Поровну' : left > right ? 'Слева больше' : 'Справа больше'};
+              }
+              if (backwards) {
+                const row = backwards[1].split(' ');
+                const pairs = labels.map(readNumbers);
+                const gaps = row.flatMap((cell,index) => cell==='?' ? [index] : []);
+                requireThat(gaps.length===2 && pairs.every(pair=>pair.length===2), 'Expected two blanks and pairs of answers');
+                const valid = labels.filter((_,i)=>{
+                  const completed = row.map((cell,index)=>cell==='?' ? pairs[i][gaps.indexOf(index)] : Number(cell));
+                  return completed.slice(1).every((n,j)=>n===completed[j]-1);
+                });
+                requireThat(valid.length===1,'The descending sequence has no unique solution');
+                return {family:'backwards', key:prompt, answer:valid[0], adjacent:gaps[1]===gaps[0]+1};
+              }
+              throw new Error('Unrecognised task: ' + prompt);
+            }
+          
+            function seedRandom(value) {
+              Math.random = () => ((value = (Math.imul(value, 1664525) + 1013904223) >>> 0) / 4294967296);
+            }
+            function siblingQuestions() {
+              seedRandom(19503);
+              return g1AllTopics().filter(t=>t.id!==topic).flatMap(t => [0,1,2].flatMap(level =>
+                Array.from({length:12}, () => makeG1Question(t.id, level))));
+            }
+          
+            if (mode === 'baseline') {
+              const siblings = siblingQuestions();
+              seedRandom(195);
+              for (const level of [0,1]) {
+                openG1Topic(topic);
+                document.querySelectorAll('#modal .stage-card')[level].click();
+                for (let i=0; i<STAGES[level].count; i++) {
+                  const buttons = [...document.querySelectorAll('#qstage button.answer')];
+                  buttons[q.choices.findIndex(option => option.key === q.ans)].click();
+                  document.querySelector('#quizNext').click();
+                }
+              }
+              const stored = deepCopy(progressFor(topic));
+              requireThat(JSON.stringify(stored.best) === '[5,7,0]' && JSON.stringify(stored.bonus) === '[true,true,false]', 'Baseline did not produce saved progress');
+              return {siblings, stored, historyIds:state.attemptHistory.map(attempt=>attempt.id)};
+            }
+          
+            const otherTopics = siblingQuestions();
+            seedRandom(19601);
+            const holder = document.createElement('div');
+            const seen = expectedFamilies.map(() => new Set());
+            const cases = {zeroCount:0, zeroOnRay:0, tenOnRay:0, emptyGroup:0, equalGroups:0, right:0, left:0, landedOnZero:0, landedOnTen:0, adjacent:0, separate:0};
+            let generated=0, accepted=0, completed=0, rejected=0;
+            const ranges=[];
+            for (const level of [0,1,2]) {
+              const numbers = new Set();
+              for (let i=0; i<600; i++) {
+                const question = makeG1Question(topic, level);
+                holder.innerHTML = '<div>' + question.text + '</div>' + quizVisualHtml(question);
+                const prompt = plain(holder.firstElementChild.textContent);
+                const labels = question.choices.map(option=>option.label);
+                const task = solve(prompt, holder, labels);
+                requireThat(task.answer === String(question.ans) && labels.filter(label=>label===task.answer).length===1, 'Generated answer disagrees with an independent solution');
+                requireThat(expectedFamilies[level].includes(task.family), 'Unexpected family on level ' + level);
+                seen[level].add(task.family);
+                const counts = [...holder.querySelectorAll('.g1-counter-wrap')].map(group=>group.querySelectorAll('.g1-counter').length);
+                if (task.family==='count' && task.answer==='0') cases.zeroCount++;
+                if (task.family==='line' && task.answer==='0') cases.zeroOnRay++;
+                if (task.family==='line' && task.answer==='10') cases.tenOnRay++;
+                if (task.family==='compare' && counts.includes(0)) cases.emptyGroup++;
+                if (task.answer==='Поровну') cases.equalGroups++;
+                if (task.family==='steps') {
+                  cases[task.offset>0?'right':'left']++;
+                  if (task.answer==='0') cases.landedOnZero++;
+                  if (task.answer==='10') cases.landedOnTen++;
+                }
+                if (task.family==='backwards') cases[task.adjacent?'adjacent':'separate']++;
+                [...readNumbers(prompt + ' ' + labels.join(' ')), ...counts].forEach(n=>numbers.add(n));
+                generated++;
+              }
+              requireThat(seen[level].size===expectedFamilies[level].length && numbers.size===11, 'Insufficient coverage of the level');
+              ranges.push([Math.min(...numbers),Math.max(...numbers)]);
+              for (let run=0; run<6; run++) {
+                openG1Topic(topic);
+                const stages = [...document.querySelectorAll('#modal .stage-card')];
+                for (const stage of stages) {
+                  const rect=stage.getBoundingClientRect();
+                  requireThat(rect.width>0 && rect.left>=-1 && rect.right<=innerWidth+1,'Stage card overflow');
+                }
+                const stage=stages[level];
+                requireThat(!stage.disabled, 'Level not unlocked');
+                stage.click();
+                const keys=new Set(), methods=new Set();
+                for (let i=0; i<STAGES[level].count; i++) {
+                  const panel=document.querySelector('#qstage');
+                  const choices=[...panel.querySelectorAll('button.answer')];
+                  const labels=choices.map(button=>plain(button.textContent));
+                  const task=solve(plain(panel.querySelector('.quizq').textContent),panel,labels);
+                  requireThat(expectedFamilies[level].includes(task.family) && !keys.has(task.key), 'Bad level or repetition inside an attempt');
+                  const button=choices[labels.indexOf(task.answer)];
+                  requireThat(button, 'Independently solved answer missing from the screen');
+                  keys.add(task.key);
+                  methods.add(task.family);
+                  for (const element of panel.querySelectorAll('.g1-counter, .elementary-number-line svg, button.answer')) {
+                    const rect=element.getBoundingClientRect();
+                    requireThat(rect.width>0 && rect.left>=-1 && rect.right<=innerWidth+1, 'Question overflowing viewport');
+                  }
+                  if (run===0 && i===0) {
+                    choices.find(option=>option!==button).click();
+                    requireThat(blockSession.correct===i && blockSession.done===i && /Пока неверно/.test(document.querySelector('#qfb').textContent), 'Wrong answer was not rejected');
+                    rejected++;
+                  }
+                  button.click();
+                  const item=blockSession.items.at(-1);
+                  const expectedScore=i+1-(run===0?1:0);
+                  requireThat(blockSession.correct===expectedScore && blockSession.done===i+1 &&
+                    item.finalCorrect && item.firstTry===!(run===0 && i===0), 'Answer handling differed from the level scoring rules: '+task.key);
+                  accepted++;
+                  const next=document.querySelector('#quizNext');
+                  if (i+1===STAGES[level].count) requireThat(/Посмотреть результат/.test(next.textContent), 'Result button is missing');
+                  next.click();
+                }
+                requireThat(methods.size===expectedFamilies[level].length, 'An attempt missed an action');
+                const expectedBest=STAGES[level].count-(level===2 && run===0?1:0);
+                requireThat(progressFor(topic).best[level]===expectedBest && progressFor(topic).bonus[level], 'Progress not saved');
+                completed++;
+              }
+            }
+            requireThat(Object.values(cases).every(count=>count>0), 'Coverage of the range endpoints or variants is missing');
+            return {otherTopics, generated, accepted, completed, rejected, cases, ranges, familyByLevel:seen.map(level=>[...level].sort()), progress:deepCopy(progressFor(topic))};
+          }
+          
+          (async () => {
+            await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
+            const address = 'http://127.0.0.1:' + server.address().port;
+            let browser;
+            try {
+              browser=await chromium.launch({headless:true,executablePath:process.env.MATKVEST_CHECK_CHROMIUM});
+              for (const width of [320,390,1280]) {
+                const context=await browser.newContext({viewport:{width,height:850},isMobile:width<500,hasTouch:width<500,serviceWorkers:'block'});
+                try {
+                  const page=await context.newPage();
+                  const errors=[];
+                  page.on('pageerror',error=>errors.push(error.message));
+                  oldBuild=true;
+                  await page.goto(address);
+                  await page.locator('button[onclick="openGrade(1)"]').click();
+                  const card=page.locator('button.topic').filter({has:page.getByText('Числа от 0 до 10',{exact:true})});
+                  await card.click();
+                  assert.equal(await page.locator('#modal .stage-card:disabled').count(),2);
+                  const old=await page.evaluate(inspectBuild,{topic,mode:'baseline'});
+                  oldBuild=false;
+                  await page.reload();
+                  assert.deepEqual(await page.evaluate(key=>({stored:progressFor(key),historyIds:state.attemptHistory.map(attempt=>attempt.id)}),topic),{stored:old.stored,historyIds:old.historyIds});
+                  const stagePicker = page.locator('#modal .stage-card').first();
+                  if (!(await stagePicker.isVisible())) {
+                    if (!(await card.isVisible())) await page.locator('button[onclick="openGrade(1)"]').click({timeout:8000});
+                    await card.click({timeout:8000});
+                  }
+                  assert.match(await page.locator('#modal h2').textContent(), /Числа от 0 до 10/);
+                  assert.equal(await page.locator('#modal .stage-card:disabled').count(),0);
+                  assert.match(await page.locator('#modal .stage-card').nth(2).textContent(), /два пропуска при счёте назад/);
+                  const {otherTopics,...result}=await page.evaluate(inspectBuild,{topic,mode:'candidate'});
+                  assert.deepEqual(otherTopics,old.siblings);
+                  await page.reload();
+                  assert.deepEqual(await page.evaluate(key=>progressFor(key),topic),{best:[5,7,10],bonus:[true,true,true]});
+                  assert.deepEqual(errors,[]);
+                  console.log(JSON.stringify({width,siblingSamples:otherTopics.length,oldProgress:old.stored,oldHistory:old.historyIds.length,...result}));
+                } finally {
+                  await context.close();
+                }
+              }
+            } finally {
+              await browser?.close();
+              server.close();
+            }
+          })().catch(error=>{console.error(error);process.exitCode=1;});
+          MATKVEST_CHECK
+          MATKVEST_CHECK_REPO="$PWD" MATKVEST_CHECK_BASELINE="$RUNNER_TEMP/matkvest-zero-before.html" node .grade-one-zero-check.cjs
+      - name: Save verified exercises on the audit branch
+        run: |
+          test "$GITHUB_REF" = refs/heads/audit/g1-g4-content-v195
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- index.html
+          git commit -m 'Separate Grade 1 numbers 0 to 10 practice by level'
+          git push origin "HEAD:$GITHUB_REF"
