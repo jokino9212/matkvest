@@ -65,7 +65,7 @@ function g3OfftableDivideQuestion(d,slot=null){
   const answer=newTotal/divisor;
   return input("Было "+g3Qty(chosen.dividend,"pencil")+". "+(plus?"Добавили ":"Убрали ")+
    g3Qty(change,"pencil")+". Всё количество разделили поровну между "+
-   g3Qty(divisor,"child")+". Сколько карандашей получил каждый ребёнок?",
+   (divisor+" детьми")+". Сколько карандашей получил каждый ребёнок?",
    answer,chosen.dividend+(plus?" + ":" − ")+change+" = "+newTotal+
    ".<br>"+newTotal+" : "+divisor+" = <b>"+answer+"</b>.",
    chosen.dividend+":"+divisor+":"+change,
@@ -84,7 +84,7 @@ function g3OfftableDivideQuestion(d,slot=null){
  if(second.quotient===quotient)throw Error("No distinct quotient");
  const answer=Math.abs(quotient-second.quotient);
  return input("В первом классе "+g3Qty(dividend,"pencil")+" разделили поровну между "+
-   g3Qty(divisor,"child")+", во втором — "+g3Qty(second.dividend,"pencil")+
+   (divisor+" детьми")+", во втором — "+g3Qty(second.dividend,"pencil")+
    " между таким же числом детей. На сколько карандашей отличается количество на одного ребёнка?",
    answer,dividend+" : "+divisor+" = "+quotient+"; "+second.dividend+" : "+divisor+
    " = "+second.quotient+".<br>"+Math.max(quotient,second.quotient)+" − "+
