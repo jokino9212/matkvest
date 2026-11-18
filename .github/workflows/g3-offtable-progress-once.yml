@@ -1,0 +1,20 @@
+name: Grade 3 off-table multiplication progress regression
+on:
+  push:
+    branches: [audit/g1-g4-content-v195]
+    paths:
+      - .github/workflows/g3-offtable-progress-once.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Verify three-stage completion and refreshed progress across 320, 390, 1280 pixels
+        run: node audits/g3_offtable_multiply_progress_browser.cjs
