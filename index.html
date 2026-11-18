@@ -5437,6 +5437,58 @@ function g3RoundNumberQuestionData(stage,slot=null){
  }
  return {text,answer,ex,audit};
 }
+const G3_ZERO_ONE_VARIANTS=[
+ ["mulOneR","mulOneL","mulZeroR","mulZeroL"],
+ ["divOne","selfDiv","zeroDiv","check"],
+ ["oneSum","zeroBrackets","twoRule","missing"]
+];
+function g3ZeroOneQuestion(stage,slot=null){
+ const d=Math.max(0,Math.min(2,Number(stage)||0)),variants=G3_ZERO_ONE_VARIANTS[d];
+ const v=slot===null?g6RandomFrom(variants):variants[((slot%variants.length)+variants.length)%variants.length];
+ const sig=(key)=>"g3:zero_one:"+d+":"+v+":"+key;
+ const number=(text,answer,ex,key,extra={})=>g6NumberInputQuestion(text,answer,ex,sig(key),
+  {inputHint:"Введи целое число.",audit:{type:"g3ZeroOne",variant:v,...extra,answer:rational(answer,1)}});
+ if(d===0){
+  const a=ri(2,150),one=v==="mulOneR"||v==="mulOneL",left=v==="mulOneL"||v==="mulZeroL";
+  const other=one?1:0,answer=one?a:0;
+  const text="<b>"+(left?other:a)+" · "+(left?a:other)+"</b> = ?";
+  const ex=one?"При умножении на 1 число не меняется: <b>"+answer+"</b>.":
+   "При умножении на 0 получается <b>0</b>.";
+  return number(text,answer,ex,a,{a,other,left});
+ }
+ if(d===1){
+  const a=ri(2,500);
+  if(v==="divOne")return number("<b>"+a+" : 1</b> = ?",a,a+" : 1 = <b>"+a+"</b>.",a,{a,divisor:1});
+  if(v==="selfDiv")return number("<b>"+a+" : "+a+"</b> = ?",1,"Любое ненулевое число, делённое само на себя, равно <b>1</b>.",a,{a,divisor:a});
+  if(v==="zeroDiv")return number("<b>0 : "+a+"</b> = ?",0,"0 : "+a+" = <b>0</b>, так как "+a+" · 0 = 0.",a,{a,divisor:a});
+  const kind=ri(0,2),right=ri(0,1)===0,expected=kind===0?0:a,shown=right?expected:expected+ri(1,3);
+  const expression=kind===0?a+" · 0":kind===1?a+" : 1":"0 : "+a;
+  const correct=right?"Верно":"Неверно";
+  return g6ChoiceQuestion("Верно ли равенство <b>"+expression+" = "+shown+"</b>?",
+   correct,["Верно","Неверно"],expression+" = <b>"+expected+"</b>.",
+   sig(a+":"+kind+":"+shown),{type:"g3ZeroOne",variant:v,a,kind,shown,expected,right,answer:correct});
+ }
+ const a=ri(30,300),b=ri(10,90),c=ri(5,90);
+ if(v==="oneSum"){
+  return number("<b>"+a+" · 1 + "+b+" · 1</b> = ?",a+b,
+   a+" · 1 = "+a+"; "+b+" · 1 = "+b+".<br>"+a+" + "+b+" = <b>"+(a+b)+"</b>.",
+   a+":"+b,{a,b});
+ }
+ if(v==="zeroBrackets"){
+  return number("<b>("+a+" + "+b+") · 0 + "+c+"</b> = ?",c,
+   "Сначала "+a+" + "+b+" = "+(a+b)+".<br>"+(a+b)+" · 0 = 0; 0 + "+c+" = <b>"+c+"</b>.",
+   a+":"+b+":"+c,{a,b,c});
+ }
+ if(v==="twoRule"){
+  return number("<b>"+a+" : "+a+" + "+b+" · 1</b> = ?",1+b,
+   a+" : "+a+" = 1; "+b+" · 1 = "+b+".<br>1 + "+b+" = <b>"+(1+b)+"</b>.",
+   a+":"+b,{a,b});
+ }
+ return number("Найди неизвестное число: <b>□ : 1 − "+b+" = "+a+"</b>",a+b,
+  "Если □ : 1 = □, то □ − "+b+" = "+a+".<br>Значит □ = "+a+" + "+b+" = <b>"+(a+b)+"</b>.",
+  a+":"+b,{a,b});
+}
+
 function g3UnitNumberQuestion(dimension,text,value,from,to,ex,sig,audit={}){
  const answer=g3UnitExact(dimension,value,from,to);if(answer.d!==1)throw new Error("Для 3 класса ожидался целый результат");return g6NumberInputQuestion(text,answer,ex,sig,{unitSuffix:to,inputHint:"Введите только число — единица уже указана рядом с полем.",audit:{type:"g3Unit",dimension,value,from,to,answer,...audit}});
 }
@@ -6976,18 +7028,8 @@ function makeG3Question(id,stageOverride=null){
   return g6NumberInputQuestion(data.text,data.answer,data.ex,"g3:round_numbers:"+d+":"+data.audit.variant+":"+Object.entries(data.audit).filter(([key])=>key!=="type"&&key!=="variant"&&key!=="answer").map(([,v])=>v).join(":"),{inputHint:"Введи целое число.",audit:{...data.audit,answer:rational(data.answer,1)}});
  }
  if(raw==="zero_one"){
-  const simple=d<2||Math.random()<.68,types=["mulOneR","mulOneL","mulZeroR","mulZeroL","divOne","selfDiv","zeroDiv"],variant=simple?g6RandomFrom(d===0?["mulOneR","mulZeroR","divOne","zeroDiv"]:types):g6RandomFrom(["exprMulOne","exprMulZero","exprSelfDiv"]),a=ri(1,d===0?20:d===1?150:500),b=ri(1,9);let text,answer,ex,audit={type:"g3ZeroOne",variant,a,b};
-  if(variant==="mulOneR"){text=`<b>${a} · 1</b> = ?`;answer=a;ex=`При умножении на 1 число не меняется: ${a} · 1 = <b>${a}</b>.`}
-  else if(variant==="mulOneL"){text=`<b>1 · ${a}</b> = ?`;answer=a;ex=`1 · ${a} = <b>${a}</b>.`}
-  else if(variant==="mulZeroR"){text=`<b>${a} · 0</b> = ?`;answer=0;ex=`При умножении любого числа на 0 получается <b>0</b>.`}
-  else if(variant==="mulZeroL"){text=`<b>0 · ${a}</b> = ?`;answer=0;ex=`0 · ${a} = <b>0</b>.`}
-  else if(variant==="divOne"){text=`<b>${a} : 1</b> = ?`;answer=a;ex=`При делении на 1 число не меняется: ${a} : 1 = <b>${a}</b>.`}
-  else if(variant==="selfDiv"){text=`<b>${a} : ${a}</b> = ?`;answer=1;ex=`Ненулевое число, делённое само на себя, равно <b>1</b>.`}
-  else if(variant==="zeroDiv"){text=`<b>0 : ${a}</b> = ?`;answer=0;ex=`0 : ${a} = <b>0</b>, потому что ${a} · 0 = 0.`}
-  else if(variant==="exprMulOne"){text=`<b>${a} · 1 + ${b}</b> = ?`;answer=a+b;ex=`${a} · 1 = ${a}.<br>${a} + ${b} = <b>${answer}</b>.`}
-  else if(variant==="exprMulZero"){text=`<b>${a} · 0 + ${b}</b> = ?`;answer=b;ex=`${a} · 0 = 0.<br>0 + ${b} = <b>${answer}</b>.`}
-  else {text=`<b>${a} : ${a} + ${b}</b> = ?`;answer=1+b;ex=`${a} : ${a} = 1.<br>1 + ${b} = <b>${answer}</b>.`}
-  return g6NumberInputQuestion(text,answer,ex,`g3:${raw}:${d}:${variant}:${a}:${b}`,{audit:{...audit,answer:rational(answer,1)}});
+  const live=stageOverride===null&&blockSession?.kind==="g3quiz"&&blockSession.key==="g3:zero_one";
+  return g3ZeroOneQuestion(d,live?blockSession.done:null);
  }
  if(raw==="numbers_1000"){
   const live=stageOverride===null&&blockSession?.kind==="g3quiz"&&blockSession.key==="g3:numbers_1000";
