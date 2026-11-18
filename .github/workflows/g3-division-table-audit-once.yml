@@ -161,6 +161,13 @@ jobs:
           7pwkokEslwYm+x6YpcvsOqr6vwHjLcymWDcAAA==
           CHECK
           sed -i "s/filter({hasText:'Табличное деление'})});/filter({hasText:'Табличное деление'})}).first();/" .g3-division-check.cjs
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path(".g3-division-check.cjs")
+          s=p.read_text()
+          assert '|короб(?:ка|ки|ок))/g' in s
+          p.write_text(s.replace('|короб(?:ка|ки|ок))/g', '|короб(?:ка|ки|ок))(?![а-яё])/g'))
+          PY
           python3 "$RUNNER_TEMP/g3-division-patch.py"
           G3_DIVISION_BASELINE="$RUNNER_TEMP/g3-division-before.html" node ".g3-division-check.cjs"
       - name: Commit verified revision
