@@ -19864,7 +19864,8 @@ function openG2Topic(id){
   "g2:add_sub_100":G2_ADD_SUB_100_STAGES,
   "g2:multiply_divide":G2_MULTIPLY_DIVIDE_STAGES,
   "g2:operations_100":G2_OPERATIONS_100_STAGES,
-  "g2:word_problems":G2_WORD_PROBLEM_STAGES
+  "g2:word_problems":G2_WORD_PROBLEM_STAGES,
+  "g2:geometric_figures":G2_FIGURES_STAGES
  })[t.id]||[];
  const descriptions=stages.map(stage=>stage.description);
  show(`<div class="mtop"><h2>2 класс • ${esc(t.title)}</h2><button class="x" onclick="closeModal()">×</button></div><div class="lesson elementary-lesson">${g2TheoryHtml(t.id)}</div><div class="stage-grid">${stageCards(t.id,`startG2QuizStage.bind(null,'${t.id}')`,descriptions)}</div><div class="subtle">Пройдено этапов: <b>${done}/3</b>.</div>`)
@@ -20382,41 +20383,85 @@ const MATKVEST_STAGE844_VERSION="8.44";
 const MATKVEST_STAGE844_ANSWER_LEAK_FIX=true;
 const TARGET_STAGE844_IDS=["g2:geometric_figures","g2:geometric_quantities"];
 
-const G2_BASIC_SHAPES_844=["Круг","Треугольник","Квадрат","Прямоугольник"];
-const G2_SHAPE_GENITIVE_844={"Круг":"круга","Треугольник":"треугольника","Квадрат":"квадрата","Прямоугольник":"прямоугольника"};
-function g2ShapeProps844(shape){return G1_SHAPE_PROPS[shape]||{sides:0,corners:0}}
-function g2ShapeOrder844(){return shuffleOptions(G2_BASIC_SHAPES_844.map(x=>({label:x,key:x}))).map(x=>x.key)}
-function g2ShapeGalleryAnswer844(order,target){return String.fromCharCode(65+order.indexOf(target))}
-function g2ShapeVisualData844(shape,mode="single",order=null){return mode==="gallery"?{mode:"gallery",order:order||G2_BASIC_SHAPES_844}:{mode:"single",shape}}
+const G2_FIGURES_STAGES=[
+ {templates:["identify_plane","identify_line"],description:"Узнай фигуру, точку, отрезок или ломаную по рисунку."},
+ {templates:["count_parts","read_segment"],description:"Посчитай стороны, углы, вершины или звенья. Определи концы отрезка по буквам."},
+ {templates:["match_properties","close_path"],description:"Выбери рисунок по свойствам фигуры или найди отрезок, который замкнёт ломаную."}
+];
+const G2_FIGURE_PATHS=[
+ [[55,145],[162,43],[305,142]],
+ [[51,145],[82,54],[232,46],[308,139]],
+ [[43,142],[82,63],[178,37],[278,65],[316,139]]
+];
+const G2_FIGURE_SEGMENTS=[
+ [[50,118],[310,118],[176,118]],
+ [[66,145],[294,52],[182,55]],
+ [[170,45],[170,145],[264,97]]
+];
+const G2_FIGURE_PROPERTIES=[
+ {shape:"Круг",hint:"без углов и сторон-отрезков",reason:"Граница круга округлая, у неё нет углов и сторон-отрезков."},
+ {shape:"Треугольник",hint:"с тремя сторонами и тремя вершинами",reason:"Три стороны и три вершины есть у треугольника."},
+ {shape:"Квадрат",hint:"с четырьмя прямыми углами и четырьмя равными сторонами",reason:"Перед нами квадрат. Это прямоугольник со всеми равными сторонами."},
+ {shape:"Прямоугольник",hint:"с четырьмя прямыми углами и соседними сторонами разной длины",reason:"Две соседние стороны этого прямоугольника разной длины."}
+];
+
+function g2FigurePathHtml(data){
+ const {points,labels=[],connected=points.length}=data;
+ const path=points.slice(0,connected).map(([x,y])=>`${x},${y}`).join(" ");
+ const markers=labels.map((label,i)=>{
+  const [x,y]=points[i];
+  return `<g class="g2-figure-point"><circle class="g1-shape-point" cx="${x}" cy="${y}" r="5"/><text class="g1-shape-label" x="${x}" y="${y-12}">${esc(label)}</text></g>`;
+ }).join("");
+ const aria=labels.length?"Чертёж с точками, отмеченными буквами":"Рисунок ломаной";
+ return `<div class="g1-geometry-wrap"><svg class="g1-shape-svg g1-shape-compact g2-figure-path" viewBox="0 0 360 185" role="img" aria-label="${aria}" xmlns="http://www.w3.org/2000/svg"><polyline class="g1-shape-stroke" fill="none" points="${path}"/>${markers}</svg></div>`;
+}
+function g2FigureSegmentName(a,b){return [a,b].sort().join("")}
 
 function g2GeometryFiguresQuestion(d){
- const warm=["identify","find_gallery","count_sides"],train=["identify","find_gallery","count_sides","count_corners","point_segment","equal_sides"],master=["identify","find_gallery","count_sides","count_corners","point_segment","equal_sides","description_shape"],templateId=g2PickTemplate(d===0?warm:d===1?train:master);
- if(templateId==="identify"){
-  const shape=G2_BASIC_SHAPES_844[ri(0,G2_BASIC_SHAPES_844.length-1)],model={shape,mode:"single"};
-  return g2Choice("Какая фигура показана?",shape,G2_BASIC_SHAPES_844.filter(x=>x!==shape),`Это ${shape.toLowerCase()}.`,`g2:geometric_figures:${d}:identify:${shape}`,{model,visual:{type:"g1Shape",data:g2ShapeVisualData844(shape)},templateId})
+ const templateId=g2PickTemplate(G2_FIGURES_STAGES[d].templates);
+ const sig=key=>`g2:geometric_figures:${d}:${templateId}:${key}`;
+ const single=shape=>({type:"g1Shape",data:{compact:true,mode:"single",shape}});
+ const pathVisual=data=>({type:"g2FigurePath",data});
+ if(templateId==="identify_plane"){
+  const shape=g2PickTemplate(G1_BASIC_SHAPES);
+  return g2Choice("Как точнее всего назвать фигуру на рисунке?",shape,G1_BASIC_SHAPES.filter(option=>option!==shape),
+   `Это ${shape.toLowerCase()}.`,sig(shape),{model:{shape},visual:single(shape),templateId});
  }
- if(templateId==="find_gallery"){
-  const target=G2_BASIC_SHAPES_844[ri(0,G2_BASIC_SHAPES_844.length-1)],order=g2ShapeOrder844(),answer=g2ShapeGalleryAnswer844(order,target),model={target,order,answer};
-  return g2Choice(`Под какой буквой находится ${target.toLowerCase()}?`,answer,["A","B","C","D"].filter(x=>x!==answer),`${target} находится под буквой ${answer}.`,`g2:geometric_figures:${d}:find_gallery:${target}:${order.join("-")}`,{model,visual:{type:"g1Shape",data:{mode:"gallery",order}},templateId})
+ if(templateId==="identify_line"){
+  const names=["Точка","Отрезок","Ломаная"],shape=g2PickTemplate(names),polyline=shape==="Ломаная";
+  const points=polyline?g2PickTemplate(G2_FIGURE_PATHS):null;
+  return g2Choice("Что показано на рисунке?",shape,names.filter(option=>option!==shape),
+   polyline?"Это ломаная. Она состоит из соединённых отрезков.":`Это ${shape.toLowerCase()}.`,
+   sig(points?points.length:shape),{model:{shape,points},visual:points?pathVisual({points}):single(shape),templateId});
  }
- if(templateId==="count_sides"){
-  const shapes=["Треугольник","Квадрат","Прямоугольник"],shape=shapes[ri(0,shapes.length-1)],answer=g2ShapeProps844(shape).sides,model={shape,answer};
-  return g2Choice("Сколько сторон у этой фигуры?",answer,g2UniqueNums(answer,2,5),`У ${G2_SHAPE_GENITIVE_844[shape]} ${answer} стороны.`,`g2:geometric_figures:${d}:count_sides:${shape}`,{model,visual:{type:"g1Shape",data:g2ShapeVisualData844(shape)},templateId})
+ if(templateId==="count_parts"){
+  const part=g2PickTemplate(["сторон","углов","вершин","звеньев"]);
+  if(part==="звеньев"){
+   const points=g2PickTemplate(G2_FIGURE_PATHS),answer=points.length-1;
+   return g2NumberInput("Сколько звеньев у ломаной на рисунке?",answer,`У этой ломаной ${answer} звена. Каждое звено — отдельный отрезок.`,
+    sig(`${part}:${points.length}`),{model:{part,points},visual:pathVisual({points}),templateId});
+  }
+  const shape=g2PickTemplate(["Треугольник","Квадрат","Прямоугольник"]),answer=G1_SHAPE_PROPS[shape].sides;
+  const unit={сторон:"стороны",углов:"угла",вершин:"вершины"}[part];
+  return g2NumberInput(`Сколько ${part} у многоугольника на рисунке?`,answer,`На рисунке можно насчитать ${answer} ${unit}.`,
+   sig(`${part}:${shape}`),{model:{shape,part},visual:single(shape),templateId});
  }
- if(templateId==="count_corners"){
-  const shapes=["Треугольник","Квадрат","Прямоугольник"],shape=shapes[ri(0,shapes.length-1)],answer=g2ShapeProps844(shape).corners,model={shape,answer};
-  return g2Choice("Сколько углов у этой фигуры?",answer,g2UniqueNums(answer,2,5),`У ${G2_SHAPE_GENITIVE_844[shape]} ${answer} угла.`,`g2:geometric_figures:${d}:count_corners:${shape}`,{model,visual:{type:"g1Shape",data:g2ShapeVisualData844(shape)},templateId})
+ if(templateId==="match_properties"){
+  const {shape,hint,reason}=g2PickTemplate(G2_FIGURE_PROPERTIES),order=shuffleOptions(G1_BASIC_SHAPES);
+  const letters=order.map((_,i)=>String.fromCharCode(65+i)),answer=letters[order.indexOf(shape)];
+  const visual={type:"g1Shape",data:{compact:true,mode:"gallery",order}};
+  return g2Choice(`Под какой буквой фигура ${hint}?`,answer,letters.filter(letter=>letter!==answer),
+   `${reason} На рисунке это фигура ${answer}.`,sig(`${shape}:${order.join("-")}`),{model:{shape,order},visual,templateId});
  }
- if(templateId==="point_segment"){
-  const shape=ri(0,1)?"Точка":"Отрезок",model={shape};
-  return g2Choice("Что показано?",shape,["Точка","Отрезок"].filter(x=>x!==shape),shape==="Точка"?"Точка — это маленькая отметка.":"Отрезок — прямая линия между двумя отмеченными концами.",`g2:geometric_figures:${d}:point_segment:${shape}`,{model,visual:{type:"g1Shape",data:g2ShapeVisualData844(shape)},templateId})
- }
- if(templateId==="equal_sides"){
-  const answer="Квадрат",order=g2ShapeOrder844(),model={answer,order};
-  return g2Choice("У какой фигуры 4 равные стороны?",answer,["Прямоугольник","Треугольник","Круг"],"У квадрата 4 стороны, и все они равны.",`g2:geometric_figures:${d}:equal_sides:${order.join("-")}`,{model,visual:{type:"g1Shape",data:{mode:"gallery",order}},templateId})
- }
- const answer="Прямоугольник",order=g2ShapeOrder844(),model={answer,order};
- return g2Choice("Какая фигура имеет 4 стороны и 4 угла, но не все её стороны равны?",answer,["Квадрат","Треугольник","Круг"],"У прямоугольника 4 стороны и 4 угла. Две длинные стороны равны между собой, и две короткие — между собой.",`g2:geometric_figures:${d}:description_shape:${order.join("-")}`,{model,visual:{type:"g1Shape",data:{mode:"gallery",order}},templateId:"description_shape"})
+ const close=templateId==="close_path",collection=close?G2_FIGURE_PATHS:G2_FIGURE_SEGMENTS,variant=ri(0,collection.length-1);
+ const points=collection[variant],labels=shuffleOptions(points.map((_,i)=>String.fromCharCode(65+i)));
+ const connected=close?points.length:2,first=labels[0],last=labels[connected-1];
+ const answer=g2FigureSegmentName(first,last);
+ const wrong=labels.flatMap((label,i)=>labels.slice(i+1).map(other=>g2FigureSegmentName(label,other))).filter(pair=>pair!==answer);
+ const text=close?"Каким отрезком нужно замкнуть ломаную?":"Какими буквами обозначены концы отрезка?";
+ const explanation=close?`Концы ломаной — ${first} и ${last}. Соедини их отрезком ${answer}.`:`Концы отрезка — точки ${first} и ${last}.`;
+ const model={points,labels,connected};
+ return g2Choice(text,answer,shuffleOptions(wrong),explanation,sig(`${variant}:${labels.join("")}`),{model,visual:pathVisual(model),templateId});
 }
 
 const G2_TRIANGLES_844=[[3,4,5],[4,4,5],[4,5,6],[5,5,6],[5,6,7],[6,6,8]];
@@ -20452,7 +20497,7 @@ function g2PerimeterVisualHtml(data){
  return `<div class="g2-geometry-visual"><svg class="g2-geometry-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="${aria}" xmlns="http://www.w3.org/2000/svg">${g2PerimeterSvgShape844(data,{x0:70,y0:45,w:540,h:230})}</svg>${caption?`<div class="g2-geo-caption">${esc(caption)}</div>`:""}</div>`
 }
 const PRE844_QUIZ_VISUAL_HTML=quizVisualHtml;
-quizVisualHtml=function(question){const v=question?.visual;if(v?.type==="g2Perimeter")return g2PerimeterVisualHtml(v.data);return PRE844_QUIZ_VISUAL_HTML(question)};
+quizVisualHtml=function(question){const v=question?.visual;if(v?.type==="g2Perimeter")return g2PerimeterVisualHtml(v.data);if(v?.type==="g2FigurePath")return g2FigurePathHtml(v.data);return PRE844_QUIZ_VISUAL_HTML(question)};
 
 function g2PerimeterDistractors844(answer){return g2UniqueNums(answer,1,100)}
 function g2GeometricQuantitiesQuestion(d){
@@ -20681,7 +20726,7 @@ g2TheoryHtml=function(id){
   const two={steps:[{label:"Было",value:"35"},{label:"Добавили",value:"+ 18"},{label:"После 1-го действия",value:"53",derived:true},{label:"Убрали",value:"− 9"},{label:"Осталось",value:"?",answer:true}],aria:"Два действия: сначала прибавить 18, потом вычесть 9"};
   html=`<div class="elementary-theory"><p><b>В задаче сначала нужно понять, что известно и что спрашивают.</b></p><div class="g2-theory-block"><h3>Один шаг</h3><p>Прочитай вопрос. Если предметы добавили, обычно нужно сложить; если убрали — вычесть.</p>${g2StoryVisualHtml(one)}<div class="elementary-example">28 + 15 = 43. Значит, стало 43.</div></div><div class="g2-theory-block"><h3>Одинаковые группы</h3>${g2EqualGroupsVisualHtml({groups:4,each:5})}<p>4 группы по 5 предметов: <b>5 × 4 = 20</b>.</p></div><div class="g2-theory-block"><h3>Два вопроса на деление</h3><p>Если разложить 20 карандашей поровну в 4 коробки, получится <b>20 ÷ 4 = 5</b> карандашей в каждой. Если класть по 5 карандашей в коробку, понадобится <b>20 ÷ 5 = 4</b> коробки.</p></div><div class="g2-theory-block"><h3>Два шага</h3>${g2StoryVisualHtml({...two,showDerived:true})}<p>Сначала 35 + 18 = 53. Потом 53 − 9 = 44.</p></div><div class="elementary-example"><b>Короткое правило:</b> вопрос → действие → вычисление → ответ. Если после первого действия на вопрос ещё нельзя ответить, нужен второй шаг.</div></div>`
  }
- else if(raw==="geometric_figures")html=`<div class="elementary-theory"><p><b>Фигуры можно различать по форме, сторонам и углам.</b></p><div class="g2-theory-block"><h3>Сравни фигуры</h3>${g1ShapeVisualHtml({mode:"gallery",order:["Круг","Треугольник","Квадрат","Прямоугольник"]})}<p>У треугольника 3 стороны. У квадрата и прямоугольника — по 4.</p><div class="elementary-example">У квадрата все 4 стороны равны. У прямоугольника две длинные стороны равны между собой и две короткие — между собой.</div></div><div class="g2-theory-block"><h3>Точка и отрезок</h3>${g1ShapeVisualHtml({mode:"single",shape:"Отрезок"})}<p>Точка — маленькая отметка. Отрезок — прямая линия между двумя отмеченными концами.</p></div><div class="elementary-example"><b>Короткое правило:</b> сначала посмотри на форму, затем посчитай стороны и углы.</div></div>`;
+ else if(raw==="geometric_figures")html=`<div class="elementary-theory"><p><b>Фигуры можно различать по форме, сторонам и углам.</b></p><div class="g2-theory-block"><h3>Сравни фигуры</h3>${g1ShapeVisualHtml({compact:true,mode:"gallery",order:["Круг","Треугольник","Квадрат","Прямоугольник"]})}<p>У треугольника 3 стороны. У квадрата и прямоугольника — по 4.</p><div class="elementary-example">У прямоугольника 4 прямых угла. Если все его стороны равны, такой прямоугольник называют квадратом.</div></div><div class="g2-theory-block"><h3>Точка и отрезок</h3>${g1ShapeVisualHtml({compact:true,mode:"single",shape:"Отрезок"})}<p>Точка — маленькая отметка. Отрезок — прямая линия между двумя отмеченными концами.</p></div><div class="g2-theory-block"><h3>Ломаная</h3>${g2FigurePathHtml({points:G2_FIGURE_PATHS[0],labels:["A","B","C"]})}<p>У ломаной ABC два звена, AB и BC. Чтобы замкнуть ломаную, соедини её концы A и C отрезком AC.</p></div><div class="elementary-example"><b>Короткое правило:</b> сначала посмотри на форму, затем посчитай стороны и углы.</div></div>`;
  else if(raw==="geometric_quantities"){
   const rect={shape:"rectangle",a:6,b:3,perimeter:18},square={shape:"square",a:4,perimeter:16};
   html=`<div class="elementary-theory"><p><b>Если пройти по всей границе фигуры, её длину можно найти сложением сторон.</b></p><div class="g2-theory-block"><h3>Сложи все стороны</h3>${g2PerimeterVisualHtml({...rect,labelAllSides:true,showPerimeter:true})}<p>6 + 3 + 6 + 3 = 18 см. Длину всей границы называют <b>периметром</b>.</p></div><div class="g2-theory-block"><h3>Квадрат</h3>${g2PerimeterVisualHtml({...square,labelAllSides:true,showPerimeter:true})}<p>У квадрата 4 равные стороны: 4 + 4 + 4 + 4 = 16 см.</p></div><div class="g2-theory-block"><h3>Длина отрезка</h3>${g1LengthVisualHtml({kind:"measure",a:7})}<p>Поставь начало отрезка у 0 и прочитай число у его конца.</p></div><div class="elementary-example"><b>Короткое правило:</b> периметр — сумма длин всех сторон фигуры.</div></div>`
