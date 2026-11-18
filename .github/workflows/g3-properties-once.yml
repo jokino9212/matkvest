@@ -1,0 +1,33 @@
+name: Grade 3 arithmetic properties audit and patch
+on:
+  push:
+    branches: [audit/g1-g4-content-v195]
+    paths:
+      - .github/workflows/g3-properties-once.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  patch-verify-commit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply arithmetic properties source patch
+        run: python3 audits/g3_properties_patch.py
+      - name: Install Chromium
+        run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Verify 8400 property questions across all stages
+        run: node audits/g3_properties_browser.cjs
+      - name: Verify stage completion and persistence
+        run: node audits/g3_properties_progress_browser.cjs
+      - name: Commit source only after passing
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- index.html
+          git commit -m 'Separate Grade 3 arithmetic property stages (verified)'
+          git push origin HEAD:audit/g1-g4-content-v195
