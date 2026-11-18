@@ -23,6 +23,7 @@ jobs:
         run: node audits/g3_offtable_multiply_browser.cjs
       - name: Commit only after verification succeeds
         run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add -- index.html
