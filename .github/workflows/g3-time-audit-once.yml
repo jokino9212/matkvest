@@ -15,12 +15,16 @@ jobs:
           fetch-depth: 0
       - name: Prepare Chromium
         run: |
-          npm install --no-save playwright
-          npx playwright install --with-deps --only-shell chromium
+          npm install --no-save --fetch-retries=1 --fetch-timeout=25000 playwright
+          if chrome_path="$(command -v google-chrome)"; then
+            echo "MATKVEST_CHECK_CHROMIUM=$chrome_path" >> "$GITHUB_ENV"
+          else
+            npx playwright install --only-shell chromium
+          fi
       - name: Verify answers, progression and saving progress
         shell: bash
         run: |
-          test "$(git rev-parse HEAD^)" = 31237bbf2f324b090c95d9baa2d4eb81850912d5
+          git diff --exit-code 31237bbf2f324b090c95d9baa2d4eb81850912d5 HEAD -- index.html
           git show 31237bbf2f324b090c95d9baa2d4eb81850912d5:index.html > "$RUNNER_TEMP/g3-time-before.html"
           base64 -d <<'MATKVEST_PATCH' | gzip -dc > "$RUNNER_TEMP/g3-time.patch"
           H4sIAIHg/WoC/8W9/XJcx5En+j+f4lyE1wsYRyC6G1/sNsSRPbqy4o7sWUs7ExO6CqhJNMm+Ahp0
