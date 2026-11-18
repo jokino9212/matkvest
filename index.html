@@ -895,6 +895,7 @@ button,input{font:inherit}button{cursor:pointer}.shell{max-width:1180px;margin:a
 /* Этап 8.44 — G2 geometry + perimeter visuals. */
 .g2-geometry-visual{max-width:720px;margin:12px auto;padding:10px;border:1px solid #d7e7df;border-radius:17px;background:linear-gradient(180deg,#fbfffd,#f5fbf8);overflow:hidden}
 .g2-geometry-svg{display:block;width:100%;height:auto;margin:auto}
+.g2-geometry-compare{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:10px;margin:12px 0}.g2-geometry-compare .g2-geometry-visual{margin:0;min-width:0}.g2-geometry-svg .g2-geo-side{font-size:20px;stroke-width:4}
 .g2-geo-stroke{fill:#eef8f2;stroke:#397d5d;stroke-width:4;stroke-linejoin:round}
 .g2-geo-line{fill:none;stroke:#397d5d;stroke-width:5;stroke-linecap:round}
 .g2-geo-point{fill:#285e46}
@@ -19865,7 +19866,8 @@ function openG2Topic(id){
   "g2:multiply_divide":G2_MULTIPLY_DIVIDE_STAGES,
   "g2:operations_100":G2_OPERATIONS_100_STAGES,
   "g2:word_problems":G2_WORD_PROBLEM_STAGES,
-  "g2:geometric_figures":G2_FIGURES_STAGES
+  "g2:geometric_figures":G2_FIGURES_STAGES,
+  "g2:geometric_quantities":G2_GEOMETRIC_QUANTITIES_STAGES
  })[t.id]||[];
  const descriptions=stages.map(stage=>stage.description);
  show(`<div class="mtop"><h2>2 класс • ${esc(t.title)}</h2><button class="x" onclick="closeModal()">×</button></div><div class="lesson elementary-lesson">${g2TheoryHtml(t.id)}</div><div class="stage-grid">${stageCards(t.id,`startG2QuizStage.bind(null,'${t.id}')`,descriptions)}</div><div class="subtle">Пройдено этапов: <b>${done}/3</b>.</div>`)
@@ -20468,71 +20470,138 @@ const G2_TRIANGLES_844=[[3,4,5],[4,4,5],[4,5,6],[5,5,6],[5,6,7],[6,6,8]];
 function g2TriangleModel844(){const s=G2_TRIANGLES_844[ri(0,G2_TRIANGLES_844.length-1)];return {a:s[0],b:s[1],c:s[2],perimeter:s[0]+s[1]+s[2]}}
 function g2RectangleModel844(){let a=ri(3,12),b=ri(2,9);if(a===b)b=b<9?b+1:b-1;return {shape:"rectangle",a,b,perimeter:2*(a+b)}}
 function g2SquareModel844(){const a=ri(2,12);return {shape:"square",a,perimeter:4*a}}
-function g2PerimeterWord844(n){return `${n} см`}
-function g2PerimeterSvgShape844(data,{x0=65,y0=50,w=550,h=245}={}){
- const shape=data?.shape||"rectangle",all=!!data?.labelAllSides;
- if(shape==="square"||shape==="rectangle"){
-  const a=Number(data.a),b=shape==="square"?a:Number(data.b),scale=Math.min(w/Math.max(a,1),h/Math.max(b,1)),rw=a*scale,rh=b*scale,cx=x0+w/2,cy=y0+h/2,x=cx-rw/2,y=cy-rh/2;
-  const labelA=data.hideA?"?":`${a} см`,labelB=data.hideB?"?":`${b} см`;
-  let labels=`<text class="g2-geo-side" x="${cx}" y="${y-10}">${labelA}</text>`;
-  if(shape==="rectangle")labels+=`<text class="g2-geo-side" x="${Math.max(35,x-24)}" y="${cy+5}">${labelB}</text>`;
-  if(all){labels+=`<text class="g2-geo-side" x="${cx}" y="${y+rh+24}">${labelA}</text>`;if(shape==="square")labels+=`<text class="g2-geo-side" x="${Math.max(35,x-24)}" y="${cy+5}">${labelA}</text><text class="g2-geo-side" x="${Math.min(645,x+rw+24)}" y="${cy+5}">${labelA}</text>`;else labels+=`<text class="g2-geo-side" x="${Math.min(645,x+rw+24)}" y="${cy+5}">${labelB}</text>`}
-  return `<rect class="g2-geo-stroke" x="${x}" y="${y}" width="${rw}" height="${rh}"/>${labels}`
+const G2_LENGTH_PATH_POINTS=[[38,125],[107,64],[179,125],[252,64],[322,125]];
+const G2_PERIMETER_SHAPE_NAMES={square:"Квадрат",rectangle:"Прямоугольник",triangle:"Треугольник",polyline:"Ломаная"};
+
+function g2PerimeterSides(data){
+ if(data.shape==="square")return [data.a,data.a,data.a,data.a];
+ if(data.shape==="rectangle")return [data.a,data.b,data.a,data.b];
+ return [data.a,data.b,data.c];
+}
+function g2PerimeterSideLabel(length,hidden){
+ return hidden?"?":`${length} см`;
+}
+function g2PerimeterSideText(x,y,label){
+ return `<text class="g2-geo-side" x="${x}" y="${y}">${esc(label)}</text>`;
+}
+function g2PerimeterSvgShape844(data){
+ const {shape,a,b,c,hideA,hideB,hideC,labelAllSides}=data;
+ const labelA=g2PerimeterSideLabel(a,hideA),labelB=g2PerimeterSideLabel(b,hideB),labelC=g2PerimeterSideLabel(c,hideC);
+ if(shape==="polyline"){
+  const points=G2_LENGTH_PATH_POINTS.slice(0,data.lengths.length+1);
+  const path=points.map(point=>point.join(",")).join(" ");
+  const labels=data.lengths.map((length,i)=>{
+   const [x,y]=points[i], [nextX,nextY]=points[i+1];
+   return g2PerimeterSideText((x+nextX)/2,(y+nextY)/2-19,g2PerimeterSideLabel(length,false));
+  }).join("");
+  return {drawing:`<polyline class="g2-geo-line" points="${path}"/>${labels}`,known:data.lengths.map(value=>g2PerimeterSideLabel(value,false))};
  }
- const a=Number(data.a),b=Number(data.b),c=Number(data.c),hasUnknown=!!(data.hideA||data.hideB||data.hideC),mid=(p,q)=>[(p[0]+q[0])/2,(p[1]+q[1])/2];
- let A,B,C;
- if(hasUnknown){const left=x0+w*.08,bottom=y0+h*.9;A=[left,bottom];B=[x0+w*.92,bottom];C=[x0+w*.43,y0+h*.12]}
- else{const xx=(b*b+c*c-a*a)/(2*c),yy=Math.sqrt(Math.max(0,b*b-xx*xx)),scale=Math.min(w/Math.max(c,1),h/Math.max(yy,1)),bx=c*scale,tx=xx*scale,ty=yy*scale,left=x0+(w-bx)/2,bottom=y0+h-10;A=[left,bottom];B=[left+bx,bottom];C=[left+tx,bottom-ty]}
- const ab=mid(A,B),ac=mid(A,C),bc=mid(B,C),la=data.hideC?"?":`${c} см`,lb=data.hideB?"?":`${b} см`,lc=data.hideA?"?":`${a} см`;
- return `<polygon class="g2-geo-stroke" points="${A[0]},${A[1]} ${B[0]},${B[1]} ${C[0]},${C[1]}"/><text class="g2-geo-side" x="${ab[0]}" y="${ab[1]+24}">${la}</text><text class="g2-geo-side" x="${ac[0]-24}" y="${ac[1]}">${lb}</text><text class="g2-geo-side" x="${bc[0]+24}" y="${bc[1]}">${lc}</text>`
+ if(shape==="square"||shape==="rectangle"){
+  const square=shape==="square",height=square?a:b,scale=Math.min(182/a,96/height),w=a*scale,h=height*scale;
+  const x=180-w/2,y=96-h/2,vertical=square?labelA:labelB;
+  let drawing=`<rect class="g2-geo-stroke" x="${x}" y="${y}" width="${w}" height="${h}"/>`;
+  drawing+=g2PerimeterSideText(180,y-13,labelA);
+  if(!square||labelAllSides)drawing+=g2PerimeterSideText(x-34,102,vertical);
+  if(labelAllSides)drawing+=g2PerimeterSideText(180,y+h+26,labelA)+g2PerimeterSideText(x+w+34,102,vertical);
+  return {drawing,known:square?[labelA]:[labelA,labelB]};
+ }
+ let points;
+ if(hideA||hideB||hideC){
+  points=[[89,143],[271,143],[158,49]];
+ }else{
+  const projection=(b*b+c*c-a*a)/(2*c),height=Math.sqrt(b*b-projection*projection);
+  const scale=Math.min(180/c,94/height),left=180-c*scale/2;
+  points=[[left,143],[left+c*scale,143],[left+projection*scale,143-height*scale]];
+ }
+ const known=[labelC,labelA,labelB];
+ const labels=points.map(([x,y],i)=>{
+  const [nextX,nextY]=points[(i+1)%points.length],dx=nextX-x,dy=nextY-y,norm=Math.hypot(dx,dy);
+  return g2PerimeterSideText((x+nextX)/2-31*dy/norm,(y+nextY)/2+26*dx/norm+5,known[i]);
+ }).join("");
+ return {drawing:`<polygon class="g2-geo-stroke" points="${points.map(point=>point.join(",")).join(" ")}"/>${labels}`,known};
+}
+function g2PerimeterImage(data){
+ const {drawing,known}=g2PerimeterSvgShape844(data);
+ const aria=`${G2_PERIMETER_SHAPE_NAMES[data.shape]}. Данные на чертеже: ${known.join(", ").replace(/\?/g,"неизвестная длина")}.`;
+ const viewHeight=data.shape==="polyline"?155:188;
+ return `<svg class="g2-geometry-svg" viewBox="0 0 360 ${viewHeight}" role="img" aria-label="${esc(aria)}" xmlns="http://www.w3.org/2000/svg">${drawing}</svg>`;
 }
 function g2PerimeterVisualHtml(data){
- const W=680,H=350,mode=data?.mode||"single";
- if(mode==="compare"){
-  const left=data.left,right=data.right;
-  return `<div class="g2-geometry-visual"><svg class="g2-geometry-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Две фигуры с данными длинами сторон" xmlns="http://www.w3.org/2000/svg">${g2PerimeterSvgShape844(left,{x0:55,y0:62,w:230,h:190})}${g2PerimeterSvgShape844(right,{x0:395,y0:62,w:230,h:190})}<text class="g2-geo-label" x="167" y="325">A</text><text class="g2-geo-label" x="512" y="325">B</text></svg></div>`
+ if(data.mode==="compare"){
+  return `<div class="g2-geometry-compare">${[data.left,data.right].map((shape,i)=>
+   `<div class="g2-geometry-visual"><div class="g2-geo-caption">Фигура ${i===0?"A":"B"}</div>${g2PerimeterImage(shape)}</div>`
+  ).join("")}</div>`;
  }
- const caption=data?.showPerimeter===true&&data?.perimeter!=null?`Периметр: ${data.perimeter} см`:data?.caption||"";
- const aria=(data?.hideA||data?.hideB||data?.hideC)?"Фигура: известные стороны подписаны, неизвестная сторона отмечена вопросительным знаком":"Фигура с данными длинами сторон";
- return `<div class="g2-geometry-visual"><svg class="g2-geometry-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="${aria}" xmlns="http://www.w3.org/2000/svg">${g2PerimeterSvgShape844(data,{x0:70,y0:45,w:540,h:230})}</svg>${caption?`<div class="g2-geo-caption">${esc(caption)}</div>`:""}</div>`
+ const caption=data.showPerimeter===true?`Периметр: ${data.perimeter} см`:data.caption||"";
+ return `<div class="g2-geometry-visual">${g2PerimeterImage(data)}${caption?`<div class="g2-geo-caption">${esc(caption)}</div>`:""}</div>`;
 }
 const PRE844_QUIZ_VISUAL_HTML=quizVisualHtml;
 quizVisualHtml=function(question){const v=question?.visual;if(v?.type==="g2Perimeter")return g2PerimeterVisualHtml(v.data);if(v?.type==="g2FigurePath")return g2FigurePathHtml(v.data);return PRE844_QUIZ_VISUAL_HTML(question)};
 
-function g2PerimeterDistractors844(answer){return g2UniqueNums(answer,1,100)}
+const G2_GEOMETRIC_QUANTITIES_STAGES=[
+ {templates:["ruler_length","perimeter_record"],description:"Измерь отрезок и выбери сумму длин сторон фигуры."},
+ {templates:["polygon_perimeter","polyline_length"],description:"Вычисли периметр многоугольника или длину ломаной."},
+ {templates:["missing_side","compare_perimeters"],description:"Найди неизвестную сторону по периметру или сравни периметры."}
+];
+function g2PerimeterModel(){
+ return g2PickTemplate([g2SquareModel844,g2RectangleModel844,()=>({shape:"triangle",...g2TriangleModel844()})])();
+}
 function g2GeometricQuantitiesQuestion(d){
- const warm=["measure_segment","square_perimeter","rectangle_perimeter"],train=["measure_segment","square_perimeter","rectangle_perimeter","triangle_perimeter","choose_record","compare_perimeters"],master=["measure_segment","square_perimeter","rectangle_perimeter","triangle_perimeter","choose_record","compare_perimeters","missing_triangle_side","missing_square_side"],templateId=g2PickTemplate(d===0?warm:d===1?train:master);
- if(templateId==="measure_segment"){
-  const a=ri(2,10),model={a,unit:"см"};
-  return g2Choice("Какова длина отрезка?",a,g2UniqueNums(a,1,10),`Отрезок начинается у 0 и заканчивается у ${a}. Его длина — ${a} см.`,`g2:geometric_quantities:${d}:measure_segment:${a}`,{model,visual:{type:"g1Length",data:{kind:"measure",a}},templateId})
+ const templateId=g2PickTemplate(G2_GEOMETRIC_QUANTITIES_STAGES[d].templates);
+ const sig=key=>`g2:geometric_quantities:${d}:${templateId}:${key}`;
+ const perimeterVisual=data=>({type:"g2Perimeter",data});
+ const centimeters={unitSuffix:"см",inputHint:"Введи число сантиметров."};
+ if(templateId==="ruler_length"){
+  const start=ri(0,6),end=ri(start+1,10),answer=end-start,model={start,end};
+  return g2Choice("Какова длина отрезка по линейке?",`${answer} см`,g2UniqueNums(answer,1,10).map(value=>`${value} см`),
+   `Вычитаем начальную отметку из конечной: ${end} − ${start} = ${answer} см.`,sig(`${start}:${end}`),
+   {model,visual:{type:"g1Length",data:{segments:[model]}},templateId});
  }
- if(templateId==="square_perimeter"){
-  const model=g2SquareModel844();
-  return g2NumberInput(`Сторона квадрата — <b>${model.a} см</b>. Найди его периметр.`,model.perimeter,`Складываем длины четырёх равных сторон: ${model.a} + ${model.a} + ${model.a} + ${model.a} = ${model.perimeter} см.`,`g2:geometric_quantities:${d}:square_perimeter:${model.a}`,{model,visual:{type:"g2Perimeter",data:model},templateId,unitSuffix:"см",inputHint:"Введи периметр."})
- }
- if(templateId==="rectangle_perimeter"){
-  const model=g2RectangleModel844();
-  return g2NumberInput(`Стороны прямоугольника — <b>${model.a} см</b> и <b>${model.b} см</b>. Найди его периметр.`,model.perimeter,`Складываем все стороны: ${model.a} + ${model.b} + ${model.a} + ${model.b} = ${model.perimeter} см.`,`g2:geometric_quantities:${d}:rectangle_perimeter:${model.a}:${model.b}`,{model,visual:{type:"g2Perimeter",data:model},templateId,unitSuffix:"см",inputHint:"Введи периметр."})
- }
- if(templateId==="triangle_perimeter"){
-  const x=g2TriangleModel844(),model={shape:"triangle",...x};
-  return g2NumberInput("Найди периметр треугольника.",model.perimeter,`Складываем три стороны: ${model.a} + ${model.b} + ${model.c} = ${model.perimeter} см.`,`g2:geometric_quantities:${d}:triangle_perimeter:${model.a}:${model.b}:${model.c}`,{model,visual:{type:"g2Perimeter",data:model},templateId,unitSuffix:"см",inputHint:"Введи периметр."})
- }
- if(templateId==="choose_record"){
-  const model=g2RectangleModel844(),correct=`${model.a} + ${model.b} + ${model.a} + ${model.b}`,wrong=[`${model.a} + ${model.b}`,`${model.a} + ${model.b} + ${model.a}`,`${model.a} + ${model.b} + ${model.b}`];
-  return g2Choice("Какая запись правильно показывает, как найти периметр?",correct,wrong,`У прямоугольника две стороны по ${model.a} см и две по ${model.b} см. Складываем все четыре: ${correct}.`,`g2:geometric_quantities:${d}:choose_record:${model.a}:${model.b}`,{model,visual:{type:"g2Perimeter",data:model},templateId})
+ if(templateId==="polyline_length"){
+  const lengths=Array.from({length:ri(2,4)},()=>ri(2,9)),result=lengths.reduce((sum,length)=>sum+length,0);
+  const model={shape:"polyline",lengths};
+  return g2NumberInput("Найди длину открытой ломаной.",result,`Сложи длины её звеньев: ${lengths.join(" + ")} = ${result} см.`,
+   sig(lengths.join(":")),{model,visual:perimeterVisual(model),templateId,...centimeters});
  }
  if(templateId==="compare_perimeters"){
-  let left=g2RectangleModel844(),right=g2SquareModel844(),p1=left.perimeter,p2=right.perimeter;for(let i=0;i<8&&p1===p2;i++){right=g2SquareModel844();p2=right.perimeter}const answer=p1===p2?"Одинаковые":p1>p2?"A":"B",model={left,right,p1,p2,answer};
-  return g2Choice("У какой фигуры периметр больше?",answer,["A","B","Одинаковые"].filter(x=>x!==answer),`Периметр A — ${p1} см. Периметр B — ${p2} см. ${answer==="Одинаковые"?"Они равны.":`Больше у фигуры ${answer}.`}`,`g2:geometric_quantities:${d}:compare_perimeters:${left.a}:${left.b}:${right.a}`,{model,visual:{type:"g2Perimeter",data:{mode:"compare",left,right}},templateId})
+  let left=g2PerimeterModel(),right=g2PerimeterModel();
+  if(ri(0,2)===0){
+   const a=ri(3,9),delta=ri(1,2),perimeter=4*a;
+   left={shape:"square",a,perimeter};right={shape:"rectangle",a:a+delta,b:a-delta,perimeter};
+  }
+  if(ri(0,1)===0)[left,right]=[right,left];
+  const pA=left.perimeter,pB=right.perimeter,answer=pA===pB?"=":pA<pB?"<":">";
+  const model={mode:"compare",left:{...left,labelAllSides:true},right:{...right,labelAllSides:true}};
+  return g2Choice("Какой знак поставить между периметрами фигур A и B?",answer,["<","=",">"].filter(sign=>sign!==answer),
+   `Периметр A: ${g2PerimeterSides(left).join(" + ")} = ${pA} см. Периметр B: ${g2PerimeterSides(right).join(" + ")} = ${pB} см. Сравнение: ${pA} ${answer} ${pB}.`,
+   sig(JSON.stringify(model)),{model,visual:perimeterVisual(model),templateId});
  }
- if(templateId==="missing_triangle_side"){
-  const x=g2TriangleModel844(),which=ri(0,2),sides=[x.a,x.b,x.c],answer=sides[which],model={shape:"triangle",a:x.a,b:x.b,c:x.c,perimeter:x.perimeter,hidden:which,answer};if(which===0)model.hideA=true;if(which===1)model.hideB=true;if(which===2)model.hideC=true;
-  const known=sides.filter((_,i)=>i!==which),rest=x.perimeter-known[0]-known[1];
-  return g2NumberInput(`Периметр треугольника — <b>${x.perimeter} см</b>. Две известные стороны: ${known[0]} см и ${known[1]} см. Найди третью сторону.`,answer,`Из периметра вычитаем известные стороны: ${x.perimeter} − ${known[0]} − ${known[1]} = ${rest} см.`,`g2:geometric_quantities:${d}:missing_triangle_side:${x.a}:${x.b}:${x.c}:${which}`,{model,visual:{type:"g2Perimeter",data:model},templateId,unitSuffix:"см",inputHint:"Введи длину стороны."})
+ const model=g2PerimeterModel(),sides=g2PerimeterSides(model),sequence=sides.join(" + "),key=`${model.shape}:${sides.join(":")}`;
+ if(templateId==="perimeter_record"){
+  const wrong=[sides.slice(0,-1).join(" + "),[...sides,sides.at(-1)].join(" + ")];
+  return g2Choice("Какая запись включает длины всех сторон фигуры?",sequence,wrong,
+   `Нужно взять каждую сторону один раз: ${sequence}.`,sig(key),{model,visual:perimeterVisual({...model,labelAllSides:true}),templateId});
  }
- const model=g2SquareModel844(),answer=model.a,visual={...model,hideA:true,hideB:true};
- return g2NumberInput(`Периметр квадрата — <b>${model.perimeter} см</b>. Найди длину одной стороны.`,answer,`У квадрата 4 равные стороны. ${model.perimeter} : 4 = ${answer} см.`,`g2:geometric_quantities:${d}:missing_square_side:${model.perimeter}`,{model,visual:{type:"g2Perimeter",data:visual},templateId:"missing_square_side",unitSuffix:"см",inputHint:"Введи длину стороны."})
+ if(templateId==="polygon_perimeter"){
+  const shape={square:"квадрата",rectangle:"прямоугольника",triangle:"треугольника"}[model.shape];
+  return g2NumberInput(`Найди периметр ${shape}.`,model.perimeter,`Сложи длины всех сторон: ${sequence} = ${model.perimeter} см.`,
+   sig(key),{model,visual:perimeterVisual(model),templateId,...centimeters});
+ }
+ const {shape,a,b,c,perimeter}=model,position=shape==="square"?0:ri(0,shape==="triangle"?2:1);
+ const answer=[a,b,c][position],visual=perimeterVisual({...model,hideA:position===0,hideB:position===1,hideC:position===2});
+ const shapeName={square:"квадрата",rectangle:"прямоугольника",triangle:"треугольника"}[shape];
+ let explanation;
+ if(shape==="square"){
+  explanation=`У квадрата четыре равные стороны. ${perimeter} ÷ 4 = ${answer} см.`;
+ }else if(shape==="rectangle"){
+  const known=position===0?b:a,half=perimeter/2;
+  explanation=`Сумма длин двух соседних сторон: ${perimeter} ÷ 2 = ${half} см. Неизвестная длина: ${half} − ${known} = ${answer} см.`;
+ }else{
+  const known=[a,b,c].filter((_,i)=>i!==position);
+  explanation=`Вычитаем из периметра две известные длины: ${perimeter} − ${known[0]} − ${known[1]} = ${answer} см.`;
+ }
+ return g2NumberInput(`Периметр ${shapeName} — <b>${perimeter} см</b>. Какова длина стороны, отмеченной знаком «?»?`,
+  answer,explanation,sig(`${key}:${position}`),{model,visual,templateId,...centimeters});
 }
 
 const PRE844_MAKE_G2_QUESTION=makeG2Question;
@@ -20729,7 +20798,7 @@ g2TheoryHtml=function(id){
  else if(raw==="geometric_figures")html=`<div class="elementary-theory"><p><b>Фигуры можно различать по форме, сторонам и углам.</b></p><div class="g2-theory-block"><h3>Сравни фигуры</h3>${g1ShapeVisualHtml({compact:true,mode:"gallery",order:["Круг","Треугольник","Квадрат","Прямоугольник"]})}<p>У треугольника 3 стороны. У квадрата и прямоугольника — по 4.</p><div class="elementary-example">У прямоугольника 4 прямых угла. Если все его стороны равны, такой прямоугольник называют квадратом.</div></div><div class="g2-theory-block"><h3>Точка и отрезок</h3>${g1ShapeVisualHtml({compact:true,mode:"single",shape:"Отрезок"})}<p>Точка — маленькая отметка. Отрезок — прямая линия между двумя отмеченными концами.</p></div><div class="g2-theory-block"><h3>Ломаная</h3>${g2FigurePathHtml({points:G2_FIGURE_PATHS[0],labels:["A","B","C"]})}<p>У ломаной ABC два звена, AB и BC. Чтобы замкнуть ломаную, соедини её концы A и C отрезком AC.</p></div><div class="elementary-example"><b>Короткое правило:</b> сначала посмотри на форму, затем посчитай стороны и углы.</div></div>`;
  else if(raw==="geometric_quantities"){
   const rect={shape:"rectangle",a:6,b:3,perimeter:18},square={shape:"square",a:4,perimeter:16};
-  html=`<div class="elementary-theory"><p><b>Если пройти по всей границе фигуры, её длину можно найти сложением сторон.</b></p><div class="g2-theory-block"><h3>Сложи все стороны</h3>${g2PerimeterVisualHtml({...rect,labelAllSides:true,showPerimeter:true})}<p>6 + 3 + 6 + 3 = 18 см. Длину всей границы называют <b>периметром</b>.</p></div><div class="g2-theory-block"><h3>Квадрат</h3>${g2PerimeterVisualHtml({...square,labelAllSides:true,showPerimeter:true})}<p>У квадрата 4 равные стороны: 4 + 4 + 4 + 4 = 16 см.</p></div><div class="g2-theory-block"><h3>Длина отрезка</h3>${g1LengthVisualHtml({kind:"measure",a:7})}<p>Поставь начало отрезка у 0 и прочитай число у его конца.</p></div><div class="elementary-example"><b>Короткое правило:</b> периметр — сумма длин всех сторон фигуры.</div></div>`
+  html=`<div class="elementary-theory"><p><b>Если пройти по всей границе фигуры, её длину можно найти сложением сторон.</b></p><div class="g2-theory-block"><h3>Сложи все стороны</h3>${g2PerimeterVisualHtml({...rect,labelAllSides:true,showPerimeter:true})}<p>6 + 3 + 6 + 3 = 18 см. Длину всей границы называют <b>периметром</b>.</p></div><div class="g2-theory-block"><h3>Квадрат</h3>${g2PerimeterVisualHtml({...square,labelAllSides:true,showPerimeter:true})}<p>У квадрата 4 равные стороны: 4 + 4 + 4 + 4 = 16 см.</p></div><div class="g2-theory-block"><h3>Длина отрезка</h3>${g1LengthVisualHtml({segments:[{start:2,end:7}]})}<p>Конец отрезка у отметки 7, начало у отметки 2. Длина равна <b>7 − 2 = 5 см</b>.</p></div><div class="g2-theory-block"><h3>Длина ломаной</h3>${g2PerimeterVisualHtml({shape:"polyline",lengths:[3,5,4]})}<p>Длина ломаной равна сумме длин её звеньев: <b>3 + 5 + 4 = 12 см</b>.</p></div><div class="elementary-example"><b>Короткое правило:</b> периметр — сумма длин всех сторон фигуры.</div></div>`
  }
  else if(raw==="math_information"){
   const demoRows=[{label:"Книги",value:12},{label:"Тетради",value:18},{label:"Альбомы",value:9}],pattern=[20,25,30,35],steps=["Начни с числа 24.","Прибавь 10.","Вычти 4."];
