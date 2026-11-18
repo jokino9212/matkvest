@@ -4,6 +4,7 @@ on:
     branches: [audit/g1-g4-content-v195]
     paths:
       - .github/workflows/g3-zero-one-once.yml
+      - audits/g3_zero_one_browser.cjs
   workflow_dispatch:
 permissions:
   contents: write
