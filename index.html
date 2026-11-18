@@ -5512,7 +5512,7 @@ function generateG3ColumnTask(topicId,stageIndex){
   const cols=Math.max(String(a).length,String(b).length,String(ans).length);return {a,b,ans,op:"+",marks:calcCarries(a,b,cols),g3Topic:raw,audit:{type:"g3WrittenAdd",a,b,answer:ans,carries:g3HasCarry(a,b)}};
  }
  if(raw==="written_subtract"){
-  let a=0,b=0,ans=0,borrows=0,guard=0;if(d===2&&Math.random()<.55){const pool=[[500,247],[600,358],[702,368],[800,456],[905,478],[700,286]];[a,b]=g6RandomFrom(pool)}else do{guard++;a=ri(d===0?200:300,999);b=ri(20,a-1);borrows=g3BorrowCount(a,b)}while(((d===0&&borrows!==0)||(d===1&&borrows<1)||(d===2&&borrows<2))&&guard<900);ans=a-b;if(!a||ans<0){[a,b]=d===0?[786,243]:d===1?[452,178]:[702,368];ans=a-b}const cols=Math.max(String(a).length,String(b).length,String(ans).length),bm=calcBorrows(a,b,cols);return {a,b,ans,op:"−",marks:bm.receive,dotMarks:bm.donor,g3Topic:raw,audit:{type:"g3WrittenSub",a,b,answer:ans,borrows:g3BorrowCount(a,b),throughZero:g3BorrowThroughZero(a,b)}};
+  let a=0,b=0,ans=0,borrows=0,guard=0;if(d===2&&Math.random()<.55){const pool=[[500,247],[600,358],[702,368],[800,456],[905,478],[700,286]];[a,b]=g6RandomFrom(pool)}else do{guard++;a=ri(d===0?200:300,999);b=ri(20,a-1);borrows=g3BorrowCount(a,b)}while(((d===0&&borrows!==0)||(d===1&&borrows!==1)||(d===2&&borrows<2))&&guard<900);ans=a-b;if(!a||ans<0){[a,b]=d===0?[786,243]:d===1?[452,137]:[702,368];ans=a-b}const cols=Math.max(String(a).length,String(b).length,String(ans).length),bm=calcBorrows(a,b,cols);return {a,b,ans,op:"−",marks:bm.receive,dotMarks:bm.donor,g3Topic:raw,audit:{type:"g3WrittenSub",a,b,answer:ans,borrows:g3BorrowCount(a,b),throughZero:g3BorrowThroughZero(a,b)}};
  }
  if(raw==="written_multiply"){
   let a=0,b=0,ans=0,carryCount=0,guard=0;
