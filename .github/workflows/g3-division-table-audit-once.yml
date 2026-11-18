@@ -68,7 +68,7 @@ jobs:
           6oA6lMr7aX41lU9s8mp6iA4tpUse/ImUyadYHgVMGPlDy4PAjYT8pQWuFxO/tfQDF8RXP7t69/pH
           9dsfV5nWFZ4RmuqHC6YJzzEr/wWSTQHv7RkAAA==
           PATCH
-          base64 -d <<'CHECK' | gzip -dc > "$RUNNER_TEMP/g3-division-check.cjs"
+          base64 -d <<'CHECK' | gzip -dc > ".g3-division-check.cjs"
           H4sIAAAAAAAAA8VbbXPcRnL+rl8B3cUEkAWxL6RkCxTIknU6SSlLVkTd+QO1YWEXw12IWGAFYJfk
           cbfKkuO7VFkXV67yUpWqy5XvPuQrrRMtWrKov7D7F/JL0t0zg7fdJSUnl5yvuMBMT89M99M93T2Q
           OoiZEieR107UtQvtMIgTxYljFiV2xB4PvIhpahC6zOKNVUGqS9qduES3E2ed3STpl7qxKSPoO0m3
@@ -161,7 +161,7 @@ jobs:
           7pwkokEslwYm+x6YpcvsOqr6vwHjLcymWDcAAA==
           CHECK
           python3 "$RUNNER_TEMP/g3-division-patch.py"
-          G3_DIVISION_BASELINE="$RUNNER_TEMP/g3-division-before.html" node "$RUNNER_TEMP/g3-division-check.cjs"
+          G3_DIVISION_BASELINE="$RUNNER_TEMP/g3-division-before.html" node ".g3-division-check.cjs"
       - name: Commit verified revision
         run: |
           git config user.name 'github-actions[bot]'
