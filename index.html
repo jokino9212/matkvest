@@ -5385,20 +5385,56 @@ function g3OfftableDivisionParts(divisor,stage){
  for(let tens=10;tens<=90;tens+=10){if(tens%d!==0)continue;for(let ones=d;ones<=9;ones+=d){const dividend=tens+ones;if(dividend<=100)candidates.push({tens,ones,dividend,divisor:d,quotient:dividend/d})}}
  if(!candidates.length)return null;return candidates[ri(0,candidates.length-1)];
 }
-function g3RoundNumberQuestionData(stage){
- const d=Math.max(0,Math.min(2,Number(stage)||0));
- const types=d===0?["tMul","tDiv","hAdd","hSub"]:d===1?["tMul","tDiv","hMul","hDiv","tAdd","tSub","hAdd","hSub"]:["tMul","tDiv","hMul","hDiv","tAdd","tSub","hAdd","hSub","chainAdd","chainMul"];
- const type=types[ri(0,types.length-1)];let text,answer,ex,audit={type:"roundNumbers",variant:type};
- if(type==="tMul"){const units=ri(2,9),k=ri(2,5),a=units*10;answer=a*k;text=`<b>${a} · ${k}</b> = ?`;ex=`${units} дес. · ${k} = ${units*k} дес. = <b>${answer}</b>.`;audit={...audit,a,k,answer}}
- else if(type==="tDiv"){const k=ri(2,5),q=ri(1,Math.floor(9/k)||1)*10,a=q*k;answer=q;text=`<b>${a} : ${k}</b> = ?`;ex=`${a/10} дес. : ${k} = ${answer/10} дес. = <b>${answer}</b>.`;audit={...audit,a,k,answer}}
- else if(type==="hMul"){const units=ri(1,Math.floor(9/2)),k=ri(2,Math.min(4,Math.floor(9/units)||2)),a=units*100;answer=a*k;text=`<b>${a} · ${k}</b> = ?`;ex=`${units} сот. · ${k} = ${units*k} сот. = <b>${answer}</b>.`;audit={...audit,a,k,answer}}
- else if(type==="hDiv"){const k=ri(2,4),q=ri(1,Math.floor(9/k)||1)*100,a=q*k;answer=q;text=`<b>${a} : ${k}</b> = ?`;ex=`${a/100} сот. : ${k} = ${answer/100} сот. = <b>${answer}</b>.`;audit={...audit,a,k,answer}}
- else if(type==="tAdd"){const a=ri(1,7)*10,b=ri(1,9-Math.floor(a/10))*10;answer=a+b;text=`<b>${a} + ${b}</b> = ?`;ex=`${a/10} дес. + ${b/10} дес. = ${(a+b)/10} дес. = <b>${answer}</b>.`;audit={...audit,a,b,answer}}
- else if(type==="tSub"){const a=ri(3,9)*10,b=ri(1,Math.floor(a/10)-1)*10;answer=a-b;text=`<b>${a} − ${b}</b> = ?`;ex=`${a/10} дес. − ${b/10} дес. = ${(a-b)/10} дес. = <b>${answer}</b>.`;audit={...audit,a,b,answer}}
- else if(type==="hAdd"){const au=ri(1,7),bu=ri(1,9-au),a=au*100,b=bu*100;answer=a+b;text=`<b>${a} + ${b}</b> = ?`;ex=`${au} сот. + ${bu} сот. = ${au+bu} сот. = <b>${answer}</b>.`;audit={...audit,a,b,answer}}
- else if(type==="hSub"){const au=ri(3,9),bu=ri(1,au-1),a=au*100,b=bu*100;answer=a-b;text=`<b>${a} − ${b}</b> = ?`;ex=`${au} сот. − ${bu} сот. = ${au-bu} сот. = <b>${answer}</b>.`;audit={...audit,a,b,answer}}
- else if(type==="chainAdd"){const a=ri(2,6)*100,b=ri(1,Math.max(1,8-a/100))*100,c=ri(1,Math.min(3,(a+b)/100-1))*100;answer=a+b-c;text=`<b>${a} + ${b} − ${c}</b> = ?`;ex=`Сначала ${a} + ${b} = ${a+b}.<br>Потом ${a+b} − ${c} = <b>${answer}</b>.`;audit={...audit,a,b,c,answer}}
- else {const a=ri(2,4)*10,k=ri(2,Math.floor(9/(a/10))),c=ri(1,9)*10;answer=a*k+c;text=`<b>${a} · ${k} + ${c}</b> = ?`;ex=`Сначала ${a} · ${k} = ${a*k}.<br>Потом ${a*k} + ${c} = <b>${answer}</b>.`;audit={...audit,a,k,c,answer}}
+const G3_ROUND_VARIANTS=[
+ ["tAdd","tSub","hAdd","hSub"],
+ ["tMul","tDiv","hMul","hDiv"],
+ ["hChain","mixed","dualMul","missing"]
+];
+function g3RoundNumberQuestionData(stage,slot=null){
+ const d=Math.max(0,Math.min(2,Number(stage)||0)),variants=G3_ROUND_VARIANTS[d];
+ const type=slot===null?g6RandomFrom(variants):variants[((slot%variants.length)+variants.length)%variants.length];
+ let text,answer,ex,audit={type:"roundNumbers",variant:type};
+ if(type==="tAdd"||type==="tSub"||type==="hAdd"||type==="hSub"){
+  const factor=type[0]==="t"?10:100,au=type.endsWith("Add")?ri(1,7):ri(3,9);
+  const bu=type.endsWith("Add")?ri(1,9-au):ri(1,au-1),a=au*factor,b=bu*factor,plus=type.endsWith("Add");
+  answer=plus?a+b:a-b;
+  text="Вычисли: <b>"+a+(plus?" + ":" − ")+b+"</b> = ?";
+  const unit=factor===10?"дес.":"сот.";
+  ex=au+" "+unit+(plus?" + ":" − ")+bu+" "+unit+" = "+(plus?au+bu:au-bu)+" "+unit+" = <b>"+answer+"</b>.";
+  audit={...audit,a,b,answer};
+ }else if(type==="tMul"||type==="hMul"){
+  const factor=type==="tMul"?10:100,units=ri(1,factor===10?9:4),k=ri(2,factor===10?9:Math.floor(9/units)),a=units*factor;
+  answer=a*k;text="Умножь: <b>"+a+" · "+k+"</b> = ?";
+  ex=units+" "+(factor===10?"дес.":"сот.")+" · "+k+" = "+(units*k)+" "+(factor===10?"дес.":"сот.")+" = <b>"+answer+"</b>.";
+  audit={...audit,a,k,answer};
+ }else if(type==="tDiv"||type==="hDiv"){
+  const factor=type==="tDiv"?10:100,k=ri(2,9),qUnits=ri(1,Math.floor(9/k)),a=qUnits*k*factor;
+  answer=qUnits*factor;text="Раздели: <b>"+a+" : "+k+"</b> = ?";
+  ex=(qUnits*k)+" "+(factor===10?"дес.":"сот.")+" : "+k+" = "+qUnits+" "+(factor===10?"дес.":"сот.")+" = <b>"+answer+"</b>.";
+  audit={...audit,a,k,answer};
+ }else if(type==="hChain"){
+  const au=ri(3,8),bu=ri(1,au-1),cu=ri(1,Math.min(2,au-bu)),a=au*100,b=bu*100,c=cu*100;
+  answer=a-b+c;text="Вычисли по порядку: <b>"+a+" − "+b+" + "+c+"</b> = ?";
+  ex="Сначала "+a+" − "+b+" = "+(a-b)+".<br>Затем "+(a-b)+" + "+c+" = <b>"+answer+"</b>.";
+  audit={...audit,a,b,c,answer};
+ }else if(type==="mixed"){
+  const a=ri(3,8)*100,b=ri(2,9)*10,c=ri(1,Math.min(3,b/10))*10;
+  answer=a+b-c;text="Вычисли: <b>"+a+" + "+b+" − "+c+"</b> = ?";
+  ex="Сначала "+a+" + "+b+" = "+(a+b)+".<br>Затем "+(a+b)+" − "+c+" = <b>"+answer+"</b>.";
+  audit={...audit,a,b,c,answer};
+ }else if(type==="dualMul"){
+  const a=ri(2,5)*10,k=ri(2,4),b=ri(2,5)*10,h=ri(2,4);
+  answer=a*k+b*h;
+  text="Найди сумму двух произведений: <b>"+a+" · "+k+" + "+b+" · "+h+"</b> = ?";
+  ex=a+" · "+k+" = "+(a*k)+"; "+b+" · "+h+" = "+(b*h)+".<br>"+(a*k)+" + "+(b*h)+" = <b>"+answer+"</b>.";
+  audit={...audit,a,b,k,h,answer};
+ }else{
+  const au=ri(3,8),bu=ri(1,au-1),a=au*100,b=bu*100,c=ri(1,6)*10;
+  answer=a-b-c;
+  text="Найди неизвестное число: <b>□ + "+c+" = "+a+" − "+b+"</b>";
+  ex="Правая часть: "+a+" − "+b+" = "+(a-b)+".<br>Неизвестное число: "+(a-b)+" − "+c+" = <b>"+answer+"</b>.";
+  audit={...audit,a,b,c,answer};
+ }
  return {text,answer,ex,audit};
 }
 function g3UnitNumberQuestion(dimension,text,value,from,to,ex,sig,audit={}){
@@ -6935,7 +6971,9 @@ function makeG3Question(id,stageOverride=null){
   return g3OfftableDivideQuestion(d,live?blockSession.done:null);
  }
  if(raw==="round_numbers"){
-  const data=g3RoundNumberQuestionData(d);return g6NumberInputQuestion(data.text,data.answer,data.ex,`g3:${raw}:${d}:${data.audit.variant}:${Object.values(data.audit).slice(1,-1).join(":")}`,{audit:{...data.audit,answer:rational(data.answer,1)}});
+  const live=stageOverride===null&&blockSession?.kind==="g3quiz"&&blockSession.key==="g3:round_numbers";
+  const data=g3RoundNumberQuestionData(d,live?blockSession.done:null);
+  return g6NumberInputQuestion(data.text,data.answer,data.ex,"g3:round_numbers:"+d+":"+data.audit.variant+":"+Object.entries(data.audit).filter(([key])=>key!=="type"&&key!=="variant"&&key!=="answer").map(([,v])=>v).join(":"),{inputHint:"Введи целое число.",audit:{...data.audit,answer:rational(data.answer,1)}});
  }
  if(raw==="zero_one"){
   const simple=d<2||Math.random()<.68,types=["mulOneR","mulOneL","mulZeroR","mulZeroL","divOne","selfDiv","zeroDiv"],variant=simple?g6RandomFrom(d===0?["mulOneR","mulZeroR","divOne","zeroDiv"]:types):g6RandomFrom(["exprMulOne","exprMulZero","exprSelfDiv"]),a=ri(1,d===0?20:d===1?150:500),b=ri(1,9);let text,answer,ex,audit={type:"g3ZeroOne",variant,a,b};
