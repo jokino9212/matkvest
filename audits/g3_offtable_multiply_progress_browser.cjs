@@ -14,7 +14,7 @@ const {pathToFileURL}=require("node:url");
    while(loops++<30){
     const question=q;
     variants.add(question.audit.variant);
-    if(question.answerMode==="choice"){
+    if(!question.answerMode||question.answerMode==="choice"||(question.choices||[]).length){
      const idx=question.choices.findIndex(x=>String(x.key)===String(question.ans));
      if(idx<0)throw Error("Missing correct choice");
      pick(idx);
