@@ -1,0 +1,23 @@
+name: Grade 3 written addition complete audit
+on:
+  push:
+    branches: [audit/g1-g4-content-v195]
+    paths:
+      - .github/workflows/g3-written-add-once.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare Chromium
+        run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Check independently 10800 column additions
+        run: node audits/g3_written_add_generator_browser.cjs
+      - name: Verify 5-7-10 completion, wrong digits, and saved progress
+        run: node audits/g3_written_add_progress_browser.cjs
