@@ -1,0 +1,33 @@
+name: Grade 3 zero one audit and patch
+on:
+  push:
+    branches: [audit/g1-g4-content-v195]
+    paths:
+      - .github/workflows/g3-zero-one-once.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  patch-verify-commit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply zero/one scope-only generator patch
+        run: python3 audits/g3_zero_one_patch.py
+      - name: Prepare Chromium
+        run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Independently verify 14400 generated questions
+        run: node audits/g3_zero_one_browser.cjs
+      - name: Verify three stages and F5 persistence
+        run: node audits/g3_zero_one_progress_browser.cjs
+      - name: Commit after successful regression
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- index.html
+          git commit -m 'Diversify Grade 3 zero and one operations (verified)'
+          git push origin HEAD:audit/g1-g4-content-v195
