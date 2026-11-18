@@ -1155,7 +1155,7 @@ body:has(.mk872-help-layer){overflow:hidden}
 .g2-info-algorithm-step b{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:#e8f6ef;color:#176443}
 .g2-info-algorithm-step span{font-weight:850;color:#365247;overflow-wrap:anywhere}
 .g2-info-table-title{text-align:center;margin:4px 0 7px;font-weight:900;color:#49665a}
-@media(max-width:520px){.g2-info-sequence{gap:6px;padding:9px}.g2-info-seq-item{min-width:46px;padding:10px 8px;font-size:21px}.g2-info-algorithm{padding:9px}.g2-info-algorithm-step{padding:9px 8px}}
+@media(max-width:520px){.g2-info-sequence{gap:5px;padding:8px;flex-wrap:nowrap}.g2-info-seq-item{min-width:0;flex:0 1 46px;padding:10px 4px;font-size:20px}.g2-info-algorithm{padding:9px}.g2-info-algorithm-step{padding:9px 8px}}
 
 /* =========================================================
    ЭТАП 8.54 — CHECKPOINT B: главная страница
@@ -19867,7 +19867,8 @@ function openG2Topic(id){
   "g2:operations_100":G2_OPERATIONS_100_STAGES,
   "g2:word_problems":G2_WORD_PROBLEM_STAGES,
   "g2:geometric_figures":G2_FIGURES_STAGES,
-  "g2:geometric_quantities":G2_GEOMETRIC_QUANTITIES_STAGES
+  "g2:geometric_quantities":G2_GEOMETRIC_QUANTITIES_STAGES,
+  "g2:math_information":G2_MATH_INFORMATION_STAGES
  })[t.id]||[];
  const descriptions=stages.map(stage=>stage.description);
  show(`<div class="mtop"><h2>2 класс • ${esc(t.title)}</h2><button class="x" onclick="closeModal()">×</button></div><div class="lesson elementary-lesson">${g2TheoryHtml(t.id)}</div><div class="stage-grid">${stageCards(t.id,`startG2QuizStage.bind(null,'${t.id}')`,descriptions)}</div><div class="subtle">Пройдено этапов: <b>${done}/3</b>.</div>`)
@@ -20635,82 +20636,128 @@ g2TheoryHtml=function(id){
    ========================================================= */
 const MATKVEST_STAGE845_VERSION="8.45";
 const TARGET_STAGE845_IDS=["g2:math_information"];
-const G2_INFO_LABEL_SETS_845=[
- ["Книги","Тетради","Альбомы"],
- ["Карандаши","Ручки","Ластики"],
- ["Понедельник","Вторник","Среда"],
- ["Яблоки","Груши","Сливы"]
+const G2_MATH_INFORMATION_STAGES=[
+ {templates:["table_read","pattern_next"],description:"Прочитай таблицу или продолжи числовой ряд."},
+ {templates:["table_calculate","pattern_rule"],description:"Найди сумму или разность по таблице. Определи правило ряда или заполни пропуск."},
+ {templates:["table_reasoning","algorithm"],description:"Восстанови ячейку, проверь утверждение по таблице или выполни алгоритм."}
 ];
-function g2InfoLabels845(){return [...G2_INFO_LABEL_SETS_845[ri(0,G2_INFO_LABEL_SETS_845.length-1)]]}
-function g2InfoRows845(){
- const labels=g2InfoLabels845(),a=ri(6,24),b=ri(6,24),c=ri(6,24);
- let vals=[a,b,c];
- if(new Set(vals).size<3){vals=[8,15,23].map(x=>x+ri(0,3))}
- return labels.map((label,i)=>({label,value:vals[i]}))
+const G2_INFO_TABLES=[
+ {labels:["Книги","Тетради","Альбомы"],title:"Школьная выставка",leftHeader:"Предмет"},
+ {labels:["Карандаши","Ручки","Ластики"],title:"Канцтовары",leftHeader:"Предмет"},
+ {labels:["Понедельник","Вторник","Среда"],title:"Решённые задачи по дням",leftHeader:"День"},
+ {labels:["Яблоки","Груши","Сливы"],title:"Фрукты в корзине",leftHeader:"Фрукты"}
+];
+const G2_INFO_PATTERN_STEPS=[2,5,10];
+
+function g2InfoTableModel(){
+ const {labels,title,leftHeader}=g2PickTemplate(G2_INFO_TABLES);
+ const values=shuffleOptions(Array.from({length:19},(_,i)=>i+6));
+ return {title,leftHeader,rows:labels.map((label,i)=>({label,value:values[i]}))};
 }
 function g2InfoTableVisualHtml(data){
  const rows=Array.isArray(data?.rows)?data.rows:[],title=data?.title||"Данные",missing=String(data?.missingLabel||"");
- return `<div class="g1-simple-table-wrap" role="group" aria-label="Таблица с данными"><div class="g2-info-table-title">${esc(title)}</div><table class="g1-simple-table"><thead><tr><th>${esc(data?.leftHeader||"Категория")}</th><th>${esc(data?.rightHeader||"Количество")}</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${esc(r.label)}</td><td>${String(r.label)===missing?'<span class="g1-table-missing">?</span>':esc(String(r.value))}</td></tr>`).join("")}</tbody></table></div>`
+ const body=rows.map(r=>`<tr><th scope="row">${esc(r.label)}</th><td>${r.label===missing?'<span class="g1-table-missing">?</span>':esc(String(r.value))}</td></tr>`).join("");
+ const footer=data?.total==null?"":`<tfoot><tr><th scope="row">Всего</th><td>${esc(String(data.total))}</td></tr></tfoot>`;
+ return `<div class="g1-simple-table-wrap"><table class="g1-simple-table"><caption class="g2-info-table-title">${esc(title)}</caption><thead><tr><th scope="col">${esc(data?.leftHeader||"Категория")}</th><th scope="col">${esc(data?.rightHeader||"Количество")}</th></tr></thead><tbody>${body}</tbody>${footer}</table></div>`;
 }
 function g2InfoSequenceVisualHtml(data){
  const shown=Array.isArray(data?.shown)?data.shown:[];
- return `<div class="g2-info-sequence" role="img" aria-label="Числовая закономерность">${shown.map(v=>`<span class="g2-info-seq-item ${v===null?"missing":""}">${v===null?"?":esc(String(v))}</span>`).join("")}</div>`
+ const description=shown.map(value=>value===null?"пропуск":value).join(", ");
+ return `<div class="g2-info-sequence" role="img" aria-label="Числовой ряд: ${esc(description)}">${shown.map(v=>`<span class="g2-info-seq-item ${v===null?"missing":""}">${v===null?"?":esc(String(v))}</span>`).join("")}</div>`;
 }
 function g2InfoAlgorithmVisualHtml(data){
  const steps=Array.isArray(data?.steps)?data.steps:[];
- return `<div class="g2-info-algorithm" role="group" aria-label="Алгоритм из нескольких шагов">${steps.map((x,i)=>`<div class="g2-info-algorithm-step"><b>${i+1}</b><span>${esc(String(x))}</span></div>`).join("")}</div>`
+ return `<div class="g2-info-algorithm" role="group" aria-label="Алгоритм из нескольких шагов">${steps.map((x,i)=>`<div class="g2-info-algorithm-step"><b>${i+1}</b><span>${esc(String(x))}</span></div>`).join("")}</div>`;
 }
-function g2InfoNumWrongs845(answer,min=0,max=100){return g2UniqueNums(Number(answer),Number(min),Number(max))}
-function g2InfoPattern845(kind=null){
- const step=kind||[2,5,10][ri(0,2)],descending=ri(0,3)===0;
- if(descending){const end=ri(4,7),start=Math.min(100,step*end+ri(0,step-1)),shown=Array.from({length:5},(_,i)=>start-step*i);return {start,step:-step,values:shown}}
- const start=ri(0,Math.max(0,100-step*5)),values=Array.from({length:5},(_,i)=>start+step*i);return {start,step,values}
+function g2InfoPattern(){
+ const size=g2PickTemplate(G2_INFO_PATTERN_STEPS),ascending=ri(0,1)===0;
+ const base=ri(0,100-4*size),step=ascending?size:-size,start=ascending?base:base+4*size;
+ return {step,values:Array.from({length:5},(_,i)=>start+step*i)};
 }
-function g2InfoRuleLabel845(step){return step>0?`Прибавлять ${step}`:`Вычитать ${Math.abs(step)}`}
-function g2InfoAlgorithmModel845(){
- const start=ri(10,65),op1=ri(0,1)?ri(4,15):-ri(3,9),mid=start+op1;
- let op2=ri(0,1)?ri(3,12):-ri(3,9),result=mid+op2;
- if(mid<0||mid>100||result<0||result>100){op2=5;result=mid+5}
- if(result>100){op2=-5;result=mid-5}
- return {start,op1,op2,mid,result}
+function g2InfoRuleLabel(step){
+ return step>0?`Прибавлять ${step}`:`Вычитать ${Math.abs(step)}`;
 }
-function g2InfoOpText845(delta){return delta>=0?`прибавь ${delta}`:`вычти ${Math.abs(delta)}`}
-function g2MathInformationQuestion(d,forcedTemplate=null){
- const warm=["table_find_category","table_compare","pattern_next"],train=["table_find_category","table_compare","table_sum","table_difference","pattern_next","pattern_rule","correct_statement"],master=["table_compare","table_sum","table_difference","pattern_next","pattern_missing","pattern_rule","correct_statement","algorithm_result"],templateId=forcedTemplate||g2PickTemplate(d===0?warm:d===1?train:master);
- if(templateId==="table_find_category"){
-  const rows=g2InfoRows845(),target=rows[ri(0,2)],model={given:{rows},target:{kind:"category_for_value",value:target.value},derived:{answer:target.label}};
-  return g2Choice(`В какой строке таблицы стоит число <b>${target.value}</b>?`,target.label,rows.map(r=>r.label).filter(x=>x!==target.label),`Число ${target.value} стоит в строке «${target.label}».`,`g2:math_information:${d}:table_find_category:${rows.map(r=>r.label+r.value).join("-")}:${target.value}`,{model,visual:{type:"g2InfoTable",data:{rows,title:"Таблица данных"}},templateId})
+function g2InfoAlgorithmQuestion(sig,templateId){
+ const number=ri(0,100);
+ const delta=value=>{
+  const add=value===0||(value<100&&ri(0,1)===0);
+  return add?ri(1,Math.min(15,100-value)):-ri(1,Math.min(15,value));
+ };
+ const first=delta(number),mid=number+first,second=delta(mid),result=mid+second;
+ const hidden=ri(0,2),magnitudes=[Math.abs(first),Math.abs(second)];
+ const goal=hidden===0?"Какое число получится после всех шагов?":`После всех шагов получилось ${result}. Какое число пропущено в алгоритме?`;
+ const steps=[`Начни с числа ${number}.`,...[first,second].map((op,i)=>`${op>0?"Прибавь":"Вычти"} ${hidden===i+1?"?":magnitudes[i]}.`)];
+ const answer=hidden===0?result:magnitudes[hidden-1];
+ const solution=`${number} ${first>0?"+":"−"} ${magnitudes[0]} = ${mid}, затем ${mid} ${second>0?"+":"−"} ${magnitudes[1]} = ${result}.`;
+ const explanation=hidden===1?`Перед последним шагом должно быть ${result} ${second>0?"−":"+"} ${magnitudes[1]} = ${mid}. Разность между ${number} и ${mid} равна ${answer}.`:
+  hidden===2?`После первого действия получается ${mid}. Разность между ${mid} и ${result} равна ${answer}.`:solution;
+ return g2NumberInput(goal,answer,explanation,sig(`${number}:${first}:${second}:${hidden}`),{
+  templateId,model:{steps,result,hidden},visual:{type:"g2InfoAlgorithm",data:{steps}}
+ });
+}
+
+function g2MathInformationQuestion(d){
+ const templateId=g2PickTemplate(G2_MATH_INFORMATION_STAGES[d].templates);
+ const sig=key=>`g2:math_information:${d}:${templateId}:${key}`;
+ if(templateId==="algorithm")return g2InfoAlgorithmQuestion(sig,templateId);
+ if(templateId==="pattern_next"||templateId==="pattern_rule"){
+  const {values,step}=g2InfoPattern(),isNext=templateId==="pattern_next";
+  const rule=g2InfoRuleLabel(step);
+  const gap=isNext?4:ri(0,1)===0?ri(1,3):-1;
+  const shown=values.map((value,i)=>i===gap?null:value);
+  const visual={type:"g2InfoSequence",data:{shown}},options={templateId,model:{shown},visual};
+  const key=sig(shown.map(value=>value===null?"?":value).join(":"));
+  if(isNext)return g2Choice("Какое число будет следующим, если шаг ряда остаётся тем же?",values[4],g2UniqueNums(values[4],0,100),
+   `Правило ряда — ${rule.toLowerCase()}. Последнее число в ряду — ${values[4]}.`,key,options);
+  if(gap>=1)return g2NumberInput("Какое число пропущено внутри ряда с постоянным шагом?",values[gap],
+   `Правило ряда — ${rule.toLowerCase()}. Число на месте пропуска — ${values[gap]}.`,key,options);
+  const wrong=[-step,...G2_INFO_PATTERN_STEPS.filter(size=>size!==Math.abs(step)).map(size=>Math.sign(step)*size)].map(g2InfoRuleLabel);
+  return g2Choice("По какому правилу изменяются числа в ряду?",rule,wrong,`На каждом шаге нужно ${rule.toLowerCase()}.`,key,options);
  }
- if(templateId==="table_compare"){
-  const rows=g2InfoRows845(),more=ri(0,1)===1,sorted=[...rows].sort((a,b)=>a.value-b.value),target=more?sorted[2]:sorted[0],model={given:{rows},target:{kind:more?"largest":"smallest"},derived:{answer:target.label}};
-  return g2Choice(more?"В какой строке самое большое число?":"В какой строке самое маленькое число?",target.label,rows.map(r=>r.label).filter(x=>x!==target.label),`${target.label}: ${target.value}. Это ${more?"самое большое":"самое маленькое"} число в таблице.`,`g2:math_information:${d}:table_compare:${more?"max":"min"}:${rows.map(r=>r.label+r.value).join("-")}`,{model,visual:{type:"g2InfoTable",data:{rows,title:"Сравни данные"}},templateId})
+ const model=g2InfoTableModel(),{rows}=model,target=g2PickTemplate(rows);
+ const visual=data=>({type:"g2InfoTable",data}),options={templateId,model,visual:visual(model)};
+ const key=rows.map(({label,value})=>`${label}:${value}`).join(":");
+ if(templateId==="table_read"){
+  const mode=ri(0,3),names=rows.map(row=>row.label);
+  if(mode===0){
+   return g2Choice(`Какое число стоит в строке «${target.label}»?`,target.value,rows.filter(row=>row!==target).map(row=>row.value),
+    `В указанной строке записано ${target.value}.`,sig(`${key}:value:${target.label}`),options);
+  }
+  if(mode===1){
+   return g2Choice(`В какой строке стоит число ${target.value}?`,target.label,names.filter(name=>name!==target.label),
+    `Число ${target.value} записано в строке «${target.label}».`,sig(`${key}:row:${target.label}`),options);
+  }
+  const extreme=mode===2?Math.min(...rows.map(row=>row.value)):Math.max(...rows.map(row=>row.value));
+  const answer=rows.find(row=>row.value===extreme).label;
+  return g2Choice(`В какой строке стоит ${mode===2?"самое маленькое":"самое большое"} число?`,answer,names.filter(name=>name!==answer),
+   `Число ${extreme} записано в строке «${answer}».`,sig(`${key}:extreme:${mode}`),options);
  }
- if(templateId==="table_sum"){
-  const rows=g2InfoRows845(),i=ri(0,1),j=i+1,answer=rows[i].value+rows[j].value,model={given:{rows,labels:[rows[i].label,rows[j].label]},target:{kind:"sum"},derived:{answer}};
-  return g2NumberInput(`Сколько всего, если сложить числа в строках «${rows[i].label}» и «${rows[j].label}»?`,answer,`${rows[i].value} + ${rows[j].value} = ${answer}.`,`g2:math_information:${d}:table_sum:${rows.map(r=>r.label+r.value).join("-")}:${i}:${j}`,{model,visual:{type:"g2InfoTable",data:{rows,title:"Данные для вычисления"}},templateId,inputHint:"Введи сумму."})
+ const [hi,lo]=shuffleOptions(rows).slice(0,2).sort((a,b)=>b.value-a.value);
+ const pairSum=hi.value+lo.value,difference=hi.value-lo.value;
+ if(templateId==="table_calculate"){
+  const add=ri(0,1)===0,answer=add?pairSum:difference;
+  const text=add?`Чему равна сумма чисел в строках «${hi.label}» и «${lo.label}»?`:`На сколько число в строке «${hi.label}» больше, чем в строке «${lo.label}»?`;
+  return g2NumberInput(text,answer,`${hi.value} ${add?"+":"−"} ${lo.value} = ${answer}.`,
+   sig(`${key}:${hi.label}:${lo.label}:${add}`),options);
  }
- if(templateId==="table_difference"){
-  const rows=g2InfoRows845(),pair=shuffleOptions(rows.map((r,i)=>({label:String(i),key:String(i)}))).slice(0,2).map(x=>rows[Number(x.key)]),hi=pair[0].value>=pair[1].value?pair[0]:pair[1],lo=hi===pair[0]?pair[1]:pair[0],answer=hi.value-lo.value,model={given:{rows,labels:[hi.label,lo.label]},target:{kind:"difference"},derived:{answer}};
-  return g2NumberInput(`На сколько число в строке «${hi.label}» больше, чем в строке «${lo.label}»?`,answer,`${hi.value} − ${lo.value} = ${answer}.`,`g2:math_information:${d}:table_difference:${rows.map(r=>r.label+r.value).join("-")}:${hi.label}:${lo.label}`,{model,visual:{type:"g2InfoTable",data:{rows,title:"Сравни данные"}},templateId,inputHint:"Введи разность."})
+ const total=rows.reduce((sum,row)=>sum+row.value,0);
+ if(ri(0,1)===0){
+  const known=rows.filter(row=>row!==target).map(row=>row.value);
+  const data={...model,rows:rows.map(row=>row===target?{label:row.label}:row),missingLabel:target.label,total};
+  return g2NumberInput(`Какое число должно стоять в пустой ячейке строки «${target.label}»?`,target.value,
+   `Из итога вычитаем два известных значения: ${total} − ${known[0]} − ${known[1]} = ${target.value}.`,
+   sig(`${key}:missing:${target.label}`),{templateId,model:data,visual:visual(data)});
  }
- if(templateId==="pattern_next"){
-  const p=g2InfoPattern845(),shown=p.values.slice(0,4),answer=p.values[4],model={given:{shown,step:p.step},target:{kind:"next"},derived:{answer}};
-  return g2Choice("Какое число продолжит закономерность?",answer,g2InfoNumWrongs845(answer,0,100),`Каждый раз нужно ${p.step>0?"прибавлять":"вычитать"} ${Math.abs(p.step)}. Следующее число — ${answer}.`,`g2:math_information:${d}:pattern_next:${shown.join("-")}:${p.step}`,{model,visual:{type:"g2InfoSequence",data:{shown}},templateId})
- }
- if(templateId==="pattern_missing"){
-  const p=g2InfoPattern845(),idx=ri(1,3),answer=p.values[idx],shown=p.values.map((v,i)=>i===idx?null:v),model={given:{shown,step:p.step,missingIndex:idx},target:{kind:"missing"},derived:{answer}};
-  return g2Choice("Какое число пропущено?",answer,g2InfoNumWrongs845(answer,0,100),`Шаг закономерности — ${p.step>0?"+":"−"}${Math.abs(p.step)}. Пропущено число ${answer}.`,`g2:math_information:${d}:pattern_missing:${shown.map(v=>v===null?"?":v).join("-")}:${p.step}`,{model,visual:{type:"g2InfoSequence",data:{shown}},templateId})
- }
- if(templateId==="pattern_rule"){
-  const p=g2InfoPattern845(),shown=p.values.slice(0,4),correct=g2InfoRuleLabel845(p.step),alts=[2,5,10,-2,-5,-10].filter(x=>x!==p.step).map(g2InfoRuleLabel845),model={given:{shown},target:{kind:"rule"},derived:{step:p.step,answer:correct}};
-  return g2Choice("По какому правилу построена закономерность?",correct,alts,`От числа к числу нужно ${p.step>0?"прибавлять":"вычитать"} ${Math.abs(p.step)}.`,`g2:math_information:${d}:pattern_rule:${shown.join("-")}:${p.step}`,{model,visual:{type:"g2InfoSequence",data:{shown}},templateId})
- }
- if(templateId==="correct_statement"){
-  const rows=g2InfoRows845(),target=rows[ri(0,2)],others=rows.filter(r=>r!==target),correct=`${target.label}: ${target.value}`,wrong=[`${target.label}: ${Math.min(100,target.value+1)}`,`${others[0].label}: ${target.value}`,`${others[1].label}: ${Math.max(0,others[1].value-1)}`],model={given:{rows},target:{kind:"true_statement"},derived:{answer:correct}};
-  return g2Choice("Какая запись соответствует таблице?",correct,wrong,`В таблице в строке «${target.label}» стоит ${target.value}.`,`g2:math_information:${d}:correct_statement:${rows.map(r=>r.label+r.value).join("-")}:${target.label}`,{model,visual:{type:"g2InfoTable",data:{rows,title:"Проверь утверждения"}},templateId})
- }
- const a=g2InfoAlgorithmModel845(),steps=[`Начни с числа ${a.start}.`,`${g2InfoOpText845(a.op1)}.`,`${g2InfoOpText845(a.op2)}.`],answer=a.result,model={given:{start:a.start,op1:a.op1,op2:a.op2,steps},target:{kind:"algorithm_result"},derived:{mid:a.mid,answer}};
- return g2NumberInput("Какое число получится после всех шагов?",answer,`Сначала: ${a.start} ${a.op1>=0?"+":"−"} ${Math.abs(a.op1)} = ${a.mid}. Потом: ${a.mid} ${a.op2>=0?"+":"−"} ${Math.abs(a.op2)} = ${answer}.`,`g2:math_information:${d}:algorithm_result:${a.start}:${a.op1}:${a.op2}`,{model,visual:{type:"g2InfoAlgorithm",data:{steps}},templateId:"algorithm_result",inputHint:"Введи конечное число."})
+ const assertions=[
+  [`Сумма трёх значений — ${total}.`,`Сумма трёх значений — ${total+1}.`],
+  [`Сумма чисел в строках «${hi.label}» и «${lo.label}» — ${pairSum}.`,`Сумма чисел в строках «${hi.label}» и «${lo.label}» — ${pairSum+1}.`],
+  [`В строке «${hi.label}» на ${difference} больше, чем в строке «${lo.label}».`,`В строке «${hi.label}» на ${difference+1} больше, чем в строке «${lo.label}».`],
+  [`В строке «${hi.label}» больше, чем в строке «${lo.label}».`,`В строке «${lo.label}» больше, чем в строке «${hi.label}».`]
+ ];
+ const correct=g2PickTemplate(assertions),answer=correct[0],wrong=assertions.filter(row=>row!==correct).map(row=>row[1]);
+ const shownValues=rows.map(({label,value})=>`«${label}» — ${value}`).join(", ");
+ return g2Choice("Какое утверждение верно по данным таблицы?",answer,wrong,`${shownValues}. Поэтому верно: ${answer}`,
+  sig(`${key}:assertion:${hi.label}:${lo.label}:${answer}`),options);
 }
 
 const PRE845_QUIZ_VISUAL_HTML=quizVisualHtml;
@@ -20802,7 +20849,7 @@ g2TheoryHtml=function(id){
  }
  else if(raw==="math_information"){
   const demoRows=[{label:"Книги",value:12},{label:"Тетради",value:18},{label:"Альбомы",value:9}],pattern=[20,25,30,35],steps=["Начни с числа 24.","Прибавь 10.","Вычти 4."];
-  html=`<div class="elementary-theory"><p><b>По числам в таблице или ряду можно быстро найти нужные данные и заметить порядок.</b></p><div class="g2-theory-block"><h3>Прочитай таблицу</h3>${g2InfoTableVisualHtml({rows:demoRows,title:"Школьные принадлежности"})}<p>Сначала найди нужную строку, потом прочитай число рядом.</p><div class="elementary-example">Тетрадей больше, чем книг, потому что <b>18 &gt; 12</b>.</div></div><div class="g2-theory-block"><h3>Найди правило</h3>${g2InfoSequenceVisualHtml({shown:pattern})}<p>Здесь каждый раз прибавляют 5. Такой повторяющийся порядок называют <b>закономерностью</b>.</p></div><div class="g2-theory-block"><h3>Делай по шагам</h3>${g2InfoAlgorithmVisualHtml({steps})}<p>Сначала выполни первый шаг, затем следующий. Такой порядок команд называют <b>алгоритмом</b>.</p><div class="elementary-example">24 + 10 = 34, затем 34 − 4 = 30.</div></div><div class="elementary-example"><b>Короткое правило:</b> найди данные → пойми правило → выполняй шаги по порядку.</div></div>`
+  html=`<div class="elementary-theory"><p><b>По числам в таблице или ряду можно быстро найти нужные данные и заметить порядок.</b></p><div class="g2-theory-block"><h3>Прочитай таблицу</h3>${g2InfoTableVisualHtml({rows:demoRows,title:"Школьные принадлежности"})}<p>Сначала найди нужную строку, потом прочитай число рядом.</p><div class="elementary-example">Тетрадей больше, чем книг, потому что <b>18 &gt; 12</b>.</div></div><div class="g2-theory-block"><h3>Найди правило</h3>${g2InfoSequenceVisualHtml({shown:pattern})}<p>Здесь каждый раз прибавляют 5. Такой повторяющийся порядок называют <b>закономерностью</b>.</p></div><div class="g2-theory-block"><h3>Делай по шагам</h3>${g2InfoAlgorithmVisualHtml({steps})}<p>Сначала выполни первый шаг, затем следующий. Такой порядок команд называют <b>алгоритмом</b>.</p><div class="elementary-example">24 + 10 = 34, затем 34 − 4 = 30.</div></div><div class="g2-theory-block"><h3>Восстанови значение по итогу</h3><p>Если в трёх строках вместе 30, а в двух из них указаны 8 и 12, вычти известные числа: <b>30 − 8 − 12 = 10</b>.</p></div><div class="elementary-example"><b>Короткое правило:</b> найди данные → пойми правило → выполняй шаги по порядку.</div></div>`
  }
  else html=PRE846_G2_THEORY_HTML(id);
  return g2SchoolText846(html)
