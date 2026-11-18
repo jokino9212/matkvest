@@ -4,6 +4,7 @@ on:
     branches: [audit/g1-g4-content-v195]
     paths:
       - .github/workflows/g3-offtable-progress-once.yml
+      - audits/g3_offtable_multiply_progress_browser.cjs
   workflow_dispatch:
 permissions:
   contents: read
