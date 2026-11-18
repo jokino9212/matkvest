@@ -19,7 +19,7 @@ const assert=require("node:assert/strict");
     else if(v==="zeroDiv")expected=0;
     else if(v==="check"){
      expected=a.shown===a.expected?"Верно":"Неверно";choices.add(expected);
-     if(q.answerMode!=="choice")throw Error("No choice");
+     if((q.choices||[]).length!==2)throw Error("No two-choice control");
     }
     else if(v==="oneSum"||v==="missing")expected=a.a+a.b;
     else if(v==="zeroBrackets")expected=a.c;
