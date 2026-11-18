@@ -5489,6 +5489,68 @@ function g3ZeroOneQuestion(stage,slot=null){
   a+":"+b,{a,b});
 }
 
+const G3_REMAINDER_VARIANTS=[
+ ["numeric","check"],
+ ["apples","pencils","books"],
+ ["giveAway","receive","join"]
+];
+function g3RemainderQuestion(stage,slot=null){
+ const d=Math.max(0,Math.min(2,Number(stage)||0)),variants=G3_REMAINDER_VARIANTS[d];
+ const v=slot===null?g6RandomFrom(variants):variants[((slot%variants.length)+variants.length)%variants.length];
+ const divisor=ri(2,9),quotient=ri(d===0?2:3,d===0?9:d===1?15:25),
+  remainder=ri(1,divisor-1),dividend=divisor*quotient+remainder;
+ const sig=(extra="")=>"g3:division_remainder:"+d+":"+v+":"+dividend+":"+divisor+":"+extra;
+ const base=divisor+" · "+quotient+" = "+(divisor*quotient)+".<br>"+
+   dividend+" − "+(divisor*quotient)+" = "+remainder+".<br>"+
+   "Проверка: "+dividend+" = "+divisor+" · "+quotient+" + "+remainder+
+   ", причём "+remainder+" < "+divisor+".";
+ const remainderQuestion=(text,ex,extra="",data={})=>{
+  const q=g3RemainderInputQuestion(dividend,divisor,quotient,remainder,ex,sig(extra),
+   {stage:d,variant:v,...data});
+  if(text)q.text=text;
+  return q;
+ };
+ if(v==="numeric")return remainderQuestion(null,base);
+ if(v==="check"){
+  const right=ri(0,1)===0,wrongPlace=ri(0,1),shownQ=right||wrongPlace===1?quotient:quotient+1,
+   shownR=right||wrongPlace===0?remainder:remainder+1;
+  return g6ChoiceQuestion("Верно ли деление <b>"+dividend+" : "+divisor+
+   " = "+shownQ+" (ост. "+shownR+")</b>?",
+   right?"Верно":"Неверно",["Верно","Неверно"],base,sig(shownQ+":"+shownR),
+   {type:"g3Remainder",stage:d,variant:v,dividend,divisor,quotient,remainder,shownQ,shownR,right});
+ }
+ if(d===1){
+  const text=v==="apples"?
+   g3Qty(dividend,"apple")+" раскладывают по "+g3Qty(divisor,"apple")+" в пакет. Сколько полных пакетов получится и сколько яблок останется?":
+   v==="pencils"?
+   g3Qty(dividend,"pencil")+" раскладывают по "+g3Qty(divisor,"pencil")+" в коробку. Сколько полных коробок получится и сколько карандашей останется?":
+   "Есть "+g3Qty(dividend,"book")+". Их раскладывают в стопки по "+g3Qty(divisor,"book")+". Сколько полных стопок получится и сколько книг останется?";
+  return remainderQuestion(text,base);
+ }
+ if(v==="giveAway"){
+  const taken=ri(3,12),total=dividend+taken;
+  return remainderQuestion("Было "+g3Qty(total,"pencil")+". "+g3Qty(taken,"pencil")+
+   " отдали. Остальные раскладывают по "+g3Qty(divisor,"pencil")+
+   " в коробку. Сколько полных коробок получится и сколько карандашей останется?",
+   "После выдачи осталось "+total+" − "+taken+" = "+dividend+".<br>"+base,
+   total+":"+taken,{total,taken});
+ }
+ if(v==="receive"){
+  const added=ri(3,Math.min(15,dividend-1)),start=dividend-added;
+  return remainderQuestion("Было "+g3Qty(start,"pencil")+". Принесли ещё "+g3Qty(added,"pencil")+
+   ". Все карандаши раскладывают по "+g3Qty(divisor,"pencil")+
+   " в коробку. Сколько полных коробок получится и сколько карандашей останется?",
+   "Всего стало "+start+" + "+added+" = "+dividend+".<br>"+base,
+   start+":"+added,{start,added});
+ }
+ const first=ri(2,dividend-2),second=dividend-first;
+ return remainderQuestion("В первой партии "+g3Qty(first,"book")+", во второй — "+g3Qty(second,"book")+
+  ". Все книги раскладывают в стопки по "+g3Qty(divisor,"book")+
+  ". Сколько полных стопок получится и сколько книг останется?",
+  "Сначала сложим партии: "+first+" + "+second+" = "+dividend+".<br>"+base,
+  first+":"+second,{first,second});
+}
+
 function g3UnitNumberQuestion(dimension,text,value,from,to,ex,sig,audit={}){
  const answer=g3UnitExact(dimension,value,from,to);if(answer.d!==1)throw new Error("Для 3 класса ожидался целый результат");return g6NumberInputQuestion(text,answer,ex,sig,{unitSuffix:to,inputHint:"Введите только число — единица уже указана рядом с полем.",audit:{type:"g3Unit",dimension,value,from,to,answer,...audit}});
 }
@@ -6986,19 +7048,8 @@ function makeG3Question(id,stageOverride=null){
  if(raw==="part_of_quantity")return g3PartOfQuantityQuestion(d);
 
  if(raw==="division_remainder"){
-  const divisor=ri(2,9),qv=ri(d===0?2:3,d===0?9:d===1?15:25),rem=ri(1,divisor-1),dividend=divisor*qv+rem;
-  const base=`${divisor} · ${qv} = ${divisor*qv}.<br>${dividend} − ${divisor*qv} = ${rem}.<br>Проверка: ${dividend} = ${divisor} · ${qv} + ${rem}, причём ${rem} меньше ${divisor}.`;
-  if(d===0)return g3RemainderInputQuestion(dividend,divisor,qv,rem,`${base}<br>Ответ: <b>${qv} (ост. ${rem})</b>.`,`g3:${raw}:${d}:numeric:${dividend}:${divisor}`,{stage:d,variant:"numeric"});
-  if(d===1){
-   const apples=Math.random()<.5,variant=apples?"packApples":"packPencils";
-   const question=g3RemainderInputQuestion(dividend,divisor,qv,rem,`${base}<br>Получилось <b>${qv} полных упаковок</b>, осталось <b>${rem}</b>.`,`g3:${raw}:${d}:${variant}:${dividend}:${divisor}`,{stage:d,variant});
-   question.text=apples?`${g3Qty(dividend,"apple")} раскладывают по ${g3Qty(divisor,"apple")} в пакет. Сколько полных пакетов получится и сколько яблок останется?`:`${g3Qty(dividend,"pencil")} раскладывают по ${g3Qty(divisor,"pencil")} в коробку. Сколько полных коробок получится и сколько карандашей останется?`;
-   return question;
-  }
-  const taken=ri(3,12),total=dividend+taken,variant="subtractThenDivide";
-  const question=g3RemainderInputQuestion(dividend,divisor,qv,rem,`Сначала найдём, сколько осталось после выдачи: ${total} − ${taken} = ${dividend}.<br>Делим оставшиеся по ${divisor}.<br>${base}<br>Ответ: <b>${qv} полных коробок, ${rem} карандашей осталось</b>.`,`g3:${raw}:${d}:${variant}:${total}:${taken}:${divisor}`,{stage:d,variant,total,taken});
-  question.text=`Было ${g3Qty(total,"pencil")}. ${g3Qty(taken,"pencil")} отдали. Остальные раскладывают по ${g3Qty(divisor,"pencil")} в коробку. Сколько полных коробок получится и сколько карандашей останется?`;
-  return question;
+  const live=stageOverride===null&&blockSession?.kind==="g3quiz"&&blockSession.key==="g3:division_remainder";
+  return g3RemainderQuestion(d,live?blockSession.done:null);
  }
  if(raw==="properties"){const variants=d===0?["commAdd","commMul"]:d===1?["commAdd","commMul","assocAdd","assocMul"]:["assocAdd","assocMul","convenientAdd","convenientMul"],v=g6RandomFrom(variants);let text,answer,ex,audit={type:"g3Properties",variant:v};if(v==="commAdd"){const a=ri(10,80),b=ri(2,40);answer=a;text=`${a} + ${b} = ${b} + □`;ex=`При перестановке слагаемых сумма не меняется. Значит □ = <b>${a}</b>.`;audit={...audit,a,b,answer}}else if(v==="commMul"){const a=ri(2,9),b=ri(2,9);answer=a;text=`${a} · ${b} = ${b} · □`;ex=`При перестановке множителей произведение не меняется. Значит □ = <b>${a}</b>.`;audit={...audit,a,b,answer}}else if(v==="assocAdd"){const a=ri(10,40),b=ri(10,40),c=100-b;answer=a+b+c;text=`(${a} + ${b}) + ${c}`;ex=`Можно перегруппировать: ${a} + (${b} + ${c}) = ${a} + 100 = <b>${answer}</b>.`;audit={...audit,a,b,c,answer}}else if(v==="assocMul"){const a=g6RandomFrom([2,5]),b=ri(2,9),c=a===2?5:2;answer=a*b*c;text=`${a} · ${b} · ${c}`;ex=`Удобно сначала ${a} · ${c} = 10, затем 10 · ${b} = <b>${answer}</b>.`;audit={...audit,a,b,c,answer}}else if(v==="convenientAdd"){const a=g6RandomFrom([25,35,45,55,65,75]),c=100-a,b=ri(10,89);answer=a+b+c;text=`${a} + ${b} + ${c}`;ex=`Удобно сложить ${a} + ${c} = 100, затем 100 + ${b} = <b>${answer}</b>.`;audit={...audit,a,b,c,answer}}else{const a=g6RandomFrom([2,5]),c=a===2?5:2,b=ri(2,9);answer=a*b*c;text=`${a} · ${b} · ${c}`;ex=`Удобно сгруппировать ${a} · ${c} = 10, затем 10 · ${b} = <b>${answer}</b>.`;audit={...audit,a,b,c,answer}}return g6NumberInputQuestion(`Вычислите удобным способом: <b>${text}</b>.`,answer,ex,`g3:${raw}:${d}:${v}:${Object.values(audit).slice(2).join(":")}`,{audit})}
  if(raw==="unknown_component")return g3UnknownQuestion(d);
