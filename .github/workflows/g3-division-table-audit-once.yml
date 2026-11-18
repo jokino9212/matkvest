@@ -160,6 +160,7 @@ jobs:
           Aijtw7HXuCjAY+V1m+FYrH1MiaZ/cJgdp20/hBBGFzdfJQJx+G9IqjVxCKaDxjochPTvajQm/sUF
           7pwkokEslwYm+x6YpcvsOqr6vwHjLcymWDcAAA==
           CHECK
+          sed -i "s/filter({hasText:'Табличное деление'})});/filter({hasText:'Табличное деление'})}).first();/" .g3-division-check.cjs
           python3 "$RUNNER_TEMP/g3-division-patch.py"
           G3_DIVISION_BASELINE="$RUNNER_TEMP/g3-division-before.html" node ".g3-division-check.cjs"
       - name: Commit verified revision
