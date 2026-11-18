@@ -1,0 +1,33 @@
+name: Grade 3 remainder division audit and patch
+on:
+  push:
+    branches: [audit/g1-g4-content-v195]
+    paths:
+      - .github/workflows/g3-remainder-once.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  patch-verify-commit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply grade 3 remainder-division patch
+        run: python3 audits/g3_remainder_patch.py
+      - name: Install browser testing runtime
+        run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Independently check 9600 quotients and remainders
+        run: node audits/g3_remainder_browser.cjs
+      - name: Verify 5-7-10 lessons, wrong remainder and save after F5
+        run: node audits/g3_remainder_progress_browser.cjs
+      - name: Commit if browser checks succeed
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- index.html
+          git commit -m 'Diversify Grade 3 remainder division stages (verified)'
+          git push origin HEAD:audit/g1-g4-content-v195
