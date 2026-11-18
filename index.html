@@ -5551,6 +5551,55 @@ function g3RemainderQuestion(stage,slot=null){
   first+":"+second,{first,second});
 }
 
+const G3_PROPERTIES_VARIANTS=[
+ ["commAdd","commMul"],
+ ["assocAdd","assocMul"],
+ ["addGroup","mulGroup","pairGroups"]
+];
+function g3PropertiesQuestion(stage,slot=null){
+ const d=Math.max(0,Math.min(2,Number(stage)||0)),variants=G3_PROPERTIES_VARIANTS[d],
+  v=slot===null?g6RandomFrom(variants):variants[((slot%variants.length)+variants.length)%variants.length];
+ const input=(text,answer,ex,key,extra={})=>g6NumberInputQuestion(text,answer,ex,
+  "g3:properties:"+d+":"+v+":"+key,
+  {inputHint:"Введи целое число.",audit:{type:"g3Properties",variant:v,...extra,answer:rational(answer,1)}});
+ if(v==="commAdd"||v==="commMul"){
+  const a=ri(2,90),b=ri(2,9),mul=v==="commMul";
+  const sign=mul?" · ":" + ";
+  return input("Найди пропущенное число: <b>"+a+sign+b+" = "+b+sign+"□</b>",
+   a,"Переместительное свойство: "+a+sign+b+" = "+b+sign+"<b>"+a+"</b>.",
+   a+":"+b,{a,b});
+ }
+ if(v==="assocAdd"){
+  const a=ri(10,80),b=ri(10,90),c=100-b,answer=a+b+c;
+  return input("Вычисли удобным способом: <b>("+a+" + "+b+") + "+c+"</b> = ?",
+   answer,"Объедини слагаемые "+b+" и "+c+": "+b+" + "+c+" = 100.<br>"+a+" + 100 = <b>"+answer+"</b>.",
+   a+":"+b+":"+c,{a,b,c});
+ }
+ if(v==="assocMul"){
+  const a=g6RandomFrom([2,5]),b=ri(2,9),c=10/a,answer=a*b*c;
+  return input("Вычисли удобным способом: <b>("+a+" · "+b+") · "+c+"</b> = ?",
+   answer,"Перегруппируем множители: ("+a+" · "+c+") · "+b+" = 10 · "+b+" = <b>"+answer+"</b>.",
+   a+":"+b+":"+c,{a,b,c});
+ }
+ if(v==="addGroup"){
+  const a=ri(20,90),b=ri(15,85),c=100-b,d=ri(11,80),answer=a+b+c-d;
+  return input("Сначала найди удобную пару: <b>"+a+" + "+b+" + "+c+" − "+d+"</b> = ?",
+   answer,b+" + "+c+" = 100.<br>"+a+" + 100 − "+d+" = <b>"+answer+"</b>.",
+   a+":"+b+":"+c+":"+d,{a,b,c,d});
+ }
+ if(v==="mulGroup"){
+  const a=g6RandomFrom([2,5]),b=ri(2,9),c=10/a,d=ri(11,59),answer=a*b*c+d;
+  return input("Вычисли: <b>"+a+" · "+b+" · "+c+" + "+d+"</b> = ?",
+   answer,"Сначала "+a+" · "+c+" = 10, затем 10 · "+b+" = "+(10*b)+
+   ".<br>"+(10*b)+" + "+d+" = <b>"+answer+"</b>.",
+   a+":"+b+":"+c+":"+d,{a,b,c,d});
+ }
+ const a=ri(2,9),b=ri(2,9),answer=10*a+10*b;
+ return input("Вычисли, перегруппировав множители: <b>2 · "+a+" · 5 + 5 · "+b+" · 2</b> = ?",
+  answer,"2 · 5 = 10 и 5 · 2 = 10.<br>10 · "+a+" + 10 · "+b+" = <b>"+answer+"</b>.",
+  a+":"+b,{a,b});
+}
+
 function g3UnitNumberQuestion(dimension,text,value,from,to,ex,sig,audit={}){
  const answer=g3UnitExact(dimension,value,from,to);if(answer.d!==1)throw new Error("Для 3 класса ожидался целый результат");return g6NumberInputQuestion(text,answer,ex,sig,{unitSuffix:to,inputHint:"Введите только число — единица уже указана рядом с полем.",audit:{type:"g3Unit",dimension,value,from,to,answer,...audit}});
 }
@@ -7051,7 +7100,10 @@ function makeG3Question(id,stageOverride=null){
   const live=stageOverride===null&&blockSession?.kind==="g3quiz"&&blockSession.key==="g3:division_remainder";
   return g3RemainderQuestion(d,live?blockSession.done:null);
  }
- if(raw==="properties"){const variants=d===0?["commAdd","commMul"]:d===1?["commAdd","commMul","assocAdd","assocMul"]:["assocAdd","assocMul","convenientAdd","convenientMul"],v=g6RandomFrom(variants);let text,answer,ex,audit={type:"g3Properties",variant:v};if(v==="commAdd"){const a=ri(10,80),b=ri(2,40);answer=a;text=`${a} + ${b} = ${b} + □`;ex=`При перестановке слагаемых сумма не меняется. Значит □ = <b>${a}</b>.`;audit={...audit,a,b,answer}}else if(v==="commMul"){const a=ri(2,9),b=ri(2,9);answer=a;text=`${a} · ${b} = ${b} · □`;ex=`При перестановке множителей произведение не меняется. Значит □ = <b>${a}</b>.`;audit={...audit,a,b,answer}}else if(v==="assocAdd"){const a=ri(10,40),b=ri(10,40),c=100-b;answer=a+b+c;text=`(${a} + ${b}) + ${c}`;ex=`Можно перегруппировать: ${a} + (${b} + ${c}) = ${a} + 100 = <b>${answer}</b>.`;audit={...audit,a,b,c,answer}}else if(v==="assocMul"){const a=g6RandomFrom([2,5]),b=ri(2,9),c=a===2?5:2;answer=a*b*c;text=`${a} · ${b} · ${c}`;ex=`Удобно сначала ${a} · ${c} = 10, затем 10 · ${b} = <b>${answer}</b>.`;audit={...audit,a,b,c,answer}}else if(v==="convenientAdd"){const a=g6RandomFrom([25,35,45,55,65,75]),c=100-a,b=ri(10,89);answer=a+b+c;text=`${a} + ${b} + ${c}`;ex=`Удобно сложить ${a} + ${c} = 100, затем 100 + ${b} = <b>${answer}</b>.`;audit={...audit,a,b,c,answer}}else{const a=g6RandomFrom([2,5]),c=a===2?5:2,b=ri(2,9);answer=a*b*c;text=`${a} · ${b} · ${c}`;ex=`Удобно сгруппировать ${a} · ${c} = 10, затем 10 · ${b} = <b>${answer}</b>.`;audit={...audit,a,b,c,answer}}return g6NumberInputQuestion(`Вычислите удобным способом: <b>${text}</b>.`,answer,ex,`g3:${raw}:${d}:${v}:${Object.values(audit).slice(2).join(":")}`,{audit})}
+ if(raw==="properties"){
+  const live=stageOverride===null&&blockSession?.kind==="g3quiz"&&blockSession.key==="g3:properties";
+  return g3PropertiesQuestion(d,live?blockSession.done:null);
+ }
  if(raw==="unknown_component")return g3UnknownQuestion(d);
  if(raw==="order_operations")return g3OrderQuestion(d);
  if(raw==="quantity_operations")return g3QuantityQuestion(d);
