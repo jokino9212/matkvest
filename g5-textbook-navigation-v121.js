@@ -330,6 +330,7 @@ const grade7Sections={
 };
 
 const layouts={
+ 1:{...window.grade1Textbook,card:'.elementary-topic',group:'.g1-textbook-group',open:id=>openG1Topic(id)},
  4:{...window.grade4Textbook,card:'.g4-textbook-card',group:'.g4-textbook-group',open:id=>openTopic(rawCourseId(id))},
  5:{chapters,catalog:g5AllTopics,card:'.g5-card',group:'.g5-group',open:id=>openG5Topic(id)},
  6:{chapters:grade6Chapters,catalog:g6AllTopics,card:'.g6-card',group:'.g6-group',open:id=>openG6Topic(id)},
@@ -547,7 +548,7 @@ function mount(grade){
   let count=0;
   const terms=query.split(' ').filter(Boolean),matchingTopics=new Set();
   for(const row of rows){
-   const show=!isGrade5&&/^\d+$/.test(query)?row.number===Number(query):terms.every(term=>/^\d+$/.test(term)&&hasSubjects?row.number===Number(term):row.searchable.includes(term));
+   const show=grade>1&&!isGrade5&&/^\d+$/.test(query)?row.number===Number(query):terms.every(term=>/^\d+$/.test(term)&&hasSubjects?row.number===Number(term):row.searchable.includes(term));
    if(show)for(const id of row.ids)matchingTopics.add(id);
    row.element.hidden=!show;
    if(show)count++;
@@ -633,6 +634,12 @@ function mount(grade){
  menuObserver.observe(host,{subtree:true,childList:true});
  if(isGrade5)window.mkG5TextbookNavigation={total:rows.length,missing:issues,chapters:details.length,volumes:parts.size,version:121,refreshSearch:bindUpperSearch};
 }
+const previousElementaryGrade=renderElementaryGrade;
+renderElementaryGrade=function(grade){
+ const result=previousElementaryGrade(grade);
+ if(Number(grade)===1)mount(1);
+ return result;
+};
 const previousGrade4=renderGrade4,previousGrade5=renderGrade5,previousGrade6=renderGrade6,previousGrade7=renderGrade7,previousGrade8=renderGrade8;
 renderGrade4=function(...args){const result=previousGrade4(...args);mount(4);return result};
 renderGrade5=function(...args){const result=previousGrade5(...args);mount(5);return result};
