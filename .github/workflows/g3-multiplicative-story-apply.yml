@@ -1,0 +1,119 @@
+name: Apply verified Grade 3 multiplicative word problem audit
+on:
+  push:
+    branches: [audit/g1-g4-content-v195]
+    paths: [.github/workflows/g3-multiplicative-story-apply.yml]
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply and verify tested files
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD^)" = "6a39557b4d86f9382d9616ad4420e154c10a0260"
+          patch_file="$RUNNER_TEMP/matkvest.patch"
+          cat > "$patch_file" <<'MATKVEST_PATCH'
+          diff --git a/audits/g1_g4_content_audit_2026-11-17.md b/audits/g1_g4_content_audit_2026-11-17.md
+          index 8cbfeb1..f791e34 100644
+          --- a/audits/g1_g4_content_audit_2026-11-17.md
+          +++ b/audits/g1_g4_content_audit_2026-11-17.md
+          @@ -1469 +1469,16 @@
+           - Контрольная точка: исходные дефекты зафиксированы. Следующий шаг — исправить пересечения уровней и проверить правильность ответов, прохождение и F5.
+          +
+          +**После правок.** Разминка — прямое кратное сравнение в обе стороны. Тренировка — выбор двух нужных величин из трёх. Мастер — сравнение после добавления, изъятия или распределения поровну. Шаблоны цикла покрываются в одной попытке каждого уровня. Поле просит целое число.
+          +
+          +- В Chromium исходные пересечения воспроизведены: 254, 238 и 443. После правок независимо решены 9 600 задач по тексту условий. Проверены частные, промежуточные равенства и отсутствие одинаковых условий между уровнями.
+          +- На ширинах 320, 390 и 1280 px пройдены 12 попыток и отправлен 81 правильный ответ. Ошибочный ввод отклонён, исправление принято. После F5 остаются результаты [5,0,0], [5,7,0] и [5,7,10], три бонуса и 27 записей истории на профиль.
+          +- На 390 px на каждом из трёх уровней F5 и кнопка «Продолжить» восстановили ID попытки, счётчик и второй вопрос. Последующие ответы засчитались до завершения уровня.
+          +
+          +Следующая тема 3-го класса — «Больше/меньше на… и в…» (`g3:increase_decrease_tasks`).
+          +
+          +### 2026-11-19. Больше/меньше на… и в… (`g3:increase_decrease_tasks`)
+          +
+          +**До правок.** В Chromium проверено по 1 200 задач на уровень (зерно 19502).
+          +
+          +- Все уровни используют одинаковые четыре одношаговых шаблона. Тренировка и мастер совпадают также по диапазонам чисел. Между разминкой и тренировкой совпало 89 уникальных условий, между разминкой и мастером — 88, между тренировкой и мастером — 122.
+          +- Формы выбираются случайно. Нет обратных задач и задач, в которых нужно последовательно применить разностное и кратное отношения. Целочисленный ответ сопровождается подсказкой о десятичной дроби.
+          diff --git a/index.html b/index.html
+          index cebf5dd..9d6157d 100644
+          --- a/index.html
+          +++ b/index.html
+          @@ -6019,3 +6019,53 @@ function g3DifferenceStoryQuestion(d,slot=null){
+           }
+          -function g3MultiplicativeStoryQuestion(d){const small=ri(2,d===0?8:12),k=ri(2,d===0?5:9),large=small*k,larger=Math.random()<.5,item=g3StoryItem(),text=larger?`В первой группе ${g3Qty(small,item)}, а во второй ${g3Qty(large,item)}. Во сколько раз во второй группе больше?`:`В первой группе ${g3Qty(small,item)}, а во второй ${g3Qty(large,item)}. Во сколько раз в первой группе меньше?`;return g3StoryNumberQuestion(text,k,`Для кратного сравнения делим большее число на меньшее: ${large} : ${small} = <b>${k}</b>.`,`g3:multiplicative_compare_tasks:${d}:${larger?"more":"less"}:${small}:${large}`,{small,large,multiplier:k,direction:larger?"more":"less"})}
+          +function g3MultiplicativeStoryQuestion(d,slot=null){
+          + const variants=[["more","less"],["days","shelves"],["afterAdd","afterTake","groups"]][d];
+          + const variant=slot===null?g6RandomFrom(variants):variants[slot%variants.length];
+          + const item=g3StoryItem(),small=ri(2,d===0?8:9),factor=ri(2,d===0?5:9),large=small*factor;
+          + const input=(story,left,right,step="")=>g6NumberInputQuestion(
+          +  `<span class="g3-story">${story}</span>`,left/right,
+          +  `${step}Делим большее количество на меньшее: ${left} : ${right} = <b>${left/right}</b>.`,
+          +  `g3:multiplicative_compare_tasks:${d}:${variant}:${story}`,
+          +  {inputHint:"Введи целое число.",audit:{type:"g3StoryNumber",variant}}
+          + );
+          + if(d===0){
+          +  const first=g3StoryName(),second=g3StoryName(first),more=variant==="more";
+          +  return input(
+          +   `У ${first} ${g3Qty(more?large:small,item)}, у ${second} — ${g3Qty(more?small:large,item)}. Во сколько раз у ${first} ${more?"больше":"меньше"}, чем у ${second}?`,
+          +   large,small
+          +  );
+          + }
+          + if(variant==="days"){
+          +  const monday=ri(small+1,large-1);
+          +  return input(
+          +   `В понедельник вернули ${g3Qty(monday,"book")}, во вторник — ${g3Qty(large,"book")}, в среду — ${g3Qty(small,"book")}. Во сколько раз больше книг вернули во вторник, чем в среду?`,
+          +   large,small,"Сравниваем число книг во вторник и в среду. "
+          +  );
+          + }
+          + if(variant==="shelves"){
+          +  const middle=ri(small+1,large-1);
+          +  return input(
+          +   `На первой полке ${g3Qty(small,"toy")}, на второй — ${g3Qty(middle,"toy")}, на третьей — ${g3Qty(large,"toy")}. Во сколько раз меньше игрушек на первой полке, чем на третьей?`,
+          +   large,small,"Сравниваем число игрушек на первой и третьей полках. "
+          +  );
+          + }
+          + if(variant==="afterAdd"){
+          +  const added=ri(1,small-1),before=large-added;
+          +  return input(
+          +   `В первой коробке было ${g3Qty(before,"pencil")}, во второй — ${g3Qty(small,"pencil")}. В первую положили ещё ${g3Qty(added,"pencil")}. Во сколько раз теперь в первой коробке больше карандашей, чем во второй?`,
+          +   large,small,`В первой коробке стало ${before} + ${added} = ${large} (карандашей).<br>`
+          +  );
+          + }
+          + if(variant==="afterTake"){
+          +  const removed=ri(1,small-1),before=small+removed;
+          +  return input(
+          +   `В первой корзине было ${g3Qty(large,"apple")}, во второй — ${g3Qty(before,"apple")}. Из второй корзины взяли ${g3Qty(removed,"apple")}. Во сколько раз теперь во второй корзине меньше яблок, чем в первой?`,
+          +   large,small,`Во второй корзине осталось ${before} − ${removed} = ${small} (яблок).<br>`
+          +  );
+          + }
+          + const boxes=ri(2,7),total=large*boxes;
+          + return input(
+          +  `${g3Qty(total,"candy")} разложили поровну в ${g3Qty(boxes,"box")}. В пакете лежат ${g3Qty(small,"candy")}. Во сколько раз в одной коробке больше конфет, чем в пакете?`,
+          +  large,small,`В одной коробке ${total} : ${boxes} = ${large} (конфет).<br>`
+          + );
+          +}
+           function g3IncreaseDecreaseStoryQuestion(d){const variant=g6RandomFrom(["moreBy","lessBy","moreTimes","lessTimes"]),item=g3StoryItem(),base=ri(3,d===0?15:30),k=variant.includes("Times")?ri(2,d===0?5:8):ri(2,d===0?10:20);let first,answer,text,op;if(variant==="moreBy"){first=base;answer=base+k;op="+";text=`У Ани ${g3Qty(base,item)}. У Маши на ${k} больше. Сколько у Маши?`}else if(variant==="lessBy"){answer=base;first=base+k;op="−";text=`У Ани ${g3Qty(first,item)}. У Маши на ${k} меньше. Сколько у Маши?`}else if(variant==="moreTimes"){first=base;answer=base*k;op="·";text=`У Ани ${g3Qty(base,item)}. У Маши в ${k} ${ruTimes(k)} больше. Сколько у Маши?`}else{answer=base;first=base*k;op=":";text=`У Ани ${g3Qty(first,item)}. У Маши в ${k} ${ruTimes(k)} меньше. Сколько у Маши?`}return g3StoryNumberQuestion(text,answer,`Фраза «${variant==="moreBy"?"на несколько больше":variant==="lessBy"?"на несколько меньше":variant==="moreTimes"?"в несколько раз больше":"в несколько раз меньше"}» означает действие <b>${op}</b>.<br>${first} ${op} ${k} = <b>${answer}</b>.`,`g3:increase_decrease_tasks:${d}:${variant}:${first}:${k}`,{variant,source:first,k,answer})}
+          @@ -7375,3 +7425,6 @@ function makeG3Question(id,stageOverride=null){
+            }
+          - if(raw==="multiplicative_compare_tasks")return g3MultiplicativeStoryQuestion(d);
+          + if(raw==="multiplicative_compare_tasks"){
+          +  const live=stageOverride===null&&blockSession?.kind==="g3quiz"&&blockSession.key==="g3:multiplicative_compare_tasks";
+          +  return g3MultiplicativeStoryQuestion(d,live?blockSession.done:null);
+          + }
+            if(raw==="increase_decrease_tasks")return g3IncreaseDecreaseStoryQuestion(d);
+          MATKVEST_PATCH
+          git apply --check "$patch_file"
+          git apply "$patch_file"
+          test "$(git hash-object index.html)" = "9d6157dba2e52fbc5841a10ccd3110b454f1e052"
+          test "$(git hash-object audits/g1_g4_content_audit_2026-11-17.md)" = "f791e34bc5cd00c1ef9779c17abe8053f0bcba4d"
+          git diff --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- index.html audits/g1_g4_content_audit_2026-11-17.md
+          git rm -- .github/workflows/g3-multiplicative-story-apply.yml
+          git commit -m 'Audit Grade 3 multiplicative comparison word problems'
+          git push origin HEAD:refs/heads/audit/g1-g4-content-v195
