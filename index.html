@@ -6017,7 +6017,57 @@ function g3DifferenceStoryQuestion(d,slot=null){
   moved,`Разность равна ${first} − ${small} = ${2*moved}. При перекладывании одного яблока разность уменьшается на два.<br>Поэтому перекладываем ${2*moved} : 2 = <b>${moved}</b>.`
  );
 }
-function g3MultiplicativeStoryQuestion(d){const small=ri(2,d===0?8:12),k=ri(2,d===0?5:9),large=small*k,larger=Math.random()<.5,item=g3StoryItem(),text=larger?`В первой группе ${g3Qty(small,item)}, а во второй ${g3Qty(large,item)}. Во сколько раз во второй группе больше?`:`В первой группе ${g3Qty(small,item)}, а во второй ${g3Qty(large,item)}. Во сколько раз в первой группе меньше?`;return g3StoryNumberQuestion(text,k,`Для кратного сравнения делим большее число на меньшее: ${large} : ${small} = <b>${k}</b>.`,`g3:multiplicative_compare_tasks:${d}:${larger?"more":"less"}:${small}:${large}`,{small,large,multiplier:k,direction:larger?"more":"less"})}
+function g3MultiplicativeStoryQuestion(d,slot=null){
+ const variants=[["more","less"],["days","shelves"],["afterAdd","afterTake","groups"]][d];
+ const variant=slot===null?g6RandomFrom(variants):variants[slot%variants.length];
+ const item=g3StoryItem(),small=ri(2,d===0?8:9),factor=ri(2,d===0?5:9),large=small*factor;
+ const input=(story,left,right,step="")=>g6NumberInputQuestion(
+  `<span class="g3-story">${story}</span>`,left/right,
+  `${step}Делим большее количество на меньшее: ${left} : ${right} = <b>${left/right}</b>.`,
+  `g3:multiplicative_compare_tasks:${d}:${variant}:${story}`,
+  {inputHint:"Введи целое число.",audit:{type:"g3StoryNumber",variant}}
+ );
+ if(d===0){
+  const first=g3StoryName(),second=g3StoryName(first),more=variant==="more";
+  return input(
+   `У ${first} ${g3Qty(more?large:small,item)}, у ${second} — ${g3Qty(more?small:large,item)}. Во сколько раз у ${first} ${more?"больше":"меньше"}, чем у ${second}?`,
+   large,small
+  );
+ }
+ if(variant==="days"){
+  const monday=ri(small+1,large-1);
+  return input(
+   `В понедельник вернули ${g3Qty(monday,"book")}, во вторник — ${g3Qty(large,"book")}, в среду — ${g3Qty(small,"book")}. Во сколько раз больше книг вернули во вторник, чем в среду?`,
+   large,small,"Сравниваем число книг во вторник и в среду. "
+  );
+ }
+ if(variant==="shelves"){
+  const middle=ri(small+1,large-1);
+  return input(
+   `На первой полке ${g3Qty(small,"toy")}, на второй — ${g3Qty(middle,"toy")}, на третьей — ${g3Qty(large,"toy")}. Во сколько раз меньше игрушек на первой полке, чем на третьей?`,
+   large,small,"Сравниваем число игрушек на первой и третьей полках. "
+  );
+ }
+ if(variant==="afterAdd"){
+  const added=ri(1,small-1),before=large-added;
+  return input(
+   `В первой коробке было ${g3Qty(before,"pencil")}, во второй — ${g3Qty(small,"pencil")}. В первую положили ещё ${g3Qty(added,"pencil")}. Во сколько раз теперь в первой коробке больше карандашей, чем во второй?`,
+   large,small,`В первой коробке стало ${before} + ${added} = ${large} (карандашей).<br>`
+  );
+ }
+ if(variant==="afterTake"){
+  const removed=ri(1,small-1),before=small+removed;
+  return input(
+   `В первой корзине было ${g3Qty(large,"apple")}, во второй — ${g3Qty(before,"apple")}. Из второй корзины взяли ${g3Qty(removed,"apple")}. Во сколько раз теперь во второй корзине меньше яблок, чем в первой?`,
+   large,small,`Во второй корзине осталось ${before} − ${removed} = ${small} (яблок).<br>`
+  );
+ }
+ const boxes=ri(2,7),total=large*boxes;
+ return input(
+  `${g3Qty(total,"candy")} разложили поровну в ${g3Qty(boxes,"box")}. В пакете лежат ${g3Qty(small,"candy")}. Во сколько раз в одной коробке больше конфет, чем в пакете?`,
+  large,small,`В одной коробке ${total} : ${boxes} = ${large} (конфет).<br>`
+ );
+}
 function g3IncreaseDecreaseStoryQuestion(d){const variant=g6RandomFrom(["moreBy","lessBy","moreTimes","lessTimes"]),item=g3StoryItem(),base=ri(3,d===0?15:30),k=variant.includes("Times")?ri(2,d===0?5:8):ri(2,d===0?10:20);let first,answer,text,op;if(variant==="moreBy"){first=base;answer=base+k;op="+";text=`У Ани ${g3Qty(base,item)}. У Маши на ${k} больше. Сколько у Маши?`}else if(variant==="lessBy"){answer=base;first=base+k;op="−";text=`У Ани ${g3Qty(first,item)}. У Маши на ${k} меньше. Сколько у Маши?`}else if(variant==="moreTimes"){first=base;answer=base*k;op="·";text=`У Ани ${g3Qty(base,item)}. У Маши в ${k} ${ruTimes(k)} больше. Сколько у Маши?`}else{answer=base;first=base*k;op=":";text=`У Ани ${g3Qty(first,item)}. У Маши в ${k} ${ruTimes(k)} меньше. Сколько у Маши?`}return g3StoryNumberQuestion(text,answer,`Фраза «${variant==="moreBy"?"на несколько больше":variant==="lessBy"?"на несколько меньше":variant==="moreTimes"?"в несколько раз больше":"в несколько раз меньше"}» означает действие <b>${op}</b>.<br>${first} ${op} ${k} = <b>${answer}</b>.`,`g3:increase_decrease_tasks:${d}:${variant}:${first}:${k}`,{variant,source:first,k,answer})}
 function g3PriceQuestion(d){const variant=g6RandomFrom(d===0?["cost","cost","price"]:["cost","price","quantity"]),price=ri(3,d===0?15:25),qty=ri(2,d===0?6:9),cost=price*qty;let text,answer,unit,ex;if(variant==="cost"){text=`Одна тетрадь стоит ${price} руб. Купили ${qty} ${g3Plural(qty,["тетрадь","тетради","тетрадей"])}. Сколько заплатили?`;answer=cost;unit="руб.";ex=`Стоимость = цена · количество.<br>${price} · ${qty} = <b>${cost} руб.</b>`}else if(variant==="price"){text=`Купили ${g3Qty(qty,"notebook")} за ${cost} руб. Сколько стоит одна тетрадь?`;answer=price;unit="руб.";ex=`Цена = стоимость : количество.<br>${cost} : ${qty} = <b>${price} руб.</b>`}else{text=`Один карандаш стоит ${price} руб. На покупку потратили ${cost} руб. Сколько карандашей купили?`;answer=qty;unit="шт.";ex=`Количество = стоимость : цена.<br>${cost} : ${price} = <b>${qty}</b>.`}return g3StoryNumberQuestion(text,answer,ex,`g3:price_quantity_cost:${d}:${variant}:${price}:${qty}`,{variant,price,quantity:qty,cost},unit)}
 function g3DurationExplain847(start,end,duration){const sh=Math.floor(start/60),sm=start%60,eh=Math.floor(end/60),em=end%60;if(sh===eh)return `От ${g3TimeText(start)} до ${g3TimeText(end)} проходит ${em} − ${sm} = <b>${duration} мин</b>.`;const first=60-sm,remaining=duration-first,full=Math.floor(Math.max(0,remaining)/60)*60,last=Math.max(0,remaining-full),parts=[`${first} мин до ${String(sh+1).padStart(2,"0")}:00`];if(full)parts.push(`${full} мин полных часов`);if(last)parts.push(`${last} мин после ${String(eh).padStart(2,"0")}:00`);return `${parts.join(" + ")} = <b>${duration} мин</b>.`;}
@@ -7373,7 +7423,10 @@ function makeG3Question(id,stageOverride=null){
   const live=stageOverride===null&&blockSession?.kind==="g3quiz"&&blockSession.key==="g3:difference_compare_tasks";
   return g3DifferenceStoryQuestion(d,live?blockSession.done:null);
  }
- if(raw==="multiplicative_compare_tasks")return g3MultiplicativeStoryQuestion(d);
+ if(raw==="multiplicative_compare_tasks"){
+  const live=stageOverride===null&&blockSession?.kind==="g3quiz"&&blockSession.key==="g3:multiplicative_compare_tasks";
+  return g3MultiplicativeStoryQuestion(d,live?blockSession.done:null);
+ }
  if(raw==="increase_decrease_tasks")return g3IncreaseDecreaseStoryQuestion(d);
  if(raw==="price_quantity_cost")return g3PriceQuestion(d);
  if(raw==="time_tasks")return g3TimeStoryQuestion(d);
