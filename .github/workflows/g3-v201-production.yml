@@ -1,0 +1,76 @@
+name: Grade 3 v201 production verification
+on:
+  push:
+    branches: [verify/g3-v201-production]
+    paths: [.github/workflows/g3-v201-production.yml]
+permissions:
+  contents: read
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: a6eb08e1aeefffd09ad8c828fc9753ebd2d2de90
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install playwright
+      - name: Verify the exact public build and Grade 3 after F5
+        shell: bash
+        run: |
+          set -euo pipefail
+          base64 -d <<'CHECK' | gzip -d > "$RUNNER_TEMP/grade3.py"
+          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
+          CHECK
+          export G3_CHROME="$(command -v google-chrome || command -v chromium)"
+          export G3_URL=https://jokino9212.github.io/matkvest/
+          for attempt in {1..24}; do
+            ready=true
+            for path in index.html sw.js g3-textbook.js g5-textbook-navigation-v121.js; do
+              if ! curl -fsSL --max-time 12 -H 'Cache-Control: no-cache' "${G3_URL}${path}" -o "$RUNNER_TEMP/live-$path" || ! cmp -s "$path" "$RUNNER_TEMP/live-$path"; then
+                ready=false
+                break
+              fi
+            done
+            if "$ready"; then
+              sha256sum "$RUNNER_TEMP/live-"*
+              python "$RUNNER_TEMP/grade3.py" | tee -a "$GITHUB_STEP_SUMMARY"
+              exit
+            fi
+            sleep 5
+          done
+          echo 'Published files do not yet match the v201 commit'
+          exit 1
