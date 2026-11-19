@@ -1,0 +1,103 @@
+name: Verify quick trainers on the home page
+on:
+  push:
+    branches: [verify/quick-home-v203]
+    paths: [.github/workflows/quick-home-v203.yml]
+permissions:
+  contents: write
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Verify desktop, mobile and trainer navigation
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git checkout --detach 0aca822c7fa4a08d30adba04e0cc57053f6f4ffa
+          base64 -d <<'PATCH' | gzip -d | git apply
+          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
+          PATCH
+          git diff --check
+          python3 audits/g7_stage12_sync_pwa.py --check
+          node --check sw.js
+          npm install --no-save --no-package-lock playwright@1.56.1
+          node <<'JS'
+          const assert = require('node:assert/strict');
+          const { chromium } = require('playwright');
+          const expected = ['Счёт столбиком', 'Таблица умножения', 'Таблица сложения', 'Квадраты чисел', 'Кубы чисел'];
+          (async () => {
+            const browser = await chromium.launch({args: ['--no-sandbox']});
+            try {
+              for (const width of [320, 390, 768, 1280]) {
+                const page = await browser.newPage({viewport: {width, height: 900}});
+                const errors = [];
+                page.on('pageerror', error => errors.push(error.message));
+                await page.goto('file://' + process.cwd() + '/index.html');
+                await page.evaluate(() => renderHome());
+                const panel = page.locator('.quick-home');
+                const cards = panel.locator('.quick-card');
+                assert.deepEqual(await cards.locator('h3,strong').allTextContents(), expected);
+                const [column, multiply, addition, squares, cubes] = await Promise.all(
+                  (await cards.all()).map(card => card.boundingBox())
+                );
+                assert(column.height > addition.height);
+                assert(multiply.height > cubes.height);
+                assert.equal(squares.y, cubes.y);
+                assert(squares.x + squares.width <= cubes.x);
+                if (width <= 680) {
+                  assert.equal(column.x, multiply.x);
+                  assert.equal(column.width, multiply.width);
+                  assert(column.y + column.height <= multiply.y);
+                  assert(multiply.y + multiply.height <= addition.y);
+                  assert(addition.y + addition.height <= squares.y);
+                  assert.equal(addition.width, column.width);
+                } else {
+                  assert.equal(column.y, multiply.y);
+                  assert(column.x + column.width <= multiply.x);
+                  assert.equal(addition.y, squares.y);
+                  assert(addition.x + addition.width <= squares.x);
+                }
+                assert(await panel.evaluate(section => section.scrollWidth <= section.clientWidth));
+                assert(await panel.locator('button').evaluateAll(buttons => buttons.every(button => button.scrollWidth <= button.clientWidth + 1)));
+                const columnButton = panel.getByRole('button', {name: 'Тренироваться — Счёт столбиком'});
+                await columnButton.focus();
+                await page.keyboard.press('Enter');
+                assert.match(await page.locator('#modal h2').innerText(), /Счёт столбиком/);
+                assert.equal(await page.locator('#modal .operation-card').count(), 4);
+                await page.locator('#modal .operation-card').first().click();
+                assert.match(await page.locator('#modal h2').innerText(), /Сложение столбиком/);
+                await page.locator('#modal .stage-card:not(.locked)').first().click();
+                assert.match(await page.locator('#modal h2').innerText(), /Счёт столбиком/);
+                await page.evaluate(() => { closeModal(); renderHome(); });
+                for (const [i, key] of ['multiplication','addition','squares','cubes'].entries()) {
+                  await cards.nth(i+1).getByRole('button').click();
+                  assert.equal(await page.evaluate(() => quickTrainerId), key);
+                  assert.equal(await page.locator('.quick-hero h1').innerText(), expected[i+1]);
+                  await page.evaluate(() => startQuickTraining());
+                  assert(await page.locator('.quick-question').isVisible());
+                  await page.evaluate(() => renderHome());
+                }
+                assert.deepEqual(errors, []);
+                await page.reload();
+                await panel.waitFor();
+                assert.deepEqual(await cards.locator('h3,strong').allTextContents(), expected);
+                console.log('PASS', width, expected.join(' | '));
+                await page.close();
+              }
+            } finally {
+              await browser.close();
+            }
+          })().catch(error => { console.error(error); process.exitCode = 1; });
+          JS
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html sw.js
+          git commit -m 'Prioritize written arithmetic and multiplication on the home page'
+          git push origin HEAD:refs/heads/audit/quick-home-v203
