@@ -1,0 +1,222 @@
+name: Apply verified Grade 3 perimeter and area audits
+on:
+  push:
+    branches: [audit/g1-g4-content-v195]
+    paths: [.github/workflows/g3-perimeter-area-apply.yml]
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Apply the verified audit patch
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD^)" = "d8d1e876aff805262fec1d1322cd1d9429759ddf"
+          patch_file="$RUNNER_TEMP/matkvest.patch"
+          cat > "$patch_file" <<'MATKVEST_PATCH'
+          diff --git a/audits/g1_g4_content_audit_2026-11-17.md b/audits/g1_g4_content_audit_2026-11-17.md
+          index ae01777..ff699fd 100644
+          --- a/audits/g1_g4_content_audit_2026-11-17.md
+          +++ b/audits/g1_g4_content_audit_2026-11-17.md
+          @@ -1639 +1639,41 @@
+           - Все вопросы сводятся к прямому вычислению периметра. Нет задач на восстановление стороны и пересчёт периметра после изменения размеров.
+          +
+          +**После правок.** Разминка суммирует подписанные стороны треугольников и разных многоугольников. Тренировка использует формулы периметра для квадрата и прямоугольника. Мастер восстанавливает длину стороны или пересчитывает периметр после изменения. Схемы помещаются в SVG.
+          +
+          +- В Chromium независимо решены 9 600 условий. Длины и подписи на SVG пропорциональны, числовые равенства верны, повторов между уровнями нет.
+          +- На 320, 390 и 1280 px пройдены 12 попыток и введён 81 правильный ответ. F5 сохранил прогресс. На 390 px второй вопрос восстановился на всех трёх уровнях.
+          +
+          +Следующая тема 3-го класса — «Измерение и сравнение площади» (`g3:area_measure`).
+          +
+          +### 2026-11-19. Измерение и сравнение площади (`g3:area_measure`)
+          +
+          +**До правок.** В Chromium проверено по 1 200 задач на уровень (зерно 19502).
+          +
+          +- Тренировка частично повторяет подсчёт клеток в прямоугольнике из разминки. В вопросе о сравнении A и B называются буквы, которых нет на рисунке. Мастер выбирает дополнение и сравнение случайно.
+          +
+          +**После правок.** Тренировка переключается между Г-образной фигурой и сравнением площадей. На сравнительных рисунках подписаны фигуры A и B. На мастере чередуются дополнение фигуры и вычисление разности площадей.
+          +
+          +- В Chromium независимо проверены 9 600 задач по клеткам SVG, включая равные площади и пустой угол. Для сравнений подтверждены две подписанные фигуры. Между уровнями нет повторов с тем же рисунком.
+          +- На 320, 390 и 1280 px пройдены 12 попыток с 81 правильным ответом. После F5 остались очки и награды. На 390 px каждый уровень восстановился со второго вопроса.
+          +
+          +Следующая тема 3-го класса — «Площадь прямоугольника и квадрата» (`g3:rectangle_square_area`).
+          +
+          +### 2026-11-19. Площадь прямоугольника и квадрата (`g3:rectangle_square_area`)
+          +
+          +**До правок.** В Chromium проверено по 1 200 задач на уровень (зерно 19502).
+          +
+          +- Уровни различаются: сетка, формула, обратная задача или изменение стороны. На мастере неизвестную длину можно считать по клеткам, так как схему строят на сетке с готовыми размерами. Типы тренировки и мастера выбираются случайно.
+          +
+          +**После правок.** Сетка осталась в заданиях на подсчёт клеток. В задачах с заданными величинами показана схема, а неизвестная сторона находится по площади и известной длине. Типы на тренировке и мастере чередуются.
+          +
+          +- В Chromium проверены 9 600 условий, включая размеры рисунка на сетке, вычисление площадей и длины, единицы и отсутствие совпадений между уровнями.
+          +- На 320, 390 и 1280 px подтверждены 12 попыток и 81 правильный ответ. F5 сохраняет результаты и восстанавливает второй вопрос всех трёх уровней на 390 px.
+          +
+          +Следующая тема 3-го класса — «Классификация и закономерности» (`g3:classification_patterns`).
+          +
+          +### 2026-11-19. Классификация и закономерности (`g3:classification_patterns`)
+          +
+          +**До правок.** В Chromium проверено по 1 200 задач на уровень (зерно 19502).
+          +
+          +- Тренировка и мастер используют одинаковые четыре формы. Между уровнями совпало 24, 23 и 38 текстов. В последовательностях применяется только постоянный шаг. При шаге 100 формула верхней границы допускает следующее число больше 1 000.
+          +- Классификация проверяет один признак. Для целочисленных ответов этого тренажёра и остальных числовых заданий раздела «Математическая информация» используется подсказка про десятичную дробь.
+          diff --git a/index.html b/index.html
+          index 95d8743..0c9591d 100644
+          --- a/index.html
+          +++ b/index.html
+          @@ -6457,3 +6457,8 @@ function g3GeoMeasure(a,b,text,offset=16){const p=g3GeoPx(a),q=g3GeoPx(b),mx=(p.
+           function g3GeoRightMarker(vertex,u,v,size=.48){const p=g3GeoPx(vertex),a={x:p.x+u.x*G3_GEO.cell*size,y:p.y+u.y*G3_GEO.cell*size},c={x:p.x+v.x*G3_GEO.cell*size,y:p.y+v.y*G3_GEO.cell*size},b={x:a.x+v.x*G3_GEO.cell*size,y:a.y+v.y*G3_GEO.cell*size};return `<polyline class="g3-geo-right" points="${a.x},${a.y} ${b.x},${b.y} ${c.x},${c.y}"></polyline>`}
+          -function g3GeometrySvg(data){const W=G3_GEO.W,H=G3_GEO.H,cols=data.cols||13,rows=data.rows||8;let body=data.grid===false?"":g3GeoGridLines(cols,rows);const pts=data.points||[];if(data.kind==="point"){body+=g3GeoPointSvg(pts[0]||{x:5,y:4},data.labels?.[0]||"A")}else if(data.kind==="line"){const a=g3GeoPx(pts[0]),b=g3GeoPx(pts[1]),dx=b.x-a.x,dy=b.y-a.y,L=Math.hypot(dx,dy)||1,ux=dx/L,uy=dy/L,ext=28,x1=a.x-ux*ext,y1=a.y-uy*ext,x2=b.x+ux*ext,y2=b.y+uy*ext;body+=`<line class="g3-geo-line" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"></line><polygon class="g3-geo-arrow" points="${x1},${y1} ${x1+ux*13-uy*7},${y1+uy*13+ux*7} ${x1+ux*13+uy*7},${y1+uy*13-ux*7}"></polygon><polygon class="g3-geo-arrow" points="${x2},${y2} ${x2-ux*13-uy*7},${y2-uy*13+ux*7} ${x2-ux*13+uy*7},${y2-uy*13-ux*7}"></polygon>`}else if(data.kind==="segment"){body+=`<polyline class="g3-geo-line" points="${g3GeoPts(pts)}"></polyline>`;pts.forEach((p,i)=>body+=g3GeoPointSvg(p,data.labels?.[i]||""));if(data.measures)for(const m of data.measures)body+=g3GeoMeasure(pts[m.a],pts[m.b],m.text,m.offset||16)}else if(data.kind==="broken"){body+=`<polyline class="g3-geo-line" points="${g3GeoPts(pts)}"></polyline>`;pts.forEach((p,i)=>{if(data.labels?.[i])body+=g3GeoPointSvg(p,data.labels[i])});for(const m of data.measures||[])body+=g3GeoMeasure(pts[m.a],pts[m.b],m.text,m.offset||16)}else if(data.kind==="polygon"){body+=`<polygon class="g3-geo-poly" points="${g3GeoPts(pts)}"></polygon>`;pts.forEach((p,i)=>{if(data.labels?.[i])body+=g3GeoPointSvg(p,data.labels[i])});for(const m of data.measures||[])body+=g3GeoMeasure(pts[m.a],pts[m.b],m.text,m.offset||16)}else if(data.kind==="angle"){const o=pts[0],a=pts[1],b=pts[2],op=g3GeoPx(o);body+=`<polyline class="g3-geo-line" points="${g3GeoPts([a,o,b])}"></polyline>`;if(data.right)body+=g3GeoRightMarker(o,data.u,data.v);body+=g3GeoPointSvg(o,data.labels?.[0]||"O")}else if(data.kind==="cells"){for(const c of data.cells||[]){const q=g3GeoPx(c);body+=`<rect class="g3-geo-cell${c.alt?" alt":""}" x="${q.x}" y="${q.y}" width="${G3_GEO.cell}" height="${G3_GEO.cell}"></rect>`}}
+          +function g3GeometrySvg(data){const W=G3_GEO.W,H=G3_GEO.H,cols=data.cols||13,rows=data.rows||8;let body=data.grid===false?"":g3GeoGridLines(cols,rows);const pts=data.points||[];if(data.kind==="point"){body+=g3GeoPointSvg(pts[0]||{x:5,y:4},data.labels?.[0]||"A")}else if(data.kind==="line"){const a=g3GeoPx(pts[0]),b=g3GeoPx(pts[1]),dx=b.x-a.x,dy=b.y-a.y,L=Math.hypot(dx,dy)||1,ux=dx/L,uy=dy/L,ext=28,x1=a.x-ux*ext,y1=a.y-uy*ext,x2=b.x+ux*ext,y2=b.y+uy*ext;body+=`<line class="g3-geo-line" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"></line><polygon class="g3-geo-arrow" points="${x1},${y1} ${x1+ux*13-uy*7},${y1+uy*13+ux*7} ${x1+ux*13+uy*7},${y1+uy*13-ux*7}"></polygon><polygon class="g3-geo-arrow" points="${x2},${y2} ${x2-ux*13-uy*7},${y2-uy*13+ux*7} ${x2-ux*13+uy*7},${y2-uy*13-ux*7}"></polygon>`}else if(data.kind==="segment"){body+=`<polyline class="g3-geo-line" points="${g3GeoPts(pts)}"></polyline>`;pts.forEach((p,i)=>body+=g3GeoPointSvg(p,data.labels?.[i]||""));if(data.measures)for(const m of data.measures)body+=g3GeoMeasure(pts[m.a],pts[m.b],m.text,m.offset||16)}else if(data.kind==="broken"){body+=`<polyline class="g3-geo-line" points="${g3GeoPts(pts)}"></polyline>`;pts.forEach((p,i)=>{if(data.labels?.[i])body+=g3GeoPointSvg(p,data.labels[i])});for(const m of data.measures||[])body+=g3GeoMeasure(pts[m.a],pts[m.b],m.text,m.offset||16)}else if(data.kind==="polygon"){body+=`<polygon class="g3-geo-poly" points="${g3GeoPts(pts)}"></polygon>`;pts.forEach((p,i)=>{if(data.labels?.[i])body+=g3GeoPointSvg(p,data.labels[i])});for(const m of data.measures||[])body+=g3GeoMeasure(pts[m.a],pts[m.b],m.text,m.offset||16)}else if(data.kind==="angle"){const o=pts[0],a=pts[1],b=pts[2],op=g3GeoPx(o);body+=`<polyline class="g3-geo-line" points="${g3GeoPts([a,o,b])}"></polyline>`;if(data.right)body+=g3GeoRightMarker(o,data.u,data.v);body+=g3GeoPointSvg(o,data.labels?.[0]||"O")}else if(data.kind==="cells"){for(const c of data.cells||[]){const q=g3GeoPx(c);body+=`<rect class="g3-geo-cell${c.alt?" alt":""}" x="${q.x}" y="${q.y}" width="${G3_GEO.cell}" height="${G3_GEO.cell}"></rect>`}
+          + for(const label of data.cellLabels||[]){
+          +  const point=g3GeoPx(label);
+          +  body+=`<text class="g3-geo-label" x="${point.x}" y="${point.y}" text-anchor="middle">${esc(label.text)}</text>`;
+          + }
+          + }
+            return `<div class="g3-geo-wrap"><svg class="g3-geo-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="${esc(data.aria||"Геометрический рисунок")}">${body}</svg>${data.caption?`<div class="g3-geo-caption">${esc(data.caption)}</div>`:""}</div>`
+          @@ -6590,20 +6595,63 @@ function g3BrokenLineQuestion(d,slot=null){
+           }
+          -function g3PerimeterQuestion(d){
+          - const units=["см","дм","м"],unit=g6RandomFrom(units),variant=d===0?g6RandomFrom(["rectangle","triangle"]):d===1?g6RandomFrom(["rectangle","square","triangle"]):g6RandomFrom(["rectangle","square","polygon"]);let pts,sides,answer,text,ex;
+          - if(variant==="rectangle"){
+          -  const a=ri(2,7),b=ri(2,5);pts=[{x:3,y:2},{x:3+a,y:2},{x:3+a,y:2+b},{x:3,y:2+b}];sides=[a,b,a,b];answer=2*(a+b);text=`Найдите периметр прямоугольника со сторонами <b>${a} ${unit}</b> и <b>${b} ${unit}</b>.`;ex=`Периметр — сумма всех сторон:<br>${a} + ${b} + ${a} + ${b} = <b>${answer} ${unit}</b>.`
+          - }else if(variant==="square"){
+          -  const a=ri(2,5);pts=[{x:3,y:2},{x:3+a,y:2},{x:3+a,y:2+a},{x:3,y:2+a}];sides=[a,a,a,a];answer=4*a;text=`Найдите периметр квадрата со стороной <b>${a} ${unit}</b>.`;ex=`У квадрата 4 равные стороны: ${a} · 4 = <b>${answer} ${unit}</b>.`
+          - }else if(variant==="triangle"){
+          -  const k=ri(1,2);pts=[{x:3,y:6},{x:3,y:6-3*k},{x:3+4*k,y:6}];sides=[3*k,5*k,4*k];answer=12*k;text="Найдите периметр треугольника по подписанным сторонам.";ex=`Складываем все стороны: ${sides.join(" + ")} = <b>${answer} ${unit}</b>.`
+          - }else{
+          -  pts=[{x:3,y:2},{x:8,y:2},{x:8,y:5},{x:6,y:5},{x:6,y:7},{x:3,y:7}];sides=[5,3,2,2,3,5];answer=20;text="Найдите периметр многоугольника по подписанным сторонам.";ex=`Складываем длины всех сторон: ${sides.join(" + ")} = <b>${answer} ${unit}</b>.`
+          +function g3PerimeterQuestion(d,slot=null){
+          + const variants=[["triangle","polygon"],["rectangle","square"],["missingSide","changedSide","missingPolygon"]][d];
+          + const variant=slot===null?g6RandomFrom(variants):variants[slot%variants.length];
+          + const unit=g6RandomFrom(["см","дм","м"]);
+          + const rect=(w,h)=>[{x:3,y:2},{x:3+w,y:2},{x:3+w,y:2+h},{x:3,y:2+h}];
+          + const input=(text,answer,ex,points,sides=[],unknown=-1)=>g3GeoNumber(
+          +  text,answer,ex,`g3:perimeter:${d}:${variant}:${text}:${sides.join("-")}:${unit}:${unknown}`,
+          +  {type:"g3Perimeter",variant},{
+          +   kind:"polygon",points,grid:false,
+          +   measures:sides.map((length,i)=>({a:i,b:(i+1)%points.length,text:i===unknown?"?":`${length} ${unit}`,offset:-(i%2?20:18)})),
+          +   aria:"Многоугольник"
+          +  },unit
+          + );
+          + if(variant==="triangle"){
+          +  const k=ri(1,2),sides=[3*k,5*k,4*k],sum=12*k;
+          +  const points=[{x:2,y:7},{x:2,y:7-3*k},{x:2+4*k,y:7}];
+          +  return input(
+          +   "Найдите периметр треугольника по подписанным сторонам.",sum,
+          +   `Складываем длины сторон. ${sides.join(" + ")} = <b>${sum} ${unit}</b>.`,points,sides
+          +  );
+          + }
+          + if(variant==="polygon"||variant==="missingPolygon"){
+          +  const w=ri(4,8),h=ri(3,5),cutW=ri(1,w-2),cutH=ri(1,h-2);
+          +  const points=[{x:2,y:2},{x:2+w,y:2},{x:2+w,y:2+h-cutH},{x:2+w-cutW,y:2+h-cutH},{x:2+w-cutW,y:2+h},{x:2,y:2+h}];
+          +  const sides=[w,h-cutH,cutW,cutH,w-cutW,h],sum=2*(w+h);
+          +  if(variant==="polygon")return input(
+          +   "Найдите периметр многоугольника по подписанным сторонам.",sum,
+          +   `Складываем длины сторон. ${sides.join(" + ")} = <b>${sum} ${unit}</b>.`,points,sides
+          +  );
+          +  const index=ri(0,sides.length-1),missing=sides[index],known=sides.filter((_,i)=>i!==index);
+          +  return input(
+          +   `Периметр многоугольника равен <b>${sum} ${unit}</b>. Найдите длину стороны, отмеченной знаком «?».`,
+          +   missing,`Сумма известных длин равна ${known.join(" + ")} = ${sum-missing} (${unit}).<br>Неизвестную длину находим вычитанием. ${sum} − ${sum-missing} = <b>${missing} ${unit}</b>.`,
+          +   points,sides,index
+          +  );
+            }
+          - const measures=sides.map((v,i)=>({a:i,b:(i+1)%pts.length,text:`${v} ${unit}`,offset:i%2?18:-18})),data={kind:"polygon",points:pts,measures,aria:"Многоугольник с подписанными длинами сторон"};
+          - return g3GeoNumber(text,answer,ex,`g3:perimeter:${d}:${variant}:${sides.join("-")}:${unit}`,{type:"g3Perimeter",variant,sides,answer,unit,points:pts,journalText:`Стороны: ${sides.join(", ")} ${unit}.`},data,unit)
+          + const w=ri(3,variant==="square"?6:7),h=g6RandomFrom([2,3,4,5].filter(x=>x!==w)),sum=w+h;
+          + if(variant==="square")return input(
+          +  `Найдите периметр квадрата со стороной <b>${w} ${unit}</b>.`,4*w,
+          +  `У квадрата четыре равные стороны. ${w} · 4 = <b>${4*w} ${unit}</b>.`,rect(w,w)
+          + );
+          + if(variant==="rectangle")return input(
+          +  `Найдите периметр прямоугольника со сторонами <b>${w} ${unit}</b> и <b>${h} ${unit}</b>.`,2*sum,
+          +  `Складываем длину и ширину и умножаем на два. (${w} + ${h}) · 2 = <b>${2*sum} ${unit}</b>.`,rect(w,h)
+          + );
+          + if(variant==="missingSide")return input(
+          +  `Периметр прямоугольника равен <b>${2*sum} ${unit}</b>. Одна его сторона равна <b>${w} ${unit}</b>. Найдите длину другой стороны.`,
+          +  h,`Сумма соседних сторон равна ${2*sum} : 2 = ${sum} (${unit}).<br>Другая сторона равна ${sum} − ${w} = <b>${h} ${unit}</b>.`,rect(w,h)
+          + );
+          + const change=ri(1,5),increased=w+change;
+          + return input(
+          +  `У прямоугольника стороны <b>${w} ${unit}</b> и <b>${h} ${unit}</b>. Первую сторону увеличили на <b>${change} ${unit}</b>. Вторая осталась прежней. Найдите новый периметр.`,
+          +  2*(increased+h),
+          +  `Новая длина первой стороны равна ${w} + ${change} = ${increased} (${unit}).<br>Новый периметр равен (${increased} + ${h}) · 2 = <b>${2*(increased+h)} ${unit}</b>.`,rect(w,h)
+          + );
+           }
+           function g3AreaCellsShape(d,forceL=false){if(!forceL&&(d===0||Math.random()<.55)){const w=ri(2,d===0?5:7),h=ri(2,d===0?4:6),cells=[];for(let y=0;y<h;y++)for(let x=0;x<w;x++)cells.push({x:3+x,y:2+y});return {variant:"rectangle",cells,area:w*h,w,h}}const w=ri(3,6),h=ri(3,5),cutW=ri(1,w-1),cutH=ri(1,h-1),cells=[];for(let y=0;y<h;y++)for(let x=0;x<w;x++)if(!(x>=w-cutW&&y<cutH))cells.push({x:3+x,y:2+y});return {variant:"L",cells,area:cells.length,w,h,cutW,cutH}}
+          -function g3AreaMeasureQuestion(d){
+          +function g3AreaMeasureQuestion(d,slot=null){
+          + const variants=[["rectangle"],["L","compare"],["complete","difference"]][d];
+          + const variant=slot===null?g6RandomFrom(variants):variants[slot%variants.length];
+            if(d===2){
+          -  const variant=Math.random()<.5?"complete":"difference";
+             if(variant==="complete"){
+          @@ -6621,3 +6669,3 @@ function g3AreaMeasureQuestion(d){
+             for(let y=0;y<hB;y++)for(let x=0;x<wB;x++)cellsB.push({x:8+x,y:2+y,alt:true});
+          -  const answer=Math.abs(areaA-areaB),data={kind:"cells",cells:[...cellsA,...cellsB],aria:"Две фигуры из одинаковых клеток"};
+          +  const answer=Math.abs(areaA-areaB),data={kind:"cells",cells:[...cellsA,...cellsB],cellLabels:[{x:1+wA/2,y:1.65,text:"A"},{x:8+wB/2,y:1.65,text:"B"}],aria:"Две фигуры из одинаковых клеток"};
+             return g3GeoNumber("На сколько квадратных единиц площадь большей фигуры больше площади меньшей?",answer,
+          @@ -6627,7 +6675,7 @@ function g3AreaMeasureQuestion(d){
+            }
+          - if(d>0&&Math.random()<.28){
+          -  const wA=ri(2,4),hA=ri(2,4),wB=ri(2,4),hB=ri(2,4),cellsA=[],cellsB=[];for(let y=0;y<hA;y++)for(let x=0;x<wA;x++)cellsA.push({x:1+x,y:2+y});for(let y=0;y<hB;y++)for(let x=0;x<wB;x++)cellsB.push({x:8+x,y:2+y,alt:true});const areaA=wA*hA,areaB=wB*hB,rel=areaA===areaB?"=":areaA>areaB?">":"<",data={kind:"cells",cells:[...cellsA,...cellsB],aria:"Две фигуры на одинаковой клетчатой сетке"};
+          + if(variant==="compare"){
+          +  const wA=ri(2,4),hA=ri(2,4),wB=ri(2,4),hB=ri(2,4),cellsA=[],cellsB=[];for(let y=0;y<hA;y++)for(let x=0;x<wA;x++)cellsA.push({x:1+x,y:2+y});for(let y=0;y<hB;y++)for(let x=0;x<wB;x++)cellsB.push({x:8+x,y:2+y,alt:true});const areaA=wA*hA,areaB=wB*hB,rel=areaA===areaB?"=":areaA>areaB?">":"<",data={kind:"cells",cells:[...cellsA,...cellsB],cellLabels:[{x:1+wA/2,y:1.65,text:"A"},{x:8+wB/2,y:1.65,text:"B"}],aria:"Две фигуры на одинаковой клетчатой сетке"};
+             return g3GeoChoice("Сравните площади фигур A и B по одинаковым клеткам.",rel,["<","=",">"],`Площадь A: ${areaA} ${ruCount(areaA,"клетка","клетки","клеток")}. Площадь B: ${areaB} ${ruCount(areaB,"клетка","клетки","клеток")}. Поэтому A <b>${rel}</b> B.`,`g3:area_measure:${d}:compare:${wA}:${hA}:${wB}:${hB}`,{type:"g3AreaMeasure",variant:"compare",areaA,areaB,relation:rel,sameScale:true,cellsA,cellsB},data)
+            }
+          - const m=g3AreaCellsShape(d),data={kind:"cells",cells:m.cells,aria:"Фигура на квадратной сетке"};
+          + const m=g3AreaCellsShape(d,variant==="L"),data={kind:"cells",cells:m.cells,aria:"Фигура на квадратной сетке"};
+            return g3GeoNumber("Сколько квадратных единиц занимает фигура?",m.area,`Считаем занятые клетки: <b>${m.area}</b>.`,`g3:area_measure:${d}:${m.variant}:${m.w}:${m.h}:${m.cutW||0}:${m.cutH||0}`,{type:"g3AreaMeasure",variant:m.variant,area:m.area,cells:m.cells,w:m.w,h:m.h,cutW:m.cutW||0,cutH:m.cutH||0,journalText:`Фигура занимает ${m.area} ${ruCount(m.area,"клетку","клетки","клеток")}.`},data,"кв. ед.")
+          @@ -6635,6 +6683,7 @@ function g3AreaMeasureQuestion(d){
+           
+          -function g3RectangleSquareAreaQuestion(d){
+          - const variant=d===0?"gridRect":d===1?g6RandomFrom(["rect","square"]):g6RandomFrom(["missingSide","extendedSide"]),
+          +function g3RectangleSquareAreaQuestion(d,slot=null){
+          + const variants=[["gridRect"],["rect","square"],["missingSide","extendedSide"]][d];
+          + const variant=slot===null?g6RandomFrom(variants):variants[slot%variants.length],
+              unit=variant==="gridRect"?"кв. ед.":g6RandomFrom(["см²","дм²","м²"]),
+          -   baseUnit=unit.replace("²",""),u=(x)=>`${x} ${unit}`;
+          +   baseUnit=unit.replace("²","");
+            let a,b,answer,text,ex,pts,data,details={};
+          @@ -6667,3 +6716,4 @@ function g3RectangleSquareAreaQuestion(d){
+            pts=[{x:3,y:2},{x:3+a,y:2},{x:3+a,y:2+b},{x:3,y:2+b}];
+          - data={kind:"polygon",points:pts,aria:variant==="square"?"Квадрат":"Прямоугольник на клетчатой сетке"};
+          + data={kind:"polygon",points:pts,grid:variant==="gridRect",
+          +  aria:variant==="gridRect"?"Прямоугольник на клетчатой сетке":variant==="square"?"Схема квадрата":"Схема прямоугольника"};
+            const audit={type:"g3RectArea",variant,a,b,answer,unit,isSquare:a===b,points:pts,...details,
+          @@ -7761,5 +7811,14 @@ function makeG3Question(id,stageOverride=null){
+            }
+          - if(raw==="perimeter")return g3PerimeterQuestion(d);
+          - if(raw==="area_measure")return g3AreaMeasureQuestion(d);
+          - if(raw==="rectangle_square_area")return g3RectangleSquareAreaQuestion(d);
+          + if(raw==="perimeter"){
+          +  const live=stageOverride===null&&blockSession?.kind==="g3quiz"&&blockSession.key==="g3:perimeter";
+          +  return g3PerimeterQuestion(d,live?blockSession.done:null);
+          + }
+          + if(raw==="area_measure"){
+          +  const live=stageOverride===null&&blockSession?.kind==="g3quiz"&&blockSession.key==="g3:area_measure";
+          +  return g3AreaMeasureQuestion(d,live?blockSession.done:null);
+          + }
+          + if(raw==="rectangle_square_area"){
+          +  const live=stageOverride===null&&blockSession?.kind==="g3quiz"&&blockSession.key==="g3:rectangle_square_area";
+          +  return g3RectangleSquareAreaQuestion(d,live?blockSession.done:null);
+          + }
+            if(raw==="task_model"){
+          MATKVEST_PATCH
+          git apply --check "$patch_file"
+          git apply "$patch_file"
+          test "$(git hash-object index.html)" = "0c9591dceaaf65ab9fdca9f7db48508acc49830a"
+          test "$(git hash-object audits/g1_g4_content_audit_2026-11-17.md)" = "ff699fde1ef53b9784707f713e6bd77a21a0ed93"
+          git diff --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- index.html audits/g1_g4_content_audit_2026-11-17.md
+          git rm -- .github/workflows/g3-perimeter-area-apply.yml
+          git commit -m 'Audit Grade 3 perimeter, measuring areas and rectangle areas'
+          git push origin HEAD:refs/heads/audit/g1-g4-content-v195
