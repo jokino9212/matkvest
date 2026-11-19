@@ -1,0 +1,69 @@
+name: Verify Grade 5 calculator wording
+on:
+  push:
+    branches: [verify/g5-calculator-v202]
+    paths: [.github/workflows/g5-calculator-v202.yml]
+permissions:
+  contents: write
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Apply and verify candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git checkout --detach a6eb08e1aeefffd09ad8c828fc9753ebd2d2de90
+          base64 -d <<'PATCH' | gzip -d | git apply --check
+          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
+          PATCH
+          base64 -d <<'PATCH' | gzip -d | git apply
+          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
+          PATCH
+          git diff --check
+          node --check g5-pedagogy-v113.js
+          node --check sw.js
+          npm install --no-save --no-package-lock playwright@1.56.1
+          node <<'JS'
+          const assert = require('node:assert/strict');
+          const fs = require('node:fs');
+          const crypto = require('node:crypto');
+          const { chromium } = require('playwright');
+          const hash = file => crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
+          const sw = fs.readFileSync('sw.js', 'utf8');
+          assert(sw.includes('APP_BUILD_HASH = "' + hash('index.html') + '"'));
+          assert(sw.includes('"g5-pedagogy-v113.js": "' + hash('g5-pedagogy-v113.js') + '"'));
+          (async () => {
+            const browser = await chromium.launch({args: ['--no-sandbox']});
+            try {
+              const page = await browser.newPage();
+              const errors = [];
+              page.on('pageerror', error => errors.push(error.message));
+              await page.goto('file://' + process.cwd() + '/index.html');
+              await page.evaluate(() => startG5QuizStage('calculator', 1));
+              const prompt = await page.getByText(/На калькуляторе сложи/).innerText({timeout: 5000});
+              const parts = prompt.match(/На калькуляторе сложи (\d+) и (\d+)\. Затем умножь полученную сумму на (\d+)\. Какое число получится\?/);
+              assert(parts, prompt);
+              const [a, b, c] = parts.slice(1).map(Number);
+              const answer = String((a + b) * c);
+              await page.getByRole('button', {name: answer, exact: true}).click({timeout: 5000});
+              assert.match(await page.locator('#qfb').innerText(), /верно/i);
+              assert.deepEqual(errors, []);
+              console.log(JSON.stringify({prompt, answer}));
+            } finally {
+              await browser.close();
+            }
+          })().catch(error => { console.error(error); process.exitCode = 1; });
+          JS
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add g5-pedagogy-v113.js index.html sw.js
+          git commit -m 'Clarify Grade 5 calculator exercise'
+          git push origin HEAD:refs/heads/audit/g5-calculator-v202
