@@ -671,7 +671,7 @@ button,input{font:inherit}button{cursor:pointer}.shell{max-width:1180px;margin:a
 .data-table-wrap{max-width:760px;margin:12px auto 5px;overflow:auto;border:1px solid #d5e6dd;border-radius:16px;background:#fff}
 .data-table{width:100%;border-collapse:collapse;min-width:360px}.data-table th,.data-table td{padding:9px 11px;border-bottom:1px solid #e4eee9;border-right:1px solid #e8f0ec;text-align:center}
 .data-table th{background:#eaf6f0;font-weight:950}.data-table td:first-child,.data-table th:first-child{text-align:left;font-weight:900}.data-table tr:last-child td{border-bottom:0}.data-table th:last-child,.data-table td:last-child{border-right:0}
-.bar-chart-wrap{max-width:680px;margin:12px auto 5px;padding:9px;border:1px solid #d5e6dd;border-radius:16px;background:#fff;overflow:hidden}.bar-chart-svg{display:block;width:100%;height:auto}.bar-grid{stroke:#d9e7e0;stroke-width:1}.bar-axis{stroke:#315d4d;stroke-width:2}.bar-shape{fill:#62bb92;stroke:#25845f;stroke-width:1.5}.bar-label{fill:#49665a;font:700 14px system-ui,-apple-system,"Segoe UI",Arial,sans-serif}.bar-value{fill:#17362c;font:850 14px "Cambria Math","Times New Roman",serif}.bar-chart-title{text-align:center;font-weight:900;margin:2px 0 5px}
+.bar-chart-wrap{max-width:680px;margin:12px auto 5px;padding:9px;border:1px solid #d5e6dd;border-radius:16px;background:#fff;overflow:hidden}.bar-chart-svg{display:block;width:100%;height:auto}.bar-grid{stroke:#d9e7e0;stroke-width:1}.bar-axis{stroke:#315d4d;stroke-width:2}.bar-shape{fill:#62bb92;stroke:#25845f;stroke-width:1.5}.bar-label{fill:#49665a;font:700 14px system-ui,-apple-system,"Segoe UI",Arial,sans-serif}.bar-value{fill:#17362c;font:850 14px "Cambria Math","Times New Roman",serif}.bar-chart-compact .bar-label,.bar-chart-compact .bar-value{font-size:19px}.bar-chart-title{text-align:center;font-weight:900;margin:2px 0 5px}
 @media(max-width:520px){.coordinate-plane-wrap{padding:5px}.coord-label{font-size:12px}.coord-axis-label{font-size:15px}.coord-point-label{font-size:15px}.coordinate-input-grid{grid-template-columns:repeat(2,minmax(0,125px));gap:7px}.coordinate-input{height:49px;font-size:21px}.data-table{font-size:13px;min-width:330px}.data-table th,.data-table td{padding:7px 8px}.bar-label,.bar-value{font-size:12px}}
 
 
@@ -5200,11 +5200,11 @@ function g6TableJournalText(data){return `${(data.headers||[]).join(" | ")}; ${(
 function g6AttachTable(question,data){question.visual={type:"tableData",data};question.journalPrompt=`${question.text}<br><span class="math">Таблица: ${esc(g6TableJournalText(data))}</span>`;return question}
 function g6ChartScale(values){const mx=Math.max(...values.map(Number),1),step=mx<=10?1:mx<=20?2:5,maxValue=Math.ceil(mx/step)*step;return {step,maxValue}}
 function renderBarChart(data){
- const labels=(data.labels||[]).map(String),values=(data.values||[]).map(Number),maxValue=Number(data.maxValue||g6ChartScale(values).maxValue),step=Number(data.step||g6ChartScale(values).step),W=680,H=360,left=54,right=18,top=28,bottom=54,plotW=W-left-right,plotH=H-top-bottom,n=Math.max(1,labels.length),slot=plotW/n,barW=Math.min(72,slot*.58);
+ const labels=(data.labels||[]).map(String),values=(data.values||[]).map(Number),maxValue=Number(data.maxValue||g6ChartScale(values).maxValue),step=Number(data.step||g6ChartScale(values).step),compact=data.compact===true,W=compact?420:680,H=compact?320:360,left=compact?45:54,right=18,top=28,bottom=compact?42:54,plotW=W-left-right,plotH=H-top-bottom,n=Math.max(1,labels.length),slot=plotW/n,barW=Math.min(72,slot*.58);
  let grid="",bars="";
  for(let v=0;v<=maxValue+1e-9;v+=step){const y=top+plotH-(v/maxValue)*plotH;grid+=`<line class="bar-grid" x1="${left}" y1="${y.toFixed(3)}" x2="${W-right}" y2="${y.toFixed(3)}"></line><text class="bar-label" x="${left-10}" y="${(y+5).toFixed(3)}" text-anchor="end">${esc(String(v).replace(".",","))}</text>`}
- values.forEach((v,i)=>{const h=(v/maxValue)*plotH,x=left+i*slot+(slot-barW)/2,y=top+plotH-h,cx=x+barW/2;bars+=`<rect class="bar-shape" data-value="${v}" x="${x.toFixed(3)}" y="${y.toFixed(3)}" width="${barW.toFixed(3)}" height="${h.toFixed(3)}" rx="5"></rect><text class="bar-value" x="${cx.toFixed(3)}" y="${Math.max(17,y-7).toFixed(3)}" text-anchor="middle">${esc(String(v).replace(".",","))}</text><text class="bar-label" x="${cx.toFixed(3)}" y="${H-25}" text-anchor="middle">${esc(labels[i]||String(i+1))}</text>`});
- return `<div class="bar-chart-wrap">${data.title?`<div class="bar-chart-title">${esc(data.title)}</div>`:""}<svg class="bar-chart-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Столбчатая диаграмма">${grid}<line class="bar-axis" x1="${left}" y1="${top}" x2="${left}" y2="${top+plotH}"></line><line class="bar-axis" x1="${left}" y1="${top+plotH}" x2="${W-right}" y2="${top+plotH}"></line>${bars}</svg></div>`;
+ values.forEach((v,i)=>{const h=(v/maxValue)*plotH,x=left+i*slot+(slot-barW)/2,y=top+plotH-h,cx=x+barW/2;bars+=`<rect class="bar-shape" data-value="${v}" x="${x.toFixed(3)}" y="${y.toFixed(3)}" width="${barW.toFixed(3)}" height="${h.toFixed(3)}" rx="5"></rect>${data.showValues===false?"":`<text class="bar-value" x="${cx.toFixed(3)}" y="${Math.max(17,y-7).toFixed(3)}" text-anchor="middle">${esc(String(v).replace(".",","))}</text>`}<text class="bar-label" x="${cx.toFixed(3)}" y="${H-25}" text-anchor="middle">${esc(labels[i]||String(i+1))}</text>`});
+ return `<div class="bar-chart-wrap">${data.title?`<div class="bar-chart-title">${esc(data.title)}</div>`:""}<svg class="bar-chart-svg${compact?" bar-chart-compact":""}" viewBox="0 0 ${W} ${H}" role="img" aria-label="Столбчатая диаграмма">${grid}<line class="bar-axis" x1="${left}" y1="${top}" x2="${left}" y2="${top+plotH}"></line><line class="bar-axis" x1="${left}" y1="${top+plotH}" x2="${W-right}" y2="${top+plotH}"></line>${bars}</svg></div>`;
 }
 function g6BarJournalText(data){return (data.labels||[]).map((x,i)=>`${x} — ${data.values?.[i]}`).join("; ")}
 function g6AttachBarChart(question,data){question.visual={type:"barChart",data};question.journalPrompt=`${question.text}<br><span class="math">Диаграмма: ${esc(g6BarJournalText(data))}</span>`;return question}
@@ -5926,12 +5926,28 @@ function g3TableQuestion(d){
  const hi=values[a]>=values[b]?a:b,lo=hi===a?b:a,answer=values[hi]-values[lo];model.target={rows:[hi,lo],column:1};const q=g3StoryNumberQuestion(`На сколько книг <b>${names[hi]}</b> ${["Аня","Оля"].includes(names[hi])?"прочитала":"прочитал"} больше, чем <b>${names[lo]}</b>?`,answer,`${values[hi]} − ${values[lo]} = <b>${answer}</b>.`,`g3:tables:${d}:difference:${values.join(",")}:${hi}:${lo}`,{variant,tableModel:model,answer});return g6AttachTable(q,data);
 }
 function g3UniqueChartValues(){return g3DistinctNumbers(4,2,20)}
-function g3BarChartsQuestion(d){
- const labels=sh(["Аня","Миша","Оля","Дима"]),variants=d===0?["lookup","max","min"]:d===1?["lookup","max","min","difference","sum"]:["total","equal","range","topTwo"],variant=g6RandomFrom(variants);let values=["max","min","range","topTwo"].includes(variant)?g3UniqueChartValues():labels.map(()=>ri(2,20));let audit={variant,chartModel:{categories:[...labels],values:[...values],scale:null,questionType:variant,target:null,baseline:0}};
+function g3BarChartsQuestion(d,{slot=null,readScale=false}={}){
+ const labels=sh(["Аня","Миша","Оля","Дима"]);
+ const variants=[["lookup","max","min"],readScale?["difference","sum"]:["lookup","max","min","difference","sum"],["total","equal","range","topTwo"]][d];
+ const variant=slot===null?g6RandomFrom(variants):variants[slot%variants.length];
+ const step=[1,2,5][d],pool=readScale?Array.from({length:d===0?19:10},(_,i)=>d===0?i+2:(i+1)*step):[];
+ const draw=()=>readScale?g6RandomFrom(pool):ri(2,20);
+ const distinct=["max","min","range","topTwo"].includes(variant);
+ let values=distinct?(readScale?sh(pool).slice(0,4):g3UniqueChartValues()):labels.map(draw);
+ const audit={variant,chartModel:{categories:[...labels],values:[...values],scale:null,questionType:variant,target:null,baseline:0}};
  if(variant==="equal"){
-  const pair=sh([0,1,2,3]).slice(0,2),same=ri(4,16),others=[0,1,2,3].filter(i=>!pair.includes(i)),used=new Set([same]);values=Array(4);values[pair[0]]=same;values[pair[1]]=same;for(const i of others){let v;do{v=ri(2,20)}while(used.has(v));used.add(v);values[i]=v}audit.chartModel.values=[...values];audit.chartModel.target={pair:[...pair]};
+  const pair=sh([0,1,2,3]).slice(0,2),same=readScale?draw():ri(4,16),others=[0,1,2,3].filter(i=>!pair.includes(i)),used=new Set([same]);
+  values=Array(4);values[pair[0]]=same;values[pair[1]]=same;
+  for(const i of others){let v;do{v=draw()}while(used.has(v));used.add(v);values[i]=v}
+  audit.chartModel.values=[...values];audit.chartModel.target={pair:[...pair]};
  }
- const data=g6ChartData(labels,values,"Количество");data.baseline=0;audit.chartModel.scale={step:data.step,maxValue:data.maxValue};
+ const data=g6ChartData(labels,values,readScale?"Прочитано книг":"Количество");
+ data.baseline=0;
+ if(readScale){
+  data.compact=true;
+  if(d>0){data.step=step;data.maxValue=Math.max(...values);data.showValues=false}
+ }
+ audit.chartModel.scale={step:data.step,maxValue:data.maxValue};
  if(variant==="lookup"){const i=ri(0,3),answer=values[i];audit.chartModel.target={index:i};audit.answer=answer;return g6AttachBarChart(g3StoryNumberQuestion(`Какое значение показывает столбец <b>${labels[i]}</b>?`,answer,`Столбец «${labels[i]}» достигает отметки <b>${answer}</b>.`,`g3:bar_charts:${d}:lookup:${labels.join(",")}:${values.join(",")}:i${i}`,audit),data)}
  if(variant==="max"||variant==="min"){const v=variant==="max"?Math.max(...values):Math.min(...values),i=values.indexOf(v),answer=labels[i];audit.chartModel.target={index:i};audit.answer=answer;return g6AttachBarChart(g3ChoiceQuestion(`У кого значение <b>${variant==="max"?"наибольшее":"наименьшее"}</b>?`,answer,labels.map(x=>({key:x,label:x})),`${variant==="max"?"Самый высокий":"Самый низкий"} столбец — «${answer}», его значение ${v}.`,`g3:bar_charts:${d}:${variant}:${labels.join(",")}:${values.join(",")}`,audit),data)}
  if(variant==="equal"){const pair=audit.chartModel.target.pair,answer=[labels[pair[0]],labels[pair[1]]].sort().join(" и "),pairs=[];for(let i=0;i<4;i++)for(let j=i+1;j<4;j++)pairs.push([labels[i],labels[j]].sort().join(" и "));audit.answer=answer;return g6AttachBarChart(g3ChoiceQuestion("У каких двух учеников значения <b>одинаковые</b>?",answer,pairs.map(x=>({key:x,label:x})),`Одинаковая высота у столбцов «${labels[pair[0]]}» и «${labels[pair[1]]}»: оба значения равны ${values[pair[0]]}.`,`g3:bar_charts:${d}:equal:${labels.join(",")}:${values.join(",")}`,audit),data)}
@@ -9694,7 +9710,7 @@ function renderHome(){
  ${profileIdentityCardHtml(state,currentProfile)}
  <div class="grade-grid">
   <section class="grade-card"><div class="grade-ico">${gradeBookIcon(3,false)}</div><h2>3 КЛАСС</h2><p>Числа до 1000, арифметические действия, задачи, доли, геометрия и работа с данными.</p><div class="grade-summary">${g3AllTopics().length} тем • пройдено этапов: ${g3done}/${g3total}</div><button class="btn primary" onclick="openGrade(3)">Открыть 3 класс</button></section>
-  <section class="grade-card"><div class="grade-ico">${gradeBookIcon(4,false)}</div><h2>4 КЛАСС</h2><p>Вычисления, величины, геометрия, задачи и полная письменная работа столбиком.</p><div class="grade-summary">Пройдено тем: ${gradeCompletedTopics(4)}/${TOPICS.length} • этапов: ${g4done}/${g4total}</div><button class="btn primary" onclick="openGrade(4)">Открыть 4 класс</button></section>
+  <section class="grade-card"><div class="grade-ico">${gradeBookIcon(4,false)}</div><h2>4 КЛАСС</h2><p>Вычисления, величины, геометрия, задачи и полная письменная работа столбиком.</p><div class="grade-summary" id="g4HomeProgress">Пройдено тем: ${gradeCompletedTopics(4)}/${TOPICS.length} • этапов: ${g4done}/${g4total}</div><button class="btn primary" onclick="openGrade(4)">Открыть 4 класс</button></section>
   <section class="grade-card"><div class="grade-ico">${gradeBookIcon(5,false)}</div><h2>5 КЛАСС</h2><p>Натуральные числа, обыкновенные и десятичные дроби, проценты и геометрия.</p><div class="grade-summary" id="g5HomeProgress">${g5HomeProgressText()}</div><button class="btn primary" onclick="openGrade(5)">Открыть 5 класс</button></section>
   <section class="grade-card"><div class="grade-ico">${gradeBookIcon(6,false)}</div><h2>6 КЛАСС</h2><p>Делимость, дроби, пропорции, рациональные числа, уравнения, координаты и геометрия.</p><div class="grade-summary">Каталог: ${g6AllTopics().length} тем • пройдено этапов: ${g6done}/${g6total}</div><button class="btn primary" onclick="openGrade(6)">Открыть 6 класс</button></section>
   <section class="grade-card g7-card"><div class="grade-ico">${gradeBookIcon(7,false)}</div><h2>7 КЛАСС</h2><p>Алгебра • Геометрия • Вероятность и статистика.</p><div class="grade-summary">Каталог: ${g7AllTopics().length} тем • реализовано: ${g7ready} • этапов: ${g7done}/${g7total}</div><button class="btn primary" onclick="openGrade(7)">Открыть 7 класс</button></section>
@@ -20562,7 +20578,7 @@ function mk854InitHistory(){
  }
  mk854HistoryReady=true;
  const route=mk854Route();
- if([5,6,7,8].includes(Number(route.grade))&&(route.screen==="grade"||route.screen==="topic")){
+ if([4,5,6,7,8].includes(Number(route.grade))&&(route.screen==="grade"||route.screen==="topic")){
   // The textbook scripts attach the catalog and its renderer at the end of the document.
   document.addEventListener("DOMContentLoaded",()=>{
    if(mk854SameRoute(route,mk854Route()))mk854RestoreRoute(route);
@@ -36682,30 +36698,33 @@ document.addEventListener("keydown",event=>{
 })();
 </script>
 
-<script src="g5-conversion-ux.js?v=196"></script>
-<script src="g5-textbook-topics.js?v=196"></script>
-<script src="g5-textbook-core.js?v=196"></script>
-<script src="g5-textbook-v111.js?v=196"></script>
-<script src="g5-textbook-v112.js?v=196"></script>
-<script src="g5-pedagogy-v113.js?v=196"></script>
-<script src="g5-fractions-v114.js?v=196"></script>
-<script src="g5-fraction-arithmetic-v115.js?v=196"></script>
-<script src="g5-decimals-v116.js?v=196"></script>
-<script src="g7-textbook.js?v=196"></script>
-<script src="g8-textbook.js?v=196"></script>
-<script src="g5-textbook-navigation-v121.js?v=196"></script>
-<script src="g5-live-pedagogy-v122.js?v=196"></script>
-<script src="g5-arithmetic-tiers-v123.js?v=196"></script>
-<script src="g5-textbook-tiers-v124.js?v=196"></script>
-<script src="g5-natural-units-v125.js?v=196"></script>
-<script src="g5-remaining-core-v126.js?v=196"></script>
-<script src="g5-decimal-tiers-v127.js?v=196"></script>
-<script src="g5-decimal-percent-v128.js?v=196"></script>
-<script src="g5-fraction-concepts-v129.js?v=196"></script>
-<script src="g5-fraction-applications-v130.js?v=196"></script>
+<script src="g5-conversion-ux.js?v=197"></script>
+<script src="g5-textbook-topics.js?v=197"></script>
+<script src="g5-textbook-core.js?v=197"></script>
+<script src="g5-textbook-v111.js?v=197"></script>
+<script src="g5-textbook-v112.js?v=197"></script>
+<script src="g5-pedagogy-v113.js?v=197"></script>
+<script src="g5-fractions-v114.js?v=197"></script>
+<script src="g5-fraction-arithmetic-v115.js?v=197"></script>
+<script src="g5-decimals-v116.js?v=197"></script>
+<script src="g7-textbook.js?v=197"></script>
+<script src="g8-textbook.js?v=197"></script>
+<script src="g4-textbook.js?v=197"></script>
+<script src="g5-textbook-navigation-v121.js?v=197"></script>
+<script src="g5-live-pedagogy-v122.js?v=197"></script>
+<script src="g5-arithmetic-tiers-v123.js?v=197"></script>
+<script src="g5-textbook-tiers-v124.js?v=197"></script>
+<script src="g5-natural-units-v125.js?v=197"></script>
+<script src="g5-remaining-core-v126.js?v=197"></script>
+<script src="g5-decimal-tiers-v127.js?v=197"></script>
+<script src="g5-decimal-percent-v128.js?v=197"></script>
+<script src="g5-fraction-concepts-v129.js?v=197"></script>
+<script src="g5-fraction-applications-v130.js?v=197"></script>
 <script>
 // The textbook scripts finish extending the catalog before Home shows its totals.
 g5HomeCatalogReady=true;
+const g4HomeProgress=document.getElementById("g4HomeProgress");
+if(g4HomeProgress)g4HomeProgress.textContent=`Пройдено тем: ${gradeCompletedTopics(4)}/${TOPICS.length} • этапов: ${g4CompletedStages()}/${g4TotalStages()}`;
 const g5HomeProgress=document.getElementById("g5HomeProgress");
 if(g5HomeProgress)g5HomeProgress.textContent=g5HomeProgressText();
 const g8HomeProgress=document.getElementById("g8HomeProgress");
