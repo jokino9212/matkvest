@@ -1,0 +1,316 @@
+name: Verify MatKvest v196 Master pass in installed Chrome
+on:
+  push:
+    branches: [verify/master-pass-v196]
+    paths: [.github/workflows/master-pass-v196-chrome.yml]
+permissions:
+  contents: write
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 8195decaa2eb8bd57c192a5dab9413dcb19e8082
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Prepare browser regression
+        run: python -m pip install playwright
+      - name: Verify and commit the release
+        run: |
+          set -euo pipefail
+          cat > "$RUNNER_TEMP/master-pass.patch" <<'MATKVEST_PATCH'
+          diff --git a/index.html b/index.html
+          index b657cdb1b40b590c4c5f1340e92d95c29e4827a8..0e07b6c67cc884c8f2d97d0f29e25ea4e8769ead 100644
+          --- a/index.html
+          +++ b/index.html
+          @@ -8447,2 +8447,4 @@ function normalizeAchievementUnlocks(profile){if(!profile||typeof profile!=="obj
+          -function profileDirectBest(profile,key){const cp=profile?.courseProgress||{},k=courseKey(key),p=cp[k]||cp[key]||{};return Array.isArray(p.best)?p.best:[0,0,0]}
+          -function profileDirectStagePassed(profile,key,i){const needs=[4,5,8];return Number(profileDirectBest(profile,key)[i]||0)>=Number(needs[i]||0)}
+          +function profileDirectStagePassed(profile,key,i){
+          + const cp=profile?.courseProgress||{};
+          + return progressStagePassed(cp[courseKey(key)]||cp[key],i);
+          +}
+          @@ -9356,0 +9359 @@ function mergeCourseProgress(a,b){
+          +   if(x.masterPassedWithCorrection===true||v?.masterPassedWithCorrection===true)out[k].masterPassedWithCorrection=true;
+          @@ -9870 +9873 @@ const STAGES=[
+          - {name:"Мастер",ico:"🏆",count:10,need:8,desc:"Полный уровень: самые трудные варианты темы."}
+          + {name:"Мастер",ico:"🏆",count:10,need:8,needWithCorrection:7,desc:"Полный уровень: самые трудные варианты темы."}
+          @@ -9881 +9884,11 @@ function progressFor(key){
+          -function stagePassed(key,i){return (progressFor(key).best[i]||0)>=STAGES[i].need}
+          +function progressStagePassed(progress,i){
+          + const stage=STAGES[i];
+          + return !!stage&&(Number(progress?.best?.[i]||0)>=stage.need||
+          +   (stage.needWithCorrection!==undefined&&progress?.masterPassedWithCorrection===true));
+          +}
+          +function stagePassed(key,i){return progressStagePassed(progressFor(key),i)}
+          +function stagePassRequirement(stage){
+          + const standard=`${stage.need} из ${stage.count} с первой попытки`;
+          + return stage.needWithCorrection===undefined?standard:
+          +   `${standard} или ${stage.needWithCorrection} с первой попытки и хотя бы одно самостоятельное исправление`;
+          +}
+          @@ -9897 +9910 @@ function stageCards(key,startCall){
+          -   return `<button class="stage-card ${unlocked?"":"locked"}" ${unlocked?`onclick="${startCall}(${i})"`:"disabled"}><span class="stage-lock">${passed?"✅":unlocked?"":"🔒"}</span><span class="stage-ico">${s.ico}</span><strong>${i+1}. ${s.name}</strong><small>${s.count} заданий • пройти: ${s.need}/${s.count}<br>${s.desc}</small><div class="stage-best">${best?`Лучший результат: ${best}/${s.count}`:"Ещё не пройден"}</div></button>`
+          +   return `<button class="stage-card ${unlocked?"":"locked"}" ${unlocked?`onclick="${startCall}(${i})"`:"disabled"}><span class="stage-lock">${passed?"✅":unlocked?"":"🔒"}</span><span class="stage-ico">${s.ico}</span><strong>${i+1}. ${s.name}</strong><small>${s.count} заданий • пройти: ${stagePassRequirement(s)}<br>${s.desc}</small><div class="stage-best">${best?`Лучший результат: ${best}/${s.count}`:"Ещё не пройден"}</div></button>`
+          @@ -9956 +9969 @@ function openColumnStages(m,name,ic){
+          - show(`<div class="mtop"><h2>${ic} ${name} столбиком</h2><button class="x" onclick="closeModal()">×</button></div><div class="lesson">${theory}<p><small>Переносы, точки и маленькие подсказочные клетки помогают показать ход решения. Если подсказочную клетку оставишь пустой, это само по себе не считается ошибкой.</small></p></div><div class="stage-grid">${STAGES.map((s,i)=>{const u=stageUnlocked(key,i),best=p.best[i]||0,passed=stagePassed(key,i);return `<button class="stage-card ${u?'':'locked'}" ${u?`onclick="startColumnStage('${m}',${i})"`:'disabled'}><span class="stage-lock">${passed?'✅':u?'':'🔒'}</span><span class="stage-ico">${s.ico}</span><strong>${i+1}. ${s.name}</strong><small>${s.count} примеров • пройти: ${s.need}/${s.count}<br>${s.desc}</small><div class="stage-best">${best?`Лучший: ${best}/${s.count}`:'Ещё не пройден'}</div></button>`}).join('')}</div>`)
+          + show(`<div class="mtop"><h2>${ic} ${name} столбиком</h2><button class="x" onclick="closeModal()">×</button></div><div class="lesson">${theory}<p><small>Переносы, точки и маленькие подсказочные клетки помогают показать ход решения. Если подсказочную клетку оставишь пустой, это само по себе не считается ошибкой.</small></p></div><div class="stage-grid">${STAGES.map((s,i)=>{const u=stageUnlocked(key,i),best=p.best[i]||0,passed=stagePassed(key,i);return `<button class="stage-card ${u?'':'locked'}" ${u?`onclick="startColumnStage('${m}',${i})"`:'disabled'}><span class="stage-lock">${passed?'✅':u?'':'🔒'}</span><span class="stage-ico">${s.ico}</span><strong>${i+1}. ${s.name}</strong><small>${s.count} примеров • пройти: ${stagePassRequirement(s)}<br>${s.desc}</small><div class="stage-best">${best?`Лучший: ${best}/${s.count}`:'Ещё не пройден'}</div></button>`}).join('')}</div>`)
+          @@ -10061 +10074,6 @@ function finishBlock(){
+          - const passed=b.correct>=s.need;
+          + const items=b.items||[];
+          + const correctedCount=items.filter(x=>x.finalCorrect&&!x.firstTry&&!x.skipped).length;
+          + const passedWithCorrection=s.needWithCorrection!==undefined&&b.done===b.total&&
+          +   b.correct===s.needWithCorrection&&correctedCount>0;
+          + const passed=b.correct>=s.need||passedWithCorrection;
+          + if(passedWithCorrection)p.masterPassedWithCorrection=true;
+          @@ -10071,5 +10089,3 @@ function finishBlock(){
+          - const skippedCount=(b.items||[]).filter(x=>x.skipped).length;
+          - const firstTryCount=(b.items||[]).filter(x=>x.firstTry&&!x.skipped).length;
+          - const correctedCount=(b.items||[]).filter(x=>x.finalCorrect&&!x.firstTry&&!x.skipped).length;
+          - const wrongCount=(b.items||[]).filter(x=>!x.finalCorrect&&!x.skipped).length;
+          - const errorCount=correctedCount+wrongCount;
+          + const skippedCount=items.filter(x=>x.skipped).length;
+          + const firstTryCount=items.filter(x=>x.firstTry&&!x.skipped).length;
+          + const wrongCount=items.filter(x=>!x.finalCorrect&&!x.skipped).length;
+          @@ -10106 +10122 @@ function finishBlock(){
+          - show(`<div class="mtop"><h2>${passed?'🎉':'💪'} ${s.name} завершена</h2><button class="x" onclick="closeModal()">×</button></div><div class="block-result"><div class="block-stars">${'★'.repeat(stars)}${'☆'.repeat(3-stars)}</div><div style="font-size:12px;color:var(--muted);margin-top:2px">3 ★ — без ошибок · 2 ★ — от 80% · 1 ★ — от 60%</div><h3>Верно с первой: ${b.correct} из ${b.total}</h3><div class="level-box" style="margin:8px 0 12px"><b>✅ С первой:</b> ${firstTryCount} &nbsp;•&nbsp; <b>🟡 Исправлено:</b> ${correctedCount} &nbsp;•&nbsp; <b>❌ Осталось неверно:</b> ${wrongCount} &nbsp;•&nbsp; <b>⏭ Пропущено:</b> ${skippedCount}</div><p>${passed?'Этап пройден. '+finalStageText:`Для прохождения нужно ${s.need}/${s.count}. Повтори блок — результат уже сохранён как лучший.`}</p><div style="font-size:12px;color:var(--muted);margin:-4px 0 10px">Пропуск занимает одно задание в блоке, но в журнале хранится отдельно от ошибки. Внутри блока задания не повторяются; при новом прохождении приложение сначала подбирает варианты, которых ученик недавно не видел.</div>${bonusXP?`<div class="level-box"><b>Бонус за первое прохождение:</b> +${bonusXP} XP и +${bonusCoins} 🪙</div>`:''}<div class="actions"><button class="btn soft" onclick="openAttemptReviewById('${reportId}')">📋 Разбор попытки</button><button class="btn soft" onclick="${repeat}">Повторить блок</button>${next?`<button class="btn primary next-ready" onclick="${nextCall}">Следующая ступень →</button>`:''}<button class="btn soft" onclick="closeModal()">К темам</button></div></div>`);
+          + show(`<div class="mtop"><h2>${passed?'🎉':'💪'} ${s.name} завершена</h2><button class="x" onclick="closeModal()">×</button></div><div class="block-result"><div class="block-stars">${'★'.repeat(stars)}${'☆'.repeat(3-stars)}</div><div style="font-size:12px;color:var(--muted);margin-top:2px">3 ★ — без ошибок · 2 ★ — от 80% · 1 ★ — от 60%</div><h3>Верно с первой: ${b.correct} из ${b.total}</h3><div class="level-box" style="margin:8px 0 12px"><b>✅ С первой:</b> ${firstTryCount} &nbsp;•&nbsp; <b>🟡 Исправлено:</b> ${correctedCount} &nbsp;•&nbsp; <b>❌ Осталось неверно:</b> ${wrongCount} &nbsp;•&nbsp; <b>⏭ Пропущено:</b> ${skippedCount}</div><p>${passed?(passedWithCorrection?'Этап пройден благодаря самостоятельному исправлению. ':'Этап пройден. ')+finalStageText:`Для прохождения нужно ${stagePassRequirement(s)}. Можно попробовать ещё раз.`}</p><div style="font-size:12px;color:var(--muted);margin:-4px 0 10px">Пропуск занимает одно задание в блоке, но в журнале хранится отдельно от ошибки. Внутри блока задания не повторяются; при новом прохождении приложение сначала подбирает варианты, которых ученик недавно не видел.</div>${bonusXP?`<div class="level-box"><b>Бонус за первое прохождение:</b> +${bonusXP} XP и +${bonusCoins} 🪙</div>`:''}<div class="actions"><button class="btn soft" onclick="openAttemptReviewById('${reportId}')">📋 Разбор попытки</button><button class="btn soft" onclick="${repeat}">Повторить блок</button>${next?`<button class="btn primary next-ready" onclick="${nextCall}">Следующая ступень →</button>`:''}<button class="btn soft" onclick="closeModal()">К темам</button></div></div>`);
+          @@ -10352 +10368,2 @@ function profileCompletedStages(profile,key){
+          - const p=profileProgressData(profile,key),best=Array.isArray(p.best)?p.best:[0,0,0],needs=[4,5,8];return [0,1,2].filter(i=>Number(best[i]||0)>=needs[i]).length;
+          + const progress=profileProgressData(profile,key);
+          + return STAGES.filter((_,i)=>progressStagePassed(progress,i)).length;
+          @@ -10672 +10689,6 @@ function teacherStageBreakdown(profile,grade){
+          - const g=Number(grade),all=teacherGradeTopicKeys(g),keys=g===3?all.filter(k=>analyticsTopicMeta(k)?.implemented!==false):all,out=[0,0,0],needs=[4,5,8];for(const key of keys){const p=profileProgressData(profile,key),best=Array.isArray(p?.best)?p.best:[];for(let i=0;i<3;i++)if(Number(best[i]||0)>=needs[i])out[i]++}return {warmup:out[0],training:out[1],master:out[2],topics:all.length};
+          + const g=Number(grade),all=teacherGradeTopicKeys(g),keys=g===3?all.filter(k=>analyticsTopicMeta(k)?.implemented!==false):all,out=[0,0,0];
+          + for(const key of keys){
+          +   const progress=profileProgressData(profile,key);
+          +   STAGES.forEach((_,i)=>{if(progressStagePassed(progress,i))out[i]++});
+          + }
+          + return {warmup:out[0],training:out[1],master:out[2],topics:all.length};
+          @@ -10911 +10933 @@ function knowledgeStageData(profile,key){
+          - return STAGES.map((st,i)=>({index:i,name:st.name,ico:st.ico,best:Number(best[i]||0),need:st.need,total:st.count,passed:Number(best[i]||0)>=st.need,started:Number(best[i]||0)>0}));
+          + return STAGES.map((st,i)=>({index:i,name:st.name,ico:st.ico,best:Number(best[i]||0),need:st.need,total:st.count,passed:progressStagePassed(p,i),started:Number(best[i]||0)>0}));
+          @@ -36663,21 +36685,21 @@ document.addEventListener("keydown",event=>{
+          -<script src="g5-conversion-ux.js?v=195"></script>
+          -<script src="g5-textbook-topics.js?v=195"></script>
+          -<script src="g5-textbook-core.js?v=195"></script>
+          -<script src="g5-textbook-v111.js?v=195"></script>
+          -<script src="g5-textbook-v112.js?v=195"></script>
+          -<script src="g5-pedagogy-v113.js?v=195"></script>
+          -<script src="g5-fractions-v114.js?v=195"></script>
+          -<script src="g5-fraction-arithmetic-v115.js?v=195"></script>
+          -<script src="g5-decimals-v116.js?v=195"></script>
+          -<script src="g7-textbook.js?v=195"></script>
+          -<script src="g8-textbook.js?v=195"></script>
+          -<script src="g5-textbook-navigation-v121.js?v=195"></script>
+          -<script src="g5-live-pedagogy-v122.js?v=195"></script>
+          -<script src="g5-arithmetic-tiers-v123.js?v=195"></script>
+          -<script src="g5-textbook-tiers-v124.js?v=195"></script>
+          -<script src="g5-natural-units-v125.js?v=195"></script>
+          -<script src="g5-remaining-core-v126.js?v=195"></script>
+          -<script src="g5-decimal-tiers-v127.js?v=195"></script>
+          -<script src="g5-decimal-percent-v128.js?v=195"></script>
+          -<script src="g5-fraction-concepts-v129.js?v=195"></script>
+          -<script src="g5-fraction-applications-v130.js?v=195"></script>
+          +<script src="g5-conversion-ux.js?v=196"></script>
+          +<script src="g5-textbook-topics.js?v=196"></script>
+          +<script src="g5-textbook-core.js?v=196"></script>
+          +<script src="g5-textbook-v111.js?v=196"></script>
+          +<script src="g5-textbook-v112.js?v=196"></script>
+          +<script src="g5-pedagogy-v113.js?v=196"></script>
+          +<script src="g5-fractions-v114.js?v=196"></script>
+          +<script src="g5-fraction-arithmetic-v115.js?v=196"></script>
+          +<script src="g5-decimals-v116.js?v=196"></script>
+          +<script src="g7-textbook.js?v=196"></script>
+          +<script src="g8-textbook.js?v=196"></script>
+          +<script src="g5-textbook-navigation-v121.js?v=196"></script>
+          +<script src="g5-live-pedagogy-v122.js?v=196"></script>
+          +<script src="g5-arithmetic-tiers-v123.js?v=196"></script>
+          +<script src="g5-textbook-tiers-v124.js?v=196"></script>
+          +<script src="g5-natural-units-v125.js?v=196"></script>
+          +<script src="g5-remaining-core-v126.js?v=196"></script>
+          +<script src="g5-decimal-tiers-v127.js?v=196"></script>
+          +<script src="g5-decimal-percent-v128.js?v=196"></script>
+          +<script src="g5-fraction-concepts-v129.js?v=196"></script>
+          +<script src="g5-fraction-applications-v130.js?v=196"></script>
+          diff --git a/sw.js b/sw.js
+          index 777ea011b4931c7c6cd1228b3e3588b9d21ff660..85f3532781f278bae118c8e93894c97678e50b82 100644
+          --- a/sw.js
+          +++ b/sw.js
+          @@ -1,2 +1,2 @@
+          -const CACHE_NAME = "matkvest-iphone-v195";
+          -const APP_BUILD_HASH = "718598fb744e6ae557306bbc781bd636f3385176193652b6793dcc58c0b7bbc8";
+          +const CACHE_NAME = "matkvest-iphone-v196";
+          +const APP_BUILD_HASH = "e6c0912264fe43d815376b237a3a4f2b1c4ec4eb53be1d7c8937774f8e6c00b9";
+          MATKVEST_PATCH
+          cat > "$RUNNER_TEMP/check-matkvest-v196.py" <<'BROWSER_TEST'
+          import os
+          from playwright.sync_api import sync_playwright, expect
+          
+          URL = os.environ.get("MATKVEST_URL", "http://127.0.0.1:8196/")
+          KEY = "g6:percent_of_number"
+          
+          def enter_topic(page):
+              page.evaluate("(key) => {renderGrade6(); openG6Topic(key)}", KEY)
+              expect(page.locator(".stage-card").nth(2)).to_contain_text("самостоятельное исправление")
+          
+          def load(page, width, expected_worker):
+              errors = []
+              page.on("pageerror", lambda e: errors.append(str(e)))
+              page.set_viewport_size({"width": width, "height": 850})
+              page.goto(URL, wait_until="load")
+              page.wait_for_function("typeof stagePassed === 'function'")
+              if expected_worker:
+                  page.wait_for_function("""async (version) => {
+                    if (!navigator.serviceWorker.controller) return false;
+                    const names = await caches.keys();
+                    return names.includes('matkvest-iphone-v'+version);
+                  }""", arg=expected_worker, timeout=30000)
+              return errors
+          
+          def solve(page, outcome):
+              if outcome == "wrong_then_skip" or outcome == "corrected":
+                  answer(page, False)
+                  expect(page.locator("#qfb")).to_contain_text("Пока неверно")
+              if outcome in ("skip", "wrong_then_skip"):
+                  page.locator("#quizSkip").click()
+                  page.get_by_role("button", name="Да, пропустить задание").click()
+                  expect(page.locator("#qfb")).to_contain_text("Правильный ответ")
+              else:
+                  answer(page, True)
+                  expect(page.locator("#qfb")).to_contain_text("Исправлено" if outcome=="corrected" else "Верно")
+              page.locator("#quizNext").click()
+          
+          def answer(page, correct):
+              q = page.evaluate("""() => ({answerMode:q.answerMode, answer:correctChoicePlain(q),
+                 choice:q.choices?.findIndex(c=>String(c.key)===String(q.ans))??-1})""")
+              if not q["answerMode"] or q["answerMode"] == "choice":
+                  right = q["choice"]
+                  page.locator("#qstage .answer").nth(right if correct else (right+1)%page.locator("#qstage .answer").count()).click()
+              else:
+                  page.locator("#quizInput").fill(q["answer"] if correct else "999999")
+                  page.locator("#quizCheck").click()
+          
+          def verify(page, width, first, remaining, passed, resume=False, repeat=False, offline=False, version=196):
+              errors = load(page, width, version)
+              page.evaluate("(key) => { progressFor(key).best=[5,7,0]; save(); }", KEY)
+              enter_topic(page)
+              master = page.locator(".stage-card").nth(2)
+              expect(master).to_be_enabled()
+              master.click()
+              attempt = page.evaluate("blockSession.attemptId")
+              for _ in range(first):
+                  solve(page, "first")
+              if resume:
+                  answer(page, False)
+                  page.reload(wait_until="load")
+                  page.get_by_role("button", name="Продолжить", exact=True).click()
+                  expect(page.locator("#qfb")).to_contain_text("Пока неверно")
+                  assert page.evaluate("blockSession.attemptId") == attempt
+                  answer(page, True)
+                  expect(page.locator("#qfb")).to_contain_text("Исправлено")
+                  page.locator("#quizNext").click()
+                  remaining = remaining[1:]
+              for outcome in remaining:
+                  solve(page, outcome)
+              expect(page.locator(".block-result")).to_contain_text(f"Верно с первой: {first} из 10")
+              expect(page.locator(".block-result")).to_contain_text("Этап пройден" if passed else "Для прохождения нужно")
+              if passed and first == 7:
+                  expect(page.locator(".block-result")).to_contain_text("благодаря самостоятельному исправлению")
+              page.get_by_role("button", name="Разбор попытки").click()
+              expect(page.locator(".modal")).to_contain_text("Пройдено" if passed else "Не пройдено")
+              if offline:
+                  page.context.set_offline(True)
+              page.reload(wait_until="load")
+              actual = page.evaluate("""({key,id})=>{
+                const record=state.attemptHistory.find(x=>x.id===id);
+                const mark=progressFor(key).masterPassedWithCorrection===true;
+                const profile={courseProgress:{[key]:progressFor(key)}};
+                const legacy={[key]:{best:[4,5,8],bonus:[true,true,true]}};
+                const plain={[key]:{best:[4,5,7],bonus:[true,true,false],masterPassedWithCorrection:false}};
+                return {score:progressFor(key).best[2],mark,bonus:progressFor(key).bonus[2],
+                 progress:stagePassed(key,2),done:completedStages(key),
+                 record:record&&{correct:record.correct,passed:record.passed,stars:record.stars,
+                  fixes:record.items.filter(x=>x.finalCorrect&&!x.firstTry&&!x.skipped).length,
+                  skips:record.items.filter(x=>x.skipped).length},
+                 report:teacherStageBreakdown(profile,6).master,knowledge:knowledgeStageData(profile,key)[2].passed,
+                 achievements:profileDirectStagePassed(state,key,2),
+                 legacy:progressStagePassed(legacy[key],2),plain:progressStagePassed(plain[key],2),
+                 mergedAB:progressStagePassed(mergeCourseProgress(profile.courseProgress,plain)[key],2),
+                 mergedBA:progressStagePassed(mergeCourseProgress(plain,profile.courseProgress)[key],2),
+                 recordCount:state.attemptHistory.filter(x=>x.id===id).length};
+              }""", {"key": KEY, "id": attempt})
+              assert actual["score"] == first and actual["record"]["correct"] == first, actual
+              assert actual["mark"] == (passed and first == 7), actual
+              assert all(actual[k] == passed for k in ("bonus","progress","knowledge","achievements","mergedAB","mergedBA")), actual
+              assert actual["report"] == int(passed) and actual["done"] == 2+int(passed), actual
+              assert actual["record"]["passed"] == passed and actual["recordCount"] == 1, actual
+              assert actual["legacy"] and not actual["plain"], actual
+              expected_fixes = (1 if resume else 0) + remaining.count("corrected")
+              assert actual["record"]["fixes"] == expected_fixes and actual["record"]["skips"] == remaining.count("skip")+remaining.count("wrong_then_skip"), actual
+              assert actual["record"]["stars"] == (3 if first == 10 else 2 if first >= 8 else 1), actual
+              if offline:
+                  page.context.set_offline(False)
+              enter_topic(page)
+              expect(master.locator(".stage-lock")).to_have_text("✅" if passed else "")
+              if repeat:
+                  master.click()
+                  for _ in range(first):
+                      solve(page, "first")
+                  for result in ["corrected","skip","skip"]:
+                      solve(page, result)
+                  expect(page.locator(".block-result")).not_to_contain_text("Бонус за первое прохождение")
+                  master = page.get_by_role("button", name="Повторить блок")
+                  master.click()
+                  for _ in range(first):
+                      solve(page, "first")
+                  for _ in range(3):
+                      solve(page, "skip")
+                  expect(page.locator(".block-result")).to_contain_text("Для прохождения нужно")
+                  page.reload(wait_until="load")
+                  enter_topic(page)
+                  expect(page.locator(".stage-card").nth(2).locator(".stage-lock")).to_have_text("✅")
+              assert not errors, errors
+              print(f"PASS {width} px, {first}/10, {actual}", flush=True)
+          
+          with sync_playwright() as playwright:
+              browser = playwright.chromium.launch(headless=True, executable_path=os.environ.get("MATKVEST_CHROMIUM"), args=["--no-sandbox"])
+              cases = [
+                  (390,7,["corrected","skip","skip"],True,True,True,True),
+                  (1280,7,["skip","wrong_then_skip","skip"],False,False,False,False),
+                  (320,8,["skip","skip"],True,False,False,False),
+                  (390,6,["corrected","corrected","corrected","corrected"],False,False,False,False),
+              ]
+              for case in cases:
+                  with browser.new_context() as context:
+                      verify(context.new_page(), *case)
+              browser.close()
+          BROWSER_TEST
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "8195decaa2eb8bd57c192a5dab9413dcb19e8082"
+          git apply --unidiff-zero --check "$RUNNER_TEMP/master-pass.patch"
+          git apply --unidiff-zero "$RUNNER_TEMP/master-pass.patch"
+          git diff --check
+          python audits/g7_stage12_sync_pwa.py --check
+          python -m http.server 8196 --bind 127.0.0.1 >"$RUNNER_TEMP/matkvest-http.log" 2>&1 &
+          server=$!
+          trap 'kill "$server"' EXIT
+          for attempt in {1..25}; do
+            if curl -fsS http://127.0.0.1:8196/ -o /dev/null; then break; fi
+            sleep 1
+          done
+          export MATKVEST_CHROMIUM="$(command -v google-chrome || command -v chromium)"
+          python "$RUNNER_TEMP/check-matkvest-v196.py"
+          cat > audits/master_pass_v196_2026-11-19.md <<'AUDIT'
+          # Правило прохождения «Мастера» в v196
+          
+          - При 8–10 ответах с первой попытки ступень пройдена. При 7 ответах с первой попытки нужно хотя бы одно самостоятельное исправление до показа ответа. Зачтённый результат сохраняется как 7/10. Три пропуска при 7/10 и четыре исправления при 6/10 зачёта не дают.
+          - В Chromium на 320, 390 и 1280 px проверены зачёт, незачёт, показ ответа при пропуске, сохранение после F5 и офлайн, восстановление попытки с ошибкой, журнал, сводка преподавателя, объединение профилей и однократная выдача бонуса.
+          - Протокол Chromium: https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}
+          AUDIT
+          sed -i "s|\${GITHUB_REPOSITORY}|$GITHUB_REPOSITORY|;s|\${GITHUB_RUN_ID}|$GITHUB_RUN_ID|" audits/master_pass_v196_2026-11-19.md
+          git add index.html sw.js audits/master_pass_v196_2026-11-19.md
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -m "Allow Master completion with seven first-try answers and an independent correction"
+          git push origin HEAD:refs/heads/release/master-pass-v196-chrome
