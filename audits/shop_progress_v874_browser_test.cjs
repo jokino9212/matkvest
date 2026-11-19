@@ -62,6 +62,32 @@ async function main(){
       assert(report.grades[g].count>0,'No section progress on grade '+g+' at '+width+': '+JSON.stringify(report.grades[g]));
       assert(report.grades[g].labels.every(s=>/Пройдено \d+ из \d+ тем/.test(s)),'Invalid section progress '+g+': '+JSON.stringify(report.grades[g]));
    }
+   const grade4=await page.evaluate(()=>{
+    openGrade(4);
+    mkV71RefreshSections();
+    const sections=[...mainView.querySelectorAll('.g4-textbook-group')];
+    const first=sections[0], topic=first.querySelector('[data-topic-id]').dataset.topicId;
+    const totals=sections.map(section=>({
+     cards:section.querySelectorAll('.g4-textbook-card').length,
+     total:Number(section.querySelector('[role="progressbar"]').getAttribute('aria-valuemax'))
+    }));
+    const label=()=>first.querySelector('.v71-progress-count').textContent;
+    progressFor(topic).best=[4,5,7];
+    save();
+    const before=label();
+    progressFor(topic).masterPassedWithCorrection=true;
+    save();
+    return {totals,before,after:label()};
+   });
+   assert.equal(grade4.totals.length,11,'Grade 4 must show all 11 textbook sections');
+   assert.equal(grade4.totals.reduce((sum,section)=>sum+section.total,0),68);
+   assert(grade4.totals.every(section=>section.total===section.cards));
+   assert.equal(grade4.before,'Пройдено 0 из 6 тем');
+   assert.equal(grade4.after,'Пройдено 1 из 6 тем');
+   await page.reload();
+   await page.evaluate(()=>{openGrade(4);mkV71RefreshSections();});
+   assert.equal(await page.locator('.g4-textbook-group .v71-progress-count').first().innerText(),'Пройдено 1 из 6 тем');
+   assert.deepEqual(errs,[]);
    console.log('PASS shop order, selector and section progress at',width,'px:',JSON.stringify(report.grades));
    await page.close();
   }

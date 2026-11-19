@@ -5092,7 +5092,7 @@ function formatLinearExpressionHtml(expr){
 function formatLinearEquationHtml(left,right){return `${formatLinearExpressionHtml(left)} <b>=</b> ${formatLinearExpressionHtml(right)}`}
 function parseLinearExpression(value){
  const raw=String(value??"").trim();if(!raw)return {ok:false,empty:true,error:"empty",raw};
- let compact=raw.replace(/[−–—]/g,"-").replace(/,/g,".").replace(/\s+/g,"").toLowerCase();
+ let compact=raw.replace(/[−–—]/g,"-").replace(/х/gi,"x").replace(/,/g,".").replace(/\s+/g,"").toLowerCase();
  if(!compact||!/^[0-9x+\-./]+$/.test(compact)||/(\+\+|--|\+-|-\+)/.test(compact))return {ok:false,error:"invalid",raw};
  const work=/^[+-]/.test(compact)?compact:`+${compact}`,terms=work.match(/[+-][^+-]+/g);if(!terms||terms.join("")!==work)return {ok:false,error:"invalid",raw};
  let a=rational(0),b=rational(0),xTerms=0,constTerms=0,nonCanonical=false;
@@ -5239,7 +5239,7 @@ function renderCoordinatePlane(data){
 function g6CoordinateJournalText(data){return (data.points||[]).map(pt=>g6PointText(pt,true)).join("; ")}
 function g6AttachCoordinatePlane(question,data){question.visual={type:"coordinatePlane",data};question.journalPrompt=`${question.text}<br><span class="math">Рисунок: ${esc(g6CoordinateJournalText(data))}</span>`;return question}
 function g6CoordinateInputQuestion(text,x,y,ex,sig,{audit={}}={}){
- const rx=g6CoordRat(x),ry=g6CoordRat(y),plain=`(${g6CoordText(rx)}; ${g6CoordText(ry)})`;return {text,ans:plain,correctText:plain,correctHtml:`<span class="math">${esc(plain)}</span>`,answerMode:"coordinate",answerPoint:{x:rx,y:ry},inputHint:"Введите отдельно абсциссу x и ординату y. Десятичную дробь можно писать через запятую или точку.",choices:[],ex,sig,audit};
+ const rx=g6CoordRat(x),ry=g6CoordRat(y),plain=`(${g6CoordText(rx)}; ${g6CoordText(ry)})`;return {text,ans:plain,correctText:plain,correctHtml:`<span class="math">${esc(plain)}</span>`,answerMode:"coordinate",answerPoint:{x:rx,y:ry},inputHint:"Введи x и y отдельно. Обыкновенную дробь можно записать через /, например −2/3.",choices:[],ex,sig,audit};
 }
 function g6TableHtml(data){
  const headers=(data.headers||[]).map(x=>`<th>${esc(String(x))}</th>`).join(""),rows=(data.rows||[]).map(row=>`<tr>${row.map(v=>`<td>${esc(typeof v==="object"&&v&&"n" in v?g6CoordText(v):String(v).replace(/^-/,"−"))}</td>`).join("")}</tr>`).join("");
@@ -13891,7 +13891,7 @@ function quizAnswerMarkup(nextHandler,skipHandler){
    const mode=q.answerMode,hint=q.inputHint||(mode==="fraction"?"Можно ввести обыкновенную дробь, смешанное число или целое.":mode==="ratio"?"Введите отношение, например: 2 : 3":mode==="multi"?"Введите числа по порядку через пробел, запятую или точку с запятой.":mode==="coordinate"?"Введите отдельно x и y.":"Введите ответ.");
    if(stage18UsesFractionBoxes(q))return stage18FractionMarkup(nextHandler,skipHandler,hint);
    if(mode==="coordinate"){
-     return `<div class="quiz-input-wrap"><div class="quiz-input-label">${esc(q.inputLabel||"Введите координаты")}</div><div class="coordinate-input-grid"><label class="coordinate-input-field"><span>x =</span><input id="quizInputX" class="coordinate-input" autocomplete="off" inputmode="decimal" aria-label="Абсцисса x"></label><label class="coordinate-input-field"><span>y =</span><input id="quizInputY" class="coordinate-input" autocomplete="off" inputmode="decimal" aria-label="Ордината y"></label></div><small class="quiz-input-hint">${esc(hint)}</small></div><div class="feedback" id="qfb"></div><div class="actions"><button id="quizCheck" class="btn primary" onclick="checkQuizInput()">Проверить</button><button id="quizNext" class="btn primary" style="display:none" onclick="${nextHandler}()">Следующий пример →</button><button id="quizSkip" class="btn soft" onclick="${skipHandler}()">⏭ Пропустить задание</button></div>`;
+     return `<div class="quiz-input-wrap"><div class="quiz-input-label">${esc(q.inputLabel||"Введите координаты")}</div><div class="coordinate-input-grid"><label class="coordinate-input-field"><span>x =</span><input id="quizInputX" class="coordinate-input" autocomplete="off" inputmode="text" aria-label="Абсцисса x"></label><label class="coordinate-input-field"><span>y =</span><input id="quizInputY" class="coordinate-input" autocomplete="off" inputmode="text" aria-label="Ордината y"></label></div><small class="quiz-input-hint">${esc(hint)}</small></div><div class="feedback" id="qfb"></div><div class="actions"><button id="quizCheck" class="btn primary" onclick="checkQuizInput()">Проверить</button><button id="quizNext" class="btn primary" style="display:none" onclick="${nextHandler}()">Следующий пример →</button><button id="quizSkip" class="btn soft" onclick="${skipHandler}()">⏭ Пропустить задание</button></div>`;
    }
    if(mode==="remainder"){
      return `<div class="quiz-input-wrap"><div class="quiz-input-label">Введите результат деления</div><div class="coordinate-input-grid"><label class="coordinate-input-field"><span>Частное</span><input id="quizInputQ" class="coordinate-input" autocomplete="off" inputmode="numeric" aria-label="Частное"></label><label class="coordinate-input-field"><span>Остаток</span><input id="quizInputR" class="coordinate-input" autocomplete="off" inputmode="numeric" aria-label="Остаток"></label></div><small class="quiz-input-hint">${esc(hint)}</small></div><div class="feedback" id="qfb"></div><div class="actions"><button id="quizCheck" class="btn primary" onclick="checkQuizInput()">Проверить</button><button id="quizNext" class="btn primary" style="display:none" onclick="${nextHandler}()">Следующий пример →</button><button id="quizSkip" class="btn soft" onclick="${skipHandler}()">⏭ Пропустить задание</button></div>`;
@@ -13915,7 +13915,7 @@ function quizInputEvaluation(question,raw){
    const h=Number(m[1]),mm=Number(m[2]);if(h<0||h>23)return {valid:false,message:"Часы должны быть от 0 до 23."};const mins=h*60+mm,shown=g3TimeText(mins),ok=mins===question.answerMinutes;return {valid:true,ok,studentHtml:`<span class="math g3-time-answer">${shown}</span>`,studentText:shown,correctText,correctHtml,detail:`Правильное время: ${correctText}`,retryMessage:"🟡 Пока неверно. Проверь часы и минуты.",finalWrongMessage:`💡 Правильный ответ: <b>${correctHtml}</b>. ${question.ex}`};
  }
  if(mode==="coordinate"){
-   const px=parseExactNumberInput(raw?.x),py=parseExactNumberInput(raw?.y);if(!px.ok||!py.ok)return {valid:false,message:"Проверьте координаты. В каждое поле нужно ввести число; десятичную дробь можно записать через запятую или точку."};
+   const px=parseExactNumberInput(raw?.x),py=parseExactNumberInput(raw?.y);if(!px.ok||!py.ok)return {valid:false,message:"Проверь координаты. В каждое поле введи число. Обыкновенную дробь запиши через /."};
    const ok=rationalEq(px.rat,question.answerPoint.x)&&rationalEq(py.rat,question.answerPoint.y),student=`(${g6CoordText(px.rat)}; ${g6CoordText(py.rat)})`,studentHtml=`<span class="math">${esc(student)}</span>`;
    return {valid:true,ok,studentHtml,studentText:student,correctText,correctHtml,detail:`Правильные координаты: ${correctText}`,retryMessage:"🟡 Пока неверно. Сначала проверь абсциссу x, затем ординату y.",finalWrongMessage:`💡 Правильный ответ: <b>${correctHtml}</b>. ${question.ex}`};
  }
@@ -38413,6 +38413,10 @@ body{background:var(--mk19c-canvas);color:var(--mk19c-ink)}
   const g=Number(m[1]);
   if(g===4){
    if(main.querySelector('#topics'))render(main.querySelector(':scope > .title'),4,TOPICS);
+   for(const section of main.querySelectorAll('.g4-textbook-group')){
+    const topics=Array.from(section.querySelectorAll('.g4-textbook-card[data-topic-id]'),card=>({id:card.dataset.topicId}));
+    render(section.querySelector(':scope > .grade-head > div'),4,topics);
+   }
    return;
   }
   const gs=groups(g);
@@ -39453,31 +39457,31 @@ document.addEventListener("keydown",event=>{
 })();
 </script>
 
-<script src="g5-conversion-ux.js?v=203"></script>
-<script src="g5-textbook-topics.js?v=203"></script>
-<script src="g5-textbook-core.js?v=203"></script>
-<script src="g5-textbook-v111.js?v=203"></script>
-<script src="g5-textbook-v112.js?v=203"></script>
-<script src="g5-pedagogy-v113.js?v=203"></script>
-<script src="g5-fractions-v114.js?v=203"></script>
-<script src="g5-fraction-arithmetic-v115.js?v=203"></script>
-<script src="g5-decimals-v116.js?v=203"></script>
-<script src="g7-textbook.js?v=203"></script>
-<script src="g8-textbook.js?v=203"></script>
-<script src="g1-textbook.js?v=203"></script>
-<script src="g2-textbook.js?v=203"></script>
-<script src="g3-textbook.js?v=203"></script>
-<script src="g4-textbook.js?v=203"></script>
-<script src="g5-textbook-navigation-v121.js?v=203"></script>
-<script src="g5-live-pedagogy-v122.js?v=203"></script>
-<script src="g5-arithmetic-tiers-v123.js?v=203"></script>
-<script src="g5-textbook-tiers-v124.js?v=203"></script>
-<script src="g5-natural-units-v125.js?v=203"></script>
-<script src="g5-remaining-core-v126.js?v=203"></script>
-<script src="g5-decimal-tiers-v127.js?v=203"></script>
-<script src="g5-decimal-percent-v128.js?v=203"></script>
-<script src="g5-fraction-concepts-v129.js?v=203"></script>
-<script src="g5-fraction-applications-v130.js?v=203"></script>
+<script src="g5-conversion-ux.js?v=204"></script>
+<script src="g5-textbook-topics.js?v=204"></script>
+<script src="g5-textbook-core.js?v=204"></script>
+<script src="g5-textbook-v111.js?v=204"></script>
+<script src="g5-textbook-v112.js?v=204"></script>
+<script src="g5-pedagogy-v113.js?v=204"></script>
+<script src="g5-fractions-v114.js?v=204"></script>
+<script src="g5-fraction-arithmetic-v115.js?v=204"></script>
+<script src="g5-decimals-v116.js?v=204"></script>
+<script src="g7-textbook.js?v=204"></script>
+<script src="g8-textbook.js?v=204"></script>
+<script src="g1-textbook.js?v=204"></script>
+<script src="g2-textbook.js?v=204"></script>
+<script src="g3-textbook.js?v=204"></script>
+<script src="g4-textbook.js?v=204"></script>
+<script src="g5-textbook-navigation-v121.js?v=204"></script>
+<script src="g5-live-pedagogy-v122.js?v=204"></script>
+<script src="g5-arithmetic-tiers-v123.js?v=204"></script>
+<script src="g5-textbook-tiers-v124.js?v=204"></script>
+<script src="g5-natural-units-v125.js?v=204"></script>
+<script src="g5-remaining-core-v126.js?v=204"></script>
+<script src="g5-decimal-tiers-v127.js?v=204"></script>
+<script src="g5-decimal-percent-v128.js?v=204"></script>
+<script src="g5-fraction-concepts-v129.js?v=204"></script>
+<script src="g5-fraction-applications-v130.js?v=204"></script>
 <script>
 // The textbook scripts finish extending the catalog before Home shows its totals.
 g5HomeCatalogReady=true;

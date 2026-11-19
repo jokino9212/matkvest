@@ -766,7 +766,7 @@ renderGrade4 = function () {
   <section class="g6-group" aria-label="Отдельные тренажёры">
    <div class="grade-head"><h2>Отдельные тренажёры</h2></div><div class="grid">${card('column')}${card('table')}</div>
   </section>
-  ${chapters.map(chapter=>`<section class="g6-group g4-textbook-group"><div class="grade-head"><h2>${esc(chapter.title)}</h2></div>
+  ${chapters.map(chapter=>`<section class="g6-group g4-textbook-group"><div class="grade-head"><div><h2>${esc(chapter.title)}</h2></div></div>
    <div class="grid">${chapter.topics.map(item=>card(item.id,chapter.title)).join('')}</div></section>`).join('')}`;
 };
 

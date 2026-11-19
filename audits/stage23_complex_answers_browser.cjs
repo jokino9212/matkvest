@@ -14,41 +14,41 @@ async function main(){
   await page.goto('file://'+path.resolve('index.html'),{waitUntil:'domcontentloaded'});
   const result=await page.evaluate(()=>{
    const testResults=[],problems=[];
-   const getRat=x=>x&&Number(x.d)!==0?Number(x.n)/Number(x.d):null;
+   const asExact=({n,d})=>d===1?String(n):n+'/'+d;
    const cases=[
-    {mode:'coordinate',topic:'g7:coordinate_plane',grade:7,stage:2},
-    {mode:'linear',topic:'g7:expression_properties',grade:7,stage:1},
-    {mode:'multi',topic:'g7:graphical_equations_systems',grade:7,stage:2},
-    {mode:'fraction',topic:'g7:rational_numbers_forms',grade:7,stage:1},
+    {mode:'coordinate',topic:'g7:coordinate_plane',stage:2,wrong:{x:'99999',y:'-99999'}},
+    {mode:'coordinate',topic:'g7:graphical_equations_systems',stage:2,requireFraction:true,wrong:{x:'99999',y:'-99999'}},
+    {mode:'linear',topic:'g7:brackets_like_terms',stage:1,wrong:'987654х+123456'},
+    {mode:'number',topic:'g7:rational_numbers_forms',stage:0,requireFraction:true,wrong:'99999/2'},
+    {mode:'multi',topic:'g8:equation_x2_equals_a',stage:1,wrong:'99999;88888'},
    ];
-   function answerOf(question){
+   function answerOf(question,requireFraction){
     switch(question.answerMode){
-     case 'coordinate': return question.answerPoint?{x:String(getRat(question.answerPoint.x)),y:String(getRat(question.answerPoint.y))}:null;
+     case 'coordinate': {
+       const {x,y}=question.answerPoint;
+       if(requireFraction&&!([x,y].some(r=>r.d>1&&rationalFiniteDecimal(r)===null)))return null;
+       return {x:asExact(x),y:asExact(y)};
+     }
      case 'linear': {
-       const v=question.answerLinear;if(!v)return null;
-       const a=getRat(v.a),b=getRat(v.b);if(a===null||b===null)return null;
-       return a===0?String(b):a===1?(b===0?'x':'x'+(b>0?'+':'')+b):String(a)+'x'+(b===0?'':(b>0?'+':'')+b);
+       if(!question.answerLinear.a.n)return null;
+       return formatLinearExpressionPlain(question.answerLinear).replace(/x/g,'х');
      }
-     case 'multi':return Array.isArray(question.answerList)?question.answerList.join('; '):null;
-     case 'fraction':{
-       const r=question.answerRat;if(!r)return null;
-       return String(r.n)+'/'+String(r.d);
-     }
+     case 'multi':return question.answerList.join('; ');
+     case 'number':return question.answerRat?.d>1?asExact(question.answerRat):null;
      default:return null;
     }
    }
    for(const c of cases){
+    const start=c.topic.startsWith('g7:')?startG7QuizStage:startG8QuizStage;
     let test=null;
-    for(let i=0;i<120;i++){
-     try{startG7QuizStage(c.topic,c.stage)}catch(e){problems.push({mode:c.mode,stage:'start',error:String(e)});break}
+    for(let i=0;i<80;i++){
+     try{start(c.topic,c.stage)}catch(e){problems.push({mode:c.mode,topic:c.topic,stage:'start',error:String(e)});break}
      if(q?.answerMode!==c.mode)continue;
-     const input=answerOf(q);
-     if(input==null)continue;
-     const ev=quizInputEvaluation(q,input);
-     if(ev.valid&&ev.ok){test={topic:c.topic,mode:c.mode,stage:c.stage,attempts:i+1,answer:input,question:q,verified:ev};break}
+     const input=answerOf(q,c.requireFraction);
+     if(input!=null){test={topic:c.topic,mode:c.mode,stage:c.stage,attempts:i+1,answer:input,question:q};break}
     }
-    if(!test){problems.push({mode:c.mode,reason:'MODE_OR_VALID_ANSWER_NOT_FOUND'});continue}
-    const wrong={coordinate:{x:'99999',y:'-99999'},linear:'987654x+123456',multi:'99999;88888',fraction:'12345/67891'}[c.mode];
+    if(!test){problems.push({mode:c.mode,topic:c.topic,reason:'MODE_OR_VALID_ANSWER_NOT_FOUND'});continue}
+    const wrong=c.wrong;
     const incorrect=quizInputEvaluation(test.question,wrong);
     if(incorrect.valid&&incorrect.ok)problems.push({mode:c.mode,reason:'INVALID_ACCEPTED'});
     let correct=quizInputEvaluation(test.question,test.answer);
@@ -57,6 +57,8 @@ async function main(){
     const geom=rawInputs.map(el=>{const r=el.getBoundingClientRect();return{id:el.id,left:r.left,right:r.right}});
     const overflow=geom.filter(x=>x.left<-2||x.right>document.documentElement.clientWidth+2);
     if(overflow.length)problems.push({mode:c.mode,reason:'INPUT_CLIPPED',overflow});
+    if(c.mode==='coordinate'&&c.requireFraction&&rawInputs.some(input=>input.inputMode!=='text'))
+      problems.push({mode:c.mode,reason:'FRACTION_KEYBOARD_UNAVAILABLE'});
     // Submit correct complex answer through the real Check button.
     const check=document.getElementById('quizCheck');
     const scoreBefore=blockSession?.correct??0;
@@ -76,7 +78,7 @@ async function main(){
     const scoreAfterSecond=blockSession?.correct??0;
     if(scoreAfter!==scoreBefore+1||scoreAfterSecond!==scoreAfter||!nextVisible)
       problems.push({mode:c.mode,reason:'UI_SCORING_OR_NEXT',scoreBefore,scoreAfter,scoreAfterSecond,nextVisible,feedback:document.getElementById('qfb')?.textContent?.slice(0,160)});
-    testResults.push({mode:c.mode,attempts:test.attempts,inputs:geom.length,valid:correct.valid,ok:correct.ok,wrongAccepted:incorrect.valid&&incorrect.ok,overflow:overflow.length,scoredOnce:scoreAfter===scoreBefore+1&&scoreAfterSecond===scoreAfter,nextVisible});
+    testResults.push({topic:c.topic,mode:c.mode,attempts:test.attempts,inputs:geom.length,valid:correct.valid,ok:correct.ok,wrongAccepted:incorrect.valid&&incorrect.ok,overflow:overflow.length,scoredOnce:scoreAfter===scoreBefore+1&&scoreAfterSecond===scoreAfter,nextVisible});
    }
    const semanticCases=[
     {name:'ratio-equivalent',q:{answerMode:'ratio',answerRatio:[2,3],requireReducedRatio:false},answer:'4:6',expected:true},
@@ -91,6 +93,7 @@ async function main(){
     {name:'multi-negative',q:{answerMode:'multi',answerList:[2,-1,5]},answer:'2; -1; 5',expected:true},
     {name:'multi-wrong-order',q:{answerMode:'multi',answerList:[2,-1,5]},answer:'-1; 2; 5',expected:false},
     {name:'linear-expression',q:{answerMode:'linear',answerLinear:{a:{n:2,d:1},b:{n:-3,d:1}}},answer:'2x-3',expected:true},
+    {name:'linear-cyrillic-x',q:{answerMode:'linear',answerLinear:{a:{n:2,d:1},b:{n:-3,d:1}}},answer:'2Х−3',expected:true},
     {name:'linear-wrong-sign',q:{answerMode:'linear',answerLinear:{a:{n:2,d:1},b:{n:-3,d:1}}},answer:'2x+3',expected:false},
    ];
    const semantic=[];
