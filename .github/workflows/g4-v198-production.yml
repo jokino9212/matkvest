@@ -1,0 +1,139 @@
+name: Grade 4 v198 production verification
+on:
+  push:
+    branches: [verify/g4-v198-production]
+    paths: [.github/workflows/g4-v198-production.yml]
+permissions:
+  contents: read
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install browser test dependency
+        run: python -m pip install playwright
+      - name: Verify exact build and F5 on the live site
+        shell: bash
+        run: |
+          set -euo pipefail
+          base64 -d <<'CHECK' | gzip -d > "$RUNNER_TEMP/grade4.py"
+          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
+          CHECK
+          export G4_CHROME="$(command -v google-chrome || command -v chromium)"
+          export G4_URL=https://jokino9212.github.io/matkvest/
+          for path in index.html sw.js g4-textbook.js; do
+            curl -fsS --retry 2 --max-time 20 -H 'Cache-Control: no-cache' "${G4_URL}${path}" -o "$RUNNER_TEMP/live-$path"
+            cmp -- "$path" "$RUNNER_TEMP/live-$path"
+            sha256sum "$RUNNER_TEMP/live-$path"
+          done
+          python "$RUNNER_TEMP/grade4.py" | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: Verify upgrading a v197 profile and draft to v198
+        shell: bash
+        run: |
+          set -euo pipefail
+          export G4_CHROME="$(command -v google-chrome || command -v chromium)"
+          export G4_ROOT_FILE="$RUNNER_TEMP/g4-root"
+          export G4_OLD_ROOT="$RUNNER_TEMP/matkvest-v197"
+          git worktree add --detach "$G4_OLD_ROOT" 3522cbf0979390d4b2887f336cc6e76f76781921
+          printf '%s' "$PWD" > "$G4_ROOT_FILE"
+          cat > "$RUNNER_TEMP/g4-server.py" <<'SERVER'
+          from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
+          from pathlib import Path
+          import os
+          class Handler(SimpleHTTPRequestHandler):
+              def __init__(self, *args, **kwargs):
+                  super().__init__(*args, directory=Path(os.environ["G4_ROOT_FILE"]).read_text(), **kwargs)
+              def send_head(self):
+                  del self.headers["If-Modified-Since"]
+                  return super().send_head()
+              def end_headers(self):
+                  self.send_header("Cache-Control", "no-store")
+                  super().end_headers()
+          ThreadingHTTPServer(("127.0.0.1", 8198), Handler).serve_forever()
+          SERVER
+          python "$RUNNER_TEMP/g4-server.py" > "$RUNNER_TEMP/g4-server.log" 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" || true' EXIT
+          curl -fsS --retry-connrefused --retry 4 -o /dev/null http://127.0.0.1:8198/
+          G4_URL=http://127.0.0.1:8198/ G4_UPGRADE_ONLY=1 python "$RUNNER_TEMP/grade4.py" | tee -a "$GITHUB_STEP_SUMMARY"
