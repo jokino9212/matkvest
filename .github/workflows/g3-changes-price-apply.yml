@@ -1,0 +1,184 @@
+name: Apply verified Grade 3 changes and price audit
+on:
+  push:
+    branches: [audit/g1-g4-content-v195]
+    paths: [.github/workflows/g3-changes-price-apply.yml]
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Apply the verified audit patch
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD^)" = "5da95ed1e1407458304102e87357e4040b5bfee7"
+          patch_file="$RUNNER_TEMP/matkvest.patch"
+          cat > "$patch_file" <<'MATKVEST_PATCH'
+          diff --git a/audits/g1_g4_content_audit_2026-11-17.md b/audits/g1_g4_content_audit_2026-11-17.md
+          index f791e34..0753054 100644
+          --- a/audits/g1_g4_content_audit_2026-11-17.md
+          +++ b/audits/g1_g4_content_audit_2026-11-17.md
+          @@ -1484 +1484,31 @@
+           - Формы выбираются случайно. Нет обратных задач и задач, в которых нужно последовательно применить разностное и кратное отношения. Целочисленный ответ сопровождается подсказкой о десятичной дроби.
+          +
+          +**После правок.** На разминке величина находится по прямому отношению. На тренировке нужно восстановить исходное количество по обратному отношению. Мастер содержит цепочки из двух отношений с разным порядком действий. В одной попытке встречаются все четыре формы. Числа и целочисленные ответы остаются в пределах 1–1000.
+          +
+          +- Независимо решены 9 600 задач, проверены числовые равенства в разборах и отсутствие одинаковых условий между уровнями.
+          +- На 320, 390 и 1280 px завершены 12 попыток, 81 правильный ответ засчитан. Во всех профилях неверный ответ отклонён, исправление принято. F5 сохранил очки уровней, три бонуса и 27 ответов в истории.
+          +- На 390 px после F5 продолжены все три незаконченные попытки с того же второго вопроса. Сохранены ID попытки, счётчик и условие.
+          +
+          +Следующая тема 3-го класса — «Цена, количество, стоимость» (`g3:price_quantity_cost`).
+          +
+          +### 2026-11-19. Цена, количество, стоимость (`g3:price_quantity_cost`)
+          +
+          +**До правок.** В Chromium проверено по 1 200 задач на уровень (зерно 19502).
+          +
+          +- У тренировки и мастера совпадают все три одношаговых шаблона и диапазоны. Между разминкой и тренировкой совпало 115 уникальных условий, между разминкой и мастером — 114, между тренировкой и мастером — 422.
+          +- В разминке нет задачи на количество, два остальных шаблона выбираются случайно. Нет задач с несколькими товарами, сдачей или бюджетом. Целочисленные ответы сопровождаются подсказкой о десятичной дроби.
+          +
+          +**После правок.** Разминка закрепляет все три связи между ценой, количеством и стоимостью. Тренировка добавляет стоимость нескольких товаров, сравнение расходов и выделение стоимости одного товара из общей суммы. На мастере нужно найти сдачу, восстановить количество или определить максимальную покупку по оставшемуся бюджету. В одной попытке встречаются все формы уровня.
+          +
+          +- По видимым условиям независимо решены 9 600 задач. Проверены единицы, ответы, равенства в разборах и отсутствие совпадающих условий между уровнями.
+          +- На 320, 390 и 1280 px пройдены 12 попыток. Засчитан 81 правильный ответ. Проверены отклонение неверного ввода, принятие исправления и сохранение очков, трёх бонусов и 27 записей истории после F5.
+          +- На 390 px прерванные попытки на каждом уровне восстановились со второго вопроса по кнопке «Продолжить» и завершились с полным баллом.
+          +
+          +Следующая тема 3-го класса — «Начало, окончание и продолжительность события» (`g3:time_tasks`).
+          +
+          +### 2026-11-19. Начало, окончание и продолжительность события (`g3:time_tasks`)
+          +
+          +**До правок.** В Chromium проверено по 1 200 задач на уровень (зерно 19502).
+          +
+          +- Все уровни решают одношаговые задачи со случайным временем. Тренировка и мастер имеют одинаковые три шаблона и диапазоны. Между разминкой и тренировкой совпало 78 уникальных условий, между разминкой и мастером — 70, между тренировкой и мастером — 79.
+          +- В разминке встречается переход через час, отсутствует поиск начала. В мастере отсутствуют перерывы и составные интервалы. Для целого количества минут отображается подсказка о десятичной дроби.
+          diff --git a/index.html b/index.html
+          index 9d6157d..88a816e 100644
+          --- a/index.html
+          +++ b/index.html
+          @@ -6070,4 +6070,95 @@ function g3MultiplicativeStoryQuestion(d,slot=null){
+           }
+          -function g3IncreaseDecreaseStoryQuestion(d){const variant=g6RandomFrom(["moreBy","lessBy","moreTimes","lessTimes"]),item=g3StoryItem(),base=ri(3,d===0?15:30),k=variant.includes("Times")?ri(2,d===0?5:8):ri(2,d===0?10:20);let first,answer,text,op;if(variant==="moreBy"){first=base;answer=base+k;op="+";text=`У Ани ${g3Qty(base,item)}. У Маши на ${k} больше. Сколько у Маши?`}else if(variant==="lessBy"){answer=base;first=base+k;op="−";text=`У Ани ${g3Qty(first,item)}. У Маши на ${k} меньше. Сколько у Маши?`}else if(variant==="moreTimes"){first=base;answer=base*k;op="·";text=`У Ани ${g3Qty(base,item)}. У Маши в ${k} ${ruTimes(k)} больше. Сколько у Маши?`}else{answer=base;first=base*k;op=":";text=`У Ани ${g3Qty(first,item)}. У Маши в ${k} ${ruTimes(k)} меньше. Сколько у Маши?`}return g3StoryNumberQuestion(text,answer,`Фраза «${variant==="moreBy"?"на несколько больше":variant==="lessBy"?"на несколько меньше":variant==="moreTimes"?"в несколько раз больше":"в несколько раз меньше"}» означает действие <b>${op}</b>.<br>${first} ${op} ${k} = <b>${answer}</b>.`,`g3:increase_decrease_tasks:${d}:${variant}:${first}:${k}`,{variant,source:first,k,answer})}
+          -function g3PriceQuestion(d){const variant=g6RandomFrom(d===0?["cost","cost","price"]:["cost","price","quantity"]),price=ri(3,d===0?15:25),qty=ri(2,d===0?6:9),cost=price*qty;let text,answer,unit,ex;if(variant==="cost"){text=`Одна тетрадь стоит ${price} руб. Купили ${qty} ${g3Plural(qty,["тетрадь","тетради","тетрадей"])}. Сколько заплатили?`;answer=cost;unit="руб.";ex=`Стоимость = цена · количество.<br>${price} · ${qty} = <b>${cost} руб.</b>`}else if(variant==="price"){text=`Купили ${g3Qty(qty,"notebook")} за ${cost} руб. Сколько стоит одна тетрадь?`;answer=price;unit="руб.";ex=`Цена = стоимость : количество.<br>${cost} : ${qty} = <b>${price} руб.</b>`}else{text=`Один карандаш стоит ${price} руб. На покупку потратили ${cost} руб. Сколько карандашей купили?`;answer=qty;unit="шт.";ex=`Количество = стоимость : цена.<br>${cost} : ${price} = <b>${qty}</b>.`}return g3StoryNumberQuestion(text,answer,ex,`g3:price_quantity_cost:${d}:${variant}:${price}:${qty}`,{variant,price,quantity:qty,cost},unit)}
+          +function g3IncreaseDecreaseStoryQuestion(d,slot=null){
+          + const operations=["moreBy","lessBy","moreTimes","lessTimes"];
+          + const operation=slot===null?g6RandomFrom(operations):operations[slot%operations.length];
+          + const item=g3StoryItem(),factor=ri(2,9),step=ri(2,12),base=ri(3,d===2?12:16);
+          + const by=`на ${step}`,times=`в ${factor} ${ruTimes(factor)}`;
+          + const signs={moreBy:"+",lessBy:"−",moreTimes:"·",lessTimes:":"};
+          + const input=(story,answer,ex)=>g6NumberInputQuestion(
+          +  `<span class="g3-story">${story}</span>`,answer,ex,
+          +  `g3:increase_decrease_tasks:${d}:${operation}:${story}`,
+          +  {inputHint:"Введи целое число.",audit:{type:"g3StoryNumber",variant:operation}}
+          + );
+          + if(d<2){
+          +  const isTimes=operation.endsWith("Times");
+          +  const small=base,large=isTimes?base*factor:base+step;
+          +  const change=isTimes?times:by,value=isTimes?factor:step;
+          +  const more=operation.startsWith("more"),given=d===0?(more?small:large):(more?large:small);
+          +  const answer=given===small?large:small,direction=more?"больше":"меньше",inverse=more?"меньше":"больше";
+          +  const applied=d===0?operation:{moreBy:"lessBy",lessBy:"moreBy",moreTimes:"lessTimes",lessTimes:"moreTimes"}[operation];
+          +  const calculation=`${given} ${signs[applied]} ${value} = <b>${answer}</b>.`;
+          +  if(d===0)return input(
+          +   `У Ани ${g3Qty(given,item)}. У Маши ${change} ${direction}, чем у Ани. Сколько у Маши?`,
+          +   answer,`У Маши ${change} ${direction}: ${calculation}`
+          +  );
+          +  return input(
+          +   `Во второй коробке ${g3Qty(given,item)}. Это ${change} ${direction}, чем в первой коробке. Сколько в первой коробке?`,
+          +   answer,`В первой коробке ${change} ${inverse}, чем во второй: ${calculation}`
+          +  );
+          + }
+          + const middle=Math.max(base,Math.floor(step/factor)+1)*factor;
+          + const chains={
+          +  moreBy:{first:middle-step,second:`${by} больше`,third:`${times} больше`,firstCalc:`+ ${step}`,secondCalc:`· ${factor}`,answer:middle*factor},
+          +  lessBy:{first:middle+step,second:`${by} меньше`,third:`${times} меньше`,firstCalc:`− ${step}`,secondCalc:`: ${factor}`,answer:middle/factor},
+          +  moreTimes:{first:middle/factor,second:`${times} больше`,third:`${by} меньше`,firstCalc:`· ${factor}`,secondCalc:`− ${step}`,answer:middle-step},
+          +  lessTimes:{first:middle*factor,second:`${times} меньше`,third:`${by} больше`,firstCalc:`: ${factor}`,secondCalc:`+ ${step}`,answer:middle+step}
+          + };
+          + const {first,second,third,firstCalc,secondCalc,answer}=chains[operation];
+          + return input(
+          +  `В первой коробке ${g3Qty(first,item)}. Во второй ${second}, чем в первой. В третьей ${third}, чем во второй. Сколько в третьей коробке?`,
+          +  answer,`Во второй коробке: ${first} ${firstCalc} = ${middle}.<br>В третьей коробке: ${middle} ${secondCalc} = <b>${answer}</b>.`
+          + );
+          +}
+          +function g3PriceQuestion(d,slot=null){
+          + const variants=[["cost","price","quantity"],["total","difference","findPrice"],["change","findQuantity","budget"]][d];
+          + const variant=slot===null?g6RandomFrom(variants):variants[slot%variants.length];
+          + const price=ri(4,25),qty=ri(2,9),cost=price*qty;
+          + const otherPrice=ri(3,price-1),otherQty=ri(2,qty),otherCost=otherPrice*otherQty;
+          + const input=(story,answer,ex,unit="руб.")=>g6NumberInputQuestion(
+          +  `<span class="g3-story">${story}</span>`,answer,ex,
+          +  `g3:price_quantity_cost:${d}:${variant}:${story}`,
+          +  {unitSuffix:unit,inputHint:"Введи целое число.",audit:{type:"g3StoryNumber",variant}}
+          + );
+          + if(variant==="cost")return input(
+          +  `Одна тетрадь стоит ${price} руб. Купили ${g3Qty(qty,"notebook")}. Сколько рублей заплатили?`,
+          +  cost,`Умножаем цену на количество: ${price} · ${qty} = <b>${cost}</b> (руб.).`
+          + );
+          + if(variant==="price")return input(
+          +  `За ${g3Qty(qty,"notebook")} заплатили ${cost} руб. Сколько рублей стоит одна тетрадь?`,
+          +  price,`Делим стоимость на количество: ${cost} : ${qty} = <b>${price}</b> (руб.).`
+          + );
+          + if(variant==="quantity")return input(
+          +  `Один карандаш стоит ${price} руб. На карандаши потратили ${cost} руб. Сколько карандашей купили?`,
+          +  qty,`Делим стоимость на цену: ${cost} : ${price} = <b>${qty}</b> (карандашей).`,"шт."
+          + );
+          + if(variant==="total")return input(
+          +  `Купили ${g3Qty(qty,"notebook")} по ${price} руб. и ${g3Qty(otherQty,"pencil")} по ${otherPrice} руб. Сколько рублей заплатили за всю покупку?`,
+          +  cost+otherCost,`Тетради: ${qty} · ${price} = ${cost} (руб.).<br>Карандаши: ${otherQty} · ${otherPrice} = ${otherCost} (руб.).<br>Вся покупка: ${cost} + ${otherCost} = <b>${cost+otherCost}</b> (руб.).`
+          + );
+          + if(variant==="difference")return input(
+          +  `Купили ${g3Qty(qty,"notebook")} по ${price} руб. и ${g3Qty(otherQty,"pencil")} по ${otherPrice} руб. На сколько рублей больше заплатили за тетради?`,
+          +  cost-otherCost,`Тетради: ${qty} · ${price} = ${cost} (руб.).<br>Карандаши: ${otherQty} · ${otherPrice} = ${otherCost} (руб.).<br>Разность: ${cost} − ${otherCost} = <b>${cost-otherCost}</b> (руб.).`
+          + );
+          + if(variant==="findPrice")return input(
+          +  `За ${g3Qty(qty,"notebook")} и альбом заплатили ${cost+otherPrice} руб. Альбом стоит ${otherPrice} руб. Сколько рублей стоит одна тетрадь?`,
+          +  price,`Сначала находим стоимость тетрадей: ${cost+otherPrice} − ${otherPrice} = ${cost} (руб.).<br>Цена тетради: ${cost} : ${qty} = <b>${price}</b> (руб.).`
+          + );
+          + if(variant==="change"){
+          +  const paid=50*(Math.floor((cost+otherCost)/50)+1);
+          +  return input(
+          +   `Купили ${g3Qty(qty,"notebook")} по ${price} руб. и ${g3Qty(otherQty,"pencil")} по ${otherPrice} руб. Кассиру дали ${paid} руб. Сколько рублей сдачи получили?`,
+          +   paid-cost-otherCost,
+          +   `Тетради: ${qty} · ${price} = ${cost} (руб.).<br>Карандаши: ${otherQty} · ${otherPrice} = ${otherCost} (руб.).<br>Покупка: ${cost} + ${otherCost} = ${cost+otherCost} (руб.).<br>Сдача: ${paid} − ${cost+otherCost} = <b>${paid-cost-otherCost}</b> (руб.).`
+          +  );
+          + }
+          + if(variant==="findQuantity")return input(
+          +  `Купили несколько тетрадей по ${price} руб. и ${g3Qty(otherQty,"pencil")} по ${otherPrice} руб. За всё заплатили ${cost+otherCost} руб. Сколько тетрадей купили?`,
+          +  qty,`Карандаши: ${otherQty} · ${otherPrice} = ${otherCost} (руб.).<br>Тетради: ${cost+otherCost} − ${otherCost} = ${cost} (руб.).<br>Количество тетрадей: ${cost} : ${price} = <b>${qty}</b>.`,"шт."
+          + );
+          + const remainder=ri(1,price-1),budget=cost+otherCost+remainder;
+          + return input(
+          +  `Было ${budget} руб. Купили ${g3Qty(otherQty,"pencil")} по ${otherPrice} руб. На оставшиеся деньги хотят купить тетради по ${price} руб. Сколько тетрадей можно купить самое большее?`,
+          +  qty,`Карандаши: ${otherQty} · ${otherPrice} = ${otherCost} (руб.).<br>Осталось ${budget} − ${otherCost} = ${cost+remainder} (руб.).<br>На ${qty} тетрадей нужно ${price} · ${qty} = ${cost} (руб.). Останется ${remainder} руб., на ещё одну тетрадь этого не хватит. Ответ: <b>${qty}</b>.`,"шт."
+          + );
+          +}
+           function g3DurationExplain847(start,end,duration){const sh=Math.floor(start/60),sm=start%60,eh=Math.floor(end/60),em=end%60;if(sh===eh)return `От ${g3TimeText(start)} до ${g3TimeText(end)} проходит ${em} − ${sm} = <b>${duration} мин</b>.`;const first=60-sm,remaining=duration-first,full=Math.floor(Math.max(0,remaining)/60)*60,last=Math.max(0,remaining-full),parts=[`${first} мин до ${String(sh+1).padStart(2,"0")}:00`];if(full)parts.push(`${full} мин полных часов`);if(last)parts.push(`${last} мин после ${String(eh).padStart(2,"0")}:00`);return `${parts.join(" + ")} = <b>${duration} мин</b>.`;}
+          @@ -7429,4 +7520,10 @@ function makeG3Question(id,stageOverride=null){
+            }
+          - if(raw==="increase_decrease_tasks")return g3IncreaseDecreaseStoryQuestion(d);
+          - if(raw==="price_quantity_cost")return g3PriceQuestion(d);
+          + if(raw==="increase_decrease_tasks"){
+          +  const live=stageOverride===null&&blockSession?.kind==="g3quiz"&&blockSession.key==="g3:increase_decrease_tasks";
+          +  return g3IncreaseDecreaseStoryQuestion(d,live?blockSession.done:null);
+          + }
+          + if(raw==="price_quantity_cost"){
+          +  const live=stageOverride===null&&blockSession?.kind==="g3quiz"&&blockSession.key==="g3:price_quantity_cost";
+          +  return g3PriceQuestion(d,live?blockSession.done:null);
+          + }
+            if(raw==="time_tasks")return g3TimeStoryQuestion(d);
+          MATKVEST_PATCH
+          git apply --check "$patch_file"
+          git apply "$patch_file"
+          test "$(git hash-object index.html)" = "88a816e2856ff36f2c2f1554b80e1d367ef6144b"
+          test "$(git hash-object audits/g1_g4_content_audit_2026-11-17.md)" = "07530547c11c699cc8410ab5808a298a2f404e1e"
+          git diff --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- index.html audits/g1_g4_content_audit_2026-11-17.md
+          git rm -- .github/workflows/g3-changes-price-apply.yml
+          git commit -m 'Audit Grade 3 comparison relationships and purchase problems'
+          git push origin HEAD:refs/heads/audit/g1-g4-content-v195
