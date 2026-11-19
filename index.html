@@ -892,9 +892,24 @@ button,input{font:inherit}button{cursor:pointer}.shell{max-width:1180px;margin:a
 }
 
 
+/* Grade 2 exercises in the textbook sequence. */
+.g2-moro-column{position:relative;display:grid;margin:14px auto;padding:8px 12px 8px 24px;width:max-content;min-width:128px;background:#f5fbf8;border:1px solid #d4e6dd;border-radius:12px;color:#244e3d;font-size:clamp(22px,6vw,31px);font-weight:750;font-variant-numeric:tabular-nums;line-height:1.35}
+.g2-moro-digits{display:grid;grid-auto-flow:column;grid-auto-columns:1.25em;justify-content:end;text-align:center}
+.g2-moro-column-second{position:relative;display:block;border-bottom:2px solid #527d68}
+.g2-moro-column-second b{position:absolute;right:100%;top:0;font-size:.86em}
+.g2-moro-angles{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,80px),1fr));gap:6px;max-width:440px;margin:12px auto}
+.g2-moro-angles .g2-geometry-visual{margin:0;padding:5px}
+.g2-moro-angles .g2-geometry-visual:only-child{max-width:155px;justify-self:center}
+.g2-moro-mirror{border-collapse:collapse;margin:12px auto;color:#294f40;text-align:center}
+.g2-moro-mirror td{width:clamp(23px,7vw,36px);height:clamp(23px,7vw,36px);border:1px solid #83a494;background:#fff}
+.g2-moro-mirror td.g2-moro-filled{background:#3175ab}
+.g2-moro-mirror th{min-width:19px;font-size:.9rem}
+.g2-moro-mirror :is(td,th):nth-child(5){border-left:3px solid #254c3a}
+
 /* Этап 8.44 — G2 geometry + perimeter visuals. */
 .g2-geometry-visual{max-width:720px;margin:12px auto;padding:10px;border:1px solid #d7e7df;border-radius:17px;background:linear-gradient(180deg,#fbfffd,#f5fbf8);overflow:hidden}
 .g2-geometry-svg{display:block;width:100%;height:auto;margin:auto}
+.g2-geometry-compare{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:10px;margin:12px 0}.g2-geometry-compare .g2-geometry-visual{margin:0;min-width:0}.g2-geometry-svg .g2-geo-side{font-size:20px;stroke-width:4}
 .g2-geo-stroke{fill:#eef8f2;stroke:#397d5d;stroke-width:4;stroke-linejoin:round}
 .g2-geo-line{fill:none;stroke:#397d5d;stroke-width:5;stroke-linecap:round}
 .g2-geo-point{fill:#285e46}
@@ -1154,7 +1169,7 @@ body:has(.mk872-help-layer){overflow:hidden}
 .g2-info-algorithm-step b{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:#e8f6ef;color:#176443}
 .g2-info-algorithm-step span{font-weight:850;color:#365247;overflow-wrap:anywhere}
 .g2-info-table-title{text-align:center;margin:4px 0 7px;font-weight:900;color:#49665a}
-@media(max-width:520px){.g2-info-sequence{gap:6px;padding:9px}.g2-info-seq-item{min-width:46px;padding:10px 8px;font-size:21px}.g2-info-algorithm{padding:9px}.g2-info-algorithm-step{padding:9px 8px}}
+@media(max-width:520px){.g2-info-sequence{gap:5px;padding:8px;flex-wrap:nowrap}.g2-info-seq-item{min-width:0;flex:0 1 46px;padding:10px 4px;font-size:20px}.g2-info-algorithm{padding:9px}.g2-info-algorithm-step{padding:9px 8px}}
 
 /* =========================================================
    ЭТАП 8.54 — CHECKPOINT B: главная страница
@@ -18381,7 +18396,7 @@ function elementaryTopicCard(t,grade){
  return `<button type="button" class="topic elementary-topic" onclick="showElementaryTopicSoon(${grade},'${t.id}')"><span class="ico">${grade}</span><strong>${esc(t.title)}</strong><small>${esc(t.shortTitle||t.group)}</small><span class="elementary-soon">Скоро</span></button>`
 }
 function renderElementaryGroup(group,grade){
- return `<section class="g6-group${grade===1?" g1-textbook-group":""}"><div class="grade-head"><div><h2>${esc([group.icon,group.title].filter(Boolean).join(" "))}</h2>${group.desc?`<p>${esc(group.desc)}</p>`:""}</div><span class="badge">${group.topics.length} ${group.topics.length===1?"тема":"тем"}</span></div><div class="grid">${group.topics.map(t=>elementaryTopicCard(t,grade)).join("")}</div></section>`
+ return `<section class="g6-group${grade<=2?` g${grade}-textbook-group`:""}"><div class="grade-head"><div><h2>${esc([group.icon,group.title].filter(Boolean).join(" "))}</h2>${group.desc?`<p>${esc(group.desc)}</p>`:""}</div><span class="badge">${group.topics.length} ${group.topics.length===1?"тема":"тем"}</span></div><div class="grid">${group.topics.map(t=>elementaryTopicCard(t,grade)).join("")}</div></section>`
 }
 function renderElementaryGrade(grade){
  const g=Number(grade),groups=g===1?G1_GROUPS:G2_GROUPS,total=g===1?g1AllTopics().length:g2AllTopics().length;
@@ -18462,7 +18477,7 @@ renderHome=function(){
  if(grid){
   grid.insertAdjacentHTML("afterbegin",
    `<section class="grade-card"><div class="grade-ico">${gradeBookIcon(1,false)}</div><h2>1 КЛАСС</h2><p>Числа до 20, первые действия, задачи, величины и фигуры.</p><div class="grade-summary" id="g1HomeProgress">${g1HomeProgressText()}</div><button class="btn primary" onclick="openGrade(1)">Открыть 1 класс</button></section>`+
-   `<section class="grade-card"><div class="grade-ico">${gradeBookIcon(2,false)}</div><h2>2 КЛАСС</h2><p>Числа до 100, четыре действия, задачи, величины и геометрия.</p><div class="grade-summary">${g2AllTopics().length} тем курса</div><button class="btn primary" onclick="openGrade(2)">Открыть 2 класс</button></section>`
+   `<section class="grade-card"><div class="grade-ico">${gradeBookIcon(2,false)}</div><h2>2 КЛАСС</h2><p>Числа до 100, четыре действия, задачи, величины и геометрия.</p><div class="grade-summary" id="g2HomeProgress">${g2HomeProgressText()}</div><button class="btn primary" onclick="openGrade(2)">Открыть 2 класс</button></section>`
   );
   const summaries={
    "3 КЛАСС":`Пройдено тем: ${gradeCompletedTopics(3)}/${g3AllTopics().length} • этапов: ${g3CompletedStages()}/${g3TotalStages()}`,
@@ -18869,6 +18884,11 @@ g1TheoryHtml=function(id){
  return PRE836_G1_THEORY_HTML(id)
 };
 
+function g2HomeProgressText(){
+ const topics=g2AllTopics().filter(t=>t.implemented!==false);
+ const stages=topics.reduce((total,topic)=>total+completedStages(topic.id),0);
+ return `Пройдено тем: ${gradeCompletedTopics(2)}/${topics.length} • этапов: ${stages}/${topics.length*3}`;
+}
 function g1HomeProgressText(){
  const topics=g1AllTopics().filter(t=>t.implemented!==false);
  const stages=topics.reduce((total,topic)=>total+completedStages(topic.id),0);
@@ -19749,85 +19769,158 @@ function g2TensOnesVisualHtml(data){
 }
 function g2MeasureCardsHtml(data){
  const rows=Array.isArray(data?.rows)?data.rows:[];
- return `<div class="g2-measure-cards" role="img" aria-label="Сравнение величин">${rows.map(r=>`<div class="g2-measure-card"><b>${esc(r.value)}</b><small>${esc(r.label||"")}</small></div>`).join("")}</div>`
+ const description=rows.map(row=>[row.label,row.value].filter(Boolean).join(". ")).join(". ");
+ return `<div class="g2-measure-cards" role="img" aria-label="${esc(description)}">${rows.map(r=>`<div class="g2-measure-card"><b>${esc(r.value)}</b><small>${esc(r.label||"")}</small></div>`).join("")}</div>`
 }
 const PRE841_QUIZ_VISUAL_HTML=quizVisualHtml;
 quizVisualHtml=function(question){
  const v=question?.visual;if(v?.type==="g2TensOnes")return g2TensOnesVisualHtml(v.data);if(v?.type==="g2MeasureCards")return g2MeasureCardsHtml(v.data);return PRE841_QUIZ_VISUAL_HTML(question)
 };
 
-function g2Numbers100Model(){const tens=ri(1,9),ones=ri(0,9);return {tens,ones,n:tens*10+ones}}
+const G2_NUMBERS_100_STAGES=[
+ {templates:["line_read","count_place"],description:"Прочитай число на луче, посчитай десятки или единицы на рисунке."},
+ {templates:["build_number","neighbor","compare"],description:"Составь число, напиши соседнее или сравни два числа."},
+ {templates:["order_numbers","find_by_clues"],description:"Упорядочь четыре числа или найди число по нескольким условиям."}
+];
+
 function g2Numbers100Question(d){
- const warm=["line_read","build_number","after"],train=["line_read","build_number","tens_count","ones_count","before","after","missing"],master=["line_read","build_number","tens_count","ones_count","before","after","missing","compare","write_number"],templateId=g2PickTemplate(d===0?warm:d===1?train:master);
+ const templateId=g2PickTemplate(G2_NUMBERS_100_STAGES[d].templates);
+ const sig=key=>`g2:numbers_100:${d}:${templateId}:${key}`;
  if(templateId==="line_read"){
-  const n=ri(0,100),w=g2NumberWindow(n),model={n,...w};
-  return g2Choice("Какое число отмечено на числовом луче?",n,g2UniqueNums(n,w.min,w.max),`Точка стоит у числа ${n}.`,`g2:numbers_100:${d}:line_read:${n}`,{model,visual:{type:"g1NumberLine",data:{min:w.min,max:w.max,highlight:n}},templateId})
+  const n=ri(0,100),window=g2NumberWindow(n),model={n,...window};
+  return g2Choice("Какое число отмечено на числовом луче?",n,g2UniqueNums(n,window.min,window.max),`Точка стоит у числа ${n}.`,sig(n),{
+   model,visual:{type:"g1NumberLine",data:{...window,highlight:n}},templateId
+  });
+ }
+ if(templateId==="count_place"){
+  const tens=ri(1,9),ones=ri(0,9),countTens=ri(0,1)===0;
+  const answer=countTens?tens:ones;
+  const text=countTens?"Сколько десятков показано палочками?":"Сколько единиц показано точками?";
+  const ex=countTens?`Каждая палочка — один десяток. Всего ${tens} ${g2TensWord(tens)}.`:
+   `Каждая точка — одна единица. Всего ${ones} ${g2UnitsWord(ones)}.`;
+  const model={tens,ones,countTens};
+  const data={tens,ones,hideTensCaption:countTens,hideOnesCaption:!countTens,ariaMode:"generic"};
+  return g2Choice(text,answer,g2UniqueNums(answer,0,9),ex,sig(`${tens}:${ones}:${countTens}`),{
+   model,visual:{type:"g2TensOnes",data},templateId
+  });
  }
  if(templateId==="build_number"){
-  const model=g2Numbers100Model(),answer=model.n;
-  return g2Choice("Какое число показано десятками и единицами?",answer,g2UniqueNums(answer,10,99),`${model.tens} ${g2TensWord(model.tens)} — это ${model.tens*10}. Ещё ${model.ones} ${g2UnitsWord(model.ones)}. Получаем ${answer}.`,`g2:numbers_100:${d}:build_number:${model.tens}:${model.ones}`,{model,visual:{type:"g2TensOnes",data:model},templateId})
+  const n=ri(0,100),tens=Math.floor(n/10),ones=n%10;
+  const text=`Запиши число, в котором <b>${tens} ${g2TensWord(tens)} и ${ones} ${g2UnitsWord(ones)}</b>.`;
+  return g2NumberInput(text,n,`${tens} ${g2TensWord(tens)} — это ${tens*10}. ${tens*10} + ${ones} = ${n}.`,sig(n),{
+   model:{n,tens,ones},templateId
+  });
  }
- if(templateId==="tens_count"){
-  const model=g2Numbers100Model(),answer=model.tens;
-  return g2Choice(`Сколько десятков в числе ${model.n}?`,answer,g2UniqueNums(answer,0,9),`В числе ${model.n} — ${answer} ${g2TensWord(answer)} и ${model.ones} ${g2UnitsWord(model.ones)}.`,`g2:numbers_100:${d}:tens_count:${model.n}`,{model,visual:{type:"g2TensOnes",data:{...model,hideTensCaption:true,ariaMode:"generic"}},templateId})
- }
- if(templateId==="ones_count"){
-  const model=g2Numbers100Model(),answer=model.ones;
-  return g2Choice(`Сколько единиц в числе ${model.n}?`,answer,g2UniqueNums(answer,0,9),`В числе ${model.n} — ${model.tens} ${g2TensWord(model.tens)} и ${answer} ${g2UnitsWord(answer)}.`,`g2:numbers_100:${d}:ones_count:${model.n}`,{model,visual:{type:"g2TensOnes",data:{...model,hideOnesCaption:true,ariaMode:"generic"}},templateId})
- }
- if(templateId==="before"){
-  const n=ri(1,100),answer=n-1,model={n,answer};return g2Choice(`Какое число идёт перед ${n}?`,answer,g2UniqueNums(answer,0,100),`Перед ${n} стоит ${answer}.`,`g2:numbers_100:${d}:before:${n}`,{model,templateId})
- }
- if(templateId==="after"){
-  const n=ri(0,99),answer=n+1,model={n,answer};return g2Choice(`Какое число идёт после ${n}?`,answer,g2UniqueNums(answer,0,100),`После ${n} идёт ${answer}.`,`g2:numbers_100:${d}:after:${n}`,{model,templateId})
- }
- if(templateId==="missing"){
-  const answer=ri(1,99),model={answer,left:answer-1,right:answer+1};return g2Choice(`Какого числа не хватает?<div class="g1-arithmetic-record">${model.left} &nbsp; ? &nbsp; ${model.right}</div>`,answer,g2UniqueNums(answer,0,100),`Числа идут по порядку: ${model.left}, ${answer}, ${model.right}.`,`g2:numbers_100:${d}:missing:${answer}`,{model,templateId})
+ if(templateId==="neighbor"){
+  const before=ri(0,1)===0,n=before?ri(1,100):ri(0,99),answer=before?n-1:n+1;
+  const position=before?"перед":"после";
+  return g2NumberInput(`Какое число идёт сразу ${position} <b>${n}</b>?`,answer,
+   `На числовом луче сразу ${position} числа ${n} стоит ${answer}.`,sig(`${position}:${n}`),{model:{n,before},templateId});
  }
  if(templateId==="compare"){
-  let a=ri(0,100),b=ri(0,100);const equal=ri(0,4)===0;if(equal)b=a;else if(a===b)b=b<100?b+1:b-1;
-  const answer=a===b?"=":a>b?">":"<",model={a,b,answer};
-  return g2Choice(`Какой знак подходит?<div class="g1-arithmetic-record">${a} &nbsp; ? &nbsp; ${b}</div>`,answer,[">","<","="].filter(x=>x!==answer),a===b?`${a} и ${b} равны, поэтому ставим знак =.`:`Сравниваем ${a} и ${b}. ${a} ${answer} ${b}.`,`g2:numbers_100:${d}:compare:${a}:${b}`,{model,templateId})
+  const a=ri(0,100),b=ri(0,4)===0?a:ri(0,100);
+  const answer=a===b?"=":a>b?">":"<";
+  return g2Choice(`Какой знак подходит?<div class="g1-arithmetic-record">${a} &nbsp; ? &nbsp; ${b}</div>`,
+   answer,[">","<","="].filter(sign=>sign!==answer),`Сравниваем ${a} и ${b}. ${a} ${answer} ${b}.`,sig(`${a}:${b}`),{model:{a,b},templateId});
  }
- const model=g2Numbers100Model(),answer=model.n;
- return g2NumberInput(`Запиши число: <b>${model.tens} ${g2TensWord(model.tens)} и ${model.ones} ${g2UnitsWord(model.ones)}</b>.`,answer,`${model.tens} ${g2TensWord(model.tens)} — ${model.tens*10}. Добавляем ${model.ones} ${g2UnitsWord(model.ones)} и получаем ${answer}.`,`g2:numbers_100:${d}:write_number:${model.tens}:${model.ones}`,{model,visual:{type:"g2TensOnes",data:model},templateId:"write_number"})
+ if(templateId==="order_numbers"){
+  const base=ri(0,90),numbers=[base,base+ri(1,4),base+ri(5,8),base+ri(9,10)];
+  const ascending=ri(0,1)===0;
+  const order=ascending?numbers:numbers.slice().reverse(),answer=order.join(", ");
+  const given=shuffleOptions(numbers);
+  if(given.join(", ")===answer)given.push(given.shift());
+  const wrong=order.slice(0,-1).map((_,i)=>{
+   const row=order.slice();
+   [row[i],row[i+1]]=[row[i+1],row[i]];
+   return row.join(", ");
+  });
+  const direction=ascending?"по возрастанию":"по убыванию";
+  return g2Choice(`Выбери ряд ${direction} для чисел <b>${given.join(", ")}</b>.`,answer,wrong,
+   `От ${ascending?"меньшего к большему":"большего к меньшему"}: ${answer}.`,sig(`${direction}:${numbers.join(":")}`),{
+   model:{numbers,ascending},templateId
+  });
+ }
+ const n=ri(2,98),min=n-ri(2,Math.min(8,n)),max=n+ri(2,Math.min(8,100-n)),ones=n%10;
+ const text=`Какое число больше <b>${min}</b>, меньше <b>${max}</b>, а его последняя цифра — <b>${ones}</b>?`;
+ // Внутри заданных границ числа с одной и той же последней цифрой разделены хотя бы десятью.
+ const wrong=[n-1,n+1,n<=90?n+10:n-10];
+ return g2Choice(text,n,wrong,
+  `${n} больше ${min} и меньше ${max}. В разряде единиц у него цифра ${ones}.`,sig(`${min}:${max}:${ones}`),{
+   model:{min,max,ones},templateId
+ });
 }
 
-const G2_UNIT_CONTEXTS=[
- {text:"длину карандаша",answer:"см",wrong:["м","кг","ч"]},
- {text:"длину комнаты",answer:"м",wrong:["см","кг","мин"]},
- {text:"массу арбуза",answer:"кг",wrong:["см","м","мин"]},
- {text:"длительность урока",answer:"мин",wrong:["кг","см","м"]},
- {text:"продолжительность ночного сна",answer:"ч",wrong:["мин","кг","см"]}
+const G2_QUANTITIES_STAGES=[
+ {templates:["ruler_zero","choose_unit"],description:"Выбери единицу измерения или измерь отрезок от нуля."},
+ {templates:["convert_unit","compare_quantities"],description:"Переведи единицы измерения и сравни величины."},
+ {templates:["ruler_shifted","remaining_tape","remaining_time"],description:"Измерь отрезок по двум отметкам или реши задачу на длину и время."}
 ];
+const G2_UNIT_CONTEXTS=[
+ {text:"длину карандаша",answer:"см",wrong:["кг","мин","ч"],ex:"Длину небольших предметов удобно измерять в сантиметрах."},
+ {text:"длину комнаты",answer:"м",wrong:["кг","мин","ч"],ex:"Длину комнаты удобно измерять в метрах."},
+ {text:"массу арбуза",answer:"кг",wrong:["см","м","мин"],ex:"Массу арбуза удобно измерять в килограммах."},
+ {text:"длительность урока",answer:"мин",wrong:["кг","см","м"],ex:"Школьный урок длится несколько десятков минут."},
+ {text:"продолжительность ночного сна",answer:"ч",wrong:["кг","см","м"],ex:"Ночной сон длится несколько часов."}
+];
+const G2_UNIT_RELATIONS=[
+ {large:"дм",small:"см",factor:10,max:10},
+ {large:"м",small:"дм",factor:10,max:9},
+ {large:"м",small:"см",factor:100,max:1},
+ {large:"ч",small:"мин",factor:60,max:1}
+];
+const G2_QUANTITY_COMPARISONS=[
+ {leftUnit:"кг",rightUnit:"кг",factor:1,max:20,delta:4},
+ {leftUnit:"дм",rightUnit:"см",factor:10,max:10,delta:9},
+ {leftUnit:"ч",rightUnit:"мин",factor:60,max:1,delta:15}
+];
+
 function g2QuantitiesQuestion(d){
- const warm=["ruler_cm","choose_unit","compare_mass"],train=["ruler_cm","choose_unit","compare_mass","convert_dm_cm","convert_cm_dm","compare_length","compare_time"],master=["ruler_cm","choose_unit","compare_mass","convert_dm_cm","convert_cm_dm","compare_length","compare_time","unit_relation"],templateId=g2PickTemplate(d===0?warm:d===1?train:master);
- if(templateId==="ruler_cm"){
-  const a=ri(2,10),model={a,unit:"см"};return g2Choice("Какова длина отрезка?",a,g2UniqueNums(a,1,10),`Отрезок начинается у 0 и заканчивается у ${a}. Его длина — ${a} см.`,`g2:quantities:${d}:ruler_cm:${a}`,{model,visual:{type:"g1Length",data:{kind:"measure",a}},templateId})
+ const templateId=g2PickTemplate(G2_QUANTITIES_STAGES[d].templates);
+ const sig=key=>`g2:quantities:${d}:${templateId}:${key}`;
+ if(templateId==="ruler_zero"||templateId==="ruler_shifted"){
+  const shifted=templateId==="ruler_shifted",start=shifted?ri(1,9):0,end=ri(start+1,10),answer=end-start;
+  const model={start,end},visual={type:"g1Length",data:{segments:[model]}},options={model,visual,templateId};
+  if(shifted)return g2NumberInput("Найди длину отрезка в сантиметрах по двум отметкам линейки.",answer,
+   `Начало у отметки ${start}, конец у отметки ${end}. Длина отрезка равна ${end} − ${start} = ${answer} см.`,sig(`${start}:${end}`),
+   {...options,unitSuffix:"см",inputHint:"Введи число сантиметров."});
+  return g2Choice("Какова длина отрезка в сантиметрах?",answer,g2UniqueNums(answer,1,10),
+   `Отрезок начинается у 0 и заканчивается у ${end}. Его длина — ${answer} см.`,sig(end),options);
  }
  if(templateId==="choose_unit"){
-  const c=G2_UNIT_CONTEXTS[ri(0,G2_UNIT_CONTEXTS.length-1)],model={context:c.text,answer:c.answer};return g2Choice(`В каких единицах удобно измерять ${c.text}?`,c.answer,c.wrong,`Удобно использовать ${c.answer}.`,`g2:quantities:${d}:choose_unit:${c.answer}:${c.text}`,{model,templateId})
+  const {text,answer,wrong,ex}=g2PickTemplate(G2_UNIT_CONTEXTS);
+  return g2Choice(`В каких единицах удобно измерять ${text}?`,answer,wrong,ex,sig(text),{model:{context:text},templateId});
  }
- if(templateId==="compare_mass"){
-  let a=ri(1,9),b=ri(1,9);if(a===b)b=b<9?b+1:b-1;const answer=a>b?`${a} кг`:`${b} кг`,model={a,b,answer};
-  return g2Choice("Какая масса больше?",answer,[`${a} кг`,`${b} кг`].filter(x=>x!==answer),`Сравниваем ${a} кг и ${b} кг. Больше ${answer}.`,`g2:quantities:${d}:compare_mass:${a}:${b}`,{model,visual:{type:"g2MeasureCards",data:{rows:[{value:`${a} кг`,label:"Первая масса"},{value:`${b} кг`,label:"Вторая масса"}]}},templateId})
+ if(templateId==="convert_unit"){
+  const {large,small,factor,max}=g2PickTemplate(G2_UNIT_RELATIONS),amount=ri(1,max),toSmall=ri(0,1)===0;
+  const given=toSmall?amount:amount*factor,answer=toSmall?amount*factor:amount;
+  const from=toSmall?large:small,to=toSmall?small:large;
+  return g2NumberInput(`Заполни пропуск. <b>${given} ${from} = ? ${to}</b>.`,answer,
+   `1 ${large} = ${factor} ${small}. Значит, ${given} ${from} = ${answer} ${to}.`,sig(`${from}:${to}:${given}`),{
+    model:{given,from,to},templateId,unitSuffix:to
+   });
  }
- if(templateId==="convert_dm_cm"){
-  const dm=ri(1,9),answer=dm*10,model={dm,answer};return g2NumberInput(`Сколько сантиметров в <b>${dm} дм</b>?`,answer,`1 дм = 10 см. Значит, ${dm} дм = ${answer} см.`,`g2:quantities:${d}:convert_dm_cm:${dm}`,{model,visual:{type:"g2MeasureCards",data:{rows:[{value:`${dm} дм`,label:"Дециметры"},{value:`${answer} см`,label:"Сантиметры"}]}},templateId,unitSuffix:"см",inputHint:"Введи число сантиметров."})
+ if(templateId==="compare_quantities"){
+  const {leftUnit,rightUnit,factor,max,delta}=g2PickTemplate(G2_QUANTITY_COMPARISONS);
+  const a=ri(1,max),converted=a*factor,b=converted+ri(-Math.min(delta,converted-1),Math.min(delta,100-converted));
+  const left=`${a} ${leftUnit}`,right=`${b} ${rightUnit}`;
+  const answer=converted===b?"=":converted<b?"<":">";
+  const equation=factor===1?"":`${left} = ${converted} ${rightUnit}. `;
+  const model={a,b,leftUnit,rightUnit},visual={type:"g2MeasureCards",data:{rows:[{value:left,label:"Первая величина"},{value:right,label:"Вторая величина"}]}};
+  return g2Choice("Какой знак верно сравнивает первую величину со второй?",answer,["<","=",">"].filter(sign=>sign!==answer),
+   `${equation}${converted} ${rightUnit} ${answer} ${right}.`,sig(`${left}:${right}`),{model,visual,templateId});
  }
- if(templateId==="convert_cm_dm"){
-  const dm=ri(1,9),cm=dm*10,answer=dm,model={cm,answer};return g2NumberInput(`Сколько дециметров в <b>${cm} см</b>?`,answer,`10 см = 1 дм. Значит, ${cm} см = ${answer} дм.`,`g2:quantities:${d}:convert_cm_dm:${cm}`,{model,visual:{type:"g2MeasureCards",data:{rows:[{value:`${cm} см`,label:"Сантиметры"},{value:`${answer} дм`,label:"Дециметры"}]}},templateId,unitSuffix:"дм",inputHint:"Введи число дециметров."})
+ if(templateId==="remaining_tape"){
+  const decimeters=ri(1,9),used=10*decimeters,answer=100-used;
+  return g2NumberInput(`От ленты длиной <b>1 м</b> отрезали <b>${decimeters} дм</b>. Сколько сантиметров ленты осталось?`,answer,
+   `1 м = 100 см. ${decimeters} дм = ${used} см. Осталось 100 − ${used} = ${answer} см.`,sig(decimeters),{
+    model:{decimeters},templateId,unitSuffix:"см",inputHint:"Введи число сантиметров."
+   });
  }
- if(templateId==="compare_length"){
-  const dm=ri(1,9),base=dm*10,shift=ri(0,2)-1,cm=Math.max(1,Math.min(99,base+shift*10)),left=`${dm} дм`,right=`${cm} см`,answer=base===cm?"Одинаково":base>cm?left:right,model={dm,cm,baseCm:base,answer};
-  return g2Choice("Какая длина больше?",answer,[left,right,"Одинаково"].filter(x=>x!==answer),`${dm} дм = ${base} см. Сравниваем ${base} см и ${cm} см. ${answer==="Одинаково"?"Длины равны.":`Больше ${answer}.`}`,`g2:quantities:${d}:compare_length:${dm}:${cm}`,{model,visual:{type:"g2MeasureCards",data:{rows:[{value:left,label:`это ${base} см`},{value:right,label:"сантиметры"}]}},templateId})
- }
- if(templateId==="compare_time"){
-  const mode=ri(0,2),minutes=mode===0?ri(45,59):mode===1?60:ri(61,75),left="1 ч",right=`${minutes} мин`,answer=minutes===60?"Одинаково":minutes<60?left:right,model={minutes,answer};
-  return g2Choice("Что длится дольше?",answer,[left,right,"Одинаково"].filter(x=>x!==answer),`1 ч = 60 мин. Сравниваем 60 мин и ${minutes} мин. ${answer==="Одинаково"?"Время одинаковое.":`Дольше ${answer}.`}`,`g2:quantities:${d}:compare_time:${minutes}`,{model,visual:{type:"g2MeasureCards",data:{rows:[{value:left,label:"это 60 мин"},{value:right,label:"минуты"}]}},templateId})
- }
- const rels=[{left:"1 дм",right:"10 см",answer:"10",unit:"см"},{left:"1 м",right:"100 см",answer:"100",unit:"см"},{left:"1 ч",right:"60 мин",answer:"60",unit:"мин"}],r=rels[ri(0,rels.length-1)],model={...r};
- return g2Choice(`Какое число пропущено? <b>${r.left} = ? ${r.unit}</b>`,r.answer,g2UniqueNums(Number(r.answer),0,100),`${r.left} = ${r.right}.`,`g2:quantities:${d}:unit_relation:${r.left}`,{model,visual:{type:"g2MeasureCards",data:{rows:[{value:r.left,label:"Слева"},{value:r.right,label:"То же значение"}]}},templateId:"unit_relation"})
+ const first=ri(5,25),second=ri(5,25),answer=60-first-second;
+ return g2NumberInput(`Занятие длилось <b>1 ч</b>. На чтение ушло <b>${first} мин</b>, на письмо — <b>${second} мин</b>. Сколько минут осталось на рисование?`,answer,
+  `1 ч = 60 мин. Чтение и письмо заняли ${first} + ${second} = ${first+second} мин. На рисование осталось 60 − ${first+second} = ${answer} мин.`,sig(`${first}:${second}`),{
+   model:{first,second},templateId,unitSuffix:"мин",inputHint:"Введи число минут."
+  });
 }
 function makeG2Question(id,stageOverride=null){
  const raw=rawCourseId(id),d=stageOverride===null?activeDifficulty():Math.max(0,Math.min(2,Number(stageOverride)||0));
@@ -19857,7 +19950,19 @@ function g2TheoryHtml(id){
 }
 function openG2Topic(id){
  const t=g2InfoById(id);if(!t)return;if(t.implemented===false)return showElementaryTopicSoon(2,id);document.body.classList.add("elementary-mode");blockSession=null;const done=completedStages(t.id);
- show(`<div class="mtop"><h2>2 класс • ${esc(t.title)}</h2><button class="x" onclick="closeModal()">×</button></div><div class="lesson elementary-lesson">${g2TheoryHtml(t.id)}</div><div class="stage-grid">${stageCards(t.id,`startG2QuizStage.bind(null,'${t.id}')`)}</div><div class="subtle">Пройдено этапов: <b>${done}/3</b>.</div>`)
+ const stages=({
+  "g2:numbers_100":G2_NUMBERS_100_STAGES,
+  "g2:quantities":G2_QUANTITIES_STAGES,
+  "g2:add_sub_100":G2_ADD_SUB_100_STAGES,
+  "g2:multiply_divide":G2_MULTIPLY_DIVIDE_STAGES,
+  "g2:operations_100":G2_OPERATIONS_100_STAGES,
+  "g2:word_problems":G2_WORD_PROBLEM_STAGES,
+  "g2:geometric_figures":G2_FIGURES_STAGES,
+  "g2:geometric_quantities":G2_GEOMETRIC_QUANTITIES_STAGES,
+  "g2:math_information":G2_MATH_INFORMATION_STAGES
+ })[t.id]||[];
+ const descriptions=stages.map(stage=>stage.description);
+ show(`<div class="mtop"><h2>2 класс • ${esc(t.title)}</h2><button class="x" onclick="closeModal()">×</button></div><div class="lesson elementary-lesson">${g2TheoryHtml(t.id)}</div><div class="stage-grid">${stageCards(t.id,`startG2QuizStage.bind(null,'${t.id}')`,descriptions)}</div><div class="subtle">Пройдено этапов: <b>${done}/3</b>.</div>`)
 }
 function startG2QuizStage(id,stageIndex){const t=g2InfoById(id);if(!t||t.implemented===false)return showElementaryTopicSoon(2,id);beginBlock(t.id,stageIndex,"g2quiz");openG2Quiz(t.id)}
 function openG2Quiz(id){qid=String(id).startsWith("g2:")?String(id):`g2:${id}`;const t=g2InfoById(qid);show(`<div class="mtop"><h2>2 класс • ${esc(t?.title||"Задание")}</h2><button class="x" onclick="closeModal()">×</button></div>${blockHead()}<div id="qstage" class="elementary-quiz"></div>`);nextQ()}
@@ -19865,7 +19970,7 @@ function openG2Quiz(id){qid=String(id).startsWith("g2:")?String(id):`g2:${id}`;c
 const PRE841_ELEMENTARY_TOPIC_CARD=elementaryTopicCard;
 elementaryTopicCard=function(t,grade){
  if(Number(grade)!==2)return PRE841_ELEMENTARY_TOPIC_CARD(t,grade);const ready=t.implemented!==false;
- return `<button type="button" class="topic elementary-topic ${ready?"ready":""}" onclick="${ready?`openG2Topic('${t.id}')`:`showElementaryTopicSoon(2,'${t.id}')`}"><span class="ico">2</span><strong>${esc(t.title)}</strong><small>${esc(t.shortTitle||t.group)}</small>${ready?`<span class="topic-progress">${completedStages(t.id)}/3 этапа</span>`:`<span class="elementary-soon">Скоро</span>`}</button>`
+ return `<button type="button" class="topic elementary-topic ${ready?"ready":""}" data-topic-id="${esc(t.id)}" onclick="${ready?`openG2Topic('${t.id}')`:`showElementaryTopicSoon(2,'${t.id}')`}"><span class="ico">2</span><strong>${esc(t.title)}</strong><small>${esc(t.shortTitle||t.group)}</small>${ready?`<span class="topic-progress">${completedStages(t.id)}/3 этапа</span>`:`<span class="elementary-soon">Скоро</span>`}</button>`
 };
 const PRE841_RENDER_ELEMENTARY_GRADE=renderElementaryGrade;
 renderElementaryGrade=function(grade){
@@ -19875,7 +19980,7 @@ renderElementaryGrade=function(grade){
 const PRE841_RENDER_HOME=renderHome;
 renderHome=function(){
  PRE841_RENDER_HOME();const available=g2AllTopics().filter(t=>t.implemented!==false).length,card=[...document.querySelectorAll(".grade-card")].find(x=>x.querySelector("h2")?.textContent?.trim()==="2 КЛАСС");
- if(card){const label=card.querySelector(".soon-label");if(label)label.textContent=`${available} темы доступны`;const summary=card.querySelector(".grade-summary");if(summary)summary.textContent=`Пройдено тем: ${gradeCompletedTopics(2)}/${available} • всего в курсе: ${g2AllTopics().length}`}
+ if(card){const label=card.querySelector(".soon-label");if(label)label.textContent=`${available} темы доступны`;const summary=card.querySelector(".grade-summary");if(summary)summary.textContent=g2HomeProgressText()}
  const control=document.querySelector(".control-home-count");if(control)control.textContent=`Изучено для контроля: 1 класс — ${getControlStudiedTopics(state,1).length} • 2 класс — ${getControlStudiedTopics(state,2).length} • 3 класс — ${getControlStudiedTopics(state,3).length} • 4 класс — ${getControlStudiedTopics(state,4).length} • 5 класс — ${getControlStudiedTopics(state,5).length} • 6 класс — ${getControlStudiedTopics(state,6).length} • 7 класс — ${getControlStudiedTopics(state,7).length} • 8 класс — ${getControlStudiedTopics(state,8).length}`
 };
 
@@ -19924,13 +20029,13 @@ function g2EqualGroupsVisualHtml(data){
   const total=Math.max(1,Math.min(100,Math.trunc(Number(data?.total||1)))),groups=Math.max(1,Math.min(10,Math.trunc(Number(data?.groups||1))));
   const pool=Array.from({length:total},()=>'<span class="g2-group-dot" aria-hidden="true"></span>').join("");
   const boxes=Array.from({length:groups},(_,i)=>`<div class="g2-equal-group"><small>${i+1}</small><div class="subtle">?</div></div>`).join("");
-  return `<div class="g2-groups-visual" role="img" aria-label="${total} предметов нужно разделить поровну на ${groups} ${g2GroupWord(groups)}"><div class="g2-equal-group"><small>Всего</small><div>${pool}</div></div><div class="g2-groups-grid">${boxes}</div><div class="g2-groups-caption">${total} предметов → ${groups} ${g2GroupWord(groups)} поровну</div></div>`
+  return `<div class="g2-groups-visual" role="img" aria-label="${total} ${g2ItemWord(total)} нужно разделить поровну на ${groups} ${g2GroupWord(groups)}"><div class="g2-equal-group"><small>Всего</small><div>${pool}</div></div><div class="g2-groups-grid">${boxes}</div><div class="g2-groups-caption">${total} ${g2ItemWord(total)} → ${groups} ${g2GroupWord(groups)} поровну</div></div>`
  }
  if(mode==="make_groups"){
   const total=Math.max(1,Math.min(100,Math.trunc(Number(data?.total||1)))),each=Math.max(1,Math.min(10,Math.trunc(Number(data?.each||1))));
   const pool=Array.from({length:total},()=>'<span class="g2-group-dot" aria-hidden="true"></span>').join("");
   const sample=Array.from({length:each},()=>'<span class="g2-group-dot" aria-hidden="true"></span>').join("");
-  return `<div class="g2-groups-visual" role="img" aria-label="${total} предметов нужно раскладывать по ${each} в каждую группу"><div class="g2-equal-group"><small>Всего</small><div>${pool}</div></div><div class="g2-equal-group"><small>В одну группу</small><div>${sample}</div></div><div class="g2-groups-caption">Раскладывай по ${each}. Сколько групп получится?</div></div>`
+  return `<div class="g2-groups-visual" role="img" aria-label="${total} ${g2ItemWord(total)} нужно раскладывать по ${each} в каждую группу"><div class="g2-equal-group"><small>Всего</small><div>${pool}</div></div><div class="g2-equal-group"><small>В одну группу</small><div>${sample}</div></div><div class="g2-groups-caption">Раскладывай по ${each}. Сколько групп получится?</div></div>`
  }
  const groups=Math.max(1,Math.min(10,Math.trunc(Number(data?.groups||1)))),each=Math.max(0,Math.min(10,Math.trunc(Number(data?.each||0))));
  return `<div class="g2-groups-visual" role="img" aria-label="Одинаковых групп ${groups}, в каждой по ${each}"><div class="g2-groups-grid">${Array.from({length:groups},(_,i)=>`<div class="g2-equal-group"><small>${i+1}</small><div>${Array.from({length:each},()=>'<span class="g2-group-dot" aria-hidden="true"></span>').join("")}</div></div>`).join("")}</div><div class="g2-groups-caption">${groups} ${g2GroupWord(groups)} по ${each}</div></div>`
@@ -19964,119 +20069,237 @@ function g2SubOnesNoCrossModel(){
  const tens=ri(1,9),ones=ri(1,9),b=ri(1,ones),a=tens*10+ones,result=a-b;
  return {kind:"sub_ones",op:"sub",a,b,result,steps:[`Единицы: ${ones} − ${b} = ${ones-b}`,`Получаем ${result}`]}
 }
-function g2AddCrossModel(){
- const tens=ri(1,8),ones=ri(5,9),a=tens*10+ones,toTen=10-ones,rest=ri(1,Math.min(5,100-(a+toTen))),b=toTen+rest,bridge=a+toTen,result=bridge+rest;
- return {kind:"add_cross",op:"add",a,b,result,toTen,rest,bridge,steps:[`${a} + ${toTen} = ${bridge}`,`Из ${b} уже прибавили ${toTen}. Осталось ${rest}`,`${bridge} + ${rest} = ${result}`]}
-}
-function g2SubCrossModel(){
- const tens=ri(2,9),ones=ri(1,4),a=tens*10+ones,toTen=ones,rest=ri(1,Math.min(5,a-toTen)),b=toTen+rest,bridge=a-toTen,result=bridge-rest;
- return {kind:"sub_cross",op:"sub",a,b,result,toTen,rest,bridge,steps:[`${a} − ${toTen} = ${bridge}`,`Из ${b} уже вычли ${toTen}. Осталось вычесть ${rest}`,`${bridge} − ${rest} = ${result}`]}
-}
-function g2AddSub100Question(d){
- const warm=["add_tens","sub_tens","add_ones","sub_ones"],train=[...warm,"add_cross","sub_cross","compute_input"],master=[...train,"missing_addend","missing_subtrahend","choose_record"],templateId=g2PickTemplate(d===0?warm:d===1?train:master);
- let model;
- if(templateId==="add_tens")model=g2AddTensModel();
- else if(templateId==="sub_tens")model=g2SubTensModel();
- else if(templateId==="add_ones")model=g2AddOnesNoCrossModel();
- else if(templateId==="sub_ones")model=g2SubOnesNoCrossModel();
- else if(templateId==="add_cross")model=g2AddCrossModel();
- else if(templateId==="sub_cross")model=g2SubCrossModel();
- if(model){
-  const sign=model.op==="add"?"+":"−",verb=model.op==="add"?"Складываем":"Вычитаем",ex=model.steps.join(". ")+".";
-  return g2Choice(`Вычисли: <b>${model.a} ${sign} ${model.b}</b>`,model.result,g2UniqueNums(model.result,0,100),ex,`g2:add_sub_100:${d}:${templateId}:${model.a}:${model.b}`,{model,visual:{type:"g2ArithmeticSteps",data:{expression:`${model.a} ${sign} ${model.b}`,steps:d===0?[]:model.steps.slice(0,-1),aria:`${verb} ${model.a} и ${model.b}`}},templateId})
- }
- if(templateId==="compute_input"){
-  const useAdd=ri(0,1)===1;model=useAdd?g2AddCrossModel():g2SubCrossModel();const sign=useAdd?"+":"−";
-  return g2NumberInput(`Вычисли: <b>${model.a} ${sign} ${model.b}</b>`,model.result,model.steps.join(". ")+".",`g2:add_sub_100:${d}:compute_input:${model.a}:${model.b}:${useAdd?1:0}`,{model,visual:{type:"g2ArithmeticSteps",data:{expression:`${model.a} ${sign} ${model.b}`,steps:model.steps.slice(0,-1)}},templateId})
- }
- if(templateId==="missing_addend"){
-  const p=ri(0,1)?g2AddCrossModel():g2AddOnesNoCrossModel(),model={a:p.a,b:p.b,result:p.result};
-  return g2NumberInput(`Какое число пропущено?<div class="g1-arithmetic-record">${model.a} + ? = ${model.result}</div>`,model.b,`От ${model.a} до ${model.result} нужно прибавить ${model.b}. Значит, пропущено ${model.b}.`,`g2:add_sub_100:${d}:missing_addend:${model.a}:${model.result}`,{model,templateId})
- }
- if(templateId==="missing_subtrahend"){
-  const p=ri(0,1)?g2SubCrossModel():g2SubOnesNoCrossModel(),model={a:p.a,b:p.b,result:p.result};
-  return g2NumberInput(`Какое число пропущено?<div class="g1-arithmetic-record">${model.a} − ? = ${model.result}</div>`,model.b,`Из ${model.a} вычли ${model.b} и получили ${model.result}. Значит, пропущено ${model.b}.`,`g2:add_sub_100:${d}:missing_subtrahend:${model.a}:${model.result}`,{model,templateId})
- }
- const useAdd=ri(0,1)===1,p=useAdd?g2AddCrossModel():g2SubCrossModel(),sign=useAdd?"+":"−",correct=`${p.a} ${sign} ${p.b} = ${p.result}`,wrong=[`${p.a} ${sign} ${p.b} = ${Math.max(0,Math.min(100,p.result+1))}`,`${p.a} ${sign} ${p.b} = ${Math.max(0,Math.min(100,p.result-1))}`,`${p.result} ${sign} ${p.b} = ${p.a}`].filter(x=>x!==correct);model={...p,correct};
- return g2Choice("Выбери верную запись.",correct,wrong,`${p.a} ${sign} ${p.b} = ${p.result}.`,`g2:add_sub_100:${d}:choose_record:${p.a}:${p.b}:${useAdd?1:0}`,{model,templateId:"choose_record"})
+const G2_ADD_SUB_100_STAGES=[
+ {templates:["round_tens","single_units"],description:"Прибавляй и вычитай круглые десятки или единицы в пределах одного десятка."},
+ {templates:["cross_ten","two_digits"],description:"Считай с переходом через десяток. Разбивай числа на десятки и единицы. Вводи ответ."},
+ {templates:["missing_operand","compare_expressions"],description:"Найди неизвестное число в равенстве или сравни значения двух выражений."}
+];
+
+function g2AddSubCrossTenModel(add){
+ const tens=ri(1,9),ones=ri(add?1:0,add?9:8);
+ const a=!add&&ones===0&&ri(0,1)===0?100:tens*10+ones;
+ const toTen=add?10-ones:ones,b=ri(add?toTen:toTen+1,add?Math.min(9,100-a):9);
+ const sign=add?"+":"−",bridge=add?a+toTen:a-toTen,rest=b-toTen,result=add?a+b:a-b;
+ const steps=[];
+ if(toTen>0)steps.push(`${a} ${sign} ${toTen} = ${bridge}`);
+ if(rest>0)steps.push(`${bridge} ${sign} ${rest} = ${result}`);
+ return {a,b,result,op:add?"add":"sub",steps};
 }
 
-function g2GroupsModel({maxFactor=5}={}){const groups=ri(2,maxFactor),each=ri(2,maxFactor),total=groups*each;return {groups,each,total}}
-function g2FactModel(){const a=ri(2,10),b=ri(2,10);return {a,b,result:a*b}}
-function g2MultiplyDivideQuestion(d){
- const warm=["groups_total","repeated_addition","share_equal"],train=[...warm,"make_groups","multiply_fact","divide_fact"],master=[...train,"missing_factor","inverse_record","compare_products"],templateId=g2PickTemplate(d===0?warm:d===1?train:master);
- if(templateId==="groups_total"){
-  const model=g2GroupsModel(),answer=model.total;return g2Choice(`Одинаковых групп: ${model.groups}. В каждой по ${model.each} ${g2ItemWord(model.each)}. Сколько предметов всего?`,answer,g2UniqueNums(answer,1,30),`${model.each} повторяется ${model.groups} ${g2StoryTimes(model.groups)}: ${Array.from({length:model.groups},()=>model.each).join(" + ")} = ${answer}.`,`g2:multiply_divide:${d}:groups_total:${model.groups}:${model.each}`,{model,visual:{type:"g2EqualGroups",data:model},templateId})
- }
- if(templateId==="repeated_addition"){
-  const model=g2GroupsModel(),sum=Array.from({length:model.groups},()=>model.each).join(" + "),correct=`${model.each} · ${model.groups} = ${model.total}`,wrong=[`${model.groups} · ${model.each} = ${model.groups+model.each}`,`${model.each} + ${model.groups} = ${model.total}`,`${model.total} : ${model.groups} = ${model.total}`],answer=correct;
-  return g2Choice(`Какая запись заменяет сумму <b>${sum}</b>?`,answer,wrong,`${model.each} складываем ${model.groups} ${g2StoryTimes(model.groups)}. Это можно записать: ${answer}.`,`g2:multiply_divide:${d}:repeated_addition:${model.groups}:${model.each}`,{model,visual:{type:"g2EqualGroups",data:model},templateId})
- }
- if(templateId==="share_equal"){
-  const model=g2GroupsModel(),answer=model.each;return g2Choice(`${model.total} предметов разделили поровну на ${model.groups} ${g2GroupWord(model.groups)}. Сколько предметов в каждой группе?`,answer,g2UniqueNums(answer,1,10),`${model.total} : ${model.groups} = ${answer}. В каждой группе по ${answer}.`,`g2:multiply_divide:${d}:share_equal:${model.total}:${model.groups}`,{model,visual:{type:"g2EqualGroups",data:{mode:"share",total:model.total,groups:model.groups}},templateId})
+function g2AddSubTwoDigitsModel(add){
+ const a=add?ri(11,89):ri(11,100);
+ let b=ri(11,add?100-a:a);
+ if(b%10===0)b-=1;
+ const sign=add?"+":"−",tens=Math.floor(b/10)*10,step=add?a+tens:a-tens,units=b%10,result=add?a+b:a-b;
+ return {a,b,result,op:add?"add":"sub",steps:[`${b} = ${tens} + ${units}`,`${a} ${sign} ${tens} = ${step}`,`${step} ${sign} ${units} = ${result}`]};
 }
- if(templateId==="make_groups"){
-  const model=g2GroupsModel(),answer=model.groups;return g2NumberInput(`${model.total} предметов разложили по ${model.each} в каждую группу. Сколько получилось групп?`,answer,`${model.total} : ${model.each} = ${answer}. Получилось ${answer} группы.`,`g2:multiply_divide:${d}:make_groups:${model.total}:${model.each}`,{model,visual:{type:"g2EqualGroups",data:{mode:"make_groups",total:model.total,each:model.each}},templateId,inputHint:"Введи число групп."})
+
+function g2AddSub100Question(d){
+ const templateId=g2PickTemplate(G2_ADD_SUB_100_STAGES[d].templates),add=ri(0,1)===0,sign=add?"+":"−";
+ const sig=key=>`g2:add_sub_100:${d}:${templateId}:${key}`;
+ const options=model=>({model,templateId});
+ if(d===0){
+  const tens=templateId==="round_tens";
+  const model=add?(tens?g2AddTensModel():g2AddOnesNoCrossModel()):(tens?g2SubTensModel():g2SubOnesNoCrossModel());
+  const {a,b,result,steps}=model;
+  return g2Choice(`Вычисли <b>${a} ${sign} ${b}</b>.`,result,g2UniqueNums(result,0,100),steps.join(". ")+".",
+   sig(`${sign}:${a}:${b}`),options(model));
+ }
+ if(d===1){
+  const model=templateId==="cross_ten"?g2AddSubCrossTenModel(add):g2AddSubTwoDigitsModel(add);
+  const {a,b,result,steps}=model;
+  return g2NumberInput(`Вычисли <b>${a} ${sign} ${b}</b>.`,result,steps.join(". ")+".",sig(`${sign}:${a}:${b}`),options(model));
+ }
+ const model=ri(0,1)===0?g2AddSubCrossTenModel(add):g2AddSubTwoDigitsModel(add);
+ const {a,b,result}=model;
+ if(templateId==="missing_operand"){
+  const hideFirst=ri(0,1)===0,answer=hideFirst?a:b;
+  const equation=`${hideFirst?"?":a} ${sign} ${hideFirst?b:"?"} = ${result}`;
+  const check=add?`${result} − ${hideFirst?b:a}`:hideFirst?`${result} + ${b}`:`${a} − ${result}`;
+  const term=add?"слагаемое":hideFirst?"уменьшаемое":"вычитаемое";
+  return g2NumberInput(`Какое число пропущено?<div class="g1-arithmetic-record">${equation}</div>`,answer,
+   `Находим неизвестное ${term}. ${check} = ${answer}. Проверка: ${a} ${sign} ${b} = ${result}.`,sig(equation),options({...model,hideFirst}));
+ }
+ const target=result+ri(-Math.min(6,result),Math.min(6,100-result));
+ const limit=add?100-target:target,rightB=limit>0?ri(1,limit):0,rightA=add?target+rightB:target-rightB;
+ const left=`${a} ${sign} ${b}`,right=`${rightA} ${add?"−":"+"} ${rightB}`;
+ const answer=result===target?"=":result<target?"<":">";
+ return g2Choice(`Какой знак сравнения поставить?<div class="g1-arithmetic-record">(${left}) &nbsp; ? &nbsp; (${right})</div>`,
+  answer,["<","=",">"].filter(value=>value!==answer),`${left} = ${result}. ${right} = ${target}. Сравниваем результаты: ${result} ${answer} ${target}.`,
+  sig(`${left}:${right}`),options({...model,rightA,rightB}));
+}
+
+const G2_MULTIPLY_DIVIDE_STAGES=[
+ {templates:["group_picture","repeat_as_product"],description:"Посчитай предметы по группам и замени сумму одинаковых слагаемых умножением."},
+ {templates:["multiply_fact","divide_fact"],description:"Введи результаты умножения и деления."},
+ {templates:["missing_operand","compare_products"],description:"Найди число, пропущенное в равенстве, или сравни два произведения."}
+];
+
+function g2MultiplyDivideQuestion(d){
+ const templateId=g2PickTemplate(G2_MULTIPLY_DIVIDE_STAGES[d].templates);
+ const sig=key=>`g2:multiply_divide:${d}:${templateId}:${key}`;
+ if(templateId==="group_picture"){
+  const groups=ri(2,5),each=ri(2,5),total=groups*each,mode=g2PickTemplate(["groups","share","make_groups"]);
+  const model={groups,each,total,mode},visual={type:"g2EqualGroups",data:model};
+  const items=`${total} ${g2ItemWord(total)}`;
+  let text,answer,ex;
+  if(mode==="groups"){
+   text="Сколько предметов во всех группах?";
+   answer=total;ex=`${groups} ${g2GroupWord(groups)} по ${each}. Всего ${each} × ${groups} = ${total}.`;
+  }else if(mode==="share"){
+   text=`Разложи ${items} поровну в ${groups} ${g2GroupWord(groups)}. Сколько предметов будет в каждой группе?`;
+   answer=each;ex=`${total} ÷ ${groups} = ${each}. В каждой группе по ${each}.`;
+  }else{
+   text=`Есть ${items}. В каждую группу кладут по ${each} ${g2ItemWord(each)}. Сколько групп получится?`;
+   answer=groups;ex=`${total} ÷ ${each} = ${groups}. Получится ${groups} ${g2GroupWord(groups)}.`;
+  }
+  return g2Choice(text,answer,g2UniqueNums(answer,1,30),ex,sig(`${mode}:${groups}:${each}`),{model,visual,templateId});
+ }
+ if(templateId==="repeat_as_product"){
+  const groups=ri(2,5),each=ri(2,5),total=groups*each;
+  const sum=Array.from({length:groups},()=>each).join(" + "),answer=`${each} × ${groups}`;
+  const otherFactor=each+(each===groups?2:1);
+  const wrong=[`${each} × ${groups-1}`,`${each} × ${groups+1}`,`${otherFactor} × ${groups}`];
+  return g2Choice(`Каким произведением можно заменить сумму <b>${sum}</b>?`,answer,wrong,
+   `Число ${each} повторяется ${groups} ${g2StoryTimes(groups)}. ${sum} = ${answer} = ${total}.`,
+   sig(`${groups}:${each}`),{model:{groups,each},templateId});
  }
  if(templateId==="multiply_fact"){
-  const model=g2FactModel();return g2NumberInput(`Вычисли: <b>${model.a} · ${model.b}</b>`,model.result,`${model.a} · ${model.b} = ${model.result}.`,`g2:multiply_divide:${d}:multiply_fact:${model.a}:${model.b}`,{model,templateId})
+  const a=ri(0,10),b=ri(0,10),answer=a*b;
+  return g2NumberInput(`Вычисли <b>${a} × ${b}</b>.`,answer,`${a} × ${b} = ${answer}.`,
+   sig(`${a}:${b}`),{model:{a,b},templateId});
  }
  if(templateId==="divide_fact"){
-  const f=g2FactModel(),useA=ri(0,1)===1,divisor=useA?f.a:f.b,answer=useA?f.b:f.a,model={total:f.result,divisor,answer};return g2NumberInput(`Вычисли: <b>${model.total} : ${model.divisor}</b>`,answer,`${model.total} : ${model.divisor} = ${answer}, потому что ${answer} · ${model.divisor} = ${model.total}.`,`g2:multiply_divide:${d}:divide_fact:${model.total}:${model.divisor}`,{model,templateId})
+  const divisor=ri(1,10),answer=ri(0,10),total=answer*divisor;
+  return g2NumberInput(`Вычисли <b>${total} ÷ ${divisor}</b>.`,answer,
+   `${total} ÷ ${divisor} = ${answer}, потому что ${answer} × ${divisor} = ${total}.`,
+   sig(`${total}:${divisor}`),{model:{total,divisor},templateId});
  }
- if(templateId==="missing_factor"){
-  const f=g2FactModel(),model={a:f.a,b:f.b,result:f.result};return g2NumberInput(`Какое число пропущено?<div class="g1-arithmetic-record">${model.a} · ? = ${model.result}</div>`,model.b,`${model.result} : ${model.a} = ${model.b}. Значит, пропущено ${model.b}.`,`g2:multiply_divide:${d}:missing_factor:${model.a}:${model.result}`,{model,templateId})
+ if(templateId==="missing_operand"){
+  const a=ri(1,10),b=ri(1,10),total=a*b,hideFirst=ri(0,1)===0,multiply=ri(0,1)===0;
+  const left=multiply?a:total,right=b,result=multiply?total:a,sign=multiply?"×":"÷",answer=hideFirst?left:right;
+  const equation=`${hideFirst?"?":left} ${sign} ${hideFirst?right:"?"} = ${result}`;
+  const term=multiply?"множитель":hideFirst?"делимое":"делитель";
+  const check=multiply?`${total} ÷ ${hideFirst?b:a}`:hideFirst?`${a} × ${b}`:`${total} ÷ ${a}`;
+  return g2NumberInput(`Какое число пропущено?<div class="g1-arithmetic-record">${equation}</div>`,answer,
+   `Находим неизвестный элемент равенства (${term}). ${check} = ${answer}. Проверка: ${left} ${sign} ${right} = ${result}.`,
+   sig(equation),{model:{left,right,result,sign,hideFirst},templateId});
  }
- if(templateId==="inverse_record"){
-  const f=g2FactModel(),model={a:f.a,b:f.b,result:f.result},correct=`${model.result} : ${model.a} = ${model.b}`,wrong=[`${model.result} : ${model.b} = ${model.result}`,`${model.a} : ${model.b} = ${model.result}`,`${model.result} − ${model.a} = ${model.b}`];
-return g2Choice(`Известно: <b>${model.a} · ${model.b} = ${model.result}</b>. Какая запись деления верна?`,correct,wrong,`Если ${model.a} · ${model.b} = ${model.result}, то ${correct}.`,`g2:multiply_divide:${d}:inverse_record:${model.a}:${model.b}`,{model,templateId})
- }
- const p1=g2GroupsModel(),p2=g2GroupsModel(),r1=p1.total,r2=p2.total,answer=r1===r2?"Поровну":r1>r2?"A":"B",model={p1,p2,r1,r2,answer};
- return g2Choice(`Какое произведение больше?<div class="g1-arithmetic-record">A: ${p1.each} · ${p1.groups} &nbsp;&nbsp; B: ${p2.each} · ${p2.groups}</div>`,answer,["A","B","Поровну"].filter(x=>x!==answer),`A = ${r1}. B = ${r2}. ${answer==="Поровну"?"Значения равны.":`Больше значение ${answer}.`}`,`g2:multiply_divide:${d}:compare_products:${p1.each}:${p1.groups}:${p2.each}:${p2.groups}`,{model,templateId:"compare_products"})
+ const a=ri(2,10),b=ri(2,10),swap=a!==b&&ri(0,3)===0;
+ const c=swap?b:ri(2,10);
+ let e=swap?a:ri(2,10);
+ if(c===a&&e===b)e=b===10?9:b+1;
+ const left=a*b,right=c*e,answer=left===right?"=":left<right?"<":">";
+ return g2Choice(`Какой знак сравнения поставить?<div class="g1-arithmetic-record">(${a} × ${b}) &nbsp; ? &nbsp; (${c} × ${e})</div>`,
+  answer,["<","=",">"].filter(sign=>sign!==answer),`${a} × ${b} = ${left}. ${c} × ${e} = ${right}. Сравниваем результаты: ${left} ${answer} ${right}.`,
+  sig(`${a}:${b}:${c}:${e}`),{model:{a,b,c,e},templateId});
 }
 
-function g2OpExprAddSubModel(){
- const a=ri(20,70),b=ri(5,Math.min(20,100-a)),mid=a+b,c=ri(1,Math.min(15,mid)),result=mid-c;
- return {expression:`${a} + ${b} − ${c}`,a,b,c,mid,result,first:`${a} + ${b}`,steps:[`${a} + ${b} = ${mid}`,`${mid} − ${c} = ${result}`]}
+const G2_OPERATIONS_100_STAGES=[
+ {templates:["choose_first","same_rank_value"],description:"Определи первое действие и посчитай слева направо при одинаковом приоритете."},
+ {templates:["priority_value","bracket_value"],description:"Вычисли выражения с разным приоритетом действий и со скобками."},
+ {templates:["diagnose_solution","place_brackets"],description:"Найди первый ошибочный шаг или поставь скобки для заданного результата."}
+];
+
+function g2OpExprSameRankModel(){
+ const a=ri(2,10),b=ri(2,5),c=ri(2,10),product=a*b;
+ const kind=ri(0,3),rule="Действия одного приоритета выполняем слева направо.";
+ if(kind===0){
+  return {expression:`${product} ÷ ${b} × ${c}`,first:`${product} ÷ ${b}`,wrongFirst:`${b} × ${c}`,rule,
+   result:a*c,steps:[`${product} ÷ ${b} = ${a}`,`${a} × ${c} = ${a*c}`]};
+ }
+ if(kind===1){
+  const multiple=b*ri(1,2),mid=a*multiple,result=mid/b;
+  return {expression:`${a} × ${multiple} ÷ ${b}`,first:`${a} × ${multiple}`,wrongFirst:`${multiple} ÷ ${b}`,rule,
+   result,steps:[`${a} × ${multiple} = ${mid}`,`${mid} ÷ ${b} = ${result}`]};
+ }
+ const start=ri(10,80),change=ri(0,1)===0?"−":"+",then=change==="+"?"−":"+";
+ const mid=change==="+"?start+b:start-b,result=change==="+"?mid-c:mid+c;
+ return {expression:`${start} ${change} ${b} ${then} ${c}`,first:`${start} ${change} ${b}`,wrongFirst:`${b} ${then} ${c}`,rule,
+  result,steps:[`${start} ${change} ${b} = ${mid}`,`${mid} ${then} ${c} = ${result}`]};
 }
-function g2OpExprMulAddModel(){
- const a=ri(5,40),m1=ri(2,5),m2=ri(2,5),product=m1*m2,result=a+product;if(result>100)return g2OpExprMulAddModel();
- return {expression:`${a} + ${m1} · ${m2}`,a,m1,m2,product,result,first:`${m1} · ${m2}`,steps:[`${m1} · ${m2} = ${product}`,`${a} + ${product} = ${result}`]}
+
+function g2OpExprMixedModel(){
+ const a=ri(2,9),b=ri(2,9),product=a*b,multiply=ri(0,1)===0;
+ const highLeft=multiply?a:product,highSign=multiply?"×":"÷",value=multiply?product:a;
+ const subtract=ri(0,1)===0,lowSign=subtract?"−":"+",other=subtract?ri(value,100):ri(1,100-value);
+ const first=`${highLeft} ${highSign} ${b}`,result=subtract?other-value:other+value;
+ const highFirst=!subtract&&ri(0,1)===0;
+ const expression=highFirst?`${first} + ${other}`:`${other} ${lowSign} ${first}`;
+ const wrongFirst=highFirst?`${b} + ${other}`:`${other} ${lowSign} ${highLeft}`;
+ return {expression,first,wrongFirst,result,rule:"Умножение и деление выполняем раньше сложения и вычитания.",
+  steps:[`${first} = ${value}`,highFirst?`${value} + ${other} = ${result}`:`${other} ${lowSign} ${value} = ${result}`]};
 }
-function g2OpExprDivSubModel(){
- const divisor=ri(2,5),quotient=ri(2,9),division=divisor*quotient,a=ri(division+5,Math.min(100,division+50)),result=a-quotient;
- return {expression:`${a} − ${division} : ${divisor}`,a,division,divisor,quotient,result,first:`${division} : ${divisor}`,steps:[`${division} : ${divisor} = ${quotient}`,`${a} − ${quotient} = ${result}`]}
+
+function g2OpExprBracketModel(){
+ const a=ri(2,9),b=ri(2,9),mid=a*b,rule="Сначала выполняем действие в скобках.";
+ if(ri(0,1)===0){
+  const left=ri(1,mid-1),right=mid-left;
+  return {expression:`(${left} + ${right}) ÷ ${b}`,first:`${left} + ${right}`,wrongFirst:`${right} ÷ ${b}`,rule,
+   result:a,steps:[`${left} + ${right} = ${mid}`,`${mid} ÷ ${b} = ${a}`]};
+ }
+ const remove=ri(1,20),start=a+remove;
+ return {expression:`(${start} − ${remove}) × ${b}`,first:`${start} − ${remove}`,wrongFirst:`${remove} × ${b}`,rule,
+  result:mid,steps:[`${start} − ${remove} = ${a}`,`${a} × ${b} = ${mid}`]};
 }
-function g2OpExprParenModel(){
- const divisor=ri(2,5),quotient=ri(2,10),sum=divisor*quotient,a=ri(1,sum-1),b=sum-a,result=quotient;
- return {expression:`(${a} + ${b}) : ${divisor}`,a,b,divisor,sum,result,first:`${a} + ${b}`,steps:[`${a} + ${b} = ${sum}`,`${sum} : ${divisor} = ${result}`]}
-}
+
 function g2Operations100Question(d){
- const warm=["two_step_add_sub","choose_first"],train=["two_step_add_sub","mul_before_add","div_before_sub","choose_first","compute_input"],master=["two_step_add_sub","mul_before_add","div_before_sub","parentheses_first","choose_first","compute_input","restore_step","find_error"],templateId=g2PickTemplate(d===0?warm:d===1?train:master);
- if(templateId==="two_step_add_sub"){
-  const model=g2OpExprAddSubModel();return g2Choice(`Найди значение выражения: <b>${model.expression}</b>`,model.result,g2UniqueNums(model.result,0,100),model.steps.join(". ")+".",`g2:operations_100:${d}:two_step_add_sub:${model.a}:${model.b}:${model.c}`,{model,visual:{type:"g2Expression",data:{expression:model.expression,focus:model.first}},templateId})
- }
- if(templateId==="mul_before_add"){
-  const model=g2OpExprMulAddModel();return g2Choice(`Найди значение выражения: <b>${model.expression}</b>`,model.result,g2UniqueNums(model.result,0,100),`Сначала умножение: ${model.steps[0]}. Потом сложение: ${model.steps[1]}.`,`g2:operations_100:${d}:mul_before_add:${model.a}:${model.m1}:${model.m2}`,{model,visual:{type:"g2Expression",data:{expression:model.expression,focus:model.first}},templateId})
- }
- if(templateId==="div_before_sub"){
-  const model=g2OpExprDivSubModel();return g2Choice(`Найди значение выражения: <b>${model.expression}</b>`,model.result,g2UniqueNums(model.result,0,100),`Сначала деление: ${model.steps[0]}. Потом вычитание: ${model.steps[1]}.`,`g2:operations_100:${d}:div_before_sub:${model.a}:${model.division}:${model.divisor}`,{model,visual:{type:"g2Expression",data:{expression:model.expression,focus:model.first}},templateId})
- }
- if(templateId==="parentheses_first"){
-  const model=g2OpExprParenModel();return g2NumberInput(`Найди значение выражения: <b>${model.expression}</b>`,model.result,`Сначала действие в скобках: ${model.steps[0]}. Потом ${model.steps[1]}.`,`g2:operations_100:${d}:parentheses_first:${model.a}:${model.b}:${model.divisor}`,{model,visual:{type:"g2Expression",data:{expression:model.expression,focus:model.first}},templateId})
- }
+ const templateId=g2PickTemplate(G2_OPERATIONS_100_STAGES[d].templates);
+ const sig=key=>`g2:operations_100:${d}:${templateId}:${key}`;
  if(templateId==="choose_first"){
-  const kind=ri(0,2),model=kind===0?g2OpExprAddSubModel():kind===1?g2OpExprMulAddModel():g2OpExprParenModel(),answer=model.first,wrong=kind===0?[`${model.b} − ${model.c}`,"Можно начать с любого действия"]:kind===1?[`${model.a} + ${model.m1}`,"Можно начать с любого действия"]:[`${model.b} : ${model.divisor}`,"Можно начать с любого действия"];
-  return g2Choice(`Какое действие выполнить первым?<div class="g1-arithmetic-record">${model.expression}</div>`,answer,wrong,kind===0?`Сложение и вычитание здесь выполняем слева направо. Сначала ${answer}.`:kind===1?`Умножение выполняем раньше сложения. Сначала ${answer}.`:`Сначала выполняем действие в скобках: ${answer}.`,`g2:operations_100:${d}:choose_first:${model.expression}`,{model,templateId})
+  const model=g2PickTemplate([g2OpExprSameRankModel,g2OpExprMixedModel,g2OpExprBracketModel])();
+  const {expression,first,wrongFirst,rule}=model;
+  return g2Choice(`Какое действие по правилу выполняется первым?<div class="g1-arithmetic-record">${expression}</div>`,first,
+   [wrongFirst,"Можно начать с любого действия"],`${rule} Первое действие — ${first}.`,sig(expression),{model,templateId});
  }
- if(templateId==="compute_input"){
-  const model=ri(0,1)?g2OpExprMulAddModel():g2OpExprDivSubModel();return g2NumberInput(`Вычисли: <b>${model.expression}</b>`,model.result,model.steps.join(". ")+".",`g2:operations_100:${d}:compute_input:${model.expression}`,{model,visual:{type:"g2Expression",data:{expression:model.expression,focus:model.first}},templateId})
+ if(d<2){
+  const makeModel=templateId==="same_rank_value"?g2OpExprSameRankModel:templateId==="priority_value"?g2OpExprMixedModel:g2OpExprBracketModel;
+  const model=makeModel(),{expression,result,steps,rule}=model;
+  const text=`Вычисли <b>${expression}</b>.`,ex=`${rule} ${steps.join(". ")}.`;
+  const options={model,templateId};
+  if(d===0)return g2Choice(text,result,g2UniqueNums(result,0,100),ex,sig(expression),options);
+  return g2NumberInput(text,result,ex,sig(expression),options);
  }
- if(templateId==="restore_step"){
-  const model=g2OpExprMulAddModel(),answer=model.product;return g2NumberInput(`Какое число должно быть на первом шаге?<div class="g1-arithmetic-record">${model.expression}<br>${model.m1} · ${model.m2} = ?</div>`,answer,`Сначала умножаем: ${model.m1} · ${model.m2} = ${answer}. После этого можно выполнить сложение.`,`g2:operations_100:${d}:restore_step:${model.a}:${model.m1}:${model.m2}`,{model,templateId})
+ if(templateId==="diagnose_solution"){
+  const a=ri(1,15),b=ri(2,5),c=ri(2,5),product=b*c,result=a+product;
+  const expression=`${a} + ${b} × ${c}`,variant=ri(0,3);
+  const steps=[`${b} × ${c} = ${product}`,`${a} + ${product} = ${result}`];
+  const labels=["1-й шаг","2-й шаг","Ошибок нет"];
+  let answer=labels[2],reason="Оба шага верны.";
+  if(variant===1){
+   steps[0]=`${a} + ${b} = ${a+b}`;
+   steps[1]=`${a+b} × ${c} = ${(a+b)*c}`;
+   answer=labels[0];reason="На первом шаге нарушен порядок действий.";
+  }else if(variant===2){
+   steps[0]=`${b} × ${c} = ${product+1}`;
+   steps[1]=`${a} + ${product+1} = ${result+1}`;
+   answer=labels[0];reason="На первом шаге неверно вычислили произведение.";
+  }else if(variant===3){
+   steps[1]=`${a} + ${product} = ${result+1}`;
+   answer=labels[1];reason="На втором шаге неверно вычислили сумму.";
+  }
+  const text=`Где первая ошибка, если она есть?<div class="g1-arithmetic-record">${expression}</div><div>1) ${steps[0]}</div><div>2) ${steps[1]}</div>`;
+  const ex=`${reason} Сначала ${b} × ${c} = ${product}, затем ${a} + ${product} = ${result}.`;
+  return g2Choice(text,answer,labels.filter(label=>label!==answer),ex,sig(`${expression}:${variant}`),{model:{expression,steps,variant},templateId});
  }
- const model=ri(0,1)?g2OpExprMulAddModel():g2OpExprParenModel(),correct=`${model.expression} = ${model.result}`,wrong1=`${model.expression} = ${Math.min(100,model.result+1)}`,wrong2=`${model.expression} = ${Math.max(0,model.result-1)}`;
- return g2Choice("Выбери верно вычисленное выражение.",correct,[wrong1,wrong2],model.steps.join(". ")+`. Поэтому ${correct}.`,`g2:operations_100:${d}:find_error:${model.expression}`,{model,templateId:"find_error"})
+ const kind=ri(0,2),left=ri(0,1)===0;
+ let a,b,c,sign1,sign2,values;
+ if(kind===0){
+  a=ri(2,15);b=ri(2,5);c=ri(2,5);sign1="+";sign2="×";
+  values=[(a+b)*c,a+b*c];
+ }else if(kind===1){
+  a=ri(2,12);b=ri(3,8);c=ri(2,b-1);sign1="×";sign2="−";
+  values=[a*b-c,a*(b-c)];
+ }else{
+  b=ri(3,9);c=ri(1,b);a=ri(b+c,30);sign1="−";sign2="−";
+  values=[a-b-c,a-(b-c)];
+ }
+ const source=`${a} ${sign1} ${b} ${sign2} ${c}`;
+ const options=[`(${a} ${sign1} ${b}) ${sign2} ${c}`,`${a} ${sign1} (${b} ${sign2} ${c})`];
+ const answer=options[left?0:1],target=values[left?0:1];
+ return g2Choice(`Где поставить одну пару скобок, чтобы получить ${target}?<div class="g1-arithmetic-record">${source}</div>`,
+  answer,[options[left?1:0]],`${options[0]} = ${values[0]}, а ${options[1]} = ${values[1]}. Подходит ${answer}.`,
+  sig(`${source}:${target}`),{model:{source,target},templateId});
 }
 
 const PRE842_MAKE_G2_QUESTION=makeG2Question;
@@ -20127,83 +20350,110 @@ function g2StoryVisualHtml(data){
 const PRE843_QUIZ_VISUAL_HTML=quizVisualHtml;
 quizVisualHtml=function(question){const v=question?.visual;if(v?.type==="g2Story")return g2StoryVisualHtml(v.data);return PRE843_QUIZ_VISUAL_HTML(question)};
 
-function g2StoryAddModel({easy=false}={}){
- const obj=g2StoryPickItem();let a,b;
- if(easy){const tens=ri(1,6),ones=ri(0,5);a=tens*10+ones;b=ri(1,Math.min(4,9-ones))}
- else{a=ri(12,75);b=ri(5,Math.min(25,100-a))}
- const result=a+b;return {kind:"add",obj,a,b,result,steps:[{label:"Было",value:`${a}`},{label:"Добавили",value:`+ ${b}`},{label:"Стало",value:"?",answer:true}]}
+const G2_WORD_PROBLEM_STAGES=[
+ {templates:["read_given","choose_action"],description:"Найди нужное число в условии или выбери действие для решения."},
+ {templates:["one_change","equal_groups"],description:"Реши задачу в одно действие и введи числовой ответ."},
+ {templates:["two_changes","groups_then_change"],description:"Реши задачу в два действия и введи ответ на вопрос."}
+];
+const G2_STORY_CHANGE_KINDS=["add","sub","compare"];
+const G2_STORY_GROUP_KINDS=["multiply","share","count_groups"];
+const G2_STORY_ACTIONS=["Сложение","Вычитание","Умножение","Деление"];
+const G2_STORY_PENCILS={one:"карандаш",few:"карандаша",many:"карандашей"};
+const G2_STORY_BOXES={one:"коробка",few:"коробки",many:"коробок"};
+
+function g2StoryCount(n,noun){return `${n} ${g1Noun(n,noun)}`}
+function g2StoryCapitalized(word){return word[0].toUpperCase()+word.slice(1)}
+
+function g2StoryChangeModel(kind){
+ if(kind==="compare"){
+  const less=ri(6,70),more=ri(less+1,100),askMore=ri(0,1)===0;
+  const stickers={one:"наклейка",few:"наклейки",many:"наклеек"};
+  const given=`У Оли ${g2StoryCount(more,stickers)}, у Димы ${g2StoryCount(less,stickers)}.`;
+  const question=askMore?"На сколько наклеек у Оли больше, чем у Димы?":"На сколько наклеек у Димы меньше, чем у Оли?";
+  return {kind,given,question,result:more-less,record:`${more} − ${less}`,action:"Вычитание",
+   known:[{question:"Сколько наклеек у Оли?",value:more},{question:"Сколько наклеек у Димы?",value:less}],
+   steps:[{label:"У Оли",value:more},{label:"У Димы",value:less},{label:"Разница",value:"?",answer:true}]};
+ }
+ const obj=g2StoryPickItem(),add=kind==="add",a=ri(12,add?94:100),b=ri(3,add?Math.min(25,100-a):Math.min(35,a));
+ const verb=add?obj.add:obj.sub,changeLabel=add?"Добавили":"Убрали",result=add?a+b:a-b;
+ const given=`${obj.place} ${g1ExistVerb(a,obj)} ${g2StoryCount(a,obj)}. ${g2StoryCapitalized(verb)} ${add?"ещё ":""}${b} ${g2StoryAccNoun(b,obj)}.`;
+ const question=`Сколько ${obj.many} ${add?"стало":"осталось"}?`;
+ return {kind,given,question,result,record:`${a} ${add?"+":"−"} ${b}`,action:add?"Сложение":"Вычитание",
+  known:[{question:`Сколько ${obj.many} было сначала?`,value:a},{question:`Сколько ${obj.many} ${verb}?`,value:b}],
+  steps:[{label:"Было",value:a},{label:changeLabel,value:b},{label:add?"Стало":"Осталось",value:"?",answer:true}]};
 }
-function g2StorySubModel({easy=false}={}){
- const obj=g2StoryPickItem();let a,b;
- if(easy){const tens=ri(2,8),ones=ri(3,9);a=tens*10+ones;b=ri(1,ones)}
- else{a=ri(25,100);b=ri(5,Math.min(25,a-1))}
- const result=a-b;return {kind:"sub",obj,a,b,result,steps:[{label:"Было",value:`${a}`},{label:"Убрали",value:`− ${b}`},{label:"Осталось",value:"?",answer:true}]}
+
+function g2StoryGroupModel(kind){
+ const groups=ri(2,6),each=ri(2,8),total=groups*each;
+ const boxes=g2StoryCount(groups,G2_STORY_BOXES),pencils=g2StoryCount(each,G2_STORY_PENCILS),all=g2StoryCount(total,G2_STORY_PENCILS);
+ const size={question:"Сколько карандашей положили в каждую коробку?",value:each};
+ const count={question:"Сколько коробок взяли?",value:groups};
+ const totalCount={question:"Сколько карандашей взяли?",value:total};
+ if(kind==="multiply"){
+  return {kind,given:`Взяли ${boxes}. В каждую коробку положили по ${pencils}.`,question:"Сколько карандашей во всех коробках?",
+   result:total,record:`${each} × ${groups}`,action:"Умножение",known:[count,size],
+   visual:{type:"g2EqualGroups",data:{groups,each}}};
+ }
+ if(kind==="share"){
+  return {kind,given:`Взяли ${all} и ${boxes}. Карандаши разложили поровну в коробки.`,question:size.question,
+   result:each,record:`${total} ÷ ${groups}`,action:"Деление",known:[totalCount,count],
+   visual:{type:"g2EqualGroups",data:{mode:"share",total,groups}}};
+ }
+ return {kind,given:`Взяли ${all}. В каждую коробку положили по ${pencils}, пока все карандаши не закончились.`,
+  question:"Сколько коробок понадобилось?",result:groups,record:`${total} ÷ ${each}`,action:"Деление",known:[totalCount,size],
+  visual:{type:"g2EqualGroups",data:{mode:"make_groups",total,each}}};
 }
-function g2StoryMulModel({easy=false}={}){
- const groups=ri(2,easy?4:6),each=ri(2,easy?5:8),total=groups*each;
- return {kind:"mul",groups,each,total,result:total,steps:[{label:"Групп",value:`${groups}`},{label:"В каждой",value:`${each}`},{label:"Всего",value:"?",answer:true}]}
+
+function g2StoryTwoChangesModel(){
+ const obj=g2StoryPickItem(),addFirst=ri(0,1)===0,a=ri(20,75),b=ri(3,Math.min(20,addFirst?100-a:a));
+ const mid=addFirst?a+b:a-b,c=ri(2,Math.min(15,addFirst?mid:100-mid)),result=addFirst?mid-c:mid+c;
+ const first=addFirst?obj.add:obj.sub,second=addFirst?obj.sub:obj.add;
+ const text=`${obj.place} ${g1ExistVerb(a,obj)} ${g2StoryCount(a,obj)}. ${g2StoryCapitalized(first)} ${b} ${g2StoryAccNoun(b,obj)}, потом ${second} ${c} ${g2StoryAccNoun(c,obj)}. Сколько ${obj.many} теперь?`;
+ const ex=`Сначала ${a} ${addFirst?"+":"−"} ${b} = ${mid}. Затем ${mid} ${addFirst?"−":"+"} ${c} = ${result}.`;
+ return {text,ex,result};
 }
-function g2StoryDivModel({easy=false}={}){
- let groups=ri(2,easy?4:6),each=ri(2,easy?5:8);if(groups===each)each=each===2?3:each-1;const total=groups*each;
- return {kind:"div",groups,each,total,result:each,steps:[{label:"Всего",value:`${total}`},{label:"Групп",value:`${groups}`},{label:"В каждой",value:"?",answer:true}]}
+
+function g2StoryGroupsThenChangeModel(){
+ const groups=ri(2,6),each=ri(2,8),total=groups*each,divide=ri(0,1)===0;
+ const boxes=g2StoryCount(groups,G2_STORY_BOXES),pencils=g2StoryCount(each,G2_STORY_PENCILS);
+ const amount=ri(1,divide?Math.min(8,each):12),extra=g2StoryCount(amount,G2_STORY_PENCILS);
+ if(divide){
+  const remove=ri(0,1)===0,result=remove?each-amount:each+amount;
+  const change=remove?`Из первой коробки забрали ${extra}.`:`В первую коробку положили ещё ${extra}.`;
+  const text=`${g2StoryCount(total,G2_STORY_PENCILS)} разложили поровну в ${boxes}. ${change} Сколько карандашей теперь в первой коробке?`;
+  const ex=`Сначала ${total} ÷ ${groups} = ${each}. Затем ${each} ${remove?"−":"+"} ${amount} = ${result}.`;
+  return {text,ex,result};
+ }
+ const result=total+amount;
+ const text=`Взяли ${boxes}. В каждую коробку положили по ${pencils}. Рядом положили ещё ${extra}. Сколько карандашей всего в коробках и рядом?`;
+ const ex=`Сначала ${each} × ${groups} = ${total}. Затем ${total} + ${amount} = ${result}.`;
+ return {text,ex,result};
 }
-function g2StoryOneText(m){
- if(m.kind==="add")return `${m.obj.place} ${g1ExistVerb(m.a,m.obj)} ${m.a} ${g2StoryNoun(m.a,m.obj)}. ${m.obj.add[0].toUpperCase()+m.obj.add.slice(1)} ещё ${m.b} ${g2StoryAccNoun(m.b,m.obj)}. Сколько ${m.obj.many} стало?`;
- if(m.kind==="sub")return `${m.obj.place} ${g1ExistVerb(m.a,m.obj)} ${m.a} ${g2StoryNoun(m.a,m.obj)}. ${m.obj.sub[0].toUpperCase()+m.obj.sub.slice(1)} ${m.b} ${g2StoryAccNoun(m.b,m.obj)}. Сколько ${m.obj.many} осталось?`;
- if(m.kind==="mul")return `Есть ${m.groups} ${g2GroupWord(m.groups)}. В каждой по ${m.each} ${g2ItemWord(m.each)}. Сколько предметов всего?`;
- return `${m.total} предметов разделили поровну на ${m.groups} ${g2GroupWord(m.groups)}. Сколько предметов в каждой группе?`
-}
-function g2StoryOneExplanation(m){
- if(m.kind==="add")return `Нужно узнать, сколько стало: ${m.a} + ${m.b} = ${m.result}.`;
- if(m.kind==="sub")return `Нужно узнать, сколько осталось: ${m.a} − ${m.b} = ${m.result}.`;
- if(m.kind==="mul")return `${m.each} повторяется ${m.groups} ${g2StoryTimes(m.groups)}: ${m.each} · ${m.groups} = ${m.total}.`;
- return `Делим поровну: ${m.total} : ${m.groups} = ${m.each}.`
-}
-function g2StoryCorrectAction(m){return m.kind==="add"?"Сложение":m.kind==="sub"?"Вычитание":m.kind==="mul"?"Умножение":"Деление"}
-function g2StoryCorrectRecord(m){return m.kind==="add"?`${m.a} + ${m.b}`:m.kind==="sub"?`${m.a} − ${m.b}`:m.kind==="mul"?`${m.each} · ${m.groups}`:`${m.total} : ${m.groups}`}
-function g2StoryRecordDistractors(m){
- if(m.kind==="add")return [`${m.a} + ${Math.max(0,m.b-1)}`,`${m.a} + ${m.b+1}`];
- if(m.kind==="sub")return [`${m.a} − ${Math.max(0,m.b-1)}`,`${m.a} − ${m.b+1}`];
- if(m.kind==="mul")return [`${m.each} · ${m.groups-1}`,`${m.each} · ${m.groups+1}`];
- return [`${m.total} : ${m.each}`,`${m.total} − ${m.groups}`]
-}
-function g2StoryTwoAddSubModel(){
- const obj=g2StoryPickItem(),a=ri(20,60),b=ri(5,Math.min(20,100-a)),mid=a+b,c=ri(3,Math.min(15,mid-1)),result=mid-c;
- return {kind:"two_add_sub",obj,a,b,c,mid,result,steps:[{label:"Было",value:`${a}`},{label:"Добавили",value:`+ ${b}`},{label:"После 1-го действия",value:`${mid}`,derived:true},{label:"Убрали",value:`− ${c}`},{label:"Стало",value:"?",answer:true}]}
-}
-function g2StoryTwoSubAddModel(){
- const obj=g2StoryPickItem(),a=ri(30,90),b=ri(5,Math.min(20,a-1)),mid=a-b,c=ri(3,Math.min(15,100-mid)),result=mid+c;
- return {kind:"two_sub_add",obj,a,b,c,mid,result,steps:[{label:"Было",value:`${a}`},{label:"Убрали",value:`− ${b}`},{label:"После 1-го действия",value:`${mid}`,derived:true},{label:"Добавили",value:`+ ${c}`},{label:"Стало",value:"?",answer:true}]}
-}
-function g2StoryTwoMulAddModel(){
- const groups=ri(2,5),each=ri(2,8),product=groups*each,extra=ri(3,Math.min(15,100-product)),result=product+extra;
- return {kind:"two_mul_add",groups,each,product,extra,result,steps:[{label:"Групп",value:`${groups}`},{label:"В каждой",value:`${each}`},{label:"Сначала",value:`${product}`,derived:true},{label:"Добавили",value:`+ ${extra}`},{label:"Стало",value:"?",answer:true}]}
-}
+
 function g2WordProblemsQuestion(d){
- const warm=["add_result","sub_result"],train=["add_result","sub_result","multiply_result","divide_result","choose_action","choose_record"],master=[...train,"two_add_sub","two_sub_add","two_mul_add"],templateId=g2PickTemplate(d===0?warm:d===1?train:master);
- if(["add_result","sub_result","multiply_result","divide_result"].includes(templateId)){
-  const model=templateId==="add_result"?g2StoryAddModel({easy:d===0}):templateId==="sub_result"?g2StorySubModel({easy:d===0}):templateId==="multiply_result"?g2StoryMulModel({easy:d===1}):g2StoryDivModel({easy:d===1}),text=g2StoryOneText(model),ex=g2StoryOneExplanation(model),sig=`g2:word_problems:${d}:${templateId}:${model.a??model.total}:${model.b??model.groups}:${model.each??0}:${model.obj?.one||"items"}`;
-  const visual=model.kind==="mul"?{type:"g2EqualGroups",data:{groups:model.groups,each:model.each}}:model.kind==="div"?{type:"g2EqualGroups",data:{mode:"share",total:model.total,groups:model.groups}}:{type:"g2Story",data:{steps:model.steps,aria:text}};
-  return d===0?g2Choice(text,model.result,g2UniqueNums(model.result,0,100),ex,sig,{model,visual,templateId}):g2NumberInput(text,model.result,ex,sig,{model,visual,templateId})
+ const templateId=g2PickTemplate(G2_WORD_PROBLEM_STAGES[d].templates);
+ const sig=key=>`g2:word_problems:${d}:${templateId}:${key}`;
+ if(d===2){
+  const model=templateId==="two_changes"?g2StoryTwoChangesModel():g2StoryGroupsThenChangeModel();
+  return g2NumberInput(model.text,model.result,model.ex,sig(model.text),{templateId,model});
+ }
+ const kinds=templateId==="one_change"?G2_STORY_CHANGE_KINDS:
+  templateId==="equal_groups"?G2_STORY_GROUP_KINDS:[...G2_STORY_CHANGE_KINDS,...G2_STORY_GROUP_KINDS];
+ const kind=g2PickTemplate(kinds);
+ const model=G2_STORY_CHANGE_KINDS.includes(kind)?g2StoryChangeModel(kind):g2StoryGroupModel(kind);
+ const {given,question,result,record,action,known}=model,opts={model,templateId};
+ if(templateId==="read_given"){
+  const {question:readQuestion,value}=g2PickTemplate(known),text=`${given} ${readQuestion}`;
+  const nearby=g2UniqueNums(value,0,100),other=known.find(item=>item.question!==readQuestion).value;
+  return g2Choice(text,value,[other,...nearby],`Это число дано в условии. Ответ — ${value}.`,sig(text),opts);
  }
  if(templateId==="choose_action"){
-  const kind=ri(0,1)?"add":"sub",model=kind==="add"?g2StoryAddModel():g2StorySubModel(),correct=g2StoryCorrectAction(model),text=`${g2StoryOneText(model)}<br><b>Какое действие нужно выполнить?</b>`,visual={type:"g2Story",data:{steps:model.steps,aria:text}};
-  return g2Choice(text,correct,["Сложение","Вычитание"].filter(x=>x!==correct),`${g2StoryOneExplanation(model)} Значит, выбираем действие «${correct.toLowerCase()}».`,`g2:word_problems:${d}:choose_action:${kind}:${model.a}:${model.b}`,{model,visual,templateId})
+  const text=`${given} Выбери действие для вопроса «${question}».`;
+  return g2Choice(text,action,G2_STORY_ACTIONS.filter(option=>option!==action),
+   `Подходит действие «${action.toLowerCase()}». Запись решения — ${record}.`,sig(text),opts);
  }
- if(templateId==="choose_record"){
-  const kind=["add","sub","mul","div"][ri(0,3)],model=kind==="add"?g2StoryAddModel():kind==="sub"?g2StorySubModel():kind==="mul"?g2StoryMulModel():g2StoryDivModel(),correct=g2StoryCorrectRecord(model),text=`${g2StoryOneText(model)}<br><b>Выбери запись для решения.</b>`,visual=model.kind==="mul"?{type:"g2EqualGroups",data:{groups:model.groups,each:model.each}}:model.kind==="div"?{type:"g2EqualGroups",data:{mode:"share",total:model.total,groups:model.groups}}:{type:"g2Story",data:{steps:model.steps,aria:text}};
-  return g2Choice(text,correct,g2StoryRecordDistractors(model),`По условию подходит запись ${correct}.`,`g2:word_problems:${d}:choose_record:${kind}:${model.a??model.total}:${model.b??model.groups}:${model.each??0}`,{model,visual,templateId})
- }
- if(templateId==="two_add_sub"){
-  const model=g2StoryTwoAddSubModel(),o=model.obj,text=`${o.place} ${g1ExistVerb(model.a,o)} ${model.a} ${g2StoryNoun(model.a,o)}. ${o.add[0].toUpperCase()+o.add.slice(1)} ${model.b} ${g2StoryAccNoun(model.b,o)}, потом ${o.sub} ${model.c} ${g2StoryAccNoun(model.c,o)}. Сколько ${o.many} осталось?`,ex=`Сначала ${model.a} + ${model.b} = ${model.mid}. Потом ${model.mid} − ${model.c} = ${model.result}.`;
-  return g2NumberInput(text,model.result,ex,`g2:word_problems:${d}:two_add_sub:${model.a}:${model.b}:${model.c}:${o.one}`,{model,visual:{type:"g2Story",data:{steps:model.steps,aria:text}},templateId})
- }
- if(templateId==="two_sub_add"){
-  const model=g2StoryTwoSubAddModel(),o=model.obj,text=`${o.place} ${g1ExistVerb(model.a,o)} ${model.a} ${g2StoryNoun(model.a,o)}. ${o.sub[0].toUpperCase()+o.sub.slice(1)} ${model.b} ${g2StoryAccNoun(model.b,o)}, потом ${o.add} ${model.c} ${g2StoryAccNoun(model.c,o)}. Сколько ${o.many} стало?`,ex=`Сначала ${model.a} − ${model.b} = ${model.mid}. Потом ${model.mid} + ${model.c} = ${model.result}.`;
-  return g2NumberInput(text,model.result,ex,`g2:word_problems:${d}:two_sub_add:${model.a}:${model.b}:${model.c}:${o.one}`,{model,visual:{type:"g2Story",data:{steps:model.steps,aria:text}},templateId})
- }
- const model=g2StoryTwoMulAddModel(),text=`Есть ${model.groups} ${g2GroupWord(model.groups)}. В каждой по ${model.each} ${g2ItemWord(model.each)}. Потом добавили ещё ${model.extra} ${g2ItemWord(model.extra)}. Сколько предметов стало всего?`,ex=`Сначала узнаём количество в группах: ${model.each} · ${model.groups} = ${model.product}. Потом ${model.product} + ${model.extra} = ${model.result}.`;
- return g2NumberInput(text,model.result,ex,`g2:word_problems:${d}:two_mul_add:${model.groups}:${model.each}:${model.extra}`,{model,visual:{type:"g2Story",data:{steps:model.steps,aria:text}},templateId:"two_mul_add"})
+ const text=`${given} ${question}`,visual=model.visual||{type:"g2Story",data:{steps:model.steps,aria:given}};
+ return g2NumberInput(text,result,`${record} = ${result}.`,sig(text),{...opts,visual});
 }
 
 const PRE843_MAKE_G2_QUESTION=makeG2Question;
@@ -20227,112 +20477,223 @@ const MATKVEST_STAGE844_VERSION="8.44";
 const MATKVEST_STAGE844_ANSWER_LEAK_FIX=true;
 const TARGET_STAGE844_IDS=["g2:geometric_figures","g2:geometric_quantities"];
 
-const G2_BASIC_SHAPES_844=["Круг","Треугольник","Квадрат","Прямоугольник"];
-const G2_SHAPE_GENITIVE_844={"Круг":"круга","Треугольник":"треугольника","Квадрат":"квадрата","Прямоугольник":"прямоугольника"};
-function g2ShapeProps844(shape){return G1_SHAPE_PROPS[shape]||{sides:0,corners:0}}
-function g2ShapeOrder844(){return shuffleOptions(G2_BASIC_SHAPES_844.map(x=>({label:x,key:x}))).map(x=>x.key)}
-function g2ShapeGalleryAnswer844(order,target){return String.fromCharCode(65+order.indexOf(target))}
-function g2ShapeVisualData844(shape,mode="single",order=null){return mode==="gallery"?{mode:"gallery",order:order||G2_BASIC_SHAPES_844}:{mode:"single",shape}}
+const G2_FIGURES_STAGES=[
+ {templates:["identify_plane","identify_line"],description:"Узнай фигуру, точку, отрезок или ломаную по рисунку."},
+ {templates:["count_parts","read_segment"],description:"Посчитай стороны, углы, вершины или звенья. Определи концы отрезка по буквам."},
+ {templates:["match_properties","close_path"],description:"Выбери рисунок по свойствам фигуры или найди отрезок, который замкнёт ломаную."}
+];
+const G2_FIGURE_PATHS=[
+ [[55,145],[162,43],[305,142]],
+ [[51,145],[82,54],[232,46],[308,139]],
+ [[43,142],[82,63],[178,37],[278,65],[316,139]]
+];
+const G2_FIGURE_SEGMENTS=[
+ [[50,118],[310,118],[176,118]],
+ [[66,145],[294,52],[182,55]],
+ [[170,45],[170,145],[264,97]]
+];
+const G2_FIGURE_PROPERTIES=[
+ {shape:"Круг",hint:"без углов и сторон-отрезков",reason:"Граница круга округлая, у неё нет углов и сторон-отрезков."},
+ {shape:"Треугольник",hint:"с тремя сторонами и тремя вершинами",reason:"Три стороны и три вершины есть у треугольника."},
+ {shape:"Квадрат",hint:"с четырьмя прямыми углами и четырьмя равными сторонами",reason:"Перед нами квадрат. Это прямоугольник со всеми равными сторонами."},
+ {shape:"Прямоугольник",hint:"с четырьмя прямыми углами и соседними сторонами разной длины",reason:"Две соседние стороны этого прямоугольника разной длины."}
+];
+
+function g2FigurePathHtml(data){
+ const {points,labels=[],connected=points.length}=data;
+ const path=points.slice(0,connected).map(([x,y])=>`${x},${y}`).join(" ");
+ const markers=labels.map((label,i)=>{
+  const [x,y]=points[i];
+  return `<g class="g2-figure-point"><circle class="g1-shape-point" cx="${x}" cy="${y}" r="5"/><text class="g1-shape-label" x="${x}" y="${y-12}">${esc(label)}</text></g>`;
+ }).join("");
+ const aria=labels.length?"Чертёж с точками, отмеченными буквами":"Рисунок ломаной";
+ return `<div class="g1-geometry-wrap"><svg class="g1-shape-svg g1-shape-compact g2-figure-path" viewBox="0 0 360 185" role="img" aria-label="${aria}" xmlns="http://www.w3.org/2000/svg"><polyline class="g1-shape-stroke" fill="none" points="${path}"/>${markers}</svg></div>`;
+}
+function g2FigureSegmentName(a,b){return [a,b].sort().join("")}
 
 function g2GeometryFiguresQuestion(d){
- const warm=["identify","find_gallery","count_sides"],train=["identify","find_gallery","count_sides","count_corners","point_segment","equal_sides"],master=["identify","find_gallery","count_sides","count_corners","point_segment","equal_sides","description_shape"],templateId=g2PickTemplate(d===0?warm:d===1?train:master);
- if(templateId==="identify"){
-  const shape=G2_BASIC_SHAPES_844[ri(0,G2_BASIC_SHAPES_844.length-1)],model={shape,mode:"single"};
-  return g2Choice("Какая фигура показана?",shape,G2_BASIC_SHAPES_844.filter(x=>x!==shape),`Это ${shape.toLowerCase()}.`,`g2:geometric_figures:${d}:identify:${shape}`,{model,visual:{type:"g1Shape",data:g2ShapeVisualData844(shape)},templateId})
+ const templateId=g2PickTemplate(G2_FIGURES_STAGES[d].templates);
+ const sig=key=>`g2:geometric_figures:${d}:${templateId}:${key}`;
+ const single=shape=>({type:"g1Shape",data:{compact:true,mode:"single",shape}});
+ const pathVisual=data=>({type:"g2FigurePath",data});
+ if(templateId==="identify_plane"){
+  const shape=g2PickTemplate(G1_BASIC_SHAPES);
+  return g2Choice("Как точнее всего назвать фигуру на рисунке?",shape,G1_BASIC_SHAPES.filter(option=>option!==shape),
+   `Это ${shape.toLowerCase()}.`,sig(shape),{model:{shape},visual:single(shape),templateId});
  }
- if(templateId==="find_gallery"){
-  const target=G2_BASIC_SHAPES_844[ri(0,G2_BASIC_SHAPES_844.length-1)],order=g2ShapeOrder844(),answer=g2ShapeGalleryAnswer844(order,target),model={target,order,answer};
-  return g2Choice(`Под какой буквой находится ${target.toLowerCase()}?`,answer,["A","B","C","D"].filter(x=>x!==answer),`${target} находится под буквой ${answer}.`,`g2:geometric_figures:${d}:find_gallery:${target}:${order.join("-")}`,{model,visual:{type:"g1Shape",data:{mode:"gallery",order}},templateId})
+ if(templateId==="identify_line"){
+  const names=["Точка","Отрезок","Ломаная"],shape=g2PickTemplate(names),polyline=shape==="Ломаная";
+  const points=polyline?g2PickTemplate(G2_FIGURE_PATHS):null;
+  return g2Choice("Что показано на рисунке?",shape,names.filter(option=>option!==shape),
+   polyline?"Это ломаная. Она состоит из соединённых отрезков.":`Это ${shape.toLowerCase()}.`,
+   sig(points?points.length:shape),{model:{shape,points},visual:points?pathVisual({points}):single(shape),templateId});
  }
- if(templateId==="count_sides"){
-  const shapes=["Треугольник","Квадрат","Прямоугольник"],shape=shapes[ri(0,shapes.length-1)],answer=g2ShapeProps844(shape).sides,model={shape,answer};
-  return g2Choice("Сколько сторон у этой фигуры?",answer,g2UniqueNums(answer,2,5),`У ${G2_SHAPE_GENITIVE_844[shape]} ${answer} стороны.`,`g2:geometric_figures:${d}:count_sides:${shape}`,{model,visual:{type:"g1Shape",data:g2ShapeVisualData844(shape)},templateId})
+ if(templateId==="count_parts"){
+  const part=g2PickTemplate(["сторон","углов","вершин","звеньев"]);
+  if(part==="звеньев"){
+   const points=g2PickTemplate(G2_FIGURE_PATHS),answer=points.length-1;
+   return g2NumberInput("Сколько звеньев у ломаной на рисунке?",answer,`У этой ломаной ${answer} звена. Каждое звено — отдельный отрезок.`,
+    sig(`${part}:${points.length}`),{model:{part,points},visual:pathVisual({points}),templateId});
+  }
+  const shape=g2PickTemplate(["Треугольник","Квадрат","Прямоугольник"]),answer=G1_SHAPE_PROPS[shape].sides;
+  const unit={сторон:"стороны",углов:"угла",вершин:"вершины"}[part];
+  return g2NumberInput(`Сколько ${part} у многоугольника на рисунке?`,answer,`На рисунке можно насчитать ${answer} ${unit}.`,
+   sig(`${part}:${shape}`),{model:{shape,part},visual:single(shape),templateId});
  }
- if(templateId==="count_corners"){
-  const shapes=["Треугольник","Квадрат","Прямоугольник"],shape=shapes[ri(0,shapes.length-1)],answer=g2ShapeProps844(shape).corners,model={shape,answer};
-  return g2Choice("Сколько углов у этой фигуры?",answer,g2UniqueNums(answer,2,5),`У ${G2_SHAPE_GENITIVE_844[shape]} ${answer} угла.`,`g2:geometric_figures:${d}:count_corners:${shape}`,{model,visual:{type:"g1Shape",data:g2ShapeVisualData844(shape)},templateId})
+ if(templateId==="match_properties"){
+  const {shape,hint,reason}=g2PickTemplate(G2_FIGURE_PROPERTIES),order=shuffleOptions(G1_BASIC_SHAPES);
+  const letters=order.map((_,i)=>String.fromCharCode(65+i)),answer=letters[order.indexOf(shape)];
+  const visual={type:"g1Shape",data:{compact:true,mode:"gallery",order}};
+  return g2Choice(`Под какой буквой фигура ${hint}?`,answer,letters.filter(letter=>letter!==answer),
+   `${reason} На рисунке это фигура ${answer}.`,sig(`${shape}:${order.join("-")}`),{model:{shape,order},visual,templateId});
  }
- if(templateId==="point_segment"){
-  const shape=ri(0,1)?"Точка":"Отрезок",model={shape};
-  return g2Choice("Что показано?",shape,["Точка","Отрезок"].filter(x=>x!==shape),shape==="Точка"?"Точка — это маленькая отметка.":"Отрезок — прямая линия между двумя отмеченными концами.",`g2:geometric_figures:${d}:point_segment:${shape}`,{model,visual:{type:"g1Shape",data:g2ShapeVisualData844(shape)},templateId})
- }
- if(templateId==="equal_sides"){
-  const answer="Квадрат",order=g2ShapeOrder844(),model={answer,order};
-  return g2Choice("У какой фигуры 4 равные стороны?",answer,["Прямоугольник","Треугольник","Круг"],"У квадрата 4 стороны, и все они равны.",`g2:geometric_figures:${d}:equal_sides:${order.join("-")}`,{model,visual:{type:"g1Shape",data:{mode:"gallery",order}},templateId})
- }
- const answer="Прямоугольник",order=g2ShapeOrder844(),model={answer,order};
- return g2Choice("Какая фигура имеет 4 стороны и 4 угла, но не все её стороны равны?",answer,["Квадрат","Треугольник","Круг"],"У прямоугольника 4 стороны и 4 угла. Две длинные стороны равны между собой, и две короткие — между собой.",`g2:geometric_figures:${d}:description_shape:${order.join("-")}`,{model,visual:{type:"g1Shape",data:{mode:"gallery",order}},templateId:"description_shape"})
+ const close=templateId==="close_path",collection=close?G2_FIGURE_PATHS:G2_FIGURE_SEGMENTS,variant=ri(0,collection.length-1);
+ const points=collection[variant],labels=shuffleOptions(points.map((_,i)=>String.fromCharCode(65+i)));
+ const connected=close?points.length:2,first=labels[0],last=labels[connected-1];
+ const answer=g2FigureSegmentName(first,last);
+ const wrong=labels.flatMap((label,i)=>labels.slice(i+1).map(other=>g2FigureSegmentName(label,other))).filter(pair=>pair!==answer);
+ const text=close?"Каким отрезком нужно замкнуть ломаную?":"Какими буквами обозначены концы отрезка?";
+ const explanation=close?`Концы ломаной — ${first} и ${last}. Соедини их отрезком ${answer}.`:`Концы отрезка — точки ${first} и ${last}.`;
+ const model={points,labels,connected};
+ return g2Choice(text,answer,shuffleOptions(wrong),explanation,sig(`${variant}:${labels.join("")}`),{model,visual:pathVisual(model),templateId});
 }
 
 const G2_TRIANGLES_844=[[3,4,5],[4,4,5],[4,5,6],[5,5,6],[5,6,7],[6,6,8]];
 function g2TriangleModel844(){const s=G2_TRIANGLES_844[ri(0,G2_TRIANGLES_844.length-1)];return {a:s[0],b:s[1],c:s[2],perimeter:s[0]+s[1]+s[2]}}
 function g2RectangleModel844(){let a=ri(3,12),b=ri(2,9);if(a===b)b=b<9?b+1:b-1;return {shape:"rectangle",a,b,perimeter:2*(a+b)}}
 function g2SquareModel844(){const a=ri(2,12);return {shape:"square",a,perimeter:4*a}}
-function g2PerimeterWord844(n){return `${n} см`}
-function g2PerimeterSvgShape844(data,{x0=65,y0=50,w=550,h=245}={}){
- const shape=data?.shape||"rectangle",all=!!data?.labelAllSides;
- if(shape==="square"||shape==="rectangle"){
-  const a=Number(data.a),b=shape==="square"?a:Number(data.b),scale=Math.min(w/Math.max(a,1),h/Math.max(b,1)),rw=a*scale,rh=b*scale,cx=x0+w/2,cy=y0+h/2,x=cx-rw/2,y=cy-rh/2;
-  const labelA=data.hideA?"?":`${a} см`,labelB=data.hideB?"?":`${b} см`;
-  let labels=`<text class="g2-geo-side" x="${cx}" y="${y-10}">${labelA}</text>`;
-  if(shape==="rectangle")labels+=`<text class="g2-geo-side" x="${Math.max(35,x-24)}" y="${cy+5}">${labelB}</text>`;
-  if(all){labels+=`<text class="g2-geo-side" x="${cx}" y="${y+rh+24}">${labelA}</text>`;if(shape==="square")labels+=`<text class="g2-geo-side" x="${Math.max(35,x-24)}" y="${cy+5}">${labelA}</text><text class="g2-geo-side" x="${Math.min(645,x+rw+24)}" y="${cy+5}">${labelA}</text>`;else labels+=`<text class="g2-geo-side" x="${Math.min(645,x+rw+24)}" y="${cy+5}">${labelB}</text>`}
-  return `<rect class="g2-geo-stroke" x="${x}" y="${y}" width="${rw}" height="${rh}"/>${labels}`
+const G2_LENGTH_PATH_POINTS=[[38,125],[107,64],[179,125],[252,64],[322,125]];
+const G2_PERIMETER_SHAPE_NAMES={square:"Квадрат",rectangle:"Прямоугольник",triangle:"Треугольник",polyline:"Ломаная"};
+
+function g2PerimeterSides(data){
+ if(data.shape==="square")return [data.a,data.a,data.a,data.a];
+ if(data.shape==="rectangle")return [data.a,data.b,data.a,data.b];
+ return [data.a,data.b,data.c];
+}
+function g2PerimeterSideLabel(length,hidden){
+ return hidden?"?":`${length} см`;
+}
+function g2PerimeterSideText(x,y,label){
+ return `<text class="g2-geo-side" x="${x}" y="${y}">${esc(label)}</text>`;
+}
+function g2PerimeterSvgShape844(data){
+ const {shape,a,b,c,hideA,hideB,hideC,labelAllSides}=data;
+ const labelA=g2PerimeterSideLabel(a,hideA),labelB=g2PerimeterSideLabel(b,hideB),labelC=g2PerimeterSideLabel(c,hideC);
+ if(shape==="polyline"){
+  const points=G2_LENGTH_PATH_POINTS.slice(0,data.lengths.length+1);
+  const path=points.map(point=>point.join(",")).join(" ");
+  const labels=data.lengths.map((length,i)=>{
+   const [x,y]=points[i], [nextX,nextY]=points[i+1];
+   return g2PerimeterSideText((x+nextX)/2,(y+nextY)/2-19,g2PerimeterSideLabel(length,false));
+  }).join("");
+  return {drawing:`<polyline class="g2-geo-line" points="${path}"/>${labels}`,known:data.lengths.map(value=>g2PerimeterSideLabel(value,false))};
  }
- const a=Number(data.a),b=Number(data.b),c=Number(data.c),hasUnknown=!!(data.hideA||data.hideB||data.hideC),mid=(p,q)=>[(p[0]+q[0])/2,(p[1]+q[1])/2];
- let A,B,C;
- if(hasUnknown){const left=x0+w*.08,bottom=y0+h*.9;A=[left,bottom];B=[x0+w*.92,bottom];C=[x0+w*.43,y0+h*.12]}
- else{const xx=(b*b+c*c-a*a)/(2*c),yy=Math.sqrt(Math.max(0,b*b-xx*xx)),scale=Math.min(w/Math.max(c,1),h/Math.max(yy,1)),bx=c*scale,tx=xx*scale,ty=yy*scale,left=x0+(w-bx)/2,bottom=y0+h-10;A=[left,bottom];B=[left+bx,bottom];C=[left+tx,bottom-ty]}
- const ab=mid(A,B),ac=mid(A,C),bc=mid(B,C),la=data.hideC?"?":`${c} см`,lb=data.hideB?"?":`${b} см`,lc=data.hideA?"?":`${a} см`;
- return `<polygon class="g2-geo-stroke" points="${A[0]},${A[1]} ${B[0]},${B[1]} ${C[0]},${C[1]}"/><text class="g2-geo-side" x="${ab[0]}" y="${ab[1]+24}">${la}</text><text class="g2-geo-side" x="${ac[0]-24}" y="${ac[1]}">${lb}</text><text class="g2-geo-side" x="${bc[0]+24}" y="${bc[1]}">${lc}</text>`
+ if(shape==="square"||shape==="rectangle"){
+  const square=shape==="square",height=square?a:b,scale=Math.min(182/a,96/height),w=a*scale,h=height*scale;
+  const x=180-w/2,y=96-h/2,vertical=square?labelA:labelB;
+  let drawing=`<rect class="g2-geo-stroke" x="${x}" y="${y}" width="${w}" height="${h}"/>`;
+  drawing+=g2PerimeterSideText(180,y-13,labelA);
+  if(!square||labelAllSides)drawing+=g2PerimeterSideText(x-34,102,vertical);
+  if(labelAllSides)drawing+=g2PerimeterSideText(180,y+h+26,labelA)+g2PerimeterSideText(x+w+34,102,vertical);
+  return {drawing,known:square?[labelA]:[labelA,labelB]};
+ }
+ let points;
+ if(hideA||hideB||hideC){
+  points=[[89,143],[271,143],[158,49]];
+ }else{
+  const projection=(b*b+c*c-a*a)/(2*c),height=Math.sqrt(b*b-projection*projection);
+  const scale=Math.min(180/c,94/height),left=180-c*scale/2;
+  points=[[left,143],[left+c*scale,143],[left+projection*scale,143-height*scale]];
+ }
+ const known=[labelC,labelA,labelB];
+ const labels=points.map(([x,y],i)=>{
+  const [nextX,nextY]=points[(i+1)%points.length],dx=nextX-x,dy=nextY-y,norm=Math.hypot(dx,dy);
+  return g2PerimeterSideText((x+nextX)/2-31*dy/norm,(y+nextY)/2+26*dx/norm+5,known[i]);
+ }).join("");
+ return {drawing:`<polygon class="g2-geo-stroke" points="${points.map(point=>point.join(",")).join(" ")}"/>${labels}`,known};
+}
+function g2PerimeterImage(data){
+ const {drawing,known}=g2PerimeterSvgShape844(data);
+ const aria=`${G2_PERIMETER_SHAPE_NAMES[data.shape]}. Данные на чертеже: ${known.join(", ").replace(/\?/g,"неизвестная длина")}.`;
+ const viewHeight=data.shape==="polyline"?155:188;
+ return `<svg class="g2-geometry-svg" viewBox="0 0 360 ${viewHeight}" role="img" aria-label="${esc(aria)}" xmlns="http://www.w3.org/2000/svg">${drawing}</svg>`;
 }
 function g2PerimeterVisualHtml(data){
- const W=680,H=350,mode=data?.mode||"single";
- if(mode==="compare"){
-  const left=data.left,right=data.right;
-  return `<div class="g2-geometry-visual"><svg class="g2-geometry-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Две фигуры с данными длинами сторон" xmlns="http://www.w3.org/2000/svg">${g2PerimeterSvgShape844(left,{x0:55,y0:62,w:230,h:190})}${g2PerimeterSvgShape844(right,{x0:395,y0:62,w:230,h:190})}<text class="g2-geo-label" x="167" y="325">A</text><text class="g2-geo-label" x="512" y="325">B</text></svg></div>`
+ if(data.mode==="compare"){
+  return `<div class="g2-geometry-compare">${[data.left,data.right].map((shape,i)=>
+   `<div class="g2-geometry-visual"><div class="g2-geo-caption">Фигура ${i===0?"A":"B"}</div>${g2PerimeterImage(shape)}</div>`
+  ).join("")}</div>`;
  }
- const caption=data?.showPerimeter===true&&data?.perimeter!=null?`Периметр: ${data.perimeter} см`:data?.caption||"";
- const aria=(data?.hideA||data?.hideB||data?.hideC)?"Фигура: известные стороны подписаны, неизвестная сторона отмечена вопросительным знаком":"Фигура с данными длинами сторон";
- return `<div class="g2-geometry-visual"><svg class="g2-geometry-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="${aria}" xmlns="http://www.w3.org/2000/svg">${g2PerimeterSvgShape844(data,{x0:70,y0:45,w:540,h:230})}</svg>${caption?`<div class="g2-geo-caption">${esc(caption)}</div>`:""}</div>`
+ const caption=data.showPerimeter===true?`Периметр: ${data.perimeter} см`:data.caption||"";
+ return `<div class="g2-geometry-visual">${g2PerimeterImage(data)}${caption?`<div class="g2-geo-caption">${esc(caption)}</div>`:""}</div>`;
 }
 const PRE844_QUIZ_VISUAL_HTML=quizVisualHtml;
-quizVisualHtml=function(question){const v=question?.visual;if(v?.type==="g2Perimeter")return g2PerimeterVisualHtml(v.data);return PRE844_QUIZ_VISUAL_HTML(question)};
+quizVisualHtml=function(question){const v=question?.visual;if(v?.type==="g2Perimeter")return g2PerimeterVisualHtml(v.data);if(v?.type==="g2FigurePath")return g2FigurePathHtml(v.data);return PRE844_QUIZ_VISUAL_HTML(question)};
 
-function g2PerimeterDistractors844(answer){return g2UniqueNums(answer,1,100)}
+const G2_GEOMETRIC_QUANTITIES_STAGES=[
+ {templates:["ruler_length","perimeter_record"],description:"Измерь отрезок и выбери сумму длин сторон фигуры."},
+ {templates:["polygon_perimeter","polyline_length"],description:"Вычисли периметр многоугольника или длину ломаной."},
+ {templates:["missing_side","compare_perimeters"],description:"Найди неизвестную сторону по периметру или сравни периметры."}
+];
+function g2PerimeterModel(){
+ return g2PickTemplate([g2SquareModel844,g2RectangleModel844,()=>({shape:"triangle",...g2TriangleModel844()})])();
+}
 function g2GeometricQuantitiesQuestion(d){
- const warm=["measure_segment","square_perimeter","rectangle_perimeter"],train=["measure_segment","square_perimeter","rectangle_perimeter","triangle_perimeter","choose_record","compare_perimeters"],master=["measure_segment","square_perimeter","rectangle_perimeter","triangle_perimeter","choose_record","compare_perimeters","missing_triangle_side","missing_square_side"],templateId=g2PickTemplate(d===0?warm:d===1?train:master);
- if(templateId==="measure_segment"){
-  const a=ri(2,10),model={a,unit:"см"};
-  return g2Choice("Какова длина отрезка?",a,g2UniqueNums(a,1,10),`Отрезок начинается у 0 и заканчивается у ${a}. Его длина — ${a} см.`,`g2:geometric_quantities:${d}:measure_segment:${a}`,{model,visual:{type:"g1Length",data:{kind:"measure",a}},templateId})
+ const templateId=g2PickTemplate(G2_GEOMETRIC_QUANTITIES_STAGES[d].templates);
+ const sig=key=>`g2:geometric_quantities:${d}:${templateId}:${key}`;
+ const perimeterVisual=data=>({type:"g2Perimeter",data});
+ const centimeters={unitSuffix:"см",inputHint:"Введи число сантиметров."};
+ if(templateId==="ruler_length"){
+  const start=ri(0,6),end=ri(start+1,10),answer=end-start,model={start,end};
+  return g2Choice("Какова длина отрезка по линейке?",`${answer} см`,g2UniqueNums(answer,1,10).map(value=>`${value} см`),
+   `Вычитаем начальную отметку из конечной: ${end} − ${start} = ${answer} см.`,sig(`${start}:${end}`),
+   {model,visual:{type:"g1Length",data:{segments:[model]}},templateId});
  }
- if(templateId==="square_perimeter"){
-  const model=g2SquareModel844();
-  return g2NumberInput(`Сторона квадрата — <b>${model.a} см</b>. Найди его периметр.`,model.perimeter,`Складываем длины четырёх равных сторон: ${model.a} + ${model.a} + ${model.a} + ${model.a} = ${model.perimeter} см.`,`g2:geometric_quantities:${d}:square_perimeter:${model.a}`,{model,visual:{type:"g2Perimeter",data:model},templateId,unitSuffix:"см",inputHint:"Введи периметр."})
- }
- if(templateId==="rectangle_perimeter"){
-  const model=g2RectangleModel844();
-  return g2NumberInput(`Стороны прямоугольника — <b>${model.a} см</b> и <b>${model.b} см</b>. Найди его периметр.`,model.perimeter,`Складываем все стороны: ${model.a} + ${model.b} + ${model.a} + ${model.b} = ${model.perimeter} см.`,`g2:geometric_quantities:${d}:rectangle_perimeter:${model.a}:${model.b}`,{model,visual:{type:"g2Perimeter",data:model},templateId,unitSuffix:"см",inputHint:"Введи периметр."})
- }
- if(templateId==="triangle_perimeter"){
-  const x=g2TriangleModel844(),model={shape:"triangle",...x};
-  return g2NumberInput("Найди периметр треугольника.",model.perimeter,`Складываем три стороны: ${model.a} + ${model.b} + ${model.c} = ${model.perimeter} см.`,`g2:geometric_quantities:${d}:triangle_perimeter:${model.a}:${model.b}:${model.c}`,{model,visual:{type:"g2Perimeter",data:model},templateId,unitSuffix:"см",inputHint:"Введи периметр."})
- }
- if(templateId==="choose_record"){
-  const model=g2RectangleModel844(),correct=`${model.a} + ${model.b} + ${model.a} + ${model.b}`,wrong=[`${model.a} + ${model.b}`,`${model.a} + ${model.b} + ${model.a}`,`${model.a} + ${model.b} + ${model.b}`];
-  return g2Choice("Какая запись правильно показывает, как найти периметр?",correct,wrong,`У прямоугольника две стороны по ${model.a} см и две по ${model.b} см. Складываем все четыре: ${correct}.`,`g2:geometric_quantities:${d}:choose_record:${model.a}:${model.b}`,{model,visual:{type:"g2Perimeter",data:model},templateId})
+ if(templateId==="polyline_length"){
+  const lengths=Array.from({length:ri(2,4)},()=>ri(2,9)),result=lengths.reduce((sum,length)=>sum+length,0);
+  const model={shape:"polyline",lengths};
+  return g2NumberInput("Найди длину открытой ломаной.",result,`Сложи длины её звеньев: ${lengths.join(" + ")} = ${result} см.`,
+   sig(lengths.join(":")),{model,visual:perimeterVisual(model),templateId,...centimeters});
  }
  if(templateId==="compare_perimeters"){
-  let left=g2RectangleModel844(),right=g2SquareModel844(),p1=left.perimeter,p2=right.perimeter;for(let i=0;i<8&&p1===p2;i++){right=g2SquareModel844();p2=right.perimeter}const answer=p1===p2?"Одинаковые":p1>p2?"A":"B",model={left,right,p1,p2,answer};
-  return g2Choice("У какой фигуры периметр больше?",answer,["A","B","Одинаковые"].filter(x=>x!==answer),`Периметр A — ${p1} см. Периметр B — ${p2} см. ${answer==="Одинаковые"?"Они равны.":`Больше у фигуры ${answer}.`}`,`g2:geometric_quantities:${d}:compare_perimeters:${left.a}:${left.b}:${right.a}`,{model,visual:{type:"g2Perimeter",data:{mode:"compare",left,right}},templateId})
+  let left=g2PerimeterModel(),right=g2PerimeterModel();
+  if(ri(0,2)===0){
+   const a=ri(3,9),delta=ri(1,2),perimeter=4*a;
+   left={shape:"square",a,perimeter};right={shape:"rectangle",a:a+delta,b:a-delta,perimeter};
+  }
+  if(ri(0,1)===0)[left,right]=[right,left];
+  const pA=left.perimeter,pB=right.perimeter,answer=pA===pB?"=":pA<pB?"<":">";
+  const model={mode:"compare",left:{...left,labelAllSides:true},right:{...right,labelAllSides:true}};
+  return g2Choice("Какой знак поставить между периметрами фигур A и B?",answer,["<","=",">"].filter(sign=>sign!==answer),
+   `Периметр A: ${g2PerimeterSides(left).join(" + ")} = ${pA} см. Периметр B: ${g2PerimeterSides(right).join(" + ")} = ${pB} см. Сравнение: ${pA} ${answer} ${pB}.`,
+   sig(JSON.stringify(model)),{model,visual:perimeterVisual(model),templateId});
  }
- if(templateId==="missing_triangle_side"){
-  const x=g2TriangleModel844(),which=ri(0,2),sides=[x.a,x.b,x.c],answer=sides[which],model={shape:"triangle",a:x.a,b:x.b,c:x.c,perimeter:x.perimeter,hidden:which,answer};if(which===0)model.hideA=true;if(which===1)model.hideB=true;if(which===2)model.hideC=true;
-  const known=sides.filter((_,i)=>i!==which),rest=x.perimeter-known[0]-known[1];
-  return g2NumberInput(`Периметр треугольника — <b>${x.perimeter} см</b>. Две известные стороны: ${known[0]} см и ${known[1]} см. Найди третью сторону.`,answer,`Из периметра вычитаем известные стороны: ${x.perimeter} − ${known[0]} − ${known[1]} = ${rest} см.`,`g2:geometric_quantities:${d}:missing_triangle_side:${x.a}:${x.b}:${x.c}:${which}`,{model,visual:{type:"g2Perimeter",data:model},templateId,unitSuffix:"см",inputHint:"Введи длину стороны."})
+ const model=g2PerimeterModel(),sides=g2PerimeterSides(model),sequence=sides.join(" + "),key=`${model.shape}:${sides.join(":")}`;
+ if(templateId==="perimeter_record"){
+  const wrong=[sides.slice(0,-1).join(" + "),[...sides,sides.at(-1)].join(" + ")];
+  return g2Choice("Какая запись включает длины всех сторон фигуры?",sequence,wrong,
+   `Нужно взять каждую сторону один раз: ${sequence}.`,sig(key),{model,visual:perimeterVisual({...model,labelAllSides:true}),templateId});
  }
- const model=g2SquareModel844(),answer=model.a,visual={...model,hideA:true,hideB:true};
- return g2NumberInput(`Периметр квадрата — <b>${model.perimeter} см</b>. Найди длину одной стороны.`,answer,`У квадрата 4 равные стороны. ${model.perimeter} : 4 = ${answer} см.`,`g2:geometric_quantities:${d}:missing_square_side:${model.perimeter}`,{model,visual:{type:"g2Perimeter",data:visual},templateId:"missing_square_side",unitSuffix:"см",inputHint:"Введи длину стороны."})
+ if(templateId==="polygon_perimeter"){
+  const shape={square:"квадрата",rectangle:"прямоугольника",triangle:"треугольника"}[model.shape];
+  return g2NumberInput(`Найди периметр ${shape}.`,model.perimeter,`Сложи длины всех сторон: ${sequence} = ${model.perimeter} см.`,
+   sig(key),{model,visual:perimeterVisual(model),templateId,...centimeters});
+ }
+ const {shape,a,b,c,perimeter}=model,position=shape==="square"?0:ri(0,shape==="triangle"?2:1);
+ const answer=[a,b,c][position],visual=perimeterVisual({...model,hideA:position===0,hideB:position===1,hideC:position===2});
+ const shapeName={square:"квадрата",rectangle:"прямоугольника",triangle:"треугольника"}[shape];
+ let explanation;
+ if(shape==="square"){
+  explanation=`У квадрата четыре равные стороны. ${perimeter} ÷ 4 = ${answer} см.`;
+ }else if(shape==="rectangle"){
+  const known=position===0?b:a,half=perimeter/2;
+  explanation=`Сумма длин двух соседних сторон: ${perimeter} ÷ 2 = ${half} см. Неизвестная длина: ${half} − ${known} = ${answer} см.`;
+ }else{
+  const known=[a,b,c].filter((_,i)=>i!==position);
+  explanation=`Вычитаем из периметра две известные длины: ${perimeter} − ${known[0]} − ${known[1]} = ${answer} см.`;
+ }
+ return g2NumberInput(`Периметр ${shapeName} — <b>${perimeter} см</b>. Какова длина стороны, отмеченной знаком «?»?`,
+  answer,explanation,sig(`${key}:${position}`),{model,visual,templateId,...centimeters});
 }
 
 const PRE844_MAKE_G2_QUESTION=makeG2Question;
@@ -20366,82 +20727,128 @@ g2TheoryHtml=function(id){
    ========================================================= */
 const MATKVEST_STAGE845_VERSION="8.45";
 const TARGET_STAGE845_IDS=["g2:math_information"];
-const G2_INFO_LABEL_SETS_845=[
- ["Книги","Тетради","Альбомы"],
- ["Карандаши","Ручки","Ластики"],
- ["Понедельник","Вторник","Среда"],
- ["Яблоки","Груши","Сливы"]
+const G2_MATH_INFORMATION_STAGES=[
+ {templates:["table_read","pattern_next"],description:"Прочитай таблицу или продолжи числовой ряд."},
+ {templates:["table_calculate","pattern_rule"],description:"Найди сумму или разность по таблице. Определи правило ряда или заполни пропуск."},
+ {templates:["table_reasoning","algorithm"],description:"Восстанови ячейку, проверь утверждение по таблице или выполни алгоритм."}
 ];
-function g2InfoLabels845(){return [...G2_INFO_LABEL_SETS_845[ri(0,G2_INFO_LABEL_SETS_845.length-1)]]}
-function g2InfoRows845(){
- const labels=g2InfoLabels845(),a=ri(6,24),b=ri(6,24),c=ri(6,24);
- let vals=[a,b,c];
- if(new Set(vals).size<3){vals=[8,15,23].map(x=>x+ri(0,3))}
- return labels.map((label,i)=>({label,value:vals[i]}))
+const G2_INFO_TABLES=[
+ {labels:["Книги","Тетради","Альбомы"],title:"Школьная выставка",leftHeader:"Предмет"},
+ {labels:["Карандаши","Ручки","Ластики"],title:"Канцтовары",leftHeader:"Предмет"},
+ {labels:["Понедельник","Вторник","Среда"],title:"Решённые задачи по дням",leftHeader:"День"},
+ {labels:["Яблоки","Груши","Сливы"],title:"Фрукты в корзине",leftHeader:"Фрукты"}
+];
+const G2_INFO_PATTERN_STEPS=[2,5,10];
+
+function g2InfoTableModel(){
+ const {labels,title,leftHeader}=g2PickTemplate(G2_INFO_TABLES);
+ const values=shuffleOptions(Array.from({length:19},(_,i)=>i+6));
+ return {title,leftHeader,rows:labels.map((label,i)=>({label,value:values[i]}))};
 }
 function g2InfoTableVisualHtml(data){
  const rows=Array.isArray(data?.rows)?data.rows:[],title=data?.title||"Данные",missing=String(data?.missingLabel||"");
- return `<div class="g1-simple-table-wrap" role="group" aria-label="Таблица с данными"><div class="g2-info-table-title">${esc(title)}</div><table class="g1-simple-table"><thead><tr><th>${esc(data?.leftHeader||"Категория")}</th><th>${esc(data?.rightHeader||"Количество")}</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${esc(r.label)}</td><td>${String(r.label)===missing?'<span class="g1-table-missing">?</span>':esc(String(r.value))}</td></tr>`).join("")}</tbody></table></div>`
+ const body=rows.map(r=>`<tr><th scope="row">${esc(r.label)}</th><td>${r.label===missing?'<span class="g1-table-missing">?</span>':esc(String(r.value))}</td></tr>`).join("");
+ const footer=data?.total==null?"":`<tfoot><tr><th scope="row">Всего</th><td>${esc(String(data.total))}</td></tr></tfoot>`;
+ return `<div class="g1-simple-table-wrap"><table class="g1-simple-table"><caption class="g2-info-table-title">${esc(title)}</caption><thead><tr><th scope="col">${esc(data?.leftHeader||"Категория")}</th><th scope="col">${esc(data?.rightHeader||"Количество")}</th></tr></thead><tbody>${body}</tbody>${footer}</table></div>`;
 }
 function g2InfoSequenceVisualHtml(data){
  const shown=Array.isArray(data?.shown)?data.shown:[];
- return `<div class="g2-info-sequence" role="img" aria-label="Числовая закономерность">${shown.map(v=>`<span class="g2-info-seq-item ${v===null?"missing":""}">${v===null?"?":esc(String(v))}</span>`).join("")}</div>`
+ const description=shown.map(value=>value===null?"пропуск":value).join(", ");
+ return `<div class="g2-info-sequence" role="img" aria-label="Числовой ряд: ${esc(description)}">${shown.map(v=>`<span class="g2-info-seq-item ${v===null?"missing":""}">${v===null?"?":esc(String(v))}</span>`).join("")}</div>`;
 }
 function g2InfoAlgorithmVisualHtml(data){
  const steps=Array.isArray(data?.steps)?data.steps:[];
- return `<div class="g2-info-algorithm" role="group" aria-label="Алгоритм из нескольких шагов">${steps.map((x,i)=>`<div class="g2-info-algorithm-step"><b>${i+1}</b><span>${esc(String(x))}</span></div>`).join("")}</div>`
+ return `<div class="g2-info-algorithm" role="group" aria-label="Алгоритм из нескольких шагов">${steps.map((x,i)=>`<div class="g2-info-algorithm-step"><b>${i+1}</b><span>${esc(String(x))}</span></div>`).join("")}</div>`;
 }
-function g2InfoNumWrongs845(answer,min=0,max=100){return g2UniqueNums(Number(answer),Number(min),Number(max))}
-function g2InfoPattern845(kind=null){
- const step=kind||[2,5,10][ri(0,2)],descending=ri(0,3)===0;
- if(descending){const end=ri(4,7),start=Math.min(100,step*end+ri(0,step-1)),shown=Array.from({length:5},(_,i)=>start-step*i);return {start,step:-step,values:shown}}
- const start=ri(0,Math.max(0,100-step*5)),values=Array.from({length:5},(_,i)=>start+step*i);return {start,step,values}
+function g2InfoPattern(){
+ const size=g2PickTemplate(G2_INFO_PATTERN_STEPS),ascending=ri(0,1)===0;
+ const base=ri(0,100-4*size),step=ascending?size:-size,start=ascending?base:base+4*size;
+ return {step,values:Array.from({length:5},(_,i)=>start+step*i)};
 }
-function g2InfoRuleLabel845(step){return step>0?`Прибавлять ${step}`:`Вычитать ${Math.abs(step)}`}
-function g2InfoAlgorithmModel845(){
- const start=ri(10,65),op1=ri(0,1)?ri(4,15):-ri(3,9),mid=start+op1;
- let op2=ri(0,1)?ri(3,12):-ri(3,9),result=mid+op2;
- if(mid<0||mid>100||result<0||result>100){op2=5;result=mid+5}
- if(result>100){op2=-5;result=mid-5}
- return {start,op1,op2,mid,result}
+function g2InfoRuleLabel(step){
+ return step>0?`Прибавлять ${step}`:`Вычитать ${Math.abs(step)}`;
 }
-function g2InfoOpText845(delta){return delta>=0?`прибавь ${delta}`:`вычти ${Math.abs(delta)}`}
-function g2MathInformationQuestion(d,forcedTemplate=null){
- const warm=["table_find_category","table_compare","pattern_next"],train=["table_find_category","table_compare","table_sum","table_difference","pattern_next","pattern_rule","correct_statement"],master=["table_compare","table_sum","table_difference","pattern_next","pattern_missing","pattern_rule","correct_statement","algorithm_result"],templateId=forcedTemplate||g2PickTemplate(d===0?warm:d===1?train:master);
- if(templateId==="table_find_category"){
-  const rows=g2InfoRows845(),target=rows[ri(0,2)],model={given:{rows},target:{kind:"category_for_value",value:target.value},derived:{answer:target.label}};
-  return g2Choice(`В какой строке таблицы стоит число <b>${target.value}</b>?`,target.label,rows.map(r=>r.label).filter(x=>x!==target.label),`Число ${target.value} стоит в строке «${target.label}».`,`g2:math_information:${d}:table_find_category:${rows.map(r=>r.label+r.value).join("-")}:${target.value}`,{model,visual:{type:"g2InfoTable",data:{rows,title:"Таблица данных"}},templateId})
+function g2InfoAlgorithmQuestion(sig,templateId){
+ const number=ri(0,100);
+ const delta=value=>{
+  const add=value===0||(value<100&&ri(0,1)===0);
+  return add?ri(1,Math.min(15,100-value)):-ri(1,Math.min(15,value));
+ };
+ const first=delta(number),mid=number+first,second=delta(mid),result=mid+second;
+ const hidden=ri(0,2),magnitudes=[Math.abs(first),Math.abs(second)];
+ const goal=hidden===0?"Какое число получится после всех шагов?":`После всех шагов получилось ${result}. Какое число пропущено в алгоритме?`;
+ const steps=[`Начни с числа ${number}.`,...[first,second].map((op,i)=>`${op>0?"Прибавь":"Вычти"} ${hidden===i+1?"?":magnitudes[i]}.`)];
+ const answer=hidden===0?result:magnitudes[hidden-1];
+ const solution=`${number} ${first>0?"+":"−"} ${magnitudes[0]} = ${mid}, затем ${mid} ${second>0?"+":"−"} ${magnitudes[1]} = ${result}.`;
+ const explanation=hidden===1?`Перед последним шагом должно быть ${result} ${second>0?"−":"+"} ${magnitudes[1]} = ${mid}. Разность между ${number} и ${mid} равна ${answer}.`:
+  hidden===2?`После первого действия получается ${mid}. Разность между ${mid} и ${result} равна ${answer}.`:solution;
+ return g2NumberInput(goal,answer,explanation,sig(`${number}:${first}:${second}:${hidden}`),{
+  templateId,model:{steps,result,hidden},visual:{type:"g2InfoAlgorithm",data:{steps}}
+ });
+}
+
+function g2MathInformationQuestion(d){
+ const templateId=g2PickTemplate(G2_MATH_INFORMATION_STAGES[d].templates);
+ const sig=key=>`g2:math_information:${d}:${templateId}:${key}`;
+ if(templateId==="algorithm")return g2InfoAlgorithmQuestion(sig,templateId);
+ if(templateId==="pattern_next"||templateId==="pattern_rule"){
+  const {values,step}=g2InfoPattern(),isNext=templateId==="pattern_next";
+  const rule=g2InfoRuleLabel(step);
+  const gap=isNext?4:ri(0,1)===0?ri(1,3):-1;
+  const shown=values.map((value,i)=>i===gap?null:value);
+  const visual={type:"g2InfoSequence",data:{shown}},options={templateId,model:{shown},visual};
+  const key=sig(shown.map(value=>value===null?"?":value).join(":"));
+  if(isNext)return g2Choice("Какое число будет следующим, если шаг ряда остаётся тем же?",values[4],g2UniqueNums(values[4],0,100),
+   `Правило ряда — ${rule.toLowerCase()}. Последнее число в ряду — ${values[4]}.`,key,options);
+  if(gap>=1)return g2NumberInput("Какое число пропущено внутри ряда с постоянным шагом?",values[gap],
+   `Правило ряда — ${rule.toLowerCase()}. Число на месте пропуска — ${values[gap]}.`,key,options);
+  const wrong=[-step,...G2_INFO_PATTERN_STEPS.filter(size=>size!==Math.abs(step)).map(size=>Math.sign(step)*size)].map(g2InfoRuleLabel);
+  return g2Choice("По какому правилу изменяются числа в ряду?",rule,wrong,`На каждом шаге нужно ${rule.toLowerCase()}.`,key,options);
  }
- if(templateId==="table_compare"){
-  const rows=g2InfoRows845(),more=ri(0,1)===1,sorted=[...rows].sort((a,b)=>a.value-b.value),target=more?sorted[2]:sorted[0],model={given:{rows},target:{kind:more?"largest":"smallest"},derived:{answer:target.label}};
-  return g2Choice(more?"В какой строке самое большое число?":"В какой строке самое маленькое число?",target.label,rows.map(r=>r.label).filter(x=>x!==target.label),`${target.label}: ${target.value}. Это ${more?"самое большое":"самое маленькое"} число в таблице.`,`g2:math_information:${d}:table_compare:${more?"max":"min"}:${rows.map(r=>r.label+r.value).join("-")}`,{model,visual:{type:"g2InfoTable",data:{rows,title:"Сравни данные"}},templateId})
+ const model=g2InfoTableModel(),{rows}=model,target=g2PickTemplate(rows);
+ const visual=data=>({type:"g2InfoTable",data}),options={templateId,model,visual:visual(model)};
+ const key=rows.map(({label,value})=>`${label}:${value}`).join(":");
+ if(templateId==="table_read"){
+  const mode=ri(0,3),names=rows.map(row=>row.label);
+  if(mode===0){
+   return g2Choice(`Какое число стоит в строке «${target.label}»?`,target.value,rows.filter(row=>row!==target).map(row=>row.value),
+    `В указанной строке записано ${target.value}.`,sig(`${key}:value:${target.label}`),options);
+  }
+  if(mode===1){
+   return g2Choice(`В какой строке стоит число ${target.value}?`,target.label,names.filter(name=>name!==target.label),
+    `Число ${target.value} записано в строке «${target.label}».`,sig(`${key}:row:${target.label}`),options);
+  }
+  const extreme=mode===2?Math.min(...rows.map(row=>row.value)):Math.max(...rows.map(row=>row.value));
+  const answer=rows.find(row=>row.value===extreme).label;
+  return g2Choice(`В какой строке стоит ${mode===2?"самое маленькое":"самое большое"} число?`,answer,names.filter(name=>name!==answer),
+   `Число ${extreme} записано в строке «${answer}».`,sig(`${key}:extreme:${mode}`),options);
  }
- if(templateId==="table_sum"){
-  const rows=g2InfoRows845(),i=ri(0,1),j=i+1,answer=rows[i].value+rows[j].value,model={given:{rows,labels:[rows[i].label,rows[j].label]},target:{kind:"sum"},derived:{answer}};
-  return g2NumberInput(`Сколько всего, если сложить числа в строках «${rows[i].label}» и «${rows[j].label}»?`,answer,`${rows[i].value} + ${rows[j].value} = ${answer}.`,`g2:math_information:${d}:table_sum:${rows.map(r=>r.label+r.value).join("-")}:${i}:${j}`,{model,visual:{type:"g2InfoTable",data:{rows,title:"Данные для вычисления"}},templateId,inputHint:"Введи сумму."})
+ const [hi,lo]=shuffleOptions(rows).slice(0,2).sort((a,b)=>b.value-a.value);
+ const pairSum=hi.value+lo.value,difference=hi.value-lo.value;
+ if(templateId==="table_calculate"){
+  const add=ri(0,1)===0,answer=add?pairSum:difference;
+  const text=add?`Чему равна сумма чисел в строках «${hi.label}» и «${lo.label}»?`:`На сколько число в строке «${hi.label}» больше, чем в строке «${lo.label}»?`;
+  return g2NumberInput(text,answer,`${hi.value} ${add?"+":"−"} ${lo.value} = ${answer}.`,
+   sig(`${key}:${hi.label}:${lo.label}:${add}`),options);
  }
- if(templateId==="table_difference"){
-  const rows=g2InfoRows845(),pair=shuffleOptions(rows.map((r,i)=>({label:String(i),key:String(i)}))).slice(0,2).map(x=>rows[Number(x.key)]),hi=pair[0].value>=pair[1].value?pair[0]:pair[1],lo=hi===pair[0]?pair[1]:pair[0],answer=hi.value-lo.value,model={given:{rows,labels:[hi.label,lo.label]},target:{kind:"difference"},derived:{answer}};
-  return g2NumberInput(`На сколько число в строке «${hi.label}» больше, чем в строке «${lo.label}»?`,answer,`${hi.value} − ${lo.value} = ${answer}.`,`g2:math_information:${d}:table_difference:${rows.map(r=>r.label+r.value).join("-")}:${hi.label}:${lo.label}`,{model,visual:{type:"g2InfoTable",data:{rows,title:"Сравни данные"}},templateId,inputHint:"Введи разность."})
+ const total=rows.reduce((sum,row)=>sum+row.value,0);
+ if(ri(0,1)===0){
+  const known=rows.filter(row=>row!==target).map(row=>row.value);
+  const data={...model,rows:rows.map(row=>row===target?{label:row.label}:row),missingLabel:target.label,total};
+  return g2NumberInput(`Какое число должно стоять в пустой ячейке строки «${target.label}»?`,target.value,
+   `Из итога вычитаем два известных значения: ${total} − ${known[0]} − ${known[1]} = ${target.value}.`,
+   sig(`${key}:missing:${target.label}`),{templateId,model:data,visual:visual(data)});
  }
- if(templateId==="pattern_next"){
-  const p=g2InfoPattern845(),shown=p.values.slice(0,4),answer=p.values[4],model={given:{shown,step:p.step},target:{kind:"next"},derived:{answer}};
-  return g2Choice("Какое число продолжит закономерность?",answer,g2InfoNumWrongs845(answer,0,100),`Каждый раз нужно ${p.step>0?"прибавлять":"вычитать"} ${Math.abs(p.step)}. Следующее число — ${answer}.`,`g2:math_information:${d}:pattern_next:${shown.join("-")}:${p.step}`,{model,visual:{type:"g2InfoSequence",data:{shown}},templateId})
- }
- if(templateId==="pattern_missing"){
-  const p=g2InfoPattern845(),idx=ri(1,3),answer=p.values[idx],shown=p.values.map((v,i)=>i===idx?null:v),model={given:{shown,step:p.step,missingIndex:idx},target:{kind:"missing"},derived:{answer}};
-  return g2Choice("Какое число пропущено?",answer,g2InfoNumWrongs845(answer,0,100),`Шаг закономерности — ${p.step>0?"+":"−"}${Math.abs(p.step)}. Пропущено число ${answer}.`,`g2:math_information:${d}:pattern_missing:${shown.map(v=>v===null?"?":v).join("-")}:${p.step}`,{model,visual:{type:"g2InfoSequence",data:{shown}},templateId})
- }
- if(templateId==="pattern_rule"){
-  const p=g2InfoPattern845(),shown=p.values.slice(0,4),correct=g2InfoRuleLabel845(p.step),alts=[2,5,10,-2,-5,-10].filter(x=>x!==p.step).map(g2InfoRuleLabel845),model={given:{shown},target:{kind:"rule"},derived:{step:p.step,answer:correct}};
-  return g2Choice("По какому правилу построена закономерность?",correct,alts,`От числа к числу нужно ${p.step>0?"прибавлять":"вычитать"} ${Math.abs(p.step)}.`,`g2:math_information:${d}:pattern_rule:${shown.join("-")}:${p.step}`,{model,visual:{type:"g2InfoSequence",data:{shown}},templateId})
- }
- if(templateId==="correct_statement"){
-  const rows=g2InfoRows845(),target=rows[ri(0,2)],others=rows.filter(r=>r!==target),correct=`${target.label}: ${target.value}`,wrong=[`${target.label}: ${Math.min(100,target.value+1)}`,`${others[0].label}: ${target.value}`,`${others[1].label}: ${Math.max(0,others[1].value-1)}`],model={given:{rows},target:{kind:"true_statement"},derived:{answer:correct}};
-  return g2Choice("Какая запись соответствует таблице?",correct,wrong,`В таблице в строке «${target.label}» стоит ${target.value}.`,`g2:math_information:${d}:correct_statement:${rows.map(r=>r.label+r.value).join("-")}:${target.label}`,{model,visual:{type:"g2InfoTable",data:{rows,title:"Проверь утверждения"}},templateId})
- }
- const a=g2InfoAlgorithmModel845(),steps=[`Начни с числа ${a.start}.`,`${g2InfoOpText845(a.op1)}.`,`${g2InfoOpText845(a.op2)}.`],answer=a.result,model={given:{start:a.start,op1:a.op1,op2:a.op2,steps},target:{kind:"algorithm_result"},derived:{mid:a.mid,answer}};
- return g2NumberInput("Какое число получится после всех шагов?",answer,`Сначала: ${a.start} ${a.op1>=0?"+":"−"} ${Math.abs(a.op1)} = ${a.mid}. Потом: ${a.mid} ${a.op2>=0?"+":"−"} ${Math.abs(a.op2)} = ${answer}.`,`g2:math_information:${d}:algorithm_result:${a.start}:${a.op1}:${a.op2}`,{model,visual:{type:"g2InfoAlgorithm",data:{steps}},templateId:"algorithm_result",inputHint:"Введи конечное число."})
+ const assertions=[
+  [`Сумма трёх значений — ${total}.`,`Сумма трёх значений — ${total+1}.`],
+  [`Сумма чисел в строках «${hi.label}» и «${lo.label}» — ${pairSum}.`,`Сумма чисел в строках «${hi.label}» и «${lo.label}» — ${pairSum+1}.`],
+  [`В строке «${hi.label}» на ${difference} больше, чем в строке «${lo.label}».`,`В строке «${hi.label}» на ${difference+1} больше, чем в строке «${lo.label}».`],
+  [`В строке «${hi.label}» больше, чем в строке «${lo.label}».`,`В строке «${lo.label}» больше, чем в строке «${hi.label}».`]
+ ];
+ const correct=g2PickTemplate(assertions),answer=correct[0],wrong=assertions.filter(row=>row!==correct).map(row=>row[1]);
+ const shownValues=rows.map(({label,value})=>`«${label}» — ${value}`).join(", ");
+ return g2Choice("Какое утверждение верно по данным таблицы?",answer,wrong,`${shownValues}. Поэтому верно: ${answer}`,
+  sig(`${key}:assertion:${hi.label}:${lo.label}:${answer}`),options);
 }
 
 const PRE845_QUIZ_VISUAL_HTML=quizVisualHtml;
@@ -20470,14 +20877,15 @@ function g2SchoolText846(value){
 function g2NumberLineReadVisualHtml846(data){
  let min=Math.floor(Number(data?.min)),max=Math.floor(Number(data?.max)),highlight=Number(data?.highlight);
  if(!Number.isFinite(min)||!Number.isFinite(max)||max<=min){min=0;max=20}
- const W=680,H=118,L=32,R=32,Y=58,range=max-min,x=n=>L+(n-min)/(range||1)*(W-L-R);
+ const step=Math.max(1,Math.floor(Number(data?.step)||1));
+ const W=360,H=72,L=20,R=30,Y=29,arrow=W-7,range=max-min,x=n=>L+(n-min)/range*(W-L-R);
  let ticks="",labels="";
- for(let n=min;n<=max;n++){
+ for(let n=min;n<=max;n+=step){
   const xx=x(n);ticks+=`<line x1="${xx}" y1="${Y-8}" x2="${xx}" y2="${Y+8}" stroke="#6d8278" stroke-width="2"/>`;
-  if(n!==highlight)labels+=`<text x="${xx}" y="${Y+29}" text-anchor="middle" font-size="13" fill="#52685e">${n}</text>`;
+  if(n!==highlight)labels+=`<text x="${xx}" y="${Y+29}" text-anchor="middle" font-size="16" fill="#52685e">${n}</text>`;
  }
- const hi=Number.isFinite(highlight)?`<circle cx="${x(highlight)}" cy="${Y}" r="8" fill="#25845f"/>`:"";
- return `<div class="elementary-number-line"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Числовой луч: одна точка отмечена без подписи" xmlns="http://www.w3.org/2000/svg"><line x1="${L}" y1="${Y}" x2="${W-R}" y2="${Y}" stroke="#52685e" stroke-width="3"/><path d="M ${W-R-10} ${Y-7} L ${W-R} ${Y} L ${W-R-10} ${Y+7}" fill="none" stroke="#52685e" stroke-width="3"/>${ticks}${labels}${hi}</svg></div>`
+ const hi=Number.isFinite(highlight)?`<circle cx="${x(highlight)}" cy="${Y}" r="6" fill="#25845f"/>`:"";
+ return `<div class="elementary-number-line"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Числовой луч. Первая отметка — ${min}. От неё до точки ${Number.isFinite(highlight)?(highlight-min)/step:0} шагов вправо.${step===1?"":` Шаг шкалы — ${step}.`}" xmlns="http://www.w3.org/2000/svg"><line x1="${L}" y1="${Y}" x2="${arrow}" y2="${Y}" stroke="#52685e" stroke-width="3"/><path d="M ${arrow-9} ${Y-7} L ${arrow} ${Y} L ${arrow-9} ${Y+7}" fill="none" stroke="#52685e" stroke-width="3"/>${ticks}${labels}${hi}</svg></div>`
 }
 function g2GuardVisual846(visual,templateId,model){
  if(!visual)return visual;
@@ -20509,23 +20917,6 @@ g2NumberInput=function(text,answer,ex,sig,opts={}){
  return PRE846_G2_NUMBER_INPUT(g2SchoolText846(text),answer,g2SchoolText846(ex),sig,o)
 };
 
-/* Дистракторы проверяют именно умножение/деление и не могут стать вторым верным ответом. */
-const PRE846_G2_MULTIPLY_DIVIDE_QUESTION=g2MultiplyDivideQuestion;
-g2MultiplyDivideQuestion=function(d){
- const q=PRE846_G2_MULTIPLY_DIVIDE_QUESTION(d),m=q?.model||{};
- if(q?.templateId==="repeated_addition"){
-  const sum=Array.from({length:m.groups},()=>m.each).join(" + "),correct=`${m.each} · ${m.groups} = ${m.total}`;
-  const wrong=g2UniqueNums(m.total,1,100).map(v=>`${m.each} · ${m.groups} = ${v}`);
-  return g2Choice(`Какая запись умножением заменяет сумму <b>${sum}</b>?`,correct,wrong,`${m.each} складываем ${m.groups} ${g2StoryTimes(m.groups)}. Это можно записать: ${correct}.`,q.sig,{model:m,visual:{type:"g2EqualGroups",data:m},templateId:q.templateId})
- }
- if(q?.templateId==="inverse_record"){
-  const correct=`${m.result} : ${m.a} = ${m.b}`,wrong=g2UniqueNums(m.b,0,100).map(v=>`${m.result} : ${m.a} = ${v}`);
-  return g2Choice(`Известно: <b>${m.a} · ${m.b} = ${m.result}</b>. Какая запись деления верна?`,correct,wrong,`Если ${m.a} · ${m.b} = ${m.result}, то ${correct}.`,q.sig,{model:m,templateId:q.templateId})
- }
- if(q?.templateId==="make_groups")q.ex=g2SchoolText846(`${m.total} ÷ ${m.each} = ${m.groups}. Получилось ${m.groups} ${g2GroupWord(m.groups)}.`);
- return q
-};
-
 const PRE846_QUIZ_VISUAL_HTML=quizVisualHtml;
 quizVisualHtml=function(question){const v=question?.visual;if(v?.type==="g2NumberLineRead846")return g2NumberLineReadVisualHtml846(v.data);return PRE846_QUIZ_VISUAL_HTML(question)};
 
@@ -20533,24 +20924,24 @@ quizVisualHtml=function(question){const v=question?.visual;if(v?.type==="g2Numbe
 const PRE846_G2_THEORY_HTML=g2TheoryHtml;
 g2TheoryHtml=function(id){
  const raw=rawCourseId(id);let html="";
- if(raw==="numbers_100")html=`<div class="elementary-theory"><p><b>Числа до 100 легче понимать, если увидеть, сколько в них десятков и единиц.</b></p><div class="g2-theory-block"><h3>Соберём число</h3>${g2TensOnesVisualHtml({tens:3,ones:4})}<p>Сначала считаем десятки: 3 десятка — это 30. Потом добавляем 4 единицы. Получаем <b>34</b>.</p><div class="elementary-example"><b>34 = 3 десятка и 4 единицы.</b></div></div><div class="g2-theory-block"><h3>Где число стоит</h3>${elementaryNumberLineSvg({min:30,max:40,highlight:34})}<p>На числовом луче числа увеличиваются вправо. Перед 34 стоит 33, после 34 — 35.</p></div><div class="elementary-example"><b>Короткое правило:</b> сначала сравни десятки, а если их поровну — единицы. Десятки и единицы называют разрядами числа.</div></div>`;
- else if(raw==="quantities")html=`<div class="elementary-theory"><p><b>Когда нужно узнать, насколько предмет длинный, тяжёлый или сколько длится событие, его измеряют.</b></p><div class="g2-theory-block"><h3>Выбери подходящую единицу</h3><p>Карандаш удобно измерять в сантиметрах, комнату — в метрах, массу арбуза — в килограммах, урок — в минутах.</p><div class="elementary-example"><b>1 дм = 10 см • 1 м = 100 см • 1 ч = 60 мин</b></div></div><div class="g2-theory-block"><h3>Сравни по шагам</h3><p>1. Посмотри на единицы. 2. Если они разные — переведи в одинаковые. 3. Сравни числа.</p><div class="elementary-example">Например: 4 дм = 40 см, поэтому 4 дм больше 30 см.</div></div><div class="elementary-example"><b>Короткое правило:</b> сравнивать удобно только одинаковые единицы. Длина, масса и время — это величины.</div></div>`;
- else if(raw==="add_sub_100")html=`<div class="elementary-theory"><p><b>Считать до 100 легче, если разбивать действие на удобные шаги.</b></p><div class="g2-theory-block"><h3>Прибавляем десятки</h3>${g2ArithmeticStepVisualHtml({expression:"34 + 20",showSteps:true,steps:["30 + 20 = 50","50 + 4 = 54"]})}<p>К 34 прибавили 2 десятка и получили <b>54</b>.</p></div><div class="g2-theory-block"><h3>Переходим через десяток</h3>${g2ArithmeticStepVisualHtml({expression:"38 + 7",showSteps:true,steps:["38 + 2 = 40","от 7 осталось 5","40 + 5 = 45"]})}<p>Сначала доходим до круглого десятка, потом прибавляем остаток.</p></div><div class="g2-theory-block"><h3>Вычитаем так же</h3>${g2ArithmeticStepVisualHtml({expression:"42 − 5",showSteps:true,steps:["42 − 2 = 40","осталось вычесть 3","40 − 3 = 37"]})}</div><div class="elementary-example"><b>Короткое правило:</b> выбирай шаг, после которого считать проще.</div></div>`;
- else if(raw==="multiply_divide")html=`<div class="elementary-theory"><p><b>Если есть несколько одинаковых групп, одно и то же число не обязательно складывать много раз.</b></p><div class="g2-theory-block"><h3>Одинаковые группы</h3>${g2EqualGroupsVisualHtml({groups:3,each:4})}<p>В каждой группе по 4 предмета, групп 3: <b>4 + 4 + 4 = 12</b>. Короткая запись: <b>4 × 3 = 12</b>.</p><p>Такое действие называют <b>умножением</b>.</p></div><div class="g2-theory-block"><h3>Делим поровну</h3><p>Если 12 предметов раздать поровну в 3 группы, в каждой будет по 4: <b>12 ÷ 3 = 4</b>.</p><p>Такое действие называют <b>делением</b>.</p></div><div class="elementary-example"><b>Короткое правило:</b> умножение собирает одинаковые группы, а деление помогает разделить поровну или узнать число групп.</div></div>`;
- else if(raw==="operations_100")html=`<div class="elementary-theory"><p><b>Когда в одной записи несколько действий, важно понять, какое выполнять первым.</b></p><div class="g2-theory-block"><h3>Если только + и −</h3>${g2ExpressionVisualHtml({expression:"30 + 8 − 5",showFocus:true,focus:"30 + 8"})}<p>Считаем слева направо: сначала 30 + 8, потом вычитаем 5.</p></div><div class="g2-theory-block"><h3>× и ÷ раньше + и −</h3>${g2ExpressionVisualHtml({expression:"20 + 3 × 4",showFocus:true,focus:"3 × 4"})}<p>Сначала 3 × 4 = 12. Потом 20 + 12 = 32.</p></div><div class="g2-theory-block"><h3>Скобки — сначала</h3>${g2ExpressionVisualHtml({expression:"(8 + 4) ÷ 3",showFocus:true,focus:"8 + 4"})}<p>Сначала 8 + 4 = 12. Потом 12 ÷ 3 = 4.</p></div><div class="elementary-example"><b>Короткое правило:</b> скобки → × и ÷ → + и −. Запись из чисел и действий называют выражением.</div></div>`;
+ if(raw==="numbers_100")html=`<div class="elementary-theory"><p><b>Числа до 100 легче понимать, если увидеть, сколько в них десятков и единиц.</b></p><div class="g2-theory-block"><h3>Соберём число</h3>${g2TensOnesVisualHtml({tens:3,ones:4})}<p>Сначала считаем десятки: 3 десятка — это 30. Потом добавляем 4 единицы. Получаем <b>34</b>.</p><div class="elementary-example"><b>34 = 3 десятка и 4 единицы.</b></div><p>10 десятков — это 1 сотня, или <b>100</b>.</p></div><div class="g2-theory-block"><h3>Где число стоит</h3>${elementaryNumberLineSvg({min:30,max:40,highlight:34})}<p>На числовом луче числа увеличиваются вправо. Перед 34 стоит 33, после 34 — 35.</p></div><div class="elementary-example"><b>Короткое правило:</b> 100 больше всех чисел от 0 до 99. В остальных числах сравни десятки, а если их поровну — единицы.</div></div>`;
+ else if(raw==="quantities")html=`<div class="elementary-theory"><p><b>Когда нужно узнать, насколько предмет длинный, тяжёлый или сколько длится событие, его измеряют.</b></p><div class="g2-theory-block"><h3>Выбери подходящую единицу</h3><p>Карандаш удобно измерять в сантиметрах, комнату — в метрах, массу арбуза — в килограммах, урок — в минутах.</p><div class="elementary-example"><b>1 дм = 10 см • 1 м = 10 дм = 100 см • 1 ч = 60 мин</b></div></div><div class="g2-theory-block"><h3>Измерь по линейке</h3>${g1LengthVisualHtml({segments:[{start:3,end:8}]})}<p>Конец отрезка у отметки 8, начало у отметки 3. Длина равна <b>8 − 3 = 5 см</b>.</p></div><div class="g2-theory-block"><h3>Сравни по шагам</h3><p>1. Посмотри на единицы. 2. Если они разные — переведи в одинаковые. 3. Сравни числа.</p><div class="elementary-example">Например: 4 дм = 40 см, поэтому 4 дм больше 30 см.</div></div><div class="elementary-example"><b>Короткое правило:</b> сравнивать удобно только одинаковые единицы. Длина, масса и время — это величины.</div></div>`;
+ else if(raw==="add_sub_100")html=`<div class="elementary-theory"><p><b>Считать до 100 легче, если разбивать действие на удобные шаги.</b></p><div class="g2-theory-block"><h3>Прибавляем десятки</h3>${g2ArithmeticStepVisualHtml({expression:"34 + 20",showSteps:true,steps:["30 + 20 = 50","50 + 4 = 54"]})}<p>К 34 прибавили 2 десятка и получили <b>54</b>.</p></div><div class="g2-theory-block"><h3>Переходим через десяток</h3>${g2ArithmeticStepVisualHtml({expression:"38 + 7",showSteps:true,steps:["38 + 2 = 40","от 7 осталось 5","40 + 5 = 45"]})}<p>Сначала доходим до круглого десятка, потом прибавляем остаток.</p></div><div class="g2-theory-block"><h3>Вычитаем так же</h3>${g2ArithmeticStepVisualHtml({expression:"42 − 5",showSteps:true,steps:["42 − 2 = 40","осталось вычесть 3","40 − 3 = 37"]})}</div><div class="g2-theory-block"><h3>Два двузначных числа</h3><p>Разложи второе число на десятки и единицы. Сначала прибавь или вычти десятки, затем единицы.</p><p><b>37 + 28 = 37 + 20 + 8 = 57 + 8 = 65</b></p><p><b>72 − 36 = 72 − 30 − 6 = 42 − 6 = 36</b></p></div><div class="g2-theory-block"><h3>Число пропущено</h3><p>В записи <b>? − 26 = 38</b> нужно найти число, из которого вычитали. Прибавь 26 к 38. Получится <b>38 + 26 = 64</b>.</p></div><div class="elementary-example"><b>Короткое правило:</b> выбирай шаг, после которого считать проще.</div></div>`;
+ else if(raw==="multiply_divide")html=`<div class="elementary-theory"><p><b>Если есть несколько одинаковых групп, одно и то же число не обязательно складывать много раз.</b></p><div class="g2-theory-block"><h3>Одинаковые группы</h3>${g2EqualGroupsVisualHtml({groups:3,each:4})}<p>В каждой группе по 4 предмета, групп 3: <b>4 + 4 + 4 = 12</b>. Короткая запись: <b>4 × 3 = 12</b>.</p><p>Такое действие называют <b>умножением</b>.</p></div><div class="g2-theory-block"><h3>Делим поровну</h3><p>Если 12 предметов раздать поровну в 3 группы, в каждой будет по 4: <b>12 ÷ 3 = 4</b>.</p><p>Такое действие называют <b>делением</b>.</p></div><div class="g2-theory-block"><h3>Ноль и единица</h3><p>При умножении на 0 получается 0, а при умножении на 1 число сохраняется: <b>7 × 0 = 0</b>, <b>7 × 1 = 7</b>. Ноль можно разделить на положительное число. При делении на 1 число сохраняется: <b>0 ÷ 4 = 0</b>, <b>7 ÷ 1 = 7</b>.</p><p>Делить на ноль нельзя.</p></div><div class="g2-theory-block"><h3>Найди неизвестное</h3><p>Если <b>? × 3 = 12</b>, раздели 12 на 3. Если <b>? ÷ 3 = 4</b>, умножь 4 на 3. Если <b>12 ÷ ? = 4</b>, раздели 12 на 4.</p></div><div class="elementary-example"><b>Короткое правило:</b> умножение собирает одинаковые группы, а деление помогает разделить поровну или узнать число групп.</div></div>`;
+ else if(raw==="operations_100")html=`<div class="elementary-theory"><p><b>Когда в одной записи несколько действий, важно понять, какое выполнять первым.</b></p><div class="g2-theory-block"><h3>Если только + и −</h3>${g2ExpressionVisualHtml({expression:"30 + 8 − 5",showFocus:true,focus:"30 + 8"})}<p>Считаем слева направо: сначала 30 + 8, потом вычитаем 5.</p></div><div class="g2-theory-block"><h3>× и ÷ раньше + и −</h3>${g2ExpressionVisualHtml({expression:"20 + 3 × 4",showFocus:true,focus:"3 × 4"})}<p>Сначала 3 × 4 = 12. Потом 20 + 12 = 32.</p></div><div class="g2-theory-block"><h3>Умножение и деление подряд</h3><p>Если в выражении только × и ÷, считай слева направо: <b>36 ÷ 6 × 2 = 6 × 2 = 12</b>.</p></div><div class="g2-theory-block"><h3>Скобки — сначала</h3>${g2ExpressionVisualHtml({expression:"(8 + 4) ÷ 3",showFocus:true,focus:"8 + 4"})}<p>Сначала 8 + 4 = 12. Потом 12 ÷ 3 = 4.</p></div><div class="g2-theory-block"><h3>Скобки меняют результат</h3><p><b>5 + (3 × 4) = 17</b>, а <b>(5 + 3) × 4 = 32</b>. Сначала вычисли действие внутри скобок.</p></div><div class="elementary-example"><b>Короткое правило:</b> скобки → × и ÷ → + и −. Запись из чисел и действий называют выражением.</div></div>`;
  else if(raw==="word_problems"){
   const one={steps:[{label:"Было",value:"28"},{label:"Добавили",value:"+ 15"},{label:"Стало",value:"?",answer:true}],aria:"Было 28, добавили 15, нужно узнать сколько стало"};
   const two={steps:[{label:"Было",value:"35"},{label:"Добавили",value:"+ 18"},{label:"После 1-го действия",value:"53",derived:true},{label:"Убрали",value:"− 9"},{label:"Осталось",value:"?",answer:true}],aria:"Два действия: сначала прибавить 18, потом вычесть 9"};
-  html=`<div class="elementary-theory"><p><b>В задаче сначала нужно понять, что известно и что спрашивают.</b></p><div class="g2-theory-block"><h3>Один шаг</h3><p>Прочитай вопрос. Если предметы добавили, обычно нужно сложить; если убрали — вычесть.</p>${g2StoryVisualHtml(one)}<div class="elementary-example">28 + 15 = 43. Значит, стало 43.</div></div><div class="g2-theory-block"><h3>Одинаковые группы</h3>${g2EqualGroupsVisualHtml({groups:4,each:5})}<p>4 группы по 5 предметов: <b>5 × 4 = 20</b>.</p></div><div class="g2-theory-block"><h3>Два шага</h3>${g2StoryVisualHtml({...two,showDerived:true})}<p>Сначала 35 + 18 = 53. Потом 53 − 9 = 44.</p></div><div class="elementary-example"><b>Короткое правило:</b> вопрос → действие → вычисление → ответ. Если после первого действия на вопрос ещё нельзя ответить, нужен второй шаг.</div></div>`
+  html=`<div class="elementary-theory"><p><b>В задаче сначала нужно понять, что известно и что спрашивают.</b></p><div class="g2-theory-block"><h3>Один шаг</h3><p>Прочитай вопрос. Если предметы добавили, обычно нужно сложить; если убрали — вычесть.</p>${g2StoryVisualHtml(one)}<div class="elementary-example">28 + 15 = 43. Значит, стало 43.</div></div><div class="g2-theory-block"><h3>Одинаковые группы</h3>${g2EqualGroupsVisualHtml({groups:4,each:5})}<p>4 группы по 5 предметов: <b>5 × 4 = 20</b>.</p></div><div class="g2-theory-block"><h3>Два вопроса на деление</h3><p>Если разложить 20 карандашей поровну в 4 коробки, получится <b>20 ÷ 4 = 5</b> карандашей в каждой. Если класть по 5 карандашей в коробку, понадобится <b>20 ÷ 5 = 4</b> коробки.</p></div><div class="g2-theory-block"><h3>Два шага</h3>${g2StoryVisualHtml({...two,showDerived:true})}<p>Сначала 35 + 18 = 53. Потом 53 − 9 = 44.</p></div><div class="elementary-example"><b>Короткое правило:</b> вопрос → действие → вычисление → ответ. Если после первого действия на вопрос ещё нельзя ответить, нужен второй шаг.</div></div>`
  }
- else if(raw==="geometric_figures")html=`<div class="elementary-theory"><p><b>Фигуры можно различать по форме, сторонам и углам.</b></p><div class="g2-theory-block"><h3>Сравни фигуры</h3>${g1ShapeVisualHtml({mode:"gallery",order:["Круг","Треугольник","Квадрат","Прямоугольник"]})}<p>У треугольника 3 стороны. У квадрата и прямоугольника — по 4.</p><div class="elementary-example">У квадрата все 4 стороны равны. У прямоугольника две длинные стороны равны между собой и две короткие — между собой.</div></div><div class="g2-theory-block"><h3>Точка и отрезок</h3>${g1ShapeVisualHtml({mode:"single",shape:"Отрезок"})}<p>Точка — маленькая отметка. Отрезок — прямая линия между двумя отмеченными концами.</p></div><div class="elementary-example"><b>Короткое правило:</b> сначала посмотри на форму, затем посчитай стороны и углы.</div></div>`;
+ else if(raw==="geometric_figures")html=`<div class="elementary-theory"><p><b>Фигуры можно различать по форме, сторонам и углам.</b></p><div class="g2-theory-block"><h3>Сравни фигуры</h3>${g1ShapeVisualHtml({compact:true,mode:"gallery",order:["Круг","Треугольник","Квадрат","Прямоугольник"]})}<p>У треугольника 3 стороны. У квадрата и прямоугольника — по 4.</p><div class="elementary-example">У прямоугольника 4 прямых угла. Если все его стороны равны, такой прямоугольник называют квадратом.</div></div><div class="g2-theory-block"><h3>Точка и отрезок</h3>${g1ShapeVisualHtml({compact:true,mode:"single",shape:"Отрезок"})}<p>Точка — маленькая отметка. Отрезок — прямая линия между двумя отмеченными концами.</p></div><div class="g2-theory-block"><h3>Ломаная</h3>${g2FigurePathHtml({points:G2_FIGURE_PATHS[0],labels:["A","B","C"]})}<p>У ломаной ABC два звена, AB и BC. Чтобы замкнуть ломаную, соедини её концы A и C отрезком AC.</p></div><div class="elementary-example"><b>Короткое правило:</b> сначала посмотри на форму, затем посчитай стороны и углы.</div></div>`;
  else if(raw==="geometric_quantities"){
   const rect={shape:"rectangle",a:6,b:3,perimeter:18},square={shape:"square",a:4,perimeter:16};
-  html=`<div class="elementary-theory"><p><b>Если пройти по всей границе фигуры, её длину можно найти сложением сторон.</b></p><div class="g2-theory-block"><h3>Сложи все стороны</h3>${g2PerimeterVisualHtml({...rect,labelAllSides:true,showPerimeter:true})}<p>6 + 3 + 6 + 3 = 18 см. Длину всей границы называют <b>периметром</b>.</p></div><div class="g2-theory-block"><h3>Квадрат</h3>${g2PerimeterVisualHtml({...square,labelAllSides:true,showPerimeter:true})}<p>У квадрата 4 равные стороны: 4 + 4 + 4 + 4 = 16 см.</p></div><div class="g2-theory-block"><h3>Длина отрезка</h3>${g1LengthVisualHtml({kind:"measure",a:7})}<p>Поставь начало отрезка у 0 и прочитай число у его конца.</p></div><div class="elementary-example"><b>Короткое правило:</b> периметр — сумма длин всех сторон фигуры.</div></div>`
+  html=`<div class="elementary-theory"><p><b>Если пройти по всей границе фигуры, её длину можно найти сложением сторон.</b></p><div class="g2-theory-block"><h3>Сложи все стороны</h3>${g2PerimeterVisualHtml({...rect,labelAllSides:true,showPerimeter:true})}<p>6 + 3 + 6 + 3 = 18 см. Длину всей границы называют <b>периметром</b>.</p></div><div class="g2-theory-block"><h3>Квадрат</h3>${g2PerimeterVisualHtml({...square,labelAllSides:true,showPerimeter:true})}<p>У квадрата 4 равные стороны: 4 + 4 + 4 + 4 = 16 см.</p></div><div class="g2-theory-block"><h3>Длина отрезка</h3>${g1LengthVisualHtml({segments:[{start:2,end:7}]})}<p>Конец отрезка у отметки 7, начало у отметки 2. Длина равна <b>7 − 2 = 5 см</b>.</p></div><div class="g2-theory-block"><h3>Длина ломаной</h3>${g2PerimeterVisualHtml({shape:"polyline",lengths:[3,5,4]})}<p>Длина ломаной равна сумме длин её звеньев: <b>3 + 5 + 4 = 12 см</b>.</p></div><div class="elementary-example"><b>Короткое правило:</b> периметр — сумма длин всех сторон фигуры.</div></div>`
  }
  else if(raw==="math_information"){
   const demoRows=[{label:"Книги",value:12},{label:"Тетради",value:18},{label:"Альбомы",value:9}],pattern=[20,25,30,35],steps=["Начни с числа 24.","Прибавь 10.","Вычти 4."];
-  html=`<div class="elementary-theory"><p><b>По числам в таблице или ряду можно быстро найти нужные данные и заметить порядок.</b></p><div class="g2-theory-block"><h3>Прочитай таблицу</h3>${g2InfoTableVisualHtml({rows:demoRows,title:"Школьные принадлежности"})}<p>Сначала найди нужную строку, потом прочитай число рядом.</p><div class="elementary-example">Тетрадей больше, чем книг, потому что <b>18 &gt; 12</b>.</div></div><div class="g2-theory-block"><h3>Найди правило</h3>${g2InfoSequenceVisualHtml({shown:pattern})}<p>Здесь каждый раз прибавляют 5. Такой повторяющийся порядок называют <b>закономерностью</b>.</p></div><div class="g2-theory-block"><h3>Делай по шагам</h3>${g2InfoAlgorithmVisualHtml({steps})}<p>Сначала выполни первый шаг, затем следующий. Такой порядок команд называют <b>алгоритмом</b>.</p><div class="elementary-example">24 + 10 = 34, затем 34 − 4 = 30.</div></div><div class="elementary-example"><b>Короткое правило:</b> найди данные → пойми правило → выполняй шаги по порядку.</div></div>`
+  html=`<div class="elementary-theory"><p><b>По числам в таблице или ряду можно быстро найти нужные данные и заметить порядок.</b></p><div class="g2-theory-block"><h3>Прочитай таблицу</h3>${g2InfoTableVisualHtml({rows:demoRows,title:"Школьные принадлежности"})}<p>Сначала найди нужную строку, потом прочитай число рядом.</p><div class="elementary-example">Тетрадей больше, чем книг, потому что <b>18 &gt; 12</b>.</div></div><div class="g2-theory-block"><h3>Найди правило</h3>${g2InfoSequenceVisualHtml({shown:pattern})}<p>Здесь каждый раз прибавляют 5. Такой повторяющийся порядок называют <b>закономерностью</b>.</p></div><div class="g2-theory-block"><h3>Делай по шагам</h3>${g2InfoAlgorithmVisualHtml({steps})}<p>Сначала выполни первый шаг, затем следующий. Такой порядок команд называют <b>алгоритмом</b>.</p><div class="elementary-example">24 + 10 = 34, затем 34 − 4 = 30.</div></div><div class="g2-theory-block"><h3>Восстанови значение по итогу</h3><p>Если в трёх строках вместе 30, а в двух из них указаны 8 и 12, вычти известные числа: <b>30 − 8 − 12 = 10</b>.</p></div><div class="elementary-example"><b>Короткое правило:</b> найди данные → пойми правило → выполняй шаги по порядку.</div></div>`
  }
  else html=PRE846_G2_THEORY_HTML(id);
  return g2SchoolText846(html)
@@ -20560,9 +20951,8 @@ g2TheoryHtml=function(id){
 const PRE846_RENDER_ELEMENTARY_GRADE=renderElementaryGrade;
 renderElementaryGrade=function(grade){
  const g=Number(grade);if(g!==2)return PRE846_RENDER_ELEMENTARY_GRADE(g);
- const total=g2AllTopics().length,available=g2AllTopics().filter(t=>t.implemented!==false).length;
  document.body.classList.add("elementary-mode");
- mainView.innerHTML=`<div class="home-back-row"><button class="home-back-btn" onclick="renderHome()">← Главный экран</button></div><section class="grade-hero"><div><h1>Математика 2 класса</h1><p>Числа до 100, четыре действия, задачи, величины, геометрия и математическая информация.</p></div><span class="grade-chip">${gradeBookIcon(2,true)} 2 класс</span></section>${G2_GROUPS.map(x=>renderElementaryGroup(x,2)).join("")}`
+ mainView.innerHTML=`<div class="home-back-row"><button class="home-back-btn" onclick="renderHome()">← Главный экран</button></div><section class="grade-hero"><div><h1>Математика 2 класса</h1><p>Моро и др. • «Школа России»</p></div><span class="grade-chip">${gradeBookIcon(2,true)} 2 класс</span></section>${G2_GROUPS.map(x=>renderElementaryGroup(x,2)).join("")}`
 };
 const PRE846_RENDER_HOME=renderHome;
 renderHome=function(){PRE846_RENDER_HOME();const card=[...document.querySelectorAll(".grade-card")].find(x=>x.querySelector("h2")?.textContent?.trim()==="2 КЛАСС");if(card){card.classList.remove("soon");const label=card.querySelector(".soon-label");if(label)label.textContent="Все темы доступны";const btn=card.querySelector("button");if(btn){btn.textContent="Открыть 2 класс";btn.classList.remove("soft");btn.classList.add("primary")}}};
@@ -20940,7 +21330,7 @@ function mk854InitHistory(){
  }
  mk854HistoryReady=true;
  const route=mk854Route();
- if([1,4,5,6,7,8].includes(Number(route.grade))&&(route.screen==="grade"||route.screen==="topic")){
+ if([1,2,4,5,6,7,8].includes(Number(route.grade))&&(route.screen==="grade"||route.screen==="topic")){
   // The textbook scripts attach the catalog and its renderer at the end of the document.
   document.addEventListener("DOMContentLoaded",()=>{
    if(mk854SameRoute(route,mk854Route()))mk854RestoreRoute(route);
@@ -37060,34 +37450,37 @@ document.addEventListener("keydown",event=>{
 })();
 </script>
 
-<script src="g5-conversion-ux.js?v=199"></script>
-<script src="g5-textbook-topics.js?v=199"></script>
-<script src="g5-textbook-core.js?v=199"></script>
-<script src="g5-textbook-v111.js?v=199"></script>
-<script src="g5-textbook-v112.js?v=199"></script>
-<script src="g5-pedagogy-v113.js?v=199"></script>
-<script src="g5-fractions-v114.js?v=199"></script>
-<script src="g5-fraction-arithmetic-v115.js?v=199"></script>
-<script src="g5-decimals-v116.js?v=199"></script>
-<script src="g7-textbook.js?v=199"></script>
-<script src="g8-textbook.js?v=199"></script>
-<script src="g1-textbook.js?v=199"></script>
-<script src="g4-textbook.js?v=199"></script>
-<script src="g5-textbook-navigation-v121.js?v=199"></script>
-<script src="g5-live-pedagogy-v122.js?v=199"></script>
-<script src="g5-arithmetic-tiers-v123.js?v=199"></script>
-<script src="g5-textbook-tiers-v124.js?v=199"></script>
-<script src="g5-natural-units-v125.js?v=199"></script>
-<script src="g5-remaining-core-v126.js?v=199"></script>
-<script src="g5-decimal-tiers-v127.js?v=199"></script>
-<script src="g5-decimal-percent-v128.js?v=199"></script>
-<script src="g5-fraction-concepts-v129.js?v=199"></script>
-<script src="g5-fraction-applications-v130.js?v=199"></script>
+<script src="g5-conversion-ux.js?v=200"></script>
+<script src="g5-textbook-topics.js?v=200"></script>
+<script src="g5-textbook-core.js?v=200"></script>
+<script src="g5-textbook-v111.js?v=200"></script>
+<script src="g5-textbook-v112.js?v=200"></script>
+<script src="g5-pedagogy-v113.js?v=200"></script>
+<script src="g5-fractions-v114.js?v=200"></script>
+<script src="g5-fraction-arithmetic-v115.js?v=200"></script>
+<script src="g5-decimals-v116.js?v=200"></script>
+<script src="g7-textbook.js?v=200"></script>
+<script src="g8-textbook.js?v=200"></script>
+<script src="g1-textbook.js?v=200"></script>
+<script src="g2-textbook.js?v=200"></script>
+<script src="g4-textbook.js?v=200"></script>
+<script src="g5-textbook-navigation-v121.js?v=200"></script>
+<script src="g5-live-pedagogy-v122.js?v=200"></script>
+<script src="g5-arithmetic-tiers-v123.js?v=200"></script>
+<script src="g5-textbook-tiers-v124.js?v=200"></script>
+<script src="g5-natural-units-v125.js?v=200"></script>
+<script src="g5-remaining-core-v126.js?v=200"></script>
+<script src="g5-decimal-tiers-v127.js?v=200"></script>
+<script src="g5-decimal-percent-v128.js?v=200"></script>
+<script src="g5-fraction-concepts-v129.js?v=200"></script>
+<script src="g5-fraction-applications-v130.js?v=200"></script>
 <script>
 // The textbook scripts finish extending the catalog before Home shows its totals.
 g5HomeCatalogReady=true;
 const g1HomeProgress=document.getElementById("g1HomeProgress");
 if(g1HomeProgress)g1HomeProgress.textContent=g1HomeProgressText();
+const g2HomeProgress=document.getElementById("g2HomeProgress");
+if(g2HomeProgress)g2HomeProgress.textContent=g2HomeProgressText();
 const g4HomeProgress=document.getElementById("g4HomeProgress");
 if(g4HomeProgress)g4HomeProgress.textContent=`Пройдено тем: ${gradeCompletedTopics(4)}/${TOPICS.length} • этапов: ${g4CompletedStages()}/${g4TotalStages()}`;
 const g5HomeProgress=document.getElementById("g5HomeProgress");
