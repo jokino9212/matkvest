@@ -8444,8 +8444,10 @@ function purchasableStickerItems(){return SHOP_CATALOG.stickers.filter(x=>!x.rew
 function profileInventoryHas(profile,type,id){return Array.isArray(profile?.inventory?.[type])&&profile.inventory[type].includes(id)}
 function achievementUnlockView(profile){const src=profile?.achievementUnlocks&&typeof profile.achievementUnlocks==="object"&&!Array.isArray(profile.achievementUnlocks)?profile.achievementUnlocks:{},out={};for(const [id,v] of Object.entries(src)){if(v&&typeof v==="object")out[id]={unlockedAt:Number(v.unlockedAt||0)||null,rewardGranted:v.rewardGranted!==false,legacy:!!v.legacy};else if(v)out[id]={unlockedAt:null,rewardGranted:true,legacy:true}}for(const a of ACHIEVEMENTS){if(a.rewardType&&a.rewardId&&profileInventoryHas(profile,a.rewardType,a.rewardId)&&!out[a.id])out[a.id]={unlockedAt:null,rewardGranted:true,legacy:true}}return out}
 function normalizeAchievementUnlocks(profile){if(!profile||typeof profile!=="object")return {};profile.achievementUnlocks=achievementUnlockView(profile);return profile.achievementUnlocks}
-function profileDirectBest(profile,key){const cp=profile?.courseProgress||{},k=courseKey(key),p=cp[k]||cp[key]||{};return Array.isArray(p.best)?p.best:[0,0,0]}
-function profileDirectStagePassed(profile,key,i){const needs=[4,5,8];return Number(profileDirectBest(profile,key)[i]||0)>=Number(needs[i]||0)}
+function profileDirectStagePassed(profile,key,i){
+ const cp=profile?.courseProgress||{};
+ return progressStagePassed(cp[courseKey(key)]||cp[key],i);
+}
 function g4AchievementKeys(){return TOPICS.filter(t=>t.id!=="column").map(t=>`g4:${t.id}`).concat(["g4:column:add","g4:column:sub","g4:column:mul","g4:column:div"])}
 function g5AchievementKeys(){return g5AllTopics().map(t=>`g5:${t.id}`)}
 function uniqueFinishedAttempts(profile){const map=new Map();for(const r of (profile?.attemptHistory||[])){if(r?.status!=="finished")continue;const k=r.id||`legacy:${r.startedAt||0}:${r.key||""}:${r.kind||""}:${r.stageIndex??""}`;if(!map.has(k)||Number(map.get(k)?.endedAt||0)<Number(r.endedAt||0))map.set(k,r)}return [...map.values()]}
@@ -9354,6 +9356,7 @@ function mergeCourseProgress(a,b){
    const bestA=Array.isArray(x.best)?x.best:[0,0,0],bestB=Array.isArray(v?.best)?v.best:[0,0,0];
    const bonusA=Array.isArray(x.bonus)?x.bonus:[false,false,false],bonusB=Array.isArray(v?.bonus)?v.bonus:[false,false,false];
    out[k]={...x,...deepCopy(v),best:[0,1,2].map(i=>Math.max(Number(bestA[i]||0),Number(bestB[i]||0))),bonus:[0,1,2].map(i=>!!bonusA[i]||!!bonusB[i])};
+   if(x.masterPassedWithCorrection===true||v?.masterPassedWithCorrection===true)out[k].masterPassedWithCorrection=true;
  }
  return out;
 }
@@ -9867,7 +9870,7 @@ function openG8Topic(id){const t=g8InfoById(id);if(!t)return;if(t.implemented===
 const STAGES=[
  {name:"Разминка",ico:"🌱",count:5,need:4,desc:"Короткий лёгкий блок, чтобы войти в тему."},
  {name:"Тренировка",ico:"🚀",count:7,need:5,desc:"Числа крупнее и больше комбинаций."},
- {name:"Мастер",ico:"🏆",count:10,need:8,desc:"Полный уровень: самые трудные варианты темы."}
+ {name:"Мастер",ico:"🏆",count:10,need:8,needWithCorrection:7,desc:"Полный уровень: самые трудные варианты темы."}
 ];
 let blockSession=null;
 function ensureCourse(){state.courseProgress=state.courseProgress||{};return state.courseProgress}
@@ -9878,7 +9881,17 @@ function progressFor(key){
  if(!Array.isArray(cp[k].bonus))cp[k].bonus=[false,false,false];
  return cp[k];
 }
-function stagePassed(key,i){return (progressFor(key).best[i]||0)>=STAGES[i].need}
+function progressStagePassed(progress,i){
+ const stage=STAGES[i];
+ return !!stage&&(Number(progress?.best?.[i]||0)>=stage.need||
+   (stage.needWithCorrection!==undefined&&progress?.masterPassedWithCorrection===true));
+}
+function stagePassed(key,i){return progressStagePassed(progressFor(key),i)}
+function stagePassRequirement(stage){
+ const standard=`${stage.need} из ${stage.count} с первой попытки`;
+ return stage.needWithCorrection===undefined?standard:
+   `${standard} или ${stage.needWithCorrection} с первой попытки и хотя бы одно самостоятельное исправление`;
+}
 function stageUnlocked(key,i){return i===0||stagePassed(key,i-1)}
 function completedStages(key){return STAGES.filter((_,i)=>stagePassed(key,i)).length}
 function columnCompleted(){return ["add","sub","mul","div"].reduce((s,m)=>s+completedStages("column:"+m),0)}
@@ -9894,7 +9907,7 @@ function stageCards(key,startCall){
  const p=progressFor(key);
  return STAGES.map((s,i)=>{
    const unlocked=stageUnlocked(key,i),best=p.best[i]||0,passed=stagePassed(key,i);
-   return `<button class="stage-card ${unlocked?"":"locked"}" ${unlocked?`onclick="${startCall}(${i})"`:"disabled"}><span class="stage-lock">${passed?"✅":unlocked?"":"🔒"}</span><span class="stage-ico">${s.ico}</span><strong>${i+1}. ${s.name}</strong><small>${s.count} заданий • пройти: ${s.need}/${s.count}<br>${s.desc}</small><div class="stage-best">${best?`Лучший результат: ${best}/${s.count}`:"Ещё не пройден"}</div></button>`
+   return `<button class="stage-card ${unlocked?"":"locked"}" ${unlocked?`onclick="${startCall}(${i})"`:"disabled"}><span class="stage-lock">${passed?"✅":unlocked?"":"🔒"}</span><span class="stage-ico">${s.ico}</span><strong>${i+1}. ${s.name}</strong><small>${s.count} заданий • пройти: ${stagePassRequirement(s)}<br>${s.desc}</small><div class="stage-best">${best?`Лучший результат: ${best}/${s.count}`:"Ещё не пройден"}</div></button>`
  }).join("");
 }
 /* ЭТАП 8.48 — полноценная Theory 4 класса: смысл → термин → правило → шаги → пример. */
@@ -9953,7 +9966,7 @@ function openColumnPath(){
 function openColumnStages(m,name,ic){
  blockSession=null;const key='column:'+m,p=progressFor(key);
  const theory=g4TheoryHtml(key);
- show(`<div class="mtop"><h2>${ic} ${name} столбиком</h2><button class="x" onclick="closeModal()">×</button></div><div class="lesson">${theory}<p><small>Переносы, точки и маленькие подсказочные клетки помогают показать ход решения. Если подсказочную клетку оставишь пустой, это само по себе не считается ошибкой.</small></p></div><div class="stage-grid">${STAGES.map((s,i)=>{const u=stageUnlocked(key,i),best=p.best[i]||0,passed=stagePassed(key,i);return `<button class="stage-card ${u?'':'locked'}" ${u?`onclick="startColumnStage('${m}',${i})"`:'disabled'}><span class="stage-lock">${passed?'✅':u?'':'🔒'}</span><span class="stage-ico">${s.ico}</span><strong>${i+1}. ${s.name}</strong><small>${s.count} примеров • пройти: ${s.need}/${s.count}<br>${s.desc}</small><div class="stage-best">${best?`Лучший: ${best}/${s.count}`:'Ещё не пройден'}</div></button>`}).join('')}</div>`)
+ show(`<div class="mtop"><h2>${ic} ${name} столбиком</h2><button class="x" onclick="closeModal()">×</button></div><div class="lesson">${theory}<p><small>Переносы, точки и маленькие подсказочные клетки помогают показать ход решения. Если подсказочную клетку оставишь пустой, это само по себе не считается ошибкой.</small></p></div><div class="stage-grid">${STAGES.map((s,i)=>{const u=stageUnlocked(key,i),best=p.best[i]||0,passed=stagePassed(key,i);return `<button class="stage-card ${u?'':'locked'}" ${u?`onclick="startColumnStage('${m}',${i})"`:'disabled'}><span class="stage-lock">${passed?'✅':u?'':'🔒'}</span><span class="stage-ico">${s.ico}</span><strong>${i+1}. ${s.name}</strong><small>${s.count} примеров • пройти: ${stagePassRequirement(s)}<br>${s.desc}</small><div class="stage-best">${best?`Лучший: ${best}/${s.count}`:'Ещё не пройден'}</div></button>`}).join('')}</div>`)
 }
 function openTablePath(){openStagePicker('table','Таблица умножения','✖️','startTableStage')}
 function openQuizPath(id){const t=TOPICS.find(x=>x.id===id);openStagePicker(id,t.title,t.ico,`startQuizStage.bind(null,'${id}')`)}
@@ -10058,7 +10071,12 @@ function finishBlock(){
  b.done=Math.min(b.done,b.total);
  b.correct=Math.min(b.correct,b.total);
  p.best[b.stageIndex]=Math.max(old,b.correct);
- const passed=b.correct>=s.need;
+ const items=b.items||[];
+ const correctedCount=items.filter(x=>x.finalCorrect&&!x.firstTry&&!x.skipped).length;
+ const passedWithCorrection=s.needWithCorrection!==undefined&&b.done===b.total&&
+   b.correct===s.needWithCorrection&&correctedCount>0;
+ const passed=b.correct>=s.need||passedWithCorrection;
+ if(passedWithCorrection)p.masterPassedWithCorrection=true;
  let bonusXP=0,bonusCoins=0;
  if(passed&&!p.bonus[b.stageIndex]){
    bonusXP=b.kind==="g5mix"?20:[10,20,30][b.stageIndex];
@@ -10068,11 +10086,9 @@ function finishBlock(){
  }
  save();renderTopics();
  const ratio=Math.min(1,b.correct/b.total),stars=ratio>=1?3:ratio>=.8?2:ratio>=.6?1:0;
- const skippedCount=(b.items||[]).filter(x=>x.skipped).length;
- const firstTryCount=(b.items||[]).filter(x=>x.firstTry&&!x.skipped).length;
- const correctedCount=(b.items||[]).filter(x=>x.finalCorrect&&!x.firstTry&&!x.skipped).length;
- const wrongCount=(b.items||[]).filter(x=>!x.finalCorrect&&!x.skipped).length;
- const errorCount=correctedCount+wrongCount;
+ const skippedCount=items.filter(x=>x.skipped).length;
+ const firstTryCount=items.filter(x=>x.firstTry&&!x.skipped).length;
+ const wrongCount=items.filter(x=>!x.finalCorrect&&!x.skipped).length;
  const reportId=finalizeBlockAttempt(passed,stars);
  if(!blockSession.questCompletionRecorded){recordQuestEvent({type:"blockFinished",kind:b.kind,key:b.key,grade:keyGrade(b.key),stageIndex:b.stageIndex,passed,stars,total:b.total,ordinaryStage:["quiz","g2quiz","g3quiz","g3column","g5quiz","g6quiz","g7quiz","g8quiz","column","table"].includes(b.kind),at:Date.now()});blockSession.questCompletionRecorded=true;persistQuestsOnly()}
  const raw=rawCourseId(b.key),gradeNow=keyGrade(b.key),isG1=gradeNow===1,isG2=gradeNow===2,isG3=gradeNow===3,isG5=gradeNow===5,isG6=gradeNow===6,isG7=gradeNow===7,isG8=gradeNow===8;
@@ -10103,7 +10119,7 @@ function finishBlock(){
    repeat=`startQuizStage('${raw}',${b.stageIndex})`;nextCall=`startQuizStage('${raw}',${b.stageIndex+1})`;next=b.stageIndex<2&&passed;
  }
  const finalStageText=b.kind==="g5mix"?"Микс завершён.":(b.stageIndex<2?"Следующая ступень открыта.":"Ты прошёл максимальную ступень этой темы!");
- show(`<div class="mtop"><h2>${passed?'🎉':'💪'} ${s.name} завершена</h2><button class="x" onclick="closeModal()">×</button></div><div class="block-result"><div class="block-stars">${'★'.repeat(stars)}${'☆'.repeat(3-stars)}</div><div style="font-size:12px;color:var(--muted);margin-top:2px">3 ★ — без ошибок · 2 ★ — от 80% · 1 ★ — от 60%</div><h3>Верно с первой: ${b.correct} из ${b.total}</h3><div class="level-box" style="margin:8px 0 12px"><b>✅ С первой:</b> ${firstTryCount} &nbsp;•&nbsp; <b>🟡 Исправлено:</b> ${correctedCount} &nbsp;•&nbsp; <b>❌ Осталось неверно:</b> ${wrongCount} &nbsp;•&nbsp; <b>⏭ Пропущено:</b> ${skippedCount}</div><p>${passed?'Этап пройден. '+finalStageText:`Для прохождения нужно ${s.need}/${s.count}. Повтори блок — результат уже сохранён как лучший.`}</p><div style="font-size:12px;color:var(--muted);margin:-4px 0 10px">Пропуск занимает одно задание в блоке, но в журнале хранится отдельно от ошибки. Внутри блока задания не повторяются; при новом прохождении приложение сначала подбирает варианты, которых ученик недавно не видел.</div>${bonusXP?`<div class="level-box"><b>Бонус за первое прохождение:</b> +${bonusXP} XP и +${bonusCoins} 🪙</div>`:''}<div class="actions"><button class="btn soft" onclick="openAttemptReviewById('${reportId}')">📋 Разбор попытки</button><button class="btn soft" onclick="${repeat}">Повторить блок</button>${next?`<button class="btn primary next-ready" onclick="${nextCall}">Следующая ступень →</button>`:''}<button class="btn soft" onclick="closeModal()">К темам</button></div></div>`);
+ show(`<div class="mtop"><h2>${passed?'🎉':'💪'} ${s.name} завершена</h2><button class="x" onclick="closeModal()">×</button></div><div class="block-result"><div class="block-stars">${'★'.repeat(stars)}${'☆'.repeat(3-stars)}</div><div style="font-size:12px;color:var(--muted);margin-top:2px">3 ★ — без ошибок · 2 ★ — от 80% · 1 ★ — от 60%</div><h3>Верно с первой: ${b.correct} из ${b.total}</h3><div class="level-box" style="margin:8px 0 12px"><b>✅ С первой:</b> ${firstTryCount} &nbsp;•&nbsp; <b>🟡 Исправлено:</b> ${correctedCount} &nbsp;•&nbsp; <b>❌ Осталось неверно:</b> ${wrongCount} &nbsp;•&nbsp; <b>⏭ Пропущено:</b> ${skippedCount}</div><p>${passed?(passedWithCorrection?'Этап пройден благодаря самостоятельному исправлению. ':'Этап пройден. ')+finalStageText:`Для прохождения нужно ${stagePassRequirement(s)}. Можно попробовать ещё раз.`}</p><div style="font-size:12px;color:var(--muted);margin:-4px 0 10px">Пропуск занимает одно задание в блоке, но в журнале хранится отдельно от ошибки. Внутри блока задания не повторяются; при новом прохождении приложение сначала подбирает варианты, которых ученик недавно не видел.</div>${bonusXP?`<div class="level-box"><b>Бонус за первое прохождение:</b> +${bonusXP} XP и +${bonusCoins} 🪙</div>`:''}<div class="actions"><button class="btn soft" onclick="openAttemptReviewById('${reportId}')">📋 Разбор попытки</button><button class="btn soft" onclick="${repeat}">Повторить блок</button>${next?`<button class="btn primary next-ready" onclick="${nextCall}">Следующая ступень →</button>`:''}<button class="btn soft" onclick="closeModal()">К темам</button></div></div>`);
 }
 /* =========================================================
    ЭТАП 1 — РАБОТА НАД ОШИБКАМИ
@@ -10349,7 +10365,8 @@ function profileProgressData(profile,key){
  const cp=profile?.courseProgress||{};const raw=rawCourseId(key);return cp[key]||((keyGrade(key)===4)?cp[raw]:null)||{best:[0,0,0],bonus:[false,false,false]};
 }
 function profileCompletedStages(profile,key){
- const p=profileProgressData(profile,key),best=Array.isArray(p.best)?p.best:[0,0,0],needs=[4,5,8];return [0,1,2].filter(i=>Number(best[i]||0)>=needs[i]).length;
+ const progress=profileProgressData(profile,key);
+ return STAGES.filter((_,i)=>progressStagePassed(progress,i)).length;
 }
 function highestOpenStageForProfile(profile,key){const done=profileCompletedStages(profile,key);return done>=2?2:done>=1?1:0}
 function createTopicAnalyticsBucket(meta){return {...meta,total:0,meaningful:0,firstTry:0,corrected:0,wrong:0,skipped:0,activeErrors:0,resolvedErrors:0,lastActivityAt:0,lastStageIndex:null,recent:[],completedStages:0,masteryPercent:null,status:"nodata",preliminary:false}}
@@ -10669,7 +10686,12 @@ function teacherCourseProgress(profile,grade,keys=null){
  return {grade:g,done,total,percent:total?Math.round(done/total*100):0,topics:arr.length,catalogTopics,availableTopics:arr.length,catalogOnly:(g===7||g===8)&&arr.length===0};
 }
 function teacherStageBreakdown(profile,grade){
- const g=Number(grade),all=teacherGradeTopicKeys(g),keys=g===3?all.filter(k=>analyticsTopicMeta(k)?.implemented!==false):all,out=[0,0,0],needs=[4,5,8];for(const key of keys){const p=profileProgressData(profile,key),best=Array.isArray(p?.best)?p.best:[];for(let i=0;i<3;i++)if(Number(best[i]||0)>=needs[i])out[i]++}return {warmup:out[0],training:out[1],master:out[2],topics:all.length};
+ const g=Number(grade),all=teacherGradeTopicKeys(g),keys=g===3?all.filter(k=>analyticsTopicMeta(k)?.implemented!==false):all,out=[0,0,0];
+ for(const key of keys){
+   const progress=profileProgressData(profile,key);
+   STAGES.forEach((_,i)=>{if(progressStagePassed(progress,i))out[i]++});
+ }
+ return {warmup:out[0],training:out[1],master:out[2],topics:all.length};
 }
 function teacherG3Sections(profile){return G3_GROUPS.map(g=>({id:g.id,title:g.title,...teacherCourseProgress(profile,3,g.topics.map(t=>t.id))}))}
 function teacherG5Sections(profile){
@@ -10908,7 +10930,7 @@ function knowledgeGradeSections(grade){
 }
 function knowledgeStageData(profile,key){
  const p=profileProgressData(profile,key),best=Array.isArray(p?.best)?p.best:[0,0,0];
- return STAGES.map((st,i)=>({index:i,name:st.name,ico:st.ico,best:Number(best[i]||0),need:st.need,total:st.count,passed:Number(best[i]||0)>=st.need,started:Number(best[i]||0)>0}));
+ return STAGES.map((st,i)=>({index:i,name:st.name,ico:st.ico,best:Number(best[i]||0),need:st.need,total:st.count,passed:progressStagePassed(p,i),started:Number(best[i]||0)>0}));
 }
 function knowledgeTopicData(profile,stats,key){
  const meta=analyticsTopicMeta(key);if(!meta)return null;
@@ -36660,27 +36682,27 @@ document.addEventListener("keydown",event=>{
 })();
 </script>
 
-<script src="g5-conversion-ux.js?v=195"></script>
-<script src="g5-textbook-topics.js?v=195"></script>
-<script src="g5-textbook-core.js?v=195"></script>
-<script src="g5-textbook-v111.js?v=195"></script>
-<script src="g5-textbook-v112.js?v=195"></script>
-<script src="g5-pedagogy-v113.js?v=195"></script>
-<script src="g5-fractions-v114.js?v=195"></script>
-<script src="g5-fraction-arithmetic-v115.js?v=195"></script>
-<script src="g5-decimals-v116.js?v=195"></script>
-<script src="g7-textbook.js?v=195"></script>
-<script src="g8-textbook.js?v=195"></script>
-<script src="g5-textbook-navigation-v121.js?v=195"></script>
-<script src="g5-live-pedagogy-v122.js?v=195"></script>
-<script src="g5-arithmetic-tiers-v123.js?v=195"></script>
-<script src="g5-textbook-tiers-v124.js?v=195"></script>
-<script src="g5-natural-units-v125.js?v=195"></script>
-<script src="g5-remaining-core-v126.js?v=195"></script>
-<script src="g5-decimal-tiers-v127.js?v=195"></script>
-<script src="g5-decimal-percent-v128.js?v=195"></script>
-<script src="g5-fraction-concepts-v129.js?v=195"></script>
-<script src="g5-fraction-applications-v130.js?v=195"></script>
+<script src="g5-conversion-ux.js?v=196"></script>
+<script src="g5-textbook-topics.js?v=196"></script>
+<script src="g5-textbook-core.js?v=196"></script>
+<script src="g5-textbook-v111.js?v=196"></script>
+<script src="g5-textbook-v112.js?v=196"></script>
+<script src="g5-pedagogy-v113.js?v=196"></script>
+<script src="g5-fractions-v114.js?v=196"></script>
+<script src="g5-fraction-arithmetic-v115.js?v=196"></script>
+<script src="g5-decimals-v116.js?v=196"></script>
+<script src="g7-textbook.js?v=196"></script>
+<script src="g8-textbook.js?v=196"></script>
+<script src="g5-textbook-navigation-v121.js?v=196"></script>
+<script src="g5-live-pedagogy-v122.js?v=196"></script>
+<script src="g5-arithmetic-tiers-v123.js?v=196"></script>
+<script src="g5-textbook-tiers-v124.js?v=196"></script>
+<script src="g5-natural-units-v125.js?v=196"></script>
+<script src="g5-remaining-core-v126.js?v=196"></script>
+<script src="g5-decimal-tiers-v127.js?v=196"></script>
+<script src="g5-decimal-percent-v128.js?v=196"></script>
+<script src="g5-fraction-concepts-v129.js?v=196"></script>
+<script src="g5-fraction-applications-v130.js?v=196"></script>
 <script>
 // The textbook scripts finish extending the catalog before Home shows its totals.
 g5HomeCatalogReady=true;
