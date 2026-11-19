@@ -96,10 +96,12 @@ async function main(){
       return {before,after:blockSession.correct,feedback:document.getElementById('qfb')?.textContent?.trim().slice(0,140)};
     });
     assert.equal(invalid.after,invalid.before,'Invalid input credited');
-    const correct=await page.evaluate(({plan})=>{
+    const correct=await page.evaluate(({plan,chosen})=>{
       const cat=window[plan.catalog]();
+      const sameTopic=cat.find(topic=>topic.id===chosen.topic);
+      const ordered=sameTopic?[sameTopic,...cat.filter(topic=>topic!==sameTopic)]:cat;
       let found=null;
-      outer:for(const topic of cat.slice(0,Math.min(45,cat.length))){
+      outer:for(const topic of ordered){
        if(topic.implemented===false)continue;
        for(let stage=0;stage<3;stage++){
         try{window[plan.method](topic.id,stage)}catch(e){continue}
@@ -149,7 +151,7 @@ async function main(){
       check.click();
       return {found,scoreBefore,scoreAfter,scoreAfterSecond: blockSession.correct,
         feedback:feedback?.slice(0,140),nextVisible:!!next && getComputedStyle(next).display!=='none'};
-    },{plan});
+    },{plan,chosen:data.chosen});
     assert(!correct.skipped,'No valid answer candidate for '+plan.grade+' class');
     if(!correct.skipped){
       assert.equal(correct.scoreAfter,correct.scoreBefore+1,'Correct numeric answer not credited: '+JSON.stringify(correct));
