@@ -671,7 +671,7 @@ button,input{font:inherit}button{cursor:pointer}.shell{max-width:1180px;margin:a
 .data-table-wrap{max-width:760px;margin:12px auto 5px;overflow:auto;border:1px solid #d5e6dd;border-radius:16px;background:#fff}
 .data-table{width:100%;border-collapse:collapse;min-width:360px}.data-table th,.data-table td{padding:9px 11px;border-bottom:1px solid #e4eee9;border-right:1px solid #e8f0ec;text-align:center}
 .data-table th{background:#eaf6f0;font-weight:950}.data-table td:first-child,.data-table th:first-child{text-align:left;font-weight:900}.data-table tr:last-child td{border-bottom:0}.data-table th:last-child,.data-table td:last-child{border-right:0}
-.bar-chart-wrap{max-width:680px;margin:12px auto 5px;padding:9px;border:1px solid #d5e6dd;border-radius:16px;background:#fff;overflow:hidden}.bar-chart-svg{display:block;width:100%;height:auto}.bar-grid{stroke:#d9e7e0;stroke-width:1}.bar-axis{stroke:#315d4d;stroke-width:2}.bar-shape{fill:#62bb92;stroke:#25845f;stroke-width:1.5}.bar-label{fill:#49665a;font:700 14px system-ui,-apple-system,"Segoe UI",Arial,sans-serif}.bar-value{fill:#17362c;font:850 14px "Cambria Math","Times New Roman",serif}.bar-chart-title{text-align:center;font-weight:900;margin:2px 0 5px}
+.bar-chart-wrap{max-width:680px;margin:12px auto 5px;padding:9px;border:1px solid #d5e6dd;border-radius:16px;background:#fff;overflow:hidden}.bar-chart-svg{display:block;width:100%;height:auto}.bar-grid{stroke:#d9e7e0;stroke-width:1}.bar-axis{stroke:#315d4d;stroke-width:2}.bar-shape{fill:#62bb92;stroke:#25845f;stroke-width:1.5}.bar-label{fill:#49665a;font:700 14px system-ui,-apple-system,"Segoe UI",Arial,sans-serif}.bar-value{fill:#17362c;font:850 14px "Cambria Math","Times New Roman",serif}.g3-bar-chart .bar-label,.g3-bar-chart .bar-value{font-size:19px}.bar-chart-title{text-align:center;font-weight:900;margin:2px 0 5px}
 @media(max-width:520px){.coordinate-plane-wrap{padding:5px}.coord-label{font-size:12px}.coord-axis-label{font-size:15px}.coord-point-label{font-size:15px}.coordinate-input-grid{grid-template-columns:repeat(2,minmax(0,125px));gap:7px}.coordinate-input{height:49px;font-size:21px}.data-table{font-size:13px;min-width:330px}.data-table th,.data-table td{padding:7px 8px}.bar-label,.bar-value{font-size:12px}}
 
 
@@ -5204,11 +5204,11 @@ function g6TableJournalText(data){return `${(data.headers||[]).join(" | ")}; ${(
 function g6AttachTable(question,data){question.visual={type:"tableData",data};question.journalPrompt=`${question.text}<br><span class="math">Таблица: ${esc(g6TableJournalText(data))}</span>`;return question}
 function g6ChartScale(values){const mx=Math.max(...values.map(Number),1),step=mx<=10?1:mx<=20?2:5,maxValue=Math.ceil(mx/step)*step;return {step,maxValue}}
 function renderBarChart(data){
- const labels=(data.labels||[]).map(String),values=(data.values||[]).map(Number),maxValue=Number(data.maxValue||g6ChartScale(values).maxValue),step=Number(data.step||g6ChartScale(values).step),W=680,H=360,left=54,right=18,top=28,bottom=54,plotW=W-left-right,plotH=H-top-bottom,n=Math.max(1,labels.length),slot=plotW/n,barW=Math.min(72,slot*.58);
+ const labels=(data.labels||[]).map(String),values=(data.values||[]).map(Number),maxValue=Number(data.maxValue||g6ChartScale(values).maxValue),step=Number(data.step||g6ChartScale(values).step),compact=data.compact===true,W=compact?420:680,H=compact?320:360,left=compact?45:54,right=18,top=28,bottom=compact?42:54,plotW=W-left-right,plotH=H-top-bottom,n=Math.max(1,labels.length),slot=plotW/n,barW=Math.min(72,slot*.58);
  let grid="",bars="";
  for(let v=0;v<=maxValue+1e-9;v+=step){const y=top+plotH-(v/maxValue)*plotH;grid+=`<line class="bar-grid" x1="${left}" y1="${y.toFixed(3)}" x2="${W-right}" y2="${y.toFixed(3)}"></line><text class="bar-label" x="${left-10}" y="${(y+5).toFixed(3)}" text-anchor="end">${esc(String(v).replace(".",","))}</text>`}
- values.forEach((v,i)=>{const h=(v/maxValue)*plotH,x=left+i*slot+(slot-barW)/2,y=top+plotH-h,cx=x+barW/2;bars+=`<rect class="bar-shape" data-value="${v}" x="${x.toFixed(3)}" y="${y.toFixed(3)}" width="${barW.toFixed(3)}" height="${h.toFixed(3)}" rx="5"></rect><text class="bar-value" x="${cx.toFixed(3)}" y="${Math.max(17,y-7).toFixed(3)}" text-anchor="middle">${esc(String(v).replace(".",","))}</text><text class="bar-label" x="${cx.toFixed(3)}" y="${H-25}" text-anchor="middle">${esc(labels[i]||String(i+1))}</text>`});
- return `<div class="bar-chart-wrap">${data.title?`<div class="bar-chart-title">${esc(data.title)}</div>`:""}<svg class="bar-chart-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Столбчатая диаграмма">${grid}<line class="bar-axis" x1="${left}" y1="${top}" x2="${left}" y2="${top+plotH}"></line><line class="bar-axis" x1="${left}" y1="${top+plotH}" x2="${W-right}" y2="${top+plotH}"></line>${bars}</svg></div>`;
+ values.forEach((v,i)=>{const h=(v/maxValue)*plotH,x=left+i*slot+(slot-barW)/2,y=top+plotH-h,cx=x+barW/2;bars+=`<rect class="bar-shape" data-value="${v}" x="${x.toFixed(3)}" y="${y.toFixed(3)}" width="${barW.toFixed(3)}" height="${h.toFixed(3)}" rx="5"></rect>${data.showValues===false?"":`<text class="bar-value" x="${cx.toFixed(3)}" y="${Math.max(17,y-7).toFixed(3)}" text-anchor="middle">${esc(String(v).replace(".",","))}</text>`}<text class="bar-label" x="${cx.toFixed(3)}" y="${H-25}" text-anchor="middle">${esc(labels[i]||String(i+1))}</text>`});
+ return `<div class="bar-chart-wrap">${data.title?`<div class="bar-chart-title">${esc(data.title)}</div>`:""}<svg class="bar-chart-svg${compact?" g3-bar-chart":""}" viewBox="0 0 ${W} ${H}" role="img" aria-label="Столбчатая диаграмма">${grid}<line class="bar-axis" x1="${left}" y1="${top}" x2="${left}" y2="${top+plotH}"></line><line class="bar-axis" x1="${left}" y1="${top+plotH}" x2="${W-right}" y2="${top+plotH}"></line>${bars}</svg></div>`;
 }
 function g6BarJournalText(data){return (data.labels||[]).map((x,i)=>`${x} — ${data.values?.[i]}`).join("; ")}
 function g6AttachBarChart(question,data){question.visual={type:"barChart",data};question.journalPrompt=`${question.text}<br><span class="math">Диаграмма: ${esc(g6BarJournalText(data))}</span>`;return question}
@@ -6917,13 +6917,31 @@ function g3TableQuestion(d,slot=null){
  const a=ri(0,2),b=ri(a+1,3);model.target={rows:[a,b],column:1};if(variant==="sum"){const answer=values[a]+values[b],q=g3StoryNumberQuestion(`Сколько книг прочитали <b>${names[a]} и ${names[b]}</b> вместе?`,answer,`${values[a]} + ${values[b]} = <b>${answer}</b>.`,`g3:tables:${d}:sum:${values.join(",")}:${a}:${b}`,{variant,tableModel:model,answer});return g6AttachTable(q,data)}
  const hi=values[a]>=values[b]?a:b,lo=hi===a?b:a,answer=values[hi]-values[lo];model.target={rows:[hi,lo],column:1};const q=g3StoryNumberQuestion(`На сколько книг <b>${names[hi]}</b> ${["Аня","Оля"].includes(names[hi])?"прочитала":"прочитал"} больше, чем <b>${names[lo]}</b>?`,answer,`${values[hi]} − ${values[lo]} = <b>${answer}</b>.`,`g3:tables:${d}:difference:${values.join(",")}:${hi}:${lo}`,{variant,tableModel:model,answer});return g6AttachTable(q,data);
 }
-function g3UniqueChartValues(){return g3DistinctNumbers(4,2,20)}
-function g3BarChartsQuestion(d){
- const labels=sh(["Аня","Миша","Оля","Дима"]),variants=d===0?["lookup","max","min"]:d===1?["lookup","max","min","difference","sum"]:["total","equal","range","topTwo"],variant=g6RandomFrom(variants);let values=["max","min","range","topTwo"].includes(variant)?g3UniqueChartValues():labels.map(()=>ri(2,20));let audit={variant,chartModel:{categories:[...labels],values:[...values],scale:null,questionType:variant,target:null,baseline:0}};
+function g3BarChartsQuestion(d,slot=null){
+ const variants=[["lookup","max","min"],["difference","sum"],["total","equal","range","topTwo"]][d];
+ const variant=slot===null?g6RandomFrom(variants):variants[slot%variants.length];
+ const labels=sh(["Аня","Миша","Оля","Дима"]),step=d===2?5:d===1?2:1;
+ const pool=Array.from({length:d===0?19:10},(_,i)=>d===0?i+2:(i+1)*step);
+ const distinct=["max","min","range","topTwo"].includes(variant);
+ let values=distinct?sh([...pool]).slice(0,4):labels.map(()=>g6RandomFrom(pool));
+ const chartModel={categories:[...labels],values:[...values],scale:null,questionType:variant,target:null,baseline:0};
+ const audit={variant,chartModel};
  if(variant==="equal"){
-  const pair=sh([0,1,2,3]).slice(0,2),same=ri(4,16),others=[0,1,2,3].filter(i=>!pair.includes(i)),used=new Set([same]);values=Array(4);values[pair[0]]=same;values[pair[1]]=same;for(const i of others){let v;do{v=ri(2,20)}while(used.has(v));used.add(v);values[i]=v}audit.chartModel.values=[...values];audit.chartModel.target={pair:[...pair]};
+  const pair=sh([0,1,2,3]).slice(0,2),same=g6RandomFrom(pool);
+  const other=sh(pool.filter(n=>n!==same));
+  values=labels.map((_,index)=>pair.includes(index)?same:other.pop());
+  chartModel.values=[...values];
+  chartModel.target={pair:[...pair]};
  }
- const data=g6ChartData(labels,values,"Количество");data.baseline=0;audit.chartModel.scale={step:data.step,maxValue:data.maxValue};
+ const data=g6ChartData(labels,values,"Прочитано книг");
+ data.baseline=0;
+ data.compact=true;
+ if(d>0){
+  data.step=step;
+  data.maxValue=Math.max(...values);
+  data.showValues=false;
+ }
+ chartModel.scale={step:data.step,maxValue:data.maxValue};
  if(variant==="lookup"){const i=ri(0,3),answer=values[i];audit.chartModel.target={index:i};audit.answer=answer;return g6AttachBarChart(g3StoryNumberQuestion(`Какое значение показывает столбец <b>${labels[i]}</b>?`,answer,`Столбец «${labels[i]}» достигает отметки <b>${answer}</b>.`,`g3:bar_charts:${d}:lookup:${labels.join(",")}:${values.join(",")}:i${i}`,audit),data)}
  if(variant==="max"||variant==="min"){const v=variant==="max"?Math.max(...values):Math.min(...values),i=values.indexOf(v),answer=labels[i];audit.chartModel.target={index:i};audit.answer=answer;return g6AttachBarChart(g3ChoiceQuestion(`У кого значение <b>${variant==="max"?"наибольшее":"наименьшее"}</b>?`,answer,labels.map(x=>({key:x,label:x})),`${variant==="max"?"Самый высокий":"Самый низкий"} столбец — «${answer}», его значение ${v}.`,`g3:bar_charts:${d}:${variant}:${labels.join(",")}:${values.join(",")}`,audit),data)}
  if(variant==="equal"){const pair=audit.chartModel.target.pair,answer=[labels[pair[0]],labels[pair[1]]].sort().join(" и "),pairs=[];for(let i=0;i<4;i++)for(let j=i+1;j<4;j++)pairs.push([labels[i],labels[j]].sort().join(" и "));audit.answer=answer;return g6AttachBarChart(g3ChoiceQuestion("У каких двух учеников значения <b>одинаковые</b>?",answer,pairs.map(x=>({key:x,label:x})),`Одинаковая высота у столбцов «${labels[pair[0]]}» и «${labels[pair[1]]}»: оба значения равны ${values[pair[0]]}.`,`g3:bar_charts:${d}:equal:${labels.join(",")}:${values.join(",")}`,audit),data)}
@@ -6951,24 +6969,107 @@ function g3BarChartsQuestion(d){
 function g3ApplyAlgorithm(start,operations){let value=Number(start);for(const step of operations){if(step.op==="+")value+=step.value;else if(step.op==="-")value-=step.value;else if(step.op==="*")value*=step.value;else if(step.op==="/"){if(step.value===0||value%step.value!==0)throw new Error("Некорректное деление в алгоритме");value/=step.value}else throw new Error("Неизвестная операция");if(!Number.isInteger(value)||value<0||value>999)throw new Error("Алгоритм вышел за возрастной диапазон")}return value}
 function g3AlgorithmStepText(step){return step.op==="+"?`Прибавь ${step.value}.`:step.op==="-"?`Вычти ${step.value}.`:step.op==="*"?`Умножь результат на ${step.value}.`:`Раздели результат на ${step.value}.`}
 function g3BuildAlgorithm(d){
- const count=d===0?ri(1,2):d===1?ri(2,3):ri(3,4);for(let attempt=0;attempt<100;attempt++){const start=ri(2,d===0?30:60),operations=[];let current=start;for(let i=0;i<count;i++){let options=["+"];if(current>=2)options.push("-");if(current>0&&current<=120)options.push("*");const divisors=[2,3,4,5,6,7,8,9].filter(x=>current%x===0&&current/x>=1);if(divisors.length)options.push("/");let op=g6RandomFrom(options),value;if(op==="+"){value=ri(2,d===0?10:25);if(current+value>300&&current>=2){op="-";value=ri(1,Math.min(20,current-1))}}else if(op==="-"){value=ri(1,Math.min(d===0?10:25,current-1))}else if(op==="*"){const mult=[2,3,4,5].filter(x=>current*x<=300);if(!mult.length){op="+";value=ri(2,10)}else value=g6RandomFrom(mult)}else value=g6RandomFrom(divisors);operations.push({op,value});current=g3ApplyAlgorithm(current,[operations[operations.length-1]])}try{const answer=g3ApplyAlgorithm(start,operations);return {start,operations,answer}}catch(e){}}
+ const count=d===0?ri(1,2):d===1?3:4;for(let attempt=0;attempt<100;attempt++){const start=ri(2,d===0?30:60),operations=[];let current=start;for(let i=0;i<count;i++){let options=["+"];if(current>=2)options.push("-");if(current>0&&current<=120)options.push("*");const divisors=[2,3,4,5,6,7,8,9].filter(x=>current%x===0&&current/x>=1);if(divisors.length)options.push("/");let op=g6RandomFrom(options),value;if(op==="+"){value=ri(2,d===0?10:25);if(current+value>300&&current>=2){op="-";value=ri(1,Math.min(20,current-1))}}else if(op==="-"){value=ri(1,Math.min(d===0?10:25,current-1))}else if(op==="*"){const mult=[2,3,4,5].filter(x=>current*x<=300);if(!mult.length){op="+";value=ri(2,10)}else value=g6RandomFrom(mult)}else value=g6RandomFrom(divisors);operations.push({op,value});current=g3ApplyAlgorithm(current,[operations[operations.length-1]])}try{const answer=g3ApplyAlgorithm(start,operations);return {start,operations,answer}}catch(e){}}
  throw new Error("Не удалось создать безопасный алгоритм");
 }
-function g3AlgorithmQuestion(d){const m=g3BuildAlgorithm(d),steps=m.operations.map((op,i)=>`${i+1}. ${g3AlgorithmStepText(op)}`).join("<br>"),exParts=[],values=[m.start];let cur=m.start;for(const op of m.operations){cur=g3ApplyAlgorithm(cur,[op]);values.push(cur);exParts.push(g3AlgorithmStepText(op).replace("результат ","")+` Получаем ${cur}.`)}return g3StoryNumberQuestion(`Начальное число <b>${m.start}</b>.<br>${steps}<br><b>Какое число получится?</b>`,m.answer,`${exParts.join("<br>")} Ответ: <b>${m.answer}</b>.`,`g3:algorithms_logic:${d}:algorithm:${m.start}:${m.operations.map(x=>x.op+x.value).join(",")}`,{variant:"algorithm",algorithmModel:{start:m.start,operations:m.operations},intermediate:values,answer:m.answer})}
+function g3AlgorithmQuestion(d){
+ const model=g3BuildAlgorithm(d);
+ const steps=model.operations.map((op,i)=>`${i+1}. ${g3AlgorithmStepText(op)}`).join("<br>");
+ const values=[model.start];
+ for(const operation of model.operations)values.push(g3ApplyAlgorithm(values.at(-1),[operation]));
+ const reverse=d===2,answer=reverse?model.start:model.answer;
+ const visible=reverse?`Получилось число <b>${model.answer}</b>.<br>${steps}<br><b>Какое число было в начале?</b>`:
+  `Начальное число <b>${model.start}</b>.<br>${steps}<br><b>Какое число получится?</b>`;
+ const symbols={"+":"+","-":"−","*":"·","/":":"};
+ const inverse={"+":"−","-":"+","*":":","/":"·"};
+ const equations=model.operations.map((operation,i)=>reverse?
+  `${values[i+1]} ${inverse[operation.op]} ${operation.value} = ${values[i]}`:
+  `${values[i]} ${symbols[operation.op]} ${operation.value} = ${values[i+1]}`);
+ if(reverse)equations.reverse();
+ const intro=reverse?"Идём от результата в обратном порядке и выполняем обратные действия.<br>":"";
+ return g3StoryNumberQuestion(
+  visible,answer,`${intro}${equations.join(".<br>")}.<br>Ответ <b>${answer}</b>.`,
+  `g3:algorithms_logic:${d}:algorithm:${model.start}:${model.operations.map(x=>x.op+x.value).join(",")}`,
+  {variant:"algorithm",algorithmModel:{start:model.start,operations:model.operations},intermediate:values,answer}
+ );
+}
 function g3SequenceModel(d){
- const type=g6RandomFrom(d===0?["add","repeat"]:d===1?["add","double","alternateAdd","repeat"]:["add","double","alternateAdd","repeat"]);if(type==="add"){const step=g6RandomFrom(d===0?[1,2,5,10]:[2,3,5,10,20]),start=ri(1,80),length=6,values=Array.from({length},(_,i)=>start+i*step);return {type,start,step,length,values}}
+ const type=g6RandomFrom(d===0?["add","repeat"]:d===1?["double","alternateAdd"]:["alternateOperations"]);
+ if(type==="alternateOperations"){
+  const start=ri(2,9),step=ri(1,6),length=7,values=[start];
+  for(let i=1;i<length;i++)values.push(i%2===1?values[i-1]+step:values[i-1]*2);
+  return {type,start,step,length,values};
+ }
+if(type==="add"){const step=g6RandomFrom(d===0?[1,2,5,10]:[2,3,5,10,20]),start=ri(1,80),length=6,values=Array.from({length},(_,i)=>start+i*step);return {type,start,step,length,values}}
  if(type==="double"){const start=ri(1,3),length=d===1?5:6,values=Array.from({length},(_,i)=>start*Math.pow(2,i));return {type,start,length,values}}
  if(type==="alternateAdd"){const a=g6RandomFrom([1,2,3]),b=g6RandomFrom([4,5,6]),start=ri(1,30),length=7,values=[start];for(let i=1;i<length;i++)values.push(values[i-1]+(i%2===1?a:b));return {type,start,steps:[a,b],length,values}}
  const a=ri(1,9),b=g3DistinctNumbers(1,1,9,{exclude:[a]})[0],length=7,values=Array.from({length},(_,i)=>i%2===0?a:b);return {type,a,b,length,values};
 }
-function g3SequenceQuestion(d){const m=g3SequenceModel(d),missing=Math.random()<.5,idx=missing?ri(1,m.values.length-2):m.values.length,answer=missing?m.values[idx]:(m.type==="add"?m.values.at(-1)+m.step:m.type==="double"?m.values.at(-1)*2:m.type==="alternateAdd"?m.values.at(-1)+((m.values.length)%2===1?m.steps[0]:m.steps[1]):m.values.length%2===0?m.a:m.b),shown=missing?m.values.map((x,i)=>i===idx?"□":x).join(", "):m.values.join(", ")+", ...",rule=m.type==="add"?`прибавляем ${m.step}`:m.type==="double"?"каждый раз умножаем на 2":m.type==="alternateAdd"?`по очереди прибавляем ${m.steps[0]} и ${m.steps[1]}`:`чередуем ${m.a} и ${m.b}`;return g3StoryNumberQuestion(`${missing?"Найди пропущенное число":"Продолжи последовательность"}: <b>${shown}</b>`,answer,`Правило: ${rule}. Ответ: <b>${answer}</b>.`,`g3:algorithms_logic:${d}:sequence:${m.type}:${JSON.stringify(m)}:${missing?"m"+idx:"next"}`,{variant:"sequence",sequenceModel:m,missingIndex:missing?idx:null,answer})}
+function g3SequenceQuestion(d){
+ const model=g3SequenceModel(d),{type,values}=model;
+ const missing=Math.random()<.5,index=missing?ri(1,values.length-2):values.length,last=values.at(-1);
+ let next,rule,hint="";
+ if(type==="add"){
+  next=last+model.step;
+  rule=`Каждый раз прибавляем ${model.step}.`;
+ }else if(type==="repeat"){
+  next=values[index%2];
+  rule=`Чередуем ${model.a} и ${model.b}.`;
+ }else if(type==="double"){
+  next=last*2;
+  rule="Каждый раз умножаем на 2.";
+ }else if(type==="alternateAdd"){
+  next=last+model.steps[(values.length-1)%2];
+  rule=`По очереди прибавляем ${model.steps[0]} и ${model.steps[1]}.`;
+  hint=" По очереди прибавляют два разных числа.";
+ }else{
+  next=values.length%2===1?last+model.step:last*2;
+  rule=`По очереди прибавляем ${model.step} и умножаем на 2.`;
+  hint=" Чередуются прибавление одного и того же числа и умножение на 2.";
+ }
+ const answer=missing?values[index]:next;
+ const terms=values.map((n,i)=>i===index?"□":n).join(", ")+(missing?"":", ...");
+ const question=missing?"Найди пропущенное число.":"Продолжи последовательность.";
+ return g3StoryNumberQuestion(
+  `${question}${hint} <b>${terms}</b>`,answer,`${rule} Ответ <b>${answer}</b>.`,
+  `g3:algorithms_logic:${d}:sequence:${type}:${terms}`,
+  {variant:"sequence",sequenceModel:model,missingIndex:missing?index:null,answer}
+ );
+}
 function g3Permutations(arr){if(arr.length<=1)return [arr.slice()];const out=[];for(let i=0;i<arr.length;i++){const head=arr[i],rest=arr.slice(0,i).concat(arr.slice(i+1));for(const p of g3Permutations(rest))out.push([head,...p])}return out}
 function g3LogicOrderSolutions(names,conditions){return g3Permutations(names).filter(order=>{const pos=Object.fromEntries(order.map((n,i)=>[n,i]));return conditions.every(c=>pos[c.before]<pos[c.after])})}
 function g3LogicQuestion(d){
- const pool=["Аня","Оля","Маша","Лена"],count=d===0?3:4,context=g6RandomFrom(["higher","earlier","left"]);for(let guard=0;guard<80;guard++){const names=sh(pool).slice(0,count),hidden=sh(names),conditions=[];for(let i=0;i<hidden.length-1;i++)conditions.push({before:hidden[i],after:hidden[i+1]});const solutions=g3LogicOrderSolutions(names,conditions);if(solutions.length!==1)continue;const askIndex=d===2&&Math.random()<.35?1:0,answer=hidden[askIndex],conditionText=conditions.map(c=>context==="higher"?`${c.before} выше ${c.after}.`:context==="earlier"?`${c.before} пришла раньше ${c.after}.`:`${c.before} стоит левее ${c.after}.`).join("<br>"),question=context==="higher"?(askIndex===0?"Кто самая высокая?":"Кто занимает второе место по высоте?"):context==="earlier"?(askIndex===0?"Кто пришёл первым?":"Кто пришёл вторым?"):(askIndex===0?"Кто стоит левее всех?":"Кто стоит вторым слева?"),ex=`Единственный порядок: <b>${hidden.join(" → ")}</b>. Поэтому ответ: <b>${answer}</b>.`;return g3ChoiceQuestion(`${conditionText}<br><b>${question}</b>`,answer,names.map(n=>({key:n,label:n})),ex,`g3:algorithms_logic:${d}:logic:${context}:${conditions.map(c=>c.before+">"+c.after).join("|")}:q${askIndex}`,{variant:"logic",logicModel:{names,conditions,context,askIndex},hiddenSolution:hidden,solutionsCount:solutions.length,answer})}
- throw new Error("Не удалось создать однозначную логическую задачу");
+ const pool=["Аня","Оля","Маша","Лена"],names=sh([...pool]).slice(0,d===0?3:4);
+ const genitive={Аня:"Ани",Оля:"Оли",Маша:"Маши",Лена:"Лены"};
+ const context=g6RandomFrom(["higher","earlier","left"]),hidden=sh([...names]);
+ const chain=hidden.slice(0,-1).map((before,i)=>({before,after:hidden[i+1]}));
+ if(d===2)chain.push({before:hidden[0],after:hidden[2]});
+ const conditions=sh(chain),solutions=g3LogicOrderSolutions(names,conditions);
+ if(solutions.length!==1)throw Error("Логическая задача имеет несколько решений");
+ const askIndex=d===0?0:d===1?3:ri(1,2),answer=solutions[0][askIndex];
+ const predicates={higher:"выше",earlier:"пришла раньше",left:"стоит левее"};
+ const statements=conditions.map(({before,after})=>`${before} ${predicates[context]} ${genitive[after]}.`).join("<br>");
+ const order={
+  higher:"Расположи девочек по росту от самой высокой к самой низкой.",
+  earlier:"Расположи девочек от той, кто пришла раньше всех, до той, кто пришла позже всех.",
+  left:"Расположи девочек слева направо."
+ };
+ const question=`${order[context]} Кто на ${askIndex+1}-м месте?`;
+ return g3ChoiceQuestion(
+  `${statements}<br><b>${question}</b>`,
+  answer,names.map(name=>({key:name,label:name})),
+  `Получаем порядок ${solutions[0].join(" → ")}.<br>Ответ <b>${answer}</b>.`,
+  `g3:algorithms_logic:${d}:logic:${context}:${hidden.join(">")}:${askIndex}`,
+  {variant:"logic",logicModel:{names,conditions,context,askIndex},hiddenSolution:solutions[0],solutionsCount:solutions.length,answer}
+ );
 }
-function g3AlgorithmsLogicQuestion(d){const family=g6RandomFrom(["algorithm","sequence","logic"]);return family==="algorithm"?g3AlgorithmQuestion(d):family==="sequence"?g3SequenceQuestion(d):g3LogicQuestion(d)}
+function g3AlgorithmsLogicQuestion(d,slot=null){
+ const families=["algorithm","sequence","logic"];
+ const family=slot===null?g6RandomFrom(families):families[slot%families.length];
+ if(family==="algorithm")return g3AlgorithmQuestion(d);
+ if(family==="sequence")return g3SequenceQuestion(d);
+ return g3LogicQuestion(d);
+}
 
 const G3_NUMBERS_1000_STAGES=[
  {templates:["read_digits","neighbor"],description:"Прочитай число от 1 до 1000 и найди его соседа по ряду."},
@@ -7872,8 +7973,14 @@ function makeG3Question(id,stageOverride=null){
   const live=stageOverride===null&&blockSession?.kind==="g3quiz"&&blockSession.key==="g3:tables";
   return g3TableQuestion(d,live?blockSession.done:null);
  }
- if(raw==="bar_charts")return g3BarChartsQuestion(d);
- if(raw==="algorithms_logic")return g3AlgorithmsLogicQuestion(d);
+ if(raw==="bar_charts"){
+  const live=stageOverride===null&&blockSession?.kind==="g3quiz"&&blockSession.key==="g3:bar_charts";
+  return g3BarChartsQuestion(d,live?blockSession.done:null);
+ }
+ if(raw==="algorithms_logic"){
+  const live=stageOverride===null&&blockSession?.kind==="g3quiz"&&blockSession.key==="g3:algorithms_logic";
+  return g3AlgorithmsLogicQuestion(d,live?blockSession.done:null);
+ }
  if(g3WrittenMode(raw))return null;
  if(raw==="geometry_figures"){
   const live=stageOverride===null&&blockSession?.kind==="g3quiz"&&blockSession.key==="g3:geometry_figures";
