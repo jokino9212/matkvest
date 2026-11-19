@@ -6364,31 +6364,87 @@ function g3PartsIntroQuestion(d,slot=null){
   g3UnitFractionName
  );
 }
-function g3PartsCompareQuestion(d){
- const denoms=[2,3,4,5,10],a=g6RandomFrom(denoms),equal=d>0&&Math.random()<.14,b=equal?a:g6RandomFrom(denoms.filter(x=>x!==a)),correct=a===b?"=":a<b?">":"<",other=[{key:"<",label:"<"},{key:"=",label:"="},{key:">",label:">"}];
+function g3PartsCompareQuestion(d,slot=null){
+ const variants=[["symbolic","equalSymbolic"],["diagram","fractionWords","equalDiagram"],["ribbons","ropes","difference"]][d];
+ const variant=slot===null?g6RandomFrom(variants):variants[slot%variants.length];
+ const denoms=[2,3,4,5,10],a=g6RandomFrom(denoms),b=variant.startsWith("equal")?a:g6RandomFrom(denoms.filter(n=>n!==a));
+ const correct=a===b?"=":a<b?">":"<";
+ const choices=["<","=",">"].map(sign=>({key:sign,label:sign}));
+ const sig=`g3:parts_compare:${d}:${variant}:${a}:${b}`;
  const symbolic=`${g3UnitFractionHtml(a)} <b>?</b> ${g3UnitFractionHtml(b)}`;
- let text,ex,variant,whole=null,first=null,second=null;
- if(d===0){
-  variant="symbolic";
-  text=`Сравните доли одного и того же целого: ${symbolic}.`;
-  ex=`У частей одного целого меньший знаменатель означает большую долю. Поэтому ${g3UnitFractionHtml(a)} <b>${correct}</b> ${g3UnitFractionHtml(b)}.`;
- }else if(d===1){
-  variant=Math.random()<.55?"diagram":"fractionWords";
-  text=variant==="diagram"?"Сравните выделенные части двух одинаковых целых. Выберите знак: первая ? вторая.":`Два одинаковых целых разделили на равные части. Сравните: ${g3UnitFractionName(a)} <b>?</b> ${g3UnitFractionName(b)}.`;
-  ex=a===b?`В обеих одинаковых полосках выделена ${g3UnitFractionHtml(a)} — части равны.`:`Сравниваем доли одинаковых целых: у ${g3UnitFractionHtml(a)} и ${g3UnitFractionHtml(b)} меньший знаменатель даёт большую часть. Знак <b>${correct}</b>.`;
- }else{
-  variant=Math.random()<.5?"ribbons":"ropes";
-  const gcd=(x,y)=>y?gcd(y,x%y):x,base=a*b/gcd(a,b);
-  whole=base*ri(1,Math.max(1,Math.floor(180/base)));
-  first=whole/a;second=whole/b;
-  text=variant==="ribbons"?`Две ленты одинаковой длины, по <b>${whole} см</b> каждая. От первой отрезали ${g3UnitFractionHtml(a)}, от второй — ${g3UnitFractionHtml(b)}. Сравните длины отрезанных частей: первая <b>?</b> вторая.`:`Два одинаковых шнура длиной по <b>${whole} см</b>. От первого взяли ${g3UnitFractionHtml(a)}, от второго — ${g3UnitFractionHtml(b)}. Сравните полученные куски: первый <b>?</b> второй.`;
-  ex=`Найдём длины: ${whole} : ${a} = ${first} см; ${whole} : ${b} = ${second} см.<br>Сравним: ${first} <b>${correct}</b> ${second}. Ленты одинаковые, поэтому сравнение долей корректно.`;
+ const explain=a===b?"Доли одинаковых целых с равными знаменателями равны.":
+  `У долей одинаковых целых меньше знаменатель — больше доля: ${g3UnitFractionHtml(a)} <b>${correct}</b> ${g3UnitFractionHtml(b)}.`;
+ const compare=(text,ex=explain,signature=sig)=>g3ChoiceQuestion(text,correct,choices,ex,signature,{variant});
+ if(variant==="symbolic"||variant==="equalSymbolic")return compare(`Сравните доли одного и того же целого: ${symbolic}.`);
+ if(variant==="fractionWords")return compare(
+  `Два одинаковых целых разделили на равные части. Сравните: ${g3UnitFractionName(a)} <b>?</b> ${g3UnitFractionName(b)}.`
+ );
+ if(variant==="diagram"||variant==="equalDiagram"){
+  const q=compare("Сравните выделенные части двух одинаковых полосок: первая ? вторая.",explain);
+  return g3AttachPartsVisual(q,[a,b],["Первая доля","Вторая доля"]);
  }
- const q=g3ChoiceQuestion(text,correct,other,ex,`g3:parts_compare:${d}:${variant}:${a}:${b}:${whole??0}`,{variant,a,b,relation:correct,equalWhole:true,whole,first,second});
- if(variant==="diagram")g3AttachPartsVisual(q,[a,b],["Первая доля","Вторая доля"]);
- return q;
+ const common=a*b/gcd(a,b),whole=common*ri(1,Math.floor(180/common));
+ const first=whole/a,second=whole/b,signature=`${sig}:${whole}`;
+ const lengths=`Длины частей: ${whole} : ${a} = ${first} (см), ${whole} : ${b} = ${second} (см).`;
+ if(variant==="ribbons")return compare(
+  `Две ленты одинаковой длины, по <b>${whole} см</b> каждая. От первой отрезали ${g3UnitFractionHtml(a)}, от второй — ${g3UnitFractionHtml(b)}. Сравните длины отрезанных частей: первая <b>?</b> вторая.`,
+  `${lengths}<br>${first} <b>${correct}</b> ${second}.`,signature
+ );
+ if(variant==="ropes")return compare(
+  `Два одинаковых шнура длиной по <b>${whole} см</b>. От первого взяли ${g3UnitFractionHtml(a)}, от второго — ${g3UnitFractionHtml(b)}. Сравните полученные куски: первый <b>?</b> второй.`,
+  `${lengths}<br>${first} <b>${correct}</b> ${second}.`,signature
+ );
+ const difference=Math.abs(first-second);
+ return g6NumberInputQuestion(
+  `<span class="g3-story">Два одинаковых отрезка длиной по <b>${whole} см</b>. На первом отметили ${g3UnitFractionHtml(a)} длины, на втором — ${g3UnitFractionHtml(b)} длины. На сколько сантиметров различаются отмеченные части?</span>`,
+  difference,`${lengths}<br>${Math.max(first,second)} − ${Math.min(first,second)} = <b>${difference}</b> (см).`,
+  signature,{unitSuffix:"см",inputHint:"Введи целое число.",audit:{type:"g3StoryNumber",variant}}
+ );
 }
-function g3PartOfQuantityQuestion(d){const denoms=[2,3,4,5,10],n=g6RandomFrom(d===0?[2,3,4]:denoms),result=ri(2,d===0?9:d===1?12:20),quantity=result*n,name=g3UnitFractionName(n),askName=g3UnitFractionAccName(n);if(d===2&&Math.random()<.55){const unit=g6RandomFrom(["см","м","кг","г","руб.","мин"]),end=unit.endsWith(".")?"":".";return g3StoryNumberQuestion(`Найдите ${askName} от <b>${quantity} ${unit}</b>${end}`,result,`${name[0].toUpperCase()+name.slice(1)} — это одна из ${n} равных частей.<br>${quantity} : ${n} = <b>${result} ${unit}</b>${end}`,`g3:part_of_quantity:${d}:unit:${n}:${quantity}:${unit}`,{denominator:n,quantity,result,unit,variant:"unit"},unit)}return g3StoryNumberQuestion(`Найдите ${askName} числа <b>${quantity}</b>.`,result,`${name[0].toUpperCase()+name.slice(1)} — это одна из ${n} равных частей.<br>${quantity} : ${n} = <b>${result}</b>.`,`g3:part_of_quantity:${d}:number:${n}:${quantity}`,{denominator:n,quantity,result,variant:"number"})}
+function g3PartOfQuantityQuestion(d,slot=null){
+ const variants=[["number","symbolic"],["ribbon","classroom","minutes"],["combined","remaining","afterChange"]][d];
+ const variant=slot===null?g6RandomFrom(variants):variants[slot%variants.length];
+ const n=g6RandomFrom(d===0?[2,3,4]:[2,3,4,5,10]),part=ri(2,15),whole=n*part;
+ const name=g3UnitFractionAccName(n),fraction=g3UnitFractionHtml(n);
+ const input=(story,answer,ex,unitSuffix="")=>g6NumberInputQuestion(
+  `<span class="g3-story">${story}</span>`,answer,ex,
+  `g3:part_of_quantity:${d}:${variant}:${n}:${story}`,
+  {unitSuffix,inputHint:"Введи целое число.",audit:{type:"g3StoryNumber",variant}}
+ );
+ const division=`${whole} : ${n} = ${part}`,finalDivision=`${whole} : ${n} = <b>${part}</b>`;
+ if(variant==="number"||variant==="symbolic")return input(
+  `Найдите ${variant==="number"?name:fraction} числа <b>${whole}</b>.`,
+  part,`Делим число на ${g3EqualPartsPhrase(n)}: ${finalDivision}.`
+ );
+ if(variant==="ribbon")return input(
+  `Лента длиной ${whole} см. От неё отрезали ${fraction} длины. Сколько сантиметров отрезали?`,
+  part,`Делим длину ленты на ${g3EqualPartsPhrase(n)}: ${finalDivision} (см).`,"см"
+ );
+ if(variant==="classroom")return input(
+  `В школьном кружке ${g3Qty(whole,"student")}. ${fraction} всех участников подготовила доклады. Сколько учеников подготовили доклады?`,
+  part,`Находим долю учеников. ${finalDivision} (учеников).`,"чел."
+ );
+ if(variant==="minutes")return input(
+  `Занятие длилось ${whole} мин. На разминку потратили ${fraction} времени занятия. Сколько минут длилась разминка?`,
+  part,`Находим долю времени занятия. ${finalDivision} (мин).`,"мин"
+ );
+ if(variant==="combined"){
+  const first=ri(1,whole-2),second=whole-first;
+  return input(
+   `На первой полке ${g3Qty(first,"book")}, на второй — ${g3Qty(second,"book")}. Взяли ${fraction} всех книг с этих двух полок. Сколько книг взяли?`,
+   part,`Всего книг: ${first} + ${second} = ${whole}.<br>Взяли ${finalDivision} (книг).`,"шт."
+  );
+ }
+ if(variant==="remaining")return input(
+  `В корзине ${g3Qty(whole,"apple")}. Взяли ${fraction} всех яблок. Сколько яблок осталось?`,
+  whole-part,`Взяли ${division} (яблок).<br>Осталось ${whole} − ${part} = <b>${whole-part}</b> (яблок).`,"шт."
+ );
+ const change=ri(2,14);
+ return input(
+  `На выставке было ${g3Qty(whole+change,"toy")}. Убрали ${g3Qty(change,"toy")}. ${fraction} оставшихся игрушек — машинки. Сколько машинок на выставке?`,
+  part,`Осталось ${whole+change} − ${change} = ${whole} (игрушек).<br>Машинок ${finalDivision}.`,"шт."
+ );
+}
 
 
 /* ЭТАП 3.6: геометрия 3 класса. Модель задаётся в клетках, SVG только отображает её. */
@@ -7723,8 +7779,14 @@ function makeG3Question(id,stageOverride=null){
   const live=stageOverride===null&&blockSession?.kind==="g3quiz"&&blockSession.key==="g3:parts_intro";
   return g3PartsIntroQuestion(d,live?blockSession.done:null);
  }
- if(raw==="parts_compare")return g3PartsCompareQuestion(d);
- if(raw==="part_of_quantity")return g3PartOfQuantityQuestion(d);
+ if(raw==="parts_compare"){
+  const live=stageOverride===null&&blockSession?.kind==="g3quiz"&&blockSession.key==="g3:parts_compare";
+  return g3PartsCompareQuestion(d,live?blockSession.done:null);
+ }
+ if(raw==="part_of_quantity"){
+  const live=stageOverride===null&&blockSession?.kind==="g3quiz"&&blockSession.key==="g3:part_of_quantity";
+  return g3PartOfQuantityQuestion(d,live?blockSession.done:null);
+ }
 
  if(raw==="division_remainder"){
   const live=stageOverride===null&&blockSession?.kind==="g3quiz"&&blockSession.key==="g3:division_remainder";
