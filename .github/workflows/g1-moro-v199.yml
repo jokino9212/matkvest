@@ -22,6 +22,7 @@ jobs:
         run: |
           set -euo pipefail
           base=feee56a55b33071cfbd00abd82da11122b990dc9
+          git fetch --depth=1 origin "$base"
           git reset --hard "$base"
           git worktree add --detach "$RUNNER_TEMP/g1-v198" "$base"
           base64 -d <<'PATCH' | gzip -d > "$RUNNER_TEMP/grade1.patch"
