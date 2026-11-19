@@ -14,7 +14,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 2
+          fetch-depth: 3
       - name: Verify desktop, mobile and trainer navigation
         shell: bash
         run: |
@@ -42,6 +42,10 @@ jobs:
                 await page.goto('file://' + process.cwd() + '/index.html');
                 await page.evaluate(() => renderHome());
                 const panel = page.locator('.quick-home');
+                const leave = page.getByRole('button', {name: 'Выйти и удалить попытку'});
+                async function confirmLeave() {
+                  if (await leave.isVisible()) await leave.click({timeout: 5000});
+                }
                 const cards = panel.locator('.quick-card');
                 assert.deepEqual(await cards.locator('h3,strong').allTextContents(), expected);
                 const [column, multiply, addition, squares, cubes] = await Promise.all(
@@ -75,14 +79,18 @@ jobs:
                 assert.match(await page.locator('#modal h2').innerText(), /Сложение столбиком/);
                 await page.locator('#modal .stage-card:not(.locked)').first().click();
                 assert.match(await page.locator('#modal h2').innerText(), /Счёт столбиком/);
-                await page.evaluate(() => { closeModal(); renderHome(); });
+                await page.locator('#modal .mtop .x').click({timeout: 5000});
+                await confirmLeave();
+                await page.evaluate(() => renderHome());
+                await confirmLeave();
                 for (const [i, key] of ['multiplication','addition','squares','cubes'].entries()) {
-                  await cards.nth(i+1).getByRole('button').click();
+                  await cards.nth(i+1).getByRole('button').click({timeout: 5000});
                   assert.equal(await page.evaluate(() => quickTrainerId), key);
                   assert.equal(await page.locator('.quick-hero h1').innerText(), expected[i+1]);
                   await page.evaluate(() => startQuickTraining());
                   assert(await page.locator('.quick-question').isVisible());
                   await page.evaluate(() => renderHome());
+                  await confirmLeave();
                 }
                 assert.deepEqual(errors, []);
                 await page.reload();
