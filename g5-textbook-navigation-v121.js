@@ -330,6 +330,7 @@ const grade7Sections={
 };
 
 const layouts={
+ 4:{...window.grade4Textbook,card:'.g4-textbook-card',group:'.g4-textbook-group',open:id=>openTopic(rawCourseId(id))},
  5:{chapters,catalog:g5AllTopics,card:'.g5-card',group:'.g5-group',open:id=>openG5Topic(id)},
  6:{chapters:grade6Chapters,catalog:g6AllTopics,card:'.g6-card',group:'.g6-group',open:id=>openG6Topic(id)},
  7:{chapters:grade7Chapters,sections:grade7Sections,catalog:g7AllTopics,card:'.topic.g7-card',group:'.g7-course',open:id=>openG7Topic(id)},
@@ -568,7 +569,7 @@ function mount(grade){
    if(status)status.textContent=query?'Найдено пунктов: '+count:'Всего тем: '+topics.length;
    if(empty)empty.dataset.visible=String(!!query&&!count);
    for(const card of cards){
-    const id=card.getAttribute('onclick')?.match(/g[678]:[a-z0-9_]+/)?.[0];
+    const id=card.dataset.topicId || card.getAttribute('onclick')?.match(/g[678]:[a-z0-9_]+/)?.[0];
     card.classList.toggle('mk19c4-filter-hidden',!!query&&!matchingTopics.has(id));
    }
    for(const section of host.querySelectorAll(hasSubjects?'.g7-course,.g7-course .g6-group':layout.group)){
@@ -632,11 +633,13 @@ function mount(grade){
  menuObserver.observe(host,{subtree:true,childList:true});
  if(isGrade5)window.mkG5TextbookNavigation={total:rows.length,missing:issues,chapters:details.length,volumes:parts.size,version:121,refreshSearch:bindUpperSearch};
 }
-const previousGrade5=renderGrade5,previousGrade6=renderGrade6,previousGrade7=renderGrade7,previousGrade8=renderGrade8;
+const previousGrade4=renderGrade4,previousGrade5=renderGrade5,previousGrade6=renderGrade6,previousGrade7=renderGrade7,previousGrade8=renderGrade8;
+renderGrade4=function(...args){const result=previousGrade4(...args);mount(4);return result};
 renderGrade5=function(...args){const result=previousGrade5(...args);mount(5);return result};
 renderGrade6=function(...args){const result=previousGrade6(...args);mount(6);return result};
 renderGrade7=function(...args){const result=previousGrade7(...args);mount(7);return result};
 renderGrade8=function(...args){const result=previousGrade8(...args);mount(8);return result};
+if(currentGrade===4)renderGrade4();
 if(currentGrade===7)renderGrade7();
 if(currentGrade===8)renderGrade8();
 })();
