@@ -1,0 +1,198 @@
+name: Apply verified Grade 3 two-step and unit fractions audit
+on:
+  push:
+    branches: [audit/g1-g4-content-v195]
+    paths: [.github/workflows/g3-two-step-parts-apply.yml]
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Apply the verified audit patch
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD^)" = "526d39263da04f389034fd9952e3e6816ebe32d5"
+          patch_file="$RUNNER_TEMP/matkvest.patch"
+          cat > "$patch_file" <<'MATKVEST_PATCH'
+          diff --git a/audits/g1_g4_content_audit_2026-11-17.md b/audits/g1_g4_content_audit_2026-11-17.md
+          index 5cb7b05..afe9bc3 100644
+          --- a/audits/g1_g4_content_audit_2026-11-17.md
+          +++ b/audits/g1_g4_content_audit_2026-11-17.md
+          @@ -1542 +1542,29 @@
+           - Шаблоны выбираются случайно, обратного хода от известного результата к исходному количеству нет. Поле предлагает ввод десятичной дроби.
+          +
+          +**После правок.** Разминка объединяет данные и добавляет или убирает часть. Тренировка использует три разные цепочки из двух операций. Мастер восстанавливает исходные количества или сравнивает число предметов после равного распределения. Шаблоны чередуются, разбор показывает два шага.
+          +
+          +- Независимо решены 9 600 задач. Проверены целые ответы, промежуточные вычисления и отсутствие одинаковых условий между уровнями.
+          +- На 320, 390 и 1280 px пройдены 12 попыток и засчитан 81 ответ. F5 сохранил прогресс и награды. На 390 px кнопка «Продолжить» восстановила второй вопрос всех трёх прерванных попыток.
+          +
+          +Следующая тема 3-го класса — «Половина, треть, четверть, пятая и десятая часть» (`g3:parts_intro`).
+          +
+          +### 2026-11-19. Половина, треть, четверть, пятая и десятая часть (`g3:parts_intro`)
+          +
+          +**До правок.** В Chromium проверено по 1 200 задач на уровень (зерно 19502).
+          +
+          +- Тексты между уровнями не совпадают. На разминке один тип вопроса, всего пять условий. Тренировка переводит название доли в запись и обратно.
+          +- На мастере все задания сводятся к подсчёту равных клеток на рисунке и выбору названия или записи доли. Нет восстановления целого из выделенной части и разбиения одной доли на части.
+          +
+          +**После правок.** В разминке долю определяют по тексту и по рисунку. На тренировке переводят название в дробную запись и обратно. Мастер различает полное и недостающее количество частей и находит долю всего листа после повторного разбиения. Типы чередуются.
+          +
+          +- В Chromium независимо проверены 9 600 ответов по словам, записи дроби и количеству клеток в схеме. Проверены правильный вариант, его единственность и отсутствие одинаковых условий и рисунков между уровнями.
+          +- На 320, 390 и 1280 px завершены 12 попыток и засчитан 81 ответ. F5 сохранил прогресс. На 390 px после F5 на всех трёх уровнях продолжение открыло тот же второй вопрос.
+          +
+          +Следующая тема 3-го класса — «Сравнение долей одной величины» (`g3:parts_compare`).
+          +
+          +### 2026-11-19. Сравнение долей одной величины (`g3:parts_compare`)
+          +
+          +**До правок.** В Chromium проверено по 1 200 задач на уровень (зерно 19502).
+          +
+          +- Совпадающих текстов между уровнями нет. Разминка сравнивает записи дробей, тренировка — названия или схемы. В разминке равные доли никогда не встречаются, на тренировке их появление случайно.
+          +- На мастере меняется сюжет, но оба типа заканчиваются выбором знака, который можно поставить без расчёта длин. Разбор задачи про шнуры завершает фраза о лентах.
+          diff --git a/index.html b/index.html
+          index 54c26d2..1ceeede 100644
+          --- a/index.html
+          +++ b/index.html
+          @@ -6271,20 +6271,96 @@ function g3RemainderTaskQuestion(d,slot=null){
+           }
+          -function g3TwoStepQuestion(d){const variant=g6RandomFrom(d===0?["addSub","mulAdd"]:["addSub","mulAdd","mulSub","divAdd","divSub"]);let a,b,c,step1,answer,text,ex;if(variant==="addSub"){a=ri(8,30);b=ri(5,25);c=ri(2,a+b-1);step1=a+b;answer=step1-c;text=`В первой коробке ${g3Qty(a,"pencil")}, во второй ${g3Qty(b,"pencil")}. ${g3Qty(c,"pencil")} отдали. Сколько осталось?`;ex=`1) ${a}+${b}=${step1}.<br>2) ${step1}−${c}=<b>${answer}</b>.`}else if(variant==="mulAdd"){a=ri(2,6);b=ri(2,8);c=ri(2,15);step1=a*b;answer=step1+c;text=`В ${a} коробках по ${g3Qty(b,"candy")}. Потом добавили ещё ${g3Qty(c,"candy")}. Сколько стало?`;ex=`1) ${a}·${b}=${step1}.<br>2) ${step1}+${c}=<b>${answer}</b>.`}else if(variant==="mulSub"){a=ri(2,7);b=ri(2,8);step1=a*b;c=ri(1,step1-1);answer=step1-c;text=`В ${a} коробках по ${g3Qty(b,"toy")}. ${g3Qty(c,"toy")} убрали. Сколько осталось?`;ex=`1) ${a}·${b}=${step1}.<br>2) ${step1}−${c}=<b>${answer}</b>.`}else{const divisor=ri(2,6),qv=ri(3,10);a=divisor*qv;b=divisor;step1=qv;c=ri(1,variant==="divSub"?qv-1:12);answer=variant==="divSub"?step1-c:step1+c;text=variant==="divSub"?`${g3Qty(a,"apple")} разложили поровну в ${g3Qty(b,"box")}. Из одной коробки взяли ${g3Qty(c,"apple")}. Сколько яблок осталось в этой коробке?`:`${g3Qty(a,"apple")} разложили поровну в ${g3Qty(b,"box")}. Потом в одну коробку добавили ещё ${g3Qty(c,"apple")}. Сколько яблок стало в этой коробке?`;ex=`1) ${a}:${b}=${step1}.<br>2) ${step1}${variant==="divSub"?"−":"+"}${c}=<b>${answer}</b>.`}return g3StoryNumberQuestion(text,answer,ex,`g3:two_step_tasks:${d}:${variant}:${a}:${b}:${c}`,{variant,a,b,c,step1,answer})}
+          -
+          -function g3PartsIntroQuestion(d){
+          - const denoms=[2,3,4,5,10],n=g6RandomFrom(denoms),name=g3UnitFractionName(n),other=shuffleOptions(denoms.filter(x=>x!==n)).slice(0,3);let q;
+          - if(d===0){
+          -   q=g3ChoiceQuestion(`Целое разделили на <b>${g3EqualPartsPhrase(n)}</b>. Как называется одна часть?`,String(n),[{key:String(n),label:name},...other.map(x=>({key:String(x),label:g3UnitFractionName(x)}))],`Одна из ${n} равных частей — <b>${name}</b>.`,`g3:parts_intro:${d}:name:${n}`,{variant:"name",denom:n},true);
+          - }else if(d===1){
+          -   const variant=Math.random()<.5?"wordToFraction":"fractionToWord";
+          -   if(variant==="wordToFraction")q=g3ChoiceQuestion(`Какая запись означает «<b>${name}</b>»?`,String(n),[{key:String(n),label:g3UnitFractionHtml(n)},...other.map(x=>({key:String(x),label:g3UnitFractionHtml(x)}))],`${name[0].toUpperCase()+name.slice(1)} записывается как ${g3UnitFractionHtml(n)}.`,`g3:parts_intro:${d}:${variant}:${n}`,{variant,denom:n},true);
+          -   else q=g3ChoiceQuestion(`Как называется доля ${g3UnitFractionHtml(n)}?`,String(n),[{key:String(n),label:name},...other.map(x=>({key:String(x),label:g3UnitFractionName(x)}))],`${g3UnitFractionHtml(n)} — это <b>${name}</b>.`,`g3:parts_intro:${d}:${variant}:${n}`,{variant,denom:n},true);
+          - }else{
+          -   const variant=g6RandomFrom(["visualFraction","visualName","visualCount"]);
+          -   if(variant==="visualFraction")q=g3ChoiceQuestion("Какая доля выделена на рисунке?",String(n),[{key:String(n),label:g3UnitFractionHtml(n)},...other.map(x=>({key:String(x),label:g3UnitFractionHtml(x)}))],`Целое разделено на ${g3EqualPartsPhrase(n)} и выделена одна: ${g3UnitFractionHtml(n)}.`,`g3:parts_intro:${d}:${variant}:${n}`,{variant,denom:n},true);
+          -   else if(variant==="visualName")q=g3ChoiceQuestion("Как называется выделенная на рисунке доля?",String(n),[{key:String(n),label:name},...other.map(x=>({key:String(x),label:g3UnitFractionName(x)}))],`Выделена одна из ${n} равных частей — <b>${name}</b>.`,`g3:parts_intro:${d}:${variant}:${n}`,{variant,denom:n},true);
+          -   else q=g3ChoiceQuestion("Сколько частей размером с выделенную нужно, чтобы составить всё целое?",String(n),[{key:String(n),label:String(n)},...other.map(x=>({key:String(x),label:String(x)}))],`Целое разделено на ${n} равных частей. Одна уже выделена: потребуется ${n} таких частей, чтобы собрать целое.`,`g3:parts_intro:${d}:${variant}:${n}`,{variant,denom:n},true);
+          -   g3AttachPartsVisual(q,[n],["Выделенная часть"]);
+          +function g3TwoStepQuestion(d,slot=null){
+          + const variants=[["addSub","mulAdd"],["addDiv","mulSub","divAdd"],["undoGrouping","undoRemoval","compareGroups"]][d];
+          + const variant=slot===null?g6RandomFrom(variants):variants[slot%variants.length];
+          + const groups=ri(2,8),each=ri(3,10),total=groups*each,change=ri(1,Math.min(12,total-1));
+          + const input=(story,answer,first,second)=>g6NumberInputQuestion(
+          +  `<span class="g3-story">${story}</span>`,answer,
+          +  `1) ${first}.<br>2) ${second} = <b>${answer}</b>.`,
+          +  `g3:two_step_tasks:${d}:${variant}:${story}`,
+          +  {inputHint:"Введи целое число.",audit:{type:"g3StoryNumber",variant}}
+          + );
+          + if(variant==="addSub"){
+          +  const first=ri(3,25),second=ri(3,25),sum=first+second,given=ri(1,sum-1);
+          +  return input(
+          +   `В первой коробке ${g3Qty(first,"pencil")}, во второй — ${g3Qty(second,"pencil")}. Из двух коробок вместе взяли ${g3Qty(given,"pencil")}. Сколько карандашей осталось в двух коробках вместе?`,
+          +   sum-given,`${first} + ${second} = ${sum} (было)`,`${sum} − ${given}`
+          +  );
+            }
+          - return q;
+          + if(variant==="mulAdd")return input(
+          +  `В ${groups} коробках по ${g3Qty(each,"candy")}, а в пакете ещё ${g3Qty(change,"candy")}. Сколько всего конфет?`,
+          +  total+change,`${groups} · ${each} = ${total} (в коробках)`,`${total} + ${change}`
+          + );
+          + if(variant==="addDiv"){
+          +  const first=ri(2,total-2),second=total-first;
+          +  return input(
+          +   `В первой корзине ${g3Qty(first,"apple")}, во второй — ${g3Qty(second,"apple")}. Все яблоки разложили поровну в ${g3Qty(groups,"box")}. Сколько яблок в одной коробке?`,
+          +   each,`${first} + ${second} = ${total} (всего)`,`${total} : ${groups}`
+          +  );
+          + }
+          + if(variant==="mulSub")return input(
+          +  `В ${groups} коробках по ${g3Qty(each,"toy")}. Из этих коробок вместе взяли ${g3Qty(change,"toy")}. Сколько игрушек осталось во всех коробках?`,
+          +  total-change,`${groups} · ${each} = ${total} (было)`,`${total} − ${change}`
+          + );
+          + if(variant==="divAdd")return input(
+          +  `${g3Qty(total,"sticker")} разложили поровну в ${g3Qty(groups,"box")}. В одну коробку положили ещё ${g3Qty(change,"sticker")}. Сколько наклеек стало в этой коробке?`,
+          +  each+change,`${total} : ${groups} = ${each} (было в одной коробке)`,`${each} + ${change}`
+          + );
+          + if(variant==="undoGrouping")return input(
+          +  `К имевшимся тетрадям добавили ${g3Qty(change,"notebook")}. Все тетради разложили в ${g3Qty(groups,"box")} по ${g3Qty(each,"notebook")} в каждую. Сколько тетрадей было до добавления?`,
+          +  total-change,`${groups} · ${each} = ${total} (стало после добавления)`,`${total} − ${change}`
+          + );
+          + if(variant==="undoRemoval")return input(
+          +  `После того как отдали ${g3Qty(change,"book")}, оставшиеся книги разложили в ${g3Qty(groups,"box")} по ${g3Qty(each,"book")} в каждую. Сколько книг было до того, как часть отдали?`,
+          +  total+change,`${groups} · ${each} = ${total} (осталось после того, как часть отдали)`,`${total} + ${change}`
+          + );
+          + const extra=ri(1,8),other=each+extra;
+          + return input(
+          +  `${g3Qty(total,"badge")} разложили поровну в ${g3Qty(groups,"box")}. В отдельном пакете ${g3Qty(other,"badge")}. На сколько значков больше в пакете, чем в одной коробке?`,
+          +  extra,`${total} : ${groups} = ${each} (в одной коробке)`,`${other} − ${each}`
+          + );
+          +}
+          +
+          +function g3PartsIntroQuestion(d,slot=null){
+          + const variants=[["name","visualName"],["wordToFraction","fractionToWord"],["visualCount","visualRemaining","subdivide"]][d];
+          + const variant=slot===null?g6RandomFrom(variants):variants[slot%variants.length];
+          + const denoms=[2,3,4,5,10];
+          + const split=variant==="subdivide"?g6RandomFrom([[2,2],[2,5],[5,2]]):null;
+          + const n=split?split[0]*split[1]:g6RandomFrom(denoms);
+          + const name=g3UnitFractionName(n);
+          + const whole=variant==="name"?g6RandomFrom(["Целое","Круг","Ленту","Лист"]):"";
+          + const choice=(text,ex,label,correct=n,options=denoms)=>g3ChoiceQuestion(
+          +  text,String(correct),
+          +  [correct,...shuffleOptions(options.filter(x=>x!==correct)).slice(0,3)].map(x=>({key:String(x),label:label(x)})),
+          +  ex,`g3:parts_intro:${d}:${variant}:${split?.join(":")||n}:${whole}`,{variant,denom:n},true
+          + );
+          + if(variant==="name")return choice(
+          +  `${whole} разделили на <b>${g3EqualPartsPhrase(n)}</b>. Как называется одна часть?`,
+          +  `Одна из ${n} равных частей — <b>${name}</b>.`,g3UnitFractionName
+          + );
+          + if(variant==="visualName")return g3AttachPartsVisual(choice(
+          +  "Как называется выделенная на рисунке доля?",
+          +  `Выделена одна из ${n} равных частей — <b>${name}</b>.`,g3UnitFractionName
+          + ),[n],["Выделенная часть"]);
+          + if(variant==="wordToFraction")return choice(
+          +  `Какая запись означает «<b>${name}</b>»?`,
+          +  `Одна из ${n} равных частей записывается как ${g3UnitFractionHtml(n)}.`,g3UnitFractionHtml
+          + );
+          + if(variant==="fractionToWord")return choice(
+          +  `Как называется доля ${g3UnitFractionHtml(n)}?`,
+          +  `${g3UnitFractionHtml(n)} — это <b>${name}</b>.`,g3UnitFractionName
+          + );
+          + if(variant==="visualCount")return g3AttachPartsVisual(choice(
+          +  "Сколько частей размером с выделенную нужно всего, чтобы составить целое?",
+          +  `Целое состоит из ${n} равных частей. Значит, всего нужно <b>${n}</b> таких частей.`,String
+          + ),[n],["Выделенная часть"]);
+          + if(variant==="visualRemaining")return g3AttachPartsVisual(choice(
+          +  "Сколько таких же частей нужно добавить к выделенной, чтобы составить целое?",
+          +  `Всего частей ${n}, одна уже выделена: ${n} − 1 = <b>${n-1}</b>.`,String,n-1,[1,2,3,4,5,9,10]
+          + ),[n],["Выделенная часть"]);
+          + const [first,second]=split;
+          + return choice(
+          +  `Лист разделили на ${g3EqualPartsPhrase(first)}. Одну из этих частей разделили ещё на ${g3EqualPartsPhrase(second)}. Как называется одна новая часть всего листа?`,
+          +  `Если так же разделить каждую исходную часть, получится ${first} · ${second} = ${n} равных частей. Одна из них — <b>${name}</b>.`,
+          +  g3UnitFractionName
+          + );
+           }
+          @@ -7641,4 +7717,10 @@ function makeG3Question(id,stageOverride=null){
+            }
+          - if(raw==="two_step_tasks")return g3TwoStepQuestion(d);
+          - if(raw==="parts_intro")return g3PartsIntroQuestion(d);
+          + if(raw==="two_step_tasks"){
+          +  const live=stageOverride===null&&blockSession?.kind==="g3quiz"&&blockSession.key==="g3:two_step_tasks";
+          +  return g3TwoStepQuestion(d,live?blockSession.done:null);
+          + }
+          + if(raw==="parts_intro"){
+          +  const live=stageOverride===null&&blockSession?.kind==="g3quiz"&&blockSession.key==="g3:parts_intro";
+          +  return g3PartsIntroQuestion(d,live?blockSession.done:null);
+          + }
+            if(raw==="parts_compare")return g3PartsCompareQuestion(d);
+          MATKVEST_PATCH
+          git apply --check "$patch_file"
+          git apply "$patch_file"
+          test "$(git hash-object index.html)" = "1ceeede12bf44d6770ee93c99936e9d4069d664c"
+          test "$(git hash-object audits/g1_g4_content_audit_2026-11-17.md)" = "afe9bc345d0ea57fb9d85b5a21bb869e3f1302b8"
+          git diff --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- index.html audits/g1_g4_content_audit_2026-11-17.md
+          git rm -- .github/workflows/g3-two-step-parts-apply.yml
+          git commit -m 'Audit Grade 3 two-step problems and unit fraction recognition'
+          git push origin HEAD:refs/heads/audit/g1-g4-content-v195
