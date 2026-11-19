@@ -25,17 +25,18 @@ function remainder(dividend, divisor) {
 }
 
 function placeTo1000(d) {
- if (d === 0) {
-  const n = ri(110, 999), power = pickOne([1, 10, 100]), names = {1:'единиц',10:'десятков',100:'сотен'};
-  const answer = Math.floor(n / power) % 10;
-  return number(`Сколько ${names[power]} записано в соответствующем разряде числа ${n}?`, answer, `В разряде ${names[power]} стоит цифра ${answer}.`);
+ if(d===0) {
+  const n=ri(110,999), power=pickOne([1,10,100]), names={1:'единиц',10:'десятков',100:'сотен'};
+  const answer=Math.floor(n/power)%10;
+  return number(`Какая цифра стоит в разряде ${names[power]} числа ${n}?`,answer,`В этом разряде стоит цифра ${answer}.`);
  }
- if (d === 1) {
-  const a = ri(1,9), b = ri(0,9), c = ri(0,9);
-  return number(`Запиши число: ${a} сот. ${b} дес. ${c} ед.`, 100*a+10*b+c, `${a} × 100 + ${b} × 10 + ${c} = ${100*a+10*b+c}.`);
+ if(d===1) {
+  const a=ri(1,9),b=ri(0,9),c=ri(0,9);
+  return number(`Запиши число: ${a} сот. ${b} дес. ${c} ед.`,100*a+10*b+c,`${a} × 100 + ${b} × 10 + ${c} = ${100*a+10*b+c}.`);
  }
- const step = ri(2,9), a = ri(105,1000-3*step);
- return number(`Какое число пропущено в ряду: ${a}, □, ${a+2*step}, ${a+3*step}?`, a+step, `Разность соседних чисел ${step}. ${a} + ${step} = ${a+step}.`);
+ const hundreds=ri(3,9), difference=ri(1,hundreds-1), tens=hundreds-difference, units=ri(0,5), result=100*hundreds+10*tens+units;
+ return number(`В числе ${hundreds} сотен. Десятков на ${difference} меньше, чем сотен. Единиц ${units}. Запиши число.`,result,
+  `${hundreds} − ${difference} = ${tens} (десятков)<br>${100*hundreds} + ${10*tens} + ${units} = ${result}`);
 }
 
 function orderWithin1000(d) {
@@ -46,76 +47,106 @@ function orderWithin1000(d) {
 }
 
 function addSub(d, limit) {
- const a = limit === 1000 ? ri(101,420) : ri([1500,13500,130000][d],[4200,42000,420000][d]);
- const b = ri(Math.ceil(a/5), Math.floor(a/2)), c = ri(15,Math.floor(a/4));
- if (d === 2) {
-  const start = a+b, result = a+c;
-  return number(`Вычисли (${format(start)} − ${format(b)}) + ${format(c)}.`, result,
-   `${format(start)} − ${format(b)} = ${format(a)}<br>${format(a)} + ${format(c)} = ${format(result)}`);
+ const scale=limit===1000?1:100;
+ if(d===0) {
+  const first=100*ri(2,5)+10*ri(3,5)+ri(3,5), second=100*ri(1,2)+10*ri(1,3)+ri(1,3);
+  const subtract=ri(0,1)===1, a=first*scale, b=second*scale, sign=subtract?'−':'+', result=subtract?a-b:a+b;
+  return number(`Вычисли ${format(a)} ${sign} ${format(b)}.`,result,`Считаем по разрядам: ${format(a)} ${sign} ${format(b)} = ${format(result)}.`);
  }
- const subtract = d === 1 || ri(0,1) === 1;
- const result = subtract ? a-b : a+b;
- return number(`Вычисли ${format(a)} ${subtract?'−':'+'} ${format(b)}.`, result, `Результат ${format(result)}. Проверим обратным действием: ${format(result)} ${subtract?'+':'−'} ${format(b)} = ${format(a)}.`);
+ if(d===1) {
+  const low=ri(0,3), high=ri(6,9), a=(100*ri(4,8)+low)*scale, b=(100*ri(1,3)+10*ri(1,9)+high)*scale;
+  return number(`Вычти с переходом через разряд: ${format(a)} − ${format(b)}.`,a-b,
+   `Занимаем единицу из старшего разряда через разряд с нулём. Проверка: ${format(a-b)} + ${format(b)} = ${format(a)}.`);
+ }
+ const a=ri(370,610)*scale,b=ri(110,290)*scale,c=ri(30,170)*scale, result=a-b+c;
+ return number(`Сначала вычти ${format(b)} из ${format(a)}, затем прибавь ${format(c)}. Запиши результат.`,result,
+  `${format(a)} − ${format(b)} = ${format(a-b)}<br>${format(a-b)} + ${format(c)} = ${format(result)}`);
 }
 
 function multiply(d, mode) {
- const multiplicands = {
-  small:[[11,27],[28,75],[101,109]],
-  one:[[123,854],[1206,9908],[12005,95090]],
-  trailing:[[12,89],[121,879],[1030,9008]],
+ const bounds={
+  small:[[11,29],[31,96],[32,99]],
+  one:[[123,854],[1206,9908],[1205,9509]],
+  trailing:[[12,89],[121,879],[103,900]],
   trailingOne:[[12,89],[121,879],[130,900]],
-  double:[[12,96],[123,862],[901,1009]],
-  triple:[[12,96],[110,745],[1002,1980]]
+  double:[[12,96],[123,862],[101,909]],
+  triple:[[12,96],[110,745],[102,890]]
  };
- const [low, high] = multiplicands[mode][d], a = ri(low,high)*(mode==='trailingOne'?10**(d+1):1);
- const multiplier = {
-  small: () => ri(2,9), one: () => ri(2,9), trailingOne: () => ri(2,9),
-  trailing: () => ri(2,d === 0 ? 9 : 89) * 10 ** (d === 2 ? ri(2,3) : 1),
-  double: () => ri(11,99), triple: () => d === 2 ? (ri(1,8) * 100 + ri(1,9)) : ri(101,999)
- };
- const b = multiplier[mode](), result = a*b;
- const parts = [...String(b)].map((digit,index)=>Number(digit)*10**(String(b).length-index-1)).filter(Boolean);
- const partial = parts.map(p=>a*p);
- const steps = parts.length === 1 ? `${format(a)} × ${format(b)} = ${format(result)}.` :
-  parts.map((p,i)=>`${format(a)} × ${format(p)} = ${format(partial[i])}`).join('<br>') +
-  `<br>${partial.map(format).join(' + ')} = ${format(result)}`;
- if (d === 2 && mode === 'double') {
-  const [tens, units = 0] = parts;
-  const ask = ri(0,1) && units ? units : tens;
-  return number(`При умножении ${format(a)} × ${b} найди неполное произведение ${format(a)} × ${ask}.`, a*ask, steps);
+ const [low,high]=bounds[mode][d];
+ const raw=ri(low,high), nonRound=d===1&&raw%10===0?raw+1:raw;
+ const a=nonRound*(mode==='trailingOne'?10**(d+1):1);
+ const b={
+  small:()=>ri(2,9),one:()=>ri(2,9),trailingOne:()=>ri(2,9),
+  trailing:()=>ri(2,d===0?9:89)*10**(d===2?ri(2,3):1),
+  double:()=>10*ri(1,9)+ri(2,9),triple:()=>100*ri(1,8)+10*(d===2?0:ri(1,9))+ri(2,9)
+ }[mode]();
+ const result=a*b, parts=[...String(b)].map((digit,i)=>Number(digit)*10**(String(b).length-i-1)).filter(Boolean);
+ if(d===0) return number(`Вычисли ${format(a)} × ${format(b)}.`,result,`${format(a)} × ${format(b)} = ${format(result)}.`);
+ if(d===1){
+  const splitLeft=parts.length===1;
+  const value=splitLeft?a:b, other=splitLeft?b:a;
+  const head=Number(String(value)[0])*10**(String(value).length-1), tail=value-head;
+  return number(`Разложили ${format(value)} на ${format(head)} и ${format(tail)}. При умножении на ${format(other)} первый частичный результат равен ${format(head*other)}. Найди второе частичное произведение.`,
+   tail*other,`${format(tail)} × ${format(other)} = ${format(tail*other)}.`);
  }
- if (d === 2 && mode === 'triple') {
-  const ask = pickOne(parts);
-  return number(`Разложи ${b} на разрядные слагаемые. Найди только неполное произведение ${format(a)} × ${ask}.`, a*ask, steps);
+ const other=ri(2,8), combined=(a+other)*b;
+ if(mode==='double'||mode==='triple'){
+  const productRows=parts.map(p=>`${format(a)} × ${format(p)} = ${format(a*p)}`).join('<br>');
+  const final=result+other*b;
+  return number(`Проверь два заказа: в первом ${format(a)} наборов по ${format(b)} деталей, во втором ${other} таких наборов. Сколько деталей в обоих заказах?`,final,
+   `${productRows}<br>В первом заказе ${format(result)} деталей.<br>${other} × ${format(b)} = ${format(other*b)}<br>${format(result)} + ${format(other*b)} = ${format(final)}`);
  }
- return number(`Вычисли ${format(a)} × ${format(b)}.`, result, steps);
+ return number(`В равенстве □ × ${format(b)} + ${format(other*b)} = ${format(combined)} пропущен множитель. Найди его.`,a,
+  `${format(combined)} − ${format(other*b)} = ${format(result)}<br>${format(result)} : ${format(b)} = ${format(a)}`);
 }
 
 function divide(d, mode) {
- const divisor = {
-  small: () => ri(2,9), one: () => ri(2,9),
-  trailing: () => ri(2,d === 0 ? 9 : 49)*10**(d === 2 ? ri(2,3) : 1),
-  double: () => ri(11,99), triple: () => ri(101,999)
+ const divisor={
+  small:()=>ri(2,9),one:()=>ri(2,9),
+  trailing:()=>ri(2,d===0?9:49)*10**(d===2?ri(2,3):1),
+  double:()=>ri(11,99),triple:()=>ri(101,999)
  }[mode]();
- const [low, high] = mode === 'small' ? [[11,35],[36,75],[76,109]][d] : [[12,79],[101,590],[1001,2909]][d];
- const ordinary = ri(low,high);
- const quotient = d === 2 && mode === 'one' ? 1000*ri(1,8)+ri(1,9) : ordinary;
- const dividend = divisor * quotient;
- const steps = `Проверка: ${format(quotient)} × ${format(divisor)} = ${format(dividend)}.`;
- if (d === 2 && ['trailing','double','triple'].includes(mode)) return remainder(dividend+ri(1,divisor-1),divisor);
- return number(`Вычисли ${format(dividend)} : ${format(divisor)}.`, quotient, steps);
+ const [lo,hi]=mode==='small'?[[11,35],[36,74],[47,90]][d]:[[12,79],[101,590],[1001,2909]][d];
+ const quotient=d===1&&mode==='one'?100*ri(1,8)+ri(1,9):ri(lo,hi), dividend=divisor*quotient;
+ if(d===0) return number(`Вычисли ${format(dividend)} : ${format(divisor)}.`,quotient,
+  `Проверка: ${format(quotient)} × ${format(divisor)} = ${format(dividend)}.`);
+ if(d===1){
+  const part=divisor*ri(1,9);
+  return number(`Раздели сумму ${format(dividend)} + ${format(part)} на ${format(divisor)}. Укажи частное.`,quotient+part/divisor,
+   `${format(dividend)} : ${format(divisor)} = ${format(quotient)}<br>${format(part)} : ${format(divisor)} = ${part/divisor}<br>${format(quotient)} + ${part/divisor} = ${format(quotient+part/divisor)}`);
+ }
+ if(['trailing','double','triple'].includes(mode)){
+  const rest=ri(1,divisor-1), carry=ri(1,4), total=dividend+rest, putAside=divisor*carry;
+  return number(`Было ${format(total)} карточек. ${format(putAside)} карточек отложили. Остальные распределяют по ${format(divisor)} в каждую полную группу. Сколько полных групп получится?`,quotient-carry,
+   `${format(total)} − ${format(putAside)} = ${format(total-putAside)}<br>${format(divisor)} × ${format(quotient-carry)} + ${rest} = ${format(total-putAside)}<br>Полных групп ${format(quotient-carry)}, остаток ${rest}.`);
+ }
+ const taken=ri(2,9), used=divisor*taken;
+ return number(`В запасе ${format(dividend)} карандашей. ${used} карандашей отложили, а оставшиеся разложили по ${divisor} в каждую группу. Сколько групп получилось?`,quotient-taken,
+  `${format(dividend)} − ${used} = ${format(dividend-used)}<br>${format(dividend-used)} : ${divisor} = ${quotient-taken}`);
 }
 
 function numberClasses(d, large=false) {
  const groups = ['единиц','тысяч','миллионов','миллиардов'];
+ if(large&&d===2){
+  const billions=ri(2,99), millions=ri(1,99), thousands=ri(0,9), units=ri(1,9);
+  const result=billions*1e9+millions*1e6+thousands*1000+units;
+  return number(`Собери число: ${billions} млрд ${millions} млн ${thousands} тыс. ${units} ед.`,result,
+   `Каждый класс после миллиардов пишем тремя цифрами: ${format(result)}.`);
+ }
  if(!large && d===2) {
   const thousands=ri(110,986), units=ri(1,99), value=thousands*1000+units;
   return number(`Собери число из двух классов: класс тысяч — ${thousands}, класс единиц — ${String(units).padStart(3,'0')}.`,
    value,`${thousands} × 1 000 + ${units} = ${format(value)}.`);
  }
- const index = large ? (d===0 ? 2 : d===1 ? 3 : ri(2,3)) : d;
+ if(!large&&d===1){
+  const thousands=ri(21,990), units=ri(1,999), decrease=ri(2,15);
+  const numberBefore=thousands*1000+units, result=(thousands-decrease)*1000+units;
+  return number(`В числе ${format(numberBefore)} уменьши число в классе тысяч на ${decrease}, сохрани класс единиц. Запиши результат.`,result,
+   `${thousands} − ${decrease} = ${thousands-decrease} (тыс.)<br>${format(result)}`);
+ }
+ const index=large?[2,3][d]:0;
  const chosen = ri(102,987), scale = 1000**index, tail = ri(1,999);
- const higher = index === 0 ? ri(1,99)*1000 : large && index===2 && d===2 ? ri(1,888)*scale*1000 : 0;
+ const higher=index===0?ri(1,99)*1000:0;
  const n = higher + chosen*scale + (index === 0 ? 0 : tail);
  return number(`В числе ${format(n)} запиши число, образованное цифрами класса ${groups[index]}.`, chosen,
   `Отделяем тройки цифр справа налево: ${format(n)}. В нужном классе — ${chosen}.`);
@@ -132,43 +163,69 @@ function numberReading(d) {
  if(d===0) return choice(`Как прочитать число <b>${format(value)}</b>?`,spoken(upper,tail),
   [spoken(upper+1,tail),spoken(upper,tail+1),spoken(upper+2,tail+5)],steps);
  const alternatives=[upper*10000+tail, upper*1000+tail*10, upper*1000+100+tail];
- return choice(`Как записать цифрами: <b>${spoken(upper,tail)}</b>?`,format(value),alternatives.map(format),steps);
+ if(d===1) return choice(`Как записать цифрами: <b>${spoken(upper,tail)}</b>?`,format(value),alternatives.map(format),steps);
+ return number(`При записи числа «${spoken(upper,tail)}» забыли нули в классе единиц. Запиши число правильно.`,value,steps);
 }
 
 function numberWriting(d) {
- const thousands = ri([2,12,105][d],[9,90,999][d]), units = d === 2 ? ri(1,9) : ri(10,999);
- const value = thousands*1000+units;
- if (d === 0) return number(`Запиши число: ${thousands} тыс. ${units} ед.`, value, `${thousands} × 1 000 + ${units} = ${format(value)}.`);
- if (d === 1) return number(`Запиши число, в котором ${thousands} единиц класса тысяч и ${units} единиц класса единиц.`,value,`${thousands} × 1 000 + ${units} = ${format(value)}.`);
- const hundreds = ri(1,9);
- return number(`Запиши число: ${thousands} единиц класса тысяч, ${hundreds} сот. и ${units} ед. класса единиц.`,
-   value+100*hundreds,`${thousands} × 1 000 + ${hundreds} × 100 + ${units} = ${format(value+100*hundreds)}.`);
+ const thousands=ri([2,12,105][d],[9,90,999][d]), units=d===0?ri(10,999):ri(1,9);
+ if(d===0){
+  const value=thousands*1000+units;
+  return number(`Запиши число: ${thousands} тыс. ${units} ед.`,value,`${thousands} × 1 000 + ${units} = ${format(value)}.`);
+ }
+ const hundreds=ri(1,9);
+ if(d===1){
+  const value=thousands*1000+hundreds*100+units;
+  return number(`Запиши число: ${thousands} тыс., ${hundreds} сот., десятков нет, ${units} ед.`,value,
+   `${thousands} × 1 000 + ${hundreds} × 100 + ${units} = ${format(value)}. В разряде десятков стоит 0.`);
+ }
+ const tens=pickOne([1,2,3,4,5,6,7,8,9].filter(x=>x!==hundreds)), value=thousands*1000+100*hundreds+10*tens+units;
+ const difference=Math.abs(hundreds-tens);
+ return number(`Запиши шестизначное число. В классе тысяч записано ${thousands}, в классе единиц ${hundreds} сот., на ${difference} ${tens<hundreds?'меньше':'больше'} десятков и ${units} ед.`,
+  value,`Десятков ${hundreds} ${tens<hundreds?'−':'+'} ${difference} = ${tens}.<br>${thousands} × 1 000 + ${hundreds*100} + ${tens*10} + ${units} = ${format(value)}.`);
 }
 
 function expanded(d) {
- const n = ri([1001,10011,102001][d],[9989,99898,998998][d]);
- const parts = [...String(n)].map((digit,index)=>Number(digit)*10**(String(n).length-index-1)).filter(Boolean);
- if(d === 2) {
-  const index = ri(0,parts.length-1), missing = parts[index];
-  return number(`Восстанови пропущенное разрядное слагаемое:<br>${format(n)} = ${parts.map((p,i)=>i===index?'□':format(p)).join(' + ')}.`, missing,
-   `${format(n)} = ${parts.map(format).join(' + ')}.`);
+ const n=ri([1001,10011,102001][d],[9989,99898,998998][d]);
+ const parts=[...String(n)].map((digit,index)=>Number(digit)*10**(String(n).length-index-1)).filter(Boolean), sum=parts.map(format).join(' + ');
+ if(d===0) return number(`Запиши одним числом: ${sum}.`,n,`Складываем разрядные слагаемые: ${format(n)}.`);
+ if(d===1){
+  const part=pickOne(parts);
+  return number(`Какое разрядное слагаемое в числе ${format(n)} соответствует цифре ${String(part)[0]} в разряде ${['единиц','десятков','сотен','тысяч','десятков тысяч'][String(part).length-1]}?`,part,
+   `Разложим число: ${format(n)} = ${sum}. Нужное слагаемое ${format(part)}.`);
  }
- return number(`Запиши одним числом: ${parts.map(format).join(' + ')}.`, n, `Складываем разрядные слагаемые. Получаем ${format(n)}.`);
+ const index=ri(0,parts.length-1), missing=parts[index];
+ return number(`Восстанови пропущенное разрядное слагаемое:<br>${format(n)} = ${parts.map((p,i)=>i===index?'□':format(p)).join(' + ')}.`,missing,
+  `${format(n)} = ${sum}.`);
 }
 
 function compareNumbers(d) {
- const a = ri([1200,12000,120000][d],[9400,94000,940000][d]), delta = pickOne([-2,-1,0,1,2]) * [100,10,1][d], b = a+delta;
- const answer = a>b?'&gt;':a<b?'&lt;':'=';
- const labels = {'&gt;':'>','&lt;':'<','=':'='};
- return choice(`Какой знак подходит?<br>${format(a)} □ ${format(b)}`,labels[answer],Object.values(labels).filter(x=>x!==labels[answer]),
-  `${format(a)} ${answer} ${format(b)}. Сравниваем разряды слева направо.`);
+ if(d===2) {
+  const middle=ri(120001,939997), distances=[ri(10,99),ri(1,9)], values=sh([middle-distances[0],middle,middle+distances[1]]);
+  return number(`Расположи числа ${values.map(format).join(', ')} по возрастанию. Запиши среднее число в этом порядке.`,middle,
+   `${format(middle-distances[0])} &lt; ${format(middle)} &lt; ${format(middle+distances[1])}.`);
+ }
+ const a=ri(d===0?1200:12000,d===0?9400:94000);
+ const b=d===0?pickOne([ri(110,999),ri(11000,16000)]):a+ri(-8,8);
+ const [left,right]=sh([a,b]), answer=left>right?'>':left<right?'<':'=';
+ return choice(`${d===0?'Сравни числа с разным количеством цифр':'Сравни числа одинаковой длины'}:<br>${format(left)} □ ${format(right)}`,
+  answer,['>','<','='].filter(value=>value!==answer),`${format(left)} ${esc(answer)} ${format(right)}. ${d===0?'Сначала сравниваем количество цифр.':'Сравниваем цифры слева направо.'}`);
 }
 
 function timesTen(d) {
- const factor = [10,100,1000][d], a = ri(12,d===2?979:99), product = a*factor;
- const shrink = ri(0,1) === 1;
- return number(shrink?`Уменьши ${format(product)} в ${format(factor)} раз.`:`Увеличь ${format(a)} в ${format(factor)} раз.`,
-  shrink?a:product, shrink?`${format(product)} : ${format(factor)} = ${format(a)}.`:`${format(a)} × ${format(factor)} = ${format(product)}.`);
+ const a=ri(13,849);
+ if(d===0){
+  const factor=pickOne([10,100,1000]);
+  return number(`Увеличь ${format(a)} в ${format(factor)} раз.`,a*factor,`${format(a)} × ${format(factor)} = ${format(a*factor)}.`);
+ }
+ if(d===1){
+  const factor=pickOne([10,100,1000]);
+  return number(`Во сколько раз надо уменьшить ${format(a*factor)}, чтобы получить ${format(a)}?`,factor,
+   `${format(a*factor)} : ${format(a)} = ${format(factor)}.`);
+ }
+ const first=pickOne([100,1000]), second=first/10, product=a*first;
+ return number(`Число ${format(a)} сначала увеличили в ${format(first)} раз, а затем уменьшили в ${format(second)} раз. Какое число получилось?`,a*10,
+  `${format(a)} × ${format(first)} = ${format(product)}<br>${format(product)} : ${format(second)} = ${format(a*10)}`);
 }
 
 const units = {
@@ -179,12 +236,18 @@ const units = {
 };
 
 function convert(d, kind, pairs=units[kind]) {
- const [small,big,factor] = pairs[d === 0 ? ri(0,Math.min(1,pairs.length-1)) : ri(0,pairs.length-1)];
- const amount = ri(2,d === 2 ? 38 : 24), rest = ri(1,Math.min(factor-1,99));
- if(d === 0) return number(`Сколько ${small} в ${amount} ${big}?`,amount*factor,`1 ${big} = ${format(factor)} ${small}<br>${amount} × ${format(factor)} = ${format(amount*factor)}`,small);
- if(d === 1) return number(`Вырази ${format(amount*factor)} ${small} в ${big}.`,amount,`${format(amount*factor)} : ${format(factor)} = ${amount}.`,big);
- const result = amount*factor+rest;
- return number(`Вырази ${amount} ${big} ${rest} ${small} в ${small}.`,result,`${amount} × ${format(factor)} + ${rest} = ${format(result)}.`,small);
+ const [small,big,factor]=pairs[d===0?ri(0,Math.min(1,pairs.length-1)):ri(0,pairs.length-1)];
+ const amount=ri(2,24), base=amount*factor;
+ if(d===0) return number(`Сколько ${small} в ${amount} ${big}?`,base,
+  `1 ${big} = ${format(factor)} ${small}<br>${amount} × ${format(factor)} = ${format(base)}`,small);
+ if(d===1){
+  const rest=ri(1,Math.min(factor-1,99)), result=base+rest;
+  return number(`Вырази ${amount} ${big} ${rest} ${small} в ${small}.`,result,
+   `${amount} × ${format(factor)} + ${rest} = ${format(result)}.`,small);
+ }
+ const rest=ri(3,Math.min(factor-1,99)), smaller=base+ri(1,rest-1), result=base+rest;
+ return number(`На сколько ${small} величина ${amount} ${big} ${rest} ${small} больше величины ${format(smaller)} ${small}?`,
+  result-smaller,`${amount} × ${format(factor)} + ${rest} = ${format(result)} (${small})<br>${format(result)} − ${format(smaller)} = ${result-smaller} (${small})`,small);
 }
 
 function gridArea(d) {
@@ -203,42 +266,58 @@ function gridArea(d) {
  const side = d < 2 ? ri(1,3)*2 : ri(4,8)*2, area = side*side;
  const answer = (fullCells+partial/2)*area;
  const svg = `<svg width="${width*17+8}" height="${height*17+8}" viewBox="0 0 ${width*17+8} ${height*17+8}" role="img" aria-label="Палетка с закрашенными клетками">${cells}</svg>`;
- const question=number(`Найди площадь закрашенной фигуры. Сторона клетки ${side} см.<br>${svg}`,answer,
-  `Площадь клетки: ${side} × ${side} = ${area} см².<br>Полных клеток ${fullCells}, половинок ${partial}.<br>Площадь фигуры ${answer} см².`,'см²');
- question.sig=['grid',width,height,cutX,cutY,partial,side].join(':');
+ const another=area*ri(1,3);
+ const compare=d===2?` На сколько квадратных сантиметров площадь закрашенной фигуры больше ${another} см²?`:' Найди площадь закрашенной фигуры.';
+ const steps=`Площадь клетки: ${side} × ${side} = ${area} см².<br>Полных клеток ${fullCells}, половинок ${partial}.<br>Площадь фигуры ${answer} см².`;
+ const question=number(`Сторона клетки ${side} см.${compare}<br>${svg}`,d===2?answer-another:answer,
+  steps+(d===2?`<br>${answer} − ${another} = ${answer-another} см².`:''),'см²');
+ question.sig=['grid',width,height,cutX,cutY,partial,side,d===2?another:0].join(':');
  return question;
 }
 
 function clock(d) {
- const hour = ri(8,17), minute = ri(0,11)*5, minutes = ([0,1,2][d]+1)*60+ri(1,8)*5;
- const start = hour*60+minute, end = start+minutes;
- const display = time => `${Math.floor(time/60)}:${String(time%60).padStart(2,'0')}`;
- if(d===0) return number(`Занятие началось в ${display(start)} и закончилось в ${display(end)}. Сколько минут оно длилось?`,minutes,
-  `${end} − ${start} = ${minutes} мин — длительность занятия.`,'мин');
- if(d===1) {
-  const finishHour=Math.floor(end/60);
-  return number(`Событие началось в ${display(start)} и длилось ${minutes} минут. В ответ запиши час окончания по 24-часовым часам (без минут).`,
-   finishHour,`${display(start)} + ${minutes} мин = ${display(end)}. Час окончания — ${finishHour}.`);
+ const minute=ri(0,4)*5, hour=ri(8,17), display=time=>`${Math.floor(time/60)%24}:${String(time%60).padStart(2,'0')}`;
+ if(d===0){
+  const start=hour*60+minute, length=ri(1,7)*5, end=start+length;
+  return number(`Занятие началось в ${display(start)}, закончилось в ${display(end)}. Сколько минут оно длилось?`,length,
+   `Час тот же. Вычитаем минуты: ${end%60} − ${start%60} = ${length} мин.`,'мин');
  }
- return number(`Встреча закончилась в ${display(end)} и длилась ${minutes} минут. Сколько минут оставалось от её начала до 18:00?`,
-  1080-start,`${display(end)} − ${minutes} мин = ${display(start)}.<br>${1080} − ${start} = ${1080-start} мин.`,'мин');
+ if(d===1){
+  const start=hour*60+ri(8,11)*5, length=ri(7,14)*5, end=start+length;
+  return g3TimeInputQuestion(`Событие началось в ${display(start)} и длилось ${length} мин. Во сколько оно закончилось?`,end,
+   `${display(start)} + ${length} мин = ${display(end)}.`,`clock:end:${start}:${length}`);
+ }
+ const before=ri(1,11)*5, after=ri(2,15)*5, stop=ri(1,Math.min(5,(before+after)/5-1))*5;
+ return number(`Поезд вышел в ${display(1440-before)} и прибыл в ${display(after)} уже на следующий день. Стоянка заняла ${stop} мин. Сколько минут поезд был в движении?`,
+  before+after-stop,`До полуночи ${before} мин, после полуночи ${after} мин.<br>${before} + ${after} − ${stop} = ${before+after-stop} мин.`,'мин');
 }
 
 function calendar(d) {
- const start = ri(2001,2089), years = ri(2,17), y = start+years;
- if(d === 0) return number(`Сколько месяцев в ${years} полных годах?`,years*12,`${years} × 12 = ${years*12}.`,'мес');
- if(d === 1) return number(`Сколько лет пройдёт от 1 января ${start} года до 1 января ${y} года?`,years,`${y} − ${start} = ${years}.`,'лет');
- const ordinary = ri(2,9), leap = ri(2,5), result=ordinary*365+leap*366;
+ const years=ri(2,17);
+ if(d===0) return number(`Сколько месяцев в ${years} полных годах?`,years*12,`${years} × 12 = ${years*12}.`,'мес');
+ if(d===1){
+  const month=ri(1,11);
+  return number(`До ремонта осталось ${years} г. ${month} мес. Сколько всего месяцев до ремонта?`,
+   years*12+month,`${years} × 12 + ${month} = ${years*12+month}.`,'мес');
+ }
+ const ordinary=ri(2,9), leap=ri(2,5), result=ordinary*365+leap*366;
  return number(`Сколько дней в ${ordinary} обычных и ${leap} високосных годах вместе?`,result,
   `${ordinary} × 365 + ${leap} × 366 = ${result}.`,'дн.');
 }
 
 function centuries(d) {
- const century = ri(2,21), years = ri(1,99);
- const year = (century-1)*100 + (d===0?years:d===1?100:1);
- if(d===0) return number(`К какому веку относится ${year} год? Напиши номер века.`,century,`Это один из годов с ${(century-1)*100+1}-го по ${century*100}-й — ${century}-й век.`);
- if(d===1) return number(`Какой год завершает ${century}-й век?`,year,`${century} × 100 = ${year}.`);
- return number(`Какой год открывает ${century}-й век?`,year,`Последний год предыдущего века — ${year-1}. Следующий год — ${year}.`);
+ const century=ri(2,21), first=(century-1)*100+1, last=century*100;
+ if(d===0){
+  const year=first+ri(1,98);
+  return number(`К какому веку относится ${year} год? Напиши номер века.`,century,`${century}-й век: от ${first}-го до ${last}-го года.`);
+ }
+ if(d===1){
+  const end=ri(0,1)===1, year=end?last:first;
+  return number(`Какой год ${end?'завершает':'открывает'} ${century}-й век?`,year,`Годы ${century}-го века идут от ${first} до ${last}.`);
+ }
+ const elapsed=ri(16,80), year=first+elapsed;
+ return number(`Событие произошло в ${year} году. Сколько полных лет оставалось от начала этого года до начала следующего века?`,
+  last+1-year,`Следующий век начинается ${last+1}-м годом.<br>${last+1} − ${year} = ${last+1-year} (лет).`,'лет');
 }
 
 function unknown(d, type) {
@@ -252,37 +331,63 @@ function unknown(d, type) {
   divisor:[`${x*b} : x = ${b}`,`${x*b} : ${b}`,`Делимое делим на частное.`]
  }[type];
  const [equation, expression, rule] = model;
+ const [left, right]=equation.split(' = '), target=Number(right), offset=ri(3,12);
+ const rhs=d===0?right:d===1?`${target+offset} − ${offset}`:`(${2*target+offset} − ${offset}) : 2`;
+ const preparation=d===0?'':d===1?`${rhs} = ${target}<br>`:
+  `${2*target+offset} − ${offset} = ${2*target}<br>${2*target} : 2 = ${target}<br>`;
  const answer = type==='dividend'?x*b:type==='subFrom'?x+a:x;
- return number(`Реши уравнение ${equation}.`,answer,`${rule}<br>x = ${expression}<br>x = ${answer}`);
+ return number(`Реши уравнение ${left} = ${rhs}.`,answer,`${preparation}${rule}<br>x = ${expression}<br>x = ${answer}`);
 }
 
 function fractionsOf(d) {
- const den = ri(3+d,10+d), numerator = d === 0 ? 2 : ri(2,den-1), one = ri(3,23+d*20), all = den*one, part = numerator*one;
- if (d === 2) return number(`В ленте ${all} см. Сколько сантиметров останется, если отрезать ${frac(numerator,den)} ленты?`,
-  all-part,`${all} : ${den} = ${one}<br>${one} × ${numerator} = ${part}<br>${all} − ${part} = ${all-part}`,'см');
- return number(`Найди ${frac(numerator,den)} от ${all}.`,part,`${all} : ${den} = ${one}<br>${one} × ${numerator} = ${part}`);
+ const den=ri(4+d,10+d), numerator=d===0?2:ri(2,den-1), one=ri(3,23+d*20), all=den*one, part=numerator*one;
+ const steps=`${all} : ${den} = ${one}<br>${one} × ${numerator} = ${part}`;
+ if(d===0) return number(`Найди ${frac(numerator,den)} от ${all}.`,part,steps);
+ if(d===1) return number(`В альбоме ${all} страниц. Ученик заполнил ${frac(numerator,den)} всех страниц. Сколько страниц он заполнил?`,part,steps);
+ return number(`В ленте ${all} см. Сколько сантиметров останется, если отрезать ${frac(numerator,den)} ленты?`,
+  all-part,`${steps}<br>${all} − ${part} = ${all-part}`,'см');
 }
 
-function quantityOperation(d, product=false) {
- const kind = pickOne(['length','mass','time']), [small,big,factor] = pickOne(units[kind].filter(pair=>pair[2]<=1000&&pair[1]!=='в.'));
- const major = ri(2,12+d*4), minor = ri(1,factor-1), quantity=major*factor+minor;
- const b = product ? ri(2,7+d) : ri(d===2?factor+1:2,d===0?factor-1:Math.min(factor*2,quantity));
- const op = product?'×':d===0?'+':'−', answer = product?quantity*b:d===0?quantity+b:quantity-b;
- const amount = d===2 ? `${Math.floor(b/factor)} ${big} ${b%factor} ${small}` : `${b} ${small}`;
- return number(`Вычисли (${major} ${big} ${minor} ${small}) ${op} ${product?b:amount}. Ответ запиши в ${small}.`, answer,
-  `${major} × ${factor} + ${minor} = ${quantity} (${small})<br>${quantity} ${op} ${b} = ${answer}`,small);
+function quantityOperation(d, product) {
+ const kind=pickOne(['length','mass','time']);
+ const [small,big,factor]=pickOne(units[kind].filter(pair=>pair[2]<=1000&&pair[1]!=='в.'));
+ const major=ri(2,12+d*4), minor=ri(1,factor-1), value=major*factor+minor;
+ const sign=ri(0,1)===1?'−':'+';
+ if(d===0){
+  const b=ri(1,major-1), count=ri(2,8);
+  const answer=product?major*count:sign==='−'?major-b:major+b;
+  const expression=product?`${major} ${big} × ${count}`:`${major} ${big} ${sign} ${b} ${big}`;
+  return number(`Вычисли ${expression}. Ответ запиши в ${big}.`,answer,
+   `${product?`${major} × ${count}`:`${major} ${sign} ${b}`} = ${answer} (${big}).`,big);
+ }
+ if(d===1){
+  const b=product?ri(2,8):ri(1,factor-1), operator=product?'×':sign;
+  const answer=product?value*b:sign==='−'?value-b:value+b;
+  return number(`Вычисли (${major} ${big} ${minor} ${small}) ${operator} ${b}${product?'':` ${small}`}. Ответ запиши в ${small}.`,
+   answer,`${major} × ${factor} + ${minor} = ${value} (${small})<br>${value} ${operator} ${b} = ${answer}`,small);
+ }
+ if(product){
+  const count=ri(2,8), other=ri(1,9), total=value*count+other;
+  return number(`Чтобы получить ${format(total)} ${small}, несколько раз взяли по ${major} ${big} ${minor} ${small}, а затем прибавили ${other} ${small}. Сколько раз взяли эту величину?`,
+   count,`${major} × ${factor} + ${minor} = ${value} (${small})<br>${format(total)} − ${other} = ${format(value*count)}<br>${format(value*count)} : ${value} = ${count}`);
+ }
+ const major2=ri(1,major-1), minor2=ri(1,factor-1), value2=major2*factor+minor2;
+ return number(`На сколько ${small} величина ${major} ${big} ${minor} ${small} больше величины ${major2} ${big} ${minor2} ${small}?`,
+  value-value2,`${major} × ${factor} + ${minor} = ${value}<br>${major2} × ${factor} + ${minor2} = ${value2}<br>${value} − ${value2} = ${value-value2} (${small})`,small);
 }
 
 function propertyProduct(d, property) {
  const a = ri(12,65+d*12), b = ri(2,9), c = ri(2,8), result = a*b*c;
  if(property==='multiply') {
-  if(d===0) return number(`Вычисли ${a} × (${b} × ${c}).`,result,`${b} × ${c} = ${b*c}<br>${a} × ${b*c} = ${result}`);
+  if(d===0) return number(`В выражении ${a} × (${b} × ${c}) найди произведение в скобках.`,b*c,`${b} × ${c} = ${b*c}.`);
   if(d===1) return number(`Вычисли (${a} × ${b}) × ${c} удобным способом.`,result,`${b} × ${c} = ${b*c}<br>${a} × ${b*c} = ${result}`);
   return number(`Какое число пропущено в равенстве? ${a} × (□ × ${c}) = ${result}`,b,`${result} : ${a} = ${b*c}<br>${b*c} : ${c} = ${b}`);
  }
  const dividend = a*b*c, divisor = b*c;
  if(d===2) return number(`Восстанови пропуск: ${format(dividend)} : (${b} × □) = ${a}.`,c,`${format(dividend)} : ${a} = ${divisor}<br>${divisor} : ${b} = ${c}`);
- return number(d===0?`Вычисли ${format(dividend)} : (${b} × ${c}).`:`Вычисли (${format(dividend)} : ${c}) : ${b}.`,a,
+ if(d===0) return number(`Чему равен делитель в записи ${format(dividend)} : (${b} × ${c})?`,divisor,
+  `${b} × ${c} = ${divisor}.`);
+ return number(`Раздели ${format(dividend)} на произведение ${b} и ${c}. Запиши частное.`,a,
   `${format(dividend)} : ${c} = ${a*b}<br>${a*b} : ${b} = ${a}`);
 }
 
@@ -321,8 +426,9 @@ function movement(d, kind) {
   if(d===0) return number(`Два велосипедиста выехали ${path} одновременно. Скорости ${speed} км/ч и ${second} км/ч. ${kind==='meeting'?`Каково расстояние между пунктами, если велосипедисты встретились через ${time} ч?`:`Какое расстояние будет между велосипедистами через ${time} ч?`}`,whole,`${speed} + ${second} = ${sum} (км/ч)<br>${sum} × ${time} = ${whole} (км)`,'км');
   if(d===1) return number(`Два велосипедиста выехали ${path} одновременно со скоростями ${speed} км/ч и ${second} км/ч. Через сколько часов ${kind==='meeting'?`они встретятся, если между пунктами ${whole} км`:`между ними будет ${whole} км`}?`,time,
    `${speed} + ${second} = ${sum} (км/ч)<br>${whole} : ${sum} = ${time} (ч)`,'ч');
-  return number(`Два велосипедиста выехали ${path} одновременно. ${kind==='meeting'?`Между пунктами ${whole} км, встреча через ${time} ч.`:`Через ${time} ч между ними ${whole} км.`} Первый ехал со скоростью ${speed} км/ч. Найди скорость второго.`,second,
-   `${whole} : ${time} = ${sum} (км/ч)<br>${sum} − ${speed} = ${second} (км/ч)`,'км/ч');
+  const gap=second-speed;
+  return number(`Два велосипедиста выехали ${path} одновременно. ${kind==='meeting'?`Между пунктами ${whole} км, встреча через ${time} ч.`:`Через ${time} ч между ними ${whole} км.`} Первый ехал со скоростью ${speed} км/ч. На сколько километров в час второй ехал быстрее первого?`,gap,
+   `${whole} : ${time} = ${sum} (км/ч)<br>${sum} − ${speed} = ${second} (км/ч)<br>${second} − ${speed} = ${gap} (км/ч)`,'км/ч');
  }
  if(d===0) return number(`Велосипедист едет со скоростью ${speed} км/ч. Какое расстояние он проедет за ${time} ч?`,distance,`${speed} × ${time} = ${distance} (км)`,'км');
  if(d===1) return number(`Велосипедист проехал ${distance} км за ${time} ч. Найди скорость.`,speed,`${distance} : ${time} = ${speed} (км/ч)`,'км/ч');
@@ -335,22 +441,29 @@ function proportions(d, kind) {
  if(kind==='two') {
   if(d===0) return number(`В двух коробках одинаковые наборы карандашей. В первой ${b} наборов, во второй ${a}. В первой коробке на ${per*(b-a)} карандашей больше. Сколько карандашей в наборе?`,per,
    `${b} − ${a} = ${b-a} (наборов)<br>${per*(b-a)} : ${b-a} = ${per} (карандашей)`);
-  const count = d===1?a:b;
-  return number(`В первой коробке ${b} одинаковых наборов, во второй ${a}. В первой на ${per*(b-a)} карандашей больше. Сколько карандашей ${d===1?'во второй':'в первой'} коробке?`,per*count,
-   `${b} − ${a} = ${b-a}<br>${per*(b-a)} : ${b-a} = ${per}<br>${per} × ${count} = ${per*count}`);
+  const difference=per*(b-a), common=`${b} − ${a} = ${b-a}<br>${difference} : ${b-a} = ${per}`;
+  if(d===1) return number(`В первой коробке ${b} одинаковых наборов, во второй ${a}. В первой на ${difference} карандашей больше. Сколько карандашей во второй коробке?`,per*a,
+   `${common}<br>${per} × ${a} = ${per*a}`);
+  return number(`В первой коробке ${b} одинаковых наборов, во второй ${a}. В первой на ${difference} карандашей больше. Сколько карандашей в обеих коробках вместе?`,total,
+   `${common}<br>${b} + ${a} = ${a+b}<br>${per} × ${a+b} = ${total}`);
  }
  if(kind==='partition') {
-  const count=d===0?a:b;
+  if(d===0) return number(`Из ${total} м ткани сшили ${a+b} одинаковых костюмов. Сколько метров ушло на ${a} из них?`,per*a,
+   `${total} : ${a+b} = ${per} (м на костюм)<br>${per} × ${a} = ${per*a} (м)`,'м');
+  const count=b;
   const result = d===2?per*(b-a):per*count;
-  return number(`Из ${total} метров ткани сшили ${a} костюмов для первой группы и ${b} костюмов для второй. На один костюм уходит одинаковое количество ткани. ${d===2?'На сколько метров больше ткани ушло на вторую группу?':`Сколько метров ткани ушло на ${d===0?'первую':'вторую'} группу?`}`,result,
+  return number(`Из ${total} метров ткани сшили ${a} костюмов для первой группы и ${b} костюмов для второй. На один костюм уходит одинаковое количество ткани. ${d===2?'На сколько метров больше ткани ушло на вторую группу?':`Сколько метров ткани ушло на вторую группу?`}`,result,
    `${a} + ${b} = ${a+b}<br>${total} : ${a+b} = ${per}<br>${d===2?`${b} − ${a} = ${b-a}<br>${per} × ${b-a} = ${result}`:`${per} × ${count} = ${result}`}`,'м');
  }
  if(kind==='work') {
   if(d===0) return number(`Мастер делает ${per} деталей за час. Сколько деталей он изготовит за ${a} ч?`,per*a,`${per} × ${a} = ${per*a}.`);
-  if(d===1) return number(`За ${a} ч мастер изготовил ${per*a} деталей поровну за каждый час. Найди его производительность.`,per,
-   `${per*a} : ${a} = ${per} деталей в час.`);
-  return number(`За ${a} ч мастер изготовил ${per*a} деталей. Сколько часов займёт изготовление ещё ${per*b} деталей в том же темпе?`,b,
-   `${per*a} : ${a} = ${per} (деталей в час)<br>${per*b} : ${per} = ${b} (ч)`,'ч');
+  if(d===1){
+   const extra=ri(2,21), withExtra=per*a+extra;
+   return number(`За ${a} ч мастер изготовил ${withExtra} деталей, включая ${extra} деталей сверх нормы. Сколько деталей в час составляет обычная норма?`,per,
+    `${withExtra} − ${extra} = ${per*a}<br>${per*a} : ${a} = ${per} (деталей в час)`);
+  }
+  return number(`За ${a} ч мастер изготовил ${per*a} деталей. Всего он должен изготовить ${total} деталей. Сколько ещё часов ему нужно работать с той же производительностью?`,b,
+   `${per*a} : ${a} = ${per} (деталей в час)<br>${total} − ${per*a} = ${per*b} (деталей осталось)<br>${per*b} : ${per} = ${b} (ч)`,'ч');
  }
  if(d===0) return number(`За ${a} одинаковых тетрадей заплатили ${per*a} ₽. Сколько стоят ${b} таких тетрадей?`,per*b,
   `${per*a} : ${a} = ${per} (₽)<br>${per} × ${b} = ${per*b} (₽)`,'₽');
@@ -371,36 +484,58 @@ function groupedSum(d) {
 }
 
 function writtenSubtract(d) {
- const a = ri([22,102,1028][d],[99,997,9998][d])*10, b = ri(101,a-(d===2?100:20));
- if(d===0) return number(`Вычисли столбиком ${a} − ${b}. Введи разность.`,a-b,`Проверка: ${a-b} + ${b} = ${a}.`);
- if(d===1) return number(`Вычитание столбиком: ${format(a)} − ${format(b)}. Чему равна цифра единиц разности?`,(a-b)%10,
-  `${format(a)} − ${format(b)} = ${format(a-b)}. В разряде единиц стоит ${(a-b)%10}.`);
- const c = ri(11,98);
- return number(`Найди, на сколько ${format(a)} больше числа ${format(b+c)}, выполнив вычитание столбиком.`,a-b-c,
-  `${format(a)} − ${format(b+c)} = ${format(a-b-c)}.`);
+ const a=ri([22,103,1028][d],[99,997,9998][d])*10**(d===0?1:2), b=ri(d===0?102:111,a-(d===2?100:20));
+ if(d===0) return number(`Вычисли столбиком ${a} − ${b}. Запиши разность.`,a-b,`Проверка: ${a-b} + ${b} = ${a}.`);
+ if(d===1) {
+  const withUnits=b%10===0?b+1:b;
+  return number(`Вычти столбиком через разряды с нулями: ${format(a)} − ${format(withUnits)}.`,a-withUnits,
+   `Занимаем через разряды с нулями. Проверим сложением: ${format(a-withUnits)} + ${format(withUnits)} = ${format(a)}.`);
+ }
+ const c=ri(11,98);
+ return number(`После двух вычитаний из ${format(a)} получили ${format(a-b-c)}. Сначала вычли ${format(b)}. Какое число вычли вторым?`,c,
+  `${format(a)} − ${format(b)} = ${format(a-b)}<br>${format(a-b)} − ${format(a-b-c)} = ${c}`);
 }
 
 function trailingBoth(d) {
  const a=ri(12,99+d*50), b=ri(2,8+d*7), k=1+d, left=a*10**k, right=b*10;
  const out=left*right, zeros=k+1;
- if(d===2) return number(`Вычисли ${format(left)} × ${format(right)}.`,out,
+ if(d===0) return number(`Вычисли ${format(left)} × ${format(right)}.`,out,
   `${a} × ${b} = ${a*b}<br>${a*b} × ${format(10**zeros)} = ${format(out)}`);
- return number(d===0?`Вычисли ${format(left)} × ${format(right)}.`:`Запиши результат произведения ${format(left)} × ${format(right)} после группировки множителей.`,out,
-  `${format(left)} × ${format(right)} = (${a} × ${b}) × ${format(10**zeros)} = ${format(out)}.`);
+ if(d===1) return number(`Вычисли произведение ${format(left)} × ${format(right)}. Затем раздели полученный результат на 10.`,out/10,
+  `${a} × ${b} = ${a*b}<br>${a*b} × ${format(10**zeros)} = ${format(out)}<br>${format(out)} : 10 = ${format(out/10)}`);
+ const partial=ri(2,9)*right;
+ return number(`Вычисли пропущенный множитель: □ × ${format(right)} − ${format(partial)} = ${format(out-partial)}.`,left,
+  `${format(out-partial)} + ${format(partial)} = ${format(out)}<br>${format(out)} : ${format(right)} = ${format(left)}`);
+}
+
+function remainderStages(d, divisor, quotient, rest) {
+ const dividend=divisor*quotient+rest;
+ if(d===0) return remainder(dividend,divisor);
+ if(d===1) return number(`При делении на ${format(divisor)} получили частное ${format(quotient)} и остаток ${rest}. Найди делимое.`,dividend,
+  `${format(divisor)} × ${format(quotient)} + ${rest} = ${format(dividend)}.`);
+ const remove=ri(1,Math.min(8,quotient-1)), removed=divisor*remove, after=dividend-removed;
+ const q=remainder(after,divisor);
+ return {...q,
+  text:`Было ${format(dividend)} единиц. Убрали ${format(removed)}. Остальные делят на ${format(divisor)}. Найди частное и остаток.`,
+  ex:`${format(dividend)} − ${format(removed)} = ${format(after)}<br>${q.ex}`};
 }
 
 function remainderPowers(d) {
- const divisor=[10,100,1000][d], q=ri(12,987), rest=ri(1,divisor-1);
- return remainder(divisor*q+rest,divisor);
+ const divisor=[10,100,1000][d];
+ return remainderStages(d,divisor,ri(12,987),ri(1,divisor-1));
 }
 
 function cubed(d) {
  const n=ri(2,12+d*3);
  if(d===0) return number(`Вычисли ${n}<sup>3</sup>.`,n**3,`${n}<sup>3</sup> = ${n} × ${n} × ${n} = ${n**3}.`);
- if(d===1) return number(`Найди объём куба с ребром ${n} см.`,n**3,`${n} × ${n} × ${n} = ${n**3} (см³).`,'см³');
- const out=n**3, diff=ri(1,9);
- return number(`Объём куба ${out} см³, его ребро — целое число сантиметров. Чему будет равна длина ребра, если увеличить её на ${diff} см?`,
-  n+diff,`${n} × ${n} × ${n} = ${out}<br>${n} + ${diff} = ${n+diff} (см)`,'см');
+ if(d===1){
+  const second=n+ri(1,4);
+  return number(`Рёбра двух кубов равны ${n} см и ${second} см. На сколько кубических сантиметров объём большего куба больше?`,second**3-n**3,
+   `${n} × ${n} × ${n} = ${n**3}<br>${second} × ${second} × ${second} = ${second**3}<br>${second**3} − ${n**3} = ${second**3-n**3} (см³)`,'см³');
+ }
+ const out=n**3, diff=ri(1,4), bigger=n+diff;
+ return number(`Объём куба ${out} см³, его ребро — целое число сантиметров. Каков будет объём куба, если увеличить ребро на ${diff} см?`,
+  bigger**3,`${n} × ${n} × ${n} = ${out}<br>${n} + ${diff} = ${bigger} (см)<br>${bigger} × ${bigger} × ${bigger} = ${bigger**3} (см³)`,'см³');
 }
 
 function box(d) {
@@ -414,7 +549,7 @@ function box(d) {
 }
 
 function pyramid(d) {
- const sides=ri(3,d===0?7:14), count=ri(2,9);
+ const sides=ri(3,d===0?10:14), count=ri(2,9);
  if(d===0) return number(`Сколько боковых граней у пирамиды, если у её основания ${sides} сторон?`,sides,
   `Каждой стороне основания соответствует одна боковая треугольная грань.`);
  if(d===1) return number(`У пирамиды ${sides+1} граней, включая основание. Сколько вершин у основания?`,sides,
@@ -446,14 +581,20 @@ function roundSolids(d) {
 function circle(d) {
  const a=ri(4,50+d*18), b=ri(2,11);
  if(d===0) return number(`Радиус окружности ${a} см. Найди диаметр.`,a*2,`${a} × 2 = ${a*2} (см).`,'см');
- if(d===1) return number(`Диаметр окружности ${a*2} см. Найди радиус.`,a,`${a*2} : 2 = ${a} (см).`,'см');
+ if(d===1){
+  const other=a+b;
+  return number(`Диаметры двух окружностей ${a*2} см и ${other*2} см. Найди сумму их радиусов.`,a+other,
+   `${a*2} : 2 = ${a}<br>${other*2} : 2 = ${other}<br>${a} + ${other} = ${a+other} (см)`,'см');
+ }
  return number(`Диаметр первой окружности ${a*2} см. Радиус второй на ${b} см больше радиуса первой. Найди диаметр второй окружности.`,
   (a+b)*2,`${a*2} : 2 = ${a}<br>${a} + ${b} = ${a+b}<br>${a+b} × 2 = ${(a+b)*2} (см)`,'см');
 }
 
-function yearReview(d) {
+function yearReview(d,slot=null) {
  const skills=[orderWithin1000,placeTo1000,expanded,timesTen,fractionsOf,clock,groupedSum,circle];
- return pickOne(skills)(d);
+ const generate=slot===null?pickOne(skills):skills[(slot+d)%skills.length];
+ const q=generate(d);
+ return {...q,text:`Итоговое повторение. ${q.text}`};
 }
 
 const topic = (id, title, generate, hint, sub = '') => ({id,title,generate,hint,sub});
@@ -492,7 +633,7 @@ const chapters = [
   topic('moro_missing_add','Неизвестное слагаемое',d=>unknown(d,'add'),'Из суммы вычти известное слагаемое.'),
   topic('moro_missing_sub','Неизвестное уменьшаемое и вычитаемое',d=>unknown(d,d===0?'subFrom':d===1?'subBy':pickOne(['subFrom','subBy'])),'Уменьшаемое находят сложением, вычитаемое — вычитанием.'),
   topic('moro_share','Нахождение нескольких долей целого',fractionsOf,'Раздели целое на число равных долей. Затем умножь на число взятых долей.'),
-  topic('moro_add_units','Сложение и вычитание величин',quantityOperation,'Сначала вырази обе величины в одной единице измерения.')
+  topic('moro_add_units','Сложение и вычитание величин',d=>quantityOperation(d,false),'Сначала вырази обе величины в одной единице измерения.')
  ]},
  {part:1,title:'Умножение и деление на однозначное число',icon:'✖️',topics:[
   topic('moro_mul_properties','Свойства умножения',multiplyProperty,'Множители можно переставлять. При умножении суммы умножь каждое слагаемое.'),
@@ -534,7 +675,7 @@ const chapters = [
   topic('moro_div_double','Письменное деление на двузначное число',d=>divide(d,'double'),'Подбери цифру частного и проверь её умножением на делитель.'),
   topic('moro_div_double_rest','Деление с остатком на двузначное число',d=>{
    const divisor=ri(11,99), quotient=ri([2,11,102][d],[9,97,990][d]);
-   return remainder(divisor*quotient+ri(1,divisor-1),divisor);
+   return remainderStages(d,divisor,quotient,ri(1,divisor-1));
   },'Остаток должен быть меньше делителя. При проверке прибавь остаток к произведению.'),
   topic('moro_circle','Окружность и круг. Радиус и диаметр',circle,'Диаметр проходит через центр и равен двум радиусам.'),
   topic('moro_work','Задачи на производительность труда',d=>proportions(d,'work'),'Объём работы равен производительности, умноженной на время.'),
@@ -543,7 +684,7 @@ const chapters = [
  {part:2,title:'Итоговое повторение',icon:'📘',topics:[
   {id:'numbers',title:'Нумерация'},
   {id:'equations',title:'Выражения и уравнения'},
-  topic('moro_review_calculation','Арифметические действия. Сложение и вычитание',d=>pickOne([addSub,groupedSum,writtenSubtract])(d),'Проверь переходы между разрядами и используй обратное действие.'),
+  topic('moro_review_calculation','Арифметические действия. Сложение и вычитание',d=>pickOne([level=>addSub(level,1000000),groupedSum,writtenSubtract])(d),'Проверь переходы между разрядами и используй обратное действие.'),
   topic('moro_review_muldiv','Арифметические действия. Умножение и деление',d=>pickOne([multiply,divide])(d,['one','double','triple'][d]),'Проверь частное умножением. При умножении разложи множитель по разрядам.'),
   {id:'order',title:'Правила о порядке выполнения действий'},
   {id:'quantities',title:'Величины'},

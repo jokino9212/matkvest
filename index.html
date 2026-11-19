@@ -11636,7 +11636,7 @@ function makeQ(id){
  let text,ans,vals=[],ex,sig,variant;
 
  if(id==="numbers"){
-   const variants=d===0?["compare","round100","place"]:d===1?["compare","round1000","expanded","difference"]:["compare","round10000","expanded","difference","place"];
+   const variants=d===0?["compare","round100","place"]:d===1?["round1000","expanded","difference"]:["roundThenDifference","missingExpanded","middle"];
    variant=variants[ri(0,variants.length-1)];
    const lo=d===0?1000:d===1?10000:100000,hi=d===0?9999:d===1?99999:999999;
    if(variant==="compare"){
@@ -11645,8 +11645,18 @@ function makeQ(id){
      const a=ri(lo,hi);ans=Math.round(a/100)*100;text=`Округли число <b>${a}</b> до сотен.`;vals=[ans+100,Math.max(0,ans-100),Math.round(a/10)*10];ex=`Смотрим на десятки. Получаем ${ans}.`;sig=`numbers:${d}:round100:${a}`;
    }else if(variant==="round1000"){
      const a=ri(lo,hi);ans=Math.round(a/1000)*1000;text=`Округли число <b>${a}</b> до тысяч.`;vals=[ans+1000,Math.max(0,ans-1000),Math.round(a/100)*100];ex=`Смотрим на сотни. Получаем ${ans}.`;sig=`numbers:${d}:round1000:${a}`;
-   }else if(variant==="round10000"){
-     const a=ri(lo,hi);ans=Math.round(a/10000)*10000;text=`Округли число <b>${a}</b> до десятков тысяч.`;vals=[ans+10000,Math.max(0,ans-10000),Math.round(a/1000)*1000];ex=`Смотрим на разряд тысяч. Получаем ${ans}.`;sig=`numbers:${d}:round10000:${a}`;
+   }else if(variant==="roundThenDifference"){
+     const a=ri(lo,hi), rounded=Math.round(a/10000)*10000;ans=Math.abs(rounded-a);
+     text=`Округли <b>${a}</b> до десятков тысяч. На сколько полученное число отличается от исходного?`;
+     vals=[rounded,ans+100,a];ex=`До десятков тысяч получаем ${rounded}. Разность большего и меньшего числа равна ${ans}.`;sig=`numbers:roundThenDifference:${a}`;
+   }else if(variant==="missingExpanded"){
+     const a=ri(1,9),b=ri(1,9),c=ri(1,9),value=a*100000+b*1000+c;ans=b*1000;
+     text=`Найди пропущенное слагаемое: ${value} = ${a*100000} + □ + ${c}.`;
+     vals=[b,b*100,ans*10];ex=`В разряде тысяч цифра ${b}. Её вклад ${b} × 1000 = ${ans}.`;sig=`numbers:missingExpanded:${value}`;
+   }else if(variant==="middle"){
+     const mid=ri(100100,999800), less=mid-ri(1,90), more=mid+ri(1,90), nums=sh([less,mid,more]);ans=mid;
+     text=`Расположи числа ${nums.join(", ")} по возрастанию. Какое окажется между двумя другими?`;
+     vals=[less,more,mid+100];ex=`${less} &lt; ${mid} &lt; ${more}. Среднее по порядку число ${mid}.`;sig=`numbers:middle:${nums.join(":")}`;
    }else if(variant==="expanded"){
      const a=ri(lo,hi),s=String(a),parts=[];
      [...s].forEach((ch,i)=>{if(ch!=="0")parts.push(Number(ch)*10**(s.length-i-1))});
@@ -11661,7 +11671,7 @@ function makeQ(id){
  else if(id==="order"){
    const variants=d===0?["plusMul","mulMinus","parenSimple"]:d===1?["parenMul","exactDiv","mulPlusDiv","parenMinus"]:["parenMulMinus","doubleParen","exactDivChain","mixed"];
    variant=variants[ri(0,variants.length-1)];
-   const a=ri(4,25),b=ri(2,9),c=ri(2,8),e=ri(2,12);
+   const a=ri(5,25),b=ri(2,9),c=ri(2,8),e=ri(2,12);
    if(variant==="plusMul"){ans=a+b*c;text=`${a} + ${b} × ${c} = ?`;ex=`Сначала ${b} × ${c}, затем + ${a}.`;}
    else if(variant==="mulMinus"){ans=a*c-b;text=`${a} × ${c} − ${b} = ?`;ex=`Сначала умножение, затем вычитание.`;}
    else if(variant==="parenSimple"){ans=a+(b-c);text=`${a} + (${b} − ${c}) = ?`;if(b<c){return makeQ(id)}ex=`Сначала скобки.`;}
@@ -11700,15 +11710,28 @@ function makeQ(id){
    else if(variant==="mixedTime"){const h=ri(1,5),mn=ri(5,55);ans=h*60+mn;text=`${h} ч ${mn} мин = ? мин`;ex=`${h}×60+${mn}=${ans} мин.`;}
    else if(variant==="mixedLength"){const m=ri(1,20),cm=ri(1,99);ans=m*100+cm;text=`${m} м ${cm} см = ? см`;ex=`${m}×100+${cm}=${ans} см.`;}
    else if(variant==="tkg"){const t=ri(1,9),kg=ri(10,900);ans=t*1000+kg;text=`${t} т ${kg} кг = ? кг`;ex=`${t}×1000+${kg}=${ans} кг.`;}
-   else if(variant==="dayh"){const days=ri(2,7);ans=days*24;text=`${days} суток = ? ч`;ex=`${days}×24=${ans} ч.`;}
-   else if(variant==="mixedKm"){const km=ri(2,15),m=ri(10,900);ans=km*1000+m;text=`${km} км ${m} м = ? м`;ex=`${km}×1000+${m}=${ans} м.`;}
-   else if(variant==="mixedMass"){const kg=ri(2,30),g=ri(10,990);ans=kg*1000+g;text=`${kg} кг ${g} г = ? г`;ex=`${kg}×1000+${g}=${ans} г.`;}
-   else if(variant==="area"){const m2=ri(2,20);ans=m2*100;text=`${m2} м² = ? дм²`;ex=`1 м² = 100 дм², значит ${ans} дм².`;}
-   else{const dday=ri(1,4),h=ri(1,23);ans=dday*24+h;text=`${dday} сут ${h} ч = ? ч`;ex=`${dday}×24+${h}=${ans} ч.`;}
+   else if(variant==="dayh"){const days=ri(2,7),hours=ri(1,23);ans=days*24+hours;text=`${days} сут ${hours} ч = ? ч`;ex=`${days} × 24 + ${hours} = ${ans} ч.`;}
+   else if(variant==="mixedKm"){
+     const km=ri(2,15),m=ri(40,900),subtract=ri(10,m-1);ans=km*1000+m-subtract;
+     text=`От пути ${km} км ${m} м отняли ${subtract} м. Сколько метров осталось?`;
+     ex=`${km} × 1000 + ${m} = ${km*1000+m} м.<br>${km*1000+m} − ${subtract} = ${ans} м.`;
+   }else if(variant==="mixedMass"){
+     const kg=ri(2,30),g=ri(100,990),kg2=ri(1,kg-1),g2=ri(10,g-1);ans=(kg-kg2)*1000+g-g2;
+     text=`На сколько граммов ${kg} кг ${g} г больше ${kg2} кг ${g2} г?`;
+     ex=`Переводим в граммы: ${kg*1000+g} и ${kg2*1000+g2}.<br>${kg*1000+g} − ${kg2*1000+g2} = ${ans} г.`;
+   }else if(variant==="area"){
+     const m2=ri(2,20),dm2=ri(10,80);ans=m2*100-dm2;
+     text=`Из ${m2} м² вычли ${dm2} дм². Сколько квадратных дециметров осталось?`;
+     ex=`${m2} × 100 = ${m2*100} дм².<br>${m2*100} − ${dm2} = ${ans} дм².`;
+   }else{
+     const days=ri(2,6),hours=ri(2,23),removed=ri(1,23);ans=days*24+hours-removed;
+     text=`До конца поездки было ${days} сут ${hours} ч. Затем прошло ${removed} ч. Сколько часов осталось?`;
+     ex=`${days} × 24 + ${hours} = ${days*24+hours} ч.<br>${days*24+hours} − ${removed} = ${ans} ч.`;
+   }
    vals=[Number(ans)+10,Math.max(0,Number(ans)-10),Math.max(1,Math.round(Number(ans)/10))];sig=`quantities:${d}:${variant}:${text}`;
  }
  else if(id==="geometry"){
-   const variants=d===0?["rectArea","rectPerim","squarePerim"]:d===1?["sideByArea","sideByPerim","squareArea"]:["sideByArea","sideByPerim","squareByPerim","twoRects"];
+   const variants=d===0?["rectArea","rectPerim","squarePerim"]:d===1?["sideByArea","sideByPerim","squareArea"]:["rectPerimByArea","rectAreaByPerim","squareByPerim","twoRects"];
    variant=variants[ri(0,variants.length-1)];
    if(variant==="rectArea"){const a=ri(3,18),b=ri(2,14);ans=a*b;text=`Прямоугольник: a = ${a} см, b = ${b} см. Найди площадь S.`;ex=`S = a · b = ${a}·${b} = ${ans} см².`;}
    else if(variant==="rectPerim"){const a=ri(3,18),b=ri(2,14);ans=2*(a+b);text=`Прямоугольник: a = ${a} см, b = ${b} см. Найди периметр P.`;ex=`P = 2(a+b) = ${ans} см.`;}
@@ -11716,12 +11739,20 @@ function makeQ(id){
    else if(variant==="sideByArea"){const a=ri(3,15),b=ri(2,14),S=a*b;ans=b;text=`Площадь прямоугольника ${S} см², одна сторона ${a} см. Найди другую сторону.`;ex=`b = S : a = ${S}:${a} = ${b} см.`;}
    else if(variant==="sideByPerim"){const a=ri(3,15),b=ri(2,14),P=2*(a+b);ans=b;text=`Периметр прямоугольника ${P} см, одна сторона ${a} см. Найди другую сторону.`;ex=`a+b = ${P}:2=${a+b}; b=${a+b}−${a}=${b} см.`;}
    else if(variant==="squareArea"){const a=ri(3,16);ans=a*a;text=`Сторона квадрата ${a} см. Найди его площадь.`;ex=`S = a·a = ${ans} см².`;}
-   else if(variant==="squareByPerim"){const a=ri(3,20),P=4*a;ans=a*a;text=`Периметр квадрата ${P} см. Найди его площадь.`;ex=`Сторона ${P}:4=${a} см; S=${a}·${a}=${ans} см².`;}
+   else if(variant==="rectPerimByArea"){
+     const a=ri(3,17),b=ri(2,18),area=a*b;ans=2*(a+b);
+     text=`Площадь прямоугольника ${area} см², одна сторона ${a} см. Найди его периметр.`;
+     ex=`Другая сторона: ${area} : ${a} = ${b} см.<br>Периметр: 2 × (${a} + ${b}) = ${ans} см.`;
+   }else if(variant==="rectAreaByPerim"){
+     const a=ri(3,17),b=ri(2,18),perim=2*(a+b);ans=a*b;
+     text=`Периметр прямоугольника ${perim} см, одна сторона ${a} см. Найди его площадь.`;
+     ex=`${perim} : 2 = ${a+b} см.<br>${a+b} − ${a} = ${b} см.<br>${a} × ${b} = ${ans} см².`;
+   }else if(variant==="squareByPerim"){const a=ri(3,20),P=4*a;ans=a*a;text=`Периметр квадрата ${P} см. Найди его площадь.`;ex=`Сторона ${P}:4=${a} см; S=${a}·${a}=${ans} см².`;}
    else{const a=ri(3,12),b=ri(2,10),c=ri(2,8);ans=a*b+a*c;text=`Два прямоугольника имеют общую сторону ${a} см. Их другие стороны ${b} см и ${c} см. Найди сумму площадей.`;ex=`${a}·${b} + ${a}·${c} = ${ans} см².`;}
    vals=[Number(ans)+a_or_fallback(text),Math.max(0,Number(ans)-2),2*Number(ans)];sig=`geometry:${d}:${variant}:${text}`;
  }
  else{
-   const variants=d===0?["cost","remainder","groups","distance","pages"]:d===1?["change","twoGoods","distance","productivity","mass"]:["meeting","twoGoodsChange","production","route","boxes"];
+   const variants=d===0?["cost","remainder","groups","distance","pages"]:d===1?["change","twoGoods","distanceLeft","productivity","mass"]:["meeting","twoGoodsChange","production","route","boxes"];
    variant=variants[ri(0,variants.length-1)];
    if(variant==="cost"){const price=ri(3,12)*10,count=ri(2,8);ans=price*count;text=`Купили ${count} ${ruCount(count,"тетрадь","тетради","тетрадей")} по ${price} ₽. Сколько рублей заплатили?`;ex=`${price}·${count}=${ans} ₽.`;}
    else if(variant==="remainder"){const total=ri(30,120),used=ri(5,total-10);ans=total-used;text=`Было ${total} ${ruCount(total,"карандаш","карандаша","карандашей")}. ${used} раздали. Сколько осталось?`;ex=`${total}−${used}=${ans}.`;}
@@ -11730,7 +11761,15 @@ function makeQ(id){
    else if(variant==="pages"){const per=ri(8,25),days=ri(2,6);ans=per*days;text=`За один день ученик читал ${per} ${ruCount(per,"страницу","страницы","страниц")}. Так он читал ${days} ${ruCount(days,"день","дня","дней")}. Сколько страниц он прочитал?`;ex=`${per}·${days}=${ans}.`;}
    else if(variant==="change"){const price=ri(3,12)*10,count=ri(2,8),cost=price*count,paid=(Math.ceil(cost/100)+2)*100;ans=paid-cost;text=`Купили ${count} ${ruCount(count,"тетрадь","тетради","тетрадей")} по ${price} ₽ и дали ${paid} ₽. Сколько сдачи?`;ex=`Стоимость ${cost} ₽; ${paid}−${cost}=${ans} ₽.`;}
    else if(variant==="twoGoods"){const p1=ri(2,8)*10,q1=ri(2,6),p2=ri(2,9)*10,q2=ri(2,5);ans=p1*q1+p2*q2;text=`Купили ${q1} ${ruCount(q1,"ручку","ручки","ручек")} по ${p1} ₽ и ${q2} ${ruCount(q2,"альбом","альбома","альбомов")} по ${p2} ₽. Сколько заплатили всего?`;ex=`${p1}·${q1}+${p2}·${q2}=${ans} ₽.`;}
-   else if(variant==="productivity"){const per=ri(12,35),days=ri(3,7);ans=per*days;text=`Мастер за день делает ${per} ${ruCount(per,"деталь","детали","деталей")}. Сколько деталей он сделает за ${days} ${ruCount(days,"день","дня","дней")}?`;ex=`${per}·${days}=${ans}.`;}
+   else if(variant==="distanceLeft"){
+     const speed=ri(4,12)*5,time=ri(2,6),left=ri(21,170),full=speed*time+left;ans=left;
+     text=`Весь маршрут ${full} км. Машина ехала ${time} ч со скоростью ${speed} км/ч. Сколько километров осталось проехать?`;
+     ex=`${speed} × ${time} = ${speed*time} км.<br>${full} − ${speed*time} = ${left} км.`;
+   }else if(variant==="productivity"){
+     const per=ri(12,35),days=ri(3,7),extra=ri(2,22);ans=per*days+extra;
+     text=`Мастер ${days} дн. делал по ${per} деталей. В последний день он изготовил ещё ${extra} деталей сверх обычной нормы. Сколько деталей он изготовил всего?`;
+     ex=`${per} × ${days} = ${per*days}.<br>${per*days} + ${extra} = ${ans}.`;
+   }
    else if(variant==="mass"){const boxes=ri(3,8),kg=ri(4,15),sold=ri(5,boxes*kg-5);ans=boxes*kg-sold;text=`Привезли ${boxes} ${ruCount(boxes,"ящик","ящика","ящиков")} по ${kg} кг фруктов. Продали ${sold} кг. Сколько килограммов осталось?`;ex=`${boxes}·${kg}−${sold}=${ans} кг.`;}
    else if(variant==="meeting"){const v1=ri(4,9)*5,v2=ri(4,9)*5,t=ri(2,5);ans=(v1+v2)*t;text=`Два автомобиля едут навстречу друг другу со скоростями ${v1} км/ч и ${v2} км/ч. На сколько километров они сблизятся за ${t} ч?`;ex=`(${v1}+${v2})·${t}=${ans} км.`;}
    else if(variant==="twoGoodsChange"){const p1=ri(2,8)*10,q1=ri(2,5),p2=ri(2,8)*10,q2=ri(2,5),cost=p1*q1+p2*q2,paid=(Math.ceil(cost/500)+1)*500;ans=paid-cost;text=`Купили ${q1} ${ruCount(q1,"товар","товара","товаров")} по ${p1} ₽ и ${q2} ${ruCount(q2,"товар","товара","товаров")} по ${p2} ₽. Заплатили ${paid} ₽. Сколько сдачи?`;ex=`Стоимость ${cost} ₽; сдача ${paid}−${cost}=${ans} ₽.`;}
@@ -36698,28 +36737,28 @@ document.addEventListener("keydown",event=>{
 })();
 </script>
 
-<script src="g5-conversion-ux.js?v=197"></script>
-<script src="g5-textbook-topics.js?v=197"></script>
-<script src="g5-textbook-core.js?v=197"></script>
-<script src="g5-textbook-v111.js?v=197"></script>
-<script src="g5-textbook-v112.js?v=197"></script>
-<script src="g5-pedagogy-v113.js?v=197"></script>
-<script src="g5-fractions-v114.js?v=197"></script>
-<script src="g5-fraction-arithmetic-v115.js?v=197"></script>
-<script src="g5-decimals-v116.js?v=197"></script>
-<script src="g7-textbook.js?v=197"></script>
-<script src="g8-textbook.js?v=197"></script>
-<script src="g4-textbook.js?v=197"></script>
-<script src="g5-textbook-navigation-v121.js?v=197"></script>
-<script src="g5-live-pedagogy-v122.js?v=197"></script>
-<script src="g5-arithmetic-tiers-v123.js?v=197"></script>
-<script src="g5-textbook-tiers-v124.js?v=197"></script>
-<script src="g5-natural-units-v125.js?v=197"></script>
-<script src="g5-remaining-core-v126.js?v=197"></script>
-<script src="g5-decimal-tiers-v127.js?v=197"></script>
-<script src="g5-decimal-percent-v128.js?v=197"></script>
-<script src="g5-fraction-concepts-v129.js?v=197"></script>
-<script src="g5-fraction-applications-v130.js?v=197"></script>
+<script src="g5-conversion-ux.js?v=198"></script>
+<script src="g5-textbook-topics.js?v=198"></script>
+<script src="g5-textbook-core.js?v=198"></script>
+<script src="g5-textbook-v111.js?v=198"></script>
+<script src="g5-textbook-v112.js?v=198"></script>
+<script src="g5-pedagogy-v113.js?v=198"></script>
+<script src="g5-fractions-v114.js?v=198"></script>
+<script src="g5-fraction-arithmetic-v115.js?v=198"></script>
+<script src="g5-decimals-v116.js?v=198"></script>
+<script src="g7-textbook.js?v=198"></script>
+<script src="g8-textbook.js?v=198"></script>
+<script src="g4-textbook.js?v=198"></script>
+<script src="g5-textbook-navigation-v121.js?v=198"></script>
+<script src="g5-live-pedagogy-v122.js?v=198"></script>
+<script src="g5-arithmetic-tiers-v123.js?v=198"></script>
+<script src="g5-textbook-tiers-v124.js?v=198"></script>
+<script src="g5-natural-units-v125.js?v=198"></script>
+<script src="g5-remaining-core-v126.js?v=198"></script>
+<script src="g5-decimal-tiers-v127.js?v=198"></script>
+<script src="g5-decimal-percent-v128.js?v=198"></script>
+<script src="g5-fraction-concepts-v129.js?v=198"></script>
+<script src="g5-fraction-applications-v130.js?v=198"></script>
 <script>
 // The textbook scripts finish extending the catalog before Home shows its totals.
 g5HomeCatalogReady=true;
