@@ -332,6 +332,7 @@ const grade7Sections={
 const layouts={
  1:{...window.grade1Textbook,card:'.elementary-topic',group:'.g1-textbook-group',open:id=>openG1Topic(id)},
  2:{...window.grade2Textbook,card:'.elementary-topic',group:'.g2-textbook-group',open:id=>openG2Topic(id)},
+ 3:{...window.grade3Textbook,card:'.g3-card',group:'.g3-group',open:id=>openG3Topic(id)},
  4:{...window.grade4Textbook,card:'.g4-textbook-card',group:'.g4-textbook-group',open:id=>openTopic(rawCourseId(id))},
  5:{chapters,catalog:g5AllTopics,card:'.g5-card',group:'.g5-group',open:id=>openG5Topic(id)},
  6:{chapters:grade6Chapters,catalog:g6AllTopics,card:'.g6-card',group:'.g6-group',open:id=>openG6Topic(id)},
@@ -549,7 +550,7 @@ function mount(grade){
   let count=0;
   const terms=query.split(' ').filter(Boolean),matchingTopics=new Set();
   for(const row of rows){
-   const show=grade>2&&!isGrade5&&/^\d+$/.test(query)?row.number===Number(query):terms.every(term=>/^\d+$/.test(term)&&hasSubjects?row.number===Number(term):row.searchable.includes(term));
+   const show=grade>3&&!isGrade5&&/^\d+$/.test(query)?row.number===Number(query):terms.every(term=>/^\d+$/.test(term)&&hasSubjects?row.number===Number(term):row.searchable.includes(term));
    if(show)for(const id of row.ids)matchingTopics.add(id);
    row.element.hidden=!show;
    if(show)count++;
@@ -642,7 +643,8 @@ renderElementaryGrade=function(grade){
  if(elementaryGrade===1||elementaryGrade===2)mount(elementaryGrade);
  return result;
 };
-const previousGrade4=renderGrade4,previousGrade5=renderGrade5,previousGrade6=renderGrade6,previousGrade7=renderGrade7,previousGrade8=renderGrade8;
+const previousGrade3=renderGrade3,previousGrade4=renderGrade4,previousGrade5=renderGrade5,previousGrade6=renderGrade6,previousGrade7=renderGrade7,previousGrade8=renderGrade8;
+renderGrade3=function(...args){const result=previousGrade3(...args);mount(3);return result};
 renderGrade4=function(...args){const result=previousGrade4(...args);mount(4);return result};
 renderGrade5=function(...args){const result=previousGrade5(...args);mount(5);return result};
 renderGrade6=function(...args){const result=previousGrade6(...args);mount(6);return result};
