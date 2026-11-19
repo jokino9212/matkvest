@@ -11,10 +11,12 @@ jobs:
     timeout-minutes: 8
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 3
       - name: Apply and verify tested files
         run: |
           set -euo pipefail
-          test "$(git rev-parse HEAD^)" = "6a39557b4d86f9382d9616ad4420e154c10a0260"
+          git diff --exit-code 6a39557b4d86f9382d9616ad4420e154c10a0260 HEAD -- index.html audits/g1_g4_content_audit_2026-11-17.md
           patch_file="$RUNNER_TEMP/matkvest.patch"
           cat > "$patch_file" <<'MATKVEST_PATCH'
           diff --git a/audits/g1_g4_content_audit_2026-11-17.md b/audits/g1_g4_content_audit_2026-11-17.md
