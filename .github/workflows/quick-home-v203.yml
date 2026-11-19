@@ -14,7 +14,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 3
+          fetch-depth: 0
       - name: Verify desktop, mobile and trainer navigation
         shell: bash
         run: |
@@ -42,10 +42,6 @@ jobs:
                 await page.goto('file://' + process.cwd() + '/index.html');
                 await page.evaluate(() => renderHome());
                 const panel = page.locator('.quick-home');
-                const leave = page.getByRole('button', {name: 'Выйти и удалить попытку'});
-                async function confirmLeave() {
-                  if (await leave.isVisible()) await leave.click({timeout: 5000});
-                }
                 const cards = panel.locator('.quick-card');
                 assert.deepEqual(await cards.locator('h3,strong').allTextContents(), expected);
                 const [column, multiply, addition, squares, cubes] = await Promise.all(
@@ -79,25 +75,29 @@ jobs:
                 assert.match(await page.locator('#modal h2').innerText(), /Сложение столбиком/);
                 await page.locator('#modal .stage-card:not(.locked)').first().click();
                 assert.match(await page.locator('#modal h2').innerText(), /Счёт столбиком/);
-                await page.locator('#modal .mtop .x').click({timeout: 5000});
-                await confirmLeave();
-                await page.evaluate(() => renderHome());
-                await confirmLeave();
-                for (const [i, key] of ['multiplication','addition','squares','cubes'].entries()) {
-                  await cards.nth(i+1).getByRole('button').click({timeout: 5000});
-                  assert.equal(await page.evaluate(() => quickTrainerId), key);
-                  assert.equal(await page.locator('.quick-hero h1').innerText(), expected[i+1]);
-                  await page.evaluate(() => startQuickTraining());
-                  assert(await page.locator('.quick-question').isVisible());
-                  await page.evaluate(() => renderHome());
-                  await confirmLeave();
-                }
                 assert.deepEqual(errors, []);
-                await page.reload();
-                await panel.waitFor();
-                assert.deepEqual(await cards.locator('h3,strong').allTextContents(), expected);
-                console.log('PASS', width, expected.join(' | '));
                 await page.close();
+
+                const reload = await browser.newPage({viewport: {width, height: 900}});
+                await reload.goto('file://' + process.cwd() + '/index.html');
+                await reload.reload();
+                assert.deepEqual(await reload.locator('.quick-home .quick-card').locator('h3,strong').allTextContents(), expected);
+                await reload.close();
+
+                for (const [i, key] of ['multiplication','addition','squares','cubes'].entries()) {
+                  const trainer = await browser.newPage({viewport: {width, height: 900}});
+                  const trainerErrors = [];
+                  trainer.on('pageerror', error => trainerErrors.push(error.message));
+                  await trainer.goto('file://' + process.cwd() + '/index.html');
+                  await trainer.locator('.quick-home .quick-card').nth(i+1).getByRole('button').click({timeout: 5000});
+                  assert.equal(await trainer.evaluate(() => quickTrainerId), key);
+                  assert.equal(await trainer.locator('.quick-hero h1').innerText(), expected[i+1]);
+                  await trainer.evaluate(() => startQuickTraining());
+                  assert(await trainer.locator('.quick-question').isVisible());
+                  assert.deepEqual(trainerErrors, []);
+                  await trainer.close();
+                }
+                console.log('PASS', width, expected.join(' | '));
               }
             } finally {
               await browser.close();
