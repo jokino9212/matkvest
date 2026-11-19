@@ -41,7 +41,8 @@ for(const width of [320,390,768,1280]){
   openShop('pets','all');
   return {entries,categories:[all.length,SHOP_CATALOG.avatars.length,SHOP_CATALOG.badges.length,SHOP_CATALOG.stickers.length]};
  },m.items);
- assert.deepEqual(catalog.categories,[31,55,50,40],'Wrong catalog cardinality');
+ // The avatar catalog gained nine active entries in v207.
+ assert.deepEqual(catalog.categories,[31,64,50,40],'Wrong catalog cardinality');
  assert.deepEqual(catalog.entries.slice(0,21),old,'Any legacy pet metadata changed');
  assert.deepEqual(new Set(catalog.entries.map(x=>x.id)).size,31,'Duplicate new item ID');
  assert.deepEqual(catalog.entries.slice(21).map(x=>x.id),m.items.map(x=>x.id),'New pet ordering/IDs wrong');
