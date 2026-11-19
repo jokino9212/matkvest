@@ -1,0 +1,199 @@
+name: Apply verified Grade 3 unknown component patch
+on:
+  push:
+    branches: [audit/g1-g4-content-v195]
+    paths: [.github/workflows/g3-unknown-component-apply.yml]
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply and verify the tested source revision
+        run: |
+          git apply --check - <<'MATKVEST_PATCH'
+          diff --git a/index.html b/index.html
+          index ec92309..d1b2d88 100644
+          --- a/index.html
+          +++ b/index.html
+          @@ -5670,15 +5670,60 @@ function g3ColumnExplanation(t,taskMode=null){
+            return "";
+           }
+           function g3RemainderInputQuestion(dividend,divisor,qv,rem,ex,sig,audit={}){return {text:`Разделите <b>${dividend} : ${divisor}</b>. Найдите частное и остаток.`,answerMode:"remainder",answerQuotient:qv,answerRemainder:rem,ans:`${qv} (ост. ${rem})`,correctText:`${qv} (ост. ${rem})`,correctHtml:`<span class="math">${qv} (ост. ${rem})</span>`,inputHint:"Введите частное и остаток в два отдельных поля.",ex,sig,audit:{type:"g3Remainder",dividend,divisor,quotient:qv,remainder:rem,...audit}}}
+          -function g3UnknownQuestion(d){
+          - const types=d===0?["addend","minuend","subtrahend","factor"]:["addend","minuend","subtrahend","factor","dividend","divisor"],type=g6RandomFrom(types),x=ri(2,d===0?20:d===1?50:90);let text,answer=x,ex,audit={type:"g3Unknown",variant:type,x};
+          - if(type==="addend"){const a=ri(2,40),sum=a+x;text=`□ + ${a} = ${sum}`;ex=`Чтобы найти неизвестное слагаемое, из суммы вычитаем известное: ${sum} − ${a} = <b>${x}</b>.`;audit={...audit,a,sum}}
+          - else if(type==="minuend"){const b=ri(2,30),diff=x;text=`□ − ${b} = ${diff}`;answer=diff+b;ex=`Чтобы найти неизвестное уменьшаемое, к разности прибавляем вычитаемое: ${diff} + ${b} = <b>${answer}</b>.`;audit={...audit,b,diff,x:answer}}
+          - else if(type==="subtrahend"){const diff=ri(2,30),minuend=x+diff;text=`${minuend} − □ = ${diff}`;answer=x;ex=`Чтобы найти неизвестное вычитаемое, из уменьшаемого вычитаем разность: ${minuend} − ${diff} = <b>${x}</b>.`;audit={...audit,minuend,diff}}
+          - else if(type==="factor"){const k=ri(2,9),factor=ri(2,9),prod=k*factor;text=`□ · ${k} = ${prod}`;answer=factor;ex=`Чтобы найти неизвестный множитель, произведение делим на известный множитель: ${prod} : ${k} = <b>${factor}</b>.`;audit={...audit,k,prod,x:factor}}
+          - else if(type==="dividend"){const divisor=ri(2,9),quotient=ri(2,9),dividend=divisor*quotient;text=`□ : ${divisor} = ${quotient}`;answer=dividend;ex=`Чтобы найти неизвестное делимое, частное умножаем на делитель: ${quotient} · ${divisor} = <b>${dividend}</b>.`;audit={...audit,divisor,quotient,x:dividend}}
+          - else {const divisor=ri(2,9),quotient=ri(2,9),dividend=divisor*quotient;text=`${dividend} : □ = ${quotient}`;answer=divisor;ex=`Чтобы найти неизвестный делитель, делимое делим на частное: ${dividend} : ${quotient} = <b>${divisor}</b>.`;audit={...audit,dividend,quotient,x:divisor}}
+          - return g6NumberInputQuestion(`<b>${text}</b>`,answer,ex,`g3:unknown_component:${d}:${type}:${Object.values(audit).join(":")}`,{audit});
+          +function g3UnknownQuestion(d,slot=null){
+          + const variants=[
+          +  ["addendLeft","addendRight","minuend","subtrahend"],
+          +  ["factorLeft","factorRight","dividend","divisor"],
+          +  ["sumThenSubtract","subtractSum","sumThenMultiply","differenceThenDivide"]
+          + ][d];
+          + const variant=slot===null?g6RandomFrom(variants):variants[slot%variants.length];
+          + const input=(equation,answer,ex)=>g6NumberInputQuestion(
+          +  `Найди число в окошке: <b>${equation}</b>`,answer,ex,
+          +  `g3:unknown_component:${d}:${variant}:${equation}`,
+          +  {inputHint:"Введи целое число.",audit:{type:"g3Unknown",variant,x:answer}}
+          + );
+          + if(d===0){
+          +  const x=ri(2,50),a=ri(2,50);
+          +  const sum=x+a;
+          +  if(variant==="addendLeft"||variant==="addendRight"){
+          +   const left=variant==="addendLeft"?"□ + "+a:a+" + □";
+          +   return input(`${left} = ${sum}`,x,`Из суммы вычитаем известное слагаемое: ${sum} − ${a} = <b>${x}</b>.`);
+          +  }
+          +  if(variant==="minuend"){
+          +   return input(`□ − ${a} = ${x}`,sum,`К разности прибавляем вычитаемое: ${x} + ${a} = <b>${sum}</b>.`);
+          +  }
+          +  return input(`${sum} − □ = ${a}`,x,`Из уменьшаемого вычитаем разность: ${sum} − ${a} = <b>${x}</b>.`);
+          + }
+          + if(d===1){
+          +  const x=ri(2,9),a=ri(2,9),product=x*a;
+          +  if(variant==="factorLeft"||variant==="factorRight"){
+          +   const left=variant==="factorLeft"?"□ · "+a:a+" · □";
+          +   return input(`${left} = ${product}`,x,`Произведение делим на известный множитель: ${product} : ${a} = <b>${x}</b>.`);
+          +  }
+          +  if(variant==="dividend"){
+          +   return input(`□ : ${a} = ${x}`,product,`Частное умножаем на делитель: ${x} · ${a} = <b>${product}</b>.`);
+          +  }
+          +  return input(`${product} : □ = ${a}`,x,`Делимое делим на частное: ${product} : ${a} = <b>${x}</b>.`);
+          + }
+          + const x=ri(8,45),a=ri(5,24),sum=x+a;
+          + if(variant==="sumThenSubtract"){
+          +  const b=ri(2,sum-1),result=sum-b;
+          +  return input(`(□ + ${a}) − ${b} = ${result}`,x,
+          +   `Восстановим уменьшаемое: ${result} + ${b} = ${sum}.<br>Найдём слагаемое: ${sum} − ${a} = <b>${x}</b>.`);
+          + }
+          + if(variant==="subtractSum"){
+          +  const result=ri(5,40),b=sum+result;
+          +  return input(`${b} − (□ + ${a}) = ${result}`,x,
+          +   `Восстановим вычитаемое: ${b} − ${result} = ${sum}.<br>Найдём слагаемое: ${sum} − ${a} = <b>${x}</b>.`);
+          + }
+          + if(variant==="sumThenMultiply"){
+          +  const b=ri(2,9),result=sum*b;
+          +  return input(`(□ + ${a}) · ${b} = ${result}`,x,
+          +   `Восстановим множитель: ${result} : ${b} = ${sum}.<br>Найдём слагаемое: ${sum} − ${a} = <b>${x}</b>.`);
+          + }
+          + const divisor=ri(2,9),quotient=ri(2,9),difference=divisor*quotient,minuend=x+difference;
+          + return input(`(${minuend} − □) : ${divisor} = ${quotient}`,x,
+          +  `Восстановим делимое: ${quotient} · ${divisor} = ${difference}.<br>Найдём вычитаемое: ${minuend} − ${difference} = <b>${x}</b>.`);
+           }
+           function g3OrderQuestion(d){
+            let variant,text,answer,ex,audit={type:"g3OrderOps"};
+          @@ -7104,7 +7149,10 @@ function makeG3Question(id,stageOverride=null){
+             const live=stageOverride===null&&blockSession?.kind==="g3quiz"&&blockSession.key==="g3:properties";
+             return g3PropertiesQuestion(d,live?blockSession.done:null);
+            }
+          - if(raw==="unknown_component")return g3UnknownQuestion(d);
+          + if(raw==="unknown_component"){
+          +  const live=stageOverride===null&&blockSession?.kind==="g3quiz"&&blockSession.key==="g3:unknown_component";
+          +  return g3UnknownQuestion(d,live?blockSession.done:null);
+          + }
+            if(raw==="order_operations")return g3OrderQuestion(d);
+            if(raw==="quantity_operations")return g3QuantityQuestion(d);
+           
+          MATKVEST_PATCH
+          git apply - <<'MATKVEST_PATCH'
+          diff --git a/index.html b/index.html
+          index ec92309..d1b2d88 100644
+          --- a/index.html
+          +++ b/index.html
+          @@ -5670,15 +5670,60 @@ function g3ColumnExplanation(t,taskMode=null){
+            return "";
+           }
+           function g3RemainderInputQuestion(dividend,divisor,qv,rem,ex,sig,audit={}){return {text:`Разделите <b>${dividend} : ${divisor}</b>. Найдите частное и остаток.`,answerMode:"remainder",answerQuotient:qv,answerRemainder:rem,ans:`${qv} (ост. ${rem})`,correctText:`${qv} (ост. ${rem})`,correctHtml:`<span class="math">${qv} (ост. ${rem})</span>`,inputHint:"Введите частное и остаток в два отдельных поля.",ex,sig,audit:{type:"g3Remainder",dividend,divisor,quotient:qv,remainder:rem,...audit}}}
+          -function g3UnknownQuestion(d){
+          - const types=d===0?["addend","minuend","subtrahend","factor"]:["addend","minuend","subtrahend","factor","dividend","divisor"],type=g6RandomFrom(types),x=ri(2,d===0?20:d===1?50:90);let text,answer=x,ex,audit={type:"g3Unknown",variant:type,x};
+          - if(type==="addend"){const a=ri(2,40),sum=a+x;text=`□ + ${a} = ${sum}`;ex=`Чтобы найти неизвестное слагаемое, из суммы вычитаем известное: ${sum} − ${a} = <b>${x}</b>.`;audit={...audit,a,sum}}
+          - else if(type==="minuend"){const b=ri(2,30),diff=x;text=`□ − ${b} = ${diff}`;answer=diff+b;ex=`Чтобы найти неизвестное уменьшаемое, к разности прибавляем вычитаемое: ${diff} + ${b} = <b>${answer}</b>.`;audit={...audit,b,diff,x:answer}}
+          - else if(type==="subtrahend"){const diff=ri(2,30),minuend=x+diff;text=`${minuend} − □ = ${diff}`;answer=x;ex=`Чтобы найти неизвестное вычитаемое, из уменьшаемого вычитаем разность: ${minuend} − ${diff} = <b>${x}</b>.`;audit={...audit,minuend,diff}}
+          - else if(type==="factor"){const k=ri(2,9),factor=ri(2,9),prod=k*factor;text=`□ · ${k} = ${prod}`;answer=factor;ex=`Чтобы найти неизвестный множитель, произведение делим на известный множитель: ${prod} : ${k} = <b>${factor}</b>.`;audit={...audit,k,prod,x:factor}}
+          - else if(type==="dividend"){const divisor=ri(2,9),quotient=ri(2,9),dividend=divisor*quotient;text=`□ : ${divisor} = ${quotient}`;answer=dividend;ex=`Чтобы найти неизвестное делимое, частное умножаем на делитель: ${quotient} · ${divisor} = <b>${dividend}</b>.`;audit={...audit,divisor,quotient,x:dividend}}
+          - else {const divisor=ri(2,9),quotient=ri(2,9),dividend=divisor*quotient;text=`${dividend} : □ = ${quotient}`;answer=divisor;ex=`Чтобы найти неизвестный делитель, делимое делим на частное: ${dividend} : ${quotient} = <b>${divisor}</b>.`;audit={...audit,dividend,quotient,x:divisor}}
+          - return g6NumberInputQuestion(`<b>${text}</b>`,answer,ex,`g3:unknown_component:${d}:${type}:${Object.values(audit).join(":")}`,{audit});
+          +function g3UnknownQuestion(d,slot=null){
+          + const variants=[
+          +  ["addendLeft","addendRight","minuend","subtrahend"],
+          +  ["factorLeft","factorRight","dividend","divisor"],
+          +  ["sumThenSubtract","subtractSum","sumThenMultiply","differenceThenDivide"]
+          + ][d];
+          + const variant=slot===null?g6RandomFrom(variants):variants[slot%variants.length];
+          + const input=(equation,answer,ex)=>g6NumberInputQuestion(
+          +  `Найди число в окошке: <b>${equation}</b>`,answer,ex,
+          +  `g3:unknown_component:${d}:${variant}:${equation}`,
+          +  {inputHint:"Введи целое число.",audit:{type:"g3Unknown",variant,x:answer}}
+          + );
+          + if(d===0){
+          +  const x=ri(2,50),a=ri(2,50);
+          +  const sum=x+a;
+          +  if(variant==="addendLeft"||variant==="addendRight"){
+          +   const left=variant==="addendLeft"?"□ + "+a:a+" + □";
+          +   return input(`${left} = ${sum}`,x,`Из суммы вычитаем известное слагаемое: ${sum} − ${a} = <b>${x}</b>.`);
+          +  }
+          +  if(variant==="minuend"){
+          +   return input(`□ − ${a} = ${x}`,sum,`К разности прибавляем вычитаемое: ${x} + ${a} = <b>${sum}</b>.`);
+          +  }
+          +  return input(`${sum} − □ = ${a}`,x,`Из уменьшаемого вычитаем разность: ${sum} − ${a} = <b>${x}</b>.`);
+          + }
+          + if(d===1){
+          +  const x=ri(2,9),a=ri(2,9),product=x*a;
+          +  if(variant==="factorLeft"||variant==="factorRight"){
+          +   const left=variant==="factorLeft"?"□ · "+a:a+" · □";
+          +   return input(`${left} = ${product}`,x,`Произведение делим на известный множитель: ${product} : ${a} = <b>${x}</b>.`);
+          +  }
+          +  if(variant==="dividend"){
+          +   return input(`□ : ${a} = ${x}`,product,`Частное умножаем на делитель: ${x} · ${a} = <b>${product}</b>.`);
+          +  }
+          +  return input(`${product} : □ = ${a}`,x,`Делимое делим на частное: ${product} : ${a} = <b>${x}</b>.`);
+          + }
+          + const x=ri(8,45),a=ri(5,24),sum=x+a;
+          + if(variant==="sumThenSubtract"){
+          +  const b=ri(2,sum-1),result=sum-b;
+          +  return input(`(□ + ${a}) − ${b} = ${result}`,x,
+          +   `Восстановим уменьшаемое: ${result} + ${b} = ${sum}.<br>Найдём слагаемое: ${sum} − ${a} = <b>${x}</b>.`);
+          + }
+          + if(variant==="subtractSum"){
+          +  const result=ri(5,40),b=sum+result;
+          +  return input(`${b} − (□ + ${a}) = ${result}`,x,
+          +   `Восстановим вычитаемое: ${b} − ${result} = ${sum}.<br>Найдём слагаемое: ${sum} − ${a} = <b>${x}</b>.`);
+          + }
+          + if(variant==="sumThenMultiply"){
+          +  const b=ri(2,9),result=sum*b;
+          +  return input(`(□ + ${a}) · ${b} = ${result}`,x,
+          +   `Восстановим множитель: ${result} : ${b} = ${sum}.<br>Найдём слагаемое: ${sum} − ${a} = <b>${x}</b>.`);
+          + }
+          + const divisor=ri(2,9),quotient=ri(2,9),difference=divisor*quotient,minuend=x+difference;
+          + return input(`(${minuend} − □) : ${divisor} = ${quotient}`,x,
+          +  `Восстановим делимое: ${quotient} · ${divisor} = ${difference}.<br>Найдём вычитаемое: ${minuend} − ${difference} = <b>${x}</b>.`);
+           }
+           function g3OrderQuestion(d){
+            let variant,text,answer,ex,audit={type:"g3OrderOps"};
+          @@ -7104,7 +7149,10 @@ function makeG3Question(id,stageOverride=null){
+             const live=stageOverride===null&&blockSession?.kind==="g3quiz"&&blockSession.key==="g3:properties";
+             return g3PropertiesQuestion(d,live?blockSession.done:null);
+            }
+          - if(raw==="unknown_component")return g3UnknownQuestion(d);
+          + if(raw==="unknown_component"){
+          +  const live=stageOverride===null&&blockSession?.kind==="g3quiz"&&blockSession.key==="g3:unknown_component";
+          +  return g3UnknownQuestion(d,live?blockSession.done:null);
+          + }
+            if(raw==="order_operations")return g3OrderQuestion(d);
+            if(raw==="quantity_operations")return g3QuantityQuestion(d);
+           
+          MATKVEST_PATCH
+          test "$(git hash-object index.html)" = "d1b2d885babbc5992e904114b7ae79583aa8c4a7"
+          git diff --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- index.html
+          git rm -- .github/workflows/g3-unknown-component-apply.yml
+          git commit -m 'Separate Grade 3 unknown component quiz levels'
+          git push origin HEAD:refs/heads/audit/g1-g4-content-v195
