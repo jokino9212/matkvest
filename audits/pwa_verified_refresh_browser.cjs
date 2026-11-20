@@ -1,7 +1,8 @@
 'use strict';
 const assert=require('node:assert/strict');
 const {createHash}=require('node:crypto');
-const {readFileSync}=require('node:fs');
+const {existsSync,readFileSync}=require('node:fs');
+const {extname}=require('node:path');
 const http=require('node:http');
 const {chromium}=require('playwright');
 const digest=body=>createHash('sha256').update(body).digest('hex');
@@ -37,6 +38,10 @@ const server=http.createServer((req,res)=>{
  else if(isHTML){body=responseRelease.document;type='text/html; charset=utf-8';}
  else if(responseRelease.script.has(file)){body=responseRelease.script.get(file);type='application/javascript; charset=utf-8';}
  else if(file==='manifest.webmanifest'){body=readFileSync(file);type='application/manifest+json';}
+ else if(/^assets\/[\w/-]+\.(?:webp|png|svg)$/.test(file)&&existsSync(file)){
+  body=readFileSync(file);
+  type=extname(file)==='.svg'?'image/svg+xml':'image/'+extname(file).slice(1);
+ }
  else{res.writeHead(404);res.end();return;}
  res.writeHead(200,{'Content-Type':type,'Cache-Control':'no-store'});
  res.end(body);
@@ -131,7 +136,7 @@ async function run(browser,address,viewport){
  try{
   const origin='http://127.0.0.1:'+server.address().port+'/matkvest/';
   assert.equal(digest(html),worker.match(/const APP_BUILD_HASH = "([^"]+)";/)[1]);
-  const verifiedScripts=[...html.matchAll(/<script src="((?:g5-[\w-]+|g[78]-textbook)\.js)\?v=\d+"><\/script>/g)].map(match=>match[1]);
+  const verifiedScripts=[...html.matchAll(/<script src="((?:g5-[\w-]+|g[123478]-textbook)\.js)\?v=\d+"><\/script>/g)].map(match=>match[1]);
   assert.equal(verifiedScripts.filter(name=>name.startsWith('g5-')).length,19);
   assert.deepEqual(Object.keys(hashes).sort(),verifiedScripts.sort());
   for(const [name,hash] of Object.entries(hashes))assert.equal(digest(readFileSync(name)),hash,name);
