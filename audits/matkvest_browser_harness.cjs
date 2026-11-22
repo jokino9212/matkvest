@@ -52,4 +52,9 @@ async function withMatkvestBrowser(run) {
   }
 }
 
-module.exports = {withMatkvestBrowser};
+async function openGrade5Textbook(page) {
+  await page.evaluate(() => openGrade(5));
+  await page.locator('#grade5Vue[data-v-app] #mk-g5-textbook-nav').waitFor({state: 'attached'});
+}
+
+module.exports = {withMatkvestBrowser, openGrade5Textbook};

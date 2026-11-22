@@ -1,5 +1,6 @@
 'use strict';
-const assert=require('node:assert/strict'),path=require('node:path'),fs=require('node:fs'),{chromium}=require('playwright');
+const {withMatkvestBrowser, openGrade5Textbook} = require('./matkvest_browser_harness.cjs');
+const assert=require('node:assert/strict'),fs=require('node:fs');
 const ID='numeric_literal_expressions',TRIALS=40;
 const read=(s,re,ctx)=>{const m=s.match(re);assert(m,'Cannot interpret actual student condition '+ctx+': '+s);return m.slice(1).map(Number);};
 function fromStudent(q){
@@ -62,13 +63,12 @@ function evalSymbolic(src,env){
  const expr=()=>{let x=term();while(['+','-'].includes(tokens[i])){const op=tokens[i++],y=term();x=op==='+'?x+y:x-y;}return x;};
  const result=expr();assert.equal(i,tokens.length,'Unparsed tokens in '+src);return result;
 }
-(async()=>{
- const nav=fs.readFileSync('g5-textbook-navigation-v121.js','utf8');
- assert(nav.includes("[10,'Числовые и буквенные выражения',['numeric_literal_expressions']]"),'Wrong textbook §10 mapping');
- const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
- try{
+withMatkvestBrowser(async (browser, url) => {
+  const nav=fs.readFileSync('g5-textbook-navigation-v121.js','utf8');
+  assert(nav.includes("[10,'Числовые и буквенные выражения',['numeric_literal_expressions']]"),'Wrong textbook §10 mapping');
   const page=await browser.newPage({viewport:{width:390,height:844}}),errors=[];page.on('pageerror',e=>errors.push(e.message));
-  await page.goto('file://'+path.resolve('index.html'),{waitUntil:'domcontentloaded'});
+  await page.goto(url, {waitUntil: 'domcontentloaded'});
+  await openGrade5Textbook(page);
   const output=await page.evaluate(({id,trials})=>{
    let seed=2026111310;Math.random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296};
    const questions=[];
@@ -79,7 +79,6 @@ function evalSymbolic(src,env){
       choices:q.choices.map(x=>({label:String(x.label),key:String(x.key)})),correctLabel:String(q.correctLabel),
       ex:String(q.ex),meta:q.mk123,template:q.templateId,source:q.sourceTopicId});
    }
-   renderGrade5();
    return {count:g5AllTopics().length,links:document.querySelectorAll('#mk-g5-textbook-nav .mk-g5-toc-link[data-topic-id="numeric_literal_expressions"]').length,
     lesson:String(g5Lesson(id)),questions};
   },{id:ID,trials:TRIALS});
@@ -133,5 +132,4 @@ function evalSymbolic(src,env){
   assert.equal(modes.wordProblems,80,'Need concrete real-life symbolic word problems');
   assert.deepEqual(errors,[],'Uncaught browser runtime error');
   console.log('G5_SEQUENTIAL_PARAGRAPH_10_PASS '+JSON.stringify({paragraph:10,questions:600,families:15,meanSteps:avg,modes,links:output.links}));
- }finally{await browser.close();}
-})().catch(e=>{console.error('G5_SEQUENTIAL_PARAGRAPH_10_FAIL',e.stack||e);process.exit(1)});
+}).catch(e=>{console.error('G5_SEQUENTIAL_PARAGRAPH_10_FAIL',e.stack||e);process.exit(1)});

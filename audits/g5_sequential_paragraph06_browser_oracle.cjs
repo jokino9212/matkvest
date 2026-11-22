@@ -1,5 +1,6 @@
 'use strict';
-const assert=require('node:assert/strict'),path=require('node:path'),fs=require('node:fs'),{chromium}=require('playwright');
+const {withMatkvestBrowser, openGrade5Textbook} = require('./matkvest_browser_harness.cjs');
+const assert=require('node:assert/strict'),fs=require('node:fs');
 const parse=(s,re,ctx)=>{const m=s.match(re);assert(m,'Cannot parse student question '+ctx+': '+s);return m.slice(1).map(Number);};
 const nums=s=>s.split(/\s*,\s*/).map(Number),sign=(a,b)=>a<b?'<':a>b?'>':'=';
 function fromQuestion(q){
@@ -29,13 +30,12 @@ function fromQuestion(q){
  }
  throw Error('Unknown question family '+ctx);
 }
-(async()=>{
- const nav=fs.readFileSync('g5-textbook-navigation-v121.js','utf8');
- assert(nav.includes("[6,'Сравнение натуральных чисел',['natural_compare']]"),'§6 navigation ID mismatch');
- const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
- try{
+withMatkvestBrowser(async (browser, url) => {
+  const nav=fs.readFileSync('g5-textbook-navigation-v121.js','utf8');
+  assert(nav.includes("[6,'Сравнение натуральных чисел',['natural_compare']]"),'§6 navigation ID mismatch');
   const page=await browser.newPage({viewport:{width:390,height:844}}),errors=[];page.on('pageerror',e=>errors.push(e.message));
-  await page.goto('file://'+path.resolve('index.html'),{waitUntil:'domcontentloaded'});
+  await page.goto(url, {waitUntil: 'domcontentloaded'});
+  await openGrade5Textbook(page);
   const result=await page.evaluate(()=>{
    let seed=2026111306;Math.random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296};
    const rows=[],tableDetails={count:0,cellChecks:0};
@@ -62,7 +62,6 @@ function fromQuestion(q){
     rows.push({level,family,trial,plain,text:String(q.text),ans:String(q.ans),right:String(correct?.label),choices:q.choices.map(x=>({key:String(x.key),label:String(x.label)})),
       meta:q.mk5Pedagogy,audit:q.mk5Audit,template:q.templateId,ex:String(q.ex),drawn});
    }
-   renderGrade5();
    return {topics:g5AllTopics().length,rows,tableDetails,navLinks:document.querySelectorAll('#mk-g5-textbook-nav .mk-g5-toc-link[data-topic-id="natural_compare"]').length,lesson:String(g5Lesson('natural_compare'))};
   });
   assert.equal(result.topics,74,'Changing topic IDs or count is disallowed');
@@ -104,5 +103,4 @@ function fromQuestion(q){
   assert(avg[0]<avg[1]&&avg[1]<avg[2],'Difficulty does not increase '+avg);
   assert.deepEqual(errors,[],'Uncaught browser JS error');
   console.log('G5_SEQUENTIAL_PARAGRAPH_06_PASS '+JSON.stringify({paragraph:6,questions:600,families:15,meanSteps:avg,signs:[...symbolForms],equalitySamples,placeValueTables:result.tableDetails}));
- }finally{await browser.close()}
-})().catch(e=>{console.error('G5_SEQUENTIAL_PARAGRAPH_06_FAIL',e.stack||e);process.exit(1)});
+}).catch(e=>{console.error('G5_SEQUENTIAL_PARAGRAPH_06_FAIL',e.stack||e);process.exit(1)});

@@ -1,5 +1,6 @@
 'use strict';
-const assert=require('node:assert/strict'),path=require('node:path'),fs=require('node:fs'),{chromium}=require('playwright');
+const {withMatkvestBrowser, openGrade5Textbook} = require('./matkvest_browser_harness.cjs');
+const assert=require('node:assert/strict'),fs=require('node:fs');
 const ID='column_charts',TRIALS=40;
 const amount=(str,re,context)=>{const m=str.match(re);assert(m,'Cannot interpret student wording '+context+': '+str);return Number(m[1]);};
 function evalExact(plan){
@@ -46,13 +47,12 @@ function interpret(q){
  }
  throw Error('Unexpected live §7 family '+t+'/'+p);
 }
-(async()=>{
- const nav=fs.readFileSync('g5-textbook-navigation-v121.js','utf8');
- assert(nav.includes("[7,'Представление числовой информации в столбчатых диаграммах',['column_charts']]"),'§7 textbook navigation missing');
- const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
- try{
+withMatkvestBrowser(async (browser, url) => {
+  const nav=fs.readFileSync('g5-textbook-navigation-v121.js','utf8');
+  assert(nav.includes("[7,'Представление числовой информации в столбчатых диаграммах',['column_charts']]"),'§7 textbook navigation missing');
   const page=await browser.newPage({viewport:{width:390,height:844}}),errors=[];page.on('pageerror',e=>errors.push(e.message));
-  await page.goto('file://'+path.resolve('index.html'),{waitUntil:'domcontentloaded'});
+  await page.goto(url, {waitUntil: 'domcontentloaded'});
+  await openGrade5Textbook(page);
   const result=await page.evaluate(({id,trials})=>{
    let seed=2026111307;Math.random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296};
    const rows=[],plots={single:0,double:0,bars:0,majorTicks:0,minorTicks:0,labels:0,mobile:0};
@@ -117,7 +117,6 @@ function interpret(q){
     rows.push({level,family,trial,plain,values:{books:values.books,albums:sec},ans:String(q.ans),
       right:String(good[0].label),meta:q.mk123,template:q.templateId,choices:q.choices.map(x=>({key:String(x.key),label:String(x.label)})),ex:String(q.ex)});
    }
-   renderGrade5();
    return {topics:g5AllTopics().length,rows,plots,links:document.querySelectorAll('#mk-g5-textbook-nav .mk-g5-toc-link[data-topic-id="column_charts"]').length,lesson:String(g5Lesson(id))};
   },{id:ID,trials:TRIALS});
   assert.equal(result.topics,74,'Do not change the Grade 5 curriculum catalog');
@@ -152,5 +151,4 @@ function interpret(q){
   assert.equal(result.plots.bars,result.plots.single*4+result.plots.double*8,'Bar count mismatch');
   assert.deepEqual(errors,[],'Unhandled browser runtime error');
   console.log('G5_SEQUENTIAL_PARAGRAPH_07_PASS '+JSON.stringify({paragraph:7,questions:result.rows.length,families:families.size,meanSteps,visual:result.plots,links:result.links}));
- }finally{await browser.close()}
-})().catch(e=>{console.error('G5_SEQUENTIAL_PARAGRAPH_07_FAIL',e.stack||e);process.exit(1)});
+}).catch(e=>{console.error('G5_SEQUENTIAL_PARAGRAPH_07_FAIL',e.stack||e);process.exit(1)});

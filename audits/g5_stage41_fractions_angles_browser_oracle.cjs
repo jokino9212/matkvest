@@ -1,5 +1,6 @@
 'use strict';
-const {chromium}=require('playwright'),path=require('node:path'),assert=require('node:assert/strict');
+const {withMatkvestBrowser, openGrade5Textbook} = require('./matkvest_browser_harness.cjs');
+const assert=require('node:assert/strict');
 const ids=['frac_parts','frac_ray','frac_compare_den','frac_compare_num','mixed_compare','angle_types','angles'];
 function numericPlan(plan){
  const [op,...a]=plan,E=numericPlan;
@@ -15,11 +16,10 @@ function compareOps(xs,ops){
  assert.equal(xs.length-1,ops.length);
  return xs.reduce((acc,v,i)=>i===0?BigInt(v):ops[i-1]==='+'?acc+BigInt(v):acc-BigInt(v),0n);
 }
-(async()=>{
- const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
- try{
+withMatkvestBrowser(async (browser, url) => {
   const page=await browser.newPage({viewport:{width:390,height:844}});
-  await page.goto('file://'+path.resolve('index.html'),{waitUntil:'domcontentloaded'});
+  await page.goto(url, {waitUntil: 'domcontentloaded'});
+  await openGrade5Textbook(page);
   const samples=await page.evaluate(ids=>{
    let seed=2026111341;Math.random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296};
    const topics=g5AllTopics(),rows=[];
@@ -157,11 +157,9 @@ function compareOps(xs,ops){
   assert.equal(visual.shadedFigures,20);
   assert.equal(visual.coordinateChecks,40);
   const links=await page.evaluate(()=>{
-   renderGrade5();
    const ids=['frac_parts','frac_ray','frac_compare_den','frac_compare_num','mixed_compare','angle_types','angles'];
    return ids.map(id=>({id,found:[...document.querySelectorAll('#mk-g5-textbook-nav .mk-g5-toc-link')].filter(x=>x.dataset.topicId===id).length}));
   });
   for(const v of links)assert.equal(v.found,1,'Broken textbook link '+v.id);
   console.log('G5_STAGE41_REAL_BROWSER_PASS '+JSON.stringify({topics:ids.length,questions:samples.rows.length,families:105,visual,links:links.length}));
- }finally{await browser.close();}
-})().catch(e=>{console.error('G5_STAGE41_REAL_BROWSER_FAIL',e.stack||e);process.exit(1)});
+}).catch(e=>{console.error('G5_STAGE41_REAL_BROWSER_FAIL',e.stack||e);process.exit(1)});

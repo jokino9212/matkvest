@@ -1,5 +1,6 @@
 'use strict';
-const assert=require('node:assert/strict'),path=require('node:path'),fs=require('node:fs'),{chromium}=require('playwright');
+const {withMatkvestBrowser, openGrade5Textbook} = require('./matkvest_browser_harness.cjs');
+const assert=require('node:assert/strict'),fs=require('node:fs');
 const TOPIC='equations',REPEAT=40,EPS=1e-7;
 function getEquation(s,ctx){
  const word=s.match(/^К некоторому числу x прибавили (\d+), затем умножили полученную сумму на (\d+) и вычли (\d+)\. Получили (\d+)\. Найди исходное число x\.$/);
@@ -68,14 +69,13 @@ function checkPlan(node,ctx){
  args.filter(Array.isArray).forEach(ch=>checkPlan(ch,ctx));
  if(op==='sub')assert(exact(node)>=0n,'Negative natural-number inverse substep '+ctx);
 }
-(async()=>{
- const nav=fs.readFileSync('g5-textbook-navigation-v121.js','utf8');
- assert(nav.includes("[11,'Уравнение',['equations']]"),'§11 must remain the real textbook destination');
- const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
- try{
+withMatkvestBrowser(async (browser, url) => {
+  const nav=fs.readFileSync('g5-textbook-navigation-v121.js','utf8');
+  assert(nav.includes("[11,'Уравнение',['equations']]"),'§11 must remain the real textbook destination');
   const page=await browser.newPage({viewport:{width:390,height:844}}),errors=[];
   page.on('pageerror',e=>errors.push(e.message));
-  await page.goto('file://'+path.resolve('index.html'),{waitUntil:'domcontentloaded'});
+  await page.goto(url, {waitUntil: 'domcontentloaded'});
+  await openGrade5Textbook(page);
   const data=await page.evaluate(({id,repeats})=>{
    let seed=20261114011;
    Math.random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296};
@@ -88,7 +88,6 @@ function checkPlan(node,ctx){
       choices:q.choices.map(c=>({label:String(c.label),key:String(c.key)})),
       template:q.templateId,meta:q.mk126,source:q.sourceTopicId});
    }
-   renderGrade5();
    const links=[...document.querySelectorAll('#mk-g5-textbook-nav .mk-g5-toc-link[data-topic-id="equations"]')];
    return {rows,count:g5AllTopics().length,links:links.length,lesson:String(g5Lesson(id))};
   },{id:TOPIC,repeats:REPEAT});
@@ -154,5 +153,4 @@ function checkPlan(node,ctx){
   assert.equal(verified.intermediates,400,'Missing multistep solution verifications');
   assert.deepEqual(errors,[],'Browser uncaught runtime error');
   console.log('G5_SEQUENTIAL_PARAGRAPH_11_PASS '+JSON.stringify({paragraph:11,questions:600,families:15,meanSteps,checks:verified,links:data.links}));
- }finally{await browser.close();}
-})().catch(e=>{console.error('G5_SEQUENTIAL_PARAGRAPH_11_FAIL',e.stack||e);process.exit(1)});
+}).catch(e=>{console.error('G5_SEQUENTIAL_PARAGRAPH_11_FAIL',e.stack||e);process.exit(1)});

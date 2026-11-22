@@ -1,5 +1,6 @@
 'use strict';
-const assert=require('node:assert/strict'),path=require('node:path'),fs=require('node:fs'),{chromium}=require('playwright');
+const {withMatkvestBrowser, openGrade5Textbook} = require('./matkvest_browser_harness.cjs');
+const assert=require('node:assert/strict'),fs=require('node:fs');
 const topic='natural_add',TRIALS=40;
 const parse=(s,re,ctx)=>{const match=s.match(re);assert(match,'Cannot parse learner-facing task '+ctx+': '+s);return match.slice(1).map(Number);};
 const sum=xs=>xs.reduce((a,b)=>a+b,0);
@@ -40,13 +41,12 @@ function bigintPlan(node){
  if(op==='abs'){const x=read(values[0]);return x<0n?-x:x}
  throw Error('Unknown arithmetic operation '+op);
 }
-(async()=>{
- const nav=fs.readFileSync('g5-textbook-navigation-v121.js','utf8');
- assert(nav.includes("[8,'Действие сложения. Свойства сложения',['natural_add']]"),'§8 textbook index wrong');
- const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
- try{
+withMatkvestBrowser(async (browser, url) => {
+  const nav=fs.readFileSync('g5-textbook-navigation-v121.js','utf8');
+  assert(nav.includes("[8,'Действие сложения. Свойства сложения',['natural_add']]"),'§8 textbook index wrong');
   const page=await browser.newPage({viewport:{width:390,height:844}}),errors=[];page.on('pageerror',e=>errors.push(e.message));
-  await page.goto('file://'+path.resolve('index.html'),{waitUntil:'domcontentloaded'});
+  await page.goto(url, {waitUntil: 'domcontentloaded'});
+  await openGrade5Textbook(page);
   const out=await page.evaluate(({topic,trials})=>{
    let seed=2026111308;Math.random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296};
    const records=[];
@@ -57,7 +57,6 @@ function bigintPlan(node){
       choices:q.choices.map(x=>({key:String(x.key),label:String(x.label)})),
       correctLabel:String(q.correctLabel),ex:String(q.ex),template:q.templateId,meta:q.mk123,source:q.sourceTopicId});
    }
-   renderGrade5();
    return {topics:g5AllTopics().length,links:document.querySelectorAll('#mk-g5-textbook-nav .mk-g5-toc-link[data-topic-id="natural_add"]').length,
     lesson:String(g5Lesson('natural_add')),records};
   },{topic,trials:TRIALS});
@@ -102,5 +101,4 @@ function bigintPlan(node){
   assert.equal(groupChecks.contexts,120);
   assert.deepEqual(errors,[],'Uncaught JS browser runtime error');
   console.log('G5_SEQUENTIAL_PARAGRAPH_08_PASS '+JSON.stringify({paragraph:8,questions:600,families:15,meanSteps:avg,groups:groupChecks,links:out.links}));
- }finally{await browser.close()}
-})().catch(e=>{console.error('G5_SEQUENTIAL_PARAGRAPH_08_FAIL',e.stack||e);process.exit(1)});
+}).catch(e=>{console.error('G5_SEQUENTIAL_PARAGRAPH_08_FAIL',e.stack||e);process.exit(1)});
