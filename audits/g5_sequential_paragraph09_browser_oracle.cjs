@@ -1,5 +1,6 @@
 'use strict';
-const assert=require('node:assert/strict'),path=require('node:path'),fs=require('node:fs'),{chromium}=require('playwright');
+const {withMatkvestBrowser, openGrade5Textbook} = require('./matkvest_browser_harness.cjs');
+const assert=require('node:assert/strict'),fs=require('node:fs');
 const ID='natural_subtract',TRIALS=40;
 const vals=(s,re,ctx)=>{const m=s.match(re);assert(m,'Cannot independently interpret §9 question '+ctx+': '+s);return m.slice(1).map(Number);};
 const sum=a=>a.reduce((x,y)=>x+y,0);
@@ -46,13 +47,12 @@ function allNonnegative(node,underAbs=false){
  args.filter(Array.isArray).forEach(child=>allNonnegative(child,underAbs||op==='abs'));
  if(op==='sub'&&!underAbs)assert(exact(node)>=0n,'Negative subtraction sub-expression in natural-number task '+JSON.stringify(node));
 }
-(async()=>{
- const navigation=fs.readFileSync('g5-textbook-navigation-v121.js','utf8');
- assert(navigation.includes("[9,'Действие вычитания. Свойства вычитания',['natural_subtract']]"),'Strict §9 textbook navigation missing');
- const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
- try{
+withMatkvestBrowser(async (browser, url) => {
+  const navigation=fs.readFileSync('g5-textbook-navigation-v121.js','utf8');
+  assert(navigation.includes("[9,'Действие вычитания. Свойства вычитания',['natural_subtract']]"),'Strict §9 textbook navigation missing');
   const page=await browser.newPage({viewport:{width:390,height:844}}),errors=[];page.on('pageerror',err=>errors.push(err.message));
-  await page.goto('file://'+path.resolve('index.html'),{waitUntil:'domcontentloaded'});
+  await page.goto(url, {waitUntil: 'domcontentloaded'});
+  await openGrade5Textbook(page);
   const result=await page.evaluate(({id,trials})=>{
    let seed=2026111309;Math.random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296};
    const questions=[];
@@ -62,7 +62,6 @@ function allNonnegative(node,underAbs=false){
     questions.push({level,family,trial,plain:element.textContent,answer:String(q.ans),choices:q.choices.map(c=>({key:String(c.key),label:String(c.label)})),
       correctLabel:String(q.correctLabel),ex:String(q.ex),template:q.templateId,meta:q.mk123,source:q.sourceTopicId});
    }
-   renderGrade5();
    return {topicCount:g5AllTopics().length,lesson:String(g5Lesson(id)),links:document.querySelectorAll('#mk-g5-textbook-nav .mk-g5-toc-link[data-topic-id="natural_subtract"]').length,questions};
   },{id:ID,trials:TRIALS});
   assert.equal(result.topicCount,74,'Grade 5 74 topics must not change');
@@ -106,5 +105,4 @@ function allNonnegative(node,underAbs=false){
   assert.equal(groups.absolute,40,'Abs problem missing');
   assert.deepEqual(errors,[],'Uncaught browser error');
   console.log('G5_SEQUENTIAL_PARAGRAPH_09_PASS '+JSON.stringify({paragraph:9,questions:result.questions.length,families:slots.size,meanSteps:means,methodChecks:groups,links:result.links}));
- }finally{await browser.close();}
-})().catch(e=>{console.error('G5_SEQUENTIAL_PARAGRAPH_09_FAIL',e.stack||e);process.exit(1)});
+}).catch(e=>{console.error('G5_SEQUENTIAL_PARAGRAPH_09_FAIL',e.stack||e);process.exit(1)});

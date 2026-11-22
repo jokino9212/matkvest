@@ -1,172 +1,176 @@
 'use strict';
-const assert=require('node:assert/strict');
-const {chromium}=require('playwright');
-const path=require('node:path');
+const assert = require('node:assert/strict');
+const {withMatkvestBrowser} = require('./matkvest_browser_harness.cjs');
 
-const plans=[
- {grade:5,method:'startG5QuizStage',catalog:'g5AllTopics',prefix:''},
- {grade:6,method:'startG6QuizStage',catalog:'g6AllTopics',prefix:''},
- {grade:7,method:'startG7QuizStage',catalog:'g7AllTopics',prefix:''},
- {grade:8,method:'startG8QuizStage',catalog:'g8AllTopics',prefix:''}
+const plans = [
+  {grade: 5, topic: 'frac_to_mixed', stage: 0, mode: 'fraction'},
+  {grade: 6, topic: 'g6:arithmetic_mean', stage: 0, mode: 'number'},
+  {grade: 7, topic: 'g7:rational_arithmetic', stage: 0, mode: 'number'},
+  {grade: 8, topic: 'g8:square_root_arithmetic', stage: 1, mode: 'number'},
 ];
-async function main(){
- const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
- const failures=[],done=[];
- try{
- for(const width of [320,390,768]){
- for(const plan of plans){
-   const context=await browser.newContext({viewport:{width,height:690},isMobile:width<500,hasTouch:width<500});
-   const page=await context.newPage();const pageErrors=[];
-   page.on('pageerror',e=>pageErrors.push(e.message));
-   await page.goto('file://'+path.resolve('index.html'),{waitUntil:'domcontentloaded'});
-   let data;
-   try{
-    data=await page.evaluate(({plan})=>{
-      const cat=window[plan.catalog]();
-      let chosen=null;
-      for(const t of cat.slice(0,Math.min(cat.length,55))){
-       if(t.implemented===false)continue;
-       for(let stage=0;stage<=2;stage++){
-        try{window[plan.method](t.id,stage)}catch(e){continue}
-        const inp=document.querySelector('#qstage input:not([type=hidden])');
-        const btn=document.getElementById('quizCheck');
-        if(inp&&btn&&q&&q.answerMode&&q.answerMode!=='choice'){
-         chosen={topic:t.id,stage,mode:q.answerMode,answerId:inp.id};break;
-        }
-       }
-       if(chosen)break;
-      }
-      if(!chosen)return {error:'NO_INPUT_TASK',catalog:cat.length};
-      const inputs=[...document.querySelectorAll('#qstage input:not([type=hidden])')];
-      const entries=inputs.map((input,i)=>{
-       const value=['-123456789','987654321','-456789123','321987654'][i%4];
-       input.value=value;input.dispatchEvent(new Event('input',{bubbles:true}));
-       return {id:input.id,value};
-      });
-      const before={attempt:blockSession?.attemptId,correct:blockSession?.correct,fields:entries,mode:q?.answerMode,question:q?.sig||q?.text};
-      const persisted=mk872PersistDraft();
-      const draft=mk872ReadDraft();
-      const savedInput=entries.every(x=>draft?.html?.includes('value="'+x.value+'"'));
-      inputs.forEach(input=>{input.value='7';input.dispatchEvent(new Event('input',{bubbles:true}))});
-      if(draft)mk872RestoreDraft(draft);
-      const afterInput=document.getElementById(chosen.answerId);
-      const after={attempt:blockSession?.attemptId,correct:blockSession?.correct,
-       fields:entries.map(x=>({id:x.id,value:document.getElementById(x.id)?.value})),question:q?.sig||q?.text};
-      const modalRect=document.getElementById('modal').getBoundingClientRect();
-      const inputRect=afterInput?.getBoundingClientRect();
-      const check=document.getElementById('quizCheck');
-      const checkRect=check?.getBoundingClientRect();
-      return {chosen,before,persisted,draftFound:!!draft,savedInput,after,
-       geometry:{viewport:document.documentElement.clientWidth,scrollWidth:document.documentElement.scrollWidth,
-        modalLeft:modalRect.left,modalRight:modalRect.right,
-        inputLeft:inputRect?.left,inputRight:inputRect?.right,
-        checkLeft:checkRect?.left,checkRight:checkRect?.right},
-       buttons:{check:!!check,next:!!document.getElementById('quizNext')}
-      };
-    },{plan});
-    if(data.error)throw new Error(data.error+' '+JSON.stringify(data));
-    assert(data.persisted && data.draftFound && data.savedInput,'Draft not written '+JSON.stringify(data));
-    assert.equal(data.after.attempt,data.before.attempt,'Changed attempt identity');
-    assert.deepEqual(data.after.fields,data.before.fields,'Lost one or more fraction/answer fields');
-    assert.equal(data.after.question,data.before.question,'Question changed after restore');
-    assert.equal(data.after.correct,data.before.correct,'Score changed after restore');
-    assert(data.geometry.scrollWidth<=width+2,'Horizontal page overflow '+JSON.stringify(data.geometry));
-    for(const k of ['inputLeft','inputRight','checkLeft','checkRight'])assert(Number.isFinite(data.geometry[k]),'Missing visible control '+k);
-    assert(data.geometry.inputLeft>=-2&&data.geometry.inputRight<=width+2,'Input clipped');
-    assert(data.geometry.checkLeft>=-2&&data.geometry.checkRight<=width+2,'Check button clipped');
-    await page.reload({waitUntil:'domcontentloaded'});
-    const reboot=await page.evaluate((ids)=>{
-      const d=mk872ReadDraft();
-      if(!d)return {error:'DRAFT_MISSING_AFTER_RELOAD'};
-      mk872RestoreDraft(d);
-      return {attempt:blockSession?.attemptId,correct:blockSession?.correct,
-        question:q?.sig||q?.text,fields:ids.map(x=>({id:x.id,value:document.getElementById(x.id)?.value})),
-        overlayOpen:document.getElementById('overlay')?.classList.contains('show')};
-    },data.before.fields);
-    assert(!reboot.error,'Draft lost after reload '+JSON.stringify(reboot));
-    assert.equal(reboot.attempt,data.before.attempt,'Reload changed attempt identity');
-    assert.equal(reboot.correct,data.before.correct,'Reload changed score');
-    assert.equal(reboot.question,data.before.question,'Reload changed question');
-    assert.deepEqual(reboot.fields,data.before.fields,'Reload lost one or more inputs');
-    assert(reboot.overlayOpen,'Restored lesson not visible after reload');
-    // Invalid answer should never improve the score. For some modes an invalid string is rejected before penalty.
-    const invalid=await page.evaluate(()=>{
-      const before=blockSession.correct;
-      const check=document.getElementById('quizCheck');check.click();
-      return {before,after:blockSession.correct,feedback:document.getElementById('qfb')?.textContent?.trim().slice(0,140)};
-    });
-    assert.equal(invalid.after,invalid.before,'Invalid input credited');
-    const correct=await page.evaluate(({plan,chosen})=>{
-      const cat=window[plan.catalog]();
-      const sameTopic=cat.find(topic=>topic.id===chosen.topic);
-      const ordered=sameTopic?[sameTopic,...cat.filter(topic=>topic!==sameTopic)]:cat;
-      let found=null;
-      outer:for(const topic of ordered){
-       if(topic.implemented===false)continue;
-       for(let stage=0;stage<3;stage++){
-        try{window[plan.method](topic.id,stage)}catch(e){continue}
-        const input=document.getElementById('quizInput');
-        if(plan.grade===5 && q?.answerMode==='fraction' && stage18UsesFractionBoxes(q) && q.answerRat){
-          const n=Number(q.answerRat.n),d=Number(q.answerRat.d);
-          if(Number.isInteger(n)&&Number.isInteger(d)&&n>0&&d>0){
-           const candidates=[
-            {whole:'',num:String(n),den:String(d)},
-            {whole:'0',num:String(n),den:String(d)},
-            {whole:String(Math.floor(n/d)),num:String(n%d),den:String(d)}
-           ];
-           for(const form of candidates){
-            const wholeCell=document.getElementById('quizFracWhole');
-            const numCell=document.getElementById('quizFracNum'),denCell=document.getElementById('quizFracDen');
-            if(!numCell||!denCell||(!wholeCell&&form.whole!==''))continue;
-            if(wholeCell)wholeCell.value=form.whole;
-            numCell.value=form.num;
-            denCell.value=form.den;
-            const ev=quizInputEvaluation(q,stage18FractionFields());
-            if(ev.valid&&ev.ok){found={topic:topic.id,stage,form,kind:'fraction'};break outer}
-           }
-          }
-        }
-        if(q?.answerMode==='number' && input && q.answerRat){
-          const rat=q.answerRat;
-          const options=[String(q.ans??''),String(q.correctText??''),
-           String(Number(rat.n)/Number(rat.d)),String(rat.n)+'/'+String(rat.d)];
-          const correctValue=options.find(v=>{const e=quizInputEvaluation(q,v);return e.valid&&e.ok});
-          if(correctValue!==undefined){found={topic:topic.id,stage,ans:correctValue};break outer}
-        }
-       }
-      }
-      if(!found)return {skipped:'NO_NUMERIC_ANSWER'};
-      const input=document.getElementById('quizInput'),check=document.getElementById('quizCheck');
-      const scoreBefore=blockSession.correct;
-      if(found.kind==='fraction'){
-        for(const [id,value] of [['quizFracWhole',found.form.whole],['quizFracNum',found.form.num],['quizFracDen',found.form.den]]){
-         const el=document.getElementById(id);
-         if(!el){if(id==='quizFracWhole'&&value==='')continue;throw Error('Missing required fraction input '+id)}
-         el.value=value;el.dispatchEvent(new Event('input',{bubbles:true}));
-        }
-      }else{input.value=String(found.ans);input.dispatchEvent(new Event('input',{bubbles:true}))}
-      check.click();
-      const scoreAfter=blockSession.correct,feedback=document.getElementById('qfb')?.textContent?.trim();
-      const next=document.getElementById('quizNext');
-      check.click();
-      return {found,scoreBefore,scoreAfter,scoreAfterSecond: blockSession.correct,
-        feedback:feedback?.slice(0,140),nextVisible:!!next && getComputedStyle(next).display!=='none'};
-    },{plan,chosen:data.chosen});
-    assert(!correct.skipped,'No valid answer candidate for '+plan.grade+' class');
-    if(!correct.skipped){
-      assert.equal(correct.scoreAfter,correct.scoreBefore+1,'Correct numeric answer not credited: '+JSON.stringify(correct));
-      assert.equal(correct.scoreAfterSecond,correct.scoreAfter,'Repeated Check credited twice');
-      assert(correct.nextVisible,'Next action missing after correct answer');
-    }
-    done.push({width,grade:plan.grade,chosen:data.chosen,attemptPreserved:true,invalid,correct});
-    console.log('PASS_STAGE22',JSON.stringify(done.at(-1)));
-   }catch(e){failures.push({width,grade:plan.grade,error:String(e),data});console.error('FAIL_STAGE22',JSON.stringify(failures.at(-1)).slice(0,2400))}
-   if(pageErrors.length)failures.push({width,grade:plan.grade,type:'js-errors',errors:pageErrors.slice(0,5)});
-   await context.close();
- }
- }
- }finally{await browser.close()}
- console.log('STAGE22_SUMMARY',JSON.stringify({done:done.length,failures:failures.length,details:failures.slice(0,20)}));
- if(failures.length||done.length!==12)process.exitCode=1;
+const host = '#qstage[data-v-app]';
+
+function exerciseState(page) {
+  return page.locator(host).evaluate(exercise => ({
+    attempt: blockSession.attemptId,
+    item: blockSession.currentItem.itemId,
+    question: q.sig || q.text,
+    mode: q.answerMode,
+    correct: blockSession.correct,
+    fields: [...exercise.querySelectorAll('input[id]:not([type="hidden"])')].map(field => ({
+      key: field.id,
+      value: field.value,
+      readonly: field.readOnly,
+    })),
+  }));
 }
-main().catch(e=>{console.error(e);process.exitCode=1});
+
+function score(page) {
+  return page.evaluate(() => ({
+    correct: blockSession.correct,
+    done: blockSession.done,
+    xp: state.xp,
+    coins: state.coins,
+  }));
+}
+
+function startExercise(page, plan) {
+  return page.evaluate(({grade, topic, stage}) => window['startG' + grade + 'QuizStage'](topic, stage), plan);
+}
+
+async function checkScoring(page, plan, attempt) {
+  const exercise = page.locator(host);
+  const check = exercise.locator('#quizCheck');
+  const beforeWrong = await score(page);
+  await check.click();
+  assert.deepEqual(await score(page), beforeWrong, 'Invalid input credited');
+  assert((await exercise.locator('#qfb').innerText()).trim(), 'Missing invalid input feedback');
+  assert(await check.isVisible(), 'Invalid input advanced the exercise');
+
+  // Start a fresh attempt to measure first-try credit after checking the restored wrong answer.
+  await startExercise(page, plan);
+  await check.waitFor();
+  assert.notEqual((await exerciseState(page)).attempt, attempt);
+  const before = await score(page);
+  const solution = await page.evaluate(() => {
+    const {n, d} = q.answerRat;
+    if (q.answerMode === 'fraction') {
+      const denominator = Number(document.getElementById('quizFracDen').value);
+      const whole = Math.floor(n / d);
+      const numerator = (n - whole * d) * denominator / d;
+      return {quizFracWhole: String(whole), quizFracNum: String(numerator)};
+    }
+    return {quizInput: d === 1 ? String(n) : n + '/' + d};
+  });
+  for (const [key, value] of Object.entries(solution)) {
+    await exercise.locator('#' + key).fill(value);
+  }
+  await check.click();
+  await exercise.locator('#quizNext').waitFor();
+  const after = await score(page);
+  assert.equal(after.correct, before.correct + 1, 'Correct answer not credited in Grade ' + plan.grade);
+  assert.equal(after.done, before.done + 1);
+  assert.equal(await check.isVisible(), false);
+  // A repeated invocation must not award credit once the Next action is visible.
+  await page.evaluate(() => checkQuizInput());
+  assert.deepEqual(await score(page), after, 'Repeated Check credited twice');
+}
+
+async function checkDraft(browser, url, width, plan) {
+  const context = await browser.newContext({
+    viewport: {width, height: 690}, isMobile: width < 500, hasTouch: width < 500,
+  });
+  const page = await context.newPage();
+  const pageErrors = [];
+  page.on('pageerror', error => pageErrors.push(error.message));
+
+  try {
+    await page.goto(url, {waitUntil: 'domcontentloaded'});
+    await page.waitForFunction(() => !!navigator.serviceWorker.controller);
+    await page.evaluate(grade => openGrade(grade), plan.grade);
+    await startExercise(page, plan);
+    const exercise = page.locator(host);
+    const check = exercise.locator('#quizCheck');
+    await check.waitFor();
+    const initial = await exerciseState(page);
+    const editable = initial.fields.filter(field => !field.readonly);
+    assert.equal(initial.mode, plan.mode);
+    assert(initial.attempt && initial.item && initial.question, 'Missing attempt or question identity');
+    assert.equal(editable.length, plan.mode === 'fraction' ? 2 : 1);
+    if (plan.mode === 'fraction') {
+      const denominator = initial.fields.find(field => field.key === 'quizFracDen');
+      assert(denominator?.readonly && Number(denominator.value) > 0, 'Expected a fixed denominator');
+    }
+
+    const values = ['-123456789', '987654321'];
+    const inputs = new Map(editable.map((field, index) => [field.key, values[index]]));
+    for (const [key, value] of inputs) await exercise.locator('#' + key).fill(value);
+    const before = await exerciseState(page);
+    assert.deepEqual(before.fields, initial.fields.map(field => ({
+      ...field, value: inputs.get(field.key) ?? field.value,
+    })));
+
+    await page.waitForFunction(({attempt, fields}) => {
+      const draft = mk872ReadDraft();
+      return draft?.schema === 2 && draft.attemptId === attempt && fields.every(expected =>
+        draft.view.fields.some(field => field.key === expected.key && field.value === expected.value));
+    }, before);
+    const draft = await page.evaluate(() => mk872ReadDraft());
+    assert.equal(draft.values.block.currentItem.itemId, before.item);
+
+    for (const field of editable) await exercise.locator('#' + field.key).fill('7');
+    await page.evaluate(draft => mk872RestoreDraft(draft), draft);
+    await check.waitFor();
+    assert.deepEqual(await exerciseState(page), before, 'In-place restore changed attempt or inputs');
+
+    await context.setOffline(true);
+    await page.reload({waitUntil: 'domcontentloaded'});
+    const resume = page.getByRole('alertdialog', {name: /незавершённая тренировка/});
+    await resume.getByRole('button', {name: 'Продолжить', exact: true}).press('Enter');
+    await check.waitFor();
+    assert.deepEqual(await exerciseState(page), before, 'Offline F5 changed attempt or inputs');
+    assert(await page.locator('#overlay').evaluate(overlay => overlay.classList.contains('show')));
+
+    const layout = await exercise.evaluate(stage => ({
+      width: document.documentElement.clientWidth,
+      scrollWidth: document.documentElement.scrollWidth,
+      controls: [...stage.querySelectorAll('input[id]:not([type="hidden"]),#quizCheck')].map(control => {
+        const {left, right, width, height} = control.getBoundingClientRect();
+        return {id: control.id, left, right, width, height};
+      }),
+    }));
+    assert(layout.scrollWidth <= width + 2, 'Horizontal page overflow');
+    assert.equal(layout.controls.length, before.fields.length + 1);
+    for (const control of layout.controls) {
+      assert(control.width > 0 && control.height > 0 && control.left >= -2 && control.right <= layout.width + 2,
+        'Hidden or clipped control: ' + JSON.stringify(control));
+    }
+
+    await checkScoring(page, plan, before.attempt);
+    assert.deepEqual(pageErrors, []);
+  } finally {
+    await context.close();
+  }
+}
+
+withMatkvestBrowser(async (browser, url) => {
+  const failures = [];
+  let passed = 0;
+  for (const width of [320, 390, 768]) {
+    for (const plan of plans) {
+      try {
+        await checkDraft(browser, url, width, plan);
+        passed++;
+        console.log('PASS_STAGE22', width, plan.grade, plan.topic, 'schema 2 and offline F5');
+      } catch (error) {
+        failures.push({width, grade: plan.grade, error: error.message});
+        console.error('FAIL_STAGE22', width, plan.grade, error);
+      }
+    }
+  }
+  console.log('STAGE22_SUMMARY', JSON.stringify({passed, failures: failures.length}));
+  assert.equal(failures.length, 0);
+}).catch(error => {
+  console.error(error);
+  process.exitCode = 1;
+});

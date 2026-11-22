@@ -1,5 +1,6 @@
 'use strict';
-const assert=require('node:assert/strict'),path=require('node:path'),fs=require('node:fs'),{chromium}=require('playwright');
+const {withMatkvestBrowser, openGrade5Textbook} = require('./matkvest_browser_harness.cjs');
+const assert=require('node:assert/strict'),fs=require('node:fs');
 const samplesPerSlot=40,id='plane_line_ray';
 function oracle(node){
  const [op,...parts]=node,E=oracle;
@@ -37,14 +38,13 @@ function independentAnswer(q){
  }
  throw Error('Unknown paragraph-four family '+q.level+'/'+q.family);
 }
-(async()=>{
- const catalog=fs.readFileSync('g5-textbook-navigation-v121.js','utf8');
- assert(catalog.includes("[4,'Плоскость, прямая, луч, угол',['plane_line_ray']]"),'§4 must route to the real reviewed topic');
- const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
- try{
+withMatkvestBrowser(async (browser, url) => {
+  const catalog=fs.readFileSync('g5-textbook-navigation-v121.js','utf8');
+  assert(catalog.includes("[4,'Плоскость, прямая, луч, угол',['plane_line_ray']]"),'§4 must route to the real reviewed topic');
   const page=await browser.newPage({viewport:{width:390,height:844}}),browserErrors=[];
   page.on('pageerror',e=>browserErrors.push(e.message));
-  await page.goto('file://'+path.resolve('index.html'),{waitUntil:'domcontentloaded'});
+  await page.goto(url, {waitUntil: 'domcontentloaded'});
+  await openGrade5Textbook(page);
   const result=await page.evaluate(({id,samplesPerSlot})=>{
    let seed=2026111304;Math.random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296};
    const rows=[],counters={gallery:0,rays:0,segment:0,angle:0,lines:0,marked:0,cross:0,fourPoints:0};
@@ -113,7 +113,6 @@ function independentAnswer(q){
     }else throw Error('No visual validation case '+key);
     rows.push({level,family,trial,ans:String(q.ans),plain,choices:q.choices.map(c=>({key:String(c.key),label:String(c.label)})),template:q.templateId,meta:q.mk124,order,visualKey:level===0?(family===0?order.join(','):family===2?points.map(p=>p.getAttribute('cx')).join(','):family===3?lines.map(l=>l.getAttribute('x2')).join(','):null):null,ex:String(q.ex)});
    }
-   renderGrade5();
    const links=[...document.querySelectorAll('#mk-g5-textbook-nav .mk-g5-toc-link[data-topic-id="plane_line_ray"]')];
    return {total:g5AllTopics().length,lesson:g5Lesson(id),rows,counters,links:links.length};
   },{id,samplesPerSlot});
@@ -142,5 +141,4 @@ function independentAnswer(q){
   for(const [slot,texts]of variations)assert(texts.size>=2,'Family repeats identical question with no variation: '+slot);
   assert.deepEqual(browserErrors,[],'Browser runtime exception');
   console.log('G5_SEQUENTIAL_PARAGRAPH_04_PASS '+JSON.stringify({paragraph:4,topics:1,questions:result.rows.length,families:familyKeys.size,meanSteps:avg,visual:result.counters,links:result.links}));
- }finally{await browser.close()}
-})().catch(e=>{console.error('G5_SEQUENTIAL_PARAGRAPH_04_FAIL',e.stack||e);process.exit(1)});
+}).catch(e=>{console.error('G5_SEQUENTIAL_PARAGRAPH_04_FAIL',e.stack||e);process.exit(1)});

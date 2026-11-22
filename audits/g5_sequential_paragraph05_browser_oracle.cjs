@@ -1,5 +1,6 @@
 'use strict';
-const assert=require('node:assert/strict'),path=require('node:path'),fs=require('node:fs'),{chromium}=require('playwright');
+const {withMatkvestBrowser, openGrade5Textbook} = require('./matkvest_browser_harness.cjs');
+const assert=require('node:assert/strict'),fs=require('node:fs');
 const id='coordinate',N=40,fmt=q=>q.level+'/'+q.family+'/'+q.trial;
 const numbers=(text,re)=>{const m=text.match(re);assert(m,'Cannot parse actual §5 learner prompt '+text);return m.slice(1).map(Number)};
 function independent(q){
@@ -66,14 +67,13 @@ function checkSvg(q){
  const expectedMoves=[[0,0,1,0,0],[2,0,1,2,0],[2,0,3,0,1]][q.level][q.family];
  assert.equal(m.moves.length,expectedMoves,'Number of shown movements is wrong '+key);
 }
-(async()=>{
- const src=fs.readFileSync('g5-textbook-navigation-v121.js','utf8');
- assert(src.includes("[5,'Шкалы и координатная прямая',['coordinate']]"),'§5 textbook navigation was changed');
- const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
- try{
+withMatkvestBrowser(async (browser, url) => {
+  const src=fs.readFileSync('g5-textbook-navigation-v121.js','utf8');
+  assert(src.includes("[5,'Шкалы и координатная прямая',['coordinate']]"),'§5 textbook navigation was changed');
   const page=await browser.newPage({viewport:{width:390,height:844}}),errors=[];
   page.on('pageerror',e=>errors.push(e.message));
-  await page.goto('file://'+path.resolve('index.html'),{waitUntil:'domcontentloaded'});
+  await page.goto(url, {waitUntil: 'domcontentloaded'});
+  await openGrade5Textbook(page);
   const data=await page.evaluate(({id,N})=>{
    let seed=2026111305;Math.random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296};
    const rows=[];
@@ -92,7 +92,6 @@ function checkSvg(q){
     }:null;
     rows.push({level,family,trial,ans:String(q.ans),plain,fig,meta:q.mk125,template:q.templateId,choices:q.choices.map(c=>({key:String(c.key),label:String(c.label)}))});
    }
-   renderGrade5();
    return {count:g5AllTopics().length,lesson:g5Lesson(id),links:document.querySelectorAll('#mk-g5-textbook-nav .mk-g5-toc-link[data-topic-id="coordinate"]').length,rows};
   },{id,N});
   assert.equal(data.count,74,'Grade 5 topic catalog lost topics');
@@ -125,5 +124,4 @@ function checkSvg(q){
   assert([...divisions].some(x=>x>1),'No real graduated non-unit scales');
   assert.deepEqual(errors,[],'Uncaught browser errors');
   console.log('G5_SEQUENTIAL_PARAGRAPH_05_PASS '+JSON.stringify({paragraph:5,questions:data.rows.length,families:families.size,geometryChecks:600,difficulty:avgs,scaleDivisions:[...divisions].sort((a,b)=>a-b),navLinks:data.links}));
- }finally{await browser.close()}
-})().catch(e=>{console.error('G5_SEQUENTIAL_PARAGRAPH_05_FAIL',e.stack||e);process.exit(1)});
+}).catch(e=>{console.error('G5_SEQUENTIAL_PARAGRAPH_05_FAIL',e.stack||e);process.exit(1)});

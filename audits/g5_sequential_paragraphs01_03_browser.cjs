@@ -1,5 +1,6 @@
 'use strict';
-const {chromium}=require('playwright'),path=require('node:path'),assert=require('node:assert/strict'),fs=require('node:fs');
+const {withMatkvestBrowser, openGrade5Textbook} = require('./matkvest_browser_harness.cjs');
+const assert=require('node:assert/strict'),fs=require('node:fs');
 const topics=[['number_tables',1],['natural',2],['segments_polygons',3]];
 const N=20;
 function evalInt(plan){
@@ -41,13 +42,12 @@ function expectTable(q){
   assert.equal(String(values[q.family]),q.ans,'§1 master must compute what table and question actually say');
  }
 }
-(async()=>{
- const nav=fs.readFileSync('g5-textbook-navigation-v121.js','utf8');
- for(const [id,n]of topics)assert(nav.includes("["+n+",'"),'Missing paragraph '+n);
- const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
- try{
+withMatkvestBrowser(async (browser, url) => {
+  const nav=fs.readFileSync('g5-textbook-navigation-v121.js','utf8');
+  for(const [id,n]of topics)assert(nav.includes("["+n+",'"),'Missing paragraph '+n);
   const page=await browser.newPage({viewport:{width:390,height:844}}),errors=[];page.on('pageerror',e=>errors.push(e.message));
-  await page.goto('file://'+path.resolve('index.html'),{waitUntil:'domcontentloaded'});
+  await page.goto(url, {waitUntil: 'domcontentloaded'});
+  await openGrade5Textbook(page);
   const output=await page.evaluate(topics=>{
    let seed=202611130103;Math.random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296};
    const out=[],stages=[],ids=topics.map(([id])=>id);
@@ -70,7 +70,6 @@ function expectTable(q){
       template:q.templateId,meta:q.mk125||q.mk123||q.mk122||q.mk5Audit,grid:rows,caption:table?.querySelector('caption')?.textContent||null,
       colHeaders:table?[...table.querySelectorAll('thead th')].map(x=>x.textContent):null,shape});
    }
-   renderGrade5();
    const links=ids.map(id=>({id,number:document.querySelectorAll('#mk-g5-textbook-nav .mk-g5-toc-link[data-topic-id="'+id+'"]').length}));
    return {count:g5AllTopics().length,questions:out,links};
   },topics);
@@ -155,5 +154,4 @@ function expectTable(q){
   assert(means[0]<means[1],'§1 training and master difficulty must increase');
   assert.deepEqual(errors,[],'Uncaught browser runtime exception');
   console.log('G5_SEQUENTIAL_PARAGRAPHS_01_03_PASS '+JSON.stringify({paragraphs:[1,2,3],topics:topics.map(t=>t[0]),questions:output.questions.length,families:families.size,tableChecks,zeroDigitSamples:zeroDigit,visualChecks:pictures,links:output.links.length}));
- }finally{await browser.close()}
-})().catch(e=>{console.error('G5_SEQUENTIAL_PARAGRAPHS_01_03_FAIL',e.stack||e);process.exit(1)});
+}).catch(e=>{console.error('G5_SEQUENTIAL_PARAGRAPHS_01_03_FAIL',e.stack||e);process.exit(1)});

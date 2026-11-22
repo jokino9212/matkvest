@@ -1,5 +1,6 @@
 'use strict';
-const {chromium}=require('playwright'),path=require('node:path'),fs=require('node:fs'),assert=require('node:assert/strict');
+const {withMatkvestBrowser, openGrade5Textbook} = require('./matkvest_browser_harness.cjs');
+const fs=require('node:fs'),assert=require('node:assert/strict');
 const route=fs.readFileSync('g5-textbook-navigation-v121.js','utf8');
 assert(route.includes("[25,'Окружность, круг, шар, цилиндр',['frac_shapes']]"),'§25 must route to corrected topic ID');
 function intPlan(node){
@@ -12,11 +13,10 @@ function intPlan(node){
  if(op==='abs'){const x=E(v[0]);return x<0n?-x:x;}
  throw Error('Unsupported independent operation '+op);
 }
-(async()=>{
- const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
- try{
+withMatkvestBrowser(async (browser, url) => {
   const page=await browser.newPage({viewport:{width:390,height:844}});
-  await page.goto('file://'+path.resolve('index.html'),{waitUntil:'domcontentloaded'});
+  await page.goto(url, {waitUntil: 'domcontentloaded'});
+  await openGrade5Textbook(page);
   const data=await page.evaluate(()=>{
    let seed=2026111340;Math.random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296};
    const topics=g5AllTopics(),found=topics.find(t=>t.id==='frac_shapes');
@@ -89,12 +89,10 @@ function intPlan(node){
   assert.equal(semantic.basic,80,'Must validate all shuffled basic SVG figures');
   assert.equal(semantic.details,40,'Must validate every shuffled arc and sector SVG');
   const nav=await page.evaluate(()=>{
-   renderGrade5();
    const links=[...document.querySelectorAll('#mk-g5-textbook-nav .mk-g5-toc-link[data-topic-id="frac_shapes"]')];
    return {links:links.length,text:links[0]?.textContent||'',label:links[0]?.getAttribute('data-topic-id')};
   });
   assert.equal(nav.links,1,'§25 textbook navigation must render one live corrected topic');
   assert(nav.text.includes('Окружность, круг, шар, цилиндр'),'§25 button must have textbook title');
   console.log('G5_STAGE40_CIRCLES_PASS '+JSON.stringify({topics:data.count,samples:data.rows.length,families:families.size,meanSteps:means.map(x=>Math.round(x*100)/100),svgShapeChecks:semantic.basic,arcSectorChecks:semantic.details,paragraph25Links:nav.links}));
- }finally{await browser.close();}
-})().catch(e=>{console.error('G5_STAGE40_CIRCLES_FAIL',e.stack||e);process.exit(1)});
+}).catch(e=>{console.error('G5_STAGE40_CIRCLES_FAIL',e.stack||e);process.exit(1)});
