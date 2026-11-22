@@ -1,76 +1,101 @@
 'use strict';
-const {chromium}=require('playwright');
-const path=require('node:path');
-const assert=require('node:assert/strict');
-async function main(){
- const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
- let issues=[];
- try{
-  for(const width of [320,360,390,412,430,768]){
-   const ctx=await browser.newContext({viewport:{width,height:740},isMobile:width<500,hasTouch:width<500});
-   let page;const errors=[];
-   const cases=[
-    ['column-division',async()=>{
-      await page.evaluate(()=>{startColumnStage('div',0);task={a:14067,b:3,quotient:'4689',ans:4689,steps:divisionSteps(14067,3)};renderDivision()});
-      await page.locator('.column-modal .qin').first().waitFor();
-      return '.column-modal .qin';
-    }],
-    ['grade6-topic',async()=>{
-      await page.evaluate(()=>openGrade(6));
-      const topic=page.locator('#mainView .topic:not(.locked):not(.disabled):not(.soon)').first();
-      await topic.click({timeout:5000});
-      const stages=page.locator('#modal button.stage-card:not(:disabled):not(.locked)');
-      if(await stages.count())await stages.first().click({timeout:5000});
-      return '#modal input:visible,#modal textarea:visible';
-    }],
-    ['grade5-topic',async()=>{
-      await page.evaluate(()=>openGrade(5));
-      const topic=page.locator('#mainView .topic:not(.locked):not(.disabled):not(.soon)').first();
-      await topic.click({timeout:5000});
-      return '#modal input:visible,#modal textarea:visible';
-    }],
-   ];
-   for(const [name,open] of cases){
-    page=await browser.newPage({viewport:{width,height:740},isMobile:width<500,hasTouch:width<500});page.on('pageerror',e=>errors.push(e.message));
-    await page.goto('file://'+path.resolve('index.html'),{waitUntil:'domcontentloaded'});
-    let sel;try{sel=await open()}catch(e){issues.push({width,name,type:'opening-error',error:e.message.slice(0,150)});continue}
-    const snapshot=await page.evaluate(()=>{
-      const el=document.querySelector('.column-modal')||document.querySelector('#modal');
-      const root=el&&el.getBoundingClientRect(); const vw=document.documentElement.clientWidth;
-      const controls=[...(el?.querySelectorAll('input,textarea,select,button,.quizq,.lesson,.stage-card,.column-modal .div-layout')||[])].filter(e=>{
-       const r=e.getBoundingClientRect();return r.width>0 && r.height>0&&getComputedStyle(e).visibility!=='hidden'
-      });
-      const bad=controls.filter(e=>{if(e.closest('.shop-tabs'))return false;const r=e.getBoundingClientRect();return r.left < Math.max(0,root.left)-3 || r.right>Math.min(vw,root.right)+3}).slice(0,8).map(e=>({tag:e.tagName,cls:String(e.className).slice(0,50),left:Math.round(e.getBoundingClientRect().left),right:Math.round(e.getBoundingClientRect().right)}));
-      return {vw,scrollWidth:document.documentElement.scrollWidth,root:root&&{left:root.left,right:root.right},controls:controls.length,bad};
+const assert = require('node:assert/strict');
+const {withMatkvestBrowser} = require('./matkvest_browser_harness.cjs');
+
+const divisionCells = '#stage[data-v-app] .qin:not([readonly]):not([disabled])';
+const quizFields = '#qstage[data-v-app] input:not([type="hidden"]):not([readonly]):not([disabled])';
+const cases = [
+  {name: 'column-division'},
+  {name: 'grade5-topic', grade: 5, topic: 'frac_to_mixed'},
+  {name: 'grade6-topic', grade: 6, topic: 'g6:arithmetic_mean'},
+];
+
+async function openExercise(page, scenario) {
+  if (scenario.name === 'column-division') {
+    await page.evaluate(() => {
+      startColumnStage('div', 0);
+      // Use a long quotient to exercise movement between cells at narrow widths.
+      task = {a: 14067, b: 3, quotient: '4689', ans: 4689, steps: divisionSteps(14067, 3)};
+      renderTask();
     });
-    if(snapshot.scrollWidth>width+2||snapshot.bad.length)issues.push({width,name,type:'horizontal-overflow',snapshot});
-    const first=page.locator(sel).first();
-    if(await first.count() && await first.isVisible()){
-      await first.focus();
-      await page.setViewportSize({width,height:420});
-      await first.evaluate(el=>el.scrollIntoView({block:'nearest',inline:'nearest'}));
-      const state=await first.evaluate(el=>{
-       const r=el.getBoundingClientRect();
-       const vh=document.documentElement.clientHeight;
-       const ancestors=[];
-       for(let p=el.parentElement;p;p=p.parentElement){
-        const cs=getComputedStyle(p);
-        if(/auto|scroll/.test(cs.overflowY))ancestors.push({cls:String(p.className).slice(0,40),scrollHeight:p.scrollHeight,clientHeight:p.clientHeight,scrollTop:p.scrollTop});
-       }
-       return {top:Math.round(r.top),bottom:Math.round(r.bottom),viewportHeight:vh,focused:document.activeElement===el,ancestors};
-      });
-      console.log('KEYBOARD',width,name,JSON.stringify(state));
-      if(!state.focused||state.top<0||state.bottom>420+3)issues.push({width,name,type:'keyboard-focus-not-visible',state});
-      await page.setViewportSize({width,height:740});
-    }
-    console.log('SCREEN',width,name,JSON.stringify(snapshot));
-    await page.close();
-   }
-   if(errors.length)issues.push({width,type:'pageerror',errors:errors.slice(0,3)});
-   await ctx.close();
+    return page.locator(divisionCells);
   }
- }finally{await browser.close()}
- console.log('ISSUES',JSON.stringify(issues.slice(0,40)));
- if(issues.length)process.exitCode=1;
+
+  await page.evaluate(grade => openGrade(grade), scenario.grade);
+  const course = page.locator('#grade' + scenario.grade + 'Vue[data-v-app]');
+  await course.locator('.topic[data-topic-id="' + scenario.topic + '"]').click();
+  await page.locator('#modal [data-v-app] button.stage-card:not(:disabled)').first().click();
+  return page.locator(quizFields);
 }
-main().catch(e=>{console.error(e);process.exitCode=1});
+
+function layout(page) {
+  return page.locator('#modal').evaluate(modal => {
+    const viewportWidth = document.documentElement.clientWidth;
+    const root = modal.getBoundingClientRect();
+    const controls = [...modal.querySelectorAll('input,textarea,select,button,.quizq,.lesson,.stage-card,.div-layout')];
+    const bad = controls.flatMap(control => {
+      const {width, height, left, right} = control.getBoundingClientRect();
+      if (!width || !height || getComputedStyle(control).visibility === 'hidden') return [];
+      if (left >= Math.max(0, root.left) - 3 && right <= Math.min(viewportWidth, root.right) + 3) return [];
+      return [{tag: control.tagName, className: control.className, left, right}];
+    });
+    return {viewportWidth, scrollWidth: document.documentElement.scrollWidth, bad};
+  });
+}
+
+async function checkScreen(browser, url, width, scenario) {
+  const page = await browser.newPage({
+    viewport: {width, height: 740}, isMobile: width < 500, hasTouch: width < 500,
+  });
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  try {
+    await page.goto(url, {waitUntil: 'domcontentloaded'});
+    const fields = await openExercise(page, scenario);
+    await fields.first().waitFor();
+    for (const height of [740, 420]) {
+      await page.setViewportSize({width, height});
+      const screen = await layout(page);
+      assert(screen.scrollWidth <= width + 2, 'Horizontal page overflow: ' + JSON.stringify(screen));
+      assert.deepEqual(screen.bad, [], 'Controls overflow the training modal at height ' + height);
+    }
+
+    let focused = fields.first();
+    await focused.focus();
+    if (scenario.name === 'column-division') {
+      await focused.press('ArrowRight');
+      focused = fields.nth(1);
+    }
+    const keyboard = await focused.evaluate(field => {
+      field.scrollIntoView({block: 'nearest', inline: 'nearest'});
+      const {top, bottom} = field.getBoundingClientRect();
+      return {top, bottom, height: document.documentElement.clientHeight, focused: document.activeElement === field};
+    });
+    assert(keyboard.focused && keyboard.top >= 0 && keyboard.bottom <= keyboard.height + 3,
+      'Focused field is outside the keyboard viewport: ' + JSON.stringify(keyboard));
+    await page.keyboard.type('4');
+    assert.equal(await focused.inputValue(), '4', 'Focused Vue field did not accept keyboard input');
+    assert.deepEqual(errors, []);
+  } finally {
+    await page.close();
+  }
+}
+
+withMatkvestBrowser(async (browser, url) => {
+  const issues = [];
+  for (const width of [320, 360, 390, 412, 430, 768]) {
+    for (const scenario of cases) {
+      try {
+        await checkScreen(browser, url, width, scenario);
+        console.log('PASS_STAGE21', width, scenario.name);
+      } catch (error) {
+        issues.push({width, scenario: scenario.name, error: error.message});
+      }
+    }
+  }
+  console.log('ISSUES', JSON.stringify(issues));
+  assert.equal(issues.length, 0);
+}).catch(error => {
+  console.error(error);
+  process.exitCode = 1;
+});
