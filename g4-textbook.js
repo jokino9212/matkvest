@@ -732,7 +732,7 @@ const previousQuizPath = openQuizPath;
 openQuizPath = function (id) {
  const item = getTopic(id);
  if (!item?.generate) return previousQuizPath(id);
- return openStagePicker(id,item.title,item.icon,`startQuizStage.bind(null,'${id}')`,{descriptions:stageDescriptions});
+ return openStagePicker(id,item.title,item.icon,index=>startQuizStage(id,index),{descriptions:stageDescriptions});
 };
 
 const previousAnalytics = analyticsTopicMeta;
@@ -751,23 +751,22 @@ knowledgeGradeSections = function (grade) {
  ];
 };
 
-function card(id, chapterTitle = '') {
- const item = TOPICS.find(t=>t.id===id);
- return `<button type="button" class="topic ${chapterTitle?'g4-textbook-card':''}" onclick="openTopic('${id}')" data-topic-id="g4:${id}">
-  <span class="ico" aria-hidden="true">${item.ico}</span><strong>${esc(catalog.get(id)?.title||item.title)}</strong>
-  <small>${esc(chapterTitle || item.sub)}</small><span class="topic-progress">${topicProgressText(id)}</span></button>`;
-}
-
 renderGrade4 = function () {
  document.body.classList.remove('elementary-mode');
- mainView.innerHTML = `<div class="home-back-row"><button class="home-back-btn" onclick="renderHome()">← Главный экран</button></div>
-  <section class="grade-hero"><div><h1>Математика 4 класса</h1><p>Моро и др. • «Школа России»</p></div>
-  <span class="grade-chip">${gradeBookIcon(4,true)} 4 класс</span></section>
-  <section class="g6-group" aria-label="Отдельные тренажёры">
-   <div class="grade-head"><h2>Отдельные тренажёры</h2></div><div class="grid">${card('column')}${card('table')}</div>
-  </section>
-  ${chapters.map(chapter=>`<section class="g6-group g4-textbook-group"><div class="grade-head"><div><h2>${esc(chapter.title)}</h2></div></div>
-   <div class="grid">${chapter.topics.map(item=>card(item.id,chapter.title)).join('')}</div></section>`).join('')}`;
+ const byId=new Map(TOPICS.map(topic=>[topic.id,topic]));
+ const card=(id,subtitle,title)=>{
+  const topic=byId.get(id);
+  return {id,title:title||topic.title,subtitle:subtitle||topic.sub,icon:topic.ico,progress:topicProgressText(id),
+   className:title?"g4-textbook-card":""};
+ };
+ const sections=[
+  {id:"trainers",title:"Отдельные тренажёры",trainers:true,topics:[card("column"),card("table")]},
+  ...chapters.map((chapter,index)=>({
+   id:index,title:chapter.title,className:"g4-textbook-group",done:chapter.topics.filter(item=>completedStages(item.id)===3).length,
+   topics:chapter.topics.map(item=>card(item.id,chapter.title,item.title))
+  }))
+ ];
+ renderCourseView(4,"Моро и др. • «Школа России»",sections,id=>openTopic(id),renderGrade4);
 };
 
 window.grade4Textbook = {

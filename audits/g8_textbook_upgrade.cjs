@@ -98,7 +98,7 @@ async function run(browser,address,width){
   await page.waitForFunction(()=>!!navigator.serviceWorker.controller);
   await catalog(page,counts(oldCount));
   if(old.version>=193){
-   await page.locator('button[onclick="openGrade(8)"]').click();
+   await page.getByRole('button',{name:'Открыть 8 класс',exact:true}).click();
    await gradeMenu(page,old,oldCount);
   }
   await page.evaluate(()=>{

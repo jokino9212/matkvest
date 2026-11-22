@@ -77,7 +77,7 @@ async function restoredCompletion(page){
    const history=(state.attemptHistory||[]).filter(x=>x.id===started.id);
    const finalized={history:history.length,status:history[0]?.status,reportId:blockSession.reportId,
     total:blockSession.total,done:blockSession.done,correct:blockSession.correct,
-    xp:state.xp,coins:state.coins,rendered:document.querySelector('.block-result')?.textContent?.includes('Верно с первой')||false,
+    xp:state.xp,coins:state.coins,
     active:state.activeAttempt?.id||null,bonusFlags:progressFor(blockSession.key).bonus.slice()};
    // The finished screen contains an action that can trigger finishBlock again in abnormal cases.
    finishBlock();
@@ -92,7 +92,7 @@ async function restoredCompletion(page){
  assert.equal(report.recovered.itemCount,started.itemCount,'Recovery changed completed items');
  assert.equal(report.finalized.history,1,'Missing or duplicate history records');
  assert(report.finalized.reportId,'Finalized report ID missing');
- assert(report.finalized.rendered,'Result screen missing');
+ await page.locator('.vue-report[data-v-app] .block-result').getByText(/Верно с первой/).waitFor();
  assert.equal(report.finalized.done,report.finalized.total,'Block not fully completed');
  assert.equal(report.repeated.history,1,'Repeated finish created duplicate history');
  assert.equal(report.repeated.xp,report.finalized.xp,'Repeated finish awarded extra XP');
@@ -216,7 +216,8 @@ async function firstPassBonus(page){
 }
 
 async function main(){
- const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
+ // This standalone audit opens the app from disk and needs its local Vue module.
+ const browser=await chromium.launch({headless:true,args:['--no-sandbox','--allow-file-access-from-files']});
  let failures=0;
  try{
   for(const width of [320,390,768]){

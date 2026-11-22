@@ -36,7 +36,7 @@ const rebuilt=[
 ];
 async function testNavigation(page){
  await page.goto(pathToFileURL(process.cwd()+'/index.html').href,{waitUntil:'domcontentloaded'});
- await page.locator('button[onclick="openGrade(8)"]').click();
+ await page.getByRole('button',{name:'Открыть 8 класс',exact:true}).click();
  const menu=page.locator('#mk-g8-textbook-nav');
  const search=page.locator('main input[type=search]:visible');
  await menu.waitFor();
@@ -756,7 +756,7 @@ async function testSolutionMethods(page,topics,checkLayout=true){
     const geometryPage=await browser.newPage(options);
     geometryPage.on('pageerror',error=>errors.push(error.message));
     await geometryPage.goto(pathToFileURL(process.cwd()+'/index.html').href,{waitUntil:'domcontentloaded'});
-    await geometryPage.locator('button[onclick="openGrade(8)"]').click({timeout:20000});
+    await geometryPage.getByRole('button',{name:'Открыть 8 класс',exact:true}).click({timeout:20000});
     const result=await testGeometry(geometryPage,section);
     await geometryPage.close();
     console.log(JSON.stringify({width,...result}));

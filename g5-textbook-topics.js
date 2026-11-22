@@ -76,38 +76,6 @@ const aliases={
  'g6:expression_simplify':['упростить выражение','буквенные выражения'],
  'g6:expression_value':['подстановка в буквенное выражение','значение выражения']
 };
-const oldGrade5=renderGrade5,oldGrade6=renderGrade6;
-function normalizeSearch(value){return String(value||'').toLocaleLowerCase('ru').replace(/ё/g,'е').replace(/[^\p{L}\p{N}]+/gu,' ').trim()}
-function enableTextbookSearch(grade){
- const catalog=grade===5?g5AllTopics():g6AllTopics(),selector=grade===5?'.g5-card':'.g6-card';
- const cards=[...mainView.querySelectorAll(selector)],hero=mainView.querySelector('.grade-hero');
- if(!hero||cards.length!==catalog.length)return;
- if(!document.getElementById('mk-textbook-search-styles')){
-  const style=document.createElement('style');style.id='mk-textbook-search-styles';
-  style.textContent='.mk-textbook-search{margin:16px 0 24px;padding:15px;border:1px solid var(--border,#cbd5e1);border-radius:14px;background:var(--card,#fff)}.mk-textbook-search label{display:block;font-weight:700;margin-bottom:8px}.mk-textbook-search input{display:block;width:100%;box-sizing:border-box;min-height:44px;padding:10px 12px;border:1px solid #9aa8b9;border-radius:10px;font:inherit;background:var(--bg,#fff);color:inherit}.mk-textbook-search input:focus-visible{outline:3px solid #3274d9;outline-offset:2px}.mk-textbook-search .mk-search-status{margin:8px 0 0;min-height:1.4em;font-size:.9em}';
-  document.head.appendChild(style);
- }
- const wrap=document.createElement('div');wrap.className='mk-textbook-search';
- const label=document.createElement('label');label.textContent='Найти тему по учебнику';label.htmlFor='mk-textbook-search-input-'+grade;
- const input=document.createElement('input');input.type='search';input.id=label.htmlFor;input.placeholder='Например: деление с остатком, раскрытие скобок';input.autocomplete='off';
- const status=document.createElement('div');status.className='mk-search-status';status.setAttribute('role','status');status.setAttribute('aria-live','polite');
- wrap.append(label,input,status);hero.insertAdjacentElement('afterend',wrap);
- const rows=cards.map((card,i)=>{const topic=catalog[i],words=[topic.title,topic.sub,topic.shortTitle,topic.group,topic.section,...(aliases[topic.id]||[])];return {card,title:normalizeSearch(topic.title),text:normalizeSearch(words.filter(Boolean).join(' '))}});
- function update(){
-  const value=normalizeSearch(input.value),terms=value.split(' ').filter(Boolean);
-  let count=0;
-  const exact=value?rows.filter(row=>row.title===value):[];
-  for(const row of rows){const visible=exact.length?exact.includes(row):terms.every(term=>row.text.includes(term));row.card.hidden=!visible;row.card.style.display=visible?'':'none';if(visible)count++}
-  for(const group of mainView.querySelectorAll(grade===5?'.g5-group':'.g6-group')){
-   const shown=[...group.querySelectorAll(selector)].some(card=>!card.hidden);
-   group.hidden=!shown;group.style.display=shown?'':'none';
-  }
-  status.textContent=value?'Найдено тем: '+count+(count===0?'. Попробуйте другое название.':''):'Все темы: '+catalog.length;
- }
- input.addEventListener('input',update);update();
-}
-renderGrade5=function(...args){const result=oldGrade5(...args);enableTextbookSearch(5);return result};
-renderGrade6=function(...args){const result=oldGrade6(...args);enableTextbookSearch(6);return result};
-
+window.mkTextbookSearchAliases=aliases;
 window.mkG5TextbookTopics={ids:topics.map(t=>t.id)};
 })();

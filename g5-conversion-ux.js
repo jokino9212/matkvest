@@ -247,15 +247,14 @@ makeG5Question=function(id){
 };
 const previousMarkup=stage18FractionMarkup;
 stage18FractionMarkup=function(nextHandler,skipHandler,hint){
- const type=q?.stage18ConversionType,den=q?.stage18FixedDenominator;
- if(keyGrade(qid)!==5||!['mixed','improper'].includes(type)||!Number.isSafeInteger(den))return previousMarkup.apply(this,arguments);
+ const layout=stage18FixedFractionLayout(q);
+ if(!layout)return previousMarkup.apply(this,arguments);
  const cell=(id,title,val,locked=false)=>'<label class="stage18-frac-part"><span class="stage18-frac-label">'+title+'</span><input id="'+id+'" class="stage18-frac-cell" autocomplete="off" inputmode="numeric" aria-label="'+title+'"'+(locked?' value="'+val+'" readonly aria-readonly="true"':'')+'></label>';
- const whole=type==='mixed'?cell('quizFracWhole','Целая часть',''):'';
+ const whole=layout.mixed?cell('quizFracWhole','Целая часть',''):'';
  const numerator='<label class="stage18-frac-part"><span class="stage18-frac-label">Числитель</span><input id="quizFracNum" class="stage18-frac-cell" autocomplete="off" inputmode="numeric" aria-label="Числитель"></label>';
- const denominator=cell('quizFracDen','Знаменатель',den,true);
+ const denominator=cell('quizFracDen','Знаменатель',layout.den,true);
  const fraction='<div class="stage18-frac-part"><div class="stage18-frac-stack">'+numerator+'<div class="stage18-frac-bar" role="presentation"></div>'+denominator+'</div></div>';
- const label=type==='mixed'?'Впиши целую часть и остаток (числитель)':'Впиши новый числитель';
- return '<div class="quiz-input-wrap stage18-frac-wrap"><div class="quiz-input-label stage18-frac-title">'+label+'</div><div class="stage18-frac-entry">'+whole+fraction+'</div><div class="stage18-frac-note">Знаменатель '+den+' уже указан и не меняется.</div></div><div class="feedback" id="qfb"></div><div class="actions"><button id="quizCheck" class="btn primary" onclick="checkQuizInput()">Проверить</button><button id="quizNext" class="btn primary" style="display:none" onclick="'+nextHandler+'()">Следующий пример →</button><button id="quizSkip" class="btn soft" onclick="'+skipHandler+'()">⏭ Пропустить задание</button></div>';
+ return '<div class="quiz-input-wrap stage18-frac-wrap"><div class="quiz-input-label stage18-frac-title">'+layout.label+'</div><div class="stage18-frac-entry">'+whole+fraction+'</div><div class="stage18-frac-note">'+layout.note+'</div></div><div class="feedback" id="qfb"></div><div class="actions"><button id="quizCheck" class="btn primary" onclick="checkQuizInput()">Проверить</button><button id="quizNext" class="btn primary" style="display:none" onclick="'+nextHandler+'()">Следующий пример →</button><button id="quizSkip" class="btn soft" onclick="'+skipHandler+'()">⏭ Пропустить задание</button></div>';
 };
 const previousAnswerMarkup=quizAnswerMarkup;
 quizAnswerMarkup=function(nextHandler,skipHandler){

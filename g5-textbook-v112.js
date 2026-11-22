@@ -14,7 +14,7 @@ if(typeof G5_CORE==='undefined'||typeof g5DonorQuestion!=='function'||typeof g5L
 for(const topic of NEW)if(G5_CORE.some(x=>x.id===topic.id))throw Error('v112 duplicate '+topic.id);
 const pivot=G5_CORE.findIndex(x=>x.id==='operations');
 G5_CORE.splice(pivot<0?G5_CORE.length:pivot,0,...NEW);
-const oldDonor=g5DonorQuestion,oldLesson=g5Lesson,oldGrade5=renderGrade5;
+const oldDonor=g5DonorQuestion,oldLesson=g5Lesson;
 const topicTitles={
 natural:'Цифры и числа',
 coordinate:'Шкалы и координатная прямая',
@@ -118,23 +118,7 @@ calculator:'При работе с калькулятором проверяй �
 angle_types:'Острый угол меньше 90°, прямой — 90°, тупой между 90° и 180°, развёрнутый — 180°. Чертёжный треугольник позволяет строить прямой угол; смежные углы в сумме составляют 180°.'
 };
 g5Lesson=function(id){return Object.prototype.hasOwnProperty.call(lessons,id)?lessons[id]:oldLesson(id)};
-function section(title,subtitle,cards){
- const el=document.createElement('section');el.className='g5-group';
- const head=document.createElement('div');head.className='grade-head';
- const left=document.createElement('div'),h=document.createElement('h2'),p=document.createElement('p');
- h.textContent=title;p.textContent=subtitle;left.append(h,p);
- const badge=document.createElement('span');badge.className='badge';badge.textContent=cards.length+' тем';
- head.append(left,badge);el.append(head);
- const grid=document.createElement('div');grid.className='grid';cards.forEach(card=>grid.appendChild(card));el.appendChild(grid);
- return el;
-}
-function groupSections(){
- const first=mainView.querySelector('.g5-group');
- if(!first)return;
- const cards=[...first.querySelectorAll('.g5-card')];
- if(cards.length!==G5_CORE.length)return;
- const keyed=new Map(G5_CORE.map((t,i)=>[t.id,cards[i]]));
- const buckets=[
+window.mkG5CoreSections=[
   {title:'§ 1. Натуральные числа и нуль. Шкалы',subtitle:'Пункты 1–7 учебника: числа, геометрические основы, координаты, диаграммы',ids:['number_tables','natural','segments_polygons','plane_line_ray','coordinate','natural_compare','column_charts']},
   {title:'§ 2. Сложение и вычитание натуральных чисел',subtitle:'Пункты 8–11 учебника: действия, буквенные выражения и уравнения',ids:['natural_add','natural_subtract','numeric_literal_expressions','equations']},
   {title:'§ 3. Умножение и деление натуральных чисел',subtitle:'Пункты 12–19: действия, остаток, свойства, выражения, делимость',ids:['natural_multiply','natural_divide','division_remainder','simplify_expressions','expand_brackets','order','powers','divisors_multiples_g5','divisibility_rules_g5']},
@@ -142,18 +126,5 @@ function groupSections(){
   {title:'Дополнительная практика',subtitle:'Закрепление вычислений и прикладные задачи',ids:['operations','charts','units','word']},
   {title:'§ 7. Инструменты для вычислений и измерений',subtitle:'Пункты 49–51 учебника: калькулятор, виды и измерение углов',ids:['calculator','angle_types','angles']}
  ];
- const used=new Set();
- const pieces=buckets.map(bucket=>{
-  const found=bucket.ids.map(id=>{const card=keyed.get(id);if(!card)throw Error('v112 catalog missing in section '+id);used.add(id);return card});
-  return section(bucket.title,bucket.subtitle,found);
- });
- const rest=G5_CORE.map(t=>t.id).filter(id=>!used.has(id));
- if(rest.length)throw Error('v112 ungrouped core topics: '+rest.join(','));
- const instrument=pieces.pop();
- first.replaceWith(...pieces);
- const sections=[...mainView.querySelectorAll('.g5-group')];
- sections[sections.length-1].insertAdjacentElement('afterend',instrument);
-}
-renderGrade5=function(...args){const result=oldGrade5(...args);groupSections();return result};
 window.mkG5V112Topics=NEW.map(t=>t.id);
 })();

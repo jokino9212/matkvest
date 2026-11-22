@@ -1,0 +1,31 @@
+<script setup>
+import ReportHeader from './ReportHeader.vue';
+
+defineProps({
+  model: { type: Object, required: true },
+  actions: { type: Object, required: true },
+});
+</script>
+
+<template>
+  <ReportHeader :title="model.title" @close="actions.close" />
+  <template v-if="model.rows.length">
+    <div class="lesson">В журнале хранятся последние <b>50 завершённых или прерванных попыток</b>.</div>
+    <div class="report-list">
+      <button v-for="(row, index) in model.rows" :key="index" type="button" class="report-card" @click="actions.review(index)">
+        <div>
+          <b>{{ row.title }}<template v-if="row.stage && row.stage !== row.title"> — {{ row.stage }}</template></b>
+          <div class="meta">
+            {{ row.status }} • {{ row.date }} • {{ row.duration }}<br>
+            Заданий в разборе: {{ row.itemCount }}{{ row.hasCurrent ? ' + текущее' : '' }}
+          </div>
+        </div>
+        <div class="report-score" :class="row.scoreClass">{{ row.score }}</div>
+      </button>
+    </div>
+  </template>
+  <div v-else class="report-empty">Здесь появится разбор после первой попытки.</div>
+  <div v-if="actions.back" class="actions">
+    <button type="button" class="btn soft" @click="actions.back()">← К ученику</button>
+  </div>
+</template>

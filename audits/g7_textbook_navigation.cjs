@@ -7,7 +7,7 @@ const {chromium}=require('playwright');
  const errors=[];
  page.on('pageerror',error=>errors.push(error.message));
  await page.goto(pathToFileURL(process.cwd()+'/index.html').href);
- await page.locator('button[onclick="openGrade(7)"]').click();
+ await page.getByRole('button',{name:'Открыть 7 класс',exact:true}).click();
  const menu=page.locator('#mk-g7-textbook-nav');
  await menu.waitFor();
  const result=await page.evaluate(()=>{

@@ -1,0 +1,86 @@
+<script setup>
+import TrainingHistoryRows from './TrainingHistoryRows.vue';
+
+const props = defineProps({
+  model: { type: Object, required: true },
+  actions: { type: Object, required: true },
+});
+
+function activateCard(event, action) {
+  if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+  if (event.target.closest('button, a[href]') || event.currentTarget.matches('.soon, .disabled, .locked, [aria-disabled="true"]')) return;
+  props.actions.run(action);
+}
+</script>
+
+<template>
+  <section class="home-start">
+    <h1>{{ model.title }}</h1>
+    <p>{{ model.description }}</p>
+    <button type="button" class="mk19f-home-open" data-home-action="progress" @click="actions.run('progress')">Мой прогресс</button>
+  </section>
+  <div class="grade-grid">
+    <section
+      v-for="grade in model.grades" :key="grade.action" :class="grade.className"
+      @click="activateCard($event, grade.action)"
+    >
+      <div class="grade-ico" v-html="grade.icon"></div>
+      <h2>{{ grade.title }}</h2>
+      <p>{{ grade.description }}</p>
+      <div :id="grade.summaryId" class="grade-summary">{{ grade.summary }}</div>
+      <button type="button" class="btn primary" :data-home-action="grade.action" @click="actions.run(grade.action)">{{ grade.buttonLabel }}</button>
+    </section>
+  </div>
+  <section class="quick-home" aria-labelledby="quick-home-title">
+    <header class="quick-home-head"><h2 id="quick-home-title"><span aria-hidden="true">⚡</span> Быстрые тренажёры</h2></header>
+    <div class="quick-grid">
+      <article v-for="trainer in model.trainers" :key="trainer.action" :class="trainer.className" @click="activateCard($event, trainer.action)">
+        <template v-if="trainer.description">
+          <div class="quick-card-content">
+            <span class="quick-card-icon" aria-hidden="true" v-html="trainer.icon"></span>
+            <div class="quick-card-copy"><h3>{{ trainer.title }}</h3><p>{{ trainer.description }}</p></div>
+          </div>
+          <button type="button" class="btn primary" :aria-label="trainer.label" :data-home-action="trainer.action" @click="actions.run(trainer.action)">Тренироваться</button>
+        </template>
+        <button v-else type="button" class="btn quick-compact-action" :data-home-action="trainer.action" @click="actions.run(trainer.action)">
+          <span class="quick-card-icon" aria-hidden="true" v-html="trainer.icon"></span>
+          <strong>{{ trainer.title }}</strong><span class="quick-arrow" aria-hidden="true">→</span>
+        </button>
+      </article>
+    </div>
+  </section>
+  <section :class="model.goal.className">
+    <div class="mk854-goal-main">
+      <div class="mk854-goal-title">{{ model.goal.title }}</div>
+      <div class="mk854-goal-meta">{{ model.goal.detail }}</div>
+    </div>
+    <div class="training-goal-actions">
+      <button
+        v-for="button in model.goal.buttons" :key="button.action" type="button" :class="button.className"
+        :data-home-action="button.action" @click="actions.run(button.action)"
+      >{{ button.label }}</button>
+    </div>
+    <div v-if="model.goal.progress" class="training-goal-progress-row">
+      <div class="training-goal-track" :aria-label="model.goal.progress.label"><span :style="{ width: model.goal.progress.width }"></span></div>
+      <div class="training-goal-count">{{ model.goal.progress.count }}</div>
+    </div>
+  </section>
+  <section v-if="model.plan" class="training-plan-card home-training-plan">
+    <div class="training-plan-head">
+      <div><h2>{{ model.plan.title }}</h2><p>{{ model.plan.progress }}</p></div>
+      <button type="button" :class="model.plan.button.className" :data-home-action="model.plan.button.action" @click="actions.run(model.plan.button.action)">{{ model.plan.button.label }}</button>
+    </div>
+  </section>
+  <section class="training-history mk854-compact">
+    <div class="training-history-head"><h2>Последние тренировки</h2></div>
+    <TrainingHistoryRows v-if="model.history.rows.length" :rows="model.history.rows" />
+    <div v-else class="training-history-empty">Здесь появятся 2–3 последние тренировки.</div>
+    <button
+      v-if="model.history.more" type="button" class="training-history-more" data-home-action="history" @click="actions.run('history')"
+    >Вся история →</button>
+  </section>
+  <section v-for="card in model.sections" :key="card.action" :class="card.className">
+    <div><h2>{{ card.title }}</h2><p>{{ card.description }}</p><div :class="card.countClass">{{ card.count }}</div></div>
+    <button type="button" :class="card.buttonClass" :data-home-action="card.action" @click="actions.run(card.action)">{{ card.buttonLabel }}</button>
+  </section>
+</template>
