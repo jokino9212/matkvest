@@ -1,0 +1,70 @@
+name: Test-only school table and quiz Vue action PWA v273 gate
+on:
+  push:
+    branches: [refactor/route-vue-actions-from-7c14ce9]
+    paths:
+      - '.github/workflows/legacy-school-actions-v273-gate.yml'
+      - 'assets/ui/legacy-vue-actions.js'
+      - 'audits/legacy_school_actions_v273_patch.py'
+      - 'audits/legacy_school_actions_v273_publish.py'
+      - 'audits/legacy_school_actions_v273.test.cjs'
+      - 'audits/legacy_school_actions_v273_browser.cjs'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: school-v273-test-branch
+  cancel-in-progress: false
+jobs:
+  integrate-test-publish:
+    if: github.repository == 'jokino9212/matkvest' && github.ref == 'refs/heads/refactor/route-vue-actions-from-7c14ce9'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: refactor/route-vue-actions-from-7c14ce9
+          persist-credentials: true
+      - name: Apply SHA-fenced 7.6 MB HTML patch retaining school fallback
+        run: python3 audits/legacy_school_actions_v273_patch.py
+      - name: Synchronize offline v273 assets and validate scripts
+        run: |
+          python3 audits/g7_stage12_sync_pwa.py
+          python3 audits/g7_stage12_sync_pwa.py --check
+          python3 -m py_compile audits/legacy_school_actions_v273_patch.py audits/legacy_school_actions_v273_publish.py
+      - name: Install deterministic dependencies and Playwright
+        run: |
+          npm ci
+          npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Verify routing, existing actions and v273 school action contracts
+        run: |
+          node audits/legacy_navigation_core.test.cjs
+          node audits/legacy_vue_actions_v271.test.cjs
+          node audits/legacy_training_plan_v272.test.cjs
+          node audits/legacy_school_actions_v273.test.cjs
+      - name: Assert identical Vue bundle after reproducible build
+        run: |
+          before=$(sha256sum assets/ui/knowledge-map.js | cut -d ' ' -f1)
+          npm run build:knowledge-map
+          after=$(sha256sum assets/ui/knowledge-map.js | cut -d ' ' -f1)
+          test "$before" = "$after"
+      - name: Browser school table and quiz keyboard rewards offline F5 and missing-module fallback
+        run: node audits/legacy_school_actions_v273_browser.cjs
+      - name: Browser previous route, quick, result and plan action regression
+        run: |
+          sed -e 's/v271/v273/g' -e 's/V271/V273/g' audits/legacy_vue_actions_v271_browser.cjs > audits/legacy_vue_actions_v273_route_browser.cjs
+          sed -e 's/v272/v273/g' -e 's/V272/V273/g' audits/legacy_training_plan_v272_browser.cjs > audits/legacy_training_plan_v273_browser.cjs
+          node audits/legacy_vue_actions_v273_route_browser.cjs
+          node audits/legacy_training_plan_v273_browser.cjs
+      - name: Full PWA v272 to v273 refresh and offline 320 390 768 regressions
+        run: |
+          node audits/pwa_verified_refresh_browser.cjs
+          node audits/stage28_offline_pwa_browser.cjs
+      - name: Verify worker fingerprints have not drifted
+        run: python3 audits/g7_stage12_sync_pwa.py --check
+      - name: Publish fully verified candidate to SAME test branch only
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 audits/legacy_school_actions_v273_publish.py
