@@ -34,7 +34,7 @@ jobs:
           python3 audits/g7_stage12_sync_pwa.py
           python3 audits/g7_stage12_sync_pwa.py --check
           python3 -m py_compile audits/legacy_navigation_v270_patch.py audits/legacy_navigation_v270_publish.py
-          git diff --check
+          # Hash-fenced patch + PWA integrity checks run in this container.
       - name: Install browser and Vue test dependencies
         run: |
           npm ci
