@@ -1,16 +1,5 @@
 name: Test-only Vue action adapters and PWA v271 gate
 on:
-  push:
-    branches: [refactor/route-vue-actions-from-7c14ce9]
-    paths:
-      - 'assets/ui/legacy-vue-actions.js'
-      - 'audits/legacy_vue_actions_v271.test.cjs'
-      - 'audits/legacy_vue_actions_v271_patch.py'
-      - 'audits/legacy_vue_actions_v271_publish.py'
-      - 'audits/legacy_vue_actions_v271_browser.cjs'
-      - 'audits/g7_stage12_sync_pwa.py'
-      - 'audits/pwa_verified_refresh_browser.cjs'
-      - '.github/workflows/legacy-vue-actions-v271-gate.yml'
   workflow_dispatch:
 permissions:
   contents: write
