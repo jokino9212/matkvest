@@ -34,4 +34,12 @@
 - Сгенерированная версия зафиксирована в тестовой ветке коммитом `51f8df791d608b6ef2125758cead45de04e62808`.
 - Ветка `main` на момент проверки: `2985f92b6bd1a26dfcc316917f1752602b099572`. Не изменялась этой работой.
 
-PR #131 остаётся draft. Production/deploy/merge не выполнялись. Запуски других PWA-workflow, не включённых в данный gate, оцениваются отдельно; наличие общего SUCCESS не заявляется.
+## Полная PWA-регрессия после интеграции
+
+- Исправлен статический перечень контрольных JS-файлов в `audits/pwa_verified_refresh_browser.cjs`: туда добавлен `assets/ui/legacy-navigation-core.js` (commit `caf6957576bf86503e8a7b1ca961b2785eede566`).
+- GitHub Actions: https://github.com/jokino9212/matkvest/actions/runs/45227372040 — **SUCCESS**.
+- `pwa_verified_refresh_browser.cjs` — **PASS**, включая обновление **v268→v269** на 390/1280 px, offline F5, задания, результаты, навигацию, магазин, учительские экраны и восстановление прогресса.
+- `stage28_offline_pwa_browser.cjs` — **PASS** на 320/390/768 px: офлайн-кеш v269, работа 6-го класса, магазина, XP и монет.
+- `legacy_navigation_core.test.cjs` на `caf6957` — **PASS**: https://github.com/jokino9212/matkvest/actions/runs/45227372102.
+
+PR #131 остаётся draft. Production/deploy/merge/backend не выполнялись. Main не затронут.
