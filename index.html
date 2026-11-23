@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <!-- Optional route core: inline mk854 wrappers remain the fallback. -->
-<script src="./assets/ui/legacy-navigation-core.js?v=273"></script>
-<script src="./assets/ui/legacy-vue-actions.js?v=273"></script>
+<script src="./assets/ui/legacy-navigation-core.js?v=274"></script>
+<script src="./assets/ui/legacy-vue-actions.js?v=274"></script>
 <script>function g8Declension19(number,one,few,many){
  const n=Math.abs(Math.trunc(Number(number))),lastTwo=n%100,last=n%10;
  if(lastTwo>=11&&lastTwo<=14)return many;
@@ -14260,7 +14260,7 @@ function knowledgeFilteredSections(data){
  const mapSec=sec=>{let topics=sec.topics.filter(t=>knowledgeStatusPass(t,knowledgeMapState.status)&&(!q||`${t.title} ${t.group}`.toLocaleLowerCase("ru-RU").includes(q)));if(knowledgeMapState.sort==="attention")topics=topics.slice().sort((a,b)=>knowledgeTopicPriority(a)-knowledgeTopicPriority(b));return {...sec,topics}};
  return [...data.sections,...data.extraSections].map(mapSec).filter(s=>s.topics.length);
 }
-const knowledgeMapUrl = "./assets/ui/knowledge-map.js?v=273";
+const knowledgeMapUrl = "./assets/ui/knowledge-map.js?v=274";
 const knowledgeTopicDetailHostId="knowledgeTopicDetailVue";
 let knowledgeMapModule;
 let knowledgeMapRevision=0;
@@ -14900,15 +14900,22 @@ function renderTask(restore){
  const host=exerciseHost("stage"),attempt=blockSession,exercise=task;
  host.innerHTML=columnExerciseHtml(view);
  const isCurrent=()=>host.parentNode===modal&&task===exercise&&blockSession===attempt&&overlay.classList.contains("show")&&!mk872Dialog;
- const actions={
+ const fallbackActions={
   primary:()=>{if(isCurrent())(columnSolved?newTask:checkColumn)()},
   skip:()=>{
    if(!isCurrent()||columnSolved)return;
    if(attempt)mk872RequestExerciseSkip(host,newTask);
    else newTask();
   },
-  inputCell:columnCellInput,moveCell:workKey,toggleDot
+  inputCell:el=>{if(isCurrent())return columnCellInput(el)},
+  moveCell:(event,el)=>{if(isCurrent())return workKey(event,el)},
+  toggleDot:el=>{if(isCurrent())return toggleDot(el)}
  };
+ const actions=window.MatKvestVueActions?.schoolColumnActions?.({
+  isCurrent,isSolved:()=>columnSolved,hasAttempt:()=>!!attempt,
+  check:checkColumn,next:newTask,requestSkip:()=>mk872RequestExerciseSkip(host,newTask),
+  inputCell:columnCellInput,moveCell:workKey,toggleDot
+ })||fallbackActions;
  host.onclick=event=>{
   const target=event.target;
   const button=target.closest("button");
@@ -42214,31 +42221,31 @@ document.addEventListener("keydown",event=>{
 })();
 </script>
 
-<script src="g5-conversion-ux.js?v=273"></script>
-<script src="g5-textbook-topics.js?v=273"></script>
-<script src="g5-textbook-core.js?v=273"></script>
-<script src="g5-textbook-v111.js?v=273"></script>
-<script src="g5-textbook-v112.js?v=273"></script>
-<script src="g5-pedagogy-v113.js?v=273"></script>
-<script src="g5-fractions-v114.js?v=273"></script>
-<script src="g5-fraction-arithmetic-v115.js?v=273"></script>
-<script src="g5-decimals-v116.js?v=273"></script>
-<script src="g7-textbook.js?v=273"></script>
-<script src="g8-textbook.js?v=273"></script>
-<script src="g1-textbook.js?v=273"></script>
-<script src="g2-textbook.js?v=273"></script>
-<script src="g3-textbook.js?v=273"></script>
-<script src="g4-textbook.js?v=273"></script>
-<script src="g5-textbook-navigation-v121.js?v=273"></script>
-<script src="g5-live-pedagogy-v122.js?v=273"></script>
-<script src="g5-arithmetic-tiers-v123.js?v=273"></script>
-<script src="g5-textbook-tiers-v124.js?v=273"></script>
-<script src="g5-natural-units-v125.js?v=273"></script>
-<script src="g5-remaining-core-v126.js?v=273"></script>
-<script src="g5-decimal-tiers-v127.js?v=273"></script>
-<script src="g5-decimal-percent-v128.js?v=273"></script>
-<script src="g5-fraction-concepts-v129.js?v=273"></script>
-<script src="g5-fraction-applications-v130.js?v=273"></script>
+<script src="g5-conversion-ux.js?v=274"></script>
+<script src="g5-textbook-topics.js?v=274"></script>
+<script src="g5-textbook-core.js?v=274"></script>
+<script src="g5-textbook-v111.js?v=274"></script>
+<script src="g5-textbook-v112.js?v=274"></script>
+<script src="g5-pedagogy-v113.js?v=274"></script>
+<script src="g5-fractions-v114.js?v=274"></script>
+<script src="g5-fraction-arithmetic-v115.js?v=274"></script>
+<script src="g5-decimals-v116.js?v=274"></script>
+<script src="g7-textbook.js?v=274"></script>
+<script src="g8-textbook.js?v=274"></script>
+<script src="g1-textbook.js?v=274"></script>
+<script src="g2-textbook.js?v=274"></script>
+<script src="g3-textbook.js?v=274"></script>
+<script src="g4-textbook.js?v=274"></script>
+<script src="g5-textbook-navigation-v121.js?v=274"></script>
+<script src="g5-live-pedagogy-v122.js?v=274"></script>
+<script src="g5-arithmetic-tiers-v123.js?v=274"></script>
+<script src="g5-textbook-tiers-v124.js?v=274"></script>
+<script src="g5-natural-units-v125.js?v=274"></script>
+<script src="g5-remaining-core-v126.js?v=274"></script>
+<script src="g5-decimal-tiers-v127.js?v=274"></script>
+<script src="g5-decimal-percent-v128.js?v=274"></script>
+<script src="g5-fraction-concepts-v129.js?v=274"></script>
+<script src="g5-fraction-applications-v130.js?v=274"></script>
 <script>
 // The textbook scripts finish extending the catalog before Home shows its totals.
 g5HomeCatalogReady=true;
