@@ -37,13 +37,13 @@ replace_one(
 # Header: preserve all seven original handlers as fallback. Recreate the factory
 # on each mount, not only once at initial page load.
 replace_one(
-    '   const actions={home:()=>mk872BrandGoHome(),profile:()=>openProfiles(),wallet:()=>window.mk19eWallet(),\n'
-    '    shop:()=>openShop(),data:()=>openDataManager(),journal:()=>openAttemptJournal(),leaders:()=>openLeaderboard()};\n'
-    '   const fallback=[...host.childNodes];',
-    '   const fallbackActions={home:()=>mk872BrandGoHome(),profile:()=>openProfiles(),wallet:()=>window.mk19eWallet(),\n'
-    '    shop:()=>openShop(),data:()=>openDataManager(),journal:()=>openAttemptJournal(),leaders:()=>openLeaderboard()};\n'
-    '   const actions=window.MatKvestVueActions?.headerActions?.(fallbackActions)||fallbackActions;\n'
-    '   const fallback=[...host.childNodes];'
+    '  const actions={home:()=>mk872BrandGoHome(),profile:()=>openProfiles(),wallet:()=>window.mk19eWallet(),\n'
+    '   shop:()=>openShop(),data:()=>openDataManager(),journal:()=>openAttemptJournal(),leaders:()=>openLeaderboard()};\n'
+    '  const fallback=[...host.childNodes];',
+    '  const fallbackActions={home:()=>mk872BrandGoHome(),profile:()=>openProfiles(),wallet:()=>window.mk19eWallet(),\n'
+    '   shop:()=>openShop(),data:()=>openDataManager(),journal:()=>openAttemptJournal(),leaders:()=>openLeaderboard()};\n'
+    '  const actions=window.MatKvestVueActions?.headerActions?.(fallbackActions)||fallbackActions;\n'
+    '  const fallback=[...host.childNodes];'
 )
 # Quick setup: leave the complete old action routing intact for absent module.
 replace_one(
