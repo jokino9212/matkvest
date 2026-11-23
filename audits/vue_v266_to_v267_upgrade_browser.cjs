@@ -20,15 +20,9 @@ function build(root, expectedVersion) {
     'HTML snapshot hash mismatch');
   return { root, html, worker, version };
 }
-const baseline = build(oldRoot, 266);
-const candidate = build(newRoot, 267);
-const candidateHtml=candidate.html.toString('utf8');
-for(const term of ['controllerchange','serviceWorker.register','serviceWorker.ready','registration.update()']){
-  const start=candidateHtml.indexOf(term);
-  console.log('HTML_SW_HANDLER',term,start>=0
-    ? JSON.stringify(candidateHtml.slice(Math.max(0,start-700),start+1050))
-    : 'NOT_FOUND');
-}
+const baseline = build(oldRoot, Number(process.argv[4] || 266));
+const candidate = build(newRoot, Number(process.argv[5] || 267));
+assert(candidate.version > baseline.version, 'Candidate must be newer than baseline');
 const mounts = new Map();
 const mime = {'.html':'text/html; charset=utf-8', '.js':'text/javascript; charset=utf-8',
   '.webmanifest':'application/manifest+json', '.svg':'image/svg+xml', '.webp':'image/webp',
@@ -178,7 +172,7 @@ async function scenario(browser,width){
     // Do not reload before controllerchange: the app's upgrade handler must
     // safely persist the draft, then reload under the newly activated worker.
     await version(page,candidate.version);
-    console.log('AUTOMATIC_PWA_UPDATE',JSON.stringify({width,documentVersion:267}));
+    console.log('AUTOMATIC_PWA_UPDATE',JSON.stringify({width,documentVersion:candidate.version}));
     assert.deepEqual(await snapshot(page),before,'State changed during PWA upgrade');
     await context.setOffline(true);
     await page.reload({waitUntil:'domcontentloaded'});
@@ -193,7 +187,7 @@ async function scenario(browser,width){
     assert.equal(restored.id,draft.id,'Draft ID replaced during upgrade');
     assert.equal(restored.done,draft.done,'Draft work lost during upgrade');
     assert.deepEqual(errors,[],'Unexpected JavaScript errors');
-    console.log('PASS_V266_TO_V267',JSON.stringify({width,quick:before.quickHistory.length,
+    console.log('PASS_PWA_UPGRADE',JSON.stringify({from:baseline.version,to:candidate.version,width,quick:before.quickHistory.length,
       draft:restored,coins:before.coins,xp:before.xp,offline:true}));
   }finally{
     await context.close();
