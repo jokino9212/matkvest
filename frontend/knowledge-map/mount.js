@@ -343,13 +343,17 @@ export function mountArtworkViewer(host, model, actions) {
 function mountView(host, view, model, actions) {
   const existing = views.get(host);
   if (existing) {
+    // A reused host must receive fresh callbacks as well as fresh data.
+    // The legacy router can also reuse the same host for a different view.
     existing.model = model;
+    existing.actions = actions;
+    existing.view = view;
     return;
   }
 
-  const state = shallowReactive({ model });
+  const state = shallowReactive({ view, model, actions });
   const app = createApp({
-    render: () => h(view, { model: state.model, actions }),
+    render: () => h(state.view, { model: state.model, actions: state.actions }),
   });
   const parent = host.parentNode;
   app.mount(host);
@@ -362,7 +366,11 @@ function mountView(host, view, model, actions) {
     app.unmount();
     views.delete(host);
   });
-  observer.observe(parent, { childList: true });
-  const surface = host.closest('#mainView, #modal');
-  if (surface && parent !== surface) observer.observe(surface, { childList: true });
+  // Observe each ancestor's direct children, not the whole document subtree.
+  // Legacy routing can remove #mainView, #modal or an intermediate wrapper;
+  // observing only the host parent and its surface misses those removals and
+  // leaves a detached Vue app (with listeners/effects) mounted indefinitely.
+  for (let ancestor = parent; ancestor?.nodeType === 1; ancestor = ancestor.parentElement) {
+    observer.observe(ancestor, { childList: true });
+  }
 }

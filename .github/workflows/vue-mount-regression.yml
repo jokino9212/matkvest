@@ -1,0 +1,24 @@
+name: Vue mount lifecycle regression
+on:
+  pull_request:
+    paths:
+      - 'frontend/knowledge-map/**'
+      - 'audits/vue_mount_*'
+      - '.github/workflows/vue-mount-regression.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  mount:
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm ci
+      - run: npm run build:knowledge-map
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Check remount and callback lifecycle
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 > /tmp/vue-mount-http.log 2>&1 &
+          node audits/vue_mount_actions_browser.cjs

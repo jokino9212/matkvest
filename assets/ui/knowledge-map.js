@@ -10999,19 +10999,18 @@ function HC(e, s, n) {
 function I(e, s, n, t) {
   const i = ss.get(e);
   if (i) {
-    i.model = n;
+    i.model = n, i.actions = t, i.view = s;
     return;
   }
-  const c = /* @__PURE__ */ Ul({ model: n }), u = mr({
-    render: () => Ia(s, { model: c.model, actions: t })
+  const c = /* @__PURE__ */ Ul({ view: s, model: n, actions: t }), u = mr({
+    render: () => Ia(c.view, { model: c.model, actions: c.actions })
   }), d = e.parentNode;
   u.mount(e), ss.set(e, c);
   const m = new MutationObserver(() => {
     e.isConnected && e.parentNode === d || (m.disconnect(), u.unmount(), ss.delete(e));
   });
-  m.observe(d, { childList: !0 });
-  const v = e.closest("#mainView, #modal");
-  v && d !== v && m.observe(v, { childList: !0 });
+  for (let v = d; v?.nodeType === 1; v = v.parentElement)
+    m.observe(v, { childList: !0 });
 }
 export {
   gC as mountAchievementCatalog,

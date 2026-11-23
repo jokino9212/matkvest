@@ -1,0 +1,34 @@
+name: Vue bundle and PWA fingerprint integrity
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'frontend/knowledge-map/**'
+      - 'frontend/vite.config.mjs'
+      - 'assets/ui/knowledge-map.js'
+      - 'index.html'
+      - 'sw.js'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'audits/g7_stage12_sync_pwa.py'
+      - '.github/workflows/vue-bundle-pwa-integrity.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Rebuild Vue from committed sources
+        run: npm run build:knowledge-map
+      - name: Fail if committed Vue bundle is stale
+        run: git diff --exit-code -- assets/ui/knowledge-map.js
+      - name: Verify HTML and worker snapshots against JS bytes
+        run: python3 audits/g7_stage12_sync_pwa.py --check
