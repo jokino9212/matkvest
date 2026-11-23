@@ -36,9 +36,27 @@
       return false;
     }
   }
+  function shouldDeferRestore(route) {
+    const r = route && route.screen ? route : HOME;
+    if (['store', 'chest', 'quests', 'profiles'].includes(r.screen)) return true;
+    return (r.screen === 'grade' || r.screen === 'topic') &&
+      [1, 2, 3, 4, 5, 6, 7, 8].includes(Number(r.grade));
+  }
+  // Screen dispatch is pure: all application-specific stateful handlers are injected
+  // freshly by index.html. The full inline dispatcher remains the fallback.
+  function dispatchRoute(route, handlers = {}) {
+    const r = route && route.screen ? route : { ...HOME };
+    const key = r.screen;
+    if (['home', 'grade', 'topic', 'trainer', 'store', 'leaderboard', 'quests', 'profiles'].includes(key) &&
+        typeof handlers[key] === 'function') return handlers[key](r);
+    if (typeof handlers.other === 'function' && handlers.other(r)) return true;
+    return typeof handlers.home === 'function' ? handlers.home({ ...HOME }) : undefined;
+  }
+  function homeVueActions(run) { return { run }; }
+  function trainingPlanReturnVueActions(returnToPlan) { return { returnToPlan }; }
   function freshVueActions(actions = {}, overrides = {}) {
     // Keep fresh action references on each render; never memoize closures.
     return { ...actions, ...overrides };
   }
-  return { currentRoute, currentDepth, sameRoute, writeHistory, freshVueActions };
+  return { currentRoute, currentDepth, sameRoute, writeHistory, shouldDeferRestore, dispatchRoute, homeVueActions, trainingPlanReturnVueActions, freshVueActions };
 });
