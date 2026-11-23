@@ -23,11 +23,27 @@ const assert = require('node:assert/strict');
       const switched = host.querySelector('#rewardPop')?.textContent.trim();
       host.remove();
       await flush();
-      return { calls, updatedLabel, switched };
+      // Simulate a legacy route replacing a whole screen container.
+      const main = document.querySelector('#mainView');
+      const wrapper = document.createElement('section');
+      const inner = document.createElement('div');
+      const nestedHost = document.createElement('div');
+      inner.appendChild(nestedHost);
+      wrapper.appendChild(inner);
+      main.appendChild(wrapper);
+      mountAppFooter(nestedHost, { label: 'Nested' }, { activate: () => calls.push('nested') });
+      await flush();
+      const nestedMounted = !!nestedHost.querySelector('#appVersionBadge');
+      main.remove();
+      await flush();
+      const nestedCleaned = !nestedHost.querySelector('#appVersionBadge');
+      return { calls, updatedLabel, switched, nestedMounted, nestedCleaned };
     });
     assert.deepEqual(result.calls, ['old', 'new']);
     assert.equal(result.updatedLabel, 'New');
     assert.equal(result.switched, 'Reward');
+    assert(result.nestedMounted, 'Nested view did not mount');
+    assert(result.nestedCleaned, 'Vue view leaked after ancestor container removal');
     console.log('PASS: new actions, new model, view switching, host removal');
   } finally {
     await browser.close();
