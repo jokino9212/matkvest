@@ -1,0 +1,85 @@
+name: Private Vue lifecycle fix PWA v268 candidate
+on:
+  push:
+    branches: [fix/vue-mount-actions-20261123]
+    paths:
+      - '.github/workflows/vue-private-v268.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: vue-private-v268-release
+  cancel-in-progress: false
+jobs:
+  candidate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/vue-mount-actions-20261123
+          persist-credentials: true
+      - name: Trust checked-out tree
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+      - name: Install dependencies
+        run: |
+          npm ci
+          npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Build updated Vue components
+        run: npm run build:knowledge-map
+      - name: Prepare private PWA v268 (visible version unchanged)
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          html_path=Path('index.html')
+          sw_path=Path('sw.js')
+          html=html_path.read_bytes()
+          sw=sw_path.read_text('utf-8')
+          old,new=b'?v=267',b'?v=268'
+          assert html.count(old)==26,(html.count(old),'expected 26 versioned source URLs')
+          assert new not in html,'candidate URLs already present'
+          old_cache='const CACHE_NAME = "matkvest-iphone-v267";'
+          assert sw.count(old_cache)==1,'expected one v267 cache declaration'
+          html_path.write_bytes(html.replace(old,new))
+          sw_path.write_text(sw.replace(old_cache,'const CACHE_NAME = "matkvest-iphone-v268";'),encoding='utf-8')
+          print('Private PWA upgraded from v267 to v268')
+          PY
+          python3 audits/g7_stage12_sync_pwa.py
+          python3 audits/g7_stage12_sync_pwa.py --check
+          git diff --check
+          test "$(git diff --name-only | sort | tr '\n' ',')" = "assets/ui/knowledge-map.js,index.html,sw.js,"
+      - name: Confirm nested route teardown and Vue callback refresh
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 > /tmp/vue-http.log 2>&1 &
+          for i in $(seq 1 60); do
+            if curl -fsS http://127.0.0.1:8765/audits/vue_mount_fixture.html >/dev/null; then break; fi
+            sleep 0.1
+          done
+          node audits/vue_mount_actions_browser.cjs
+      - name: Confirm offline Grade 1-8 routes on phone and desktop
+        run: node audits/vue_knowledge_map_browser.cjs
+      - name: Confirm offline cache and store, mobile/tablet
+        run: node audits/stage28_offline_pwa_browser.cjs
+      - name: Confirm attempt lifecycle and reward idempotence
+        run: node audits/stage24_attempt_lifecycle_browser.cjs
+      - name: Confirm student isolation
+        run: node audits/stage25_profile_isolation_browser.cjs
+      - name: Confirm safe upgrade with draft from v267 to v268
+        run: |
+          git fetch --deepen=50 origin fix/vue-mount-actions-20261123
+          git worktree add --detach /tmp/matkvest-v267 92723424f6f64bdb0b4929bf7756e6e86be3e6d3
+          node audits/vue_v266_to_v267_upgrade_browser.cjs /tmp/matkvest-v267 "$PWD" 267 268
+      - name: Save verified assets to PRIVATE branch only
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js assets/ui/knowledge-map.js
+          git diff --cached --check
+          git commit -m "build(vue): synchronized private PWA v268 with safe Vue teardown"
+          git fetch origin fix/vue-mount-actions-20261123
+          git show origin/fix/vue-mount-actions-20261123:sw.js | grep -q 'matkvest-iphone-v267'
+          git rebase origin/fix/vue-mount-actions-20261123
+          python3 audits/g7_stage12_sync_pwa.py --check
+          git push origin HEAD:fix/vue-mount-actions-20261123
