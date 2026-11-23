@@ -27,8 +27,8 @@ def replace_one(old, new):
 # Move route selection into a pure external dispatcher while the entire original
 # inline implementation stays untouched as the fallback when the module is blocked.
 replace_one(
-    '  mk854RunRestoring(()=>{\n   MK854_CORE_CLOSE_MODAL();\n   if(r.screen==="home")',
-    '  mk854RunRestoring(()=>{\n   MK854_CORE_CLOSE_MODAL();\n'
+    ' mk854RunRestoring(()=>{\n  MK854_CORE_CLOSE_MODAL();\n  if(r.screen==="home")',
+    ' mk854RunRestoring(()=>{\n  MK854_CORE_CLOSE_MODAL();\n'
     '   const core=window.MatKvestRouteCore;\n'
     '   if(core&&typeof core.dispatchRoute==="function")return core.dispatchRoute(r,{\n'
     '    home:()=>MK854_CORE_RENDER_HOME(),\n'
@@ -50,12 +50,12 @@ replace_one(
 # Lifecycle-sensitive mount actions are created afresh for every Vue render.
 # No cached/stale callback closures. Inline action shapes remain the fallback.
 replace_one(
-    '   try{module.mountHomeDashboard(host,model,{run:runHomeAction})}catch(error){mainView.replaceChildren(...fallback);throw error}',
+    '  try{module.mountHomeDashboard(host,model,{run:runHomeAction})}catch(error){mainView.replaceChildren(...fallback);throw error}',
     '   const vueActions=window.MatKvestRouteCore?.homeVueActions?.(runHomeAction)||{run:runHomeAction};\n'
     '   try{module.mountHomeDashboard(host,model,vueActions)}catch(error){mainView.replaceChildren(...fallback);throw error}'
 )
 replace_one(
-    '   module.mountTrainingPlanReturn(host,{note},{returnToPlan:returnToTrainingPlan});',
+    '  module.mountTrainingPlanReturn(host,{note},{returnToPlan:returnToTrainingPlan});',
     '   const vueActions=window.MatKvestRouteCore?.trainingPlanReturnVueActions?.(returnToTrainingPlan)||{returnToPlan:returnToTrainingPlan};\n'
     '   module.mountTrainingPlanReturn(host,{note},vueActions);'
 )
