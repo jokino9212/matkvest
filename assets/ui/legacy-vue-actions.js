@@ -29,5 +29,19 @@
       returnToPlan:()=>{if(isCurrent()&&hasPlan())return returnToPlan()}
     };
   }
-  return {headerActions,quickSetupActions,quickResultActions};
+  // V272: Plan UI callbacks only. Profile storage, plan business rules and
+  // reward accounting remain owned by index.html; handlers refresh per view.
+  const PLAN_KEYS=["back","earlier","later","toggle","remove","start","rebuild","delete","launch","complete"];
+  function trainingPlanActions({isCurrent,isBlocked,actions}){
+    const result=Object.create(null);
+    for(const key of PLAN_KEYS){
+      if(typeof actions[key]!=="function")continue;
+      result[key]=(...args)=>{
+        if(!isCurrent()||(typeof isBlocked==="function"&&isBlocked()))return;
+        return actions[key](...args);
+      };
+    }
+    return result;
+  }
+  return {headerActions,quickSetupActions,quickResultActions,trainingPlanActions};
 });
