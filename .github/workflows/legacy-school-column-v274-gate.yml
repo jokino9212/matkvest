@@ -1,0 +1,73 @@
+name: Test-only school column Vue actions and offline PWA v274 gate
+on:
+  push:
+    branches: [refactor/route-vue-actions-from-7c14ce9]
+    paths:
+      - '.github/workflows/legacy-school-column-v274-gate.yml'
+      - 'assets/ui/legacy-vue-actions.js'
+      - 'audits/legacy_school_column_v274_patch.py'
+      - 'audits/legacy_school_column_v274_publish.py'
+      - 'audits/legacy_school_column_v274.test.cjs'
+      - 'audits/legacy_school_column_v274_browser.cjs'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: school-column-v274-test-branch
+  cancel-in-progress: false
+jobs:
+  integrate-test-publish:
+    if: github.repository == 'jokino9212/matkvest' && github.ref == 'refs/heads/refactor/route-vue-actions-from-7c14ce9'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: refactor/route-vue-actions-from-7c14ce9
+          persist-credentials: true
+      - name: Apply exact-hash v273 to v274 column actions patch and fallback
+        run: python3 audits/legacy_school_column_v274_patch.py
+      - name: Synchronize version 274 verified offline snapshot
+        run: |
+          python3 audits/g7_stage12_sync_pwa.py
+          python3 audits/g7_stage12_sync_pwa.py --check
+          python3 -m py_compile audits/legacy_school_column_v274_patch.py audits/legacy_school_column_v274_publish.py
+      - name: Install locked dependencies and browser runner
+        run: |
+          npm ci
+          npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Verify all route and Vue action contracts including five column actions
+        run: |
+          node audits/legacy_navigation_core.test.cjs
+          node audits/legacy_vue_actions_v271.test.cjs
+          node audits/legacy_training_plan_v272.test.cjs
+          node audits/legacy_school_actions_v273.test.cjs
+          node audits/legacy_school_column_v274.test.cjs
+      - name: Verify unchanged deterministic Vue build
+        run: |
+          before=$(sha256sum assets/ui/knowledge-map.js | cut -d ' ' -f1)
+          npm run build:knowledge-map
+          after=$(sha256sum assets/ui/knowledge-map.js | cut -d ' ' -f1)
+          test "$before" = "$after"
+      - name: Check 4 column operations, Enter Space arrows dots, offline F5 and stale fallback
+        run: node audits/legacy_school_column_v274_browser.cjs
+      - name: Check prior Vue navigation result plan and school quiz/table regressions
+        run: |
+          sed -e 's/v271/v274/g' -e 's/V271/V274/g' audits/legacy_vue_actions_v271_browser.cjs > audits/legacy_vue_actions_v274_route_browser.cjs
+          sed -e 's/v272/v274/g' -e 's/V272/V274/g' audits/legacy_training_plan_v272_browser.cjs > audits/legacy_training_plan_v274_browser.cjs
+          sed -e 's/v273/v274/g' -e 's/V273/V274/g' audits/legacy_school_actions_v273_browser.cjs > audits/legacy_school_actions_v274_browser.cjs
+          node audits/legacy_vue_actions_v274_route_browser.cjs
+          node audits/legacy_training_plan_v274_browser.cjs
+          node audits/legacy_school_actions_v274_browser.cjs
+      - name: Full PWA v273 to v274 refresh and 320 390 768 offline regressions
+        run: |
+          node audits/pwa_verified_refresh_browser.cjs
+          node audits/stage28_offline_pwa_browser.cjs
+      - name: Verify PWA fingerprints and HTML again
+        run: python3 audits/g7_stage12_sync_pwa.py --check
+      - name: Publish only passed snapshot to test branch (never main)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 audits/legacy_school_column_v274_publish.py
