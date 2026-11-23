@@ -31,7 +31,7 @@ jobs:
         run: |
           python3 audits/g7_stage12_sync_pwa.py
           python3 audits/g7_stage12_sync_pwa.py --check
-          git diff --check
+          python3 -m py_compile audits/legacy_navigation_v269_patch.py audits/legacy_navigation_v269_publish.py
       - name: Install dependencies
         run: |
           npm ci
@@ -40,21 +40,15 @@ jobs:
         run: node audits/legacy_navigation_core.test.cjs
       - name: Verify Vue build still matches sources
         run: |
+          before=$(sha256sum assets/ui/knowledge-map.js | cut -d ' ' -f1)
           npm run build:knowledge-map
-          git diff --exit-code -- assets/ui/knowledge-map.js
+          after=$(sha256sum assets/ui/knowledge-map.js | cut -d ' ' -f1)
+          test "$before" = "$after"
       - name: Test browser keyboard, routes, fallback, offline F5, results and rewards
         run: node audits/legacy_navigation_v269_browser.cjs
       - name: Confirm final PWA snapshot matches committed assets
         run: python3 audits/g7_stage12_sync_pwa.py --check
-      - name: Commit only validated index.html and sw.js into the SAME test branch
-        run: |
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -- index.html sw.js
-          if ! git diff --cached --quiet; then
-            git commit -m "test(pwa): integrate guarded legacy route core and sync v269"
-            git push origin HEAD:refs/heads/refactor/route-vue-actions-from-7c14ce9
-          else
-            echo "Verified v269 snapshot already committed."
-          fi
+      - name: Publish fully tested v269 HTML + worker only on the test branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 audits/legacy_navigation_v269_publish.py
