@@ -82,7 +82,7 @@ async function testPlan(browser,base,width,{missingModules=false}={}){
    await page.waitForFunction(n=>window.__v272Calls.length===n,i+1);
    const latest=await page.evaluate(()=>window.__v272Calls.at(-1));
    assert.equal(latest[0],key);
-   assert.equal(latest[1],['earlier','later','toggle','remove','launch','complete'].includes(key)?'v272-item-1':'');
+   assert.equal(latest[1]??'',['earlier','later','toggle','remove','launch','complete'].includes(key)?'v272-item-1':'');
   }
   const before=await page.evaluate(()=>window.__v272Calls.length);
   await page.evaluate(()=>{
