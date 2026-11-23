@@ -343,13 +343,17 @@ export function mountArtworkViewer(host, model, actions) {
 function mountView(host, view, model, actions) {
   const existing = views.get(host);
   if (existing) {
+    // A reused host must receive fresh callbacks as well as fresh data.
+    // The legacy router can also reuse the same host for a different view.
     existing.model = model;
+    existing.actions = actions;
+    existing.view = view;
     return;
   }
 
-  const state = shallowReactive({ model });
+  const state = shallowReactive({ view, model, actions });
   const app = createApp({
-    render: () => h(view, { model: state.model, actions }),
+    render: () => h(state.view, { model: state.model, actions: state.actions }),
   });
   const parent = host.parentNode;
   app.mount(host);
