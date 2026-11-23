@@ -41,9 +41,11 @@ def api(method, relative, payload=None):
 html = (ROOT / "index.html").read_bytes()
 sw = (ROOT / "sw.js").read_bytes()
 expected_html = hashlib.sha256(html).hexdigest()
+if expected_html != "f8d63cd1a0d2a6aba96f5dc5999dafbaa7d3303005a2af25210593672c0869ed":
+    raise SystemExit("REFUSING publish: candidate differs from fully tested v272 HTML")
 html_source = html.decode("utf-8")
-if (html_source.count("legacy-navigation-core.js?v=271") != 1
-        or html_source.count("legacy-vue-actions.js?v=271") != 1
+if (html_source.count("legacy-navigation-core.js?v=272") != 1
+        or html_source.count("legacy-vue-actions.js?v=272") != 1
         or html_source.count("MatKvestVueActions?.headerActions?.") != 1
         or html_source.count("MatKvestVueActions?.quickSetupActions?.") != 1
         or html_source.count("MatKvestVueActions?.quickResultActions?.") != 1
