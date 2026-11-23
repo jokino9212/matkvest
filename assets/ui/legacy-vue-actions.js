@@ -43,5 +43,27 @@
     }
     return result;
   }
-  return {headerActions,quickSetupActions,quickResultActions,trainingPlanActions};
+  // V273: keep all scoring/persistence in legacy school controllers. These
+  // adapters only dispatch gestures to the live exercise instance.
+  function schoolTableActions({isCurrent,isSolved,hasAttempt,check,next,requestSkip}){
+    return {
+      primary:()=>{
+        if(!isCurrent())return;
+        return isSolved()?next():check();
+      },
+      skip:()=>{
+        if(!isCurrent()||isSolved())return;
+        return hasAttempt()?requestSkip():next();
+      }
+    };
+  }
+  function schoolQuizActions({isCurrent,choose,check,skip,next,keydown}){
+    const dispatch=handler=>(...args)=>{
+      if(!isCurrent())return;
+      return handler(...args);
+    };
+    return {choose:dispatch(choose),check:dispatch(check),skip:dispatch(skip),
+      next:dispatch(next),keydown:dispatch(keydown)};
+  }
+  return {headerActions,quickSetupActions,quickResultActions,trainingPlanActions,schoolTableActions,schoolQuizActions};
 });
