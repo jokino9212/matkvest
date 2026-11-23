@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Fail closed when extracting v272 plan actions in the isolated test branch.
 
-The legacy plan/controller logic and all HTML fallbacks remain in index.html.
+The legacy plan/controller logic stays in index.html; HTML fallback receives the same stale-view guard.
 The known v271 HTML hash is checked BEFORE any files are written.
 """
 from pathlib import Path
@@ -35,10 +35,12 @@ replace_one(
     ' const host=document.createElement("div");host.id="trainingPlanVue";host.style.display="contents";\n'
     ' const showFallback=()=>{',
     ' const host=document.createElement("div");host.id="trainingPlanVue";host.style.display="contents";\n'
-    ' const fallbackActions=actions;\n'
+    ' const isCurrentPlan=()=>host.parentNode===mainView&&host.isConnected;\n'
+    ' const fallbackActions=Object.fromEntries(Object.entries(actions).map(([key,handler])=>[\n'
+    '  key,(...args)=>{if(!isCurrentPlan()||mk872Dialog)return;return handler(...args)}\n'
+    ' ]));\n'
     ' const planActions=window.MatKvestVueActions?.trainingPlanActions?.({\n'
-    '  isCurrent:()=>host.parentNode===mainView&&host.isConnected,\n'
-    '  isBlocked:()=>!!mk872Dialog,actions:fallbackActions\n'
+    '  isCurrent:isCurrentPlan,isBlocked:()=>!!mk872Dialog,actions\n'
     ' })||fallbackActions;\n'
     ' const showFallback=()=>{'
 )
