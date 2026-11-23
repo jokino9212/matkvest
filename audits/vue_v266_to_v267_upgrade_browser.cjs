@@ -76,7 +76,16 @@ async function version(page,expected){
         scope:reg?.scope,caches:details,
       };
     }).catch(e=>({diagnosticError:String(e)}));
-    console.error('UPGRADE_VERSION_TIMEOUT',JSON.stringify({expected,debug}));
+    const workerVersions=await Promise.all(page.context().serviceWorkers().map(async worker=>{
+      try {
+        return {url:worker.url(),runtime:await worker.evaluate(()=>({
+          cacheName:typeof CACHE_NAME==='undefined'?null:CACHE_NAME,
+          buildHash:typeof APP_BUILD_HASH==='undefined'?null:APP_BUILD_HASH,
+          activeState:self.registration.active?.state,
+        }))};
+      } catch (e) {return {url:worker.url(),error:String(e)};}
+    }));
+    console.error('UPGRADE_VERSION_TIMEOUT',JSON.stringify({expected,debug,workerVersions}));
     throw error;
   }
   assert(await page.evaluate(async v => (await caches.keys()).includes('matkvest-iphone-v'+v),
