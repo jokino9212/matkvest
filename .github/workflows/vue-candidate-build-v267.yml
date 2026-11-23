@@ -59,7 +59,7 @@ jobs:
         run: |
           git fetch --depth=1 origin main
           git worktree add --detach /tmp/matkvest-v266 origin/main
-          node audits/vue_public_upgrade_browser.cjs /tmp/matkvest-v266 "$PWD"
+          node audits/vue_v266_to_v267_upgrade_browser.cjs /tmp/matkvest-v266 "$PWD"
       - name: Commit candidate assets ONLY to test branch after all checks pass
         run: |
           git config user.name "github-actions[bot]"
