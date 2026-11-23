@@ -3257,8 +3257,16 @@ async function checkColumnExerciseFallback(browser,address){
   await first.press('Enter');
   await column.getByText(/✅ Отлично!/).waitFor();
   await column.locator('#columnPrimary').press('Enter');
-  await column.locator('#columnSkip').press('Space');
-  await page.getByRole('button',{name:'Да, пропустить задание',exact:true}).press('Enter');
+  // After advancing, wait for the next real skip button. Enter activates a native
+  // button on keydown; Space activates on keyup and can race a legacy DOM rerender.
+  const nextSkip=column.locator('#columnSkip');
+  await nextSkip.waitFor({state:'visible'});
+  await nextSkip.press('Enter');
+  const skipConfirm=page.getByRole('button',{name:'Да, пропустить задание',exact:true});
+  await skipConfirm.waitFor({state:'visible',timeout:10000});
+  // The confirmation must not implicitly record a skip before user approval.
+  assert.deepEqual(await page.evaluate(()=>blockSession.items.map(item=>[item.finalCorrect,item.skipped])),[[true,false]]);
+  await skipConfirm.press('Enter');
   assert.deepEqual(await page.evaluate(()=>blockSession.items.map(item=>[item.finalCorrect,item.skipped])),[[true,false],[false,true]]);
   console.log('PASS_COLUMN_EXERCISE_HTML_FALLBACK');
  }finally{await context.close()}
