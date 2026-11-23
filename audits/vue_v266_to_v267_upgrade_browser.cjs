@@ -58,11 +58,20 @@ async function version(page,expected){
     const debug=await page.evaluate(async()=>{
       const reg=await navigator.serviceWorker.getRegistration();
       const keys=await caches.keys();
-      const details=await Promise.all(keys.map(async name=>({name,entries:(await (await caches.open(name)).keys()).length})));
+      const details=await Promise.all(keys.map(async name=>{
+        const cache=await caches.open(name),entries=await cache.keys();
+        const key=entries.find(req=>req.url.includes('__matkvest_snapshot__') &&
+          req.url.endsWith('/index.html'));
+        const html=key ? await (await cache.match(key)).text() : '';
+        return {name,entries:entries.length,
+          cachedOld:html.includes('knowledge-map.js?v=266'),
+          cachedNew:html.includes('knowledge-map.js?v=267')};
+      }));
       return {
         htmlOld:document.documentElement.outerHTML.includes('knowledge-map.js?v=266'),
         htmlNew:document.documentElement.outerHTML.includes('knowledge-map.js?v=267'),
         active:reg?.active?.state,waiting:reg?.waiting?.state,installing:reg?.installing?.state,
+        activeIsController:reg?.active===navigator.serviceWorker.controller,
         controlled:!!navigator.serviceWorker.controller,controllerState:navigator.serviceWorker.controller?.state,
         scope:reg?.scope,caches:details,
       };
