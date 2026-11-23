@@ -68,7 +68,13 @@ async function exercise(browser, base, width) {
     await waitForApp(page);
     const offline = await page.evaluate(() => ({
       route: {...mk854Route(), depth: mk854Depth()},
-      summary: summary(),
+      summary: {
+        profileId: state.profileId,
+        xp: state.xp,
+        coins: state.coins,
+        completed: (state.attemptHistory || []).filter(r => r.status === 'finished').map(r => r.id),
+        quick: (state.trainingHistory || []).map(r => r.id),
+      },
       core: typeof window.MatKvestRouteCore,
       controlled: !!navigator.serviceWorker.controller,
     }));
