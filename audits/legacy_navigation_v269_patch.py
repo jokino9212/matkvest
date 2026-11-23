@@ -14,8 +14,20 @@ BASE = "4af21c318352fed8a91fb5caacfd5fb0ba12f509f761a36d3b5a227866d5ec0a"
 TARGET = "388d92e221053d785e63522a4032d52225a866079ec29493eaaf91987a2690b1"
 source = HTML.read_text(encoding="utf-8")
 digest = lambda content: hashlib.sha256(content.encode("utf-8")).hexdigest()
+def bump_worker_version():
+    worker = ROOT / "sw.js"
+    old = worker.read_text(encoding="utf-8")
+    v268 = 'const CACHE_NAME = "matkvest-iphone-v268";'
+    v269 = 'const CACHE_NAME = "matkvest-iphone-v269";'
+    if old.count(v269) == 1:
+        return
+    if old.count(v268) != 1:
+        raise SystemExit("REFUSING unexpected worker cache version")
+    worker.write_text(old.replace(v268, v269, 1), encoding="utf-8")
+
 before = digest(source)
 if before == TARGET:
+    bump_worker_version()
     print("UNCHANGED: v269 route core already integrated", before)
     sys.exit(0)
 if before != BASE:
@@ -66,4 +78,5 @@ after = digest(source)
 if after != TARGET:
     raise SystemExit("REFUSING unexpected candidate digest: " + after)
 HTML.write_text(source, encoding="utf-8")
+bump_worker_version()
 print("PASS: integrated legacy-navigation-core.js with intact fallback; v269 index", after)
