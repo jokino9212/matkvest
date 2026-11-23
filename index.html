@@ -3,7 +3,8 @@
 <head>
 <meta charset="utf-8">
 <!-- Optional route core: inline mk854 wrappers remain the fallback. -->
-<script src="./assets/ui/legacy-navigation-core.js?v=270"></script>
+<script src="./assets/ui/legacy-navigation-core.js?v=271"></script>
+<script src="./assets/ui/legacy-vue-actions.js?v=271"></script>
 <script>function g8Declension19(number,one,few,many){
  const n=Math.abs(Math.trunc(Number(number))),lastTwo=n%100,last=n%10;
  if(lastTwo>=11&&lastTwo<=14)return many;
@@ -14259,7 +14260,7 @@ function knowledgeFilteredSections(data){
  const mapSec=sec=>{let topics=sec.topics.filter(t=>knowledgeStatusPass(t,knowledgeMapState.status)&&(!q||`${t.title} ${t.group}`.toLocaleLowerCase("ru-RU").includes(q)));if(knowledgeMapState.sort==="attention")topics=topics.slice().sort((a,b)=>knowledgeTopicPriority(a)-knowledgeTopicPriority(b));return {...sec,topics}};
  return [...data.sections,...data.extraSections].map(mapSec).filter(s=>s.topics.length);
 }
-const knowledgeMapUrl = "./assets/ui/knowledge-map.js?v=270";
+const knowledgeMapUrl = "./assets/ui/knowledge-map.js?v=271";
 const knowledgeTopicDetailHostId="knowledgeTopicDetailVue";
 let knowledgeMapModule;
 let knowledgeMapRevision=0;
@@ -21806,7 +21807,7 @@ function renderQuickIntro(smartMessage="",focusAction=null){
  const trainerId=quickTrainerId,selection=quickSelection;
  const model={...quickSetupModel(trainerId),smartMessage};
  const isCurrent=()=>quickTrainerId===trainerId&&quickMode==="intro"&&mainView.contains(host);
- const actions={
+ const fallbackActions={
   run(action){
    if(!isCurrent()||mk872Dialog)return;
    const [group,value]=action.split(":");
@@ -21820,6 +21821,12 @@ function renderQuickIntro(smartMessage="",focusAction=null){
    if(action==="home")return quickTrainerGoHome();
   }
  };
+ const actions=window.MatKvestVueActions?.quickSetupActions?.({
+  isCurrent,isBlocked:()=>!!mk872Dialog,
+  choice:value=>quickMeta(trainerId).config.type!=="multiTables"?quickChooseMode(value):
+   value==="all"?quickSelectAll():quickToggleTable(Number(value)),
+  smart:quickChooseSmartMode,start:startQuickTraining,trainAll:quickFallbackAll,home:quickTrainerGoHome
+ })||fallbackActions;
  const activeControl=()=>host.contains(document.activeElement)?document.activeElement.dataset.quickSetup:null;
  const focusControl=action=>{
   if(action)host.querySelector(`button[data-quick-setup="${CSS.escape(action)}"]`)?.focus({preventScroll:true});
@@ -22092,11 +22099,16 @@ function renderQuickSummary(s){
   <div class="quick-summary-grid">${stats}</div><div class="quick-summary-reward"><span>+${model.xp} XP</span><span>+${model.coins} 🪙</span></div>
   <div class="quick-review-summary"><h3>Стоит повторить</h3>${facts}</div><div class="quick-summary-actions"><button type="button" class="btn primary" data-quick-result="again">Ещё раз</button><button type="button" class="btn soft" data-quick-result="home">На главную</button>${model.returnToPlan?'<button type="button" class="btn soft" data-quick-result="returnToPlan">← Вернуться к плану</button>':""}</div></div>`;
  const isCurrent=()=>mainView.contains(host)&&quickMode==="summary";
- const actions={
+ const fallbackActions={
   again:()=>{if(isCurrent())quickAgain(s.selectedConfig)},
   home:()=>{if(isCurrent())mk854Route().planRun?mk872BrandGoHome():quickTrainerGoHome()},
   returnToPlan:()=>{if(isCurrent()&&trainingPlanRunContext)returnToTrainingPlan()}
  };
+ const actions=window.MatKvestVueActions?.quickResultActions?.({
+  isCurrent,selection:s.selectedConfig,again:quickAgain,
+  home:()=>mk854Route().planRun?mk872BrandGoHome():quickTrainerGoHome(),
+  hasPlan:()=>!!trainingPlanRunContext,returnToPlan:returnToTrainingPlan
+ })||fallbackActions;
  host.onclick=event=>{
   const button=event.target.closest("button[data-quick-result]");
   if(button&&!button.disabled)actions[button.dataset.quickResult]?.();
@@ -39725,8 +39737,9 @@ function mountAppHeader(){
   const active=document.activeElement;
   const focusedAction=host.contains(active)?active.closest("[data-header-action]")?.dataset.headerAction:null;
   const menuOpen=host.querySelector(".stats").dataset.mkUi19Menu==="open";
-  const actions={home:()=>mk872BrandGoHome(),profile:()=>openProfiles(),wallet:()=>window.mk19eWallet(),
+  const fallbackActions={home:()=>mk872BrandGoHome(),profile:()=>openProfiles(),wallet:()=>window.mk19eWallet(),
    shop:()=>openShop(),data:()=>openDataManager(),journal:()=>openAttemptJournal(),leaders:()=>openLeaderboard()};
+  const actions=window.MatKvestVueActions?.headerActions?.(fallbackActions)||fallbackActions;
   const fallback=[...host.childNodes];
   try{module.mountAppHeader(host,{...appHeaderModel(),menuOpen},actions)}
   catch(error){host.replaceChildren(...fallback);throw error}
@@ -42187,31 +42200,31 @@ document.addEventListener("keydown",event=>{
 })();
 </script>
 
-<script src="g5-conversion-ux.js?v=270"></script>
-<script src="g5-textbook-topics.js?v=270"></script>
-<script src="g5-textbook-core.js?v=270"></script>
-<script src="g5-textbook-v111.js?v=270"></script>
-<script src="g5-textbook-v112.js?v=270"></script>
-<script src="g5-pedagogy-v113.js?v=270"></script>
-<script src="g5-fractions-v114.js?v=270"></script>
-<script src="g5-fraction-arithmetic-v115.js?v=270"></script>
-<script src="g5-decimals-v116.js?v=270"></script>
-<script src="g7-textbook.js?v=270"></script>
-<script src="g8-textbook.js?v=270"></script>
-<script src="g1-textbook.js?v=270"></script>
-<script src="g2-textbook.js?v=270"></script>
-<script src="g3-textbook.js?v=270"></script>
-<script src="g4-textbook.js?v=270"></script>
-<script src="g5-textbook-navigation-v121.js?v=270"></script>
-<script src="g5-live-pedagogy-v122.js?v=270"></script>
-<script src="g5-arithmetic-tiers-v123.js?v=270"></script>
-<script src="g5-textbook-tiers-v124.js?v=270"></script>
-<script src="g5-natural-units-v125.js?v=270"></script>
-<script src="g5-remaining-core-v126.js?v=270"></script>
-<script src="g5-decimal-tiers-v127.js?v=270"></script>
-<script src="g5-decimal-percent-v128.js?v=270"></script>
-<script src="g5-fraction-concepts-v129.js?v=270"></script>
-<script src="g5-fraction-applications-v130.js?v=270"></script>
+<script src="g5-conversion-ux.js?v=271"></script>
+<script src="g5-textbook-topics.js?v=271"></script>
+<script src="g5-textbook-core.js?v=271"></script>
+<script src="g5-textbook-v111.js?v=271"></script>
+<script src="g5-textbook-v112.js?v=271"></script>
+<script src="g5-pedagogy-v113.js?v=271"></script>
+<script src="g5-fractions-v114.js?v=271"></script>
+<script src="g5-fraction-arithmetic-v115.js?v=271"></script>
+<script src="g5-decimals-v116.js?v=271"></script>
+<script src="g7-textbook.js?v=271"></script>
+<script src="g8-textbook.js?v=271"></script>
+<script src="g1-textbook.js?v=271"></script>
+<script src="g2-textbook.js?v=271"></script>
+<script src="g3-textbook.js?v=271"></script>
+<script src="g4-textbook.js?v=271"></script>
+<script src="g5-textbook-navigation-v121.js?v=271"></script>
+<script src="g5-live-pedagogy-v122.js?v=271"></script>
+<script src="g5-arithmetic-tiers-v123.js?v=271"></script>
+<script src="g5-textbook-tiers-v124.js?v=271"></script>
+<script src="g5-natural-units-v125.js?v=271"></script>
+<script src="g5-remaining-core-v126.js?v=271"></script>
+<script src="g5-decimal-tiers-v127.js?v=271"></script>
+<script src="g5-decimal-percent-v128.js?v=271"></script>
+<script src="g5-fraction-concepts-v129.js?v=271"></script>
+<script src="g5-fraction-applications-v130.js?v=271"></script>
 <script>
 // The textbook scripts finish extending the catalog before Home shows its totals.
 g5HomeCatalogReady=true;
