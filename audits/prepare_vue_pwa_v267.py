@@ -25,8 +25,8 @@ if new_url in html:
 n = html.count(old_url)
 if n != 26:
     raise SystemExit(f"Expected exactly 26 v{OLD} script URLs, found {n}")
-before = re.findall(rb'<script src="((?:g5-[\\w-]+|g[123478]-textbook)\\.js)\\?v=(\\d+)"></script>', html)
-vue = re.findall(rb'const knowledgeMapUrl = "\\./(assets/ui/knowledge-map\\.js)\\?v=(\\d+)";', html)
+before = re.findall(rb'<script src="((?:g5-[\w-]+|g[123478]-textbook)\.js)\?v=(\d+)"></script>', html)
+vue = re.findall(rb'const knowledgeMapUrl = "\./(assets/ui/knowledge-map\.js)\?v=(\d+)";', html)
 if len(before) != 25 or len(vue) != 1 or any(v != str(OLD).encode() for _, v in before + vue):
     raise SystemExit(f"Versioned script inventory mismatched: scripts={len(before)}, vue={len(vue)}")
 declaration = f'const CACHE_NAME = "matkvest-iphone-v{OLD}";'
