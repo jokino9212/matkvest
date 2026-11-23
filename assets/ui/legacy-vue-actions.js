@@ -65,5 +65,26 @@
     return {choose:dispatch(choose),check:dispatch(check),skip:dispatch(skip),
       next:dispatch(next),keydown:dispatch(keydown)};
   }
-  return {headerActions,quickSetupActions,quickResultActions,trainingPlanActions,schoolTableActions,schoolQuizActions};
+  // V274: column exercise gestures. Keep cell calculations, scoring and
+  // persistence inside the legacy controller, and never handle detached views.
+  function schoolColumnActions({isCurrent,isSolved,hasAttempt,check,next,requestSkip,
+    inputCell,moveCell,toggleDot}){
+    const live=handler=>(...args)=>{
+      if(!isCurrent())return;
+      return handler(...args);
+    };
+    return {
+      primary:()=>{
+        if(!isCurrent())return;
+        return isSolved()?next():check();
+      },
+      skip:()=>{
+        if(!isCurrent()||isSolved())return;
+        return hasAttempt()?requestSkip():next();
+      },
+      inputCell:live(inputCell),moveCell:live(moveCell),toggleDot:live(toggleDot)
+    };
+  }
+  return {headerActions,quickSetupActions,quickResultActions,trainingPlanActions,
+    schoolTableActions,schoolQuizActions,schoolColumnActions};
 });
