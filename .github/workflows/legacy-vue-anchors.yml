@@ -18,13 +18,14 @@ jobs:
           python3 - <<'PY'
           from pathlib import Path
           s=Path('index.html').read_text(encoding='utf-8')
+          import re
+          mount_calls=re.findall(r'module\.(mount[A-Za-z0-9_]+)\s*\(',s)
+          from collections import Counter
+          print('ACTION MOUNT INVENTORY:', sorted(Counter(mount_calls).items()))
           anchors=[
-            'function mk854PushAndRender(', 'function mk854RestoreRoute(',
-            'window.addEventListener("popstate",event=>',
-            'mountQuickTrainerResult(', 'mountHomeDashboard(',
-            'mountQuickTrainerSetup(', 'mountGradeCourse(',
-            'mountSchoolAttemptFrame(', 'mountTrainingPlanReturn(',
-            'mk854Fresh', 'freshVueActions',
+            'module.mountAppHeader(', 'module.mountQuickTrainerResult(',
+            'module.mountQuickTrainerSetup(', 'module.mountTrainingPlan(',
+            'module.mountStudentProfiles(', 'module.mountAttemptJournal(',
           ]
           for anchor in anchors:
               print('\\n=== ANCHOR',repr(anchor),'count=',s.count(anchor),'===')
@@ -32,6 +33,6 @@ jobs:
               for _ in range(min(2,s.count(anchor))):
                   i=s.find(anchor,pos)
                   print('at line',s.count('\\n',0,i)+1)
-                  print(s[max(0,i-140):min(len(s),i+1100)])
+                  print(s[max(0,i-3400):min(len(s),i+550)])
                   pos=i+len(anchor)
           PY
