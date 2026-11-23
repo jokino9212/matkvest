@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- Optional route core: inline mk854 wrappers remain the fallback. -->
-<script src="./assets/ui/legacy-navigation-core.js?v=269"></script>
+<script src="./assets/ui/legacy-navigation-core.js?v=270"></script>
 <script>function g8Declension19(number,one,few,many){
  const n=Math.abs(Math.trunc(Number(number))),lastTwo=n%100,last=n%10;
  if(lastTwo>=11&&lastTwo<=14)return many;
@@ -14259,7 +14259,7 @@ function knowledgeFilteredSections(data){
  const mapSec=sec=>{let topics=sec.topics.filter(t=>knowledgeStatusPass(t,knowledgeMapState.status)&&(!q||`${t.title} ${t.group}`.toLocaleLowerCase("ru-RU").includes(q)));if(knowledgeMapState.sort==="attention")topics=topics.slice().sort((a,b)=>knowledgeTopicPriority(a)-knowledgeTopicPriority(b));return {...sec,topics}};
  return [...data.sections,...data.extraSections].map(mapSec).filter(s=>s.topics.length);
 }
-const knowledgeMapUrl = "./assets/ui/knowledge-map.js?v=269";
+const knowledgeMapUrl = "./assets/ui/knowledge-map.js?v=270";
 const knowledgeTopicDetailHostId="knowledgeTopicDetailVue";
 let knowledgeMapModule;
 let knowledgeMapRevision=0;
@@ -22538,7 +22538,8 @@ function mountTrainingPlanReturn(surface,className,note){
  loadVueModule().then(module=>{
   if(host.parentNode!==surface||trainingPlanRunContext!==context)return;
   const focused=host.contains(document.activeElement);
-  module.mountTrainingPlanReturn(host,{note},{returnToPlan:returnToTrainingPlan});
+   const vueActions=window.MatKvestRouteCore?.trainingPlanReturnVueActions?.(returnToTrainingPlan)||{returnToPlan:returnToTrainingPlan};
+   module.mountTrainingPlanReturn(host,{note},vueActions);
   if(focused)host.querySelector("button")?.focus({preventScroll:true});
  }).catch(()=>{ /* Keep the return button available if Vue cannot load. */ });
 }
@@ -25516,7 +25517,8 @@ function mountHomeDashboard(){
   const host=document.createElement("div"),fallback=[...mainView.childNodes];
   host.id="homeDashboard";host.style.display="contents";
   mainView.replaceChildren(host);
-  try{module.mountHomeDashboard(host,model,{run:runHomeAction})}catch(error){mainView.replaceChildren(...fallback);throw error}
+   const vueActions=window.MatKvestRouteCore?.homeVueActions?.(runHomeAction)||{run:runHomeAction};
+   try{module.mountHomeDashboard(host,model,vueActions)}catch(error){mainView.replaceChildren(...fallback);throw error}
   const button=action&&[...host.querySelectorAll("button[data-home-action]")].find(el=>el.dataset.homeAction===action);
   button?.focus({preventScroll:true});
  }).catch(()=>{ /* The existing dashboard remains navigable if Vue cannot load. */ });
@@ -25627,7 +25629,23 @@ function mk854RestoreRoute(route){
  const r=route&&route.screen?route:{screen:"home"};
  mk854RunRestoring(()=>{
   MK854_CORE_CLOSE_MODAL();
-  if(r.screen==="home")return MK854_CORE_RENDER_HOME();
+   const core=window.MatKvestRouteCore;
+   if(core&&typeof core.dispatchRoute==="function")return core.dispatchRoute(r,{
+    home:()=>MK854_CORE_RENDER_HOME(),
+    grade:x=>MK854_CORE_OPEN_GRADE(Number(x.grade)),
+    topic:x=>mk854RenderTopicCore(x),
+    trainer:x=>{
+     const setup=history.state?.quickSetup;
+     const selection=setup?.profileId===state.profileId&&setup?.trainerId===x.trainerId?setup.selection:null;
+     return MK854_CORE_OPEN_QUICK(x.trainerId,x.planRun,selection,savedQuickResult(x.trainerId));
+    },
+    store:x=>openShop(x.category||"avatars"),
+    leaderboard:()=>MK854_CORE_OPEN_LEADERBOARD(),
+    quests:()=>renderQuestBoard(),
+    profiles:()=>{MK854_CORE_OPEN_PROFILES();mk854AfterProfilesOpen();},
+    other:x=>mk854ExtraRouteRenderer(x)
+   });
+   if(r.screen==="home")return MK854_CORE_RENDER_HOME();
   if(r.screen==="grade")return MK854_CORE_OPEN_GRADE(Number(r.grade));
   if(r.screen==="topic")return mk854RenderTopicCore(r);
   if(r.screen==="trainer"){
@@ -25738,7 +25756,9 @@ function mk854InitHistory(){
  }
  mk854HistoryReady=true;
  const route=mk854Route();
- if(["store","chest","quests","profiles"].includes(route.screen)||([1,2,3,4,5,6,7,8].includes(Number(route.grade))&&(route.screen==="grade"||route.screen==="topic"))){
+ const core=window.MatKvestRouteCore;
+ const defer=core&&typeof core.shouldDeferRestore==="function"?core.shouldDeferRestore(route):(["store","chest","quests","profiles"].includes(route.screen)||([1,2,3,4,5,6,7,8].includes(Number(route.grade))&&(route.screen==="grade"||route.screen==="topic")));
+ if(defer){
   // The textbook and cosmetic catalogs are registered later in the document.
   document.addEventListener("DOMContentLoaded",()=>{
    if(mk854SameRoute(route,mk854Route()))mk854RestoreRoute(route);
@@ -42167,31 +42187,31 @@ document.addEventListener("keydown",event=>{
 })();
 </script>
 
-<script src="g5-conversion-ux.js?v=269"></script>
-<script src="g5-textbook-topics.js?v=269"></script>
-<script src="g5-textbook-core.js?v=269"></script>
-<script src="g5-textbook-v111.js?v=269"></script>
-<script src="g5-textbook-v112.js?v=269"></script>
-<script src="g5-pedagogy-v113.js?v=269"></script>
-<script src="g5-fractions-v114.js?v=269"></script>
-<script src="g5-fraction-arithmetic-v115.js?v=269"></script>
-<script src="g5-decimals-v116.js?v=269"></script>
-<script src="g7-textbook.js?v=269"></script>
-<script src="g8-textbook.js?v=269"></script>
-<script src="g1-textbook.js?v=269"></script>
-<script src="g2-textbook.js?v=269"></script>
-<script src="g3-textbook.js?v=269"></script>
-<script src="g4-textbook.js?v=269"></script>
-<script src="g5-textbook-navigation-v121.js?v=269"></script>
-<script src="g5-live-pedagogy-v122.js?v=269"></script>
-<script src="g5-arithmetic-tiers-v123.js?v=269"></script>
-<script src="g5-textbook-tiers-v124.js?v=269"></script>
-<script src="g5-natural-units-v125.js?v=269"></script>
-<script src="g5-remaining-core-v126.js?v=269"></script>
-<script src="g5-decimal-tiers-v127.js?v=269"></script>
-<script src="g5-decimal-percent-v128.js?v=269"></script>
-<script src="g5-fraction-concepts-v129.js?v=269"></script>
-<script src="g5-fraction-applications-v130.js?v=269"></script>
+<script src="g5-conversion-ux.js?v=270"></script>
+<script src="g5-textbook-topics.js?v=270"></script>
+<script src="g5-textbook-core.js?v=270"></script>
+<script src="g5-textbook-v111.js?v=270"></script>
+<script src="g5-textbook-v112.js?v=270"></script>
+<script src="g5-pedagogy-v113.js?v=270"></script>
+<script src="g5-fractions-v114.js?v=270"></script>
+<script src="g5-fraction-arithmetic-v115.js?v=270"></script>
+<script src="g5-decimals-v116.js?v=270"></script>
+<script src="g7-textbook.js?v=270"></script>
+<script src="g8-textbook.js?v=270"></script>
+<script src="g1-textbook.js?v=270"></script>
+<script src="g2-textbook.js?v=270"></script>
+<script src="g3-textbook.js?v=270"></script>
+<script src="g4-textbook.js?v=270"></script>
+<script src="g5-textbook-navigation-v121.js?v=270"></script>
+<script src="g5-live-pedagogy-v122.js?v=270"></script>
+<script src="g5-arithmetic-tiers-v123.js?v=270"></script>
+<script src="g5-textbook-tiers-v124.js?v=270"></script>
+<script src="g5-natural-units-v125.js?v=270"></script>
+<script src="g5-remaining-core-v126.js?v=270"></script>
+<script src="g5-decimal-tiers-v127.js?v=270"></script>
+<script src="g5-decimal-percent-v128.js?v=270"></script>
+<script src="g5-fraction-concepts-v129.js?v=270"></script>
+<script src="g5-fraction-applications-v130.js?v=270"></script>
 <script>
 // The textbook scripts finish extending the catalog before Home shows its totals.
 g5HomeCatalogReady=true;
