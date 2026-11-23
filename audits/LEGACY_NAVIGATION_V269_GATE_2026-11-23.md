@@ -22,4 +22,16 @@
 - Playwright на ширине 390 и 1280: клавиатура, маршруты/Back/Forward, offline F5, результаты и награды без дублей
 - Playwright отдельным сценарием: JS-модуль заблокирован, legacy fallback продолжает маршрутизировать
 
-Статус: ожидает фактический результат CI, не является утверждением PASS до проверки логов.
+## Результат фактического запуска
+
+- GitHub Actions: https://github.com/jokino9212/matkvest/actions/runs/45226505905 — **SUCCESS**.
+- Проверка Node `legacy_navigation_core.test.cjs` — **PASS**.
+- Vue build: повторная сборка не меняет `assets/ui/knowledge-map.js` — **PASS**.
+- PWA v269: HTML SHA-256 `388d92e221053d785e63522a4032d52225a866079ec29493eaaf91987a2690b1`, все скрипты и offline snapshot — **PASS**.
+- Playwright 390/1280 px: Enter/Space, Back/Forward, offline F5, результаты и награды после обновления — **PASS**.
+- Playwright при заблокированном `legacy-navigation-core.js`: исходные обработчики маршрутов продолжают работать — **PASS**.
+- Пример проверенного состояния: 1 запись быстрого тренажёра, 3 XP, 6 монет; без дублей после offline F5 и переходов.
+- Сгенерированная версия зафиксирована в тестовой ветке коммитом `51f8df791d608b6ef2125758cead45de04e62808`.
+- Ветка `main` на момент проверки: `2985f92b6bd1a26dfcc316917f1752602b099572`. Не изменялась этой работой.
+
+PR #131 остаётся draft. Production/deploy/merge не выполнялись. Запуски других PWA-workflow, не включённых в данный gate, оцениваются отдельно; наличие общего SUCCESS не заявляется.
