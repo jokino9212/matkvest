@@ -48,11 +48,28 @@ const server = http.createServer((request,response)=>{
   }catch(error){return response.writeHead(404).end();}
 });
 async function version(page,expected){
-  await page.waitForFunction(v => {
-    if (!navigator.serviceWorker.controller)return false;
-    // A URL from the actual document proves which JavaScript build is running.
-    return document.documentElement.outerHTML.includes('knowledge-map.js?v='+v);
-  },expected,{timeout:30000});
+  try {
+    await page.waitForFunction(v => {
+      if (!navigator.serviceWorker.controller)return false;
+      // A URL from the actual document proves which JavaScript build is running.
+      return document.documentElement.outerHTML.includes('knowledge-map.js?v='+v);
+    },expected,{timeout:12000});
+  } catch (error) {
+    const debug=await page.evaluate(async()=>{
+      const reg=await navigator.serviceWorker.getRegistration();
+      const keys=await caches.keys();
+      const details=await Promise.all(keys.map(async name=>({name,entries:(await (await caches.open(name)).keys()).length})));
+      return {
+        htmlOld:document.documentElement.outerHTML.includes('knowledge-map.js?v=266'),
+        htmlNew:document.documentElement.outerHTML.includes('knowledge-map.js?v=267'),
+        active:reg?.active?.state,waiting:reg?.waiting?.state,installing:reg?.installing?.state,
+        controlled:!!navigator.serviceWorker.controller,controllerState:navigator.serviceWorker.controller?.state,
+        scope:reg?.scope,caches:details,
+      };
+    }).catch(e=>({diagnosticError:String(e)}));
+    console.error('UPGRADE_VERSION_TIMEOUT',JSON.stringify({expected,debug}));
+    throw error;
+  }
   assert(await page.evaluate(async v => (await caches.keys()).includes('matkvest-iphone-v'+v),
     expected),'Missing versioned PWA snapshot cache');
 }
