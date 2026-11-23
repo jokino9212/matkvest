@@ -366,7 +366,11 @@ function mountView(host, view, model, actions) {
     app.unmount();
     views.delete(host);
   });
-  observer.observe(parent, { childList: true });
-  const surface = host.closest('#mainView, #modal');
-  if (surface && parent !== surface) observer.observe(surface, { childList: true });
+  // Observe each ancestor's direct children, not the whole document subtree.
+  // Legacy routing can remove #mainView, #modal or an intermediate wrapper;
+  // observing only the host parent and its surface misses those removals and
+  // leaves a detached Vue app (with listeners/effects) mounted indefinitely.
+  for (let ancestor = parent; ancestor?.nodeType === 1; ancestor = ancestor.parentElement) {
+    observer.observe(ancestor, { childList: true });
+  }
 }
