@@ -1,14 +1,5 @@
 name: Test-only school table and quiz Vue action PWA v273 gate
 on:
-  push:
-    branches: [refactor/route-vue-actions-from-7c14ce9]
-    paths:
-      - '.github/workflows/legacy-school-actions-v273-gate.yml'
-      - 'assets/ui/legacy-vue-actions.js'
-      - 'audits/legacy_school_actions_v273_patch.py'
-      - 'audits/legacy_school_actions_v273_publish.py'
-      - 'audits/legacy_school_actions_v273.test.cjs'
-      - 'audits/legacy_school_actions_v273_browser.cjs'
   workflow_dispatch:
 permissions:
   contents: write
