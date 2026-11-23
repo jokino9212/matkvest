@@ -1,9 +1,5 @@
 name: Vue bundle and PWA fingerprint integrity
 on:
-  push:
-    branches: [fix/vue-mount-actions-20261123]
-    paths:
-      - '.github/workflows/vue-bundle-pwa-integrity.yml'
   pull_request:
     branches: [main]
     paths:
