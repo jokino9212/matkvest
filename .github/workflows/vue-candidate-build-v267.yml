@@ -51,15 +51,15 @@ jobs:
           node audits/vue_mount_actions_browser.cjs
       - name: Verify installed PWA is usable offline (mobile, tablet)
         run: node audits/stage28_offline_pwa_browser.cjs
-      - name: Verify training attempt recovery and one-time rewards
-        run: node audits/stage24_attempt_lifecycle_browser.cjs
-      - name: Verify saved student profile boundaries
-        run: node audits/stage25_profile_isolation_browser.cjs
       - name: Verify update from old PWA and offline recovery
         run: |
           git fetch --depth=1 origin main
           git worktree add --detach /tmp/matkvest-v266 origin/main
           node audits/vue_v266_to_v267_upgrade_browser.cjs /tmp/matkvest-v266 "$PWD"
+      - name: Verify training attempt recovery and one-time rewards
+        run: node audits/stage24_attempt_lifecycle_browser.cjs
+      - name: Verify saved student profile boundaries
+        run: node audits/stage25_profile_isolation_browser.cjs
       - name: Commit candidate assets ONLY to test branch after all checks pass
         run: |
           git config user.name "github-actions[bot]"
