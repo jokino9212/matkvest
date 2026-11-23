@@ -33,7 +33,7 @@ if 'const SCRIPT_HASHES = ' in source:
         raise SystemExit("ERROR: expected one versioned knowledge map module")
     scripts.extend(knowledge_map)
     # The new optional legacy route core is a first-class, versioned offline script.
-    legacy = re.findall(rb'<script src="\\./(assets/ui/legacy-navigation-core\\.js)\\?v=(\\d+)"></script>', html)
+    legacy = re.findall(rb'<script src="\./(assets/ui/legacy-navigation-core\.js)\?v=(\d+)"></script>', html)
     if b"legacy-navigation-core.js" in html and len(legacy) != 1:
         raise SystemExit("ERROR: expected one versioned legacy route core")
     scripts.extend(legacy)
