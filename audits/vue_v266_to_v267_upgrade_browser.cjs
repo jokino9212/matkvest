@@ -139,6 +139,11 @@ async function scenario(browser,width){
     isMobile:width<500,hasTouch:width<500,serviceWorkers:'allow'});
   const page=await context.newPage(),errors=[];
   page.on('pageerror',e=>errors.push(e.message));
+  page.on('framenavigated',frame=>{if(frame===page.mainFrame())console.log('FRAME_NAVIGATED',frame.url());});
+  page.on('response',response=>{
+    if(response.request().isNavigationRequest())
+      console.log('NAV_RESPONSE',JSON.stringify({url:response.url(),sw:response.fromServiceWorker(),status:response.status()}));
+  });
   try{
     const url='http://127.0.0.1:'+server.address().port+'/'+name+'/';
     await page.goto(url,{waitUntil:'domcontentloaded'});
@@ -163,7 +168,16 @@ async function scenario(browser,width){
     }
     await page.waitForFunction(async v=>(await caches.keys()).includes('matkvest-iphone-v'+v),
       candidate.version,{timeout:30000});
-    await page.reload({waitUntil:'domcontentloaded'});
+    const navigation=await page.reload({waitUntil:'domcontentloaded'});
+    const received=await navigation.text().catch(e=>'NAV_READ_ERROR: '+String(e));
+    console.log('UPGRADE_RELOAD_NAV',JSON.stringify({
+      url:navigation.url(),status:navigation.status(),fromWorker:navigation.fromServiceWorker(),
+      responseOld:received.includes('knowledge-map.js?v=266'),
+      responseNew:received.includes('knowledge-map.js?v=267'),
+      currentUrl:page.url(),
+      domOld:await page.evaluate(()=>document.documentElement.outerHTML.includes('knowledge-map.js?v=266')),
+      domNew:await page.evaluate(()=>document.documentElement.outerHTML.includes('knowledge-map.js?v=267')),
+    }));
     await version(page,candidate.version);
     assert.deepEqual(await snapshot(page),before,'State changed during PWA upgrade');
     await context.setOffline(true);
