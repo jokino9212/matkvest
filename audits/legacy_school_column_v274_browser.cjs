@@ -94,10 +94,7 @@ async function scenario(browser,base,width,missing=false){
    assert.equal(after.xp,scored.xp);
    assert.equal(after.coins,scored.coins);
    await page.keyboard.press('Escape');
-   const dialog=page.locator('.mk872-training-dialog'+(missing?':not([data-v-app])':'[data-v-app]'));
-   const exit=dialog.getByRole('button',{name:'Выйти и удалить попытку',exact:true});
-   if(await exit.count())await exit.click();
-   else await page.evaluate(()=>{if(blockSession)cancelBlock();closeModal()});
+   await page.getByRole('button',{name:'Выйти и удалить попытку',exact:true}).click();
   }
   if(missing){
    await page.evaluate(()=>{openGrade(4);startColumnStage('add',0)});
