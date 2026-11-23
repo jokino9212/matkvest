@@ -1,0 +1,64 @@
+name: Test-only Vue action adapters and PWA v271 gate
+on:
+  push:
+    branches: [refactor/route-vue-actions-from-7c14ce9]
+    paths:
+      - 'assets/ui/legacy-vue-actions.js'
+      - 'audits/legacy_vue_actions_v271.test.cjs'
+      - 'audits/legacy_vue_actions_v271_patch.py'
+      - 'audits/legacy_vue_actions_v271_publish.py'
+      - 'audits/legacy_vue_actions_v271_browser.cjs'
+      - 'audits/g7_stage12_sync_pwa.py'
+      - 'audits/pwa_verified_refresh_browser.cjs'
+      - '.github/workflows/legacy-vue-actions-v271-gate.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: vue-actions-v271-test-branch
+  cancel-in-progress: false
+jobs:
+  integrate-test-publish:
+    if: github.repository == 'jokino9212/matkvest' && github.ref == 'refs/heads/refactor/route-vue-actions-from-7c14ce9'
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: refactor/route-vue-actions-from-7c14ce9
+          persist-credentials: true
+      - name: Apply SHA-guarded v270 to v271 giant HTML patch (retain inline fallback)
+        run: python3 audits/legacy_vue_actions_v271_patch.py
+      - name: Synchronize verified PWA script hashes and check publisher syntax
+        run: |
+          python3 audits/g7_stage12_sync_pwa.py
+          python3 audits/g7_stage12_sync_pwa.py --check
+          python3 -m py_compile audits/legacy_vue_actions_v271_patch.py audits/legacy_vue_actions_v271_publish.py
+      - name: Install deterministic Node and Chromium test dependencies
+        run: |
+          npm ci
+          npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Assert route and Vue action contracts including stale-session guards
+        run: |
+          node audits/legacy_navigation_core.test.cjs
+          node audits/legacy_vue_actions_v271.test.cjs
+      - name: Assert generated Vue bundle remains byte-identical
+        run: |
+          before=$(sha256sum assets/ui/knowledge-map.js | cut -d ' ' -f1)
+          npm run build:knowledge-map
+          after=$(sha256sum assets/ui/knowledge-map.js | cut -d ' ' -f1)
+          test "$before" = "$after"
+      - name: Browser keyboard routes offline F5 missing-module fallback results and rewards
+        run: node audits/legacy_vue_actions_v271_browser.cjs
+      - name: Complete PWA v270 to v271 verified upgrade and offline regression
+        run: |
+          node audits/pwa_verified_refresh_browser.cjs
+          node audits/stage28_offline_pwa_browser.cjs
+      - name: Verify exact PWA fingerprints after browser tests
+        run: python3 audits/g7_stage12_sync_pwa.py --check
+      - name: Commit the verified large HTML and worker only to test branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 audits/legacy_vue_actions_v271_publish.py

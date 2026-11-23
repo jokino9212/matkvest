@@ -37,6 +37,11 @@ if 'const SCRIPT_HASHES = ' in source:
     if b"legacy-navigation-core.js" in html and len(legacy) != 1:
         raise SystemExit("ERROR: expected one versioned legacy route core")
     scripts.extend(legacy)
+    # Each Vue action adapter must be in the same verified offline snapshot.
+    vue_actions = re.findall(rb'<script src="\./(assets/ui/legacy-vue-actions\.js)\?v=(\d+)"></script>', html)
+    if b"legacy-vue-actions.js" in html and len(vue_actions) != 1:
+        raise SystemExit("ERROR: expected exactly one versioned Vue actions module")
+    scripts.extend(vue_actions)
     version = cache_name.rsplit('v', 1)[-1].encode()
     if any(stamp != version for _, stamp in scripts):
         raise SystemExit("ERROR: script versions differ from the worker cache")

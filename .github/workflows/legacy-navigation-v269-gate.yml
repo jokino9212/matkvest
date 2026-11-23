@@ -5,8 +5,6 @@ on:
     paths:
       - 'audits/legacy_navigation_v269_patch.py'
       - 'audits/legacy_navigation_v269_browser.cjs'
-      - 'audits/g7_stage12_sync_pwa.py'
-      - '.github/workflows/legacy-navigation-v269-gate.yml'
   workflow_dispatch:
 permissions:
   contents: write

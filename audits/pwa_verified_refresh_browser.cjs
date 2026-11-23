@@ -3742,6 +3742,8 @@ async function run(browser,address,viewport){
   if(knowledgeMap)verifiedScripts.push(knowledgeMap[1]);
   const routeCore=html.match(/<script src="\.\/(assets\/ui\/legacy-navigation-core\.js)\?v=\d+"><\/script>/);
   if(routeCore)verifiedScripts.push(routeCore[1]);
+  const vueActions=html.match(/<script src="\.\/(assets\/ui\/legacy-vue-actions\.js)\?v=\d+"><\/script>/);
+  if(vueActions)verifiedScripts.push(vueActions[1]);
   assert.deepEqual(Object.keys(hashes).sort(),verifiedScripts.sort());
   for(const [name,hash] of Object.entries(hashes))assert.equal(digest(readFileSync(name)),hash,name);
   await checkTeacherPinFallback(browser,origin);
