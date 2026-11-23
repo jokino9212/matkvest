@@ -175,17 +175,10 @@ async function scenario(browser,width){
     }
     await page.waitForFunction(async v=>(await caches.keys()).includes('matkvest-iphone-v'+v),
       candidate.version,{timeout:30000});
-    const navigation=await page.reload({waitUntil:'domcontentloaded'});
-    const received=await navigation.text().catch(e=>'NAV_READ_ERROR: '+String(e));
-    console.log('UPGRADE_RELOAD_NAV',JSON.stringify({
-      url:navigation.url(),status:navigation.status(),fromWorker:navigation.fromServiceWorker(),
-      responseOld:received.includes('knowledge-map.js?v=266'),
-      responseNew:received.includes('knowledge-map.js?v=267'),
-      currentUrl:page.url(),
-      domOld:await page.evaluate(()=>document.documentElement.outerHTML.includes('knowledge-map.js?v=266')),
-      domNew:await page.evaluate(()=>document.documentElement.outerHTML.includes('knowledge-map.js?v=267')),
-    }));
+    // Do not reload before controllerchange: the app's upgrade handler must
+    // safely persist the draft, then reload under the newly activated worker.
     await version(page,candidate.version);
+    console.log('AUTOMATIC_PWA_UPDATE',JSON.stringify({width,documentVersion:267}));
     assert.deepEqual(await snapshot(page),before,'State changed during PWA upgrade');
     await context.setOffline(true);
     await page.reload({waitUntil:'domcontentloaded'});
