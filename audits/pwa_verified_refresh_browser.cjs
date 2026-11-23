@@ -3732,6 +3732,8 @@ async function run(browser,address,viewport){
   assert.equal(verifiedScripts.filter(name=>name.startsWith('g5-')).length,19);
   const knowledgeMap=html.match(/const knowledgeMapUrl = "\.\/(assets\/ui\/knowledge-map\.js)\?v=\d+";/);
   if(knowledgeMap)verifiedScripts.push(knowledgeMap[1]);
+  const routeCore=html.match(/<script src="\.\/(assets\/ui\/legacy-navigation-core\.js)\?v=\d+"><\/script>/);
+  if(routeCore)verifiedScripts.push(routeCore[1]);
   assert.deepEqual(Object.keys(hashes).sort(),verifiedScripts.sort());
   for(const [name,hash] of Object.entries(hashes))assert.equal(digest(readFileSync(name)),hash,name);
   await checkTeacherPinFallback(browser,origin);
