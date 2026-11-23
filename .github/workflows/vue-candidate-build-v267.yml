@@ -25,6 +25,8 @@ jobs:
         with:
           ref: fix/vue-mount-actions-20261123
           persist-credentials: true
+      - name: Trust checkout path inside the Playwright container
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
       - name: Install exact application and test dependencies
         run: |
           npm ci
