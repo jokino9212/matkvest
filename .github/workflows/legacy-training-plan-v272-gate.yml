@@ -1,14 +1,5 @@
 name: Test-only training plan Vue actions and PWA v272 gate
 on:
-  push:
-    branches: [refactor/route-vue-actions-from-7c14ce9]
-    paths:
-      - 'assets/ui/legacy-vue-actions.js'
-      - 'audits/legacy_training_plan_v272_patch.py'
-      - 'audits/legacy_training_plan_v272_publish.py'
-      - 'audits/legacy_training_plan_v272.test.cjs'
-      - 'audits/legacy_training_plan_v272_browser.cjs'
-      - '.github/workflows/legacy-training-plan-v272-gate.yml'
   workflow_dispatch:
 permissions:
   contents: write
