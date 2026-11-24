@@ -1,14 +1,5 @@
 name: Test-only student profile Vue and fallback actions PWA v278 gate
 on:
-  push:
-    branches: [refactor/route-vue-actions-from-7c14ce9]
-    paths:
-      - '.github/workflows/legacy-profiles-v278-gate.yml'
-      - 'assets/ui/legacy-vue-actions.js'
-      - 'audits/legacy_profile_dialog_v278_patch.py'
-      - 'audits/legacy_profile_dialog_v278_publish.py'
-      - 'audits/legacy_profile_dialog_v278.test.cjs'
-      - 'audits/legacy_profile_dialog_v278_browser.cjs'
   workflow_dispatch:
 permissions:
   contents: write
