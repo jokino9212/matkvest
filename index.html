@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <!-- Optional route core: inline mk854 wrappers remain the fallback. -->
-<script src="./assets/ui/legacy-navigation-core.js?v=278"></script>
-<script src="./assets/ui/legacy-vue-actions.js?v=278"></script>
+<script src="./assets/ui/legacy-navigation-core.js?v=279"></script>
+<script src="./assets/ui/legacy-vue-actions.js?v=279"></script>
 <script>function g8Declension19(number,one,few,many){
  const n=Math.abs(Math.trunc(Number(number))),lastTwo=n%100,last=n%10;
  if(lastTwo>=11&&lastTwo<=14)return many;
@@ -13425,25 +13425,25 @@ function teacherRosterCardHtml(row){
   <div class="teacher-card-metrics"><span>🔴 Слабых: ${row.weakCount}</span><span>🟡 Нестабильных: ${row.unstableCount}</span>
    <span>🧠 Ошибок: ${row.activeErrors}</span>${row.recentSkipped?`<span>⏭ Пропусков: ${row.recentSkipped}</span>`:""}</div>
   <div class="teacher-card-foot"><span>${esc(row.lastActivity)}</span>
-   <button type="button" class="btn soft" data-profile-id="${esc(row.profileId)}" onclick="openTeacherStudentDetailById(this.dataset.profileId)">Открыть</button></div></section>`;
+   <button type="button" class="btn soft" data-profile-id="${esc(row.profileId)}" data-teacher-dashboard-action="open">Открыть</button></div></section>`;
 }
 function teacherDashboardHtml(model){
  const sorts=model.sorts.map(({id,label})=>`<option value="${id}" ${id===model.sort?"selected":""}>${esc(label)}</option>`).join("");
- return `<div class="home-back-row"><button type="button" class="home-back-btn" onclick="closeTeacherMode()">← Главный экран</button></div>
+ return `<div class="home-back-row"><button type="button" class="home-back-btn" data-teacher-dashboard-action="close">← Главный экран</button></div>
   <section class="teacher-hero"><div class="teacher-detail-head"><div><h1>👨‍🏫 Панель преподавателя</h1>
   <p>Показатели рассчитаны по сохранённым профилям учеников.</p></div>
-  <button type="button" class="btn soft" onclick="closeTeacherMode()">🔒 Закрыть режим преподавателя</button></div></section>
+  <button type="button" class="btn soft" data-teacher-dashboard-action="close">🔒 Закрыть режим преподавателя</button></div></section>
   <div id="teacherDashboardBody"><div class="teacher-summary">${teacherStatsHtml(model.stats)}</div>
   <div class="teacher-toolbar"><input id="teacherSearchInput" type="search" class="teacher-search" aria-label="Найти ученика"
-   value="${esc(model.search)}" placeholder="🔎 Найти ученика" oninput="teacherSetSearch(this.value)">
-   <select class="teacher-select" aria-label="Сортировать учеников" onchange="teacherSetSort(this.value)">${sorts}</select></div>
+   value="${esc(model.search)}" placeholder="🔎 Найти ученика" data-teacher-dashboard-input="search">
+   <select class="teacher-select" aria-label="Сортировать учеников" data-teacher-dashboard-input="sort">${sorts}</select></div>
   <div class="teacher-filter-row" role="group" aria-label="Фильтры учеников">
-   ${teacherChoicesHtml(model.filters,model.filter,"teacherSetFilter")}</div>
-  <div class="actions" style="justify-content:flex-start"><button type="button" class="btn soft" onclick="openProfiles()">+ Новый ученик</button>
-   <button type="button" class="btn soft" onclick="openDataManager()">💾 Резервная копия</button></div>
+   ${model.filters.map(({id,label})=>`<button type="button" class="teacher-filter ${id===model.filter?"active":""}" aria-pressed="${id===model.filter}" data-teacher-dashboard-action="filter" data-filter-id="${esc(id)}">${esc(label)}</button>`).join("")}</div>
+  <div class="actions" style="justify-content:flex-start"><button type="button" class="btn soft" data-teacher-dashboard-action="profiles">+ Новый ученик</button>
+   <button type="button" class="btn soft" data-teacher-dashboard-action="backup">💾 Резервная копия</button></div>
   ${model.hasStudents?`<div class="teacher-student-grid">${model.rows.map(teacherRosterCardHtml).join("")||
    '<div class="teacher-empty" role="status">По выбранному фильтру учеников нет.</div>'}</div>`:
-   '<div class="teacher-empty"><b>Пока нет учеников.</b><div class="actions"><button type="button" class="btn primary" onclick="openProfiles()">+ Создать ученика</button></div></div>'}</div>`;
+   '<div class="teacher-empty"><b>Пока нет учеников.</b><div class="actions"><button type="button" class="btn primary" data-teacher-dashboard-action="profiles">+ Создать ученика</button></div></div>'}</div>`;
 }
 function renderTeacherView({id,key="",mount,model,actions,fallback}){
  let host=mainView.firstElementChild;
@@ -13456,11 +13456,55 @@ function renderTeacherView({id,key="",mount,model,actions,fallback}){
  }
  const revision=++knowledgeMapRevision;
  const isCurrent=()=>host.parentNode===mainView&&revision===knowledgeMapRevision&&teacherUnlocked;
- const teacherActions=window.MatKvestVueActions?.teacherViewActions?.({
-  isCurrent,actions
- })||Object.fromEntries(Object.entries(actions||{}).map(([key,fn])=>[
-  key,typeof fn==="function"?(...args)=>{if(isCurrent())return fn.apply(actions,args)}:fn
+ const isDashboard=id==="teacherDashboardVue";
+ const dashboardBounds=isDashboard?{
+  filters:model.filters.map(item=>item.id),sorts:model.sorts.map(item=>item.id),
+  profileIds:model.rows.map(item=>item.profileId)
+ }:null;
+ const fallbackTeacherActions=()=>Object.fromEntries(Object.entries(actions||{}).map(([key,fn])=>[
+  key,typeof fn==="function"?(...args)=>{
+   if(!isCurrent())return;
+   if(isDashboard){
+    if(key==="sort"&&!dashboardBounds.sorts.includes(args[0]))return;
+    if(key==="filter"&&!dashboardBounds.filters.includes(args[0]))return;
+    if(key==="open"&&!dashboardBounds.profileIds.includes(args[0]))return;
+   }
+   return fn.apply(actions,args);
+  }:fn
  ]));
+ const teacherActions=isDashboard
+  ?(window.MatKvestVueActions?.teacherDashboardActions?.({
+    isCurrent,actions,...dashboardBounds
+   })||fallbackTeacherActions())
+  :(window.MatKvestVueActions?.teacherViewActions?.({isCurrent,actions})
+    ||fallbackTeacherActions());
+ if(isDashboard){
+  // Keep one delegated listener on the host through rerenders; update only
+  // active callbacks. Vue handles its own events while data-v-app is present.
+  host.__mk279DashboardActions=teacherActions;
+  if(!host.__mk279DashboardDelegated){
+   host.__mk279DashboardDelegated=true;
+   host.addEventListener("click",event=>{
+    if(host.hasAttribute("data-v-app"))return;
+    const button=event.target.closest("button[data-teacher-dashboard-action]");
+    if(!button||!host.contains(button))return;
+    const key=button.dataset.teacherDashboardAction,active=host.__mk279DashboardActions;
+    if(key==="filter")active?.filter(button.dataset.filterId);
+    else if(key==="open")active?.open(button.dataset.profileId);
+    else active?.[key]?.();
+   });
+   host.addEventListener("input",event=>{
+    if(host.hasAttribute("data-v-app")||
+       event.target?.dataset.teacherDashboardInput!=="search")return;
+    host.__mk279DashboardActions?.search(event.target.value);
+   });
+   host.addEventListener("change",event=>{
+    if(host.hasAttribute("data-v-app")||
+       event.target?.dataset.teacherDashboardInput!=="sort")return;
+    host.__mk279DashboardActions?.sort(event.target.value);
+   });
+  }
+ }
  // Keep HTML fallback and its native Enter/Space controls. Drop stale
  // keyboard/click/form events on a replaced teacher view.
  host.__mk276Current=isCurrent;
@@ -14380,7 +14424,7 @@ function knowledgeFilteredSections(data){
  const mapSec=sec=>{let topics=sec.topics.filter(t=>knowledgeStatusPass(t,knowledgeMapState.status)&&(!q||`${t.title} ${t.group}`.toLocaleLowerCase("ru-RU").includes(q)));if(knowledgeMapState.sort==="attention")topics=topics.slice().sort((a,b)=>knowledgeTopicPriority(a)-knowledgeTopicPriority(b));return {...sec,topics}};
  return [...data.sections,...data.extraSections].map(mapSec).filter(s=>s.topics.length);
 }
-const knowledgeMapUrl = "./assets/ui/knowledge-map.js?v=278";
+const knowledgeMapUrl = "./assets/ui/knowledge-map.js?v=279";
 const knowledgeTopicDetailHostId="knowledgeTopicDetailVue";
 let knowledgeMapModule;
 let knowledgeMapRevision=0;
@@ -42369,31 +42413,31 @@ document.addEventListener("keydown",event=>{
 })();
 </script>
 
-<script src="g5-conversion-ux.js?v=278"></script>
-<script src="g5-textbook-topics.js?v=278"></script>
-<script src="g5-textbook-core.js?v=278"></script>
-<script src="g5-textbook-v111.js?v=278"></script>
-<script src="g5-textbook-v112.js?v=278"></script>
-<script src="g5-pedagogy-v113.js?v=278"></script>
-<script src="g5-fractions-v114.js?v=278"></script>
-<script src="g5-fraction-arithmetic-v115.js?v=278"></script>
-<script src="g5-decimals-v116.js?v=278"></script>
-<script src="g7-textbook.js?v=278"></script>
-<script src="g8-textbook.js?v=278"></script>
-<script src="g1-textbook.js?v=278"></script>
-<script src="g2-textbook.js?v=278"></script>
-<script src="g3-textbook.js?v=278"></script>
-<script src="g4-textbook.js?v=278"></script>
-<script src="g5-textbook-navigation-v121.js?v=278"></script>
-<script src="g5-live-pedagogy-v122.js?v=278"></script>
-<script src="g5-arithmetic-tiers-v123.js?v=278"></script>
-<script src="g5-textbook-tiers-v124.js?v=278"></script>
-<script src="g5-natural-units-v125.js?v=278"></script>
-<script src="g5-remaining-core-v126.js?v=278"></script>
-<script src="g5-decimal-tiers-v127.js?v=278"></script>
-<script src="g5-decimal-percent-v128.js?v=278"></script>
-<script src="g5-fraction-concepts-v129.js?v=278"></script>
-<script src="g5-fraction-applications-v130.js?v=278"></script>
+<script src="g5-conversion-ux.js?v=279"></script>
+<script src="g5-textbook-topics.js?v=279"></script>
+<script src="g5-textbook-core.js?v=279"></script>
+<script src="g5-textbook-v111.js?v=279"></script>
+<script src="g5-textbook-v112.js?v=279"></script>
+<script src="g5-pedagogy-v113.js?v=279"></script>
+<script src="g5-fractions-v114.js?v=279"></script>
+<script src="g5-fraction-arithmetic-v115.js?v=279"></script>
+<script src="g5-decimals-v116.js?v=279"></script>
+<script src="g7-textbook.js?v=279"></script>
+<script src="g8-textbook.js?v=279"></script>
+<script src="g1-textbook.js?v=279"></script>
+<script src="g2-textbook.js?v=279"></script>
+<script src="g3-textbook.js?v=279"></script>
+<script src="g4-textbook.js?v=279"></script>
+<script src="g5-textbook-navigation-v121.js?v=279"></script>
+<script src="g5-live-pedagogy-v122.js?v=279"></script>
+<script src="g5-arithmetic-tiers-v123.js?v=279"></script>
+<script src="g5-textbook-tiers-v124.js?v=279"></script>
+<script src="g5-natural-units-v125.js?v=279"></script>
+<script src="g5-remaining-core-v126.js?v=279"></script>
+<script src="g5-decimal-tiers-v127.js?v=279"></script>
+<script src="g5-decimal-percent-v128.js?v=279"></script>
+<script src="g5-fraction-concepts-v129.js?v=279"></script>
+<script src="g5-fraction-applications-v130.js?v=279"></script>
 <script>
 // The textbook scripts finish extending the catalog before Home shows its totals.
 g5HomeCatalogReady=true;
