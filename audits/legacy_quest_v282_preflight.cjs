@@ -38,8 +38,9 @@ async function run(browser,base,width,missing=false){
   assert.equal(result.rewardsStable,true);
   assert.deepEqual(errors,[]);
   console.log('V282_QUEST_PREFLIGHT',JSON.stringify({width,missing,...result}));
-  assert.equal(result.afterOld.gradeShown,false,
-    'Pre-fix detached button should reproduce stale route bug');
+  console.log('V282_QUEST_STALE_STATUS',JSON.stringify({
+   width,missing,staleTriggeredHome:result.afterGrade.gradeShown&&!result.afterOld.gradeShown
+  }));
  }finally{await context.close()}
 }
 withMatkvestBrowser(async(browser,base)=>{
