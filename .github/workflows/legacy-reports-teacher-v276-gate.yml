@@ -1,14 +1,5 @@
 name: Test-only generic Vue reports and teacher report actions PWA v276 gate
 on:
-  push:
-    branches: [refactor/route-vue-actions-from-7c14ce9]
-    paths:
-      - '.github/workflows/legacy-reports-teacher-v276-gate.yml'
-      - 'assets/ui/legacy-vue-actions.js'
-      - 'audits/legacy_reports_teacher_v276_patch.py'
-      - 'audits/legacy_reports_teacher_v276_publish.py'
-      - 'audits/legacy_reports_teacher_v276.test.cjs'
-      - 'audits/legacy_reports_teacher_v276_browser.cjs'
   workflow_dispatch:
 permissions:
   contents: write
