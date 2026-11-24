@@ -1,8 +1,6 @@
 name: Test-only guarded artwork viewer Vue and HTML fallback PWA v285 gate
 on:
-  push:
-    branches: [refactor/route-vue-actions-from-7c14ce9]
-    paths: ['.github/workflows/legacy-artwork-v285-gate.yml']
+  workflow_dispatch:
 permissions:
   contents: write
 concurrency:
