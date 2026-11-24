@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <!-- Optional route core: inline mk854 wrappers remain the fallback. -->
-<script src="./assets/ui/legacy-navigation-core.js?v=274"></script>
-<script src="./assets/ui/legacy-vue-actions.js?v=274"></script>
+<script src="./assets/ui/legacy-navigation-core.js?v=275"></script>
+<script src="./assets/ui/legacy-vue-actions.js?v=275"></script>
 <script>function g8Declension19(number,one,few,many){
  const n=Math.abs(Math.trunc(Number(number))),lastTwo=n%100,last=n%10;
  if(lastTwo>=11&&lastTwo<=14)return many;
@@ -11159,10 +11159,43 @@ function openAttemptJournal(profileData=state,profileName=currentProfile,back=nu
   duration:record.endedAt?fmtDuration(record.endedAt-(record.startedAt||record.endedAt)):"идёт сейчас",
   itemCount:(record.items||[]).length,hasCurrent:!!record.currentItem
  }));
- showVueReport("mountAttemptJournal",{title:`📋 Журнал попыток — ${profileName||"Ученик"}`,rows},{
-  close:closeModal,back,
-  review:index=>openAttemptReviewRecord(records[index],{journal:()=>openAttemptJournal(profileData,profileName,back)})
+ const journalTitle=`📋 Журнал попыток — ${profileName||"Ученик"}`;
+ let journalHost=null;
+ const isCurrentJournal=()=>journalHost?.parentNode===modal&&journalHost.isConnected&&
+  overlay.classList.contains("show")&&!mk872Dialog;
+ const reviewRecord=index=>openAttemptReviewRecord(records[index],{
+  journal:()=>openAttemptJournal(profileData,profileName,back)
  });
+ const fallbackActions={
+  close:()=>{if(isCurrentJournal())return closeModal()},
+  back:typeof back==="function"?()=>{if(isCurrentJournal())return back()}:undefined,
+  review:index=>{
+   if(!isCurrentJournal()||!Number.isInteger(index)||index<0||index>=records.length)return;
+   return reviewRecord(index);
+  }
+ };
+ const journalActions=window.MatKvestVueActions?.attemptJournalActions?.({
+  isCurrent:isCurrentJournal,close:closeModal,back,review:reviewRecord,recordCount:records.length
+ })||fallbackActions;
+ const fallback=`<div class="mtop"><h2>${esc(journalTitle)}</h2><button type="button" class="x"
+  aria-label="Закрыть окно" data-journal-action="close">×</button></div>
+  ${typeof back==="function"?'<button type="button" class="btn soft" data-journal-action="back">← Назад</button>':""}
+  <div class="attempt-journal-fallback">
+  ${rows.length?rows.map((row,index)=>`<button type="button" class="btn soft"
+   data-journal-action="review" data-journal-index="${index}"><b>${esc(row.title)}</b>
+   <span>${esc(row.stage)} · ${esc(row.score)} · ${esc(row.status)} · ${esc(row.date)}</span></button>`).join(""):
+   '<p class="knowledge-empty" role="status">В журнале пока нет попыток.</p>'}
+  </div>`;
+ showVueReport("mountAttemptJournal",{title:journalTitle,rows},journalActions,fallback);
+ journalHost=modal.querySelector(":scope > .vue-report");
+ journalHost.onclick=event=>{
+  if(journalHost.hasAttribute("data-v-app"))return;
+  const button=event.target.closest("button[data-journal-action]");
+  if(!button||!journalHost.contains(button))return;
+  if(button.dataset.journalAction==="review")
+    journalActions.review(Number(button.dataset.journalIndex));
+  else journalActions[button.dataset.journalAction]?.();
+ };
 }
 function rowHumanName(row){
  if(!row)return "Ответ";
@@ -11251,12 +11284,37 @@ function openAttemptReviewRecord(record,{result=null,journal=openAttemptJournal}
  const cards=items.map(item=>attemptReviewItemModel(item));
  if(record.currentItem)cards.push(attemptReviewItemModel(record.currentItem,true));
  const now=Date.now();
- showVueReport("mountAttemptReview",{
+ const reviewModel={
   title:`📋 Разбор: ${record.title||attemptTitle(record.key)}`,
   active:record.status==="active",stage:attemptReportStage(record),status:attemptStatusLabel(record),
   date:fmtDate(record.startedAt),duration:fmtDuration((record.endedAt||now)-(record.startedAt||now)),
   stats:attemptReviewStats(record,items),items:cards
- },{close:closeModal,result,journal});
+ };
+ let reviewHost=null;
+ const isCurrentReview=()=>reviewHost?.parentNode===modal&&reviewHost.isConnected&&
+  overlay.classList.contains("show")&&!mk872Dialog;
+ const guarded=handler=>typeof handler==="function"?()=>{if(isCurrentReview())return handler()}:undefined;
+ const fallbackActions={close:guarded(closeModal),journal:guarded(journal),result:guarded(result)};
+ const reviewActions=window.MatKvestVueActions?.attemptReviewActions?.({
+  isCurrent:isCurrentReview,close:closeModal,journal,result
+ })||fallbackActions;
+ const fallback=`<div class="mtop"><h2>${esc(reviewModel.title)}</h2>
+  <button type="button" class="x" aria-label="Закрыть окно" data-review-action="close">×</button></div>
+  <div class="actions"><button type="button" class="btn soft" data-review-action="journal">← К журналу</button>
+  ${typeof result==="function"?'<button type="button" class="btn soft" data-review-action="result">← К результату</button>':""}</div>
+  <p>${esc(reviewModel.stage)} · ${esc(reviewModel.status)} · ${esc(reviewModel.date)}</p>
+  ${cards.length?cards.map((item,index)=>`<section class="card"><strong>Задание ${index+1}</strong>
+  <div>${item.promptHtml}</div><div>Ответ ученика: ${item.studentHtml}</div>
+  <div>Правильный ответ: ${item.correctHtml}</div><div>${item.explanationHtml}</div></section>`).join(""):
+   '<p class="knowledge-empty">В этой попытке пока нет заданий.</p>'}`;
+ showVueReport("mountAttemptReview",reviewModel,reviewActions,fallback);
+ reviewHost=modal.querySelector(":scope > .vue-report");
+ reviewHost.onclick=event=>{
+  if(reviewHost.hasAttribute("data-v-app"))return;
+  const button=event.target.closest("button[data-review-action]");
+  if(!button||!reviewHost.contains(button))return;
+  reviewActions[button.dataset.reviewAction]?.();
+ };
 }
 const BACKUP_FORMAT="matkvest-4-backup";
 const BACKUP_VERSION=4;
@@ -12372,11 +12430,16 @@ function showSchoolAttempt(title,{lesson="",lessonFirst=false,guide="",exercise=
   `<div id="${id}"${elementary?' class="elementary-quiz"':""}></div>`).join("");
  // The generators create and replace individual exercises directly in the modal.
  show(`<div id="schoolAttemptFrame" style="display:contents">
-  <div class="mtop"><h2>${esc(title)}</h2><button type="button" class="x" aria-label="Закрыть окно" onclick="closeModal()">×</button></div>
+  <div class="mtop"><h2>${esc(title)}</h2><button type="button" class="x" aria-label="Закрыть окно">×</button></div>
   ${lessonFirst?theory:""}<div id="schoolTrainingProgress" style="display:contents">${blockHead()}</div>${lessonFirst?"":theory}${guidance}
  </div>${banner}${stages}`);
  if(column||source)modal.classList.add("column-modal");
- const host=modal.firstElementChild;
+ const host=modal.firstElementChild,attempt=blockSession;
+ host.onclick=event=>{
+  if(host.hasAttribute("data-v-app"))return;
+  if(event.target.closest(".mtop .x")&&host.contains(event.target)&&host.parentNode===modal&&
+     blockSession===attempt&&overlay.classList.contains("show")&&!mk872Dialog)closeModal();
+ };
  schoolAttemptFrames.set(host,{title,lesson,lessonFirst,guide});
  mountSchoolAttemptFrameView(host);
 }
@@ -12404,7 +12467,12 @@ function mountSchoolAttemptFrameView(host){
   const heading=host.querySelector(".mtop h2");
   const close=host.querySelector(".mtop .x");
   const focusSelector=active===heading?".mtop h2":active===close?".mtop .x":null;
-  module.mountSchoolAttemptFrame(host,{...model,progress:blockProgressModel()},{close:()=>closeModal()});
+  const isCurrentFrame=()=>host.parentNode===modal&&host.isConnected&&blockSession===attempt&&
+   overlay.classList.contains("show")&&!mk872Dialog;
+  const frameActions=window.MatKvestVueActions?.schoolAttemptFrameActions?.({
+   isCurrent:isCurrentFrame,close:closeModal
+  })||{close:()=>{if(isCurrentFrame())closeModal()}};
+  module.mountSchoolAttemptFrame(host,{...model,progress:blockProgressModel()},frameActions);
   if(focusSelector&&!active.isConnected){
    const target=host.querySelector(focusSelector);
    if(active===heading&&target)target.tabIndex=-1;
@@ -14260,7 +14328,7 @@ function knowledgeFilteredSections(data){
  const mapSec=sec=>{let topics=sec.topics.filter(t=>knowledgeStatusPass(t,knowledgeMapState.status)&&(!q||`${t.title} ${t.group}`.toLocaleLowerCase("ru-RU").includes(q)));if(knowledgeMapState.sort==="attention")topics=topics.slice().sort((a,b)=>knowledgeTopicPriority(a)-knowledgeTopicPriority(b));return {...sec,topics}};
  return [...data.sections,...data.extraSections].map(mapSec).filter(s=>s.topics.length);
 }
-const knowledgeMapUrl = "./assets/ui/knowledge-map.js?v=274";
+const knowledgeMapUrl = "./assets/ui/knowledge-map.js?v=275";
 const knowledgeTopicDetailHostId="knowledgeTopicDetailVue";
 let knowledgeMapModule;
 let knowledgeMapRevision=0;
@@ -42221,31 +42289,31 @@ document.addEventListener("keydown",event=>{
 })();
 </script>
 
-<script src="g5-conversion-ux.js?v=274"></script>
-<script src="g5-textbook-topics.js?v=274"></script>
-<script src="g5-textbook-core.js?v=274"></script>
-<script src="g5-textbook-v111.js?v=274"></script>
-<script src="g5-textbook-v112.js?v=274"></script>
-<script src="g5-pedagogy-v113.js?v=274"></script>
-<script src="g5-fractions-v114.js?v=274"></script>
-<script src="g5-fraction-arithmetic-v115.js?v=274"></script>
-<script src="g5-decimals-v116.js?v=274"></script>
-<script src="g7-textbook.js?v=274"></script>
-<script src="g8-textbook.js?v=274"></script>
-<script src="g1-textbook.js?v=274"></script>
-<script src="g2-textbook.js?v=274"></script>
-<script src="g3-textbook.js?v=274"></script>
-<script src="g4-textbook.js?v=274"></script>
-<script src="g5-textbook-navigation-v121.js?v=274"></script>
-<script src="g5-live-pedagogy-v122.js?v=274"></script>
-<script src="g5-arithmetic-tiers-v123.js?v=274"></script>
-<script src="g5-textbook-tiers-v124.js?v=274"></script>
-<script src="g5-natural-units-v125.js?v=274"></script>
-<script src="g5-remaining-core-v126.js?v=274"></script>
-<script src="g5-decimal-tiers-v127.js?v=274"></script>
-<script src="g5-decimal-percent-v128.js?v=274"></script>
-<script src="g5-fraction-concepts-v129.js?v=274"></script>
-<script src="g5-fraction-applications-v130.js?v=274"></script>
+<script src="g5-conversion-ux.js?v=275"></script>
+<script src="g5-textbook-topics.js?v=275"></script>
+<script src="g5-textbook-core.js?v=275"></script>
+<script src="g5-textbook-v111.js?v=275"></script>
+<script src="g5-textbook-v112.js?v=275"></script>
+<script src="g5-pedagogy-v113.js?v=275"></script>
+<script src="g5-fractions-v114.js?v=275"></script>
+<script src="g5-fraction-arithmetic-v115.js?v=275"></script>
+<script src="g5-decimals-v116.js?v=275"></script>
+<script src="g7-textbook.js?v=275"></script>
+<script src="g8-textbook.js?v=275"></script>
+<script src="g1-textbook.js?v=275"></script>
+<script src="g2-textbook.js?v=275"></script>
+<script src="g3-textbook.js?v=275"></script>
+<script src="g4-textbook.js?v=275"></script>
+<script src="g5-textbook-navigation-v121.js?v=275"></script>
+<script src="g5-live-pedagogy-v122.js?v=275"></script>
+<script src="g5-arithmetic-tiers-v123.js?v=275"></script>
+<script src="g5-textbook-tiers-v124.js?v=275"></script>
+<script src="g5-natural-units-v125.js?v=275"></script>
+<script src="g5-remaining-core-v126.js?v=275"></script>
+<script src="g5-decimal-tiers-v127.js?v=275"></script>
+<script src="g5-decimal-percent-v128.js?v=275"></script>
+<script src="g5-fraction-concepts-v129.js?v=275"></script>
+<script src="g5-fraction-applications-v130.js?v=275"></script>
 <script>
 // The textbook scripts finish extending the catalog before Home shows its totals.
 g5HomeCatalogReady=true;
