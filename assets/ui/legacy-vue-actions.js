@@ -204,9 +204,14 @@
       help:opener=>{if(isCurrent())return help(opener)}
     };
   }
+  // V284: help popup close gesture belongs only to its originating visible layer.
+  // The global help overlay, keyboard and focus rules stay in the legacy UI.
+  function helpDialogActions({isCurrent,close}){
+    return {close:()=>{if(isCurrent())return close()}};
+  }
   return {headerActions,quickSetupActions,quickResultActions,trainingPlanActions,
     schoolTableActions,schoolQuizActions,schoolColumnActions,
     schoolAttemptFrameActions,attemptJournalActions,attemptReviewActions,
     reportSurfaceActions,teacherViewActions,analyticsViewActions,profileDialogActions,
-    teacherDashboardActions,storeTabActions,achievementFilterActions,questBackActions,leaderboardDialogActions};
+    teacherDashboardActions,storeTabActions,achievementFilterActions,questBackActions,leaderboardDialogActions,helpDialogActions};
 });
