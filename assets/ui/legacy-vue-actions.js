@@ -132,8 +132,21 @@
         (...args)=>{if(isCurrent())return handler.apply(actions,args)}:handler
     ]));
   }
+  // V278: student profile modal actions shared by Vue and HTML fallback.
+  // Switching/creating profiles and their persistence stay in index.html.
+  function profileDialogActions({isCurrent,profileCount,close,shop,collection,edit,select,create}){
+    const live=fn=>(...args)=>{if(isCurrent())return fn(...args)};
+    return {
+      close:live(close),shop:live(shop),collection:live(collection),edit:live(edit),
+      select:index=>{
+        if(!isCurrent()||!Number.isInteger(index)||index<0||index>=profileCount)return;
+        return select(index);
+      },
+      create:live(create)
+    };
+  }
   return {headerActions,quickSetupActions,quickResultActions,trainingPlanActions,
     schoolTableActions,schoolQuizActions,schoolColumnActions,
     schoolAttemptFrameActions,attemptJournalActions,attemptReviewActions,
-    reportSurfaceActions,teacherViewActions,analyticsViewActions};
+    reportSurfaceActions,teacherViewActions,analyticsViewActions,profileDialogActions};
 });
