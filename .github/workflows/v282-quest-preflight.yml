@@ -2,7 +2,7 @@ name: Test-only v282 pre-fix detached quest back reproduction
 on:
   push:
     branches: [refactor/route-vue-actions-from-7c14ce9]
-    paths: ['.github/workflows/v282-quest-preflight.yml']
+    paths: ['.github/workflows/v282-quest-preflight.yml', 'audits/legacy_quest_v282_preflight.cjs']
 permissions:
   contents: read
 jobs:
