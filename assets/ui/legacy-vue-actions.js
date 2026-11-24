@@ -227,9 +227,15 @@
       choose:index=>{if(isCurrent())return choose(index)}
     };
   }
+  // V288: UI callbacks belong to the originating live store surface/profile.
+  function storeSurfaceActions({isCurrent,actions}){
+    return Object.fromEntries(Object.entries(actions).map(([key,fn])=>[
+      key,(...args)=>{if(isCurrent())return fn(...args)}
+    ]));
+  }
   return {headerActions,quickSetupActions,quickResultActions,trainingPlanActions,
     schoolTableActions,schoolQuizActions,schoolColumnActions,
     schoolAttemptFrameActions,attemptJournalActions,attemptReviewActions,
     reportSurfaceActions,teacherViewActions,analyticsViewActions,profileDialogActions,
-    teacherDashboardActions,storeTabActions,achievementFilterActions,questBackActions,leaderboardDialogActions,helpDialogActions,artworkViewerActions,saleDialogCloseActions,saleDialogDispatchActions};
+    teacherDashboardActions,storeTabActions,achievementFilterActions,questBackActions,leaderboardDialogActions,helpDialogActions,artworkViewerActions,saleDialogCloseActions,saleDialogDispatchActions,storeSurfaceActions};
 });

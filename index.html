@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <!-- Optional route core: inline mk854 wrappers remain the fallback. -->
-<script src="./assets/ui/legacy-navigation-core.js?v=287"></script>
-<script src="./assets/ui/legacy-vue-actions.js?v=287"></script>
+<script src="./assets/ui/legacy-navigation-core.js?v=288"></script>
+<script src="./assets/ui/legacy-vue-actions.js?v=288"></script>
 <script>function g8Declension19(number,one,few,many){
  const n=Math.abs(Math.trunc(Number(number))),lastTwo=n%100,last=n%10;
  if(lastTwo>=11&&lastTwo<=14)return many;
@@ -10707,16 +10707,30 @@ function shopPreview(preview=profilePreviewModel()){
  const {name,nameClass,title,backgroundClass,dark,background,frame,pet,effect,owned,coins,progress}=preview;
  return `<div class="profile-preview profile-cosmetic-card ${backgroundClass}">${avatarHtml(state,"large")}<div class="profile-preview-info"><b class="nickname-style ${nameClass}" title="${esc(name)}">${esc(name)}</b>${title?`<div class="profile-title-line">🏷️ ${esc(title)}</div>`:'<div class="profile-title-line empty">Без титула</div>'}<small class="${dark?"profile-dark-copy":""}">Уровень ${progress.currentLevel} • собрано ${owned} предметов<br><b>Рамка:</b> ${esc(frame)} • <b>Питомец:</b> ${esc(pet)} • <b>Фон:</b> ${esc(background)}<br><b>аура:</b> ${esc(effect)}</small>${mk872LevelProgressHtml(state.xp||0)}${profileBadgesHtml(state,"compact")}<div class="profile-sticker-line"><b style="font-size:12px">Любимые:</b> ${favoriteStickersHtml(state,"large")}</div></div><div class="shop-balance">🪙 ${coins}</div></div>`;
 }
+function mk288GuardStoreActions(isCurrent,actions){
+ return window.MatKvestVueActions?.storeSurfaceActions?.({isCurrent,actions})||
+  Object.fromEntries(Object.entries(actions).map(([key,fn])=>[key,(...args)=>{if(isCurrent())return fn(...args)}]));
+}
 function showStoreSurface(topic,{beforePreview="",content}){
  const title=topic==="collection"?"🎒 Моя коллекция":"🛍️ Магазин наград",preview=profilePreviewModel();
- show(`<div class="mtop" data-store-heading><h2 class="mk872-help-heading">${title} <button type="button" class="mk872-help-trigger" title="Справка" aria-label="Справка: ${topic}" onclick="mk872HelpOpen('${topic}',this)">ⓘ</button></h2><button type="button" class="x" aria-label="Закрыть окно" onclick="closeModal()">×</button></div>
+ show(`<div class="mtop" data-store-heading><h2 class="mk872-help-heading">${title} <button type="button" class="mk872-help-trigger" title="Справка" aria-label="Справка: ${topic}">ⓘ</button></h2><button type="button" class="x" aria-label="Закрыть окно">×</button></div>
   ${beforePreview}<div data-store-preview style="display:contents">${shopPreview(preview)}</div>${content}`);
  const heading=modal.querySelector(":scope > [data-store-heading]"),card=modal.querySelector(":scope > [data-store-preview]");
+ const profileId=state.profileId;
+ const isCurrent=()=>heading?.parentNode===modal&&heading.isConnected&&overlay.classList.contains("show")&&state.profileId===profileId;
+ const headerActions=mk288GuardStoreActions(isCurrent,{close:closeModal,help:button=>mk872HelpOpen(topic,button)});
+ heading.addEventListener("click",event=>{
+  if(!isCurrent()||heading.hasAttribute("data-v-app"))return;
+  const button=event.target.closest("button");
+  if(!button||!heading.contains(button)||button.disabled)return;
+  if(button.matches(".x"))return headerActions.close();
+  if(button.matches(".mk872-help-trigger"))return headerActions.help(button);
+ });
  loadVueModule().then(module=>{
-  if(heading.parentNode!==modal||card.parentNode!==modal||!overlay.classList.contains("show"))return;
+  if(!isCurrent()||card.parentNode!==modal)return;
   const focused=document.activeElement,help=heading.querySelector(".mk872-help-trigger");
   const focusTarget=heading.contains(focused)?focused.matches("h2")?"h2":focused.matches(".x")?".x":".mk872-help-trigger":null;
-  module.mountStoreSurfaceHeader(heading,{title,topic},{close:closeModal,help:button=>mk872HelpOpen(topic,button)});
+  module.mountStoreSurfaceHeader(heading,{title,topic},headerActions);
   if(mk872HelpLastFocus===help)mk872HelpLastFocus=heading.querySelector(".mk872-help-trigger");
   if(focusTarget)heading.querySelector(focusTarget)?.focus({preventScroll:true});
   module.mountProfilePreview(card,preview);
@@ -10829,7 +10843,7 @@ function runShopCardAction(type,id,action){
  if(action==="sell")return mk865OpenSellDialog(type,id);
 }
 function shopCard(card,type){
- const button=(action,label,cls)=>`<button type="button" class="btn ${cls}" ${action?`onclick="runShopCardAction('${type}','${card.id}','${action}')"`:"disabled"}>${esc(label)}</button>`;
+ const button=(action,label,cls)=>`<button type="button" class="btn ${cls}" ${action?`data-mk288-shop-id="${esc(card.id)}" data-mk288-shop-action="${esc(action)}"`:"disabled"}>${esc(label)}</button>`;
  const status=card.status?`<span class="shop-state-chip ${card.equipped?'equipped':'owned'}">${card.status}</span>`:"";
  const priceTier=card.priceTier?`<div class="shop-price-tier">${esc(card.priceTier)}</div>`:"";
  const sale=card.sale?.allowed?button("sell","🪙 Продать","soft mk865-sale-btn"):"";
@@ -10912,11 +10926,20 @@ function openShop(category="avatars",rarity=null){
  showStoreSurface("shop",{content:`${shopTabs(category)}${petQuickPanelHtml(pets)}${shopRarityButtons(category)}
  <div class="shop-grid">${cards.length?cards.map(card=>shopCard(card,category)).join(""):'<div class="report-empty" style="grid-column:1/-1">В этом фильтре пока нет предметов.</div>'}</div>`});
  mountPetQuickPanel(pets);
- const host=modal.querySelector(":scope > .shop-grid");
+ const host=modal.querySelector(":scope > .shop-grid"),profileId=state.profileId;
+ const isCurrent=()=>host?.parentNode===modal&&host.isConnected&&overlay.classList.contains("show")&&state.profileId===profileId;
+ const catalogActions=mk288GuardStoreActions(isCurrent,{run:(action,id)=>{
+  const card=cards.find(item=>item.id===id);
+  if(!card||!action||!(card.button.action===action||(action==="sell"&&card.sale?.allowed)))return;
+  return runShopCardAction(category,id,action);
+ }});
+ host?.addEventListener("click",event=>{
+  if(!isCurrent()||host.hasAttribute("data-v-app"))return;
+  const button=event.target.closest("button[data-mk288-shop-action]");
+  if(button&&host.contains(button)&&!button.disabled)return catalogActions.run(button.dataset.mk288ShopAction,button.dataset.mk288ShopId);
+ });
  loadVueModule().then(module=>{
-  if(host?.parentNode===modal&&overlay.classList.contains("show"))module.mountStoreCatalog(host,{cards},{
-   run:(action,id)=>runShopCardAction(category,id,action)
-  });
+  if(isCurrent())module.mountStoreCatalog(host,{cards},catalogActions);
  }).catch(()=>{ /* Keep the existing store controls usable when Vue cannot load. */ });
 }
 function buyShopItem(type,id){
@@ -14527,7 +14550,7 @@ function knowledgeFilteredSections(data){
  const mapSec=sec=>{let topics=sec.topics.filter(t=>knowledgeStatusPass(t,knowledgeMapState.status)&&(!q||`${t.title} ${t.group}`.toLocaleLowerCase("ru-RU").includes(q)));if(knowledgeMapState.sort==="attention")topics=topics.slice().sort((a,b)=>knowledgeTopicPriority(a)-knowledgeTopicPriority(b));return {...sec,topics}};
  return [...data.sections,...data.extraSections].map(mapSec).filter(s=>s.topics.length);
 }
-const knowledgeMapUrl = "./assets/ui/knowledge-map.js?v=287";
+const knowledgeMapUrl = "./assets/ui/knowledge-map.js?v=288";
 const knowledgeTopicDetailHostId="knowledgeTopicDetailVue";
 let knowledgeMapModule;
 let knowledgeMapRevision=0;
@@ -28027,12 +28050,21 @@ function mk872CollectionNavigationModel(active,archiveCount){
 function mk872CollectionNavigationHtml(model){
  return model.sections.map(section=>{
   const active=section.id===model.active;
-  return `<button type="button" class="mk872-col-count${active?" active":""}" data-mk872-collection-tab="${section.id}" aria-pressed="${active}" aria-controls="mk872CollectionContent" onclick="mk872CollectionSwitch('${section.id}')"><b>${esc(section.count)}</b><small>${esc(section.label)}</small></button>`;
+  return `<button type="button" class="mk872-col-count${active?" active":""}" data-mk872-collection-tab="${section.id}" aria-pressed="${active}" aria-controls="mk872CollectionContent"><b>${esc(section.count)}</b><small>${esc(section.label)}</small></button>`;
  }).join("");
 }
 function mk872RenderCollectionSection(root,type,archive=mk873ArchiveModel()){
  const navigation=root.querySelector(".mk872-col-counter-grid"),slot=mk872CollectionContentSlot(root);
- const tabs=mk872CollectionNavigationModel(type,archive.count);
+ const tabs=mk872CollectionNavigationModel(type,archive.count),profileId=state.profileId;
+ const isCurrent=()=>root.parentNode===modal&&root.isConnected&&navigation.parentNode===root&&overlay.classList.contains("show")&&state.profileId===profileId;
+ const navigationActions=mk288GuardStoreActions(isCurrent,{select:id=>{
+  if(tabs.sections.some(section=>section.id===id))return mk872CollectionSwitch(id);
+ }});
+ navigation.onclick=event=>{
+  if(!isCurrent()||navigation.hasAttribute("data-v-app"))return;
+  const button=event.target.closest("button[data-mk872-collection-tab]");
+  if(button&&navigation.contains(button)&&!button.disabled)return navigationActions.select(button.dataset.mk872CollectionTab);
+ };
  if(!navigation.hasAttribute("data-v-app")){
   if(!navigation.childElementCount)navigation.innerHTML=mk872CollectionNavigationHtml(tabs);
   else for(const button of navigation.children){
@@ -28051,7 +28083,7 @@ function mk872RenderCollectionSection(root,type,archive=mk873ArchiveModel()){
  loadVueModule().then(module=>{
   if(!slot.isConnected||!overlay.classList.contains("show"))return;
   const focus=navigation.contains(document.activeElement)?document.activeElement.dataset.mk872CollectionTab:null;
-  module.mountCollectionNavigation(navigation,tabs,{select:mk872CollectionSwitch});
+  module.mountCollectionNavigation(navigation,tabs,navigationActions);
   if(focus)navigation.querySelector(`[data-mk872-collection-tab="${CSS.escape(focus)}"]`)?.focus({preventScroll:true});
   if(type==="archive")module.mountCollectionArchive(slot,content,{run:mk873RunArchiveAction});
   else module.mountCollectionSection(slot,content,{choose:id=>mk872CollectionChoose(type,id)});
@@ -42579,31 +42611,31 @@ document.addEventListener("keydown",event=>{
 })();
 </script>
 
-<script src="g5-conversion-ux.js?v=287"></script>
-<script src="g5-textbook-topics.js?v=287"></script>
-<script src="g5-textbook-core.js?v=287"></script>
-<script src="g5-textbook-v111.js?v=287"></script>
-<script src="g5-textbook-v112.js?v=287"></script>
-<script src="g5-pedagogy-v113.js?v=287"></script>
-<script src="g5-fractions-v114.js?v=287"></script>
-<script src="g5-fraction-arithmetic-v115.js?v=287"></script>
-<script src="g5-decimals-v116.js?v=287"></script>
-<script src="g7-textbook.js?v=287"></script>
-<script src="g8-textbook.js?v=287"></script>
-<script src="g1-textbook.js?v=287"></script>
-<script src="g2-textbook.js?v=287"></script>
-<script src="g3-textbook.js?v=287"></script>
-<script src="g4-textbook.js?v=287"></script>
-<script src="g5-textbook-navigation-v121.js?v=287"></script>
-<script src="g5-live-pedagogy-v122.js?v=287"></script>
-<script src="g5-arithmetic-tiers-v123.js?v=287"></script>
-<script src="g5-textbook-tiers-v124.js?v=287"></script>
-<script src="g5-natural-units-v125.js?v=287"></script>
-<script src="g5-remaining-core-v126.js?v=287"></script>
-<script src="g5-decimal-tiers-v127.js?v=287"></script>
-<script src="g5-decimal-percent-v128.js?v=287"></script>
-<script src="g5-fraction-concepts-v129.js?v=287"></script>
-<script src="g5-fraction-applications-v130.js?v=287"></script>
+<script src="g5-conversion-ux.js?v=288"></script>
+<script src="g5-textbook-topics.js?v=288"></script>
+<script src="g5-textbook-core.js?v=288"></script>
+<script src="g5-textbook-v111.js?v=288"></script>
+<script src="g5-textbook-v112.js?v=288"></script>
+<script src="g5-pedagogy-v113.js?v=288"></script>
+<script src="g5-fractions-v114.js?v=288"></script>
+<script src="g5-fraction-arithmetic-v115.js?v=288"></script>
+<script src="g5-decimals-v116.js?v=288"></script>
+<script src="g7-textbook.js?v=288"></script>
+<script src="g8-textbook.js?v=288"></script>
+<script src="g1-textbook.js?v=288"></script>
+<script src="g2-textbook.js?v=288"></script>
+<script src="g3-textbook.js?v=288"></script>
+<script src="g4-textbook.js?v=288"></script>
+<script src="g5-textbook-navigation-v121.js?v=288"></script>
+<script src="g5-live-pedagogy-v122.js?v=288"></script>
+<script src="g5-arithmetic-tiers-v123.js?v=288"></script>
+<script src="g5-textbook-tiers-v124.js?v=288"></script>
+<script src="g5-natural-units-v125.js?v=288"></script>
+<script src="g5-remaining-core-v126.js?v=288"></script>
+<script src="g5-decimal-tiers-v127.js?v=288"></script>
+<script src="g5-decimal-percent-v128.js?v=288"></script>
+<script src="g5-fraction-concepts-v129.js?v=288"></script>
+<script src="g5-fraction-applications-v130.js?v=288"></script>
 <script>
 // The textbook scripts finish extending the catalog before Home shows its totals.
 g5HomeCatalogReady=true;
