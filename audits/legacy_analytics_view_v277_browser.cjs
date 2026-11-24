@@ -93,7 +93,7 @@ async function scenario(browser,address,width,missing=false){
      window.__v277OldRetry=document.querySelector('#grade5Vue .knowledge-empty button');
    });
    await host.locator('.home-back-btn').press('Space');
-   await page.locator('#homeDashboard').waitFor();
+   await page.locator('.home-hero').first().waitFor();
    const before=await page.evaluate(()=>({route:mk854Route(),xp:state.xp,coins:state.coins}));
    await page.evaluate(()=>{
      window.__v277OldBack.click();
