@@ -145,8 +145,29 @@
       create:live(create)
     };
   }
+  // V279: teacher dashboard Vue and native fallback share the same live,
+  // bounded UI gestures. Roster derivation, profile storage and routes stay
+  // in the legacy teacher controller.
+  function teacherDashboardActions({isCurrent,actions,filters,sorts,profileIds}){
+    const allowedFilter=new Set(filters||[]);
+    const allowedSort=new Set(sorts||[]);
+    const allowedProfile=new Set(profileIds||[]);
+    const guarded=(key,valid=()=>true)=>(...args)=>{
+      if(!isCurrent()||!valid(args[0]))return;
+      const fn=actions?.[key];
+      if(typeof fn==="function")return fn.apply(actions,args);
+    };
+    return {
+      close:guarded("close"),search:guarded("search"),
+      sort:guarded("sort",value=>allowedSort.has(value)),
+      filter:guarded("filter",value=>allowedFilter.has(value)),
+      open:guarded("open",id=>typeof id==="string"&&allowedProfile.has(id)),
+      profiles:guarded("profiles"),backup:guarded("backup")
+    };
+  }
   return {headerActions,quickSetupActions,quickResultActions,trainingPlanActions,
     schoolTableActions,schoolQuizActions,schoolColumnActions,
     schoolAttemptFrameActions,attemptJournalActions,attemptReviewActions,
-    reportSurfaceActions,teacherViewActions,analyticsViewActions,profileDialogActions};
+    reportSurfaceActions,teacherViewActions,analyticsViewActions,profileDialogActions,
+    teacherDashboardActions};
 });
