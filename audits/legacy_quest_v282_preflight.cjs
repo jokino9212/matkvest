@@ -69,6 +69,12 @@ async function run(browser,base,width,missing=false){
     grade:!!document.querySelector('#grade5Vue')
   }));
   console.log('V282_QUEST_SPACE_FROM_GRADE',JSON.stringify({width,missing,beforeSpace,afterSpace}));
+  await page.waitForTimeout(1200);
+  const settled=await page.evaluate(()=>({
+   route:mk854Route(),quest:!!document.querySelector('#questBoardVue'),
+   grade:!!document.querySelector('#grade5Vue'),history:history.state
+  }));
+  console.log('V282_QUEST_SPACE_SETTLED',JSON.stringify({width,missing,settled}));
  }finally{await context.close()}
 }
 withMatkvestBrowser(async(browser,base)=>{
