@@ -48,6 +48,7 @@ async function scenario(browser,url,width,fallback){
  await buy.press('Enter');
  await p.waitForFunction(n=>state.shopStats.purchases===n,before.purchases+1);
  assert.equal(await p.evaluate(()=>state.coins),before.coins-price);
+ const returnRoute=await p.evaluate(()=>mk854Route());
  await p.evaluate(()=>openCollection());
  if(!fallback)await p.locator('#mk872CollectionUX .mk872-col-counter-grid[data-v-app]').waitFor();
  await p.locator('[data-mk872-collection-tab="pets"]').press('Space');
@@ -55,7 +56,10 @@ async function scenario(browser,url,width,fallback){
  await p.locator('#mk19gPetPanel [data-pet-choice="pet_bot"]').press('Enter');
  await p.waitForFunction(()=>state.equipped.pet==='pet_bot');
  await p.locator('#modal [data-store-heading] button.x').press('Enter');
- await p.waitForFunction(()=>!overlay.classList.contains('show'));
+ // A nested collection closes back to the originating shop route, not necessarily home.
+ await p.waitForFunction(expected=>JSON.stringify(mk854Route())===JSON.stringify(expected),returnRoute);
+ await p.locator('#mk872CollectionUX').waitFor({state:'detached'});
+ console.log('PASS_V288_NESTED_CLOSE',JSON.stringify({width,fallback,returnRoute,actual:await p.evaluate(()=>mk854Route())}));
  console.log('PASS_V288_CONSOLIDATED_STORE',JSON.stringify({width,fallback,results}));
  }finally{await ctx.close()}
 }

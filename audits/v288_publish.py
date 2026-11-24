@@ -42,10 +42,10 @@ html = (ROOT / "index.html").read_bytes()
 sw = (ROOT / "sw.js").read_bytes()
 actions = (ROOT / "assets/ui/legacy-vue-actions.js").read_bytes()
 expected_html = hashlib.sha256(html).hexdigest()
-# Final publisher runs after all tests on the same SHA-fenced v286-to-v288 candidate.
+# Final publisher runs after all tests on the same SHA-fenced v287-to-v288 candidate.
 html_source = html.decode("utf-8")
-if (html_source.count("legacy-navigation-core.js?v=287") != 1
-        or html_source.count("legacy-vue-actions.js?v=287") != 1
+if (html_source.count("legacy-navigation-core.js?v=288") != 1
+        or html_source.count("legacy-vue-actions.js?v=288") != 1
         or html_source.count("MatKvestVueActions?.headerActions?.") != 1
         or html_source.count("MatKvestVueActions?.quickSetupActions?.") != 1
         or html_source.count("MatKvestVueActions?.quickResultActions?.") != 1

@@ -1,4 +1,5 @@
 name: Test-only v288 consolidated store collection and pet regression gate
+# Retry after correcting nested collection close expectation and version markers in publisher.
 on:
   push:
     branches: [refactor/route-vue-actions-from-7c14ce9]
