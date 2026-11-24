@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Strict v281 -> v282 quest-back UI bridge only; reward logic untouched."""
+"""Strict v281 -> v282 quest-back UI bridge and confirmed home-route fix; rewards untouched."""
 from pathlib import Path
 import hashlib, os
 ROOT=Path(__file__).resolve().parent.parent
@@ -23,8 +23,8 @@ swap('class="home-back-btn" onclick="renderHome()"','class="home-back-btn" data-
 swap(' const isCurrent=()=>host.parentNode===mainView&&knowledgeMapRevision===revision;',
 ''' const isCurrent=()=>host.parentNode===mainView&&host.isConnected&&knowledgeMapRevision===revision;
  const backActions=window.MatKvestVueActions?.questBackActions?.({
-  isCurrent,back:renderHome
- })||{back:()=>{if(isCurrent())return renderHome()}};
+  isCurrent,back:mk872BrandGoHome
+ })||{back:()=>{if(isCurrent())return mk872BrandGoHome()}};
  // Native delegated fallback preserves Enter/Space; a detached host cannot act.
  host.addEventListener("click",event=>{
   if(host.hasAttribute("data-v-app")||!isCurrent())return;
