@@ -18,9 +18,9 @@ def exact(old,new):
  n=chunk.count(old)
  if n!=1:raise SystemExit("REFUSING unknown sale UI source anchor "+repr(old)+" count "+str(n))
  chunk=chunk.replace(old,new,1)
-exact("'onclick=\"mk865RunSaleTopic('+index+')\"'", "'data-mk865-sale-topic=\"'+index+'\"'")
-exact("'onclick=\"mk865RunSaleButton('+index+','+column+')\"'",
-      "'data-mk865-sale-row=\"'+index+'\" data-mk865-sale-column=\"'+column+'\"'")
+exact("onclick=\"mk865RunSaleTopic('+index+')\"", "data-mk865-sale-topic=\"'+index+'\"")
+exact("onclick=\"mk865RunSaleButton('+index+','+column+')\"",
+      "data-mk865-sale-row=\"'+index+'\" data-mk865-sale-column=\"'+column+'\"")
 exact(''' const closeActions=window.MatKvestVueActions?.saleDialogCloseActions?.({
   isCurrent,close:mk865CloseSaleOverlay
  })||{close:()=>{if(isCurrent())return mk865CloseSaleOverlay()}};
@@ -76,8 +76,8 @@ if sw.count(needle)!=1 or "matkvest-iphone-v287" in sw:raise SystemExit("REFUSIN
 sw=sw.replace(needle,'const CACHE_NAME = "matkvest-iphone-v287";')
 for marker,n in (
  ("MatKvestVueActions?.saleDialogDispatchActions?.",1),
- ("data-mk865-sale-row",3),
- ("data-mk865-sale-topic",3),
+ ("data-mk865-sale-row",2),
+ ("data-mk865-sale-topic",2),
  ("run:dispatchActions.run,choose:dispatchActions.choose",1)):
  if s.count(marker)!=n:raise SystemExit("REFUSING patched sale UI marker "+repr(marker)+" count "+str(s.count(marker)))
 PAGE.write_text(s,encoding="utf8")
