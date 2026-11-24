@@ -177,9 +177,25 @@
       }
     };
   }
+  // V281: achievement filter buttons/selects share a live UI dispatcher.
+  // Preserve the achievement reward ledger and one-time grant rules in index.html.
+  function achievementFilterActions({isCurrent,views,categories,sorts,actions}){
+    const permitted={
+      view:new Set(views||[]),
+      category:new Set(categories||[]),
+      sort:new Set(sorts||[])
+    };
+    return Object.fromEntries(["view","category","sort"].map(key=>[
+      key,value=>{
+        if(!isCurrent()||typeof value!=="string"||!permitted[key].has(value))return;
+        const callback=actions?.[key];
+        if(typeof callback==="function")return callback.call(actions,value);
+      }
+    ]));
+  }
   return {headerActions,quickSetupActions,quickResultActions,trainingPlanActions,
     schoolTableActions,schoolQuizActions,schoolColumnActions,
     schoolAttemptFrameActions,attemptJournalActions,attemptReviewActions,
     reportSurfaceActions,teacherViewActions,analyticsViewActions,profileDialogActions,
-    teacherDashboardActions,storeTabActions};
+    teacherDashboardActions,storeTabActions,achievementFilterActions};
 });
