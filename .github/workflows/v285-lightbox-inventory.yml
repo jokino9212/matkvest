@@ -35,4 +35,12 @@ jobs:
            p=s.find(token)
            print('V285_TOKEN',repr(token),'COUNT',s.count(token),'FIRST',p)
            if p>=0:print(s[max(0,p-240):p+440])
+          start=s.index('<script id="mk30-artwork-viewer-script">')
+          print('V285_ARTWORK_SCRIPT_BEGIN')
+          print(s[start:start+15300])
+          print('V285_ARTWORK_SCRIPT_END')
+          start=s.index('<div id="mk872AvatarViewer"')
+          print('V285_AVATAR_DIALOG_BEGIN')
+          print(s[start:start+3900])
+          print('V285_AVATAR_DIALOG_END')
           PY
