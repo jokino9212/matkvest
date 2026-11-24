@@ -51,9 +51,9 @@ sw=WORKER.read_text(encoding="utf8")
 old='const CACHE_NAME = "matkvest-iphone-v281";'
 if sw.count(old)!=1 or 'matkvest-iphone-v282' in sw:raise SystemExit("REFUSING unknown service worker")
 sw=sw.replace(old,'const CACHE_NAME = "matkvest-iphone-v282";')
-for key in ('data-quest-action="back"','MatKvestVueActions?.questBackActions?.',
-            'back:backActions.back,claim:claimQuest,replace:requestQuestReroll'):
- if s.count(key)!=1:raise SystemExit("REFUSING missing v282 marker "+key)
+for key,count in (('data-quest-action="back"',2),('MatKvestVueActions?.questBackActions?.',1),
+                  ('back:backActions.back,claim:claimQuest,replace:requestQuestReroll',1)):
+ if s.count(key)!=count:raise SystemExit("REFUSING v282 marker "+key+" count "+str(s.count(key)))
 PAGE.write_text(s,encoding="utf8")
 ACTIONS.write_text(ad,encoding="utf8")
 WORKER.write_text(sw,encoding="utf8")
