@@ -1,0 +1,25 @@
+name: Test-only v280 read-only shop tabs Vue mount trace
+on:
+  push:
+    branches: [refactor/route-vue-actions-from-7c14ce9]
+    paths: ['.github/workflows/v280-readonly-store-vue-mount.yml']
+permissions: {contents: read}
+jobs:
+  inspect:
+    if: github.repository == 'jokino9212/matkvest' && github.ref == 'refs/heads/refactor/route-vue-actions-from-7c14ce9'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Trace shop-tabs mount invocation and action routing in original v279
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re,hashlib
+          s=Path('index.html').read_text(encoding='utf8')
+          print('V280_STORE_MOUNT_SHA',hashlib.sha256(s.encode()).hexdigest())
+          for token in ['mountStoreTabs','mountShopTabs','mountStoreTab','mountStoreCategory','shop-tabs','shopTabs(', 'openStoreTab(', 'storeTabs.map(']:
+           pos=[m.start() for m in re.finditer(re.escape(token),s)]
+           print('V280_STORE_TRACE',token,'COUNT',len(pos),'OFFSET',pos[:28])
+           for at in pos[:13]:
+            print('V280_STORE_CONTEXT',token,at,repr(s[max(0,at-660):at+950]))
+          PY
