@@ -1,9 +1,7 @@
 name: Test-only v288 consolidated store collection and pet regression gate
 # Retry after correcting nested collection close expectation and version markers in publisher.
 on:
-  push:
-    branches: [refactor/route-vue-actions-from-7c14ce9]
-    paths: ['.github/workflows/legacy-v288-gate.yml']
+  workflow_dispatch:
 permissions:
   contents: write
 concurrency:
