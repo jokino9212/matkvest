@@ -60,7 +60,8 @@ if (html_source.count("legacy-navigation-core.js?v=280") != 1
         or html_source.count("MatKvestVueActions?.analyticsViewActions?.") != 1
         or html_source.count("MatKvestVueActions?.profileDialogActions?.") != 1
         or html_source.count("MatKvestVueActions?.teacherDashboardActions?.") != 1
-        or html_source.count("MatKvestVueActions?.storeTabActions?.") != 1
+        or html_source.count("MatKvestVueActions?.storeTabActions?.") != 2
+        or html_source.count("liveStoreActions.select(id)") != 1
         or html_source.count("mk280StoreTabActions?.select(button.dataset.storeCategory)") != 1
         or html_source.count("profiles:()=>MK854_CORE_OPEN_PROFILES(),backup:()=>openDataManager()") != 1
         or html_source.count('data-teacher-dashboard-action="open"') != 1
