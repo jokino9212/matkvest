@@ -1,0 +1,19 @@
+name: Test-only v283 preflight leaderboard Vue and HTML fallback
+on:
+  push:
+    branches: [refactor/route-vue-actions-from-7c14ce9]
+    paths: ['.github/workflows/v283-leaderboard-preflight.yml','audits/legacy_leaderboard_v283_preflight.cjs']
+permissions:
+  contents: read
+jobs:
+  browser:
+    if: github.repository == 'jokino9212/matkvest' && github.ref == 'refs/heads/refactor/route-vue-actions-from-7c14ce9'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm ci
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - run: node audits/legacy_leaderboard_v283_preflight.cjs
