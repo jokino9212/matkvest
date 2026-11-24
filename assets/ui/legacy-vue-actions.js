@@ -165,9 +165,21 @@
       profiles:guarded("profiles"),backup:guarded("backup")
     };
   }
+  // V280: strictly presentational shop category navigation. Keep economics and
+  // all purchase/reward/profile logic in index.html. A detached tab cannot
+  // invoke a category change after its shop modal has gone away.
+  function storeTabActions({isCurrent,categories,actions}){
+    const allowed=new Set(categories||[]);
+    return {
+      select:category=>{
+        if(!isCurrent()||typeof category!=="string"||!allowed.has(category))return;
+        return actions.select(category);
+      }
+    };
+  }
   return {headerActions,quickSetupActions,quickResultActions,trainingPlanActions,
     schoolTableActions,schoolQuizActions,schoolColumnActions,
     schoolAttemptFrameActions,attemptJournalActions,attemptReviewActions,
     reportSurfaceActions,teacherViewActions,analyticsViewActions,profileDialogActions,
-    teacherDashboardActions};
+    teacherDashboardActions,storeTabActions};
 });
