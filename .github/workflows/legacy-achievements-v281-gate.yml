@@ -1,9 +1,5 @@
 name: Test-only guarded achievement filter Vue and HTML fallback PWA v281 gate
 on:
-  push:
-    branches: [refactor/route-vue-actions-from-7c14ce9]
-    paths:
-      - '.github/workflows/legacy-achievements-v281-gate.yml'
   workflow_dispatch:
 permissions:
   contents: write
