@@ -68,7 +68,7 @@ async function scenario(browser,address,width,missing=false){
    const tab=page.locator('#modal .shop-tabs button[data-store-category="'+category+'"]').first();
    if(await tab.isVisible())await tab.press(key);
    else await page.locator('#modal select.mk-ux91-category-select:visible').selectOption(category);
-   await page.locator('#modal .shop-tabs[data-store-active="'+category+'"]').waitFor();
+   await page.locator('#modal .shop-tabs[data-store-active="'+category+'"]').waitFor({state:'attached'});
   };
   await chooseCategory('frames','Enter');
   await chooseCategory('pets','Space');
@@ -90,7 +90,7 @@ async function scenario(browser,address,width,missing=false){
   else if(await page.locator('#modal select.mk-ux91-category-select:visible').count())
    await page.locator('#modal select.mk-ux91-category-select:visible').selectOption('avatars');
   else await page.evaluate(()=>openShop('avatars'));
-  await page.locator('#modal .shop-tabs[data-store-active="avatars"]').waitFor();
+  await page.locator('#modal .shop-tabs[data-store-active="avatars"]').waitFor({state:'attached'});
   if(!missing){
    await page.reload({waitUntil:'domcontentloaded'});
    await page.waitForFunction(()=>mk854HistoryReady===true);
