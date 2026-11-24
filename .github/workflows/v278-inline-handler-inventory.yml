@@ -42,7 +42,7 @@ jobs:
             'openStagePicker','showResult','openCollection','openShop',
             'openDataManager','renderDataManager','openSettings','openLeaderboard',
           ]:
-            hits=[m.start() for m in re.finditer('function '+re.escape(fn)+'(',s)]
+            hits=[p for p in [s.find('function '+fn+'(')] if p>=0]
             print('V278_TARGET',fn,'COUNT',len(hits))
             for at in hits[:1]:
               print('V278_TARGET_SNIP_BEGIN',fn,at)
