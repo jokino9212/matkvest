@@ -1,4 +1,4 @@
-name: Final frontend test-only release gate v290
+name: Final frontend test-only release gate v290 (verified publisher markers)
 on:
   push:
     branches: [refactor/route-vue-actions-from-7c14ce9]
@@ -7,7 +7,7 @@ permissions:
   contents: write
 concurrency:
   group: final-frontend-test-branch
-  cancel-in-progress: false
+  cancel-in-progress: true
 jobs:
   integrate-test-publish:
     if: github.repository == 'jokino9212/matkvest' && github.ref == 'refs/heads/refactor/route-vue-actions-from-7c14ce9'

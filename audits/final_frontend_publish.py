@@ -44,8 +44,8 @@ actions = (ROOT / "assets/ui/legacy-vue-actions.js").read_bytes()
 expected_html = hashlib.sha256(html).hexdigest()
 # Final publisher runs after all tests on the same SHA-fenced v289-to-v290 candidate.
 html_source = html.decode("utf-8")
-if (html_source.count("legacy-navigation-core.js?v=289") != 1
-        or html_source.count("legacy-vue-actions.js?v=289") != 1
+if (html_source.count("legacy-navigation-core.js?v=290") != 1
+        or html_source.count("legacy-vue-actions.js?v=290") != 1
         or html_source.count("MatKvestVueActions?.headerActions?.") != 1
         or html_source.count("MatKvestVueActions?.quickSetupActions?.") != 1
         or html_source.count("MatKvestVueActions?.quickResultActions?.") != 1
@@ -93,7 +93,7 @@ if (html_source.count("legacy-navigation-core.js?v=289") != 1
         or html_source.count('data-profile-action="create"') != 1
         or html_source.count("core.dispatchRoute(r,{") != 1
         or html_source.count("core.shouldDeferRestore(route)") != 1
-        or "?v=288" in html_source
+        or "?v=289" in html_source
         or html_source.count("MatKvestVueActions?.storeSurfaceActions?.") != 1
         or html_source.count("module.mountStoreSurfaceHeader(heading,{title,topic},headerActions)") != 1
         or html_source.count("module.mountStoreCatalog(host,{cards},catalogActions)") != 1
