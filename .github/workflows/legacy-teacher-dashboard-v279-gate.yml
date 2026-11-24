@@ -1,14 +1,5 @@
 name: Test-only teacher dashboard Vue and native fallback actions PWA v279 gate
 on:
-  push:
-    branches: [refactor/route-vue-actions-from-7c14ce9]
-    paths:
-      - '.github/workflows/legacy-teacher-dashboard-v279-gate.yml'
-      - 'assets/ui/legacy-vue-actions.js'
-      - 'audits/legacy_teacher_dashboard_v279_patch.py'
-      - 'audits/legacy_teacher_dashboard_v279_publish.py'
-      - 'audits/legacy_teacher_dashboard_v279.test.cjs'
-      - 'audits/legacy_teacher_dashboard_v279_browser.cjs'
   workflow_dispatch:
 permissions:
   contents: write
@@ -76,7 +67,7 @@ jobs:
           node audits/legacy_analytics_view_v279_browser.cjs
           sed -e 's/v278/v279/g' -e 's/V278/V279/g' audits/legacy_profile_dialog_v278_browser.cjs > audits/legacy_profile_dialog_v279_browser.cjs
           node audits/legacy_profile_dialog_v279_browser.cjs
-      - name: Full PWA 277 to 278 refresh and offline mobile
+      - name: Full PWA 278 to 279 refresh and offline mobile
         run: |
           node audits/pwa_verified_refresh_browser.cjs
           node audits/stage28_offline_pwa_browser.cjs
