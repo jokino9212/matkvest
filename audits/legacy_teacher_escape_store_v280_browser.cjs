@@ -64,12 +64,28 @@ async function scenario(browser,address,width,missing=false){
   // Shop tabs must work without inline onclick/onchange, even without Vue.
   await page.evaluate(()=>openShop('avatars'));
   const tabs=page.locator('#modal .shop-tabs');
+  await page.evaluate(()=>{
+   window.__v280Events=[];
+   const tab=modal.querySelector('button.shop-tab[data-store-category="frames"]');
+   tab.addEventListener('click',()=>window.__v280Events.push('button'));
+   modal.addEventListener('click',()=>window.__v280Events.push('modal-capture'),true);
+   modal.addEventListener('click',()=>window.__v280Events.push('modal-bubble'));
+   document.addEventListener('click',()=>window.__v280Events.push('document-capture'),true);
+   window.__v280HasAdapter=typeof mk280StoreTabActions?.select==='function';
+   if(window.__v280HasAdapter){
+    const old=mk280StoreTabActions.select;
+    mk280StoreTabActions.select=(id)=>{window.__v280Events.push('select:'+id);return old(id)};
+   }
+  });
   await tabs.locator('button[data-store-category="frames"]').first().press('Enter');
   const frameDiagnostic=await page.evaluate(()=>({
    route:mk854Route(),overlay:overlay.className,hasTabHandler:modal.__mk280StoreTabsBound,
    shopTabCount:document.querySelectorAll('#modal .shop-tabs .shop-tab').length,
    tabActive:document.querySelector('#modal .shop-tabs')?.dataset.storeActive,
-   requested:'frames',errors:[]
+   requested:'frames',events:window.__v280Events,adapterPresent:window.__v280HasAdapter,
+   active:document.activeElement?.dataset.storeCategory,
+   isCurrent:overlay.classList.contains('show')&&!!modal.querySelector('.shop-tabs'),
+   allowed:storeTabs.map(t=>t.id).includes('frames')
   }));
   console.log('V280_AFTER_FRAMES_CLICK',JSON.stringify({width,missing,...frameDiagnostic}));
   await page.locator('#modal .shop-tabs[data-store-active="frames"]').waitFor({timeout:5000});
