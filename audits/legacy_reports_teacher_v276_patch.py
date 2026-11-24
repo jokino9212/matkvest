@@ -87,9 +87,11 @@ once(
  loadVueModule().then(module=>{'''
 )
 once(
- '''  module[mount](host,model,actions);
+ '''  mounting=true;
+  module[mount](host,model,actions);
  }).catch(()=>{''',
- '''  module[mount](host,model,reportActions);
+ '''  mounting=true;
+  module[mount](host,model,reportActions);
  }).catch(()=>{'''
 )
 for marker in (
