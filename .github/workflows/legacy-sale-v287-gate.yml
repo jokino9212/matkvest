@@ -1,4 +1,5 @@
 name: Test-only guarded sale row/topic Vue and HTML fallback PWA v287 gate
+# Re-run full gate after fixing obsolete publisher-only v286 Vue marker.
 on:
   push:
     branches: [refactor/route-vue-actions-from-7c14ce9]
