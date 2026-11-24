@@ -1,0 +1,32 @@
+name: Test-only v287 read-only sale action dispatch inventory
+on:
+  push:
+    branches: [refactor/route-vue-actions-from-7c14ce9]
+    paths: ['.github/workflows/v287-sale-dispatch-inventory.yml']
+permissions:
+  contents: read
+jobs:
+  inspect:
+    if: github.repository == 'jokino9212/matkvest' && github.ref == 'refs/heads/refactor/route-vue-actions-from-7c14ce9'
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Read-only sale button and topic dispatch, Vue, HTML fallback inventory
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib
+          s=Path('index.html').read_text(encoding='utf8')
+          print('V287_BASE_SHA',hashlib.sha256(s.encode()).hexdigest())
+          for name,size in [('function mk865RunSaleButton(',1450),('function mk865RunSaleTopic(',1350),
+             ('function mk865SaleDialogHtml(',5200),('function mk865ShowSaleOverlay(',1700),
+             ('function mk865OpenSellDialog(',1100),('function mk865SellItem(',1500)]:
+           p=s.find(name)
+           print('V287_SNIP_START',repr(name),p)
+           if p>=0:print(s[p:p+size])
+           print('V287_SNIP_END',repr(name))
+          for token in ['mk865RunSaleButton(', 'mk865RunSaleTopic(', 'data-mk865-sale-close',
+             'mountStoreSaleDialog(', 'mk865-sale-topic', 'mk865-sale-button']:
+           print('V287_COUNT',repr(token),s.count(token))
+          PY
