@@ -64,53 +64,18 @@ async function scenario(browser,address,width,missing=false){
   // Shop tabs must work without inline onclick/onchange, even without Vue.
   await page.evaluate(()=>openShop('avatars'));
   const tabs=page.locator('#modal .shop-tabs');
+  const chooseCategory=async(category,key='Enter')=>{
+   const tab=page.locator('#modal .shop-tabs button[data-store-category="'+category+'"]').first();
+   if(await tab.isVisible())await tab.press(key);
+   else await page.locator('#modal select.mk-ux91-category-select:visible').selectOption(category);
+   await page.locator('#modal .shop-tabs[data-store-active="'+category+'"]').waitFor();
+  };
+  await chooseCategory('frames','Enter');
+  await chooseCategory('pets','Space');
   await page.evaluate(()=>{
-   window.__v280Events=[];
-   const tab=modal.querySelector('button.shop-tab[data-store-category="frames"]');
-   tab.addEventListener('click',()=>window.__v280Events.push('button'));
-   const trace=(scope)=>event=>{if(event.key==='Enter'||event.key===' '){
-    window.__v280Events.push(scope+':'+event.type+':'+event.key+':'+event.defaultPrevented)}};
-   window.addEventListener('keydown',trace('window'),true);
-   document.addEventListener('keydown',trace('document'),true);
-   modal.addEventListener('keydown',trace('modal'),true);
-   tab.addEventListener('keydown',trace('button'));
-   window.addEventListener('keyup',trace('window'),true);
-   document.addEventListener('keyup',trace('document'),true);
-   tab.addEventListener('keyup',trace('button'));
-   modal.addEventListener('click',()=>window.__v280Events.push('modal-capture'),true);
-   modal.addEventListener('click',()=>window.__v280Events.push('modal-bubble'));
-   document.addEventListener('click',()=>window.__v280Events.push('document-capture'),true);
-   window.__v280HasAdapter=typeof mk280StoreTabActions?.select==='function';
-   if(window.__v280HasAdapter){
-    const old=mk280StoreTabActions.select;
-    mk280StoreTabActions.select=(id)=>{window.__v280Events.push('select:'+id);return old(id)};
-   }
+   window.__v280OldTab=document.querySelector('#modal .shop-tabs button[data-store-category="avatars"]');
   });
-  await tabs.locator('button[data-store-category="frames"]').first().press('Enter');
-  const frameDiagnostic=await page.evaluate(()=>({
-   route:mk854Route(),overlay:overlay.className,hasTabHandler:modal.__mk280StoreTabsBound,
-   shopTabCount:document.querySelectorAll('#modal .shop-tabs .shop-tab').length,
-   tabActive:document.querySelector('#modal .shop-tabs')?.dataset.storeActive,
-   requested:'frames',events:window.__v280Events,adapterPresent:window.__v280HasAdapter,
-   active:document.activeElement?.dataset.storeCategory,
-   isCurrent:overlay.classList.contains('show')&&!!modal.querySelector('.shop-tabs'),
-   allowed:storeTabs.map(t=>t.id).includes('frames')
-  }));
-  console.log('V280_AFTER_FRAMES_CLICK',JSON.stringify({width,missing,...frameDiagnostic}));
-  await tabs.locator('button[data-store-category="frames"]').first().click();
-  console.log('V280_AFTER_FRAMES_POINTER',JSON.stringify(await page.evaluate(()=>({
-    route:mk854Route(),active:document.querySelector('#modal .shop-tabs')?.dataset.storeActive,
-    events:window.__v280Events
-  }))));
-  await page.locator('#modal .shop-tabs[data-store-active="frames"]').waitFor({timeout:5000});
-  const nativeSelect=page.locator('#modal select.mk-ux91-category-select');
-  await nativeSelect.selectOption('pets');
-  await page.locator('#modal .shop-tabs[data-store-active="pets"]').waitFor();
-  await page.evaluate(()=>{
-    window.__v280OldTab=document.querySelector('#modal .shop-tabs button[data-store-category="avatars"]');
-  });
-  await tabs.locator('button[data-store-category="collection"]').first().press('Space');
-  await page.locator('#modal .shop-tabs[data-store-active="collection"]').waitFor();
+  await chooseCategory('collection','Space');
   const before=await page.evaluate(()=>({
     route:mk854Route(),name:currentProfile,id:state.profileId,xp:state.xp,coins:state.coins,
     attempts:state.attemptHistory?.length||0
@@ -120,7 +85,11 @@ async function scenario(browser,address,width,missing=false){
     route:mk854Route(),name:currentProfile,id:state.profileId,xp:state.xp,coins:state.coins,
     attempts:state.attemptHistory?.length||0
   })),before,'Detached old store tab must not reroute or award');
-  await page.locator('#modal .shop-tabs button[data-store-category="avatars"]').first().click();
+  const returnTab=page.locator('#modal .shop-tabs button[data-store-category="avatars"]').first();
+  if(await returnTab.isVisible())await returnTab.press('Enter');
+  else if(await page.locator('#modal select.mk-ux91-category-select:visible').count())
+   await page.locator('#modal select.mk-ux91-category-select:visible').selectOption('avatars');
+  else await page.evaluate(()=>openShop('avatars'));
   await page.locator('#modal .shop-tabs[data-store-active="avatars"]').waitFor();
   if(!missing){
    await page.reload({waitUntil:'domcontentloaded'});
