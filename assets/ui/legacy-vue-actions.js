@@ -85,6 +85,31 @@
       inputCell:live(inputCell),moveCell:live(moveCell),toggleDot:live(toggleDot)
     };
   }
+  // V275: view-scoped school frame and attempt journal/review actions.
+  // Rendering, attempt history and rewards continue to live in index.html.
+  function schoolAttemptFrameActions({isCurrent,close}){
+    return {close:()=>{if(isCurrent())return close()}};
+  }
+  function attemptJournalActions({isCurrent,close,back,review,recordCount}){
+    return {
+      close:()=>{if(isCurrent())return close()},
+      ...(typeof back==="function"?{back:()=>{if(isCurrent())return back()}}:{}),
+      review:index=>{
+        if(!isCurrent()||!Number.isInteger(index)||index<0||index>=recordCount)return;
+        return review(index);
+      }
+    };
+  }
+  function attemptReviewActions({isCurrent,close,journal,result}){
+    const live=callback=>typeof callback==="function"
+      ?()=>{if(isCurrent())return callback()}
+      :undefined;
+    return {
+      close:live(close),journal:live(journal),
+      ...(typeof result==="function"?{result:live(result)}:{})
+    };
+  }
   return {headerActions,quickSetupActions,quickResultActions,trainingPlanActions,
-    schoolTableActions,schoolQuizActions,schoolColumnActions};
+    schoolTableActions,schoolQuizActions,schoolColumnActions,
+    schoolAttemptFrameActions,attemptJournalActions,attemptReviewActions};
 });
