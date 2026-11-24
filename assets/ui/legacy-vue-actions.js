@@ -197,9 +197,16 @@
   function questBackActions({isCurrent,back}){
     return {back:()=>{if(isCurrent())return back()}};
   }
+  // V283: leaderboard help/close UI only, without profile or reward changes.
+  function leaderboardDialogActions({isCurrent,close,help}){
+    return {
+      close:()=>{if(isCurrent())return close()},
+      help:opener=>{if(isCurrent())return help(opener)}
+    };
+  }
   return {headerActions,quickSetupActions,quickResultActions,trainingPlanActions,
     schoolTableActions,schoolQuizActions,schoolColumnActions,
     schoolAttemptFrameActions,attemptJournalActions,attemptReviewActions,
     reportSurfaceActions,teacherViewActions,analyticsViewActions,profileDialogActions,
-    teacherDashboardActions,storeTabActions,achievementFilterActions,questBackActions};
+    teacherDashboardActions,storeTabActions,achievementFilterActions,questBackActions,leaderboardDialogActions};
 });
