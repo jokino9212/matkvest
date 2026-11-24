@@ -1,0 +1,46 @@
+name: Test-only v275 school attempt frame and journal inventory
+on:
+  push:
+    branches: [refactor/route-vue-actions-from-7c14ce9]
+    paths: ['.github/workflows/v275-school-frame-journal-inventory.yml']
+permissions:
+  contents: read
+jobs:
+  inspect:
+    if: github.repository == 'jokino9212/matkvest' && github.ref == 'refs/heads/refactor/route-vue-actions-from-7c14ce9'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inventory bounded frame and journal callbacks, without changing files
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          from collections import Counter
+          import hashlib,re
+          s=Path('index.html').read_text(encoding='utf8')
+          print('V275_BASE_SHA',hashlib.sha256(s.encode()).hexdigest(),'BYTES',len(s.encode()))
+          mounts=Counter(re.findall(r'module\.(mount[A-Za-z0-9_]+)\s*\(',s))
+          print('ALL_MOUNTS',sorted(mounts.items()))
+          tokens=[
+           'function showSchoolAttempt(', 'function mountSchoolAttemptFrameView(',
+           'module.mountSchoolAttemptFrame(', 'function refreshBlockHead(',
+           'function closeModal(', 'function mk872RequestExerciseExit(',
+           'function renderAttemptJournal(', 'function openAttemptJournal(',
+           'function showAttemptJournal(', 'function renderJournal(',
+           'function openJournal(', 'function showJournal(',
+           'mountAttemptJournal(', 'attemptHistory', 'data-journal-action',
+           'journal-action', 'function renderAttemptDetail(',
+          ]
+          for t in tokens:
+           hits=[x.start() for x in re.finditer(re.escape(t),s)]
+           print('V275_TOKEN',repr(t),'COUNT',len(hits))
+           for at in hits[:2]:
+            size=5700 if 'function ' in t or 'module.mountSchoolAttemptFrame' in t else 1800
+            print('V275_SNIP_BEGIN',repr(t),at)
+            print(s[max(0,at-300):at+size])
+            print('V275_SNIP_END')
+          for f in ['assets/ui/knowledge-map.js','assets/ui/legacy-vue-actions.js']:
+           z=Path(f).read_text(encoding='utf8')
+           for t in ['mountSchoolAttemptFrame','mountAttemptJournal','AttemptJournal','SchoolAttemptFrame']:
+            print('V275_MODULE_TOKEN',f,t,z.count(t))
+          PY
