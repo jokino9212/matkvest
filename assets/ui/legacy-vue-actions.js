@@ -214,9 +214,14 @@
   function artworkViewerActions({isCurrent,close}){
     return {close:()=>{if(isCurrent())return close()}};
   }
+  // V286: guard informational sale dialog close only. Never wrap sale, refund
+  // mission, choice, training or transaction callbacks.
+  function saleDialogCloseActions({isCurrent,close}){
+    return {close:()=>{if(isCurrent())return close()}};
+  }
   return {headerActions,quickSetupActions,quickResultActions,trainingPlanActions,
     schoolTableActions,schoolQuizActions,schoolColumnActions,
     schoolAttemptFrameActions,attemptJournalActions,attemptReviewActions,
     reportSurfaceActions,teacherViewActions,analyticsViewActions,profileDialogActions,
-    teacherDashboardActions,storeTabActions,achievementFilterActions,questBackActions,leaderboardDialogActions,helpDialogActions,artworkViewerActions};
+    teacherDashboardActions,storeTabActions,achievementFilterActions,questBackActions,leaderboardDialogActions,helpDialogActions,artworkViewerActions,saleDialogCloseActions};
 });

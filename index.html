@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <!-- Optional route core: inline mk854 wrappers remain the fallback. -->
-<script src="./assets/ui/legacy-navigation-core.js?v=285"></script>
-<script src="./assets/ui/legacy-vue-actions.js?v=285"></script>
+<script src="./assets/ui/legacy-navigation-core.js?v=286"></script>
+<script src="./assets/ui/legacy-vue-actions.js?v=286"></script>
 <script>function g8Declension19(number,one,few,many){
  const n=Math.abs(Math.trunc(Number(number))),lastTwo=n%100,last=n%10;
  if(lastTwo>=11&&lastTwo<=14)return many;
@@ -14527,7 +14527,7 @@ function knowledgeFilteredSections(data){
  const mapSec=sec=>{let topics=sec.topics.filter(t=>knowledgeStatusPass(t,knowledgeMapState.status)&&(!q||`${t.title} ${t.group}`.toLocaleLowerCase("ru-RU").includes(q)));if(knowledgeMapState.sort==="attention")topics=topics.slice().sort((a,b)=>knowledgeTopicPriority(a)-knowledgeTopicPriority(b));return {...sec,topics}};
  return [...data.sections,...data.extraSections].map(mapSec).filter(s=>s.topics.length);
 }
-const knowledgeMapUrl = "./assets/ui/knowledge-map.js?v=285";
+const knowledgeMapUrl = "./assets/ui/knowledge-map.js?v=286";
 const knowledgeTopicDetailHostId="knowledgeTopicDetailVue";
 let knowledgeMapModule;
 let knowledgeMapRevision=0;
@@ -27078,7 +27078,7 @@ function mk865RunSaleButton(row,column){mk865CurrentSaleDialog?.buttons?.[row]?.
 function mk865RunSaleTopic(index){mk865CurrentSaleDialog?.topics?.[index]?.run?.()}
 function mk865SaleDialogHtml(model){
  const title='<div class="mk865-sale-head"><div><h2 id="mk865SaleTitle">'+esc(model.title)+'</h2>'+
-  (model.subtitle?'<p>'+esc(model.subtitle)+'</p>':'')+'</div><button type="button" class="mk865-sale-close" aria-label="Закрыть окно продажи" onclick="mk865CloseSaleOverlay()">×</button></div>';
+  (model.subtitle?'<p>'+esc(model.subtitle)+'</p>':'')+'</div><button type="button" class="mk865-sale-close" aria-label="Закрыть окно продажи" data-mk865-sale-close>×</button></div>';
  const m=model.mission;
  const mission=m?'<div class="mk865-mission-box '+(m.completed?'completed':'')+'"><b>'+esc(m.title)+'</b><div>'+
   esc(m.topic)+'</div><div class="mk865-mission-progress"><span style="width:'+m.percent+'%"></span></div><small>'+
@@ -27097,13 +27097,25 @@ function mk865SaleDialogHtml(model){
 function mk865ShowSaleOverlay(model){
  const el=mk865SaleOverlay(),box=el.firstElementChild,host=document.createElement("div");
  if(!el.classList.contains("show"))mk865SaleReturnFocus=document.activeElement;
+ // Only the live host/model may dispatch its close action. This guard never
+ // authorizes any run/choose sale operations; they remain legacy-owned.
+ const isCurrent=()=>host.parentNode===box&&host.isConnected&&
+  el.classList.contains("show")&&mk865CurrentSaleDialog===model;
+ const closeActions=window.MatKvestVueActions?.saleDialogCloseActions?.({
+  isCurrent,close:mk865CloseSaleOverlay
+ })||{close:()=>{if(isCurrent())return mk865CloseSaleOverlay()}};
+ host.addEventListener("click",event=>{
+  if(!isCurrent()||host.hasAttribute("data-v-app"))return;
+  const button=event.target.closest("button[data-mk865-sale-close]");
+  if(button&&host.contains(button))closeActions.close();
+ });
  mk865CurrentSaleDialog=model;
  host.innerHTML=mk865SaleDialogHtml(model);box.replaceChildren(host);el.classList.add("show");
  const focus=()=>host.querySelector(".mk865-sale-close")?.focus({preventScroll:true});focus();
  loadVueModule().then(module=>{
   if(host.parentNode!==box||mk865CurrentSaleDialog!==model||!el.classList.contains("show"))return;
   const focused=host.querySelectorAll("button"),index=[...focused].indexOf(document.activeElement);
-  module.mountStoreSaleDialog(host,model,{close:mk865CloseSaleOverlay,run:mk865RunSaleButton,choose:mk865RunSaleTopic});
+  module.mountStoreSaleDialog(host,model,{close:closeActions.close,run:mk865RunSaleButton,choose:mk865RunSaleTopic});
   if(index>=0)host.querySelectorAll("button")[index]?.focus({preventScroll:true});
  }).catch(()=>{ /* Keep the existing sale controls usable when Vue cannot load. */ });
 }
@@ -42554,31 +42566,31 @@ document.addEventListener("keydown",event=>{
 })();
 </script>
 
-<script src="g5-conversion-ux.js?v=285"></script>
-<script src="g5-textbook-topics.js?v=285"></script>
-<script src="g5-textbook-core.js?v=285"></script>
-<script src="g5-textbook-v111.js?v=285"></script>
-<script src="g5-textbook-v112.js?v=285"></script>
-<script src="g5-pedagogy-v113.js?v=285"></script>
-<script src="g5-fractions-v114.js?v=285"></script>
-<script src="g5-fraction-arithmetic-v115.js?v=285"></script>
-<script src="g5-decimals-v116.js?v=285"></script>
-<script src="g7-textbook.js?v=285"></script>
-<script src="g8-textbook.js?v=285"></script>
-<script src="g1-textbook.js?v=285"></script>
-<script src="g2-textbook.js?v=285"></script>
-<script src="g3-textbook.js?v=285"></script>
-<script src="g4-textbook.js?v=285"></script>
-<script src="g5-textbook-navigation-v121.js?v=285"></script>
-<script src="g5-live-pedagogy-v122.js?v=285"></script>
-<script src="g5-arithmetic-tiers-v123.js?v=285"></script>
-<script src="g5-textbook-tiers-v124.js?v=285"></script>
-<script src="g5-natural-units-v125.js?v=285"></script>
-<script src="g5-remaining-core-v126.js?v=285"></script>
-<script src="g5-decimal-tiers-v127.js?v=285"></script>
-<script src="g5-decimal-percent-v128.js?v=285"></script>
-<script src="g5-fraction-concepts-v129.js?v=285"></script>
-<script src="g5-fraction-applications-v130.js?v=285"></script>
+<script src="g5-conversion-ux.js?v=286"></script>
+<script src="g5-textbook-topics.js?v=286"></script>
+<script src="g5-textbook-core.js?v=286"></script>
+<script src="g5-textbook-v111.js?v=286"></script>
+<script src="g5-textbook-v112.js?v=286"></script>
+<script src="g5-pedagogy-v113.js?v=286"></script>
+<script src="g5-fractions-v114.js?v=286"></script>
+<script src="g5-fraction-arithmetic-v115.js?v=286"></script>
+<script src="g5-decimals-v116.js?v=286"></script>
+<script src="g7-textbook.js?v=286"></script>
+<script src="g8-textbook.js?v=286"></script>
+<script src="g1-textbook.js?v=286"></script>
+<script src="g2-textbook.js?v=286"></script>
+<script src="g3-textbook.js?v=286"></script>
+<script src="g4-textbook.js?v=286"></script>
+<script src="g5-textbook-navigation-v121.js?v=286"></script>
+<script src="g5-live-pedagogy-v122.js?v=286"></script>
+<script src="g5-arithmetic-tiers-v123.js?v=286"></script>
+<script src="g5-textbook-tiers-v124.js?v=286"></script>
+<script src="g5-natural-units-v125.js?v=286"></script>
+<script src="g5-remaining-core-v126.js?v=286"></script>
+<script src="g5-decimal-tiers-v127.js?v=286"></script>
+<script src="g5-decimal-percent-v128.js?v=286"></script>
+<script src="g5-fraction-concepts-v129.js?v=286"></script>
+<script src="g5-fraction-applications-v130.js?v=286"></script>
 <script>
 // The textbook scripts finish extending the catalog before Home shows its totals.
 g5HomeCatalogReady=true;
