@@ -123,8 +123,17 @@
         (...args)=>{if(isCurrent())return handler.apply(actions,args)}:handler
     ]));
   }
+  // V277: route-scoped analytics views (grades, knowledge map, topic detail).
+  // Navigation, rewards, course data and history remain in legacy controllers.
+  // Bound callbacks must not navigate after a view is replaced or remounted.
+  function analyticsViewActions({isCurrent,actions}){
+    return Object.fromEntries(Object.entries(actions||{}).map(([key,handler])=>[
+      key,typeof handler==="function"?
+        (...args)=>{if(isCurrent())return handler.apply(actions,args)}:handler
+    ]));
+  }
   return {headerActions,quickSetupActions,quickResultActions,trainingPlanActions,
     schoolTableActions,schoolQuizActions,schoolColumnActions,
     schoolAttemptFrameActions,attemptJournalActions,attemptReviewActions,
-    reportSurfaceActions,teacherViewActions};
+    reportSurfaceActions,teacherViewActions,analyticsViewActions};
 });
