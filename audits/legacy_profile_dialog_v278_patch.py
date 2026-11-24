@@ -29,7 +29,7 @@ once('onclick="selectProfile(${i})"', 'data-profile-action="select" data-profile
 once('onclick="closeModal()"','data-profile-action="close" aria-label="Закрыть окно"')
 once('onclick="openShop()"','data-profile-action="shop"')
 once('onclick="openCollection()"','data-profile-action="collection"')
-once('onkeydown="if(event.key===\\'Enter\\')createProfile()"','data-profile-enter')
+once('onkeydown="if(event.key===\'Enter\')createProfile()"','data-profile-enter')
 once('onclick="createProfile()"','data-profile-action="create"')
 once(
  '''  showVueReport("mountStudentProfiles",model,{close:()=>closeModal(),shop:()=>openShop(),collection:()=>openCollection(),
