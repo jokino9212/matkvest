@@ -65,7 +65,14 @@ async function scenario(browser,address,width,missing=false){
   await page.evaluate(()=>openShop('avatars'));
   const tabs=page.locator('#modal .shop-tabs');
   await tabs.locator('button[data-store-category="frames"]').first().press('Enter');
-  await page.locator('#modal .shop-tabs[data-store-active="frames"]').waitFor();
+  const frameDiagnostic=await page.evaluate(()=>({
+   route:mk854Route(),overlay:overlay.className,hasTabHandler:modal.__mk280StoreTabsBound,
+   shopTabCount:document.querySelectorAll('#modal .shop-tabs .shop-tab').length,
+   tabActive:document.querySelector('#modal .shop-tabs')?.dataset.storeActive,
+   requested:'frames',errors:[]
+  }));
+  console.log('V280_AFTER_FRAMES_CLICK',JSON.stringify({width,missing,...frameDiagnostic}));
+  await page.locator('#modal .shop-tabs[data-store-active="frames"]').waitFor({timeout:5000});
   const nativeSelect=page.locator('#modal select.mk-ux91-category-select');
   await nativeSelect.selectOption('pets');
   await page.locator('#modal .shop-tabs[data-store-active="pets"]').waitFor();
