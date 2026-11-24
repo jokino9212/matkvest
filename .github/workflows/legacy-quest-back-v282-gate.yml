@@ -1,8 +1,6 @@
 name: Test-only guarded quest back Vue and HTML fallback PWA v282 gate
 on:
-  push:
-    branches: [refactor/route-vue-actions-from-7c14ce9]
-    paths: ['.github/workflows/legacy-quest-back-v282-gate.yml', 'audits/legacy_quest_back_v282_patch.py']
+  workflow_dispatch:
 permissions:
   contents: write
 concurrency:
