@@ -1,8 +1,6 @@
 name: Test-only current help modal Vue HTML fallback PWA v284 gate
 on:
-  push:
-    branches: [refactor/route-vue-actions-from-7c14ce9]
-    paths: ['.github/workflows/legacy-help-v284-gate.yml']
+  workflow_dispatch:
 permissions:
   contents: write
 concurrency:
