@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <!-- Optional route core: inline mk854 wrappers remain the fallback. -->
-<script src="./assets/ui/legacy-navigation-core.js?v=279"></script>
-<script src="./assets/ui/legacy-vue-actions.js?v=279"></script>
+<script src="./assets/ui/legacy-navigation-core.js?v=280"></script>
+<script src="./assets/ui/legacy-vue-actions.js?v=280"></script>
 <script>function g8Declension19(number,one,few,many){
  const n=Math.abs(Math.trunc(Number(number))),lastTwo=n%100,last=n%10;
  if(lastTwo>=11&&lastTwo<=14)return many;
@@ -10675,15 +10675,42 @@ function openStoreTab(category){
  if(category==="chests")return openChestStore861();
  return openShop(category);
 }
+let mk280StoreTabActions=null;
+function mk280EnsureStoreTabHandlers(){
+ const isCurrent=()=>overlay.classList.contains("show")&&!!modal.querySelector(".shop-tabs");
+ mk280StoreTabActions=window.MatKvestVueActions?.storeTabActions?.({
+  isCurrent,categories:storeTabs.map(tab=>tab.id),
+  actions:{select:openStoreTab}
+ })||{
+  select:category=>{
+   if(isCurrent()&&storeTabs.some(tab=>tab.id===category))return openStoreTab(category)
+  }
+ };
+ // A single delegated handler serves every fresh shop/collection rendering,
+ // keeping Enter/Space and select native and detached nodes inert.
+ if(modal.__mk280StoreTabsBound)return;
+ modal.__mk280StoreTabsBound=true;
+ modal.addEventListener("click",event=>{
+  const button=event.target.closest("button.shop-tab[data-store-category]");
+  if(!button||!modal.contains(button))return;
+  mk280StoreTabActions?.select(button.dataset.storeCategory);
+ });
+ modal.addEventListener("change",event=>{
+  const select=event.target.closest("select.mk-ux91-category-select");
+  if(!select||!modal.contains(select))return;
+  mk280StoreTabActions?.select(select.value);
+ });
+}
 function shopTabs(active){
+ mk280EnsureStoreTabHandlers();
  const category=active==="accessories"?"avatars":active;
  const tabs=storeTabs.map(tab=>'<button type="button" class="shop-tab '+(tab.id===category?'active ':'')+
   (tab.id==="wallet"?'mk19e-wallet-tab':'')+'" data-store-category="'+tab.id+'" '+
-  (tab.id===category?'aria-current="page" ':'')+'onclick="openStoreTab(\''+tab.id+'\')">'+esc(tab.label)+'</button>').join('');
+  (tab.id===category?'aria-current="page" ':'')+'>'+esc(tab.label)+'</button>').join('');
  const ribbon='<div class="shop-tabs" data-store-active="'+esc(category)+'">'+tabs+'</div>';
  if(["achievements","collection","chests","wallet"].includes(category))return ribbon;
  const options=storeTabs.map(tab=>'<option value="'+tab.id+'" '+(tab.id===category?'selected':'')+'>'+esc(tab.label)+'</option>').join('');
- return ribbon+'<label class="mk-ux91-category-label" data-store-active="'+esc(category)+'">Раздел магазина<select class="mk-ux91-category-select" aria-label="Раздел магазина" onchange="openStoreTab(this.value)">'+options+'</select></label>';
+ return ribbon+'<label class="mk-ux91-category-label" data-store-active="'+esc(category)+'">Раздел магазина<select class="mk-ux91-category-select" aria-label="Раздел магазина" >'+options+'</select></label>';
 }
 let shopRarityFilter="all";
 function shopRarityButtons(category){
@@ -13547,7 +13574,7 @@ function renderTeacherDashboardBody(){
  if(!teacherUnlocked)return openTeacherEntry();
  renderTeacherView({id:"teacherDashboardVue",mount:"mountTeacherDashboard",model:teacherDashboardModel(),fallback:teacherDashboardHtml,
   actions:{close:()=>closeTeacherMode(),search:teacherSetSearch,sort:teacherSetSort,filter:teacherSetFilter,
-   open:profileId=>openTeacherStudentDetailById(profileId),profiles:()=>openProfiles(),backup:()=>openDataManager()}});
+   open:profileId=>openTeacherStudentDetailById(profileId),profiles:()=>MK854_CORE_OPEN_PROFILES(),backup:()=>openDataManager()}});
 }
 const teacherDetailPeriods=[{id:"today",label:"Сегодня"},{id:"7",label:"7 дней"},{id:"30",label:"30 дней"},{id:"all",label:"Всё время"}];
 function teacherSetDetailPeriod(v){teacherDetailPeriod=v;if(teacherViewingProfileId)openTeacherStudentDetailById(teacherViewingProfileId)}
@@ -14424,7 +14451,7 @@ function knowledgeFilteredSections(data){
  const mapSec=sec=>{let topics=sec.topics.filter(t=>knowledgeStatusPass(t,knowledgeMapState.status)&&(!q||`${t.title} ${t.group}`.toLocaleLowerCase("ru-RU").includes(q)));if(knowledgeMapState.sort==="attention")topics=topics.slice().sort((a,b)=>knowledgeTopicPriority(a)-knowledgeTopicPriority(b));return {...sec,topics}};
  return [...data.sections,...data.extraSections].map(mapSec).filter(s=>s.topics.length);
 }
-const knowledgeMapUrl = "./assets/ui/knowledge-map.js?v=279";
+const knowledgeMapUrl = "./assets/ui/knowledge-map.js?v=280";
 const knowledgeTopicDetailHostId="knowledgeTopicDetailVue";
 let knowledgeMapModule;
 let knowledgeMapRevision=0;
@@ -41941,10 +41968,21 @@ if(mkV877CorruptProfiles){
    if(host.hasAttribute("data-v-app"))continue;
    const picker=host.classList.contains("mk-ux91-category-label");
    const model={tabs:storeTabs,active:host.dataset.storeActive,picker};
+   const isCurrentTabHost=()=>host.parentNode===modal&&host.isConnected&&
+    overlay.classList.contains("show");
+   const liveStoreActions=window.MatKvestVueActions?.storeTabActions?.({
+    isCurrent:isCurrentTabHost,categories:storeTabs.map(tab=>tab.id),
+    actions:{select:openStoreTab}
+   })||{
+    select:id=>{
+     if(isCurrentTabHost()&&storeTabs.some(tab=>tab.id===id))return openStoreTab(id)
+    }
+   };
    loadVueModule().then(module=>{
     if(host.parentNode!==modal||host.hasAttribute("data-v-app")||!overlay.classList.contains("show"))return;
     module.mountStoreTabs(host,model,{open:(id,fromPicker)=>{
-     openStoreTab(id);
+     if(!isCurrentTabHost())return;
+     liveStoreActions.select(id);
      requestAnimationFrame(()=>{
       if(!overlay.classList.contains("show")||modal.querySelector(".shop-tabs")?.dataset.storeActive!==id)return;
       const active=document.activeElement;
@@ -42413,31 +42451,31 @@ document.addEventListener("keydown",event=>{
 })();
 </script>
 
-<script src="g5-conversion-ux.js?v=279"></script>
-<script src="g5-textbook-topics.js?v=279"></script>
-<script src="g5-textbook-core.js?v=279"></script>
-<script src="g5-textbook-v111.js?v=279"></script>
-<script src="g5-textbook-v112.js?v=279"></script>
-<script src="g5-pedagogy-v113.js?v=279"></script>
-<script src="g5-fractions-v114.js?v=279"></script>
-<script src="g5-fraction-arithmetic-v115.js?v=279"></script>
-<script src="g5-decimals-v116.js?v=279"></script>
-<script src="g7-textbook.js?v=279"></script>
-<script src="g8-textbook.js?v=279"></script>
-<script src="g1-textbook.js?v=279"></script>
-<script src="g2-textbook.js?v=279"></script>
-<script src="g3-textbook.js?v=279"></script>
-<script src="g4-textbook.js?v=279"></script>
-<script src="g5-textbook-navigation-v121.js?v=279"></script>
-<script src="g5-live-pedagogy-v122.js?v=279"></script>
-<script src="g5-arithmetic-tiers-v123.js?v=279"></script>
-<script src="g5-textbook-tiers-v124.js?v=279"></script>
-<script src="g5-natural-units-v125.js?v=279"></script>
-<script src="g5-remaining-core-v126.js?v=279"></script>
-<script src="g5-decimal-tiers-v127.js?v=279"></script>
-<script src="g5-decimal-percent-v128.js?v=279"></script>
-<script src="g5-fraction-concepts-v129.js?v=279"></script>
-<script src="g5-fraction-applications-v130.js?v=279"></script>
+<script src="g5-conversion-ux.js?v=280"></script>
+<script src="g5-textbook-topics.js?v=280"></script>
+<script src="g5-textbook-core.js?v=280"></script>
+<script src="g5-textbook-v111.js?v=280"></script>
+<script src="g5-textbook-v112.js?v=280"></script>
+<script src="g5-pedagogy-v113.js?v=280"></script>
+<script src="g5-fractions-v114.js?v=280"></script>
+<script src="g5-fraction-arithmetic-v115.js?v=280"></script>
+<script src="g5-decimals-v116.js?v=280"></script>
+<script src="g7-textbook.js?v=280"></script>
+<script src="g8-textbook.js?v=280"></script>
+<script src="g1-textbook.js?v=280"></script>
+<script src="g2-textbook.js?v=280"></script>
+<script src="g3-textbook.js?v=280"></script>
+<script src="g4-textbook.js?v=280"></script>
+<script src="g5-textbook-navigation-v121.js?v=280"></script>
+<script src="g5-live-pedagogy-v122.js?v=280"></script>
+<script src="g5-arithmetic-tiers-v123.js?v=280"></script>
+<script src="g5-textbook-tiers-v124.js?v=280"></script>
+<script src="g5-natural-units-v125.js?v=280"></script>
+<script src="g5-remaining-core-v126.js?v=280"></script>
+<script src="g5-decimal-tiers-v127.js?v=280"></script>
+<script src="g5-decimal-percent-v128.js?v=280"></script>
+<script src="g5-fraction-concepts-v129.js?v=280"></script>
+<script src="g5-fraction-applications-v130.js?v=280"></script>
 <script>
 // The textbook scripts finish extending the catalog before Home shows its totals.
 g5HomeCatalogReady=true;
