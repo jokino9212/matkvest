@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <!-- Optional route core: inline mk854 wrappers remain the fallback. -->
-<script src="./assets/ui/legacy-navigation-core.js?v=286"></script>
-<script src="./assets/ui/legacy-vue-actions.js?v=286"></script>
+<script src="./assets/ui/legacy-navigation-core.js?v=287"></script>
+<script src="./assets/ui/legacy-vue-actions.js?v=287"></script>
 <script>function g8Declension19(number,one,few,many){
  const n=Math.abs(Math.trunc(Number(number))),lastTwo=n%100,last=n%10;
  if(lastTwo>=11&&lastTwo<=14)return many;
@@ -14527,7 +14527,7 @@ function knowledgeFilteredSections(data){
  const mapSec=sec=>{let topics=sec.topics.filter(t=>knowledgeStatusPass(t,knowledgeMapState.status)&&(!q||`${t.title} ${t.group}`.toLocaleLowerCase("ru-RU").includes(q)));if(knowledgeMapState.sort==="attention")topics=topics.slice().sort((a,b)=>knowledgeTopicPriority(a)-knowledgeTopicPriority(b));return {...sec,topics}};
  return [...data.sections,...data.extraSections].map(mapSec).filter(s=>s.topics.length);
 }
-const knowledgeMapUrl = "./assets/ui/knowledge-map.js?v=286";
+const knowledgeMapUrl = "./assets/ui/knowledge-map.js?v=287";
 const knowledgeTopicDetailHostId="knowledgeTopicDetailVue";
 let knowledgeMapModule;
 let knowledgeMapRevision=0;
@@ -27087,11 +27087,11 @@ function mk865SaleDialogHtml(model){
   '<div class="mk865-refund-card '+(option.good?'good':'')+'"><small>'+esc(option.label)+'</small><b>+'+
   option.coins+' 🪙</b><small>'+esc(option.detail)+'</small></div>').join('')+'</div>':'';
  const topics=model.topics?.length?'<div class="mk865-topic-grid">'+model.topics.map((topic,index)=>
-  '<button type="button" class="mk865-topic" onclick="mk865RunSaleTopic('+index+')"><b>'+topic.grade+' класс • '+
+  '<button type="button" class="mk865-topic" data-mk865-sale-topic="'+index+'"><b>'+topic.grade+' класс • '+
   esc(topic.title)+'</b><small>'+esc(topic.detail)+'</small><span class="mk865-reason">'+esc(topic.reason)+'</span></button>').join('')+'</div>':'';
  const buttons=model.buttons.map((row,index)=>'<div class="mk865-inline-actions">'+row.map((button,column)=>
   '<button type="button" class="btn '+(button.primary?'primary':'soft')+'" '+(button.disabled?'disabled ' :'')+
-  'onclick="mk865RunSaleButton('+index+','+column+')">'+esc(button.label)+'</button>').join('')+'</div>').join('');
+  'data-mk865-sale-row="'+index+'" data-mk865-sale-column="'+column+'">'+esc(button.label)+'</button>').join('')+'</div>').join('');
  return title+mission+refunds+(model.notice?'<div class="lesson">'+esc(model.notice)+'</div>':'')+topics+buttons;
 }
 function mk865ShowSaleOverlay(model){
@@ -27104,10 +27104,23 @@ function mk865ShowSaleOverlay(model){
  const closeActions=window.MatKvestVueActions?.saleDialogCloseActions?.({
   isCurrent,close:mk865CloseSaleOverlay
  })||{close:()=>{if(isCurrent())return mk865CloseSaleOverlay()}};
+ // v287: a detached button/topic from an earlier sale dialog must never
+ // dispatch the currently visible dialog's action (including a sale/refund).
+ const dispatchActions=window.MatKvestVueActions?.saleDialogDispatchActions?.({
+  isCurrent,run:mk865RunSaleButton,choose:mk865RunSaleTopic
+ })||{
+  run:(row,column)=>{if(isCurrent())return mk865RunSaleButton(row,column)},
+  choose:index=>{if(isCurrent())return mk865RunSaleTopic(index)}
+ };
  host.addEventListener("click",event=>{
   if(!isCurrent()||host.hasAttribute("data-v-app"))return;
-  const button=event.target.closest("button[data-mk865-sale-close]");
-  if(button&&host.contains(button))closeActions.close();
+  const button=event.target.closest("button");
+  if(!button||!host.contains(button)||button.disabled)return;
+  if(button.matches("[data-mk865-sale-close]"))return closeActions.close();
+  if(button.hasAttribute("data-mk865-sale-row")&&button.hasAttribute("data-mk865-sale-column"))
+   return dispatchActions.run(Number(button.dataset.mk865SaleRow),Number(button.dataset.mk865SaleColumn));
+  if(button.hasAttribute("data-mk865-sale-topic"))
+   return dispatchActions.choose(Number(button.dataset.mk865SaleTopic));
  });
  mk865CurrentSaleDialog=model;
  host.innerHTML=mk865SaleDialogHtml(model);box.replaceChildren(host);el.classList.add("show");
@@ -27115,7 +27128,7 @@ function mk865ShowSaleOverlay(model){
  loadVueModule().then(module=>{
   if(host.parentNode!==box||mk865CurrentSaleDialog!==model||!el.classList.contains("show"))return;
   const focused=host.querySelectorAll("button"),index=[...focused].indexOf(document.activeElement);
-  module.mountStoreSaleDialog(host,model,{close:closeActions.close,run:mk865RunSaleButton,choose:mk865RunSaleTopic});
+  module.mountStoreSaleDialog(host,model,{close:closeActions.close,run:dispatchActions.run,choose:dispatchActions.choose});
   if(index>=0)host.querySelectorAll("button")[index]?.focus({preventScroll:true});
  }).catch(()=>{ /* Keep the existing sale controls usable when Vue cannot load. */ });
 }
@@ -42566,31 +42579,31 @@ document.addEventListener("keydown",event=>{
 })();
 </script>
 
-<script src="g5-conversion-ux.js?v=286"></script>
-<script src="g5-textbook-topics.js?v=286"></script>
-<script src="g5-textbook-core.js?v=286"></script>
-<script src="g5-textbook-v111.js?v=286"></script>
-<script src="g5-textbook-v112.js?v=286"></script>
-<script src="g5-pedagogy-v113.js?v=286"></script>
-<script src="g5-fractions-v114.js?v=286"></script>
-<script src="g5-fraction-arithmetic-v115.js?v=286"></script>
-<script src="g5-decimals-v116.js?v=286"></script>
-<script src="g7-textbook.js?v=286"></script>
-<script src="g8-textbook.js?v=286"></script>
-<script src="g1-textbook.js?v=286"></script>
-<script src="g2-textbook.js?v=286"></script>
-<script src="g3-textbook.js?v=286"></script>
-<script src="g4-textbook.js?v=286"></script>
-<script src="g5-textbook-navigation-v121.js?v=286"></script>
-<script src="g5-live-pedagogy-v122.js?v=286"></script>
-<script src="g5-arithmetic-tiers-v123.js?v=286"></script>
-<script src="g5-textbook-tiers-v124.js?v=286"></script>
-<script src="g5-natural-units-v125.js?v=286"></script>
-<script src="g5-remaining-core-v126.js?v=286"></script>
-<script src="g5-decimal-tiers-v127.js?v=286"></script>
-<script src="g5-decimal-percent-v128.js?v=286"></script>
-<script src="g5-fraction-concepts-v129.js?v=286"></script>
-<script src="g5-fraction-applications-v130.js?v=286"></script>
+<script src="g5-conversion-ux.js?v=287"></script>
+<script src="g5-textbook-topics.js?v=287"></script>
+<script src="g5-textbook-core.js?v=287"></script>
+<script src="g5-textbook-v111.js?v=287"></script>
+<script src="g5-textbook-v112.js?v=287"></script>
+<script src="g5-pedagogy-v113.js?v=287"></script>
+<script src="g5-fractions-v114.js?v=287"></script>
+<script src="g5-fraction-arithmetic-v115.js?v=287"></script>
+<script src="g5-decimals-v116.js?v=287"></script>
+<script src="g7-textbook.js?v=287"></script>
+<script src="g8-textbook.js?v=287"></script>
+<script src="g1-textbook.js?v=287"></script>
+<script src="g2-textbook.js?v=287"></script>
+<script src="g3-textbook.js?v=287"></script>
+<script src="g4-textbook.js?v=287"></script>
+<script src="g5-textbook-navigation-v121.js?v=287"></script>
+<script src="g5-live-pedagogy-v122.js?v=287"></script>
+<script src="g5-arithmetic-tiers-v123.js?v=287"></script>
+<script src="g5-textbook-tiers-v124.js?v=287"></script>
+<script src="g5-natural-units-v125.js?v=287"></script>
+<script src="g5-remaining-core-v126.js?v=287"></script>
+<script src="g5-decimal-tiers-v127.js?v=287"></script>
+<script src="g5-decimal-percent-v128.js?v=287"></script>
+<script src="g5-fraction-concepts-v129.js?v=287"></script>
+<script src="g5-fraction-applications-v130.js?v=287"></script>
 <script>
 // The textbook scripts finish extending the catalog before Home shows its totals.
 g5HomeCatalogReady=true;

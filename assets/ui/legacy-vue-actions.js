@@ -219,9 +219,17 @@
   function saleDialogCloseActions({isCurrent,close}){
     return {close:()=>{if(isCurrent())return close()}};
   }
+  // V287: checks only current visible sale host/model before forwarding existing
+  // row/topic callbacks. Does not implement or modify economy transactions.
+  function saleDialogDispatchActions({isCurrent,run,choose}){
+    return {
+      run:(row,column)=>{if(isCurrent())return run(row,column)},
+      choose:index=>{if(isCurrent())return choose(index)}
+    };
+  }
   return {headerActions,quickSetupActions,quickResultActions,trainingPlanActions,
     schoolTableActions,schoolQuizActions,schoolColumnActions,
     schoolAttemptFrameActions,attemptJournalActions,attemptReviewActions,
     reportSurfaceActions,teacherViewActions,analyticsViewActions,profileDialogActions,
-    teacherDashboardActions,storeTabActions,achievementFilterActions,questBackActions,leaderboardDialogActions,helpDialogActions,artworkViewerActions,saleDialogCloseActions};
+    teacherDashboardActions,storeTabActions,achievementFilterActions,questBackActions,leaderboardDialogActions,helpDialogActions,artworkViewerActions,saleDialogCloseActions,saleDialogDispatchActions};
 });
