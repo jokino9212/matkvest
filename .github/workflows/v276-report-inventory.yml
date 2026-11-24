@@ -44,3 +44,30 @@ jobs:
               'mountAttemptJournal','mountAttemptReview','mountStageResult','mountErrorWorkResult'):
              print('V276_BUNDLE_SYMBOL',key,z.count(key))
           PY
+
+      - name: Inspect teacher report rendering and report-only actions
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          s=Path('index.html').read_text(encoding='utf8')
+          for token,limit in [
+           ('function renderStudentReport(',4900),
+           ('function openTeacherStudentDetailById(',3800),
+           ('function teacherAction',3100),
+           ('function teacherSetDetailPeriod(',300),
+           ('function showTeacherActionDialog(',3300),
+           ('function renderTeacherView(',1750),
+           ('function renderMissingStudentReport(',3800),
+           ('function renderStudentReportBody(',3800),
+           ('function setStudentReportPeriod(',280),
+           ('function setStudentReportCustom(',280),
+           ('function applyStudentReportCustom(',450),
+          ]:
+           hits=[m.start() for m in re.finditer(re.escape(token),s)]
+           print('V276_FOCUS',repr(token),'HITS',len(hits))
+           for at in hits[:1]:
+            print('V276_FOCUS_BEGIN',at)
+            print(s[at:at+limit])
+            print('V276_FOCUS_END')
+          PY
