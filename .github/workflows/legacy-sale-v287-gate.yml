@@ -1,9 +1,8 @@
 name: Test-only guarded sale row/topic Vue and HTML fallback PWA v287 gate
 # Re-run full gate after fixing obsolete publisher-only v286 Vue marker.
+# Completed one-shot migration; retained for audit, no automatic reapplication.
 on:
-  push:
-    branches: [refactor/route-vue-actions-from-7c14ce9]
-    paths: ['.github/workflows/legacy-sale-v287-gate.yml']
+  workflow_dispatch:
 permissions:
   contents: write
 concurrency:
