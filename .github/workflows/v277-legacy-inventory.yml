@@ -19,9 +19,9 @@ jobs:
           s=Path('index.html').read_text(encoding='utf8')
           print('V277_BASE_SHA',hashlib.sha256(s.encode()).hexdigest(),'BYTES',len(s.encode()))
           print('V277_LEGACY_HANDLER_COUNTS',
-            {kind:len(re.findall(r'\\b'+kind+r'\\s*=',s)) for kind in ['onclick','onkeydown','oninput','onchange','onsubmit','onkeyup','onpointerdown','onpointerup','onmousedown','ontouchstart']})
-          print('V277_VUE_MOUNTS',sorted(collections.Counter(re.findall(r'module\\.(mount[A-Za-z0-9_]+)\\s*\\(',s)).items()))
-          for token,size in [
+            {kind:s.count(' '+kind+'=')+s.count(' '+kind+' =') for kind in ['onclick','onkeydown','oninput','onchange','onsubmit','onkeyup','onpointerdown','onpointerup','onmousedown','ontouchstart']})
+          print('V277_VUE_MOUNTS',sorted(collections.Counter(re.findall(r'module[.](mount[A-Za-z0-9_]+)[(]',s)).items()))
+                    for token,size in [
            ('function renderAnalyticsView(',4200),
            ('function renderCourseView(',2400),
            ('function renderKnowledgeMap(',4300),
