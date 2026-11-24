@@ -1,0 +1,17 @@
+name: Test-only v288 consolidated read-only legacy UI inventory
+on:
+  push:
+    branches: [refactor/route-vue-actions-from-7c14ce9]
+    paths: ['.github/workflows/legacy-v288-inventory.yml']
+permissions:
+  contents: read
+jobs:
+  inventory:
+    if: github.repository == 'jokino9212/matkvest' && github.ref == 'refs/heads/refactor/route-vue-actions-from-7c14ce9'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - run: python3 audits/v288_inventory.py
