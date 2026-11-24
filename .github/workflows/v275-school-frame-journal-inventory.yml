@@ -44,3 +44,27 @@ jobs:
            for t in ['mountSchoolAttemptFrame','mountAttemptJournal','AttemptJournal','SchoolAttemptFrame']:
             print('V275_MODULE_TOKEN',f,t,z.count(t))
           PY
+
+      - name: Inspect journal and report bridge for safe action adapter boundaries
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          s=Path('index.html').read_text(encoding='utf8')
+          for token,size in [
+            ('function showVueReport(',9000),
+            ('function openAttemptJournal(',4000),
+            ('function openAttemptReviewRecord(',4700),
+            ('function requestClose',1500),
+            ('function mk872Request',1000),
+            ('function showSchoolAttempt(',2200),
+            ('function mountSchoolAttemptFrameView(',1850),
+            ('function mk872HandleEscape(',1700),
+          ]:
+            hits=[x.start() for x in re.finditer(re.escape(token),s)]
+            print('=== V275_BRIDGE',repr(token),'COUNT',len(hits),'===')
+            for pos in hits[:2]:
+              print('V275_BRIDGE_SNIP_BEGIN',pos)
+              print(s[pos:pos+size])
+              print('V275_BRIDGE_SNIP_END')
+          PY
