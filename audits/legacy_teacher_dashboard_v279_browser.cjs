@@ -96,10 +96,18 @@ async function check(browser,base,width,missing=false){
    dashboardButtons:[...document.querySelectorAll("#teacherDashboardVue button")].map(x=>x.textContent.trim()).filter(Boolean).slice(0,15)
   }));
   console.log("V279_AFTER_PROFILES_ESCAPE",JSON.stringify({width,missing,...afterProfilesEscape}));
+  assert(afterProfilesEscape.teacherUnlocked,'Closing profiles must not revoke teacher session');
+  // Existing global Escape restores the home route (teacher pane has no
+  // dedicated router entry). Explicitly return to the teacher dashboard.
+  if(afterProfilesEscape.mainId!=="teacherDashboardVue")
+   await page.evaluate(()=>openTeacherDashboard());
+  await dashboard.waitFor();
   await dashboard.getByRole('button',{name:/Резервная копия/}).click();
   await page.locator('#modal .backup-box').first().waitFor();
   await page.keyboard.press('Escape');
   await page.locator('#overlay.show').waitFor({state:'hidden'});
+  await page.evaluate(()=>{if(!document.querySelector('#teacherDashboardVue'))openTeacherDashboard()});
+  await dashboard.waitFor();
   await dashboard.getByRole('button',{name:'← Главный экран',exact:true}).press('Enter');
   await page.waitForFunction(()=>teacherUnlocked===false);
   assert.deepEqual(await page.evaluate(()=>({name:currentProfile,id:state.profileId,
