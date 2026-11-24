@@ -1,0 +1,15 @@
+'use strict';
+const assert=require('node:assert/strict');
+const {saleDialogCloseActions}=require('../assets/ui/legacy-vue-actions.js');
+let active=true,generation=1,calls=0;
+const first=saleDialogCloseActions({isCurrent:()=>active&&generation===1,close:()=>++calls});
+assert.equal(first.close(),1);
+generation=2;
+assert.equal(first.close(),undefined);
+assert.equal(calls,1);
+const second=saleDialogCloseActions({isCurrent:()=>active&&generation===2,close:()=>++calls});
+assert.equal(second.close(),2);
+active=false;
+assert.equal(second.close(),undefined);
+assert.equal(calls,2);
+console.log('PASS_V286_SALE_CLOSE_ACTION_CONTRACTS current/stale/replaced/closed');
