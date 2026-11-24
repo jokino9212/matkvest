@@ -1,14 +1,5 @@
 name: Test-only teacher Escape and guarded shop tabs PWA v280 gate
 on:
-  push:
-    branches: [refactor/route-vue-actions-from-7c14ce9]
-    paths:
-      - '.github/workflows/legacy-teacher-escape-store-v280-gate.yml'
-      - 'assets/ui/legacy-vue-actions.js'
-      - 'audits/legacy_teacher_escape_store_v280_patch.py'
-      - 'audits/legacy_teacher_escape_store_v280_publish.py'
-      - 'audits/legacy_teacher_escape_store_v280.test.cjs'
-      - 'audits/legacy_teacher_escape_store_v280_browser.cjs'
   workflow_dispatch:
 permissions:
   contents: write
