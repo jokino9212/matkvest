@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <!-- Optional route core: inline mk854 wrappers remain the fallback. -->
-<script src="./assets/ui/legacy-navigation-core.js?v=280"></script>
-<script src="./assets/ui/legacy-vue-actions.js?v=280"></script>
+<script src="./assets/ui/legacy-navigation-core.js?v=281"></script>
+<script src="./assets/ui/legacy-vue-actions.js?v=281"></script>
 <script>function g8Declension19(number,one,few,many){
  const n=Math.abs(Math.trunc(Number(number))),lastTwo=n%100,last=n%10;
  if(lastTwo>=11&&lastTwo<=14)return many;
@@ -10434,14 +10434,14 @@ function achievementCatalogHtml(model){
   <b>${esc(item.title)}</b><small style="display:block;color:var(--muted);margin-top:3px">${esc(item.label)}</small>
   <div class="achievement-progress"><span style="width:${item.percent}%"></span></div></div>`).join("");
  const views=model.views.map(({id,label})=>`<button type="button" class="achievement-filter ${id===model.view?"active":""}"
-   aria-pressed="${id===model.view}" onclick="achievementSetView('${id}')">${esc(label)}</button>`).join("");
+   aria-pressed="${id===model.view}" data-achievement-action="view" data-achievement-value="${esc(id)}">${esc(label)}</button>`).join("");
  const groups=model.groups.map(group=>`${group.heading?`<h3 class="achievement-category">${esc(group.heading)}</h3>`:""}
   <div class="achievement-grid">${group.cards.map(achievementCardHtml).join("")}</div>`).join("");
  return `<div class="achievement-summary">${summary}</div>
   ${nearest?`<div class="achievement-nearest"><b>🎯 Ближайшие достижения</b><div class="achievement-nearest-grid">${nearest}</div></div>`:""}
   <div class="achievement-toolbar">${views}
-   <select class="achievement-select" aria-label="Категория достижений" onchange="achievementSetCategory(this.value)">${options(model.categories,model.category)}</select>
-   <select class="achievement-select" aria-label="Сортировка достижений" onchange="achievementSetSort(this.value)">${options(model.sorts,model.sort)}</select></div>
+   <select class="achievement-select" aria-label="Категория достижений" data-achievement-action="category">${options(model.categories,model.category)}</select>
+   <select class="achievement-select" aria-label="Сортировка достижений" data-achievement-action="sort">${options(model.sorts,model.sort)}</select></div>
   <div class="lesson">${esc(model.note)}</div>
   ${groups||'<div class="teacher-empty" role="status">По выбранному фильтру достижений нет.</div>'}`;
 }
@@ -10452,16 +10452,74 @@ function openAchievements(){
  show(`<div class="mtop"><h2>🏆 Достижения</h2><button class="x" onclick="closeModal()">×</button></div>
   ${shopPreview()}${shopTabs("achievements")}<div class="achievement-screen">${achievementCatalogHtml(model)}</div>`);
  const host=modal.querySelector(".achievement-screen");
- loadVueModule().then(module=>{
-  if(host.parentNode!==modal||!overlay.classList.contains("show"))return;
-  const refresh=()=>module.mountAchievementCatalog(host,achievementCatalogModel(),actions);
-  const actions={
-   view:value=>{achievementViewFilter=value;refresh()},
-   category:value=>{achievementCategoryFilter=value;refresh()},
-   sort:value=>{achievementSortMode=value;refresh()}
+ const isCurrent=()=>host?.parentNode===modal&&host.isConnected&&
+  overlay.classList.contains("show")&&!mk872Dialog;
+ // Each rerender revokes callbacks from the preceding Vue tree.
+ let revision=0,vueModule=null,filterActions=null;
+ const changeView=value=>{achievementViewFilter=value;refresh()};
+ const changeCategory=value=>{achievementCategoryFilter=value;refresh()};
+ const changeSort=value=>{achievementSortMode=value;refresh()};
+ const callbacks={view:changeView,category:changeCategory,sort:changeSort};
+ const bindActions=fresh=>{
+  const mine=++revision;
+  const live=()=>isCurrent()&&mine===revision;
+  const allowed={
+   view:fresh.views.map(item=>item.id),
+   category:fresh.categories.map(item=>item.id),
+   sort:fresh.sorts.map(item=>item.id)
   };
-  module.mountAchievementCatalog(host,model,actions);
- }).catch(()=>{if(host.parentNode===modal)host.innerHTML=achievementCatalogHtml(model)});
+  filterActions=window.MatKvestVueActions?.achievementFilterActions?.({
+   isCurrent:live,views:allowed.view,categories:allowed.category,
+   sorts:allowed.sort,actions:callbacks
+  })||Object.fromEntries(Object.entries(allowed).map(([key,ids])=>[
+   key,value=>{
+    if(live()&&typeof value==="string"&&ids.includes(value))
+     return callbacks[key](value);
+   }
+  ]));
+ };
+ const refresh=()=>{
+  if(!isCurrent())return;
+  const next=achievementCatalogModel();
+  const focused=host.contains(document.activeElement)?document.activeElement:null;
+  const kind=focused?.dataset.achievementAction;
+  const value=focused?.dataset.achievementValue;
+  bindActions(next);
+  if(vueModule){
+   vueModule.mountAchievementCatalog(host,next,filterActions);
+   return;
+  }
+  host.innerHTML=achievementCatalogHtml(next);
+  const target=kind==="view"
+   ?[...host.querySelectorAll('button[data-achievement-action="view"]')]
+      .find(button=>button.dataset.achievementValue===value)
+   :kind==="category"||kind==="sort"
+     ?host.querySelector('select[data-achievement-action="'+kind+'"]'):null;
+  target?.focus({preventScroll:true});
+ };
+ bindActions(model);
+ host.addEventListener("click",event=>{
+  if(host.hasAttribute("data-v-app"))return;
+  const button=event.target.closest('button[data-achievement-action="view"]');
+  if(!button||!host.contains(button))return;
+  filterActions?.view(button.dataset.achievementValue);
+ });
+ host.addEventListener("change",event=>{
+  if(host.hasAttribute("data-v-app"))return;
+  const control=event.target;
+  if(!host.contains(control))return;
+  const kind=control?.dataset.achievementAction;
+  if(kind==="category"||kind==="sort")filterActions?.[kind](control.value);
+ });
+ loadVueModule().then(module=>{
+  if(!isCurrent())return;
+  vueModule=module;
+  refresh();
+ }).catch(()=>{
+  if(!isCurrent())return;
+  vueModule=null;
+  refresh();
+ });
 }
 
 function grantAchievementCatalogRewards(profile,achievementId=null){
@@ -14451,7 +14509,7 @@ function knowledgeFilteredSections(data){
  const mapSec=sec=>{let topics=sec.topics.filter(t=>knowledgeStatusPass(t,knowledgeMapState.status)&&(!q||`${t.title} ${t.group}`.toLocaleLowerCase("ru-RU").includes(q)));if(knowledgeMapState.sort==="attention")topics=topics.slice().sort((a,b)=>knowledgeTopicPriority(a)-knowledgeTopicPriority(b));return {...sec,topics}};
  return [...data.sections,...data.extraSections].map(mapSec).filter(s=>s.topics.length);
 }
-const knowledgeMapUrl = "./assets/ui/knowledge-map.js?v=280";
+const knowledgeMapUrl = "./assets/ui/knowledge-map.js?v=281";
 const knowledgeTopicDetailHostId="knowledgeTopicDetailVue";
 let knowledgeMapModule;
 let knowledgeMapRevision=0;
@@ -42451,31 +42509,31 @@ document.addEventListener("keydown",event=>{
 })();
 </script>
 
-<script src="g5-conversion-ux.js?v=280"></script>
-<script src="g5-textbook-topics.js?v=280"></script>
-<script src="g5-textbook-core.js?v=280"></script>
-<script src="g5-textbook-v111.js?v=280"></script>
-<script src="g5-textbook-v112.js?v=280"></script>
-<script src="g5-pedagogy-v113.js?v=280"></script>
-<script src="g5-fractions-v114.js?v=280"></script>
-<script src="g5-fraction-arithmetic-v115.js?v=280"></script>
-<script src="g5-decimals-v116.js?v=280"></script>
-<script src="g7-textbook.js?v=280"></script>
-<script src="g8-textbook.js?v=280"></script>
-<script src="g1-textbook.js?v=280"></script>
-<script src="g2-textbook.js?v=280"></script>
-<script src="g3-textbook.js?v=280"></script>
-<script src="g4-textbook.js?v=280"></script>
-<script src="g5-textbook-navigation-v121.js?v=280"></script>
-<script src="g5-live-pedagogy-v122.js?v=280"></script>
-<script src="g5-arithmetic-tiers-v123.js?v=280"></script>
-<script src="g5-textbook-tiers-v124.js?v=280"></script>
-<script src="g5-natural-units-v125.js?v=280"></script>
-<script src="g5-remaining-core-v126.js?v=280"></script>
-<script src="g5-decimal-tiers-v127.js?v=280"></script>
-<script src="g5-decimal-percent-v128.js?v=280"></script>
-<script src="g5-fraction-concepts-v129.js?v=280"></script>
-<script src="g5-fraction-applications-v130.js?v=280"></script>
+<script src="g5-conversion-ux.js?v=281"></script>
+<script src="g5-textbook-topics.js?v=281"></script>
+<script src="g5-textbook-core.js?v=281"></script>
+<script src="g5-textbook-v111.js?v=281"></script>
+<script src="g5-textbook-v112.js?v=281"></script>
+<script src="g5-pedagogy-v113.js?v=281"></script>
+<script src="g5-fractions-v114.js?v=281"></script>
+<script src="g5-fraction-arithmetic-v115.js?v=281"></script>
+<script src="g5-decimals-v116.js?v=281"></script>
+<script src="g7-textbook.js?v=281"></script>
+<script src="g8-textbook.js?v=281"></script>
+<script src="g1-textbook.js?v=281"></script>
+<script src="g2-textbook.js?v=281"></script>
+<script src="g3-textbook.js?v=281"></script>
+<script src="g4-textbook.js?v=281"></script>
+<script src="g5-textbook-navigation-v121.js?v=281"></script>
+<script src="g5-live-pedagogy-v122.js?v=281"></script>
+<script src="g5-arithmetic-tiers-v123.js?v=281"></script>
+<script src="g5-textbook-tiers-v124.js?v=281"></script>
+<script src="g5-natural-units-v125.js?v=281"></script>
+<script src="g5-remaining-core-v126.js?v=281"></script>
+<script src="g5-decimal-tiers-v127.js?v=281"></script>
+<script src="g5-decimal-percent-v128.js?v=281"></script>
+<script src="g5-fraction-concepts-v129.js?v=281"></script>
+<script src="g5-fraction-applications-v130.js?v=281"></script>
 <script>
 // The textbook scripts finish extending the catalog before Home shows its totals.
 g5HomeCatalogReady=true;
