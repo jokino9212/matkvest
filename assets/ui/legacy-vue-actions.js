@@ -193,9 +193,13 @@
       }
     ]));
   }
+  // V282: quest navigation-only UI action. Claim/reroll and all rewards remain legacy-owned.
+  function questBackActions({isCurrent,back}){
+    return {back:()=>{if(isCurrent())return back()}};
+  }
   return {headerActions,quickSetupActions,quickResultActions,trainingPlanActions,
     schoolTableActions,schoolQuizActions,schoolColumnActions,
     schoolAttemptFrameActions,attemptJournalActions,attemptReviewActions,
     reportSurfaceActions,teacherViewActions,analyticsViewActions,profileDialogActions,
-    teacherDashboardActions,storeTabActions,achievementFilterActions};
+    teacherDashboardActions,storeTabActions,achievementFilterActions,questBackActions};
 });
