@@ -52,6 +52,23 @@ async function run(browser,base,width,missing=false){
    history:history.state
   }));
   console.log('V282_QUEST_ACTIVE_BACK',JSON.stringify({width,missing,...navigation}));
+  await page.evaluate(()=>openGrade(5));
+  await page.evaluate(()=>openQuests());
+  await page.locator('#questBoardVue .quest-screen').waitFor({state:'attached'});
+  const beforeSpace=await page.evaluate(()=>({
+    route:mk854Route(),restoring:mk854Restoring,
+    vue:!!document.querySelector('#questBoardVue[data-v-app]'),
+    button:document.querySelector('#questBoardVue button.home-back-btn')?.outerHTML,
+    focus:document.activeElement?.tagName
+  }));
+  const spaceBack=page.locator('#questBoardVue button').filter({hasText:/Главный экран/}).first();
+  await spaceBack.press('Space');
+  const afterSpace=await page.evaluate(()=>({
+    route:mk854Route(),restoring:mk854Restoring,
+    quest:!!document.querySelector('#questBoardVue'),
+    grade:!!document.querySelector('#grade5Vue')
+  }));
+  console.log('V282_QUEST_SPACE_FROM_GRADE',JSON.stringify({width,missing,beforeSpace,afterSpace}));
  }finally{await context.close()}
 }
 withMatkvestBrowser(async(browser,base)=>{
