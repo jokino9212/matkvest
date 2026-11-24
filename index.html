@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <!-- Optional route core: inline mk854 wrappers remain the fallback. -->
-<script src="./assets/ui/legacy-navigation-core.js?v=289"></script>
-<script src="./assets/ui/legacy-vue-actions.js?v=289"></script>
+<script src="./assets/ui/legacy-navigation-core.js?v=290"></script>
+<script src="./assets/ui/legacy-vue-actions.js?v=290"></script>
 <script>function g8Declension19(number,one,few,many){
  const n=Math.abs(Math.trunc(Number(number))),lastTwo=n%100,last=n%10;
  if(lastTwo>=11&&lastTwo<=14)return many;
@@ -11518,10 +11518,18 @@ function validateBackupObject(data){
  }
  return "";
 }
+let mkFinalBackupReadRevision=0;
 function readBackupFile(file){
  if(!file)return;
+ const host=modal.querySelector(":scope > .vue-report");
+ if(!host||!host.isConnected||!overlay.classList.contains("show")||!host.querySelector("#backupFileInput"))return;
+ const revision=++mkFinalBackupReadRevision;
+ const profileId=state.profileId;
+ const isCurrent=()=>revision===mkFinalBackupReadRevision&&host.isConnected&&host.parentNode===modal&&
+   overlay.classList.contains("show")&&!!host.querySelector("#backupFileInput")&&state.profileId===profileId&&!mk872Dialog;
  const reader=new FileReader();
  reader.onload=()=>{
+   if(!isCurrent())return;
    try{
      const data=JSON.parse(String(reader.result||""));
      const err=validateBackupObject(data);
@@ -11530,7 +11538,7 @@ function readBackupFile(file){
      showImportPreview(data,file.name);
    }catch(e){showImportError("Не удалось прочитать JSON-файл. Возможно, файл повреждён.")}
  };
- reader.onerror=()=>showImportError("Браузер не смог прочитать выбранный файл.");
+ reader.onerror=()=>{if(isCurrent())showImportError("Браузер не смог прочитать выбранный файл.")};
  reader.readAsText(file,"utf-8");
 }
 function showImportError(msg){
@@ -14550,7 +14558,7 @@ function knowledgeFilteredSections(data){
  const mapSec=sec=>{let topics=sec.topics.filter(t=>knowledgeStatusPass(t,knowledgeMapState.status)&&(!q||`${t.title} ${t.group}`.toLocaleLowerCase("ru-RU").includes(q)));if(knowledgeMapState.sort==="attention")topics=topics.slice().sort((a,b)=>knowledgeTopicPriority(a)-knowledgeTopicPriority(b));return {...sec,topics}};
  return [...data.sections,...data.extraSections].map(mapSec).filter(s=>s.topics.length);
 }
-const knowledgeMapUrl = "./assets/ui/knowledge-map.js?v=289";
+const knowledgeMapUrl = "./assets/ui/knowledge-map.js?v=290";
 const knowledgeTopicDetailHostId="knowledgeTopicDetailVue";
 let knowledgeMapModule;
 let knowledgeMapRevision=0;
@@ -42611,31 +42619,31 @@ document.addEventListener("keydown",event=>{
 })();
 </script>
 
-<script src="g5-conversion-ux.js?v=289"></script>
-<script src="g5-textbook-topics.js?v=289"></script>
-<script src="g5-textbook-core.js?v=289"></script>
-<script src="g5-textbook-v111.js?v=289"></script>
-<script src="g5-textbook-v112.js?v=289"></script>
-<script src="g5-pedagogy-v113.js?v=289"></script>
-<script src="g5-fractions-v114.js?v=289"></script>
-<script src="g5-fraction-arithmetic-v115.js?v=289"></script>
-<script src="g5-decimals-v116.js?v=289"></script>
-<script src="g7-textbook.js?v=289"></script>
-<script src="g8-textbook.js?v=289"></script>
-<script src="g1-textbook.js?v=289"></script>
-<script src="g2-textbook.js?v=289"></script>
-<script src="g3-textbook.js?v=289"></script>
-<script src="g4-textbook.js?v=289"></script>
-<script src="g5-textbook-navigation-v121.js?v=289"></script>
-<script src="g5-live-pedagogy-v122.js?v=289"></script>
-<script src="g5-arithmetic-tiers-v123.js?v=289"></script>
-<script src="g5-textbook-tiers-v124.js?v=289"></script>
-<script src="g5-natural-units-v125.js?v=289"></script>
-<script src="g5-remaining-core-v126.js?v=289"></script>
-<script src="g5-decimal-tiers-v127.js?v=289"></script>
-<script src="g5-decimal-percent-v128.js?v=289"></script>
-<script src="g5-fraction-concepts-v129.js?v=289"></script>
-<script src="g5-fraction-applications-v130.js?v=289"></script>
+<script src="g5-conversion-ux.js?v=290"></script>
+<script src="g5-textbook-topics.js?v=290"></script>
+<script src="g5-textbook-core.js?v=290"></script>
+<script src="g5-textbook-v111.js?v=290"></script>
+<script src="g5-textbook-v112.js?v=290"></script>
+<script src="g5-pedagogy-v113.js?v=290"></script>
+<script src="g5-fractions-v114.js?v=290"></script>
+<script src="g5-fraction-arithmetic-v115.js?v=290"></script>
+<script src="g5-decimals-v116.js?v=290"></script>
+<script src="g7-textbook.js?v=290"></script>
+<script src="g8-textbook.js?v=290"></script>
+<script src="g1-textbook.js?v=290"></script>
+<script src="g2-textbook.js?v=290"></script>
+<script src="g3-textbook.js?v=290"></script>
+<script src="g4-textbook.js?v=290"></script>
+<script src="g5-textbook-navigation-v121.js?v=290"></script>
+<script src="g5-live-pedagogy-v122.js?v=290"></script>
+<script src="g5-arithmetic-tiers-v123.js?v=290"></script>
+<script src="g5-textbook-tiers-v124.js?v=290"></script>
+<script src="g5-natural-units-v125.js?v=290"></script>
+<script src="g5-remaining-core-v126.js?v=290"></script>
+<script src="g5-decimal-tiers-v127.js?v=290"></script>
+<script src="g5-decimal-percent-v128.js?v=290"></script>
+<script src="g5-fraction-concepts-v129.js?v=290"></script>
+<script src="g5-fraction-applications-v130.js?v=290"></script>
 <script>
 // The textbook scripts finish extending the catalog before Home shows its totals.
 g5HomeCatalogReady=true;
