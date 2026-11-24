@@ -1,0 +1,15 @@
+'use strict';
+const assert=require('node:assert/strict');
+const {questBackActions}=require('../assets/ui/legacy-vue-actions.js');
+let live=true,revision=1,count=0;
+const a=questBackActions({isCurrent:()=>live&&revision===1,back:()=>++count});
+assert.equal(a.back(),1);
+revision=2;
+assert.equal(a.back(),undefined);
+assert.equal(count,1);
+const b=questBackActions({isCurrent:()=>live,back:()=>++count});
+assert.equal(b.back(),2);
+live=false;
+assert.equal(b.back(),undefined);
+assert.equal(count,2);
+console.log('PASS_V282_QUEST_BACK_CONTRACTS current/revision/closed');
