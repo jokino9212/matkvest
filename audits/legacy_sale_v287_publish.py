@@ -73,7 +73,7 @@ if (html_source.count("legacy-navigation-core.js?v=287") != 1
         or html_source.count("data-mk865-sale-topic") != 2
         or html_source.count("run:dispatchActions.run,choose:dispatchActions.choose") != 1
         or html_source.count("data-mk865-sale-close") != 2
-        or html_source.count("close:closeActions.close,run:mk865RunSaleButton,choose:mk865RunSaleTopic") != 1
+        or html_source.count("close:closeActions.close,run:dispatchActions.run,choose:dispatchActions.choose") != 1
         or html_source.count("onclick=viewerActions.close") != 1
         or html_source.count("mountArtworkViewer(host,model,{close:viewerActions.close})") != 1
         or html_source.count("data-mk872-help-close") != 2
