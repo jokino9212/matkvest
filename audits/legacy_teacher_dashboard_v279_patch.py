@@ -101,9 +101,9 @@ once(
  }'''
 )
 for token in ("MatKvestVueActions?.teacherDashboardActions?.",
- "data-teacher-dashboard-action=\\"close\\"",
- "data-teacher-dashboard-action=\\"open\\"",
- "data-teacher-dashboard-action=\\"filter\\"",
+ 'data-teacher-dashboard-action="close"',
+ 'data-teacher-dashboard-action="open"',
+ 'data-teacher-dashboard-action="filter"',
  "host.__mk279DashboardDelegated=true",
  "MatKvestVueActions?.analyticsViewActions?.",
  "MatKvestVueActions?.profileDialogActions?."):
