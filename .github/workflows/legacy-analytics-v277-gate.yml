@@ -1,14 +1,5 @@
 name: Test-only analytics grade and knowledge Vue actions PWA v277 gate
 on:
-  push:
-    branches: [refactor/route-vue-actions-from-7c14ce9]
-    paths:
-      - '.github/workflows/legacy-analytics-v277-gate.yml'
-      - 'assets/ui/legacy-vue-actions.js'
-      - 'audits/legacy_analytics_view_v277_patch.py'
-      - 'audits/legacy_analytics_view_v277_publish.py'
-      - 'audits/legacy_analytics_view_v277.test.cjs'
-      - 'audits/legacy_analytics_view_v277_browser.cjs'
   workflow_dispatch:
 permissions:
   contents: write
