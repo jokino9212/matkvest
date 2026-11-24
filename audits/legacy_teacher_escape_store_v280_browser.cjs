@@ -68,6 +68,15 @@ async function scenario(browser,address,width,missing=false){
    window.__v280Events=[];
    const tab=modal.querySelector('button.shop-tab[data-store-category="frames"]');
    tab.addEventListener('click',()=>window.__v280Events.push('button'));
+   const trace=(scope)=>event=>{if(event.key==='Enter'||event.key===' '){
+    window.__v280Events.push(scope+':'+event.type+':'+event.key+':'+event.defaultPrevented)}};
+   window.addEventListener('keydown',trace('window'),true);
+   document.addEventListener('keydown',trace('document'),true);
+   modal.addEventListener('keydown',trace('modal'),true);
+   tab.addEventListener('keydown',trace('button'));
+   window.addEventListener('keyup',trace('window'),true);
+   document.addEventListener('keyup',trace('document'),true);
+   tab.addEventListener('keyup',trace('button'));
    modal.addEventListener('click',()=>window.__v280Events.push('modal-capture'),true);
    modal.addEventListener('click',()=>window.__v280Events.push('modal-bubble'));
    document.addEventListener('click',()=>window.__v280Events.push('document-capture'),true);
@@ -88,6 +97,11 @@ async function scenario(browser,address,width,missing=false){
    allowed:storeTabs.map(t=>t.id).includes('frames')
   }));
   console.log('V280_AFTER_FRAMES_CLICK',JSON.stringify({width,missing,...frameDiagnostic}));
+  await tabs.locator('button[data-store-category="frames"]').first().click();
+  console.log('V280_AFTER_FRAMES_POINTER',JSON.stringify(await page.evaluate(()=>({
+    route:mk854Route(),active:document.querySelector('#modal .shop-tabs')?.dataset.storeActive,
+    events:window.__v280Events
+  }))));
   await page.locator('#modal .shop-tabs[data-store-active="frames"]').waitFor({timeout:5000});
   const nativeSelect=page.locator('#modal select.mk-ux91-category-select');
   await nativeSelect.selectOption('pets');
