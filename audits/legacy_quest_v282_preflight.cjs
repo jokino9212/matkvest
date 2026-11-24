@@ -41,6 +41,17 @@ async function run(browser,base,width,missing=false){
   console.log('V282_QUEST_STALE_STATUS',JSON.stringify({
    width,missing,staleTriggeredHome:result.afterGrade.gradeShown&&!result.afterOld.gradeShown
   }));
+  await page.evaluate(()=>openQuests());
+  const active=page.locator('#questBoardVue button').filter({hasText:/Главный экран/}).first();
+  await active.waitFor({state:'attached'});
+  await active.press('Enter');
+  const navigation=await page.evaluate(()=>({
+   route:mk854Route(),questStillVisible:!!document.querySelector('#questBoardVue'),
+   gradeStillVisible:!!document.querySelector('#grade5Vue'),
+   homeUI:!document.querySelector('#questBoardVue')&&!document.querySelector('#grade5Vue'),
+   history:history.state
+  }));
+  console.log('V282_QUEST_ACTIVE_BACK',JSON.stringify({width,missing,...navigation}));
  }finally{await context.close()}
 }
 withMatkvestBrowser(async(browser,base)=>{
