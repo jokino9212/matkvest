@@ -48,12 +48,12 @@ async function scenario(browser,address,width,missing=false){
    const before=await snapshot();
    await page.evaluate(()=>{
      const stale=window.__v277Actions[0];
-     assertForV277=stale.valid();
+     window.__v277OldWasCurrent=stale.valid();
      stale.actions.open('natural');
      stale.actions.back();
      stale.actions.progress();
    });
-   assert.equal(await page.evaluate(()=>window.assertForV277),false);
+   assert.equal(await page.evaluate(()=>window.__v277OldWasCurrent),false);
    assert.deepEqual(await snapshot(),before,'Stale grade callbacks cannot change navigation');
    await page.evaluate(()=>openKnowledgeMap());
    const map=page.locator('#knowledgeMapVue[data-v-app]');
