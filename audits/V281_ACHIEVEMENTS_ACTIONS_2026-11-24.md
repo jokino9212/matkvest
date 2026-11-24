@@ -20,3 +20,10 @@ Read-only inventory https://github.com/jokino9212/matkvest/actions/runs/45447328
 3. Точечный SHA-fenced патч только `achievementCatalogHtml` и `openAchievements`, события fallback через делегирование живого `host`. Существующие контроллеры `achievementSet...`, checkAchievementRewards, монеты, XP не переписывать.
 4. Playwright 390/1280 с Vue + offline F5, 390 без Vue и adapter, stale-buttons, фокус, фильтры, история, текущий profile ID, XP/монеты и награды без дублей. Все старые контракты v271–v280, регрессия, общий PWA 320/390/768.
 5. При полном PASS — выпуск `index.html` и `sw.js` только в test branch с защищённым publisher, без merge; затем workflow manual-only.
+
+## Подтверждено в preflight **до модификации HTML**
+
+Read-only Playwright на опубликованной v280: https://github.com/jokino9212/matkvest/actions/runs/45447643970 — SUCCESS, 2/2 воспроизведения.
+- Vue 390: после `openShop('avatars')` старая кнопка `Открытые` отсоединена, но синхронный `oldButton.click()` меняет `achievementViewFilter` с `all` на `open`. Открытое окно магазина не меняется; глобальная фильтрация скрыто изменена.
+- HTML fallback 390 (Vue и adapter недоступны): аналогичная отсоединённая кнопка меняет фильтр и повторно открывает экран `achievement-screen` вместо магазина.
+- В обоих сценариях текущие `profileId`, XP и монеты неизменны. Подтверждён UI-дефект устаревшего callback и нарушение маршрута, **не** дефект экономики. Применять только scoped guard + native delegation.
