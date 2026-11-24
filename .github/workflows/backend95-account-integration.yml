@@ -1,0 +1,27 @@
+name: Isolated backend 9.5 account integration v290
+on:
+  push:
+    branches: [integration/backend95-v290-account]
+    paths: ['.github/workflows/backend95-account-integration.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    if: github.repository == 'jokino9212/matkvest' && github.ref == 'refs/heads/integration/backend95-v290-account'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Test shared account state
+        run: node audits/backend95_account_store.test.mjs
+      - name: Build exact isolated v290 with private API excluded from PWA
+        run: python3 audits/build_backend95_account.py "${{ runner.temp }}/backend95-site"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: matkvest-v290-backend95-account-candidate
+          path: ${{ runner.temp }}/backend95-site
