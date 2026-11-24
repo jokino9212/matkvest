@@ -1,0 +1,46 @@
+name: Test-only v285 read-only legacy lightbox action inventory
+on:
+  push:
+    branches: [refactor/route-vue-actions-from-7c14ce9]
+    paths: ['.github/workflows/v285-lightbox-inventory.yml']
+permissions:
+  contents: read
+jobs:
+  inspect:
+    if: github.repository == 'jokino9212/matkvest' && github.ref == 'refs/heads/refactor/route-vue-actions-from-7c14ce9'
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Read-only remaining independent UI actions and lightbox inventory
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re,hashlib
+          s=Path('index.html').read_text(encoding='utf8')
+          print('V285_BASE_SHA',hashlib.sha256(s.encode()).hexdigest())
+          functions=re.findall(r'(?:^|\n)(?:async\s+)?function\s+([A-Za-z_$][\w$]*)\s*\(',s)
+          print('V285_UI_FUNCTIONS',[(x) for x in functions if any(k in x.lower() for k in ('viewer','preview','lightbox','fullscreen','overlay','modal','dialog','avatar','pet','artwork','sticker','tooltip','toast'))][-190:])
+          for name in ['function openArtworkViewer(','function mk872OpenArtworkViewer(',
+             'function mk30ShowPetFull(','function showPetViewer(','function openPetViewer(',
+             'function mk872OpenAvatarViewer(','function openAvatarViewer(',
+             'function openArtViewer(','function showArtViewer(','function openStickerViewer(',
+             'function closeModal(','function show(',
+             'function mk872HelpOpen(']:
+           p=s.find(name)
+           print('V285_SNIP_START',repr(name),'OFFSET',p)
+           if p>=0:print(s[p:p+2400])
+           print('V285_SNIP_END',repr(name))
+          for token in ['artwork-viewer','lightbox','pet-viewer','avatar-viewer','sticker-viewer','data-artwork','mk872-help-layer','viewer-close','closeViewer']:
+           p=s.find(token)
+           print('V285_TOKEN',repr(token),'COUNT',s.count(token),'FIRST',p)
+           if p>=0:print(s[max(0,p-240):p+440])
+          start=s.index('<script id="mk30-artwork-viewer-script">')
+          print('V285_ARTWORK_SCRIPT_BEGIN')
+          print(s[start:start+15300])
+          print('V285_ARTWORK_SCRIPT_END')
+          start=s.index('<div id="mk872AvatarViewer"')
+          print('V285_AVATAR_DIALOG_BEGIN')
+          print(s[start:start+3900])
+          print('V285_AVATAR_DIALOG_END')
+          PY

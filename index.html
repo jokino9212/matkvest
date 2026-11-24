@@ -2,6 +2,9 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8">
+<!-- Optional route core: inline mk854 wrappers remain the fallback. -->
+<script src="./assets/ui/legacy-navigation-core.js?v=290"></script>
+<script src="./assets/ui/legacy-vue-actions.js?v=290"></script>
 <script>function g8Declension19(number,one,few,many){
  const n=Math.abs(Math.trunc(Number(number))),lastTwo=n%100,last=n%10;
  if(lastTwo>=11&&lastTwo<=14)return many;
@@ -10431,14 +10434,14 @@ function achievementCatalogHtml(model){
   <b>${esc(item.title)}</b><small style="display:block;color:var(--muted);margin-top:3px">${esc(item.label)}</small>
   <div class="achievement-progress"><span style="width:${item.percent}%"></span></div></div>`).join("");
  const views=model.views.map(({id,label})=>`<button type="button" class="achievement-filter ${id===model.view?"active":""}"
-   aria-pressed="${id===model.view}" onclick="achievementSetView('${id}')">${esc(label)}</button>`).join("");
+   aria-pressed="${id===model.view}" data-achievement-action="view" data-achievement-value="${esc(id)}">${esc(label)}</button>`).join("");
  const groups=model.groups.map(group=>`${group.heading?`<h3 class="achievement-category">${esc(group.heading)}</h3>`:""}
   <div class="achievement-grid">${group.cards.map(achievementCardHtml).join("")}</div>`).join("");
  return `<div class="achievement-summary">${summary}</div>
   ${nearest?`<div class="achievement-nearest"><b>🎯 Ближайшие достижения</b><div class="achievement-nearest-grid">${nearest}</div></div>`:""}
   <div class="achievement-toolbar">${views}
-   <select class="achievement-select" aria-label="Категория достижений" onchange="achievementSetCategory(this.value)">${options(model.categories,model.category)}</select>
-   <select class="achievement-select" aria-label="Сортировка достижений" onchange="achievementSetSort(this.value)">${options(model.sorts,model.sort)}</select></div>
+   <select class="achievement-select" aria-label="Категория достижений" data-achievement-action="category">${options(model.categories,model.category)}</select>
+   <select class="achievement-select" aria-label="Сортировка достижений" data-achievement-action="sort">${options(model.sorts,model.sort)}</select></div>
   <div class="lesson">${esc(model.note)}</div>
   ${groups||'<div class="teacher-empty" role="status">По выбранному фильтру достижений нет.</div>'}`;
 }
@@ -10449,16 +10452,74 @@ function openAchievements(){
  show(`<div class="mtop"><h2>🏆 Достижения</h2><button class="x" onclick="closeModal()">×</button></div>
   ${shopPreview()}${shopTabs("achievements")}<div class="achievement-screen">${achievementCatalogHtml(model)}</div>`);
  const host=modal.querySelector(".achievement-screen");
- loadVueModule().then(module=>{
-  if(host.parentNode!==modal||!overlay.classList.contains("show"))return;
-  const refresh=()=>module.mountAchievementCatalog(host,achievementCatalogModel(),actions);
-  const actions={
-   view:value=>{achievementViewFilter=value;refresh()},
-   category:value=>{achievementCategoryFilter=value;refresh()},
-   sort:value=>{achievementSortMode=value;refresh()}
+ const isCurrent=()=>host?.parentNode===modal&&host.isConnected&&
+  overlay.classList.contains("show")&&!mk872Dialog;
+ // Each rerender revokes callbacks from the preceding Vue tree.
+ let revision=0,vueModule=null,filterActions=null;
+ const changeView=value=>{achievementViewFilter=value;refresh()};
+ const changeCategory=value=>{achievementCategoryFilter=value;refresh()};
+ const changeSort=value=>{achievementSortMode=value;refresh()};
+ const callbacks={view:changeView,category:changeCategory,sort:changeSort};
+ const bindActions=fresh=>{
+  const mine=++revision;
+  const live=()=>isCurrent()&&mine===revision;
+  const allowed={
+   view:fresh.views.map(item=>item.id),
+   category:fresh.categories.map(item=>item.id),
+   sort:fresh.sorts.map(item=>item.id)
   };
-  module.mountAchievementCatalog(host,model,actions);
- }).catch(()=>{if(host.parentNode===modal)host.innerHTML=achievementCatalogHtml(model)});
+  filterActions=window.MatKvestVueActions?.achievementFilterActions?.({
+   isCurrent:live,views:allowed.view,categories:allowed.category,
+   sorts:allowed.sort,actions:callbacks
+  })||Object.fromEntries(Object.entries(allowed).map(([key,ids])=>[
+   key,value=>{
+    if(live()&&typeof value==="string"&&ids.includes(value))
+     return callbacks[key](value);
+   }
+  ]));
+ };
+ const refresh=()=>{
+  if(!isCurrent())return;
+  const next=achievementCatalogModel();
+  const focused=host.contains(document.activeElement)?document.activeElement:null;
+  const kind=focused?.dataset.achievementAction;
+  const value=focused?.dataset.achievementValue;
+  bindActions(next);
+  if(vueModule){
+   vueModule.mountAchievementCatalog(host,next,filterActions);
+   return;
+  }
+  host.innerHTML=achievementCatalogHtml(next);
+  const target=kind==="view"
+   ?[...host.querySelectorAll('button[data-achievement-action="view"]')]
+      .find(button=>button.dataset.achievementValue===value)
+   :kind==="category"||kind==="sort"
+     ?host.querySelector('select[data-achievement-action="'+kind+'"]'):null;
+  target?.focus({preventScroll:true});
+ };
+ bindActions(model);
+ host.addEventListener("click",event=>{
+  if(host.hasAttribute("data-v-app"))return;
+  const button=event.target.closest('button[data-achievement-action="view"]');
+  if(!button||!host.contains(button))return;
+  filterActions?.view(button.dataset.achievementValue);
+ });
+ host.addEventListener("change",event=>{
+  if(host.hasAttribute("data-v-app"))return;
+  const control=event.target;
+  if(!host.contains(control))return;
+  const kind=control?.dataset.achievementAction;
+  if(kind==="category"||kind==="sort")filterActions?.[kind](control.value);
+ });
+ loadVueModule().then(module=>{
+  if(!isCurrent())return;
+  vueModule=module;
+  refresh();
+ }).catch(()=>{
+  if(!isCurrent())return;
+  vueModule=null;
+  refresh();
+ });
 }
 
 function grantAchievementCatalogRewards(profile,achievementId=null){
@@ -10646,16 +10707,30 @@ function shopPreview(preview=profilePreviewModel()){
  const {name,nameClass,title,backgroundClass,dark,background,frame,pet,effect,owned,coins,progress}=preview;
  return `<div class="profile-preview profile-cosmetic-card ${backgroundClass}">${avatarHtml(state,"large")}<div class="profile-preview-info"><b class="nickname-style ${nameClass}" title="${esc(name)}">${esc(name)}</b>${title?`<div class="profile-title-line">🏷️ ${esc(title)}</div>`:'<div class="profile-title-line empty">Без титула</div>'}<small class="${dark?"profile-dark-copy":""}">Уровень ${progress.currentLevel} • собрано ${owned} предметов<br><b>Рамка:</b> ${esc(frame)} • <b>Питомец:</b> ${esc(pet)} • <b>Фон:</b> ${esc(background)}<br><b>аура:</b> ${esc(effect)}</small>${mk872LevelProgressHtml(state.xp||0)}${profileBadgesHtml(state,"compact")}<div class="profile-sticker-line"><b style="font-size:12px">Любимые:</b> ${favoriteStickersHtml(state,"large")}</div></div><div class="shop-balance">🪙 ${coins}</div></div>`;
 }
+function mk288GuardStoreActions(isCurrent,actions){
+ return window.MatKvestVueActions?.storeSurfaceActions?.({isCurrent,actions})||
+  Object.fromEntries(Object.entries(actions).map(([key,fn])=>[key,(...args)=>{if(isCurrent())return fn(...args)}]));
+}
 function showStoreSurface(topic,{beforePreview="",content}){
  const title=topic==="collection"?"🎒 Моя коллекция":"🛍️ Магазин наград",preview=profilePreviewModel();
- show(`<div class="mtop" data-store-heading><h2 class="mk872-help-heading">${title} <button type="button" class="mk872-help-trigger" title="Справка" aria-label="Справка: ${topic}" onclick="mk872HelpOpen('${topic}',this)">ⓘ</button></h2><button type="button" class="x" aria-label="Закрыть окно" onclick="closeModal()">×</button></div>
+ show(`<div class="mtop" data-store-heading><h2 class="mk872-help-heading">${title} <button type="button" class="mk872-help-trigger" title="Справка" aria-label="Справка: ${topic}">ⓘ</button></h2><button type="button" class="x" aria-label="Закрыть окно">×</button></div>
   ${beforePreview}<div data-store-preview style="display:contents">${shopPreview(preview)}</div>${content}`);
  const heading=modal.querySelector(":scope > [data-store-heading]"),card=modal.querySelector(":scope > [data-store-preview]");
+ const profileId=state.profileId;
+ const isCurrent=()=>heading?.parentNode===modal&&heading.isConnected&&overlay.classList.contains("show")&&state.profileId===profileId;
+ const headerActions=mk288GuardStoreActions(isCurrent,{close:closeModal,help:button=>mk872HelpOpen(topic,button)});
+ heading.addEventListener("click",event=>{
+  if(!isCurrent()||heading.hasAttribute("data-v-app"))return;
+  const button=event.target.closest("button");
+  if(!button||!heading.contains(button)||button.disabled)return;
+  if(button.matches(".x"))return headerActions.close();
+  if(button.matches(".mk872-help-trigger"))return headerActions.help(button);
+ });
  loadVueModule().then(module=>{
-  if(heading.parentNode!==modal||card.parentNode!==modal||!overlay.classList.contains("show"))return;
+  if(!isCurrent()||card.parentNode!==modal)return;
   const focused=document.activeElement,help=heading.querySelector(".mk872-help-trigger");
   const focusTarget=heading.contains(focused)?focused.matches("h2")?"h2":focused.matches(".x")?".x":".mk872-help-trigger":null;
-  module.mountStoreSurfaceHeader(heading,{title,topic},{close:closeModal,help:button=>mk872HelpOpen(topic,button)});
+  module.mountStoreSurfaceHeader(heading,{title,topic},headerActions);
   if(mk872HelpLastFocus===help)mk872HelpLastFocus=heading.querySelector(".mk872-help-trigger");
   if(focusTarget)heading.querySelector(focusTarget)?.focus({preventScroll:true});
   module.mountProfilePreview(card,preview);
@@ -10672,15 +10747,42 @@ function openStoreTab(category){
  if(category==="chests")return openChestStore861();
  return openShop(category);
 }
+let mk280StoreTabActions=null;
+function mk280EnsureStoreTabHandlers(){
+ const isCurrent=()=>overlay.classList.contains("show")&&!!modal.querySelector(".shop-tabs");
+ mk280StoreTabActions=window.MatKvestVueActions?.storeTabActions?.({
+  isCurrent,categories:storeTabs.map(tab=>tab.id),
+  actions:{select:openStoreTab}
+ })||{
+  select:category=>{
+   if(isCurrent()&&storeTabs.some(tab=>tab.id===category))return openStoreTab(category)
+  }
+ };
+ // A single delegated handler serves every fresh shop/collection rendering,
+ // keeping Enter/Space and select native and detached nodes inert.
+ if(modal.__mk280StoreTabsBound)return;
+ modal.__mk280StoreTabsBound=true;
+ modal.addEventListener("click",event=>{
+  const button=event.target.closest("button.shop-tab[data-store-category]");
+  if(!button||!modal.contains(button))return;
+  mk280StoreTabActions?.select(button.dataset.storeCategory);
+ });
+ modal.addEventListener("change",event=>{
+  const select=event.target.closest("select.mk-ux91-category-select");
+  if(!select||!modal.contains(select))return;
+  mk280StoreTabActions?.select(select.value);
+ });
+}
 function shopTabs(active){
+ mk280EnsureStoreTabHandlers();
  const category=active==="accessories"?"avatars":active;
  const tabs=storeTabs.map(tab=>'<button type="button" class="shop-tab '+(tab.id===category?'active ':'')+
   (tab.id==="wallet"?'mk19e-wallet-tab':'')+'" data-store-category="'+tab.id+'" '+
-  (tab.id===category?'aria-current="page" ':'')+'onclick="openStoreTab(\''+tab.id+'\')">'+esc(tab.label)+'</button>').join('');
+  (tab.id===category?'aria-current="page" ':'')+'>'+esc(tab.label)+'</button>').join('');
  const ribbon='<div class="shop-tabs" data-store-active="'+esc(category)+'">'+tabs+'</div>';
  if(["achievements","collection","chests","wallet"].includes(category))return ribbon;
  const options=storeTabs.map(tab=>'<option value="'+tab.id+'" '+(tab.id===category?'selected':'')+'>'+esc(tab.label)+'</option>').join('');
- return ribbon+'<label class="mk-ux91-category-label" data-store-active="'+esc(category)+'">Раздел магазина<select class="mk-ux91-category-select" aria-label="Раздел магазина" onchange="openStoreTab(this.value)">'+options+'</select></label>';
+ return ribbon+'<label class="mk-ux91-category-label" data-store-active="'+esc(category)+'">Раздел магазина<select class="mk-ux91-category-select" aria-label="Раздел магазина" >'+options+'</select></label>';
 }
 let shopRarityFilter="all";
 function shopRarityButtons(category){
@@ -10741,7 +10843,7 @@ function runShopCardAction(type,id,action){
  if(action==="sell")return mk865OpenSellDialog(type,id);
 }
 function shopCard(card,type){
- const button=(action,label,cls)=>`<button type="button" class="btn ${cls}" ${action?`onclick="runShopCardAction('${type}','${card.id}','${action}')"`:"disabled"}>${esc(label)}</button>`;
+ const button=(action,label,cls)=>`<button type="button" class="btn ${cls}" ${action?`data-mk288-shop-id="${esc(card.id)}" data-mk288-shop-action="${esc(action)}"`:"disabled"}>${esc(label)}</button>`;
  const status=card.status?`<span class="shop-state-chip ${card.equipped?'equipped':'owned'}">${card.status}</span>`:"";
  const priceTier=card.priceTier?`<div class="shop-price-tier">${esc(card.priceTier)}</div>`:"";
  const sale=card.sale?.allowed?button("sell","🪙 Продать","soft mk865-sale-btn"):"";
@@ -10824,11 +10926,20 @@ function openShop(category="avatars",rarity=null){
  showStoreSurface("shop",{content:`${shopTabs(category)}${petQuickPanelHtml(pets)}${shopRarityButtons(category)}
  <div class="shop-grid">${cards.length?cards.map(card=>shopCard(card,category)).join(""):'<div class="report-empty" style="grid-column:1/-1">В этом фильтре пока нет предметов.</div>'}</div>`});
  mountPetQuickPanel(pets);
- const host=modal.querySelector(":scope > .shop-grid");
+ const host=modal.querySelector(":scope > .shop-grid"),profileId=state.profileId;
+ const isCurrent=()=>host?.parentNode===modal&&host.isConnected&&overlay.classList.contains("show")&&state.profileId===profileId;
+ const catalogActions=mk288GuardStoreActions(isCurrent,{run:(action,id)=>{
+  const card=cards.find(item=>item.id===id);
+  if(!card||!action||!(card.button.action===action||(action==="sell"&&card.sale?.allowed)))return;
+  return runShopCardAction(category,id,action);
+ }});
+ host?.addEventListener("click",event=>{
+  if(!isCurrent()||host.hasAttribute("data-v-app"))return;
+  const button=event.target.closest("button[data-mk288-shop-action]");
+  if(button&&host.contains(button)&&!button.disabled)return catalogActions.run(button.dataset.mk288ShopAction,button.dataset.mk288ShopId);
+ });
  loadVueModule().then(module=>{
-  if(host?.parentNode===modal&&overlay.classList.contains("show"))module.mountStoreCatalog(host,{cards},{
-   run:(action,id)=>runShopCardAction(category,id,action)
-  });
+  if(isCurrent())module.mountStoreCatalog(host,{cards},catalogActions);
  }).catch(()=>{ /* Keep the existing store controls usable when Vue cannot load. */ });
 }
 function buyShopItem(type,id){
@@ -11156,10 +11267,43 @@ function openAttemptJournal(profileData=state,profileName=currentProfile,back=nu
   duration:record.endedAt?fmtDuration(record.endedAt-(record.startedAt||record.endedAt)):"идёт сейчас",
   itemCount:(record.items||[]).length,hasCurrent:!!record.currentItem
  }));
- showVueReport("mountAttemptJournal",{title:`📋 Журнал попыток — ${profileName||"Ученик"}`,rows},{
-  close:closeModal,back,
-  review:index=>openAttemptReviewRecord(records[index],{journal:()=>openAttemptJournal(profileData,profileName,back)})
+ const journalTitle=`📋 Журнал попыток — ${profileName||"Ученик"}`;
+ let journalHost=null;
+ const isCurrentJournal=()=>journalHost?.parentNode===modal&&journalHost.isConnected&&
+  overlay.classList.contains("show")&&!mk872Dialog;
+ const reviewRecord=index=>openAttemptReviewRecord(records[index],{
+  journal:()=>openAttemptJournal(profileData,profileName,back)
  });
+ const fallbackActions={
+  close:()=>{if(isCurrentJournal())return closeModal()},
+  back:typeof back==="function"?()=>{if(isCurrentJournal())return back()}:undefined,
+  review:index=>{
+   if(!isCurrentJournal()||!Number.isInteger(index)||index<0||index>=records.length)return;
+   return reviewRecord(index);
+  }
+ };
+ const journalActions=window.MatKvestVueActions?.attemptJournalActions?.({
+  isCurrent:isCurrentJournal,close:closeModal,back,review:reviewRecord,recordCount:records.length
+ })||fallbackActions;
+ const fallback=`<div class="mtop"><h2>${esc(journalTitle)}</h2><button type="button" class="x"
+  aria-label="Закрыть окно" data-journal-action="close">×</button></div>
+  ${typeof back==="function"?'<button type="button" class="btn soft" data-journal-action="back">← Назад</button>':""}
+  <div class="attempt-journal-fallback">
+  ${rows.length?rows.map((row,index)=>`<button type="button" class="btn soft"
+   data-journal-action="review" data-journal-index="${index}"><b>${esc(row.title)}</b>
+   <span>${esc(row.stage)} · ${esc(row.score)} · ${esc(row.status)} · ${esc(row.date)}</span></button>`).join(""):
+   '<p class="knowledge-empty" role="status">В журнале пока нет попыток.</p>'}
+  </div>`;
+ showVueReport("mountAttemptJournal",{title:journalTitle,rows},journalActions,fallback);
+ journalHost=modal.querySelector(":scope > .vue-report");
+ journalHost.onclick=event=>{
+  if(journalHost.hasAttribute("data-v-app"))return;
+  const button=event.target.closest("button[data-journal-action]");
+  if(!button||!journalHost.contains(button))return;
+  if(button.dataset.journalAction==="review")
+    journalActions.review(Number(button.dataset.journalIndex));
+  else journalActions[button.dataset.journalAction]?.();
+ };
 }
 function rowHumanName(row){
  if(!row)return "Ответ";
@@ -11248,12 +11392,37 @@ function openAttemptReviewRecord(record,{result=null,journal=openAttemptJournal}
  const cards=items.map(item=>attemptReviewItemModel(item));
  if(record.currentItem)cards.push(attemptReviewItemModel(record.currentItem,true));
  const now=Date.now();
- showVueReport("mountAttemptReview",{
+ const reviewModel={
   title:`📋 Разбор: ${record.title||attemptTitle(record.key)}`,
   active:record.status==="active",stage:attemptReportStage(record),status:attemptStatusLabel(record),
   date:fmtDate(record.startedAt),duration:fmtDuration((record.endedAt||now)-(record.startedAt||now)),
   stats:attemptReviewStats(record,items),items:cards
- },{close:closeModal,result,journal});
+ };
+ let reviewHost=null;
+ const isCurrentReview=()=>reviewHost?.parentNode===modal&&reviewHost.isConnected&&
+  overlay.classList.contains("show")&&!mk872Dialog;
+ const guarded=handler=>typeof handler==="function"?()=>{if(isCurrentReview())return handler()}:undefined;
+ const fallbackActions={close:guarded(closeModal),journal:guarded(journal),result:guarded(result)};
+ const reviewActions=window.MatKvestVueActions?.attemptReviewActions?.({
+  isCurrent:isCurrentReview,close:closeModal,journal,result
+ })||fallbackActions;
+ const fallback=`<div class="mtop"><h2>${esc(reviewModel.title)}</h2>
+  <button type="button" class="x" aria-label="Закрыть окно" data-review-action="close">×</button></div>
+  <div class="actions"><button type="button" class="btn soft" data-review-action="journal">← К журналу</button>
+  ${typeof result==="function"?'<button type="button" class="btn soft" data-review-action="result">← К результату</button>':""}</div>
+  <p>${esc(reviewModel.stage)} · ${esc(reviewModel.status)} · ${esc(reviewModel.date)}</p>
+  ${cards.length?cards.map((item,index)=>`<section class="card"><strong>Задание ${index+1}</strong>
+  <div>${item.promptHtml}</div><div>Ответ ученика: ${item.studentHtml}</div>
+  <div>Правильный ответ: ${item.correctHtml}</div><div>${item.explanationHtml}</div></section>`).join(""):
+   '<p class="knowledge-empty">В этой попытке пока нет заданий.</p>'}`;
+ showVueReport("mountAttemptReview",reviewModel,reviewActions,fallback);
+ reviewHost=modal.querySelector(":scope > .vue-report");
+ reviewHost.onclick=event=>{
+  if(reviewHost.hasAttribute("data-v-app"))return;
+  const button=event.target.closest("button[data-review-action]");
+  if(!button||!reviewHost.contains(button))return;
+  reviewActions[button.dataset.reviewAction]?.();
+ };
 }
 const BACKUP_FORMAT="matkvest-4-backup";
 const BACKUP_VERSION=4;
@@ -11349,10 +11518,18 @@ function validateBackupObject(data){
  }
  return "";
 }
+let mkFinalBackupReadRevision=0;
 function readBackupFile(file){
  if(!file)return;
+ const host=modal.querySelector(":scope > .vue-report");
+ if(!host||!host.isConnected||!overlay.classList.contains("show")||!host.querySelector("#backupFileInput"))return;
+ const revision=++mkFinalBackupReadRevision;
+ const profileId=state.profileId;
+ const isCurrent=()=>revision===mkFinalBackupReadRevision&&host.isConnected&&host.parentNode===modal&&
+   overlay.classList.contains("show")&&!!host.querySelector("#backupFileInput")&&state.profileId===profileId&&!mk872Dialog;
  const reader=new FileReader();
  reader.onload=()=>{
+   if(!isCurrent())return;
    try{
      const data=JSON.parse(String(reader.result||""));
      const err=validateBackupObject(data);
@@ -11361,7 +11538,7 @@ function readBackupFile(file){
      showImportPreview(data,file.name);
    }catch(e){showImportError("Не удалось прочитать JSON-файл. Возможно, файл повреждён.")}
  };
- reader.onerror=()=>showImportError("Браузер не смог прочитать выбранный файл.");
+ reader.onerror=()=>{if(isCurrent())showImportError("Браузер не смог прочитать выбранный файл.")};
  reader.readAsText(file,"utf-8");
 }
 function showImportError(msg){
@@ -11812,10 +11989,44 @@ function openProfiles(){
     items:ownedTotal(p),details:mk872LevelProgressHtml(p.xp||0,"compact")+profileBadgesHtml(p,"compact"),
     stickers:favoriteStickersHtml(p)};
   })};
-  const rows=names.map((name,i)=>{const p=profiles[name],title=profileTitleText(p);return `<div class="profile-row ${name===currentProfile?"current":""}"><div class="profile-row-main">${avatarHtml(p,"small")}<div><b>${esc(name)}</b>${title?`<div class="leader-title">${esc(title)}</div>`:""}<div class="profile-info"><span>ур. ${levelFor(p.xp)}</span><span>${p.xp||0} XP</span><span>🪙 ${p.coins||0}</span><span>🔥 рекорд ${p.bestStreak||0}</span><span>🎒 ${ownedTotal(p)}</span></div>${mk872LevelProgressHtml(p?.xp||0,"compact")}${profileBadgesHtml(p,"compact")}<div class="profile-sticker-line">${favoriteStickersHtml(p)}</div></div></div><button class="btn soft" onclick="selectProfile(${i})">${name===currentProfile?"Текущий":"Выбрать"}</button></div>`}).join("");
-  const fallback=`<div class="mk871-profiles-screen"><div class="mtop"><h2>${title}</h2><button class="x" onclick="closeModal()">×</button></div>${shopPreview(preview)}<div class="actions"><button class="btn primary" onclick="openShop()">🛍️ Магазин</button><button class="btn soft" onclick="openCollection()">🎒 Моя коллекция</button></div><div class="profile-list">${rows}</div><div class="profile-create"><input id="newProfileName" maxlength="24" placeholder="Имя ученика" onkeydown="if(event.key==='Enter')createProfile()"><button class="btn primary" onclick="createProfile()">Создать</button></div></div>`;
-  showVueReport("mountStudentProfiles",model,{close:()=>closeModal(),shop:()=>openShop(),collection:()=>openCollection(),
-   edit:()=>openProfileEdit854(),select:index=>selectProfile(index),create:()=>createProfile()},fallback);
+  const rows=names.map((name,i)=>{const p=profiles[name],title=profileTitleText(p);return `<div class="profile-row ${name===currentProfile?"current":""}"><div class="profile-row-main">${avatarHtml(p,"small")}<div><b>${esc(name)}</b>${title?`<div class="leader-title">${esc(title)}</div>`:""}<div class="profile-info"><span>ур. ${levelFor(p.xp)}</span><span>${p.xp||0} XP</span><span>🪙 ${p.coins||0}</span><span>🔥 рекорд ${p.bestStreak||0}</span><span>🎒 ${ownedTotal(p)}</span></div>${mk872LevelProgressHtml(p?.xp||0,"compact")}${profileBadgesHtml(p,"compact")}<div class="profile-sticker-line">${favoriteStickersHtml(p)}</div></div></div><button class="btn soft" data-profile-action="select" data-profile-index="${i}">${name===currentProfile?"Текущий":"Выбрать"}</button></div>`}).join("");
+  const fallback=`<div class="mk871-profiles-screen"><div class="mtop"><h2>${title}</h2><button class="x" data-profile-action="close" aria-label="Закрыть окно">×</button></div>${shopPreview(preview)}<div class="actions"><button class="btn primary" data-profile-action="shop">🛍️ Магазин</button><button class="btn soft" data-profile-action="collection">🎒 Моя коллекция</button></div><div class="profile-list">${rows}</div><div class="profile-create"><input id="newProfileName" maxlength="24" placeholder="Имя ученика" data-profile-enter><button class="btn primary" data-profile-action="create">Создать</button></div></div>`;
+  let profilesHost=null;
+  const isCurrentProfile=()=>profilesHost?.parentNode===modal&&profilesHost.isConnected&&
+   overlay.classList.contains("show")&&!mk872Dialog;
+  const rawProfileActions={
+   close:closeModal,shop:openShop,collection:openCollection,edit:openProfileEdit854,
+   select:selectProfile,create:createProfile
+  };
+  const profileActions=window.MatKvestVueActions?.profileDialogActions?.({
+   isCurrent:isCurrentProfile,profileCount:names.length,...rawProfileActions
+  })||{
+   close:()=>{if(isCurrentProfile())return closeModal()},
+   shop:()=>{if(isCurrentProfile())return openShop()},
+   collection:()=>{if(isCurrentProfile())return openCollection()},
+   edit:()=>{if(isCurrentProfile())return openProfileEdit854()},
+   select:index=>{
+    if(!isCurrentProfile()||!Number.isInteger(index)||index<0||index>=names.length)return;
+    return selectProfile(index);
+   },
+   create:()=>{if(isCurrentProfile())return createProfile()}
+  };
+  showVueReport("mountStudentProfiles",model,profileActions,fallback);
+  profilesHost=modal.querySelector(":scope > .vue-report");
+  profilesHost.addEventListener("click",event=>{
+   if(profilesHost.hasAttribute("data-v-app"))return;
+   const button=event.target.closest("button[data-profile-action]");
+   if(!button||!profilesHost.contains(button))return;
+   const action=button.dataset.profileAction;
+   if(action==="select")profileActions.select(Number(button.dataset.profileIndex));
+   else profileActions[action]?.();
+  });
+  profilesHost.addEventListener("keydown",event=>{
+   if(profilesHost.hasAttribute("data-v-app")||event.key!=="Enter"||
+      event.target?.id!=="newProfileName")return;
+   event.preventDefault();
+   profileActions.create();
+  });
 }
 function selectProfile(i){
   const name=window._profileNames?.[i];if(!name||!profiles[name])return;
@@ -11861,13 +12072,31 @@ function openLeaderboard(){
   <td class="mk30-worth" title="Стоимость всех принадлежащих предметов">${row.worth}</td>
   <td>${esc(row.bestStreak)}</td><td>${esc(row.solved)}</td></tr>`).join("");
  const title="🏆 Таблица лидеров";
- showVueReport("mountLeaderboard",{title,rows},{close:()=>closeModal(),help:opener=>mk872HelpOpen("leader",opener)},
+ let leaderboardHost=null;
+ const isCurrent=()=>leaderboardHost?.parentNode===modal&&leaderboardHost.isConnected&&
+  overlay.classList.contains("show")&&!mk872Dialog;
+ const leaderboardActions=window.MatKvestVueActions?.leaderboardDialogActions?.({
+  isCurrent,close:closeModal,help:opener=>mk872HelpOpen("leader",opener)
+ })||{
+  close:()=>{if(isCurrent())return closeModal()},
+  help:opener=>{if(isCurrent())return mk872HelpOpen("leader",opener)}
+ };
+ showVueReport("mountLeaderboard",{title,rows},leaderboardActions,
   `<div class="mtop"><h2 class="mk872-help-heading">${title}
-   <button type="button" class="mk872-help-trigger" title="Справка" aria-label="Справка: leader" onclick="mk872HelpOpen('leader',this)">ⓘ</button>
-   </h2><button class="x" onclick="closeModal()">×</button></div><div style="overflow:auto"><table class="leader-table">
+   <button type="button" class="mk872-help-trigger" title="Справка" aria-label="Справка: leader" data-leaderboard-action="help">ⓘ</button>
+   </h2><button class="x" data-leaderboard-action="close">×</button></div><div style="overflow:auto"><table class="leader-table">
    <thead><tr><th>#</th><th>Ученик</th><th>Уровень</th><th>XP</th><th>Монеты</th>
    <th title="Стоимость принадлежащих вещей по ценам каталога">Коллекция 🪙</th><th>🔥 рекорд</th><th>Решено</th></tr></thead>
    <tbody>${fallback}</tbody></table></div>`);
+ leaderboardHost=modal.firstElementChild;
+ // Native fallback click and keyboard; Vue keeps its existing component events.
+ leaderboardHost.addEventListener("click",event=>{
+  if(!isCurrent()||leaderboardHost.hasAttribute("data-v-app"))return;
+  const button=event.target.closest('button[data-leaderboard-action]');
+  if(!button||!leaderboardHost.contains(button))return;
+  if(button.dataset.leaderboardAction==="help")leaderboardActions.help(button);
+  else if(button.dataset.leaderboardAction==="close")leaderboardActions.close();
+ });
 }
 
 
@@ -12369,11 +12598,16 @@ function showSchoolAttempt(title,{lesson="",lessonFirst=false,guide="",exercise=
   `<div id="${id}"${elementary?' class="elementary-quiz"':""}></div>`).join("");
  // The generators create and replace individual exercises directly in the modal.
  show(`<div id="schoolAttemptFrame" style="display:contents">
-  <div class="mtop"><h2>${esc(title)}</h2><button type="button" class="x" aria-label="Закрыть окно" onclick="closeModal()">×</button></div>
+  <div class="mtop"><h2>${esc(title)}</h2><button type="button" class="x" aria-label="Закрыть окно">×</button></div>
   ${lessonFirst?theory:""}<div id="schoolTrainingProgress" style="display:contents">${blockHead()}</div>${lessonFirst?"":theory}${guidance}
  </div>${banner}${stages}`);
  if(column||source)modal.classList.add("column-modal");
- const host=modal.firstElementChild;
+ const host=modal.firstElementChild,attempt=blockSession;
+ host.onclick=event=>{
+  if(host.hasAttribute("data-v-app"))return;
+  if(event.target.closest(".mtop .x")&&host.contains(event.target)&&host.parentNode===modal&&
+     blockSession===attempt&&overlay.classList.contains("show")&&!mk872Dialog)closeModal();
+ };
  schoolAttemptFrames.set(host,{title,lesson,lessonFirst,guide});
  mountSchoolAttemptFrameView(host);
 }
@@ -12401,7 +12635,12 @@ function mountSchoolAttemptFrameView(host){
   const heading=host.querySelector(".mtop h2");
   const close=host.querySelector(".mtop .x");
   const focusSelector=active===heading?".mtop h2":active===close?".mtop .x":null;
-  module.mountSchoolAttemptFrame(host,{...model,progress:blockProgressModel()},{close:()=>closeModal()});
+  const isCurrentFrame=()=>host.parentNode===modal&&host.isConnected&&blockSession===attempt&&
+   overlay.classList.contains("show")&&!mk872Dialog;
+  const frameActions=window.MatKvestVueActions?.schoolAttemptFrameActions?.({
+   isCurrent:isCurrentFrame,close:closeModal
+  })||{close:()=>{if(isCurrentFrame())closeModal()}};
+  module.mountSchoolAttemptFrame(host,{...model,progress:blockProgressModel()},frameActions);
   if(focusSelector&&!active.isConnected){
    const target=host.querySelector(focusSelector);
    if(active===heading&&target)target.tabIndex=-1;
@@ -13320,25 +13559,25 @@ function teacherRosterCardHtml(row){
   <div class="teacher-card-metrics"><span>🔴 Слабых: ${row.weakCount}</span><span>🟡 Нестабильных: ${row.unstableCount}</span>
    <span>🧠 Ошибок: ${row.activeErrors}</span>${row.recentSkipped?`<span>⏭ Пропусков: ${row.recentSkipped}</span>`:""}</div>
   <div class="teacher-card-foot"><span>${esc(row.lastActivity)}</span>
-   <button type="button" class="btn soft" data-profile-id="${esc(row.profileId)}" onclick="openTeacherStudentDetailById(this.dataset.profileId)">Открыть</button></div></section>`;
+   <button type="button" class="btn soft" data-profile-id="${esc(row.profileId)}" data-teacher-dashboard-action="open">Открыть</button></div></section>`;
 }
 function teacherDashboardHtml(model){
  const sorts=model.sorts.map(({id,label})=>`<option value="${id}" ${id===model.sort?"selected":""}>${esc(label)}</option>`).join("");
- return `<div class="home-back-row"><button type="button" class="home-back-btn" onclick="closeTeacherMode()">← Главный экран</button></div>
+ return `<div class="home-back-row"><button type="button" class="home-back-btn" data-teacher-dashboard-action="close">← Главный экран</button></div>
   <section class="teacher-hero"><div class="teacher-detail-head"><div><h1>👨‍🏫 Панель преподавателя</h1>
   <p>Показатели рассчитаны по сохранённым профилям учеников.</p></div>
-  <button type="button" class="btn soft" onclick="closeTeacherMode()">🔒 Закрыть режим преподавателя</button></div></section>
+  <button type="button" class="btn soft" data-teacher-dashboard-action="close">🔒 Закрыть режим преподавателя</button></div></section>
   <div id="teacherDashboardBody"><div class="teacher-summary">${teacherStatsHtml(model.stats)}</div>
   <div class="teacher-toolbar"><input id="teacherSearchInput" type="search" class="teacher-search" aria-label="Найти ученика"
-   value="${esc(model.search)}" placeholder="🔎 Найти ученика" oninput="teacherSetSearch(this.value)">
-   <select class="teacher-select" aria-label="Сортировать учеников" onchange="teacherSetSort(this.value)">${sorts}</select></div>
+   value="${esc(model.search)}" placeholder="🔎 Найти ученика" data-teacher-dashboard-input="search">
+   <select class="teacher-select" aria-label="Сортировать учеников" data-teacher-dashboard-input="sort">${sorts}</select></div>
   <div class="teacher-filter-row" role="group" aria-label="Фильтры учеников">
-   ${teacherChoicesHtml(model.filters,model.filter,"teacherSetFilter")}</div>
-  <div class="actions" style="justify-content:flex-start"><button type="button" class="btn soft" onclick="openProfiles()">+ Новый ученик</button>
-   <button type="button" class="btn soft" onclick="openDataManager()">💾 Резервная копия</button></div>
+   ${model.filters.map(({id,label})=>`<button type="button" class="teacher-filter ${id===model.filter?"active":""}" aria-pressed="${id===model.filter}" data-teacher-dashboard-action="filter" data-filter-id="${esc(id)}">${esc(label)}</button>`).join("")}</div>
+  <div class="actions" style="justify-content:flex-start"><button type="button" class="btn soft" data-teacher-dashboard-action="profiles">+ Новый ученик</button>
+   <button type="button" class="btn soft" data-teacher-dashboard-action="backup">💾 Резервная копия</button></div>
   ${model.hasStudents?`<div class="teacher-student-grid">${model.rows.map(teacherRosterCardHtml).join("")||
    '<div class="teacher-empty" role="status">По выбранному фильтру учеников нет.</div>'}</div>`:
-   '<div class="teacher-empty"><b>Пока нет учеников.</b><div class="actions"><button type="button" class="btn primary" onclick="openProfiles()">+ Создать ученика</button></div></div>'}</div>`;
+   '<div class="teacher-empty"><b>Пока нет учеников.</b><div class="actions"><button type="button" class="btn primary" data-teacher-dashboard-action="profiles">+ Создать ученика</button></div></div>'}</div>`;
 }
 function renderTeacherView({id,key="",mount,model,actions,fallback}){
  let host=mainView.firstElementChild;
@@ -13351,8 +13590,70 @@ function renderTeacherView({id,key="",mount,model,actions,fallback}){
  }
  const revision=++knowledgeMapRevision;
  const isCurrent=()=>host.parentNode===mainView&&revision===knowledgeMapRevision&&teacherUnlocked;
+ const isDashboard=id==="teacherDashboardVue";
+ const dashboardBounds=isDashboard?{
+  filters:model.filters.map(item=>item.id),sorts:model.sorts.map(item=>item.id),
+  profileIds:model.rows.map(item=>item.profileId)
+ }:null;
+ const fallbackTeacherActions=()=>Object.fromEntries(Object.entries(actions||{}).map(([key,fn])=>[
+  key,typeof fn==="function"?(...args)=>{
+   if(!isCurrent())return;
+   if(isDashboard){
+    if(key==="sort"&&!dashboardBounds.sorts.includes(args[0]))return;
+    if(key==="filter"&&!dashboardBounds.filters.includes(args[0]))return;
+    if(key==="open"&&!dashboardBounds.profileIds.includes(args[0]))return;
+   }
+   return fn.apply(actions,args);
+  }:fn
+ ]));
+ const teacherActions=isDashboard
+  ?(window.MatKvestVueActions?.teacherDashboardActions?.({
+    isCurrent,actions,...dashboardBounds
+   })||fallbackTeacherActions())
+  :(window.MatKvestVueActions?.teacherViewActions?.({isCurrent,actions})
+    ||fallbackTeacherActions());
+ if(isDashboard){
+  // Keep one delegated listener on the host through rerenders; update only
+  // active callbacks. Vue handles its own events while data-v-app is present.
+  host.__mk279DashboardActions=teacherActions;
+  if(!host.__mk279DashboardDelegated){
+   host.__mk279DashboardDelegated=true;
+   host.addEventListener("click",event=>{
+    if(host.hasAttribute("data-v-app"))return;
+    const button=event.target.closest("button[data-teacher-dashboard-action]");
+    if(!button||!host.contains(button))return;
+    const key=button.dataset.teacherDashboardAction,active=host.__mk279DashboardActions;
+    if(key==="filter")active?.filter(button.dataset.filterId);
+    else if(key==="open")active?.open(button.dataset.profileId);
+    else active?.[key]?.();
+   });
+   host.addEventListener("input",event=>{
+    if(host.hasAttribute("data-v-app")||
+       event.target?.dataset.teacherDashboardInput!=="search")return;
+    host.__mk279DashboardActions?.search(event.target.value);
+   });
+   host.addEventListener("change",event=>{
+    if(host.hasAttribute("data-v-app")||
+       event.target?.dataset.teacherDashboardInput!=="sort")return;
+    host.__mk279DashboardActions?.sort(event.target.value);
+   });
+  }
+ }
+ // Keep HTML fallback and its native Enter/Space controls. Drop stale
+ // keyboard/click/form events on a replaced teacher view.
+ host.__mk276Current=isCurrent;
+ if(!host.__mk276Guard){
+  host.__mk276Guard=true;
+  for(const kind of ["click","keydown","input","change","submit"]){
+   host.addEventListener(kind,event=>{
+    if(host.__mk276Current?.())return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+   },true);
+  }
+ }
  loadVueModule().then(module=>{
-  if(isCurrent())module[mount](host,model,actions);
+  if(isCurrent())module[mount](host,model,teacherActions);
  }).catch(()=>{
   if(!isCurrent())return;
   const search=host.querySelector("#teacherSearchInput");
@@ -13380,7 +13681,7 @@ function renderTeacherDashboardBody(){
  if(!teacherUnlocked)return openTeacherEntry();
  renderTeacherView({id:"teacherDashboardVue",mount:"mountTeacherDashboard",model:teacherDashboardModel(),fallback:teacherDashboardHtml,
   actions:{close:()=>closeTeacherMode(),search:teacherSetSearch,sort:teacherSetSort,filter:teacherSetFilter,
-   open:profileId=>openTeacherStudentDetailById(profileId),profiles:()=>openProfiles(),backup:()=>openDataManager()}});
+   open:profileId=>openTeacherStudentDetailById(profileId),profiles:()=>MK854_CORE_OPEN_PROFILES(),backup:()=>openDataManager()}});
 }
 const teacherDetailPeriods=[{id:"today",label:"Сегодня"},{id:"7",label:"7 дней"},{id:"30",label:"30 дней"},{id:"all",label:"Всё время"}];
 function teacherSetDetailPeriod(v){teacherDetailPeriod=v;if(teacherViewingProfileId)openTeacherStudentDetailById(teacherViewingProfileId)}
@@ -14257,7 +14558,7 @@ function knowledgeFilteredSections(data){
  const mapSec=sec=>{let topics=sec.topics.filter(t=>knowledgeStatusPass(t,knowledgeMapState.status)&&(!q||`${t.title} ${t.group}`.toLocaleLowerCase("ru-RU").includes(q)));if(knowledgeMapState.sort==="attention")topics=topics.slice().sort((a,b)=>knowledgeTopicPriority(a)-knowledgeTopicPriority(b));return {...sec,topics}};
  return [...data.sections,...data.extraSections].map(mapSec).filter(s=>s.topics.length);
 }
-const knowledgeMapUrl = "./assets/ui/knowledge-map.js?v=268";
+const knowledgeMapUrl = "./assets/ui/knowledge-map.js?v=290";
 const knowledgeTopicDetailHostId="knowledgeTopicDetailVue";
 let knowledgeMapModule;
 let knowledgeMapRevision=0;
@@ -14270,17 +14571,39 @@ function showVueResult(mount,model,reportId,actions){
  render();
 }
 function showVueReport(mount,model,actions,content){
- const fallback=content||`<div class="mtop"><h2>${esc(model.title)}</h2><button type="button" class="x" onclick="closeModal()">×</button></div><p class="knowledge-empty" role="status">Загружаем…</p>`;
+ const fallback=content||`<div class="mtop"><h2>${esc(model.title)}</h2><button type="button" class="x" aria-label="Закрыть окно" data-report-close>×</button></div><p class="knowledge-empty" role="status">Загружаем…</p>`;
  show(`<div class="vue-report">${fallback}</div>`);
  modal.scrollTop=0;
  const host=modal.firstElementChild;
- const isOpen=()=>host.parentNode===modal&&overlay.classList.contains("show");
+ const isOpen=()=>host.parentNode===modal&&host.isConnected&&overlay.classList.contains("show");
+ const isCurrentReport=()=>isOpen()&&!mk872Dialog;
+ const reportActions=window.MatKvestVueActions?.reportSurfaceActions?.({
+  isCurrent:isCurrentReport,actions
+ })||Object.fromEntries(Object.entries(actions||{}).map(([key,fn])=>[
+  key,typeof fn==="function"?(...args)=>{
+   if(isCurrentReport())return fn.apply(actions,args)
+  }:fn
+ ]));
+ // Block interactions on a detached report host without breaking native
+ // Enter/Space and existing HTML fallback while the host is current.
+ for(const kind of ["click","keydown","input","change","submit"]){
+  host.addEventListener(kind,event=>{
+   if(isOpen())return;
+   event.preventDefault();
+   event.stopImmediatePropagation();
+  },true);
+ }
+ host.addEventListener("click",event=>{
+  if(!isCurrentReport()||!event.target.closest("[data-report-close]"))return;
+  if(typeof reportActions.close==="function")reportActions.close();
+  else closeModal();
+ });
  let mounting=false;
  loadVueModule().then(module=>{
   if(!isOpen())return;
   if(typeof module[mount]!=="function")throw new Error("Не найден компонент "+mount);
   mounting=true;
-  module[mount](host,model,actions);
+  module[mount](host,model,reportActions);
  }).catch(()=>{
   if(!isOpen())return;
   if(content){if(mounting)host.innerHTML=fallback;return}
@@ -14309,17 +14632,23 @@ function renderAnalyticsView({hostId,mount,model,actions,loading,error,backLabel
   mainView.replaceChildren(host);
  }
  const revision=++knowledgeMapRevision;
+ const isCurrent=()=>host.parentNode===mainView&&host.isConnected&&revision===knowledgeMapRevision;
+ const viewActions=window.MatKvestVueActions?.analyticsViewActions?.({
+  isCurrent,actions
+ })||Object.fromEntries(Object.entries(actions||{}).map(([key,fn])=>[
+  key,typeof fn==="function"?(...args)=>{if(isCurrent())return fn.apply(actions,args)}:fn
+ ]));
  loadVueModule().then(module=>{
-  if(host.parentNode!==mainView||revision!==knowledgeMapRevision)return;
-  module[mount](host,model,actions);
+  if(!isCurrent())return;
+  module[mount](host,model,viewActions);
  }).catch(()=>{
-  if(host.parentNode!==mainView||revision!==knowledgeMapRevision)return;
+  if(!isCurrent())return;
   host.innerHTML='<div class="home-back-row"><button type="button" class="home-back-btn"></button></div><div class="knowledge-empty" role="alert"><span></span> <button type="button" class="btn soft">Повторить</button></div>';
   host.querySelector(".knowledge-empty span").textContent=error;
   const back=host.querySelector(".home-back-btn");
   back.textContent=backLabel;
-  back.onclick=actions.back;
-  host.querySelector(".knowledge-empty button").onclick=retry;
+  back.onclick=viewActions.back;
+  host.querySelector(".knowledge-empty button").onclick=()=>{if(isCurrent())return retry()};
  });
 }
 function knowledgeGradeNumber(value){
@@ -14897,15 +15226,22 @@ function renderTask(restore){
  const host=exerciseHost("stage"),attempt=blockSession,exercise=task;
  host.innerHTML=columnExerciseHtml(view);
  const isCurrent=()=>host.parentNode===modal&&task===exercise&&blockSession===attempt&&overlay.classList.contains("show")&&!mk872Dialog;
- const actions={
+ const fallbackActions={
   primary:()=>{if(isCurrent())(columnSolved?newTask:checkColumn)()},
   skip:()=>{
    if(!isCurrent()||columnSolved)return;
    if(attempt)mk872RequestExerciseSkip(host,newTask);
    else newTask();
   },
-  inputCell:columnCellInput,moveCell:workKey,toggleDot
+  inputCell:el=>{if(isCurrent())return columnCellInput(el)},
+  moveCell:(event,el)=>{if(isCurrent())return workKey(event,el)},
+  toggleDot:el=>{if(isCurrent())return toggleDot(el)}
  };
+ const actions=window.MatKvestVueActions?.schoolColumnActions?.({
+  isCurrent,isSolved:()=>columnSolved,hasAttempt:()=>!!attempt,
+  check:checkColumn,next:newTask,requestSkip:()=>mk872RequestExerciseSkip(host,newTask),
+  inputCell:columnCellInput,moveCell:workKey,toggleDot
+ })||fallbackActions;
  host.onclick=event=>{
   const target=event.target;
   const button=target.closest("button");
@@ -15136,7 +15472,7 @@ function renderTableExercise(restore){
   <button type="button" id="tableSkip" class="btn soft">${attempt?"⏭ Пропустить задание":"Другой пример"}</button></div>
   <div class="feedback" id="tfb" role="status"></div></div>`;
  const isCurrent=()=>host.parentNode===modal&&blockSession===attempt&&overlay.classList.contains("show")&&!mk872Dialog;
- const actions={
+ const fallbackActions={
   primary:()=>{if(isCurrent())(tableSolved?practice:checkTable)()},
   skip:()=>{
    if(!isCurrent()||tableSolved)return;
@@ -15144,6 +15480,10 @@ function renderTableExercise(restore){
    else practice();
   }
  };
+ const actions=window.MatKvestVueActions?.schoolTableActions?.({
+  isCurrent,isSolved:()=>tableSolved,hasAttempt:()=>!!attempt,
+  check:checkTable,next:practice,requestSkip:()=>mk872RequestExerciseSkip(host,practice)
+ })||fallbackActions;
  host.onclick=event=>{
   const button=event.target.closest("button");
   if(button?.id==="tablePrimary")actions.primary();
@@ -16026,7 +16366,10 @@ function mountQuizExercise(){
    suffix:question.unitSuffix,feedback:feedback.innerHTML,check:check?.style.cssText??null,
    next:{className:next.className,label:next.textContent,style:next.style.cssText},
    skipStyle:skip.style.cssText
-  },{choose:pick,check:checkQuizInput,skip:requestQuizSkip,next:quizAdvanceResolved,keydown:quizKeyboard});
+  },window.MatKvestVueActions?.schoolQuizActions?.({
+   isCurrent:()=>host.parentNode===modal&&blockSession===attempt&&q===question&&overlay.classList.contains("show")&&!mk872Dialog,
+   choose:pick,check:checkQuizInput,skip:requestQuizSkip,next:quizAdvanceResolved,keydown:quizKeyboard
+  })||{choose:pick,check:checkQuizInput,skip:requestQuizSkip,next:quizAdvanceResolved,keydown:quizKeyboard});
   host.onkeydown=null;
   if(mk872DialogReturnFocus===skip)mk872DialogReturnFocus=host.querySelector("#quizSkip");
   const replacement=focusId?document.getElementById(focusId):host.querySelectorAll(".answers > .answer")[choiceIndex];
@@ -16383,7 +16726,7 @@ function questBoardFallback(model,historyOpen=false){
  const history=model.history.map(entry=>`<div class="quest-history-row"><div><b>✅ ${esc(entry.title)}</b>
   <small>${esc(entry.date)}</small></div><span>${esc(entry.reward)}</span></div>`).join("");
  return `<div class="quest-screen"><div class="home-back-row">
-  <button type="button" class="home-back-btn" onclick="renderHome()">← Главный экран</button></div>
+  <button type="button" class="home-back-btn" data-quest-action="back">← Главный экран</button></div>
   <section class="quest-hero"><h1>🔥 Квесты</h1><p>Прогресс квеста считается с момента его выдачи.</p></section>
   <div class="quest-board-summary">${model.stats.map(stat=>`<div><b>${stat.value}</b><small>${stat.label}</small></div>`).join("")}</div>
   <div class="quest-grid">${cards||'<div class="quest-empty">Подходящие квесты пока не найдены.</div>'}</div>
@@ -16406,11 +16749,20 @@ function renderQuestBoard(){
  const renderFallback=()=>{host.innerHTML=questBoardFallback(model,host.querySelector(".quest-history")?.open)};
  if(!host.hasAttribute("data-v-app"))renderFallback();
  const revision=++knowledgeMapRevision;
- const isCurrent=()=>host.parentNode===mainView&&knowledgeMapRevision===revision;
+ const isCurrent=()=>host.parentNode===mainView&&host.isConnected&&knowledgeMapRevision===revision;
+ const backActions=window.MatKvestVueActions?.questBackActions?.({
+  isCurrent,back:mk872BrandGoHome
+ })||{back:()=>{if(isCurrent())return mk872BrandGoHome()}};
+ // Native delegated fallback preserves Enter/Space; a detached host cannot act.
+ host.addEventListener("click",event=>{
+  if(host.hasAttribute("data-v-app")||!isCurrent())return;
+  const button=event.target.closest('button[data-quest-action="back"]');
+  if(button&&host.contains(button))backActions.back();
+ });
  loadVueModule().then(module=>{
   if(!isCurrent())return;
   const historyOpen=host.querySelector(".quest-history")?.open;
-  module.mountQuestBoard(host,model,{back:()=>renderHome(),claim:claimQuest,replace:requestQuestReroll});
+  module.mountQuestBoard(host,model,{back:backActions.back,claim:claimQuest,replace:requestQuestReroll});
   if(historyOpen)host.querySelector(".quest-history").open=true;
  }).catch(()=>{if(isCurrent()&&!host.querySelector(".quest-screen"))renderFallback()});
 }
@@ -21804,7 +22156,7 @@ function renderQuickIntro(smartMessage="",focusAction=null){
  const trainerId=quickTrainerId,selection=quickSelection;
  const model={...quickSetupModel(trainerId),smartMessage};
  const isCurrent=()=>quickTrainerId===trainerId&&quickMode==="intro"&&mainView.contains(host);
- const actions={
+ const fallbackActions={
   run(action){
    if(!isCurrent()||mk872Dialog)return;
    const [group,value]=action.split(":");
@@ -21818,6 +22170,12 @@ function renderQuickIntro(smartMessage="",focusAction=null){
    if(action==="home")return quickTrainerGoHome();
   }
  };
+ const actions=window.MatKvestVueActions?.quickSetupActions?.({
+  isCurrent,isBlocked:()=>!!mk872Dialog,
+  choice:value=>quickMeta(trainerId).config.type!=="multiTables"?quickChooseMode(value):
+   value==="all"?quickSelectAll():quickToggleTable(Number(value)),
+  smart:quickChooseSmartMode,start:startQuickTraining,trainAll:quickFallbackAll,home:quickTrainerGoHome
+ })||fallbackActions;
  const activeControl=()=>host.contains(document.activeElement)?document.activeElement.dataset.quickSetup:null;
  const focusControl=action=>{
   if(action)host.querySelector(`button[data-quick-setup="${CSS.escape(action)}"]`)?.focus({preventScroll:true});
@@ -22090,11 +22448,16 @@ function renderQuickSummary(s){
   <div class="quick-summary-grid">${stats}</div><div class="quick-summary-reward"><span>+${model.xp} XP</span><span>+${model.coins} 🪙</span></div>
   <div class="quick-review-summary"><h3>Стоит повторить</h3>${facts}</div><div class="quick-summary-actions"><button type="button" class="btn primary" data-quick-result="again">Ещё раз</button><button type="button" class="btn soft" data-quick-result="home">На главную</button>${model.returnToPlan?'<button type="button" class="btn soft" data-quick-result="returnToPlan">← Вернуться к плану</button>':""}</div></div>`;
  const isCurrent=()=>mainView.contains(host)&&quickMode==="summary";
- const actions={
+ const fallbackActions={
   again:()=>{if(isCurrent())quickAgain(s.selectedConfig)},
   home:()=>{if(isCurrent())mk854Route().planRun?mk872BrandGoHome():quickTrainerGoHome()},
   returnToPlan:()=>{if(isCurrent()&&trainingPlanRunContext)returnToTrainingPlan()}
  };
+ const actions=window.MatKvestVueActions?.quickResultActions?.({
+  isCurrent,selection:s.selectedConfig,again:quickAgain,
+  home:()=>mk854Route().planRun?mk872BrandGoHome():quickTrainerGoHome(),
+  hasPlan:()=>!!trainingPlanRunContext,returnToPlan:returnToTrainingPlan
+ })||fallbackActions;
  host.onclick=event=>{
   const button=event.target.closest("button[data-quick-result]");
   if(button&&!button.disabled)actions[button.dataset.quickResult]?.();
@@ -22435,17 +22798,24 @@ function trainingPlanFallback(model){
 }
 function renderTrainingPlanView(model,actions){
  const host=document.createElement("div");host.id="trainingPlanVue";host.style.display="contents";
+ const isCurrentPlan=()=>host.parentNode===mainView&&host.isConnected;
+ const fallbackActions=Object.fromEntries(Object.entries(actions).map(([key,handler])=>[
+  key,(...args)=>{if(!isCurrentPlan()||mk872Dialog)return;return handler(...args)}
+ ]));
+ const planActions=window.MatKvestVueActions?.trainingPlanActions?.({
+  isCurrent:isCurrentPlan,isBlocked:()=>!!mk872Dialog,actions
+ })||fallbackActions;
  const showFallback=()=>{
   host.innerHTML=trainingPlanFallback(model);
   host.onclick=event=>{
    const button=event.target.closest("button[data-plan-action]");
-   if(button&&!button.disabled)actions[button.dataset.planAction]?.(button.dataset.planItem);
+   if(button&&!button.disabled)planActions[button.dataset.planAction]?.(button.dataset.planItem);
   };
  };
  showFallback();mainView.replaceChildren(host);
  loadVueModule().then(module=>{
   if(host.parentNode!==mainView)return;
-  module.mountTrainingPlan(host,model,actions);
+  module.mountTrainingPlan(host,model,planActions);
   host.onclick=null;
  }).catch(()=>{if(host.parentNode===mainView)showFallback()});
 }
@@ -22536,7 +22906,8 @@ function mountTrainingPlanReturn(surface,className,note){
  loadVueModule().then(module=>{
   if(host.parentNode!==surface||trainingPlanRunContext!==context)return;
   const focused=host.contains(document.activeElement);
-  module.mountTrainingPlanReturn(host,{note},{returnToPlan:returnToTrainingPlan});
+   const vueActions=window.MatKvestRouteCore?.trainingPlanReturnVueActions?.(returnToTrainingPlan)||{returnToPlan:returnToTrainingPlan};
+   module.mountTrainingPlanReturn(host,{note},vueActions);
   if(focused)host.querySelector("button")?.focus({preventScroll:true});
  }).catch(()=>{ /* Keep the return button available if Vue cannot load. */ });
 }
@@ -25514,7 +25885,8 @@ function mountHomeDashboard(){
   const host=document.createElement("div"),fallback=[...mainView.childNodes];
   host.id="homeDashboard";host.style.display="contents";
   mainView.replaceChildren(host);
-  try{module.mountHomeDashboard(host,model,{run:runHomeAction})}catch(error){mainView.replaceChildren(...fallback);throw error}
+   const vueActions=window.MatKvestRouteCore?.homeVueActions?.(runHomeAction)||{run:runHomeAction};
+   try{module.mountHomeDashboard(host,model,vueActions)}catch(error){mainView.replaceChildren(...fallback);throw error}
   const button=action&&[...host.querySelectorAll("button[data-home-action]")].find(el=>el.dataset.homeAction===action);
   button?.focus({preventScroll:true});
  }).catch(()=>{ /* The existing dashboard remains navigable if Vue cannot load. */ });
@@ -25553,6 +25925,8 @@ let mk854AfterProfilesOpen=()=>{};
 let mk854ExtraRouteRenderer=()=>false;
 
 function mk854Route(){
+ const core=window.MatKvestRouteCore;
+ if(core&&typeof core.currentRoute==="function")return core.currentRoute(history.state);
  const st=history.state;
  return st&&st.__matkvest854&&st.route?st.route:{screen:"home"};
 }
@@ -25576,13 +25950,21 @@ function savedQuickResult(trainerId){
  return record?.sessionSummary||null;
 }
 function mk854Depth(){
+ const core=window.MatKvestRouteCore;
+ if(core&&typeof core.currentDepth==="function")return core.currentDepth(history.state);
  const st=history.state;
  return st&&st.__matkvest854?Math.max(0,Number(st.depth||0)):0;
 }
 function mk854SameRoute(a,b){
+ const core=window.MatKvestRouteCore;
+ if(core&&typeof core.sameRoute==="function")return core.sameRoute(a,b);
  try{return JSON.stringify(a||{})===JSON.stringify(b||{})}catch(e){return false}
 }
 function mk854HistoryWrite(route,mode="push"){
+ const core=window.MatKvestRouteCore;
+ if(core&&typeof core.writeHistory==="function")return core.writeHistory(history,route,mode,e=>{
+  try{console.warn("МатКвест: History API недоступен в текущем окружении",e)}catch(_){}
+ });
  const current=mk854Route(),depth=mk854Depth();
  if(mode==="push"&&mk854SameRoute(current,route))return false;
  const payload={__matkvest854:true,depth:mode==="push"?depth+1:depth,route};
@@ -25615,7 +25997,23 @@ function mk854RestoreRoute(route){
  const r=route&&route.screen?route:{screen:"home"};
  mk854RunRestoring(()=>{
   MK854_CORE_CLOSE_MODAL();
-  if(r.screen==="home")return MK854_CORE_RENDER_HOME();
+   const core=window.MatKvestRouteCore;
+   if(core&&typeof core.dispatchRoute==="function")return core.dispatchRoute(r,{
+    home:()=>MK854_CORE_RENDER_HOME(),
+    grade:x=>MK854_CORE_OPEN_GRADE(Number(x.grade)),
+    topic:x=>mk854RenderTopicCore(x),
+    trainer:x=>{
+     const setup=history.state?.quickSetup;
+     const selection=setup?.profileId===state.profileId&&setup?.trainerId===x.trainerId?setup.selection:null;
+     return MK854_CORE_OPEN_QUICK(x.trainerId,x.planRun,selection,savedQuickResult(x.trainerId));
+    },
+    store:x=>openShop(x.category||"avatars"),
+    leaderboard:()=>MK854_CORE_OPEN_LEADERBOARD(),
+    quests:()=>renderQuestBoard(),
+    profiles:()=>{MK854_CORE_OPEN_PROFILES();mk854AfterProfilesOpen();},
+    other:x=>mk854ExtraRouteRenderer(x)
+   });
+   if(r.screen==="home")return MK854_CORE_RENDER_HOME();
   if(r.screen==="grade")return MK854_CORE_OPEN_GRADE(Number(r.grade));
   if(r.screen==="topic")return mk854RenderTopicCore(r);
   if(r.screen==="trainer"){
@@ -25715,7 +26113,7 @@ closeModal=function(){
 
 window.addEventListener("popstate",event=>{
  const st=event.state;
- const route=st&&st.__matkvest854&&st.route?st.route:{screen:"home"};
+ const route=window.MatKvestRouteCore?.currentRoute?.(st)||(st&&st.__matkvest854&&st.route?st.route:{screen:"home"});
  mk854RestoreRoute(route);
 });
 
@@ -25726,7 +26124,9 @@ function mk854InitHistory(){
  }
  mk854HistoryReady=true;
  const route=mk854Route();
- if(["store","chest","quests","profiles"].includes(route.screen)||([1,2,3,4,5,6,7,8].includes(Number(route.grade))&&(route.screen==="grade"||route.screen==="topic"))){
+ const core=window.MatKvestRouteCore;
+ const defer=core&&typeof core.shouldDeferRestore==="function"?core.shouldDeferRestore(route):(["store","chest","quests","profiles"].includes(route.screen)||([1,2,3,4,5,6,7,8].includes(Number(route.grade))&&(route.screen==="grade"||route.screen==="topic")));
+ if(defer){
   // The textbook and cosmetic catalogs are registered later in the document.
   document.addEventListener("DOMContentLoaded",()=>{
    if(mk854SameRoute(route,mk854Route()))mk854RestoreRoute(route);
@@ -26709,7 +27109,7 @@ function mk865RunSaleButton(row,column){mk865CurrentSaleDialog?.buttons?.[row]?.
 function mk865RunSaleTopic(index){mk865CurrentSaleDialog?.topics?.[index]?.run?.()}
 function mk865SaleDialogHtml(model){
  const title='<div class="mk865-sale-head"><div><h2 id="mk865SaleTitle">'+esc(model.title)+'</h2>'+
-  (model.subtitle?'<p>'+esc(model.subtitle)+'</p>':'')+'</div><button type="button" class="mk865-sale-close" aria-label="Закрыть окно продажи" onclick="mk865CloseSaleOverlay()">×</button></div>';
+  (model.subtitle?'<p>'+esc(model.subtitle)+'</p>':'')+'</div><button type="button" class="mk865-sale-close" aria-label="Закрыть окно продажи" data-mk865-sale-close>×</button></div>';
  const m=model.mission;
  const mission=m?'<div class="mk865-mission-box '+(m.completed?'completed':'')+'"><b>'+esc(m.title)+'</b><div>'+
   esc(m.topic)+'</div><div class="mk865-mission-progress"><span style="width:'+m.percent+'%"></span></div><small>'+
@@ -26718,23 +27118,48 @@ function mk865SaleDialogHtml(model){
   '<div class="mk865-refund-card '+(option.good?'good':'')+'"><small>'+esc(option.label)+'</small><b>+'+
   option.coins+' 🪙</b><small>'+esc(option.detail)+'</small></div>').join('')+'</div>':'';
  const topics=model.topics?.length?'<div class="mk865-topic-grid">'+model.topics.map((topic,index)=>
-  '<button type="button" class="mk865-topic" onclick="mk865RunSaleTopic('+index+')"><b>'+topic.grade+' класс • '+
+  '<button type="button" class="mk865-topic" data-mk865-sale-topic="'+index+'"><b>'+topic.grade+' класс • '+
   esc(topic.title)+'</b><small>'+esc(topic.detail)+'</small><span class="mk865-reason">'+esc(topic.reason)+'</span></button>').join('')+'</div>':'';
  const buttons=model.buttons.map((row,index)=>'<div class="mk865-inline-actions">'+row.map((button,column)=>
   '<button type="button" class="btn '+(button.primary?'primary':'soft')+'" '+(button.disabled?'disabled ' :'')+
-  'onclick="mk865RunSaleButton('+index+','+column+')">'+esc(button.label)+'</button>').join('')+'</div>').join('');
+  'data-mk865-sale-row="'+index+'" data-mk865-sale-column="'+column+'">'+esc(button.label)+'</button>').join('')+'</div>').join('');
  return title+mission+refunds+(model.notice?'<div class="lesson">'+esc(model.notice)+'</div>':'')+topics+buttons;
 }
 function mk865ShowSaleOverlay(model){
  const el=mk865SaleOverlay(),box=el.firstElementChild,host=document.createElement("div");
  if(!el.classList.contains("show"))mk865SaleReturnFocus=document.activeElement;
+ // Only the live host/model may dispatch its close action. This guard never
+ // authorizes any run/choose sale operations; they remain legacy-owned.
+ const isCurrent=()=>host.parentNode===box&&host.isConnected&&
+  el.classList.contains("show")&&mk865CurrentSaleDialog===model;
+ const closeActions=window.MatKvestVueActions?.saleDialogCloseActions?.({
+  isCurrent,close:mk865CloseSaleOverlay
+ })||{close:()=>{if(isCurrent())return mk865CloseSaleOverlay()}};
+ // v287: a detached button/topic from an earlier sale dialog must never
+ // dispatch the currently visible dialog's action (including a sale/refund).
+ const dispatchActions=window.MatKvestVueActions?.saleDialogDispatchActions?.({
+  isCurrent,run:mk865RunSaleButton,choose:mk865RunSaleTopic
+ })||{
+  run:(row,column)=>{if(isCurrent())return mk865RunSaleButton(row,column)},
+  choose:index=>{if(isCurrent())return mk865RunSaleTopic(index)}
+ };
+ host.addEventListener("click",event=>{
+  if(!isCurrent()||host.hasAttribute("data-v-app"))return;
+  const button=event.target.closest("button");
+  if(!button||!host.contains(button)||button.disabled)return;
+  if(button.matches("[data-mk865-sale-close]"))return closeActions.close();
+  if(button.hasAttribute("data-mk865-sale-row")&&button.hasAttribute("data-mk865-sale-column"))
+   return dispatchActions.run(Number(button.dataset.mk865SaleRow),Number(button.dataset.mk865SaleColumn));
+  if(button.hasAttribute("data-mk865-sale-topic"))
+   return dispatchActions.choose(Number(button.dataset.mk865SaleTopic));
+ });
  mk865CurrentSaleDialog=model;
  host.innerHTML=mk865SaleDialogHtml(model);box.replaceChildren(host);el.classList.add("show");
  const focus=()=>host.querySelector(".mk865-sale-close")?.focus({preventScroll:true});focus();
  loadVueModule().then(module=>{
   if(host.parentNode!==box||mk865CurrentSaleDialog!==model||!el.classList.contains("show"))return;
   const focused=host.querySelectorAll("button"),index=[...focused].indexOf(document.activeElement);
-  module.mountStoreSaleDialog(host,model,{close:mk865CloseSaleOverlay,run:mk865RunSaleButton,choose:mk865RunSaleTopic});
+  module.mountStoreSaleDialog(host,model,{close:closeActions.close,run:dispatchActions.run,choose:dispatchActions.choose});
   if(index>=0)host.querySelectorAll("button")[index]?.focus({preventScroll:true});
  }).catch(()=>{ /* Keep the existing sale controls usable when Vue cannot load. */ });
 }
@@ -27633,12 +28058,21 @@ function mk872CollectionNavigationModel(active,archiveCount){
 function mk872CollectionNavigationHtml(model){
  return model.sections.map(section=>{
   const active=section.id===model.active;
-  return `<button type="button" class="mk872-col-count${active?" active":""}" data-mk872-collection-tab="${section.id}" aria-pressed="${active}" aria-controls="mk872CollectionContent" onclick="mk872CollectionSwitch('${section.id}')"><b>${esc(section.count)}</b><small>${esc(section.label)}</small></button>`;
+  return `<button type="button" class="mk872-col-count${active?" active":""}" data-mk872-collection-tab="${section.id}" aria-pressed="${active}" aria-controls="mk872CollectionContent"><b>${esc(section.count)}</b><small>${esc(section.label)}</small></button>`;
  }).join("");
 }
 function mk872RenderCollectionSection(root,type,archive=mk873ArchiveModel()){
  const navigation=root.querySelector(".mk872-col-counter-grid"),slot=mk872CollectionContentSlot(root);
- const tabs=mk872CollectionNavigationModel(type,archive.count);
+ const tabs=mk872CollectionNavigationModel(type,archive.count),profileId=state.profileId;
+ const isCurrent=()=>root.parentNode===modal&&root.isConnected&&navigation.parentNode===root&&overlay.classList.contains("show")&&state.profileId===profileId;
+ const navigationActions=mk288GuardStoreActions(isCurrent,{select:id=>{
+  if(tabs.sections.some(section=>section.id===id))return mk872CollectionSwitch(id);
+ }});
+ navigation.onclick=event=>{
+  if(!isCurrent()||navigation.hasAttribute("data-v-app"))return;
+  const button=event.target.closest("button[data-mk872-collection-tab]");
+  if(button&&navigation.contains(button)&&!button.disabled)return navigationActions.select(button.dataset.mk872CollectionTab);
+ };
  if(!navigation.hasAttribute("data-v-app")){
   if(!navigation.childElementCount)navigation.innerHTML=mk872CollectionNavigationHtml(tabs);
   else for(const button of navigation.children){
@@ -27657,7 +28091,7 @@ function mk872RenderCollectionSection(root,type,archive=mk873ArchiveModel()){
  loadVueModule().then(module=>{
   if(!slot.isConnected||!overlay.classList.contains("show"))return;
   const focus=navigation.contains(document.activeElement)?document.activeElement.dataset.mk872CollectionTab:null;
-  module.mountCollectionNavigation(navigation,tabs,{select:mk872CollectionSwitch});
+  module.mountCollectionNavigation(navigation,tabs,navigationActions);
   if(focus)navigation.querySelector(`[data-mk872-collection-tab="${CSS.escape(focus)}"]`)?.focus({preventScroll:true});
   if(type==="archive")module.mountCollectionArchive(slot,content,{run:mk873RunArchiveAction});
   else module.mountCollectionSection(slot,content,{choose:id=>mk872CollectionChoose(type,id)});
@@ -27721,14 +28155,24 @@ function mk872HelpOpen(key,source){
  const topic=MK872_HELP_TOPICS[key];if(!topic)return;
  mk872HelpClose();mk872HelpLastFocus=source||document.activeElement;
  const layer=document.createElement('div');layer.id='mk872-help-layer';layer.className='mk872-help-layer';
- layer.innerHTML='<section class="mk872-help-dialog" role="dialog" aria-modal="true" aria-labelledby="mk872-help-title"><div class="mk872-help-top"><h3 id="mk872-help-title">'+esc(topic.title)+'</h3><button type="button" class="mk872-help-close" aria-label="Закрыть справку" onclick="mk872HelpClose()">×</button></div><div class="mk872-help-content">'+topic.content+'</div></section>';
- layer.addEventListener('click',e=>{if(e.target===layer)mk872HelpClose()});
+ const isCurrent=()=>layer.isConnected&&document.getElementById('mk872-help-layer')===layer;
+ const helpActions=window.MatKvestVueActions?.helpDialogActions?.({
+  isCurrent,close:mk872HelpClose
+ })||{close:()=>{if(isCurrent())return mk872HelpClose()}};
+ layer.innerHTML='<section class="mk872-help-dialog" role="dialog" aria-modal="true" aria-labelledby="mk872-help-title"><div class="mk872-help-top"><h3 id="mk872-help-title">'+esc(topic.title)+'</h3><button type="button" class="mk872-help-close" aria-label="Закрыть справку" data-mk872-help-close>×</button></div><div class="mk872-help-content">'+topic.content+'</div></section>';
+ layer.addEventListener('click',e=>{
+  if(!isCurrent())return;
+  if(e.target===layer)return helpActions.close();
+  // Only native HTML fallback uses delegated close; Vue dispatches its own action.
+  if(!host.hasAttribute('data-v-app')&&
+     e.target.closest('[data-mk872-help-close]'))helpActions.close();
+ });
  document.body.appendChild(layer);
  const host=layer.firstElementChild,focus=()=>host.querySelector('button')?.focus();
  focus();
  loadVueModule().then(module=>{
   if(!host.isConnected||host.parentNode!==layer)return;
-  module.mountStoreHelpDialog(host,topic,{close:mk872HelpClose});focus();
+  module.mountStoreHelpDialog(host,topic,{close:helpActions.close});focus();
  }).catch(()=>{ /* Keep help readable when Vue cannot load. */ });
 }
 document.addEventListener('keydown',function(e){const layer=document.getElementById('mk872-help-layer');if(!layer)return;if(e.key==='Escape'){e.preventDefault();e.stopImmediatePropagation();mk872HelpClose();}else if(e.key==='Tab'){const focusables=[...layer.querySelectorAll('button:not([disabled])')];if(focusables.length){e.preventDefault();focusables[0].focus();}}},true);
@@ -39693,8 +40137,9 @@ function mountAppHeader(){
   const active=document.activeElement;
   const focusedAction=host.contains(active)?active.closest("[data-header-action]")?.dataset.headerAction:null;
   const menuOpen=host.querySelector(".stats").dataset.mkUi19Menu==="open";
-  const actions={home:()=>mk872BrandGoHome(),profile:()=>openProfiles(),wallet:()=>window.mk19eWallet(),
+  const fallbackActions={home:()=>mk872BrandGoHome(),profile:()=>openProfiles(),wallet:()=>window.mk19eWallet(),
    shop:()=>openShop(),data:()=>openDataManager(),journal:()=>openAttemptJournal(),leaders:()=>openLeaderboard()};
+  const actions=window.MatKvestVueActions?.headerActions?.(fallbackActions)||fallbackActions;
   const fallback=[...host.childNodes];
   try{module.mountAppHeader(host,{...appHeaderModel(),menuOpen},actions)}
   catch(error){host.replaceChildren(...fallback);throw error}
@@ -41520,13 +41965,21 @@ if(mkV877CorruptProfiles){
   const model=artworkModel(item);
   const host=document.createElement('div');
   host.className='mk872-viewer-content';
+  // Only the current live viewer may consume its own close button. The shared
+  // Escape/Back handlers below still close the active popup as before.
+  const isCurrent=()=>host.parentNode===popup&&host.isConnected&&
+    popup.classList.contains('mk872-open');
+  const viewerActions=window.MatKvestVueActions?.artworkViewerActions?.({
+   isCurrent,close
+  })||{close:()=>{if(isCurrent())return close()}};
+
   const fallback=()=>{
    host.innerHTML=`<div class="mk872-viewer-card" role="document">
      <button type="button" class="mk872-viewer-close" aria-label="Закрыть просмотр">×</button>
      <div id="mk872ViewerVisual"><div class="mk30-visual ${model.kind==='pet'?'mk30-pet':'mk30-avatar'}" inert>${model.artwork}</div></div>
      <div id="mk872ViewerTitle" class="mk872-viewer-title">${esc(model.title)}</div>
      <div class="mk872-viewer-hint">Нажмите вне окна или Esc, чтобы закрыть</div></div>`;
-   host.querySelector('.mk872-viewer-close').onclick=close;
+   host.querySelector('.mk872-viewer-close').onclick=viewerActions.close;
   };
   fallback();
   previousFocus=item.node;
@@ -41540,7 +41993,7 @@ if(mkV877CorruptProfiles){
   }
   loadVueModule().then(module=>{
    if(host.parentNode!==popup)return;
-   try{module.mountArtworkViewer(host,model,{close})}
+   try{module.mountArtworkViewer(host,model,{close:viewerActions.close})}
    catch{fallback()}
    host.querySelector('.mk872-viewer-close')?.focus({preventScroll:true});
   }).catch(()=>{ /* The preview remains usable if Vue cannot load. */ });
@@ -41683,10 +42136,21 @@ if(mkV877CorruptProfiles){
    if(host.hasAttribute("data-v-app"))continue;
    const picker=host.classList.contains("mk-ux91-category-label");
    const model={tabs:storeTabs,active:host.dataset.storeActive,picker};
+   const isCurrentTabHost=()=>host.parentNode===modal&&host.isConnected&&
+    overlay.classList.contains("show");
+   const liveStoreActions=window.MatKvestVueActions?.storeTabActions?.({
+    isCurrent:isCurrentTabHost,categories:storeTabs.map(tab=>tab.id),
+    actions:{select:openStoreTab}
+   })||{
+    select:id=>{
+     if(isCurrentTabHost()&&storeTabs.some(tab=>tab.id===id))return openStoreTab(id)
+    }
+   };
    loadVueModule().then(module=>{
     if(host.parentNode!==modal||host.hasAttribute("data-v-app")||!overlay.classList.contains("show"))return;
     module.mountStoreTabs(host,model,{open:(id,fromPicker)=>{
-     openStoreTab(id);
+     if(!isCurrentTabHost())return;
+     liveStoreActions.select(id);
      requestAnimationFrame(()=>{
       if(!overlay.classList.contains("show")||modal.querySelector(".shop-tabs")?.dataset.storeActive!==id)return;
       const active=document.activeElement;
@@ -42155,31 +42619,31 @@ document.addEventListener("keydown",event=>{
 })();
 </script>
 
-<script src="g5-conversion-ux.js?v=268"></script>
-<script src="g5-textbook-topics.js?v=268"></script>
-<script src="g5-textbook-core.js?v=268"></script>
-<script src="g5-textbook-v111.js?v=268"></script>
-<script src="g5-textbook-v112.js?v=268"></script>
-<script src="g5-pedagogy-v113.js?v=268"></script>
-<script src="g5-fractions-v114.js?v=268"></script>
-<script src="g5-fraction-arithmetic-v115.js?v=268"></script>
-<script src="g5-decimals-v116.js?v=268"></script>
-<script src="g7-textbook.js?v=268"></script>
-<script src="g8-textbook.js?v=268"></script>
-<script src="g1-textbook.js?v=268"></script>
-<script src="g2-textbook.js?v=268"></script>
-<script src="g3-textbook.js?v=268"></script>
-<script src="g4-textbook.js?v=268"></script>
-<script src="g5-textbook-navigation-v121.js?v=268"></script>
-<script src="g5-live-pedagogy-v122.js?v=268"></script>
-<script src="g5-arithmetic-tiers-v123.js?v=268"></script>
-<script src="g5-textbook-tiers-v124.js?v=268"></script>
-<script src="g5-natural-units-v125.js?v=268"></script>
-<script src="g5-remaining-core-v126.js?v=268"></script>
-<script src="g5-decimal-tiers-v127.js?v=268"></script>
-<script src="g5-decimal-percent-v128.js?v=268"></script>
-<script src="g5-fraction-concepts-v129.js?v=268"></script>
-<script src="g5-fraction-applications-v130.js?v=268"></script>
+<script src="g5-conversion-ux.js?v=290"></script>
+<script src="g5-textbook-topics.js?v=290"></script>
+<script src="g5-textbook-core.js?v=290"></script>
+<script src="g5-textbook-v111.js?v=290"></script>
+<script src="g5-textbook-v112.js?v=290"></script>
+<script src="g5-pedagogy-v113.js?v=290"></script>
+<script src="g5-fractions-v114.js?v=290"></script>
+<script src="g5-fraction-arithmetic-v115.js?v=290"></script>
+<script src="g5-decimals-v116.js?v=290"></script>
+<script src="g7-textbook.js?v=290"></script>
+<script src="g8-textbook.js?v=290"></script>
+<script src="g1-textbook.js?v=290"></script>
+<script src="g2-textbook.js?v=290"></script>
+<script src="g3-textbook.js?v=290"></script>
+<script src="g4-textbook.js?v=290"></script>
+<script src="g5-textbook-navigation-v121.js?v=290"></script>
+<script src="g5-live-pedagogy-v122.js?v=290"></script>
+<script src="g5-arithmetic-tiers-v123.js?v=290"></script>
+<script src="g5-textbook-tiers-v124.js?v=290"></script>
+<script src="g5-natural-units-v125.js?v=290"></script>
+<script src="g5-remaining-core-v126.js?v=290"></script>
+<script src="g5-decimal-tiers-v127.js?v=290"></script>
+<script src="g5-decimal-percent-v128.js?v=290"></script>
+<script src="g5-fraction-concepts-v129.js?v=290"></script>
+<script src="g5-fraction-applications-v130.js?v=290"></script>
 <script>
 // The textbook scripts finish extending the catalog before Home shows its totals.
 g5HomeCatalogReady=true;

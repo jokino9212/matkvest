@@ -1,0 +1,46 @@
+name: Test-only v280 read-only modal and column skip detail
+on:
+  push:
+    branches: [refactor/route-vue-actions-from-7c14ce9]
+    paths: ['.github/workflows/v280-readonly-dialog-skip-details.yml']
+permissions: {contents: read}
+jobs:
+  inspect:
+    if: github.repository == 'jokino9212/matkvest' && github.ref == 'refs/heads/refactor/route-vue-actions-from-7c14ce9'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Context for safe fixes
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib
+          s=Path('index.html').read_text(encoding='utf8')
+          print('V280_DETAIL_SHA',hashlib.sha256(s.encode()).hexdigest())
+          for term,around,length in [
+            ("document.addEventListener('keydown',event=>{\n    if(!visible(modal)",0,3800),
+            ("if(!visible(modal)||nestedDialog())return;",680,3200),
+            ("function mk872RequestExerciseSkip(",0,3500),
+            ("function mk872RequestSkip",0,3200),
+            ("function mk872RequestExit(",0,1300),
+            ("function mk872Ask",0,1700),
+            ("function mk872CloseDialog(",0,1300),
+            ("function mk854Route(",0,2200),
+            ("function mk854RestoreRoute(",0,2000),
+            ("function showStoreSurface(",0,3000),
+            ("function openTeacherDashboard(",0,1300),
+            ("function mk872HasActiveLearning(",0,650),
+          ]:
+           at=s.find(term)
+           print("V280_DETAIL_TOKEN",repr(term),"OFFSET",at)
+           if at>=0:
+            print("V280_DETAIL_BEGIN",repr(term))
+            print(s[max(0,at-around):at+length])
+            print("V280_DETAIL_END",repr(term))
+          for term in ["mk872RequestExerciseSkip(", "Да, пропустить задание", "closeModal();\n      schedule();", "shopTabs("]:
+           offsets=[];at=0
+           while (at:=s.find(term,at))>=0:
+            offsets.append(at);at+=len(term)
+           print("V280_DETAIL_OCCURRENCES",repr(term),len(offsets),offsets[:12])
+           for p in offsets[:6]:print("V280_DETAIL_SAMPLE",repr(term),repr(s[max(0,p-340):p+860]))
+          PY

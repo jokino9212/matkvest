@@ -1,0 +1,55 @@
+name: Test-only legacy Vue migration anchors
+on:
+  push:
+    branches: [refactor/route-vue-actions-from-7c14ce9]
+    paths:
+      - '.github/workflows/legacy-vue-anchors.yml'
+      - 'audits/legacy_navigation_v270_patch.py'
+      - 'audits/legacy_training_plan_v272_probe.py'
+permissions:
+  contents: read
+jobs:
+  inspect:
+    if: github.repository == 'jokino9212/matkvest' && github.ref == 'refs/heads/refactor/route-vue-actions-from-7c14ce9'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Print bounded known integration anchors (no secrets, no writes)
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          s=Path('index.html').read_text(encoding='utf-8')
+          import re
+          mount_calls=re.findall(r'module\.(mount[A-Za-z0-9_]+)\s*\(',s)
+          from collections import Counter
+          print('ACTION MOUNT INVENTORY:', sorted(Counter(mount_calls).items()))
+          anchors=[
+            'module.mountAppHeader(', 'module.mountQuickTrainerResult(',
+            'module.mountQuickTrainerSetup(', 'module.mountTrainingPlan(',
+            'module.mountStudentProfiles(', 'module.mountAttemptJournal(',
+          ]
+          for anchor in anchors:
+              print('\\n=== ANCHOR',repr(anchor),'count=',s.count(anchor),'===')
+              pos=0
+              for _ in range(min(2,s.count(anchor))):
+                  i=s.find(anchor,pos)
+                  print('at line',s.count('\\n',0,i)+1)
+                  print(s[max(0,i-3400):min(len(s),i+550)])
+                  pos=i+len(anchor)
+          PY
+
+      - name: Inspect training plan handlers and callback boundaries without writes
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          s=Path('index.html').read_text(encoding='utf-8')
+          import re
+          print('V272_PLAN_FILE_BYTES',len(s),'INDEX_SHA256', __import__('hashlib').sha256(s.encode()).hexdigest())
+          for token in ['module.mountTrainingPlan(', 'function mountTrainingPlan(', 'function openTrainingPlan(', 'function renderTrainingPlan(', 'trainingPlanRunContext', 'returnToTrainingPlan(', 'function startTrainingPlan(']:
+              occurrences=[m.start() for m in re.finditer(re.escape(token),s)]
+              print('=== V272 ANCHOR',repr(token),'COUNT',len(occurrences),'===')
+              for pos in occurrences[:3]:
+                  print('LINE',s.count('\\n',0,pos)+1,'OFFSET',pos,'CONTEXT_BEGIN')
+                  print(s[max(0,pos-7500):min(len(s),pos+1500)])
+                  print('CONTEXT_END')
+          PY

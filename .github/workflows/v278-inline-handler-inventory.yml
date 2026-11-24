@@ -1,0 +1,51 @@
+name: Test-only v278 HTML inline-handler inventory
+on:
+  push:
+    branches: [refactor/route-vue-actions-from-7c14ce9]
+    paths: ['.github/workflows/v278-inline-handler-inventory.yml']
+permissions:
+  contents: read
+jobs:
+  inspect:
+    if: github.repository == 'jokino9212/matkvest' && github.ref == 'refs/heads/refactor/route-vue-actions-from-7c14ce9'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Classify unextracted legacy handlers by screen/function with bounded examples
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re,hashlib,bisect,collections
+          s=Path('index.html').read_text(encoding='utf8')
+          print('V278_BASE_SHA',hashlib.sha256(s.encode()).hexdigest(),'BYTES',len(s.encode()))
+          pattern=re.compile(r'\b(on(?:click|keydown|input|change|submit))\s*=')
+          functions=[(m.start(),m.group(1)) for m in re.finditer(r'(?m)^\s*function\s+([A-Za-z_$][\w$]*)\s*\(',s)]
+          starts=[p for p,_ in functions]
+          grouped=collections.defaultdict(list)
+          kinds=collections.Counter()
+          for m in pattern.finditer(s):
+            i=bisect.bisect_right(starts,m.start())-1
+            fn=functions[i][1] if i>=0 else '<outside-function>'
+            grouped[fn].append((m.group(1),m.start(),s[max(0,m.start()-125):m.start()+170].replace('\n',' ')))
+            kinds[m.group(1)]+=1
+          print('V278_KINDS',dict(kinds),'TOTAL',sum(kinds.values()))
+          print('V278_FUNCTIONS',len(functions),'OWNERS',len(grouped))
+          for fn,items in sorted(grouped.items(),key=lambda it:-len(it[1]))[:55]:
+            print('V278_GROUP',fn,'COUNT',len(items),'TYPES',dict(collections.Counter(x[0] for x in items)))
+            for kind,pos,ex in items[:2]:print('V278_EXAMPLE',fn,kind,pos,repr(ex))
+          for fn in [
+            'renderHome','renderProfiles','openProfiles','renderTeacherDashboardBody','teacherDashboardHtml',
+            'teacherStudentDetailHtml','studentReportFallback','renderAnalyticsView',
+            'renderTrainingHistory','showTrainingHistory','openTrainingHistory',
+            'showTeacherActionDialog','teacherActionFallback',
+            'showTeacherPinSetup','showTeacherPinLogin','openCourseTopic',
+            'openStagePicker','showResult','openCollection','openShop',
+            'openDataManager','renderDataManager','openSettings','openLeaderboard',
+          ]:
+            hits=[p for p in [s.find('function '+fn+'(')] if p>=0]
+            print('V278_TARGET',fn,'COUNT',len(hits))
+            for at in hits[:1]:
+              print('V278_TARGET_SNIP_BEGIN',fn,at)
+              print(s[at:at+4300])
+              print('V278_TARGET_SNIP_END')
+          PY

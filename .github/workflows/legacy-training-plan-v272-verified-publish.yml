@@ -1,0 +1,65 @@
+name: Test-only v272 publish from already verified full CI candidate
+on:
+  push:
+    branches: [refactor/route-vue-actions-from-7c14ce9]
+    paths:
+      - '.github/workflows/legacy-training-plan-v272-verified-publish.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: read
+jobs:
+  publish-exact-tested-candidate:
+    if: github.repository == 'jokino9212/matkvest' && github.ref == 'refs/heads/refactor/route-vue-actions-from-7c14ce9'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: refactor/route-vue-actions-from-7c14ce9
+          persist-credentials: true
+      - name: Verify unchanged tested v272 module and prior full CI evidence
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          test "$(git hash-object assets/ui/legacy-vue-actions.js)" = "5716ab4a6939f9defaec91299d30250424f97efb"
+          python3 - <<'PY'
+          import json,os,urllib.request
+          repo='jokino9212/matkvest'
+          run=45276973407
+          def api(path):
+              req=urllib.request.Request('https://api.github.com/repos/'+repo+'/'+path,headers={
+                  'Authorization':'Bearer '+os.environ['GH_TOKEN'],
+                  'Accept':'application/vnd.github+json',
+                  'User-Agent':'MatKvest-v272-evidence-check'})
+              with urllib.request.urlopen(req,timeout=60) as r:return json.load(r)
+          meta=api('actions/runs/'+str(run))
+          assert meta['head_sha']=='a85be17cdfa2c354a3387246e6a80fba1668a2b8'
+          assert meta['status']=='completed'
+          jobs=api('actions/runs/'+str(run)+'/jobs?per_page=100')['jobs']
+          required=[
+              'Apply known-SHA v271-to-v272 plan adapter patch with HTML fallback',
+              'Synchronize v272 PWA and verify patch/publisher syntax',
+              'Verify route and all action contracts',
+              'Verify deterministic Vue build output',
+              'Check plan editor keyboard stale-screen guard Vue fallback and offline F5',
+              'Check existing routes quick results rewards and missing Vue adapter fallback',
+              'Full PWA v271-to-v272 refresh and offline regression',
+              'Verify no HTML or PWA hash drift after browser tests']
+          steps={s['name']:s['conclusion'] for job in jobs for s in job.get('steps',[])}
+          assert all(steps.get(name)=='success' for name in required),(steps,required)
+          print('PASS_V272_PREVIOUS_FULL_CI_PROVEN',run)
+          PY
+      - name: Rebuild exact SHA-guarded v272 HTML and PWA candidate
+        run: |
+          python3 audits/legacy_training_plan_v272_patch.py
+          python3 audits/g7_stage12_sync_pwa.py
+          python3 audits/g7_stage12_sync_pwa.py --check
+          echo "f8d63cd1a0d2a6aba96f5dc5999dafbaa7d3303005a2af25210593672c0869ed  index.html" | sha256sum --check
+          node audits/legacy_navigation_core.test.cjs
+          node audits/legacy_vue_actions_v271.test.cjs
+          node audits/legacy_training_plan_v272.test.cjs
+      - name: Publish only exact previously tested candidate with branch-head guard
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 audits/legacy_training_plan_v272_publish.py

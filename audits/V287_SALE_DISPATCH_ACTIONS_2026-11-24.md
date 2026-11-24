@@ -1,0 +1,10 @@
+# v287 — guarded sale row/topic dispatch (2026-11-24)
+
+- Scope: isolated test branch `refactor/route-vue-actions-from-7c14ce9`, draft PR #131. Base app v286.
+- Initial PWA run 45474394154 success; read-only inventory [45474944982](https://github.com/jokino9212/matkvest/actions/runs/45474944982).
+- Pre-fix browser proof [45475060203](https://github.com/jokino9212/matkvest/actions/runs/45475060203): detached row and topic controls dispatched actions of the next visible sale dialog in Vue 390/1280 and HTML fallback 390 (3/3); safe informational models, no real transaction or reward mutation.
+- UI-only fix: saleDialogDispatchActions with originating live host/model guard; both Vue and native delegated fallback; original economy handlers unchanged. Live row/topic actions fire once, detached controls inert, Enter/Space retained.
+- First full gate [45475643480](https://github.com/jokino9212/matkvest/actions/runs/45475643480): all test steps passed, publisher rejected obsolete marker and made no release. Corrected marker, repeated entire gate.
+- Final full gate [45478512507](https://github.com/jokino9212/matkvest/actions/runs/45478512507) SUCCESS on 8282bafc8e037612c2e1f60331026721dacb4ac8. All contract tests v271–v287, deterministic Vue build, dedicated Vue 390/1280 offline F5 and no-Vue/no-adapter HTML fallback 390, 12 column skip confirmations, all preceding browser suites, PWA online/offline refresh and 320/390/768 responsive offline tests (3/3), reward duplication regression passed. Fallback-only tests were separate from offline F5 tests.
+- Test-only publication `52d017eafeee8d2aa414f82194ed38c58e812916` changed only index.html, sw.js, assets/ui/legacy-vue-actions.js. Cache `matkvest-iphone-v287`; HTML SHA256 `6a0004d4589d0bf5a8d299aa492c460e87c668db7c9484df1da92b490b992109`. Verified published worker version and hash. Main remains 2985f92b6bd1a26dfcc316917f1752602b099572; no production or backend changes.
+- Retire v287 gate to manual-only; next step v288 one narrow read-only UI action group. No merge.

@@ -1,0 +1,67 @@
+name: Test-only school frame, attempt journal Vue actions and offline PWA v275 gate
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: frame-journal-v275-test-branch
+  cancel-in-progress: false
+jobs:
+  integrate-test-publish:
+    if: github.repository == 'jokino9212/matkvest' && github.ref == 'refs/heads/refactor/route-vue-actions-from-7c14ce9'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: refactor/route-vue-actions-from-7c14ce9
+          persist-credentials: true
+      - name: Apply SHA-fenced frame and journal HTML fallback/adapter patch
+        run: python3 audits/legacy_school_frame_journal_v275_patch.py
+      - name: Synchronize verified PWA v275 and Python syntax
+        run: |
+          python3 audits/g7_stage12_sync_pwa.py
+          python3 audits/g7_stage12_sync_pwa.py --check
+          python3 -m py_compile audits/legacy_school_frame_journal_v275_patch.py audits/legacy_school_frame_journal_v275_publish.py
+      - name: Install deterministic dependencies and browser
+        run: |
+          npm ci
+          npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Verify routing and all Vue action contracts through v275
+        run: |
+          node audits/legacy_navigation_core.test.cjs
+          node audits/legacy_vue_actions_v271.test.cjs
+          node audits/legacy_training_plan_v272.test.cjs
+          node audits/legacy_school_actions_v273.test.cjs
+          node audits/legacy_school_column_v274.test.cjs
+          node audits/legacy_school_frame_journal_v275.test.cjs
+      - name: Verify reproducible unchanged Vue module build
+        run: |
+          before=$(sha256sum assets/ui/knowledge-map.js | cut -d ' ' -f1)
+          npm run build:knowledge-map
+          after=$(sha256sum assets/ui/knowledge-map.js | cut -d ' ' -f1)
+          test "$before" = "$after"
+      - name: Frame close, journal/review, keyboard, HTML fallback and offline F5 browser
+        run: node audits/legacy_school_frame_journal_v275_browser.cjs
+      - name: Prior routes, quick results, plans, school table quiz and column regression
+        run: |
+          sed -e 's/v271/v275/g' -e 's/V271/V275/g' audits/legacy_vue_actions_v271_browser.cjs > audits/legacy_vue_actions_v275_route_browser.cjs
+          sed -e 's/v272/v275/g' -e 's/V272/V275/g' audits/legacy_training_plan_v272_browser.cjs > audits/legacy_training_plan_v275_browser.cjs
+          sed -e 's/v273/v275/g' -e 's/V273/V275/g' audits/legacy_school_actions_v273_browser.cjs > audits/legacy_school_actions_v275_browser.cjs
+          sed -e 's/v274/v275/g' -e 's/V274/V275/g' audits/legacy_school_column_v274_browser.cjs > audits/legacy_school_column_v275_browser.cjs
+          node audits/legacy_vue_actions_v275_route_browser.cjs
+          node audits/legacy_training_plan_v275_browser.cjs
+          node audits/legacy_school_actions_v275_browser.cjs
+          node audits/legacy_school_column_v275_browser.cjs
+      - name: Full PWA 274 to 275 online offline refresh 320 390 768
+        run: |
+          node audits/pwa_verified_refresh_browser.cjs
+          node audits/stage28_offline_pwa_browser.cjs
+      - name: Verify worker and HTML fingerprint after all tests
+        run: python3 audits/g7_stage12_sync_pwa.py --check
+      - name: Publish tested candidate only to same test branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 audits/legacy_school_frame_journal_v275_publish.py

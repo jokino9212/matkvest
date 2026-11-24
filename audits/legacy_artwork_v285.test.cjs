@@ -1,0 +1,15 @@
+'use strict';
+const assert=require('node:assert/strict');
+const {artworkViewerActions}=require('../assets/ui/legacy-vue-actions.js');
+let host='old',open=true,calls=0;
+const old=artworkViewerActions({isCurrent:()=>open&&host==='old',close:()=>++calls});
+assert.equal(old.close(),1);
+host='new';
+assert.equal(old.close(),undefined);
+assert.equal(calls,1);
+const fresh=artworkViewerActions({isCurrent:()=>open&&host==='new',close:()=>++calls});
+assert.equal(fresh.close(),2);
+open=false;
+assert.equal(fresh.close(),undefined);
+assert.equal(calls,2);
+console.log('PASS_V285_ARTWORK_ACTION_CONTRACTS current/detached/replaced/closed');

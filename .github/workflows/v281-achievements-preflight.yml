@@ -1,0 +1,20 @@
+name: Test-only v281 preflight detached achievement filter regression
+on:
+  push:
+    branches: [refactor/route-vue-actions-from-7c14ce9]
+    paths: ['.github/workflows/v281-achievements-preflight.yml']
+permissions:
+  contents: read
+jobs:
+  preflight:
+    if: github.repository == 'jokino9212/matkvest' && github.ref == 'refs/heads/refactor/route-vue-actions-from-7c14ce9'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          npm ci
+          npm install --no-save --no-package-lock playwright@1.56.1
+      - run: node audits/v281_preflight_achievement_stale_browser.cjs

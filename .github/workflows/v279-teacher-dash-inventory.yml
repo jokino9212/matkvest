@@ -1,0 +1,46 @@
+name: Test-only v279 teacher dashboard fallback action inventory
+on:
+  push:
+    branches: [refactor/route-vue-actions-from-7c14ce9]
+    paths: ['.github/workflows/v279-teacher-dash-inventory.yml']
+permissions:
+  contents: read
+jobs:
+  inspect:
+    if: github.repository == 'jokino9212/matkvest' && github.ref == 'refs/heads/refactor/route-vue-actions-from-7c14ce9'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect teacher screen inline gestures and existing delegation
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib,re
+          s=Path('index.html').read_text(encoding='utf8')
+          print('V279_BASE_SHA',hashlib.sha256(s.encode()).hexdigest(),'BYTES',len(s.encode()))
+          symbols=[
+           ('function teacherDashboardHtml(',2900),
+           ('function teacherRosterCardHtml(',2800),
+           ('function teacherChoicesHtml(',1550),
+           ('function teacherDashboardModel(',2600),
+           ('function renderTeacherView(',2700),
+           ('function renderTeacherDashboardBody(',1800),
+           ('function teacherSetSearch(',650),
+           ('function closeTeacherMode(',850),
+           ('function teacherSetSort(',520),
+           ('function showTeacherActionDialog(',1700),
+          ]
+          for name,length in symbols:
+           start=s.find(name)
+           print('V279_SYMBOL',repr(name),'OFFSET',start)
+           if start>=0:
+            print('V279_BEGIN',repr(name))
+            print(s[start:start+length])
+            print('V279_END',repr(name))
+          from collections import Counter
+          start=s.index('function teacherDashboardHtml(')
+          end=s.index('function renderTeacherView(',start)
+          region=s[start:end]
+          print('V279_INLINE_COUNT',dict(Counter(re.findall(r'\b(on(?:click|input|change|keydown|submit))\s*=',region))))
+          print('V279_INLINE_SNIPS',[(m.start(),region[max(0,m.start()-90):m.start()+120]) for m in re.finditer('on(?:click|input|change)=',region)])
+          PY

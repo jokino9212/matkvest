@@ -1,0 +1,89 @@
+name: Test-only guarded quest back Vue and HTML fallback PWA v282 gate
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: quest-back-v282-test-branch
+  cancel-in-progress: false
+jobs:
+  integrate-test-publish:
+    if: github.repository == 'jokino9212/matkvest' && github.ref == 'refs/heads/refactor/route-vue-actions-from-7c14ce9'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: refactor/route-vue-actions-from-7c14ce9
+          persist-credentials: true
+      - name: Apply SHA-fenced v281 to v282 quest back-only bridge in runner
+        run: python3 audits/legacy_quest_back_v282_patch.py
+      - name: Sync PWA, source checks and patch scope
+        run: |
+          python3 audits/g7_stage12_sync_pwa.py
+          python3 audits/g7_stage12_sync_pwa.py --check
+          python3 -m py_compile audits/legacy_quest_back_v282_patch.py audits/legacy_quest_back_v282_publish.py
+      - name: Install deterministic browser dependencies
+        run: |
+          npm ci
+          npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Legacy navigation and Vue action contracts v271 to v282
+        run: |
+          node audits/legacy_navigation_core.test.cjs
+          node audits/legacy_vue_actions_v271.test.cjs
+          node audits/legacy_training_plan_v272.test.cjs
+          node audits/legacy_school_actions_v273.test.cjs
+          node audits/legacy_school_column_v274.test.cjs
+          node audits/legacy_school_frame_journal_v275.test.cjs
+          node audits/legacy_reports_teacher_v276.test.cjs
+          node audits/legacy_analytics_view_v277.test.cjs
+          node audits/legacy_profile_dialog_v278.test.cjs
+          node audits/legacy_teacher_dashboard_v279.test.cjs
+          node audits/legacy_teacher_escape_store_v280.test.cjs
+          node audits/legacy_achievements_v281.test.cjs
+          node audits/legacy_quest_back_v282.test.cjs
+      - name: Deterministic unchanged Vue bundle
+        run: |
+          before=$(sha256sum assets/ui/knowledge-map.js | cut -d ' ' -f1)
+          npm run build:knowledge-map
+          after=$(sha256sum assets/ui/knowledge-map.js | cut -d ' ' -f1)
+          test "$before" = "$after"
+      - name: Quest back Vue/fallback, offline F5, keyboard, stale buttons and route
+        run: node audits/legacy_quest_back_v282_browser.cjs
+      - name: 12 repeat HTML column skip confirmations
+        run: node audits/v280_preflight_escape_skip_browser.cjs
+      - name: Full prior Vue routes, school, reports, teacher, store, achievements, progress and rewards regression
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          files=[
+           'legacy_vue_actions_v271_browser.cjs',
+           'legacy_training_plan_v272_browser.cjs',
+           'legacy_school_actions_v273_browser.cjs',
+           'legacy_school_column_v274_browser.cjs',
+           'legacy_school_frame_journal_v275_browser.cjs',
+           'legacy_reports_teacher_v276_browser.cjs',
+           'legacy_analytics_view_v277_browser.cjs',
+           'legacy_profile_dialog_v278_browser.cjs',
+           'legacy_teacher_dashboard_v279_browser.cjs',
+           'legacy_teacher_escape_store_v280_browser.cjs',
+           'legacy_achievements_v281_browser.cjs']
+          for name in files:
+           s=(Path('audits')/name).read_text()
+           for n in range(271,282):
+            s=s.replace('v'+str(n),'v282').replace('V'+str(n),'V282')
+           (Path('audits')/('v282_'+name)).write_text(s)
+          PY
+          for f in audits/v282_legacy_*_browser.cjs; do node "$f"; done
+      - name: Complete PWA online/offline refresh and responsive offline F5
+        run: |
+          node audits/pwa_verified_refresh_browser.cjs
+          node audits/stage28_offline_pwa_browser.cjs
+      - name: Verify final PWA fingerprints
+        run: python3 audits/g7_stage12_sync_pwa.py --check
+      - name: Publish SHA-verified HTML, SW and action adapter to test branch only
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 audits/legacy_quest_back_v282_publish.py

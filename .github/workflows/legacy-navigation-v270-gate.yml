@@ -1,0 +1,61 @@
+name: Test-only legacy route dispatch and Vue action adapters v270
+on:
+  push:
+    branches: [refactor/route-vue-actions-from-7c14ce9]
+    paths:
+      - 'assets/ui/legacy-navigation-core.js'
+      - 'audits/legacy_navigation_core.test.cjs'
+      - 'audits/legacy_navigation_v270_patch.py'
+      - 'audits/legacy_navigation_v270_publish.py'
+      - 'audits/legacy_navigation_v270_browser.cjs'
+      - '.github/workflows/legacy-navigation-v270-gate.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: route-v270-test-branch
+  cancel-in-progress: false
+jobs:
+  integrate-and-test:
+    if: github.repository == 'jokino9212/matkvest' && github.ref == 'refs/heads/refactor/route-vue-actions-from-7c14ce9'
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: refactor/route-vue-actions-from-7c14ce9
+          persist-credentials: true
+      - name: Apply known-sha giant HTML v269 to v270 patch
+        run: python3 audits/legacy_navigation_v270_patch.py
+      - name: Verify versioned PWA snapshots and publisher syntax
+        run: |
+          python3 audits/g7_stage12_sync_pwa.py
+          python3 audits/g7_stage12_sync_pwa.py --check
+          python3 -m py_compile audits/legacy_navigation_v270_patch.py audits/legacy_navigation_v270_publish.py
+          # Hash-fenced patch + PWA integrity checks run in this container.
+      - name: Install browser and Vue test dependencies
+        run: |
+          npm ci
+          npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Verify route dispatch and fresh Vue action contracts
+        run: node audits/legacy_navigation_core.test.cjs
+      - name: Confirm Vue bundle remains reproducible
+        run: |
+          before=$(sha256sum assets/ui/knowledge-map.js | cut -d ' ' -f1)
+          npm run build:knowledge-map
+          after=$(sha256sum assets/ui/knowledge-map.js | cut -d ' ' -f1)
+          test "$before" = "$after"
+      - name: Browser route keyboard offline F5 fallback results and rewards
+        run: node audits/legacy_navigation_v270_browser.cjs
+      - name: Full verified PWA refresh and offline regression
+        run: |
+          node audits/pwa_verified_refresh_browser.cjs
+          node audits/stage28_offline_pwa_browser.cjs
+      - name: Ensure final cache/script fingerprints match
+        run: python3 audits/g7_stage12_sync_pwa.py --check
+      - name: Publish verified HTML and worker only into isolated test branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 audits/legacy_navigation_v270_publish.py

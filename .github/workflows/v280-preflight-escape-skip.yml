@@ -1,0 +1,20 @@
+name: Test-only v280 reproduce teacher modal Escape and column skip
+on:
+  push:
+    branches: [refactor/route-vue-actions-from-7c14ce9]
+    paths: ['.github/workflows/v280-preflight-escape-skip.yml']
+permissions: {contents: read}
+jobs:
+  preflight:
+    if: github.repository == 'jokino9212/matkvest' && github.ref == 'refs/heads/refactor/route-vue-actions-from-7c14ce9'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          npm ci
+          npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Exercise 12 independent legacy fallback skips and teacher Escape routes
+        run: node audits/v280_preflight_escape_skip_browser.cjs

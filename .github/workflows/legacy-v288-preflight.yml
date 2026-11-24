@@ -1,0 +1,21 @@
+name: Test-only v288 store collection pet pre-fix browser evidence
+on:
+  push:
+    branches: [refactor/route-vue-actions-from-7c14ce9]
+    paths: ['.github/workflows/legacy-v288-preflight.yml']
+permissions:
+  contents: read
+jobs:
+  preflight:
+    if: github.repository == 'jokino9212/matkvest' && github.ref == 'refs/heads/refactor/route-vue-actions-from-7c14ce9'
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - run: python3 audits/v288_source.py
+      - run: npm ci && npm install --no-save --no-package-lock playwright@1.56.1
+      - run: node audits/v288_preflight.cjs

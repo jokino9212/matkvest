@@ -1,0 +1,45 @@
+name: Test-only v283 remaining modal UI action read-only inventory
+on:
+  push:
+    branches: [refactor/route-vue-actions-from-7c14ce9]
+    paths: ['.github/workflows/v283-modal-inventory.yml']
+permissions:
+  contents: read
+jobs:
+  inspect:
+    if: github.repository == 'jokino9212/matkvest' && github.ref == 'refs/heads/refactor/route-vue-actions-from-7c14ce9'
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Identify remaining modal actions, boundary semantics and candidate
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re,hashlib
+          page=Path('index.html').read_text(encoding='utf8')
+          print('V283_CURRENT_SHA',hashlib.sha256(page.encode()).hexdigest())
+          print('V283_LEXICAL_INLINE', {key:len(re.findall(r'\\b'+key+r'\\s*=',page)) for key in ('onclick','onkeydown','onchange','oninput','onsubmit')})
+          names=[
+           ('function openLeaderboard(',2800),
+           ('function mk872HelpOpen(',2400),
+           ('function showVueReport(',2500),
+           ('function showBackupDialog(',2800),
+           ('function openDataManager(',2600),
+           ('function showSmartImportResult(',1500),
+           ('function showTeacherPinSetup(',1600),
+           ('function showTeacherPinLogin(',1600),
+           ('function openAchievements(',800),
+          ]
+          for key,limit in names:
+           p=page.find(key)
+           print('V283_SECTION_START',repr(key),'OFFSET',p)
+           if p>=0:print(page[p:p+limit])
+           print('V283_SECTION_END',repr(key))
+          for path in Path('assets').rglob('*leader*'):
+           if path.is_file() and path.stat().st_size<20000:
+            print('V283_ASSET',path, path.read_text(encoding='utf8')[:8000])
+          for path in Path('src').rglob('*Leader*'):
+           if path.is_file() and path.stat().st_size<20000:
+            print('V283_SOURCE',path, path.read_text(encoding='utf8')[:8000])
+          PY

@@ -1,0 +1,106 @@
+name: Test-only v289 teacher UI baseline and full regression gate
+# Publisher markers checked against v289 before protected release.
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: teacher-v289-test-branch
+  cancel-in-progress: false
+jobs:
+  integrate-test-publish:
+    if: github.repository == 'jokino9212/matkvest' && github.ref == 'refs/heads/refactor/route-vue-actions-from-7c14ce9'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: true
+      - name: Install deterministic browser dependencies
+        run: |
+          npm ci
+          npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Corrected teacher preflight on published v288 (no code changes)
+        run: node audits/v289_teacher_browser.cjs
+      - name: Version-only checkpoint after successful preflight
+        run: |
+          python3 audits/v289_patch.py
+          python3 audits/g7_stage12_sync_pwa.py
+          python3 audits/g7_stage12_sync_pwa.py --check
+          python3 -m py_compile audits/v289_publish.py
+          git -c safe.directory="$GITHUB_WORKSPACE" -C "$GITHUB_WORKSPACE" diff --exit-code HEAD -- assets/ui/legacy-vue-actions.js frontend/
+      - name: Legacy navigation and Vue action contracts v271 to v288
+        run: |
+          node audits/legacy_navigation_core.test.cjs
+          node audits/legacy_vue_actions_v271.test.cjs
+          node audits/legacy_training_plan_v272.test.cjs
+          node audits/legacy_school_actions_v273.test.cjs
+          node audits/legacy_school_column_v274.test.cjs
+          node audits/legacy_school_frame_journal_v275.test.cjs
+          node audits/legacy_reports_teacher_v276.test.cjs
+          node audits/legacy_analytics_view_v277.test.cjs
+          node audits/legacy_profile_dialog_v278.test.cjs
+          node audits/legacy_teacher_dashboard_v279.test.cjs
+          node audits/legacy_teacher_escape_store_v280.test.cjs
+          node audits/legacy_achievements_v281.test.cjs
+          node audits/legacy_quest_back_v282.test.cjs
+          node audits/legacy_leaderboard_v283.test.cjs
+          node audits/legacy_help_v284.test.cjs
+          node audits/legacy_artwork_v285.test.cjs
+          node audits/legacy_sale_v286.test.cjs
+          node audits/legacy_sale_v287.test.cjs
+      - name: Deterministic unchanged Vue bundle
+        run: |
+          before=$(sha256sum assets/ui/knowledge-map.js | cut -d ' ' -f1)
+          npm run build:knowledge-map
+          after=$(sha256sum assets/ui/knowledge-map.js | cut -d ' ' -f1)
+          test "$before" = "$after"
+      - name: Targeted teacher and prior store collection pet UI regression
+        run: |
+          node audits/v288_store.test.cjs
+          node audits/v288_browser.cjs
+          node audits/v289_teacher_browser.cjs
+      - name: 12 repeat HTML column skip confirmations
+        run: node audits/v280_preflight_escape_skip_browser.cjs
+      - name: Full prior Vue routes, school, reports, teacher, store, achievements, progress and rewards regression
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          files=[
+           'legacy_vue_actions_v271_browser.cjs',
+           'legacy_training_plan_v272_browser.cjs',
+           'legacy_school_actions_v273_browser.cjs',
+           'legacy_school_column_v274_browser.cjs',
+           'legacy_school_frame_journal_v275_browser.cjs',
+           'legacy_reports_teacher_v276_browser.cjs',
+           'legacy_analytics_view_v277_browser.cjs',
+           'legacy_profile_dialog_v278_browser.cjs',
+           'legacy_teacher_dashboard_v279_browser.cjs',
+           'legacy_teacher_escape_store_v280_browser.cjs',
+           'legacy_achievements_v281_browser.cjs',
+           'legacy_quest_back_v282_browser.cjs',
+           'legacy_leaderboard_v283_browser.cjs',
+           'legacy_help_v284_browser.cjs',
+           'legacy_artwork_v285_browser.cjs',
+           'legacy_sale_v286_browser.cjs',
+           'legacy_sale_v287_browser.cjs']
+          for name in files:
+           s=(Path('audits')/name).read_text()
+           for n in range(271,289):
+            s=s.replace('v'+str(n),'v289').replace('V'+str(n),'V289')
+           (Path('audits')/('v289_'+name)).write_text(s)
+          PY
+          for f in audits/v289_legacy_*_browser.cjs; do node "$f"; done
+      - name: Complete PWA online/offline refresh and responsive offline F5
+        run: |
+          node audits/pwa_verified_refresh_browser.cjs
+          node audits/stage28_offline_pwa_browser.cjs
+      - name: Verify final PWA fingerprints
+        run: python3 audits/g7_stage12_sync_pwa.py --check
+      - name: Publish SHA-verified HTML and SW to test branch only
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 audits/v289_publish.py

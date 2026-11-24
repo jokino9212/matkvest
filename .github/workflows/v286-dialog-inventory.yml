@@ -1,0 +1,38 @@
+name: Test-only v286 small legacy dialog actions read-only inventory
+on:
+  push:
+    branches: [refactor/route-vue-actions-from-7c14ce9]
+    paths: ['.github/workflows/v286-dialog-inventory.yml']
+permissions:
+  contents: read
+jobs:
+  inspect:
+    if: github.repository == 'jokino9212/matkvest' && github.ref == 'refs/heads/refactor/route-vue-actions-from-7c14ce9'
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Read-only independent legacy dialogs and close actions
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib
+          s=Path('index.html').read_text(encoding='utf8')
+          print('V286_BASE_HTML_SHA',hashlib.sha256(s.encode()).hexdigest())
+          groups=[('function showTeacherActionDialog(',3900),
+           ('function showPendingAchievementToasts(',2800),
+           ('function mk872LearningDialog(',5200),
+           ('function mk872CloseDialog(',2600),
+           ('function mk865SaleOverlay(',2500),
+           ('function mk865ShowSaleOverlay(',2500),
+           ('function mk865CloseSaleOverlay(',2000),
+           ('function mk865OpenSellDialog(',2500),
+           ('function showBackupDialog(',900)]
+          for name,size in groups:
+           p=s.find(name)
+           print('V286_SNIP_BEGIN',repr(name),p)
+           if p>=0:print(s[p:p+size])
+           print('V286_SNIP_END',repr(name))
+          for kw in ('mk872CloseDialog()', 'mk872LearningDialog(', 'showTeacherActionDialog(', 'mk865CloseSaleOverlay()', 'showPendingAchievementToasts(', 'teacher-action-dialog', 'mk872-training-dialog'):
+           print('V286_OCCURRENCES',repr(kw),s.count(kw))
+          PY

@@ -1,0 +1,20 @@
+name: Legacy route module contracts
+on:
+  pull_request:
+    paths:
+      - 'assets/ui/legacy-navigation-core.js'
+      - 'audits/legacy_navigation_core.test.cjs'
+      - '.github/workflows/legacy-navigation-contracts.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  contracts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node audits/legacy_navigation_core.test.cjs
+      - run: git diff --check

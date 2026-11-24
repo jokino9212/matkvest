@@ -1,0 +1,37 @@
+name: Test-only v282 read-only quest UI action inventory
+on:
+  push:
+    branches: [refactor/route-vue-actions-from-7c14ce9]
+    paths: ['.github/workflows/v282-quest-actions-readonly.yml']
+permissions:
+  contents: read
+jobs:
+  inspect:
+    if: github.repository == 'jokino9212/matkvest' && github.ref == 'refs/heads/refactor/route-vue-actions-from-7c14ce9'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Read-only Vue quest navigation and HTML fallback inventory
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re,hashlib
+          s=Path('index.html').read_text(encoding='utf8')
+          print('V282_SHA',hashlib.sha256(s.encode()).hexdigest())
+          print('V282_TOTAL_INLINE', {k:len(re.findall(r'\\b'+k+r'\\s*=',s)) for k in ['onclick','onkeydown','oninput','onchange','onsubmit']})
+          targets=[('function questBoardFallback(',4100),('function renderQuestBoard(',4200),('function claimQuest(',900),('function requestQuestReroll(',800),('function renderHome(',400),('function showVueReport(',800)]
+          for key,n in targets:
+           p=s.find(key)
+           print('V282_START',key,p)
+           if p>=0: print(s[p:p+n])
+           print('V282_END',key)
+          for f in Path('src').rglob('*Quest*'):
+           if f.is_file() and f.suffix in ('.js','.vue','.ts'):
+            print('V282_VUE_FILE',f)
+            print(f.read_text(encoding='utf8')[:11000])
+          for f in [Path('assets/ui/legacy-vue-actions.js'),Path('audits/legacy_achievements_v281_browser.cjs'),Path('audits/legacy_achievements_v281.test.cjs')]:
+           t=f.read_text(encoding='utf8')
+           print('V282_REFERENCE',f,len(t))
+           if 'actions.js' in str(f): print(t[-9000:])
+           else: print(t[:2200])
+          PY

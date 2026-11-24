@@ -1,0 +1,42 @@
+name: Test-only v281 remaining low-risk UI action inventory
+on:
+  push:
+    branches: [refactor/route-vue-actions-from-7c14ce9]
+    paths: ['.github/workflows/v281-readonly-surface-inventory.yml']
+permissions:
+  contents: read
+jobs:
+  inspect:
+    if: github.repository == 'jokino9212/matkvest' && github.ref == 'refs/heads/refactor/route-vue-actions-from-7c14ce9'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Classify leaderboard, achievements, and lightweight modal actions
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib,re,collections
+          s=Path('index.html').read_text(encoding='utf8')
+          print('V281_BASE',hashlib.sha256(s.encode()).hexdigest(),len(s.encode()))
+          names=[
+           ('function openLeaderboard(',4600),
+           ('function achievementCatalogHtml(',3400),
+           ('function openAchievementCatalog(',3100),
+           ('function showVueReport(',3300),
+           ('function showElementaryTopicSoon(',2800),
+           ('function renderQuickSummary(',2600),
+           ('function questBoardFallback(',2800),
+           ('function showSmartImportResult(',1700),
+           ('function openDataManager(',2300),
+           ('function showTeacherPinSetup(',1900)
+          ]
+          for name,limit in names:
+            start=s.find(name)
+            print('V281_TARGET',name,'offset',start)
+            if start>=0:
+              piece=s[start:start+limit]
+              print('V281_SNIP_START',name)
+              print(piece)
+              print('V281_SNIP_END',name)
+              print('V281_KINDS',name,dict(collections.Counter(m.group(1) for m in re.finditer(r'\\b(on(?:click|keydown|input|change|submit))\\s*=',piece))))
+          PY

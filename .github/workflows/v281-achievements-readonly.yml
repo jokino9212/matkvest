@@ -1,0 +1,37 @@
+name: Test-only v281 read-only achievement filter and stale callbacks audit
+on:
+  push:
+    branches: [refactor/route-vue-actions-from-7c14ce9]
+    paths: ['.github/workflows/v281-achievements-readonly.yml']
+permissions:
+  contents: read
+jobs:
+  inspect:
+    if: github.repository == 'jokino9212/matkvest' && github.ref == 'refs/heads/refactor/route-vue-actions-from-7c14ce9'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect achievement catalog model, view selectors and route semantics
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib,re
+          s=Path('index.html').read_text(encoding='utf8')
+          print('V281_SHA',hashlib.sha256(s.encode()).hexdigest())
+          keys=[
+           ('function achievementCatalogModel(',4900),
+           ('function achievementSetView(',800),
+           ('function achievementSetCategory(',800),
+           ('function achievementSetSort(',800),
+           ('function achievementCatalogHtml(',3000),
+           ('function openAchievements(',2100),
+           ('function show(',1300),
+           ('function openShop(',1650),
+           ('function showStoreSurface(',1700),
+          ]
+          for key,n in keys:
+           p=s.find(key)
+           print('V281_SYMBOL',repr(key),p)
+           if p>=0: print('V281_BEGIN',key,'\n',s[p:p+n],'\nV281_END',key)
+          print('V281_ONOPEN',s.count('function openAchievements()'))
+          PY

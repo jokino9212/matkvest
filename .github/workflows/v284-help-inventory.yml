@@ -1,0 +1,35 @@
+name: Test-only v284 read-only global help UI inventory
+on:
+  push:
+    branches: [refactor/route-vue-actions-from-7c14ce9]
+    paths: ['.github/workflows/v284-help-inventory.yml']
+permissions:
+  contents: read
+jobs:
+  inspect:
+    if: github.repository == 'jokino9212/matkvest' && github.ref == 'refs/heads/refactor/route-vue-actions-from-7c14ce9'
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Read-only help modal, guard, keyboard and topic inventory
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re,hashlib
+          s=Path('index.html').read_text(encoding='utf8')
+          print('V284_SOURCE_SHA',hashlib.sha256(s.encode()).hexdigest())
+          for name,n in [('function mk872HelpOpen(',2900),('function mk872HelpClose(',1250),
+                          ('const MK872_HELP_TOPICS=',1200),('let mk872HelpLastFocus',600),
+                          ('function openLeaderboard(',2100),('function showVueReport(',1100)]:
+           p=s.find(name)
+           print('V284_SNIP_START',repr(name),p)
+           if p>=0:print(s[p:p+n])
+           print('V284_SNIP_END',repr(name))
+          for kw in ('mk872HelpOpen(', 'mk872HelpClose()', 'mk872-help-close', 'mk872-help-layer', 'mountStoreHelpDialog'):
+           print('V284_TOKEN',kw,'TOTAL',s.count(kw))
+          print('V284_VUE_MODULE_PATHS')
+          for f in Path('src').rglob('*Help*'):
+           if f.is_file():
+            print('V284_VUE_FILE',f,f.read_text(encoding='utf8')[:5000])
+          PY

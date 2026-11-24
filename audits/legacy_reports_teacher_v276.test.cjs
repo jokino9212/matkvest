@@ -1,0 +1,33 @@
+'use strict';
+const assert=require('node:assert/strict');
+const {reportSurfaceActions,teacherViewActions}=require('../assets/ui/legacy-vue-actions.js');
+let active=true,unlocked=true,blocking=false;
+const calls=[];
+const source={value:42,close:function(){calls.push(['close',this===source]);return this.value},
+ review:function(index){calls.push(['review',index,this===source]);return index*10},
+ period:function(value){calls.push(['period',value]);return value},optional:null};
+const report=reportSurfaceActions({isCurrent:()=>active&&!blocking,actions:source});
+assert.deepEqual(Object.keys(report),Object.keys(source));
+assert.equal(report.close(),42);
+assert.equal(report.review(3),30);
+assert.equal(report.optional,null);
+const teacher=teacherViewActions({isCurrent:()=>active&&unlocked&&!blocking,actions:source});
+assert.equal(teacher.period('7'),'7');
+active=false;
+const prior=calls.length;
+assert.equal(report.close(),undefined);
+assert.equal(report.review(1),undefined);
+assert.equal(teacher.period('30'),undefined);
+assert.equal(calls.length,prior,'Removed report and teacher view cannot dispatch');
+active=true;blocking=true;
+report.review(0);teacher.close();
+assert.equal(calls.length,prior,'Blocked dialog cannot dispatch');
+blocking=false;unlocked=false;
+assert.equal(teacher.close(),undefined);
+assert.equal(calls.length,prior,'Locked teacher mode cannot dispatch');
+unlocked=true;
+const fresh=reportSurfaceActions({isCurrent:()=>true,actions:source});
+assert.notStrictEqual(fresh,report);
+assert.equal(fresh.close(),42);
+assert.deepEqual(calls.slice(0,3),[['close',true],['review',3,true],['period','7']]);
+console.log('PASS_V276_REPORT_TEACHER_ACTION_CONTRACTS guarded methods/args/this/teacher lock/fresh view');

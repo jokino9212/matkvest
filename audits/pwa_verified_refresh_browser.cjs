@@ -3257,8 +3257,16 @@ async function checkColumnExerciseFallback(browser,address){
   await first.press('Enter');
   await column.getByText(/✅ Отлично!/).waitFor();
   await column.locator('#columnPrimary').press('Enter');
-  await column.locator('#columnSkip').press('Space');
-  await page.getByRole('button',{name:'Да, пропустить задание',exact:true}).press('Enter');
+  // After advancing, wait for the next real skip button. Enter activates a native
+  // button on keydown; Space activates on keyup and can race a legacy DOM rerender.
+  const nextSkip=column.locator('#columnSkip');
+  await nextSkip.waitFor({state:'visible'});
+  await nextSkip.press('Enter');
+  const skipConfirm=page.getByRole('button',{name:'Да, пропустить задание',exact:true});
+  await skipConfirm.waitFor({state:'visible',timeout:10000});
+  // The confirmation must not implicitly record a skip before user approval.
+  assert.deepEqual(await page.evaluate(()=>blockSession.items.map(item=>[item.finalCorrect,item.skipped])),[[true,false]]);
+  await skipConfirm.press('Enter');
   assert.deepEqual(await page.evaluate(()=>blockSession.items.map(item=>[item.finalCorrect,item.skipped])),[[true,false],[false,true]]);
   console.log('PASS_COLUMN_EXERCISE_HTML_FALLBACK');
  }finally{await context.close()}
@@ -3732,6 +3740,10 @@ async function run(browser,address,viewport){
   assert.equal(verifiedScripts.filter(name=>name.startsWith('g5-')).length,19);
   const knowledgeMap=html.match(/const knowledgeMapUrl = "\.\/(assets\/ui\/knowledge-map\.js)\?v=\d+";/);
   if(knowledgeMap)verifiedScripts.push(knowledgeMap[1]);
+  const routeCore=html.match(/<script src="\.\/(assets\/ui\/legacy-navigation-core\.js)\?v=\d+"><\/script>/);
+  if(routeCore)verifiedScripts.push(routeCore[1]);
+  const vueActions=html.match(/<script src="\.\/(assets\/ui\/legacy-vue-actions\.js)\?v=\d+"><\/script>/);
+  if(vueActions)verifiedScripts.push(vueActions[1]);
   assert.deepEqual(Object.keys(hashes).sort(),verifiedScripts.sort());
   for(const [name,hash] of Object.entries(hashes))assert.equal(digest(readFileSync(name)),hash,name);
   await checkTeacherPinFallback(browser,origin);

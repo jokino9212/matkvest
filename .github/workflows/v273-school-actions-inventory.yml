@@ -1,0 +1,58 @@
+name: Test-only v273 school exercise actions inventory
+on:
+  push:
+    branches: [refactor/route-vue-actions-from-7c14ce9]
+    paths:
+      - '.github/workflows/v273-school-actions-inventory.yml'
+permissions:
+  contents: read
+jobs:
+  inventory:
+    if: github.repository == 'jokino9212/matkvest' && github.ref == 'refs/heads/refactor/route-vue-actions-from-7c14ce9'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect all school Vue mounts and bounded handler contexts with no changes
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re,hashlib
+          s=Path('index.html').read_text(encoding='utf-8')
+          print('SCHOOL_V273_BASE_SHA256',hashlib.sha256(s.encode()).hexdigest(),'BYTES',len(s.encode()))
+          names=re.findall(r'module\.(mount[A-Za-z0-9_]+)\s*\(',s)
+          from collections import Counter
+          print('MOUNT_INVENTORY',sorted(Counter(names).items()))
+          tokens=[
+           'module.mountSchoolAttemptFrame(', 'module.mountQuizExercise(',
+           'module.mountTableExercise(', 'module.mountColumnExercise(',
+           'module.mountQuickExercise(', 'function renderQuiz', 'function renderTable',
+           'function renderColumn', 'function renderSchoolAttempt',
+           'function openGrade(', 'function startG5QuizStage(',
+          ]
+          for token in tokens:
+           hits=[m.start() for m in re.finditer(re.escape(token),s)]
+           print('=== V273 ANCHOR',repr(token),'COUNT',len(hits),'===')
+           for pos in hits[:2]:
+            print('V273_CONTEXT_BEGIN',pos)
+            print(s[max(0,pos-3600):min(len(s),pos+950)])
+            print('V273_CONTEXT_END')
+          PY
+
+      - name: Inspect bounded school callback bodies and existing guards
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          s=Path('index.html').read_text(encoding='utf-8')
+          targets=[
+            ('function renderTableExercise(restore){',3600),
+            ('function renderTask(restore){',3900),
+            ('function mountQuizExercise(){',4800),
+            ('function renderQuizExercise(',2600),
+            ('function mountSchoolColumnExercise(host,view,actions){',2400),
+          ]
+          for needle,length in targets:
+            pos=s.find(needle)
+            print('=== V273_CALLBACK',repr(needle),'POSITION',pos,'===')
+            if pos!=-1: print(s[pos:pos+length])
+            print('V273_CALLBACK_END')
+          PY

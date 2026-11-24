@@ -1,0 +1,58 @@
+name: Test-only training plan Vue actions and PWA v272 gate
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: plan-actions-v272-test-branch
+  cancel-in-progress: false
+jobs:
+  integrate-test-publish:
+    if: github.repository == 'jokino9212/matkvest' && github.ref == 'refs/heads/refactor/route-vue-actions-from-7c14ce9'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: refactor/route-vue-actions-from-7c14ce9
+          persist-credentials: true
+      - name: Apply known-SHA v271-to-v272 plan adapter patch with HTML fallback
+        run: python3 audits/legacy_training_plan_v272_patch.py
+      - name: Synchronize v272 PWA and verify patch/publisher syntax
+        run: |
+          python3 audits/g7_stage12_sync_pwa.py
+          python3 audits/g7_stage12_sync_pwa.py --check
+          python3 -m py_compile audits/legacy_training_plan_v272_patch.py audits/legacy_training_plan_v272_publish.py
+      - name: Install locked dependencies and browser test runner
+        run: |
+          npm ci
+          npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Verify route and all action contracts
+        run: |
+          node audits/legacy_navigation_core.test.cjs
+          node audits/legacy_vue_actions_v271.test.cjs
+          node audits/legacy_training_plan_v272.test.cjs
+      - name: Verify deterministic Vue build output
+        run: |
+          before=$(sha256sum assets/ui/knowledge-map.js | cut -d ' ' -f1)
+          npm run build:knowledge-map
+          after=$(sha256sum assets/ui/knowledge-map.js | cut -d ' ' -f1)
+          test "$before" = "$after"
+      - name: Check plan editor keyboard stale-screen guard Vue fallback and offline F5
+        run: node audits/legacy_training_plan_v272_browser.cjs
+      - name: Check existing routes quick results rewards and missing Vue adapter fallback
+        run: |
+          sed -e 's/v271/v272/g' -e 's/V271/V272/g' audits/legacy_vue_actions_v271_browser.cjs > audits/legacy_vue_actions_v272_route_browser.cjs
+          node audits/legacy_vue_actions_v272_route_browser.cjs
+      - name: Full PWA v271-to-v272 refresh and offline regression
+        run: |
+          node audits/pwa_verified_refresh_browser.cjs
+          node audits/stage28_offline_pwa_browser.cjs
+      - name: Verify no HTML or PWA hash drift after browser tests
+        run: python3 audits/g7_stage12_sync_pwa.py --check
+      - name: Publish proven HTML and worker ONLY to isolated test branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 audits/legacy_training_plan_v272_publish.py

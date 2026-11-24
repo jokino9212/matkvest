@@ -1,0 +1,55 @@
+name: Test-only v280 read-only Escape skip and shop action inventory
+on:
+  push:
+    branches: [refactor/route-vue-actions-from-7c14ce9]
+    paths: ['.github/workflows/v280-readonly-esc-skip-shop-inventory.yml']
+permissions:
+  contents: read
+jobs:
+  inspect:
+    if: github.repository == 'jokino9212/matkvest' && github.ref == 'refs/heads/refactor/route-vue-actions-from-7c14ce9'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect legacy fallback behavior without mutations
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re,hashlib
+          s=Path('index.html').read_text(encoding='utf8')
+          print('V280_BASE_SHA',hashlib.sha256(s.encode()).hexdigest(),'BYTES',len(s.encode()))
+          targets=[
+           ('function closeModal(',2600),
+           ('function showVueReport(',2800),
+           ('function showBackupDialog(',2800),
+           ('function openTeacherDashboard(',1200),
+           ('function openTeacherEntry(',2200),
+           ('function showTeacherPinLogin(',2800),
+           ('function shopTabs(',1700),
+           ('function openStoreTab(',1600),
+           ('function openShop(',1400),
+           ('function openCollection(',800),
+           ('function startColumnStage(',2300),
+           ('function columnRequestSkip(',2600),
+           ('function columnSkip(',2600),
+           ('function skipColumn',2700),
+           ('function showSkipConfirmation(',1900),
+           ('function requestColumnSkip(',1900),
+           ('function renderTeacherView(',2100),
+          ]
+          for token,length in targets:
+            at=s.find(token)
+            print('V280_SYMBOL',repr(token),'OFFSET',at)
+            if at>=0:print('V280_CONTEXT_BEGIN',repr(token),s[at:at+length],'V280_CONTEXT_END')
+          matches=[m.start() for m in re.finditer('Escape',s)]
+          print('V280_ESCAPE_REFERENCES',len(matches))
+          for at in matches:
+            c=s[max(0,at-540):at+700]
+            if any(x in c for x in ['addEventListener','closeModal','teacher','overlay','mk854Route','openTeacherDashboard','window.onkeydown']):
+              print('V280_ESCAPE_CONTEXT',at,repr(c))
+          for token in ['columnSkip','Да, пропустить задание','columnPrimary','mk854Route','teacherUnlocked','showStoreSurface(']:
+            hits=[m.start() for m in re.finditer(re.escape(token),s)]
+            print('V280_TOKEN_COUNT',token,len(hits))
+            for at in hits[:5]:
+              print('V280_TOKEN_SAMPLE',repr(token),at,repr(s[max(0,at-220):at+500]))
+          PY

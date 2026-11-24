@@ -1,0 +1,52 @@
+name: Test-only route core integration PWA v269 and browser gate
+on:
+  push:
+    branches: [refactor/route-vue-actions-from-7c14ce9]
+    paths:
+      - 'audits/legacy_navigation_v269_patch.py'
+      - 'audits/legacy_navigation_v269_browser.cjs'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: route-v269-test-branch
+  cancel-in-progress: false
+jobs:
+  integrate-and-test:
+    if: github.repository == 'jokino9212/matkvest' && github.ref == 'refs/heads/refactor/route-vue-actions-from-7c14ce9'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: refactor/route-vue-actions-from-7c14ce9
+          persist-credentials: true
+      - name: Apply exact known-base HTML edit on runner; never touch main
+        run: python3 audits/legacy_navigation_v269_patch.py
+      - name: Verify PWA v269 and script integrity
+        run: |
+          python3 audits/g7_stage12_sync_pwa.py
+          python3 audits/g7_stage12_sync_pwa.py --check
+          python3 -m py_compile audits/legacy_navigation_v269_patch.py audits/legacy_navigation_v269_publish.py
+      - name: Install dependencies
+        run: |
+          npm ci
+          npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Check route unit contracts
+        run: node audits/legacy_navigation_core.test.cjs
+      - name: Verify Vue build still matches sources
+        run: |
+          before=$(sha256sum assets/ui/knowledge-map.js | cut -d ' ' -f1)
+          npm run build:knowledge-map
+          after=$(sha256sum assets/ui/knowledge-map.js | cut -d ' ' -f1)
+          test "$before" = "$after"
+      - name: Test browser keyboard, routes, fallback, offline F5, results and rewards
+        run: node audits/legacy_navigation_v269_browser.cjs
+      - name: Confirm final PWA snapshot matches committed assets
+        run: python3 audits/g7_stage12_sync_pwa.py --check
+      - name: Publish fully tested v269 HTML + worker only on the test branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 audits/legacy_navigation_v269_publish.py
