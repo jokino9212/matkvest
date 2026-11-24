@@ -75,6 +75,13 @@ async function run(browser,base,width,missing=false){
    grade:!!document.querySelector('#grade5Vue'),history:history.state
   }));
   console.log('V282_QUEST_SPACE_SETTLED',JSON.stringify({width,missing,settled}));
+  await page.evaluate(()=>{openQuests();mk872BrandGoHome()});
+  await page.waitForTimeout(600);
+  const standard=await page.evaluate(()=>({
+   route:mk854Route(),quest:!!document.querySelector('#questBoardVue'),
+   grade:!!document.querySelector('#grade5Vue'),history:history.state
+  }));
+  console.log('V282_QUEST_STANDARD_HOME',JSON.stringify({width,missing,standard}));
  }finally{await context.close()}
 }
 withMatkvestBrowser(async(browser,base)=>{
