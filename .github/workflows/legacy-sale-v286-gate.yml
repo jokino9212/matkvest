@@ -1,8 +1,6 @@
 name: Test-only guarded sale dialog close Vue and HTML fallback PWA v286 gate
 on:
-  push:
-    branches: [refactor/route-vue-actions-from-7c14ce9]
-    paths: ['.github/workflows/legacy-sale-v286-gate.yml']
+  workflow_dispatch:
 permissions:
   contents: write
 concurrency:
