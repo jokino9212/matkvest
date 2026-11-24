@@ -52,6 +52,31 @@ function mk280EnsureStoreTabHandlers(){
 }
 '''
 once('function shopTabs(active){',bridge+'function shopTabs(active){\n mk280EnsureStoreTabHandlers();')
+# Existing UX-91 Vue mount keeps callback closures on detached tab nodes.
+# Route Vue and native HTML gestures through a per-host live/whitelisted adapter.
+once(
+ '''   const model={tabs:storeTabs,active:host.dataset.storeActive,picker};
+   loadVueModule().then(module=>{''',
+ '''   const model={tabs:storeTabs,active:host.dataset.storeActive,picker};
+   const isCurrentTabHost=()=>host.parentNode===modal&&host.isConnected&&
+    overlay.classList.contains("show");
+   const liveStoreActions=window.MatKvestVueActions?.storeTabActions?.({
+    isCurrent:isCurrentTabHost,categories:storeTabs.map(tab=>tab.id),
+    actions:{select:openStoreTab}
+   })||{
+    select:id=>{
+     if(isCurrentTabHost()&&storeTabs.some(tab=>tab.id===id))return openStoreTab(id)
+    }
+   };
+   loadVueModule().then(module=>{'''
+)
+once(
+ '''   module.mountStoreTabs(host,model,{open:(id,fromPicker)=>{
+     openStoreTab(id);''',
+ '''   module.mountStoreTabs(host,model,{open:(id,fromPicker)=>{
+     if(!isCurrentTabHost())return;
+     liveStoreActions.select(id);'''
+)
 a=s.index('function shopTabs(active){')
 b=s.index('let shopRarityFilter=',a)
 part=s[a:b]
@@ -70,7 +95,8 @@ for marker in (
     'mk280StoreTabActions?.select(select.value)',
     'MatKvestVueActions?.teacherDashboardActions?.',
 ):
- if s.count(marker)!=1:raise SystemExit('REFUSING missing or repeated marker '+marker)
+ if s.count(marker)!=(2 if marker=='MatKvestVueActions?.storeTabActions?.' else 1):
+  raise SystemExit('REFUSING missing or repeated marker '+marker+' / '+str(s.count(marker)))
 if s.count('?v=279')<25 or '?v=280' in s:raise SystemExit('REFUSING unexpected HTML asset versions')
 s=s.replace('?v=279','?v=280')
 if '?v=279' in s:raise SystemExit('REFUSING mixed asset versions')
