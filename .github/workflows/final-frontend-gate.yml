@@ -1,8 +1,6 @@
 name: Final frontend test-only release gate v290 (verified publisher markers)
 on:
-  push:
-    branches: [refactor/route-vue-actions-from-7c14ce9]
-    paths: ['.github/workflows/final-frontend-gate.yml']
+  workflow_dispatch:
 permissions:
   contents: write
 concurrency:
