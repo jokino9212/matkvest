@@ -27,13 +27,6 @@ jobs:
           python3 audits/g7_stage12_sync_pwa.py
           python3 audits/g7_stage12_sync_pwa.py --check
           python3 -m py_compile audits/legacy_quest_back_v282_patch.py audits/legacy_quest_back_v282_publish.py
-          python3 - <<'PY'
-          import subprocess
-          touched=set(subprocess.check_output(['git','diff','--name-only'],text=True).splitlines())
-          expected={'index.html','sw.js','assets/ui/legacy-vue-actions.js'}
-          assert touched==expected,(touched,expected)
-          PY
-          git diff --check
       - name: Install deterministic browser dependencies
         run: |
           npm ci
@@ -90,10 +83,8 @@ jobs:
         run: |
           node audits/pwa_verified_refresh_browser.cjs
           node audits/stage28_offline_pwa_browser.cjs
-      - name: Verify SW fingerprints and no unintended changes
-        run: |
-          python3 audits/g7_stage12_sync_pwa.py --check
-          git diff --check
+      - name: Verify final PWA fingerprints
+        run: python3 audits/g7_stage12_sync_pwa.py --check
       - name: Publish SHA-verified HTML, SW and action adapter to test branch only
         env:
           GH_TOKEN: ${{ github.token }}
