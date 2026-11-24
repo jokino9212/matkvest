@@ -1,0 +1,46 @@
+name: Test-only v276 Vue report and teacher actions inventory
+on:
+  push:
+    branches: [refactor/route-vue-actions-from-7c14ce9]
+    paths: ['.github/workflows/v276-report-inventory.yml']
+permissions:
+  contents: read
+jobs:
+  inspect:
+    if: github.repository == 'jokino9212/matkvest' && github.ref == 'refs/heads/refactor/route-vue-actions-from-7c14ce9'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect all reports, teacher bridges, and HTML fallback boundaries
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib,re
+          s=Path('index.html').read_text(encoding='utf-8')
+          print('V276_BASE_SHA',hashlib.sha256(s.encode()).hexdigest(),'BYTES',len(s.encode()))
+          for match in re.finditer(r'showVueReport\(',s):
+            at=match.start()
+            print('REPORT_CALL at',at,'line',s.count('\n',0,at)+1)
+            print(s[max(0,at-400):at+850].replace('\n',' '))
+          tokens=[
+           'function showVueReport(', 'function showVueResult(', 'function openTeacherStudentDetail(',
+           'function openTeacherDashboard(', 'function openTeacherStudentReport(',
+           'function renderTeacherStudentReport(', 'function openTeacherReport(',
+           'function openStudentReport(', 'function showTeacher', 'function showStudent',
+           'function openAttemptReviewRecord(', 'function openAttemptJournal(',
+           'function renderTeacher', 'function mk872RequestExit(',
+           'function renderAnalyticsView(', 'module.mountTeacher', 'module.mountStudent',
+           'function openKnowledgeTopicDetail(', 'function showVueReport(',
+          ]
+          for token in tokens:
+           hits=[x.start() for x in re.finditer(re.escape(token),s)]
+           print('V276_ANCHOR',repr(token),'COUNT',len(hits))
+           for at in hits[:2]:
+            print('V276_SNIP_BEGIN',repr(token),at)
+            print(s[max(0,at-200):at+5200])
+            print('V276_SNIP_END')
+          z=Path('assets/ui/knowledge-map.js').read_text(encoding='utf-8')
+          for key in ('mountTeacherStudentDetail','mountTeacherStudentReport','mountTeacherDashboard','mountStudentProfiles',
+              'mountAttemptJournal','mountAttemptReview','mountStageResult','mountErrorWorkResult'):
+             print('V276_BUNDLE_SYMBOL',key,z.count(key))
+          PY
