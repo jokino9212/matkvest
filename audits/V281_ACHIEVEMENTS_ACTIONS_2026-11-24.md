@@ -27,3 +27,22 @@ Read-only Playwright на опубликованной v280: https://github.com/
 - Vue 390: после `openShop('avatars')` старая кнопка `Открытые` отсоединена, но синхронный `oldButton.click()` меняет `achievementViewFilter` с `all` на `open`. Открытое окно магазина не меняется; глобальная фильтрация скрыто изменена.
 - HTML fallback 390 (Vue и adapter недоступны): аналогичная отсоединённая кнопка меняет фильтр и повторно открывает экран `achievement-screen` вместо магазина.
 - В обоих сценариях текущие `profileId`, XP и монеты неизменны. Подтверждён UI-дефект устаревшего callback и нарушение маршрута, **не** дефект экономики. Применять только scoped guard + native delegation.
+
+## Релиз v281 — успешный полный CI
+
+- Релизный gate: https://github.com/jokino9212/matkvest/actions/runs/45448457909 — **SUCCESS**; job `138638623191`, protected test-only publisher выполнился.
+- Контрактные проверки legacy route и Vue actions v271–v281 — PASS; детерминированная пересборка `assets/ui/knowledge-map.js` — PASS.
+- Новый `achievementFilterActions` только для view/category/sort с проверкой живого modal, ревизии конкретного Vue-рендера и whitelist допустимых ID. HTML fallback использует delegated native click/change; старые inline `achievementSetView/Category/Sort` из разметки удалены. При перерисовке fallback восстанавливается фокус на выбранном фильтре.
+- Бизнес-правила `checkAchievementRewards`, выдачи XP/монет, хранения/восстановления наград, маршрутизации и профилей не изменены.
+- Playwright новый экран 390/1280 Vue c offline F5 и 390 без Vue и adapter — **3/3 PASS**: кнопки, Enter/Space, сортировка, категории, stale detached Vue/HTML кнопки inert, сохранность ID/XP/coins/achievement ledger, без дублей.
+- 12 независимых прогона skip-confirm HTML столбика — PASS. Предыдущий однократный timeout неправильного ответа в общем PWA CI `45419343880` на том же SHA не воспроизвёлся (rerun attempt 2 SUCCESS), поэтому логика проверки/награды не изменялась.
+- Вся регрессия v271–v280: Vue маршруты, grade/knowledge/detail, планы, quick trainer, школьные таблицы/викторины/столбик, журнал попыток и разбор, преподавательская панель, отчёты, профили, Escape и вкладки магазина — PASS.
+- PWA refresh **v280→v281** online/offline F5 390 и 1280 px — PASS с сохранением прогресса; все операции столбиком add/sub/mul/div, контрольные повторения mul/div, работа над ошибками mul/div — PASS.
+- Responsive offline `320/390/768` — **3/3 PASS**, 0 ошибок; PWA-кеш, профиль, XP, coins, магазин доступны.
+- Проверка синхронизации service worker и HTML SHA256 — PASS. Выпуск `d11d613b4d5f176b4e08922d983133751f9bd9c0`, cache `matkvest-iphone-v281`, HTML hash `b4d818184329a2c45c2de702479c0f9389846132d9ddaa82337b3af1609c82ab`.
+- Публикация **исключительно** в test branch `refactor/route-vue-actions-from-7c14ce9`, PR #131 Draft. `main` остаётся `2985f92b6bd1a26dfcc316917f1752602b099572`; production/backend не тронуты.
+- После успеха выпускной SHA-fenced workflow перевести в `workflow_dispatch` без автоматического повторного применения патча.
+
+## Следующий этап v282
+
+Выбирать только одну новую локальную группу UI-обработчиков. Сначала отдельный read-only аудит, фиксировать воспроизводимые дефекты до изменений, затем scoped Vue actions с рабочим HTML fallback. Полная проверка клавиатуры, Escape, UX, маршрутов, offline F5, сохранения истории и наград; не трогать производство, backend и текущие контроллеры без доказательства дефекта.
