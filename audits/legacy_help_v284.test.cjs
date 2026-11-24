@@ -1,0 +1,15 @@
+'use strict';
+const assert=require('node:assert/strict');
+const {helpDialogActions}=require('../assets/ui/legacy-vue-actions.js');
+let live=true,revision=1,calls=0;
+const a=helpDialogActions({isCurrent:()=>live&&revision===1,close:()=>++calls});
+assert.equal(a.close(),1);
+revision=2;
+assert.equal(a.close(),undefined);
+assert.equal(calls,1);
+const b=helpDialogActions({isCurrent:()=>live,close:()=>++calls});
+assert.equal(b.close(),2);
+live=false;
+assert.equal(b.close(),undefined);
+assert.equal(calls,2);
+console.log('PASS_V284_HELP_ACTION_CONTRACTS current/stale/revision/closed');
