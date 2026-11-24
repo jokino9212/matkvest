@@ -90,6 +90,12 @@ async function check(browser,base,width,missing=false){
   await page.locator('#modal .mk871-profiles-screen').waitFor();
   await page.keyboard.press('Escape');
   await page.locator('#overlay.show').waitFor({state:'hidden'});
+  const afterProfilesEscape=await page.evaluate(()=>({
+   teacherUnlocked,screen:mk854Route()?.screen,mainId:mainView.firstElementChild?.id,
+   overlay:overlay.classList.contains("show"),
+   dashboardButtons:[...document.querySelectorAll("#teacherDashboardVue button")].map(x=>x.textContent.trim()).filter(Boolean).slice(0,15)
+  }));
+  console.log("V279_AFTER_PROFILES_ESCAPE",JSON.stringify({width,missing,...afterProfilesEscape}));
   await dashboard.getByRole('button',{name:/Резервная копия/}).click();
   await page.locator('#modal .backup-box').first().waitFor();
   await page.keyboard.press('Escape');
