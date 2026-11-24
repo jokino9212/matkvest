@@ -1,0 +1,79 @@
+name: Test-only generic Vue reports and teacher report actions PWA v276 gate
+on:
+  push:
+    branches: [refactor/route-vue-actions-from-7c14ce9]
+    paths:
+      - '.github/workflows/legacy-reports-teacher-v276-gate.yml'
+      - 'assets/ui/legacy-vue-actions.js'
+      - 'audits/legacy_reports_teacher_v276_patch.py'
+      - 'audits/legacy_reports_teacher_v276_publish.py'
+      - 'audits/legacy_reports_teacher_v276.test.cjs'
+      - 'audits/legacy_reports_teacher_v276_browser.cjs'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: reports-teacher-v276-test-branch
+  cancel-in-progress: false
+jobs:
+  integrate-test-publish:
+    if: github.repository == 'jokino9212/matkvest' && github.ref == 'refs/heads/refactor/route-vue-actions-from-7c14ce9'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: refactor/route-vue-actions-from-7c14ce9
+          persist-credentials: true
+      - name: Apply exact SHA v275 to v276 report/teacher patch
+        run: python3 audits/legacy_reports_teacher_v276_patch.py
+      - name: Synchronize validated v276 PWA and parse patch/publisher
+        run: |
+          python3 audits/g7_stage12_sync_pwa.py
+          python3 audits/g7_stage12_sync_pwa.py --check
+          python3 -m py_compile audits/legacy_reports_teacher_v276_patch.py audits/legacy_reports_teacher_v276_publish.py
+      - name: Install deterministic dependencies and Playwright
+        run: |
+          npm ci
+          npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Verify existing routes and Vue action contracts plus v276 report and teacher dispatch
+        run: |
+          node audits/legacy_navigation_core.test.cjs
+          node audits/legacy_vue_actions_v271.test.cjs
+          node audits/legacy_training_plan_v272.test.cjs
+          node audits/legacy_school_actions_v273.test.cjs
+          node audits/legacy_school_column_v274.test.cjs
+          node audits/legacy_school_frame_journal_v275.test.cjs
+          node audits/legacy_reports_teacher_v276.test.cjs
+      - name: Verify deterministic Vue bundle is unchanged
+        run: |
+          before=$(sha256sum assets/ui/knowledge-map.js | cut -d ' ' -f1)
+          npm run build:knowledge-map
+          after=$(sha256sum assets/ui/knowledge-map.js | cut -d ' ' -f1)
+          test "$before" = "$after"
+      - name: Browser generic report fallback close, teacher report, periods, back and offline F5
+        run: node audits/legacy_reports_teacher_v276_browser.cjs
+      - name: Browser previous navigation, plans, school table/quiz/column and frame/journal
+        run: |
+          sed -e 's/v271/v276/g' -e 's/V271/V276/g' audits/legacy_vue_actions_v271_browser.cjs > audits/legacy_vue_actions_v276_route_browser.cjs
+          sed -e 's/v272/v276/g' -e 's/V272/V276/g' audits/legacy_training_plan_v272_browser.cjs > audits/legacy_training_plan_v276_browser.cjs
+          sed -e 's/v273/v276/g' -e 's/V273/V276/g' audits/legacy_school_actions_v273_browser.cjs > audits/legacy_school_actions_v276_browser.cjs
+          sed -e 's/v274/v276/g' -e 's/V274/V276/g' audits/legacy_school_column_v274_browser.cjs > audits/legacy_school_column_v276_browser.cjs
+          sed -e 's/v275/v276/g' -e 's/V275/V276/g' audits/legacy_school_frame_journal_v275_browser.cjs > audits/legacy_school_frame_journal_v276_browser.cjs
+          node audits/legacy_vue_actions_v276_route_browser.cjs
+          node audits/legacy_training_plan_v276_browser.cjs
+          node audits/legacy_school_actions_v276_browser.cjs
+          node audits/legacy_school_column_v276_browser.cjs
+          node audits/legacy_school_frame_journal_v276_browser.cjs
+      - name: Full PWA 275 to 276 verified refresh and offline at 320 390 768
+        run: |
+          node audits/pwa_verified_refresh_browser.cjs
+          node audits/stage28_offline_pwa_browser.cjs
+      - name: Verify final PWA fingerprints
+        run: python3 audits/g7_stage12_sync_pwa.py --check
+      - name: Publish verified HTML and worker to SAME TEST BRANCH ONLY
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 audits/legacy_reports_teacher_v276_publish.py
