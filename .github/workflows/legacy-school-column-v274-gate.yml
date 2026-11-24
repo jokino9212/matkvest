@@ -1,14 +1,5 @@
 name: Test-only school column Vue actions and offline PWA v274 gate
 on:
-  push:
-    branches: [refactor/route-vue-actions-from-7c14ce9]
-    paths:
-      - '.github/workflows/legacy-school-column-v274-gate.yml'
-      - 'assets/ui/legacy-vue-actions.js'
-      - 'audits/legacy_school_column_v274_patch.py'
-      - 'audits/legacy_school_column_v274_publish.py'
-      - 'audits/legacy_school_column_v274.test.cjs'
-      - 'audits/legacy_school_column_v274_browser.cjs'
   workflow_dispatch:
 permissions:
   contents: write
