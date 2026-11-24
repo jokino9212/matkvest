@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <!-- Optional route core: inline mk854 wrappers remain the fallback. -->
-<script src="./assets/ui/legacy-navigation-core.js?v=277"></script>
-<script src="./assets/ui/legacy-vue-actions.js?v=277"></script>
+<script src="./assets/ui/legacy-navigation-core.js?v=278"></script>
+<script src="./assets/ui/legacy-vue-actions.js?v=278"></script>
 <script>function g8Declension19(number,one,few,many){
  const n=Math.abs(Math.trunc(Number(number))),lastTwo=n%100,last=n%10;
  if(lastTwo>=11&&lastTwo<=14)return many;
@@ -11873,10 +11873,44 @@ function openProfiles(){
     items:ownedTotal(p),details:mk872LevelProgressHtml(p.xp||0,"compact")+profileBadgesHtml(p,"compact"),
     stickers:favoriteStickersHtml(p)};
   })};
-  const rows=names.map((name,i)=>{const p=profiles[name],title=profileTitleText(p);return `<div class="profile-row ${name===currentProfile?"current":""}"><div class="profile-row-main">${avatarHtml(p,"small")}<div><b>${esc(name)}</b>${title?`<div class="leader-title">${esc(title)}</div>`:""}<div class="profile-info"><span>ур. ${levelFor(p.xp)}</span><span>${p.xp||0} XP</span><span>🪙 ${p.coins||0}</span><span>🔥 рекорд ${p.bestStreak||0}</span><span>🎒 ${ownedTotal(p)}</span></div>${mk872LevelProgressHtml(p?.xp||0,"compact")}${profileBadgesHtml(p,"compact")}<div class="profile-sticker-line">${favoriteStickersHtml(p)}</div></div></div><button class="btn soft" onclick="selectProfile(${i})">${name===currentProfile?"Текущий":"Выбрать"}</button></div>`}).join("");
-  const fallback=`<div class="mk871-profiles-screen"><div class="mtop"><h2>${title}</h2><button class="x" onclick="closeModal()">×</button></div>${shopPreview(preview)}<div class="actions"><button class="btn primary" onclick="openShop()">🛍️ Магазин</button><button class="btn soft" onclick="openCollection()">🎒 Моя коллекция</button></div><div class="profile-list">${rows}</div><div class="profile-create"><input id="newProfileName" maxlength="24" placeholder="Имя ученика" onkeydown="if(event.key==='Enter')createProfile()"><button class="btn primary" onclick="createProfile()">Создать</button></div></div>`;
-  showVueReport("mountStudentProfiles",model,{close:()=>closeModal(),shop:()=>openShop(),collection:()=>openCollection(),
-   edit:()=>openProfileEdit854(),select:index=>selectProfile(index),create:()=>createProfile()},fallback);
+  const rows=names.map((name,i)=>{const p=profiles[name],title=profileTitleText(p);return `<div class="profile-row ${name===currentProfile?"current":""}"><div class="profile-row-main">${avatarHtml(p,"small")}<div><b>${esc(name)}</b>${title?`<div class="leader-title">${esc(title)}</div>`:""}<div class="profile-info"><span>ур. ${levelFor(p.xp)}</span><span>${p.xp||0} XP</span><span>🪙 ${p.coins||0}</span><span>🔥 рекорд ${p.bestStreak||0}</span><span>🎒 ${ownedTotal(p)}</span></div>${mk872LevelProgressHtml(p?.xp||0,"compact")}${profileBadgesHtml(p,"compact")}<div class="profile-sticker-line">${favoriteStickersHtml(p)}</div></div></div><button class="btn soft" data-profile-action="select" data-profile-index="${i}">${name===currentProfile?"Текущий":"Выбрать"}</button></div>`}).join("");
+  const fallback=`<div class="mk871-profiles-screen"><div class="mtop"><h2>${title}</h2><button class="x" data-profile-action="close" aria-label="Закрыть окно">×</button></div>${shopPreview(preview)}<div class="actions"><button class="btn primary" data-profile-action="shop">🛍️ Магазин</button><button class="btn soft" data-profile-action="collection">🎒 Моя коллекция</button></div><div class="profile-list">${rows}</div><div class="profile-create"><input id="newProfileName" maxlength="24" placeholder="Имя ученика" data-profile-enter><button class="btn primary" data-profile-action="create">Создать</button></div></div>`;
+  let profilesHost=null;
+  const isCurrentProfile=()=>profilesHost?.parentNode===modal&&profilesHost.isConnected&&
+   overlay.classList.contains("show")&&!mk872Dialog;
+  const rawProfileActions={
+   close:closeModal,shop:openShop,collection:openCollection,edit:openProfileEdit854,
+   select:selectProfile,create:createProfile
+  };
+  const profileActions=window.MatKvestVueActions?.profileDialogActions?.({
+   isCurrent:isCurrentProfile,profileCount:names.length,...rawProfileActions
+  })||{
+   close:()=>{if(isCurrentProfile())return closeModal()},
+   shop:()=>{if(isCurrentProfile())return openShop()},
+   collection:()=>{if(isCurrentProfile())return openCollection()},
+   edit:()=>{if(isCurrentProfile())return openProfileEdit854()},
+   select:index=>{
+    if(!isCurrentProfile()||!Number.isInteger(index)||index<0||index>=names.length)return;
+    return selectProfile(index);
+   },
+   create:()=>{if(isCurrentProfile())return createProfile()}
+  };
+  showVueReport("mountStudentProfiles",model,profileActions,fallback);
+  profilesHost=modal.querySelector(":scope > .vue-report");
+  profilesHost.addEventListener("click",event=>{
+   if(profilesHost.hasAttribute("data-v-app"))return;
+   const button=event.target.closest("button[data-profile-action]");
+   if(!button||!profilesHost.contains(button))return;
+   const action=button.dataset.profileAction;
+   if(action==="select")profileActions.select(Number(button.dataset.profileIndex));
+   else profileActions[action]?.();
+  });
+  profilesHost.addEventListener("keydown",event=>{
+   if(profilesHost.hasAttribute("data-v-app")||event.key!=="Enter"||
+      event.target?.id!=="newProfileName")return;
+   event.preventDefault();
+   profileActions.create();
+  });
 }
 function selectProfile(i){
   const name=window._profileNames?.[i];if(!name||!profiles[name])return;
@@ -14346,7 +14380,7 @@ function knowledgeFilteredSections(data){
  const mapSec=sec=>{let topics=sec.topics.filter(t=>knowledgeStatusPass(t,knowledgeMapState.status)&&(!q||`${t.title} ${t.group}`.toLocaleLowerCase("ru-RU").includes(q)));if(knowledgeMapState.sort==="attention")topics=topics.slice().sort((a,b)=>knowledgeTopicPriority(a)-knowledgeTopicPriority(b));return {...sec,topics}};
  return [...data.sections,...data.extraSections].map(mapSec).filter(s=>s.topics.length);
 }
-const knowledgeMapUrl = "./assets/ui/knowledge-map.js?v=277";
+const knowledgeMapUrl = "./assets/ui/knowledge-map.js?v=278";
 const knowledgeTopicDetailHostId="knowledgeTopicDetailVue";
 let knowledgeMapModule;
 let knowledgeMapRevision=0;
@@ -42335,31 +42369,31 @@ document.addEventListener("keydown",event=>{
 })();
 </script>
 
-<script src="g5-conversion-ux.js?v=277"></script>
-<script src="g5-textbook-topics.js?v=277"></script>
-<script src="g5-textbook-core.js?v=277"></script>
-<script src="g5-textbook-v111.js?v=277"></script>
-<script src="g5-textbook-v112.js?v=277"></script>
-<script src="g5-pedagogy-v113.js?v=277"></script>
-<script src="g5-fractions-v114.js?v=277"></script>
-<script src="g5-fraction-arithmetic-v115.js?v=277"></script>
-<script src="g5-decimals-v116.js?v=277"></script>
-<script src="g7-textbook.js?v=277"></script>
-<script src="g8-textbook.js?v=277"></script>
-<script src="g1-textbook.js?v=277"></script>
-<script src="g2-textbook.js?v=277"></script>
-<script src="g3-textbook.js?v=277"></script>
-<script src="g4-textbook.js?v=277"></script>
-<script src="g5-textbook-navigation-v121.js?v=277"></script>
-<script src="g5-live-pedagogy-v122.js?v=277"></script>
-<script src="g5-arithmetic-tiers-v123.js?v=277"></script>
-<script src="g5-textbook-tiers-v124.js?v=277"></script>
-<script src="g5-natural-units-v125.js?v=277"></script>
-<script src="g5-remaining-core-v126.js?v=277"></script>
-<script src="g5-decimal-tiers-v127.js?v=277"></script>
-<script src="g5-decimal-percent-v128.js?v=277"></script>
-<script src="g5-fraction-concepts-v129.js?v=277"></script>
-<script src="g5-fraction-applications-v130.js?v=277"></script>
+<script src="g5-conversion-ux.js?v=278"></script>
+<script src="g5-textbook-topics.js?v=278"></script>
+<script src="g5-textbook-core.js?v=278"></script>
+<script src="g5-textbook-v111.js?v=278"></script>
+<script src="g5-textbook-v112.js?v=278"></script>
+<script src="g5-pedagogy-v113.js?v=278"></script>
+<script src="g5-fractions-v114.js?v=278"></script>
+<script src="g5-fraction-arithmetic-v115.js?v=278"></script>
+<script src="g5-decimals-v116.js?v=278"></script>
+<script src="g7-textbook.js?v=278"></script>
+<script src="g8-textbook.js?v=278"></script>
+<script src="g1-textbook.js?v=278"></script>
+<script src="g2-textbook.js?v=278"></script>
+<script src="g3-textbook.js?v=278"></script>
+<script src="g4-textbook.js?v=278"></script>
+<script src="g5-textbook-navigation-v121.js?v=278"></script>
+<script src="g5-live-pedagogy-v122.js?v=278"></script>
+<script src="g5-arithmetic-tiers-v123.js?v=278"></script>
+<script src="g5-textbook-tiers-v124.js?v=278"></script>
+<script src="g5-natural-units-v125.js?v=278"></script>
+<script src="g5-remaining-core-v126.js?v=278"></script>
+<script src="g5-decimal-tiers-v127.js?v=278"></script>
+<script src="g5-decimal-percent-v128.js?v=278"></script>
+<script src="g5-fraction-concepts-v129.js?v=278"></script>
+<script src="g5-fraction-applications-v130.js?v=278"></script>
 <script>
 // The textbook scripts finish extending the catalog before Home shows its totals.
 g5HomeCatalogReady=true;
