@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <!-- Optional route core: inline mk854 wrappers remain the fallback. -->
-<script src="./assets/ui/legacy-navigation-core.js?v=275"></script>
-<script src="./assets/ui/legacy-vue-actions.js?v=275"></script>
+<script src="./assets/ui/legacy-navigation-core.js?v=276"></script>
+<script src="./assets/ui/legacy-vue-actions.js?v=276"></script>
 <script>function g8Declension19(number,one,few,many){
  const n=Math.abs(Math.trunc(Number(number))),lastTwo=n%100,last=n%10;
  if(lastTwo>=11&&lastTwo<=14)return many;
@@ -13422,8 +13422,26 @@ function renderTeacherView({id,key="",mount,model,actions,fallback}){
  }
  const revision=++knowledgeMapRevision;
  const isCurrent=()=>host.parentNode===mainView&&revision===knowledgeMapRevision&&teacherUnlocked;
+ const teacherActions=window.MatKvestVueActions?.teacherViewActions?.({
+  isCurrent,actions
+ })||Object.fromEntries(Object.entries(actions||{}).map(([key,fn])=>[
+  key,typeof fn==="function"?(...args)=>{if(isCurrent())return fn.apply(actions,args)}:fn
+ ]));
+ // Keep HTML fallback and its native Enter/Space controls. Drop stale
+ // keyboard/click/form events on a replaced teacher view.
+ host.__mk276Current=isCurrent;
+ if(!host.__mk276Guard){
+  host.__mk276Guard=true;
+  for(const kind of ["click","keydown","input","change","submit"]){
+   host.addEventListener(kind,event=>{
+    if(host.__mk276Current?.())return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+   },true);
+  }
+ }
  loadVueModule().then(module=>{
-  if(isCurrent())module[mount](host,model,actions);
+  if(isCurrent())module[mount](host,model,teacherActions);
  }).catch(()=>{
   if(!isCurrent())return;
   const search=host.querySelector("#teacherSearchInput");
@@ -14328,7 +14346,7 @@ function knowledgeFilteredSections(data){
  const mapSec=sec=>{let topics=sec.topics.filter(t=>knowledgeStatusPass(t,knowledgeMapState.status)&&(!q||`${t.title} ${t.group}`.toLocaleLowerCase("ru-RU").includes(q)));if(knowledgeMapState.sort==="attention")topics=topics.slice().sort((a,b)=>knowledgeTopicPriority(a)-knowledgeTopicPriority(b));return {...sec,topics}};
  return [...data.sections,...data.extraSections].map(mapSec).filter(s=>s.topics.length);
 }
-const knowledgeMapUrl = "./assets/ui/knowledge-map.js?v=275";
+const knowledgeMapUrl = "./assets/ui/knowledge-map.js?v=276";
 const knowledgeTopicDetailHostId="knowledgeTopicDetailVue";
 let knowledgeMapModule;
 let knowledgeMapRevision=0;
@@ -14341,17 +14359,39 @@ function showVueResult(mount,model,reportId,actions){
  render();
 }
 function showVueReport(mount,model,actions,content){
- const fallback=content||`<div class="mtop"><h2>${esc(model.title)}</h2><button type="button" class="x" onclick="closeModal()">×</button></div><p class="knowledge-empty" role="status">Загружаем…</p>`;
+ const fallback=content||`<div class="mtop"><h2>${esc(model.title)}</h2><button type="button" class="x" aria-label="Закрыть окно" data-report-close>×</button></div><p class="knowledge-empty" role="status">Загружаем…</p>`;
  show(`<div class="vue-report">${fallback}</div>`);
  modal.scrollTop=0;
  const host=modal.firstElementChild;
- const isOpen=()=>host.parentNode===modal&&overlay.classList.contains("show");
+ const isOpen=()=>host.parentNode===modal&&host.isConnected&&overlay.classList.contains("show");
+ const isCurrentReport=()=>isOpen()&&!mk872Dialog;
+ const reportActions=window.MatKvestVueActions?.reportSurfaceActions?.({
+  isCurrent:isCurrentReport,actions
+ })||Object.fromEntries(Object.entries(actions||{}).map(([key,fn])=>[
+  key,typeof fn==="function"?(...args)=>{
+   if(isCurrentReport())return fn.apply(actions,args)
+  }:fn
+ ]));
+ // Block interactions on a detached report host without breaking native
+ // Enter/Space and existing HTML fallback while the host is current.
+ for(const kind of ["click","keydown","input","change","submit"]){
+  host.addEventListener(kind,event=>{
+   if(isOpen())return;
+   event.preventDefault();
+   event.stopImmediatePropagation();
+  },true);
+ }
+ host.addEventListener("click",event=>{
+  if(!isCurrentReport()||!event.target.closest("[data-report-close]"))return;
+  if(typeof reportActions.close==="function")reportActions.close();
+  else closeModal();
+ });
  let mounting=false;
  loadVueModule().then(module=>{
   if(!isOpen())return;
   if(typeof module[mount]!=="function")throw new Error("Не найден компонент "+mount);
   mounting=true;
-  module[mount](host,model,actions);
+  module[mount](host,model,reportActions);
  }).catch(()=>{
   if(!isOpen())return;
   if(content){if(mounting)host.innerHTML=fallback;return}
@@ -42289,31 +42329,31 @@ document.addEventListener("keydown",event=>{
 })();
 </script>
 
-<script src="g5-conversion-ux.js?v=275"></script>
-<script src="g5-textbook-topics.js?v=275"></script>
-<script src="g5-textbook-core.js?v=275"></script>
-<script src="g5-textbook-v111.js?v=275"></script>
-<script src="g5-textbook-v112.js?v=275"></script>
-<script src="g5-pedagogy-v113.js?v=275"></script>
-<script src="g5-fractions-v114.js?v=275"></script>
-<script src="g5-fraction-arithmetic-v115.js?v=275"></script>
-<script src="g5-decimals-v116.js?v=275"></script>
-<script src="g7-textbook.js?v=275"></script>
-<script src="g8-textbook.js?v=275"></script>
-<script src="g1-textbook.js?v=275"></script>
-<script src="g2-textbook.js?v=275"></script>
-<script src="g3-textbook.js?v=275"></script>
-<script src="g4-textbook.js?v=275"></script>
-<script src="g5-textbook-navigation-v121.js?v=275"></script>
-<script src="g5-live-pedagogy-v122.js?v=275"></script>
-<script src="g5-arithmetic-tiers-v123.js?v=275"></script>
-<script src="g5-textbook-tiers-v124.js?v=275"></script>
-<script src="g5-natural-units-v125.js?v=275"></script>
-<script src="g5-remaining-core-v126.js?v=275"></script>
-<script src="g5-decimal-tiers-v127.js?v=275"></script>
-<script src="g5-decimal-percent-v128.js?v=275"></script>
-<script src="g5-fraction-concepts-v129.js?v=275"></script>
-<script src="g5-fraction-applications-v130.js?v=275"></script>
+<script src="g5-conversion-ux.js?v=276"></script>
+<script src="g5-textbook-topics.js?v=276"></script>
+<script src="g5-textbook-core.js?v=276"></script>
+<script src="g5-textbook-v111.js?v=276"></script>
+<script src="g5-textbook-v112.js?v=276"></script>
+<script src="g5-pedagogy-v113.js?v=276"></script>
+<script src="g5-fractions-v114.js?v=276"></script>
+<script src="g5-fraction-arithmetic-v115.js?v=276"></script>
+<script src="g5-decimals-v116.js?v=276"></script>
+<script src="g7-textbook.js?v=276"></script>
+<script src="g8-textbook.js?v=276"></script>
+<script src="g1-textbook.js?v=276"></script>
+<script src="g2-textbook.js?v=276"></script>
+<script src="g3-textbook.js?v=276"></script>
+<script src="g4-textbook.js?v=276"></script>
+<script src="g5-textbook-navigation-v121.js?v=276"></script>
+<script src="g5-live-pedagogy-v122.js?v=276"></script>
+<script src="g5-arithmetic-tiers-v123.js?v=276"></script>
+<script src="g5-textbook-tiers-v124.js?v=276"></script>
+<script src="g5-natural-units-v125.js?v=276"></script>
+<script src="g5-remaining-core-v126.js?v=276"></script>
+<script src="g5-decimal-tiers-v127.js?v=276"></script>
+<script src="g5-decimal-percent-v128.js?v=276"></script>
+<script src="g5-fraction-concepts-v129.js?v=276"></script>
+<script src="g5-fraction-applications-v130.js?v=276"></script>
 <script>
 // The textbook scripts finish extending the catalog before Home shows its totals.
 g5HomeCatalogReady=true;
