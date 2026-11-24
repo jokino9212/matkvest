@@ -42,10 +42,10 @@ html = (ROOT / "index.html").read_bytes()
 sw = (ROOT / "sw.js").read_bytes()
 actions = (ROOT / "assets/ui/legacy-vue-actions.js").read_bytes()
 expected_html = hashlib.sha256(html).hexdigest()
-# Final publisher runs after all tests on the same SHA-fenced v272-to-v282 candidate.
+# Final publisher runs after all tests on the same SHA-fenced v281-to-v282 candidate.
 html_source = html.decode("utf-8")
-if (html_source.count("legacy-navigation-core.js?v=281") != 1
-        or html_source.count("legacy-vue-actions.js?v=281") != 1
+if (html_source.count("legacy-navigation-core.js?v=282") != 1
+        or html_source.count("legacy-vue-actions.js?v=282") != 1
         or html_source.count("MatKvestVueActions?.headerActions?.") != 1
         or html_source.count("MatKvestVueActions?.quickSetupActions?.") != 1
         or html_source.count("MatKvestVueActions?.quickResultActions?.") != 1
@@ -64,7 +64,7 @@ if (html_source.count("legacy-navigation-core.js?v=281") != 1
         or html_source.count("MatKvestVueActions?.storeTabActions?.") != 2
         or html_source.count("MatKvestVueActions?.achievementFilterActions?.") != 1
         or html_source.count("MatKvestVueActions?.questBackActions?.") != 1
-        or html_source.count('data-quest-action="back"') != 1
+        or html_source.count('data-quest-action="back"') != 2
         or 'data-achievement-action="view"' not in html_source
         or 'data-achievement-action="category"' not in html_source
         or 'data-achievement-action="sort"' not in html_source
