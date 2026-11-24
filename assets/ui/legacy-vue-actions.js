@@ -209,9 +209,14 @@
   function helpDialogActions({isCurrent,close}){
     return {close:()=>{if(isCurrent())return close()}};
   }
+  // V285: old detached artwork close callbacks cannot dismiss a later preview.
+  // Browser Back, Escape, and focused artwork controls remain legacy-owned.
+  function artworkViewerActions({isCurrent,close}){
+    return {close:()=>{if(isCurrent())return close()}};
+  }
   return {headerActions,quickSetupActions,quickResultActions,trainingPlanActions,
     schoolTableActions,schoolQuizActions,schoolColumnActions,
     schoolAttemptFrameActions,attemptJournalActions,attemptReviewActions,
     reportSurfaceActions,teacherViewActions,analyticsViewActions,profileDialogActions,
-    teacherDashboardActions,storeTabActions,achievementFilterActions,questBackActions,leaderboardDialogActions,helpDialogActions};
+    teacherDashboardActions,storeTabActions,achievementFilterActions,questBackActions,leaderboardDialogActions,helpDialogActions,artworkViewerActions};
 });

@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <!-- Optional route core: inline mk854 wrappers remain the fallback. -->
-<script src="./assets/ui/legacy-navigation-core.js?v=284"></script>
-<script src="./assets/ui/legacy-vue-actions.js?v=284"></script>
+<script src="./assets/ui/legacy-navigation-core.js?v=285"></script>
+<script src="./assets/ui/legacy-vue-actions.js?v=285"></script>
 <script>function g8Declension19(number,one,few,many){
  const n=Math.abs(Math.trunc(Number(number))),lastTwo=n%100,last=n%10;
  if(lastTwo>=11&&lastTwo<=14)return many;
@@ -14527,7 +14527,7 @@ function knowledgeFilteredSections(data){
  const mapSec=sec=>{let topics=sec.topics.filter(t=>knowledgeStatusPass(t,knowledgeMapState.status)&&(!q||`${t.title} ${t.group}`.toLocaleLowerCase("ru-RU").includes(q)));if(knowledgeMapState.sort==="attention")topics=topics.slice().sort((a,b)=>knowledgeTopicPriority(a)-knowledgeTopicPriority(b));return {...sec,topics}};
  return [...data.sections,...data.extraSections].map(mapSec).filter(s=>s.topics.length);
 }
-const knowledgeMapUrl = "./assets/ui/knowledge-map.js?v=284";
+const knowledgeMapUrl = "./assets/ui/knowledge-map.js?v=285";
 const knowledgeTopicDetailHostId="knowledgeTopicDetailVue";
 let knowledgeMapModule;
 let knowledgeMapRevision=0;
@@ -41900,13 +41900,21 @@ if(mkV877CorruptProfiles){
   const model=artworkModel(item);
   const host=document.createElement('div');
   host.className='mk872-viewer-content';
+  // Only the current live viewer may consume its own close button. The shared
+  // Escape/Back handlers below still close the active popup as before.
+  const isCurrent=()=>host.parentNode===popup&&host.isConnected&&
+    popup.classList.contains('mk872-open');
+  const viewerActions=window.MatKvestVueActions?.artworkViewerActions?.({
+   isCurrent,close
+  })||{close:()=>{if(isCurrent())return close()}};
+
   const fallback=()=>{
    host.innerHTML=`<div class="mk872-viewer-card" role="document">
      <button type="button" class="mk872-viewer-close" aria-label="Закрыть просмотр">×</button>
      <div id="mk872ViewerVisual"><div class="mk30-visual ${model.kind==='pet'?'mk30-pet':'mk30-avatar'}" inert>${model.artwork}</div></div>
      <div id="mk872ViewerTitle" class="mk872-viewer-title">${esc(model.title)}</div>
      <div class="mk872-viewer-hint">Нажмите вне окна или Esc, чтобы закрыть</div></div>`;
-   host.querySelector('.mk872-viewer-close').onclick=close;
+   host.querySelector('.mk872-viewer-close').onclick=viewerActions.close;
   };
   fallback();
   previousFocus=item.node;
@@ -41920,7 +41928,7 @@ if(mkV877CorruptProfiles){
   }
   loadVueModule().then(module=>{
    if(host.parentNode!==popup)return;
-   try{module.mountArtworkViewer(host,model,{close})}
+   try{module.mountArtworkViewer(host,model,{close:viewerActions.close})}
    catch{fallback()}
    host.querySelector('.mk872-viewer-close')?.focus({preventScroll:true});
   }).catch(()=>{ /* The preview remains usable if Vue cannot load. */ });
@@ -42546,31 +42554,31 @@ document.addEventListener("keydown",event=>{
 })();
 </script>
 
-<script src="g5-conversion-ux.js?v=284"></script>
-<script src="g5-textbook-topics.js?v=284"></script>
-<script src="g5-textbook-core.js?v=284"></script>
-<script src="g5-textbook-v111.js?v=284"></script>
-<script src="g5-textbook-v112.js?v=284"></script>
-<script src="g5-pedagogy-v113.js?v=284"></script>
-<script src="g5-fractions-v114.js?v=284"></script>
-<script src="g5-fraction-arithmetic-v115.js?v=284"></script>
-<script src="g5-decimals-v116.js?v=284"></script>
-<script src="g7-textbook.js?v=284"></script>
-<script src="g8-textbook.js?v=284"></script>
-<script src="g1-textbook.js?v=284"></script>
-<script src="g2-textbook.js?v=284"></script>
-<script src="g3-textbook.js?v=284"></script>
-<script src="g4-textbook.js?v=284"></script>
-<script src="g5-textbook-navigation-v121.js?v=284"></script>
-<script src="g5-live-pedagogy-v122.js?v=284"></script>
-<script src="g5-arithmetic-tiers-v123.js?v=284"></script>
-<script src="g5-textbook-tiers-v124.js?v=284"></script>
-<script src="g5-natural-units-v125.js?v=284"></script>
-<script src="g5-remaining-core-v126.js?v=284"></script>
-<script src="g5-decimal-tiers-v127.js?v=284"></script>
-<script src="g5-decimal-percent-v128.js?v=284"></script>
-<script src="g5-fraction-concepts-v129.js?v=284"></script>
-<script src="g5-fraction-applications-v130.js?v=284"></script>
+<script src="g5-conversion-ux.js?v=285"></script>
+<script src="g5-textbook-topics.js?v=285"></script>
+<script src="g5-textbook-core.js?v=285"></script>
+<script src="g5-textbook-v111.js?v=285"></script>
+<script src="g5-textbook-v112.js?v=285"></script>
+<script src="g5-pedagogy-v113.js?v=285"></script>
+<script src="g5-fractions-v114.js?v=285"></script>
+<script src="g5-fraction-arithmetic-v115.js?v=285"></script>
+<script src="g5-decimals-v116.js?v=285"></script>
+<script src="g7-textbook.js?v=285"></script>
+<script src="g8-textbook.js?v=285"></script>
+<script src="g1-textbook.js?v=285"></script>
+<script src="g2-textbook.js?v=285"></script>
+<script src="g3-textbook.js?v=285"></script>
+<script src="g4-textbook.js?v=285"></script>
+<script src="g5-textbook-navigation-v121.js?v=285"></script>
+<script src="g5-live-pedagogy-v122.js?v=285"></script>
+<script src="g5-arithmetic-tiers-v123.js?v=285"></script>
+<script src="g5-textbook-tiers-v124.js?v=285"></script>
+<script src="g5-natural-units-v125.js?v=285"></script>
+<script src="g5-remaining-core-v126.js?v=285"></script>
+<script src="g5-decimal-tiers-v127.js?v=285"></script>
+<script src="g5-decimal-percent-v128.js?v=285"></script>
+<script src="g5-fraction-concepts-v129.js?v=285"></script>
+<script src="g5-fraction-applications-v130.js?v=285"></script>
 <script>
 // The textbook scripts finish extending the catalog before Home shows its totals.
 g5HomeCatalogReady=true;
