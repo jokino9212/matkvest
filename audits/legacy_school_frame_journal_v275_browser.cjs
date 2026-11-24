@@ -36,7 +36,10 @@ async function resume(page){
 async function scenario(browser,base,width,missing=false){
  const context=await browser.newContext({viewport:{width,height:870},
   isMobile:width<600,hasTouch:width<600,serviceWorkers:missing?'block':'allow'});
- if(missing)await context.route('**/assets/ui/knowledge-map.js*',route=>route.abort());
+ if(missing){
+  await context.route('**/assets/ui/knowledge-map.js*',route=>route.abort());
+  await context.route('**/assets/ui/legacy-vue-actions.js*',route=>route.abort());
+ }
  const page=await context.newPage(),errors=[];
  page.on('pageerror',e=>errors.push(e.message));
  try{
