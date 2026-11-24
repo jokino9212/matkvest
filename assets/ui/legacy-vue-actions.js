@@ -109,7 +109,22 @@
       ...(typeof result==="function"?{result:live(result)}:{})
     };
   }
+  // V276: generic modal report and teacher view gestures. The original
+  // handlers retain full ownership of routes, profile data and report content.
+  function reportSurfaceActions({isCurrent,actions}){
+    return Object.fromEntries(Object.entries(actions||{}).map(([key,handler])=>[
+      key,typeof handler==="function"?
+        (...args)=>{if(isCurrent())return handler.apply(actions,args)}:handler
+    ]));
+  }
+  function teacherViewActions({isCurrent,actions}){
+    return Object.fromEntries(Object.entries(actions||{}).map(([key,handler])=>[
+      key,typeof handler==="function"?
+        (...args)=>{if(isCurrent())return handler.apply(actions,args)}:handler
+    ]));
+  }
   return {headerActions,quickSetupActions,quickResultActions,trainingPlanActions,
     schoolTableActions,schoolQuizActions,schoolColumnActions,
-    schoolAttemptFrameActions,attemptJournalActions,attemptReviewActions};
+    schoolAttemptFrameActions,attemptJournalActions,attemptReviewActions,
+    reportSurfaceActions,teacherViewActions};
 });
