@@ -66,6 +66,26 @@ async function run(browser,url,width){
   const p2=await ctx.newPage();p2.on('pageerror',e=>errors.push(e.message));await ready(p2);await account(p2);await select(p2,A);await expectText(p2,'[data-mk95-coins]','41');await expectText(p,'[data-mk95-coins]','82');
   await account(p2);await dialog(p2).getByRole('button',{name:'Выйти',exact:true}).click();await p.waitForFunction(()=>window.MK95Account.read().status==='session-changed');await expectText(p,'[data-mk95-coins]','—');
   await p.locator('#mainView').getByRole('button',{name:'Локальный режим',exact:true}).click();await p.locator('#mainView .grade-grid').waitFor();assert.deepEqual(await local(p),before);
+  // Login under the first account, then request logout while disconnected.
+  await account(p);await dialog(p).getByRole('textbox',{name:'Электронная почта'}).fill('student@example.test');await dialog(p).getByLabel('Пароль',{exact:true}).fill('test-password');await dialog(p).getByRole('button',{name:'Войти',exact:true}).click();await select(p,B);
+  await ctx.setOffline(true);await p.waitForFunction(()=>window.MK95Account.read().status==='offline');
+  await account(p);await dialog(p).getByRole('button',{name:'Выйти из аккаунта',exact:true}).click();
+  await p.waitForFunction(()=>window.MK95Account.read().status==='logout-unconfirmed');
+  await p.reload();await p.waitForFunction(()=>window.MK95Account?.read().status==='logout-unconfirmed');
+  await expectText(p,'[data-mk95-coins]','—');
+  await ctx.setOffline(false);await p.waitForFunction(()=>window.MK95Account.read().status==='signed-out');
+  assert.equal(await p.evaluate(async()=> (await fetch('/api/v1/auth/me')).status),401);
+  assert.deepEqual(await local(p),before);console.log('PASS_OFFLINE_LOGOUT_RELOAD',width);
+  // A different account in another tab must invalidate the previous owner's UI.
+  await account(p);await dialog(p).getByRole('textbox',{name:'Электронная почта'}).fill('student@example.test');await dialog(p).getByLabel('Пароль',{exact:true}).fill('test-password');await dialog(p).getByRole('button',{name:'Войти',exact:true}).click();await select(p,B);
+  await p2.reload();await p2.waitForFunction(()=>!!window.MK95Account);
+  await account(p2);await dialog(p2).getByRole('button',{name:'Выйти',exact:true}).click();
+  await p2.waitForFunction(()=>window.MK95Account.read().status==='signed-out');
+  await dialog(p2).getByRole('textbox',{name:'Электронная почта'}).fill('other@example.test');await dialog(p2).getByLabel('Пароль',{exact:true}).fill('test-password');await dialog(p2).getByRole('button',{name:'Войти',exact:true}).click();
+  await p2.waitForFunction(id=>window.MK95Account.read().snapshot?.profile.id===id,C);
+  await p.waitForFunction(()=>!window.MK95Account.read().snapshot);await expectText(p,'[data-mk95-coins]','—');
+  await expectText(p2,'[data-mk95-coins]','999');
+  assert.deepEqual(await local(p),before);
   assert.deepEqual(errors,[]);console.log('PASS_BACKEND95_BROWSER',width);
  }catch(e){console.log('BROWSER_DIAGNOSTICS',JSON.stringify({width,apiTrace:apiTrace.slice(-50),errors,ui:await p.evaluate(()=>({account:window.MK95Account?.read().status,mode:window.MK95Account?.read().mode,dialog:document.querySelector('.mk95-account-dialog')?.innerText,route:window.mk854Route?.()})).catch(()=>null)}));throw e}finally{await ctx.close()}
 }

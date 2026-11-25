@@ -1,11 +1,13 @@
-import {createAccountStore} from './account_store.mjs?v=291';
-const modeKey='mk95-mode',selectionKey='mk95-selection',eventKey='mk95-auth-change';
+import {createAccountStore} from './account_store.mjs?v=292';
+const modeKey='mk95-mode',selectionKey='mk95-selection',eventKey='mk95-auth-change',logoutKey='mk95-logout-pending';
 function sessionGet(key){try{return sessionStorage.getItem(key)}catch{return null}}
 function sessionSet(key,value){try{if(value===null)sessionStorage.removeItem(key);else sessionStorage.setItem(key,value)}catch{}}
 let mode=document.documentElement.dataset.mk95Mode==='server'?'server':'local';
 const store=createAccountStore(undefined,{
  loadSelection:()=>{try{return JSON.parse(sessionGet(selectionKey)||'null')}catch{return null}},
  saveSelection:v=>sessionSet(selectionKey,v?JSON.stringify(v):null),
+ loadLogoutPending:()=>{try{return localStorage.getItem(logoutKey)==='1'}catch{return false}},
+ saveLogoutPending:v=>{try{if(v)localStorage.setItem(logoutKey,'1');else localStorage.removeItem(logoutKey)}catch{}},
  authChanged:()=>{try{localStorage.setItem(eventKey,crypto.randomUUID())}catch{}}
 });
 const el=(tag,text)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;return n};
@@ -15,7 +17,7 @@ const dialog=el('dialog');dialog.className='mk95-account-dialog';dialog.setAttri
 const title=el('h2','Аккаунт МатКвест');title.id='mk95-account-title';
 const content=el('section'),note=el('p');note.setAttribute('role','status');
 dialog.append(title,note,content,button('Закрыть',()=>dialog.close()));document.body.append(dialog);
-const messages={local:'Локальный режим',connecting:'Проверка сессии…',loading:'Загрузка данных ученика…',offline:'Нет связи. Серверные данные недоступны; локальное обучение можно открыть отдельно.',error:'Не удалось получить данные. Повторите подключение.',ready:'Данные подтверждены сервером.',select:'Выберите ученика.', 'signed-out':'Войдите в аккаунт ученика.', 'unsupported-role':'Пока доступен только аккаунт ученика.', 'logout-unconfirmed':'Выход не подтверждён. Повторите выход после подключения.', 'session-changed':'Сессия изменилась в другой вкладке. Подключитесь заново.'};
+const messages={local:'Локальный режим',connecting:'Проверка сессии…',loading:'Загрузка данных ученика…',offline:'Нет связи. Серверные данные недоступны; локальное обучение можно открыть отдельно.',error:'Не удалось получить данные. Повторите подключение.',ready:'Данные подтверждены сервером.',select:'Выберите ученика.', 'signed-out':'Войдите в аккаунт ученика.', 'unsupported-role':'Пока доступен только аккаунт ученика.', 'logout-unconfirmed':'Выход не подтверждён. Серверные данные скрыты до завершения выхода.', 'session-changed':'Сессия изменилась в другой вкладке. Подключитесь заново.'};
 const read=()=>{const s=store.read();if(s.snapshot)s.snapshot.level=window.mk872GetLevelProgress(s.snapshot.profile.xp_total);return {...s,available:true,mode,message:messages[s.status]||''}};
 const closeReport=()=>{const overlay=document.getElementById('overlay');if(overlay?.dataset.mk95Report){delete overlay.dataset.mk95Report;overlay.classList.remove('show');document.getElementById('modal').replaceChildren()}};
 const reportOverlay=document.getElementById('overlay');
@@ -46,7 +48,9 @@ function report(kind){
 function render(s){
  if(!dialog.open)return;
  content.replaceChildren();note.textContent=messages[s.status]||'';
- if(s.user){
+ if(store.logoutPending()){
+  content.append(button('Завершить выход',()=>store.logout()));
+ }else if(s.user){
   const select=el('select');select.setAttribute('aria-label','Серверный ученик');const prompt=el('option','Выберите ученика');prompt.value='';prompt.disabled=true;select.append(prompt);
   for(const p of s.profiles){const o=el('option',p.display_name);o.value=p.id;select.append(o)}
   select.value=s.selectedId||'';select.addEventListener('change',()=>store.select(select.value));content.append(select,button('Выйти',()=>store.logout()));
@@ -57,14 +61,15 @@ function render(s){
   const submit=el('button','Войти');submit.type='submit';submit.className='btn primary';
   form.append(email,password,submit);form.addEventListener('submit',e=>{e.preventDefault();const secret=password.value;password.value='';store.login(email.value,secret)});
   content.append(form,button('Повторить подключение',()=>store.resume()));
+  if(['offline','session-changed','error'].includes(s.status))content.append(button('Выйти из аккаунта',()=>store.logout()));
  }
  content.append(button('Локальный режим',local));
 }
 store.subscribe(s=>{closeReport();render(s);emit()});
 entryHost.append(button('Аккаунт',open));
 window.MK95Account={read,open,local,home:closeReport,progress:()=>report('progress'),journal:()=>report('journal')};
-window.addEventListener('storage',e=>{if(e.key===eventKey&&mode==='server')store.invalidate('session-changed')});
+window.addEventListener('storage',e=>{if((e.key===eventKey||e.key===logoutKey)&&mode==='server')store.invalidate('session-changed')});
 window.addEventListener('offline',()=>{if(mode==='server')store.invalidate('offline')});
-window.addEventListener('online',()=>{if(mode==='server'&&store.read().status==='offline')store.resume()});
+window.addEventListener('online',()=>{if(store.logoutPending())store.logout();else if(mode==='server'&&store.read().status==='offline')store.resume()});
 window.addEventListener('focus',()=>{if(mode==='server'&&store.read().status==='ready'&&!dialog.open)store.resume()});
 emit();if(mode==='server')store.resume();

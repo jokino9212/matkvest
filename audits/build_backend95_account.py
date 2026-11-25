@@ -13,8 +13,8 @@ shutil.copytree(root/'integrations/backend95',out/'integration')
 page=out/'index.html';sw=out/'sw.js'
 s=page.read_text('utf8')
 assert s.count('</body>')==1
-s=s.replace('?v=290','?v=291')
-bootstrap="""<link rel="stylesheet" href="./integration/account.css?v=291"><script>
+s=s.replace('?v=290','?v=292')
+bootstrap="""<link rel="stylesheet" href="./integration/account.css?v=292"><script>
 try{if(sessionStorage.getItem('mk95-mode')==='server')document.documentElement.dataset.mk95Mode='server'}catch{}
 (function(){
  const active=()=>document.documentElement.dataset.mk95Mode==='server';
@@ -30,11 +30,11 @@ try{if(sessionStorage.getItem('mk95-mode')==='server')document.documentElement.d
 </script>"""
 assert s.count('</head>')==1
 s=s.replace('</head>',bootstrap+'</head>')
-s=s.replace('</body>','<div id="mk95-account-entry"></div><script type="module" src="./integration/account_ui.mjs?v=291"></script></body>')
+s=s.replace('</body>','<div id="mk95-account-entry"></div><script type="module" src="./integration/account_ui.mjs?v=292"></script></body>')
 page.write_text(s,'utf8')
 w=sw.read_text('utf8')
 assert w.count('matkvest-iphone-v')>=1
-w=w.replace('matkvest-iphone-v','matkvest-integration95-v').replace('matkvest-integration95-v290','matkvest-integration95-v291')
+w=w.replace('matkvest-iphone-v','matkvest-integration95-v').replace('matkvest-integration95-v290','matkvest-integration95-v292')
 w,n=re.subn(r'const APP_BUILD_HASH = "[a-f0-9]+";',f'const APP_BUILD_HASH = "{sha(page)}";',w);assert n==1
 m=re.search(r'const SCRIPT_HASHES = (\{[^\n]+\});',w);assert m
 hashes=json.loads(m[1])

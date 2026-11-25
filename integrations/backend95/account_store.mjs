@@ -1,6 +1,10 @@
-import {MatKvestApiClient} from './stage29_api_client.mjs?v=291';
+import {MatKvestApiClient} from './stage29_api_client.mjs?v=292';
 export function createAccountStore(api=new MatKvestApiClient(), options={}){
  let current={status:'local',user:null,profiles:[],selectedId:null,snapshot:null}, revision=0, authBusy=false;
+ // Persist only a non-sensitive logout intent, never a session or account snapshot.
+ let logoutPending=false;
+ const pending=()=>logoutPending||Boolean(options.loadLogoutPending?.());
+ const markPending=value=>{logoutPending=value;options.saveLogoutPending?.(value);};
  const listeners=new Set();
  const read=()=>structuredClone(current);
  const update=patch=>{current={...current,...patch};for(const fn of listeners)fn(read());};
@@ -20,6 +24,7 @@ export function createAccountStore(api=new MatKvestApiClient(), options={}){
  }
  async function connect(kind,email,password){
   if(authBusy)return;
+  if(pending()){clear('logout-unconfirmed');return;}
   authBusy=true;const token=++revision;
   const remembered=kind==='resume'?options.loadSelection?.():null;
   const oldOwner=current.user?.id,oldId=kind==='resume'?current.selectedId:null;
@@ -40,10 +45,20 @@ export function createAccountStore(api=new MatKvestApiClient(), options={}){
  }
  async function logout(){
   if(authBusy)return;
-  authBusy=true;revision++;update({status:'connecting',snapshot:null,profiles:[],selectedId:null});
+  authBusy=true;markPending(true);revision++;
+  update({status:'connecting',user:null,snapshot:null,profiles:[],selectedId:null});
   options.saveSelection?.(null);
-  try{await api.logout();clear('signed-out');}catch{clear('logout-unconfirmed');}
-  finally{options.authChanged?.();authBusy=false;}
+  options.authChanged?.();
+  try{
+   // Recover cookie-bound CSRF even after offline invalidation or F5.
+   // A missing/expired session already satisfies the logout intent.
+   try{await api.resumeSession();}catch(error){if(error.status!==401)throw error;markPending(false);clear('signed-out');return;}
+   await api.logout();
+   markPending(false);clear('signed-out');
+  }catch(error){
+   if(error.status===401){markPending(false);clear('signed-out');}
+   else clear('logout-unconfirmed');
+  }finally{options.authChanged?.();authBusy=false;}
  }
- return {read,subscribe(fn){listeners.add(fn);return()=>listeners.delete(fn)},resume:()=>connect('resume'),login:(e,p)=>connect('login',e,p),select,logout,invalidate:clear};
+ return {read,subscribe(fn){listeners.add(fn);return()=>listeners.delete(fn)},resume:()=>connect('resume'),login:(e,p)=>connect('login',e,p),select,logout,invalidate:status=>clear(status==='local'?status:pending()?'logout-unconfirmed':status),logoutPending:pending};
 }
