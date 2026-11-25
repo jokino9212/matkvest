@@ -39,7 +39,7 @@ defineProps({
     </div>
     <div class="pilot-actions column-cloud-actions">
       <button v-if="model.finished" type="button" class="btn soft" @click="actions.back">К этапам</button>
-      <button v-else type="button" class="btn soft" @click="actions.abandon">Завершить без награды</button>
+      <button v-else type="button" class="btn soft" @click="actions.abandon">{{ model.pauseOnly ? 'Сохранить и выйти' : 'Завершить без награды' }}</button>
     </div>
   </section>
 </template>

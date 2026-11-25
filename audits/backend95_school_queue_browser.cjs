@@ -19,7 +19,7 @@ const path=require('node:path');
     window.queue=createSchoolBlockQueue({api,store,outbox});
   })};
   await start(p);await start(q);
-  const key=await p.evaluate(async()=>{const startedAt=new Date().toISOString();return (await queue.begin({pack:{id:'c1436d1d-0123-4f25-8ae9-df61e8a85370',topic_id:'g4:table',questions:[{},{}],full:true,expires_at:new Date(Date.now()+86400000).toISOString()},startedAt})).key});
+  const key=await p.evaluate(async()=>{const startedAt=new Date().toISOString();return (await queue.begin({pack:{id:'c1436d1d-0123-4f25-8ae9-df61e8a85370',topic_id:'g4:table',questions:[{a:2,b:3},{a:3,b:3}],full:true,expires_at:new Date(Date.now()+86400000).toISOString()},startedAt})).key});
   await p.reload();await start(p);
   const answers=[{checks:[{'answer:0':'6'}],skipped:false},{checks:[],skipped:true}];
   await p.evaluate(async({key,answers})=>{window.status='offline';await queue.complete(key,answers);},{key,answers});

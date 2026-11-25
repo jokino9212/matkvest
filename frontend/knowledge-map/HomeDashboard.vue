@@ -1,5 +1,6 @@
 <script setup>
 import TrainingHistoryRows from './TrainingHistoryRows.vue';
+import SchoolAttempt from './SchoolAttempt.vue';
 
 const props = defineProps({
   model: { type: Object, required: true },
@@ -8,6 +9,7 @@ const props = defineProps({
 
 import {useAccountMode} from './accountMode.js';
 const {account,action:accountAction}=useAccountMode();
+const tableActions={close:()=>accountAction('tablePause'),back:()=>accountAction('tablePause'),abandon:()=>accountAction('tablePause'),input:event=>window.MK95Account?.tableAction('input',event),primary:()=>window.MK95Account?.tableAction('primary'),skip:()=>window.MK95Account?.tableAction('skip')};
 function runLocal(action){if(account.value.mode==='local')props.actions.run(action)}
 function activateCard(event, action) {
   if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
@@ -27,7 +29,14 @@ function activateCard(event, action) {
       <button type="button" class="mk19f-home-open" data-mk95-progress @click="accountAction('progress')">Мой прогресс</button>
       <button type="button" class="btn soft" data-mk95-journal @click="accountAction('journal')">Журнал попыток</button>
     </template>
-    <p>Учебные записи и покупки в этом режиме пока доступны только для просмотра. Локальные тренировки работают отдельно.</p>
+    <template v-if="account.table?.open">
+      <SchoolAttempt :model="account.table.model" :actions="tableActions" />
+      <p v-if="account.table.status === 'blocked'" role="alert">Результат сохранён, но сервер отклонил блок. Повторное начисление отключено.</p>
+      <button v-if="account.table.status === 'pending'" type="button" class="btn soft" @click="accountAction('tableSync')">Повторить синхронизацию</button>
+    </template>
+    <button v-else-if="account.table?.enabled" type="button" class="btn primary" :disabled="account.table.busy" data-mk95-table-open @click="accountAction('tableOpen')">Таблица умножения · 4 класс</button>
+    <p v-if="account.table?.error" role="alert">{{ account.table.error }}</p>
+    <p>В тестовом серверном режиме доступна разминка по таблице умножения. Остальные тренировки и покупки пока работают только локально.</p>
     <button type="button" class="btn soft" @click="accountAction('open')">Аккаунт и выбор ученика</button>
     <button type="button" class="btn soft" @click="accountAction('local')">Локальный режим</button>
   </section>

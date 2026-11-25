@@ -5,7 +5,8 @@ const owner='ea436d1d-0123-4f25-8ae9-df61e8a85370',foreign='ea436d1d-0123-4f25-8
 const A='a1436d1d-0123-4f25-8ae9-df61e8a85370',B='b1436d1d-0123-4f25-8ae9-df61e8a85370',C='c1436d1d-0123-4f25-8ae9-df61e8a85370';
 const profiles=[{id:A,user_id:owner,display_name:'Сервер А',xp_total:115},{id:B,user_id:owner,display_name:'Сервер Б',xp_total:250},{id:C,user_id:foreign,display_name:'Чужой ученик',xp_total:999}];
 const balance={[A]:41,[B]:82,[C]:999};
-const mutations=[],apiTrace=[];
+const mutations=[],apiTrace=[],receipts=new Map();let tablePuts=0,tableRewards=0,tablePackNo=0;
+const questions=[{a:2,b:3},{a:3,b:4},{a:4,b:5},{a:5,b:6},{a:6,b:7}];
 const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript','.mjs':'text/javascript','.css':'text/css','.svg':'image/svg+xml','.webp':'image/webp','.png':'image/png','.webmanifest':'application/manifest+json'};
 const json=(res,status,data,headers={})=>{apiTrace.push({method:res.req.method,path:new URL(res.req.url,'http://localhost').pathname,status});return res.writeHead(status,{'Content-Type':'application/json','Cache-Control':'no-store',...headers}).end(JSON.stringify(data))};
 const server=createServer(async(req,res)=>{
@@ -26,6 +27,15 @@ const server=createServer(async(req,res)=>{
    if(path==='/auth/csrf')return json(res,200,{csrf_token:'test-csrf'});
    if(path==='/auth/me')return json(res,200,{id:uid,role:'student'});
    if(path==='/student/profiles')return json(res,200,profiles.filter(p=>p.user_id===uid));
+   const training=/^\/student\/profiles\/([^/]+)\/offline-school(?:\/([^/]+))?$/.exec(path);
+   if(training){
+    const [,id,packId]=training;if(!profiles.some(p=>p.id===id&&p.user_id===uid))return json(res,404,{error:{code:'PROFILE_NOT_FOUND'}});
+    let raw='';for await(const chunk of req)raw+=chunk;const body=JSON.parse(raw);
+    assert.equal(req.headers['x-csrf-token'],'test-csrf');
+    if(req.method==='POST'&&!packId){assert.equal(body.topic,'g4:table');assert.equal(body.grade,4);const pack='f1436d1d-0123-4f25-8ae9-'+String(++tablePackNo).padStart(12,'0');const now=new Date().toISOString(),expires=new Date(Date.now()+86400000).toISOString();return json(res,200,{full:false,server_time:now,permits:[{id:pack.replace(/^f/,'e'),expires_at:expires}],topics:{'g4:table':{packs:[{id:pack,topic_id:'g4:table',stage:0,questions,full:false,expires_at:expires}],best:[0,0,0]}}});}
+    if(req.method==='PUT'&&packId){tablePuts++;const old=receipts.get(packId);if(old){assert.deepEqual(body,old.body);return json(res,200,old.receipt);}assert.equal(body.permit,packId.replace(/^f/,'e'));assert.equal(body.items.length,5);assert(body.items.every((x,i)=>!x.skipped&&Number(x.checks.at(-1)['answer:0'])===questions[i].a*questions[i].b));const receipt={id:packId,status:'finished',summary:{correct:5,corrected:0,skipped:0,passed:true,xp:80,coins:25}};receipts.set(packId,{body,receipt,profile:id});balance[id]+=25;profiles.find(p=>p.id===id).xp_total+=80;tableRewards++;return json(res,200,receipt);}
+    return json(res,405,{});
+   }
    const match=/^\/student(?:-profiles|\/profiles)\/([^/]+)\/(wallet|progress|history|entitlements)$/.exec(path);
    if(match){const [,id,kind]=match,p=profiles.find(p=>p.id===id&&p.user_id===uid);if(!p)return json(res,404,{error:{code:'PROFILE_NOT_FOUND'}});
     if(kind==='wallet')return json(res,200,{profile_id:id,balance:balance[id],revision:1});
@@ -91,4 +101,41 @@ async function run(browser,url,width){
   assert.deepEqual(errors,[]);console.log('PASS_BACKEND95_BROWSER',width);
  }catch(e){console.log('BROWSER_DIAGNOSTICS',JSON.stringify({width,apiTrace:apiTrace.slice(-50),errors,ui:await p.evaluate(()=>({account:window.MK95Account?.read().status,mode:window.MK95Account?.read().mode,dialog:document.querySelector('.mk95-account-dialog')?.innerText,route:window.mk854Route?.()})).catch(()=>null)}));throw e}finally{await ctx.close()}
 }
-(async()=>{await new Promise(r=>server.listen(0,'127.0.0.1',r));const browser=await chromium.launch({headless:true,args:['--no-sandbox']});try{const url='http://127.0.0.1:'+server.address().port+'/';await run(browser,url,390);await run(browser,url,1280);assert(mutations.every(p=>['/auth/login','/auth/logout'].includes(p)));console.log('PASS_NO_GAMEPLAY_MUTATIONS',mutations)}finally{await browser.close();await new Promise(r=>server.close(r))}})().catch(e=>{console.error(e);process.exitCode=1});
+async function runTable(browser,url){
+ const ctx=await browser.newContext({viewport:{width:390,height:850}}),p=await ctx.newPage(),errors=[];
+ p.on('pageerror',e=>errors.push(e.message));
+ try{
+  await p.goto(url);await p.locator('#appHeader[data-v-app]').waitFor();await p.waitForFunction(()=>!!window.MK95Account);
+  const before=await p.evaluate(()=>({xp:state.xp,coins:state.coins,history:state.attemptHistory?.length||0}));
+  await p.locator('#appHeader').getByRole('button',{name:'Аккаунт',exact:true}).click();
+  const dialog=p.getByRole('dialog',{name:'Аккаунт МатКвест'});
+  await dialog.getByLabel('Электронная почта').fill('student@example.test');await dialog.getByLabel('Пароль',{exact:true}).fill('test-password');await dialog.getByRole('button',{name:'Войти',exact:true}).click();
+  await dialog.getByRole('combobox',{name:'Серверный ученик'}).selectOption(A);
+  await p.waitForFunction(id=>window.MK95Account.read().snapshot?.profile.id===id,A);
+  await dialog.getByRole('button',{name:'Закрыть',exact:true}).click();
+  await p.evaluate(()=>navigator.serviceWorker.ready);await p.waitForFunction(()=>!!navigator.serviceWorker.controller);
+  await p.locator('[data-mk95-table-open]').click();await p.locator('#mk95-table-question #fin').fill('6');
+  await p.waitForFunction(()=>window.MK95Account.read().table.model?.exercise.answer==='6');
+  await ctx.setOffline(true);await p.waitForFunction(()=>window.MK95Account.read().status==='offline');
+  await p.reload();await p.waitForFunction(()=>window.MK95Account?.read().table.model?.exercise.answer==='6');
+  assert.equal(await p.locator('#mk95-table-question #fin').inputValue(),'6');
+  assert.equal(await p.locator('[data-mk95-coins]').innerText(),'—');
+  for(let i=0;i<questions.length;i++){
+   const ans=String(questions[i].a*questions[i].b);await p.locator('#mk95-table-question #fin').fill(ans);
+   await p.locator('#mk95-table-question #tablePrimary').click();
+   await p.waitForFunction(()=>window.MK95Account.read().table.model?.exercise.nextReady===true);
+   await p.locator('#mk95-table-question #tablePrimary').click();
+   if(i<4)await p.waitForFunction(i=>window.MK95Account.read().table.index===i+1,i);
+  }
+  await p.waitForFunction(()=>window.MK95Account.read().table.status==='pending');assert.equal(tablePuts,0);
+  await p.reload();await p.waitForFunction(()=>window.MK95Account?.read().table.status==='pending');
+  await ctx.setOffline(false);
+  await p.waitForFunction(()=>window.MK95Account.read().table.status==='confirmed');
+  await p.waitForFunction(()=>document.querySelector('[data-mk95-coins]')?.textContent==='66');
+  assert.equal(tableRewards,1);assert.equal(tablePuts,1);assert.equal(balance[B],82);
+  await p.reload();await p.waitForFunction(()=>window.MK95Account?.read().table.status==='confirmed');
+  assert.equal(tableRewards,1);assert.deepEqual(await p.evaluate(()=>({xp:state.xp,coins:state.coins,history:state.attemptHistory?.length||0})),before);
+  assert.deepEqual(errors,[]);console.log('PASS_TABLE_PILOT_UI draft input, offline F5, completion, reconnect, one reward');
+ }finally{await ctx.close()}
+}
+(async()=>{await new Promise(r=>server.listen(0,'127.0.0.1',r));const browser=await chromium.launch({headless:true,args:['--no-sandbox']});try{const url='http://127.0.0.1:'+server.address().port+'/';await run(browser,url,390);await run(browser,url,1280);assert(mutations.every(p=>['/auth/login','/auth/logout'].includes(p)));console.log('PASS_NO_GAMEPLAY_MUTATIONS',mutations);await runTable(browser,url)}finally{await browser.close();await new Promise(r=>server.close(r))}})().catch(e=>{console.error(e);process.exitCode=1});
