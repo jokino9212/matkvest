@@ -8,7 +8,14 @@ export const SCHOOL_TOPICS=Object.freeze({
  'g4:moro_missing_add':'Неизвестное слагаемое',
  'g4:moro_missing_muldiv':'Неизвестный множитель, делимое и делитель',
  'g4:column:add':'Сложение столбиком', 'g4:column:sub':'Вычитание столбиком',
- 'g4:column:mul':'Умножение столбиком', 'g4:column:div':'Деление уголком'
+ 'g4:column:mul':'Умножение столбиком', 'g4:column:div':'Деление уголком',
+ 'g5:natural_compare':'Сравнение натуральных чисел',
+ 'g5:natural_add':'Сложение натуральных чисел и его свойства',
+ 'g5:natural_subtract':'Вычитание натуральных чисел',
+ 'g5:natural_multiply':'Умножение натуральных чисел и его свойства',
+ 'g5:natural_divide':'Деление натуральных чисел',
+ 'g5:frac_to_mixed':'Неправильная дробь → смешанное число',
+ 'g5:mixed_to_frac':'Смешанное число → неправильная дробь'
 });
 export const STAGES=['Разминка','Тренировка','Мастерство'];
 export const COUNTS=[5,7,10], PASS=[4,5,8];
@@ -16,6 +23,9 @@ export const stageOf=row=>row.stage??0;
 export const expectedAnswer=(topic,question)=>topic==='g4:table'?question.a*question.b:question.answer;
 export function stageAllowed(best,stage){return Number.isInteger(stage)&&stage>=0&&stage<3&&(stage===0||Number(best?.[stage-1]||0)>=PASS[stage-1]);}
 export const isColumn=topic=>/^g4:column:(add|sub|mul|div)$/.test(topic);
+export const isFraction=topic=>topic==='g5:frac_to_mixed'||topic==='g5:mixed_to_frac';
+export const maxDigits=topic=>isFraction(topic)||['g5:natural_multiply','g5:natural_divide'].includes(topic)?6:topic==='g4:table'?3:4;
+export const gradeOf=topic=>Number(topic[1]);
 export function validateQuestion(topic,question,columnKeys){
  if(isColumn(topic)){
   const {a,b}=question,op=topic.split(':').at(-1);
@@ -33,10 +43,17 @@ export function validateQuestion(topic,question,columnKeys){
   const {a,b}=question;if(!Number.isInteger(a)||!Number.isInteger(b)||a<2||b<2||a>9||b>9)throw Error('INVALID_QUESTION');
   return {a,b};
  }
- const {expression,answer,steps,choices}=question;
- if(typeof expression!=='string'||!expression||expression.length>300||!Number.isInteger(answer)||answer<0||answer>9999||!Array.isArray(steps)||steps.some(x=>typeof x!=='string'))throw Error('INVALID_QUESTION');
+ const {expression,answer,steps,choices,choice_labels,place_values,form,prompt_markup}=question;
+ if(typeof expression!=='string'||!expression||expression.length>500||!Number.isInteger(answer)||answer<0||answer>=10**maxDigits(topic)||!Array.isArray(steps)||steps.some(x=>typeof x!=='string'))throw Error('INVALID_QUESTION');
+ if(isFraction(topic)){
+  if(!form||!['number','mixed','improper'].includes(form.kind)||typeof prompt_markup!=='string'||prompt_markup.length>100000||choices!==undefined)throw Error('INVALID_FRACTION');
+  if(form.kind==='number'?form.denominator!==null:!Number.isInteger(form.denominator)||form.denominator<1||form.denominator>answer||(form.kind==='mixed'&&answer%form.denominator===0))throw Error('INVALID_FRACTION');
+  return {expression,answer,steps,form:{kind:form.kind,denominator:form.denominator,label:typeof form.label==='string'?form.label:''},prompt_markup};
+ }
+ if(choice_labels!==undefined&&(topic!=='g5:natural_compare'||JSON.stringify(choice_labels)!==JSON.stringify(['<','=','>'])||JSON.stringify(choices)!==JSON.stringify([0,1,2])))throw Error('INVALID_CHOICE_LABELS');
+ if(place_values!==undefined&&(topic!=='g5:natural_compare'||!Array.isArray(place_values)||place_values.length!==2||place_values.some(x=>typeof x!=='string'||!/^\d{1,4}$/.test(x))||place_values[0].length!==place_values[1].length))throw Error('INVALID_PLACE_VALUES');
  if(choices!==undefined&&(!Array.isArray(choices)||!choices.includes(answer)||new Set(choices).size!==choices.length||choices.some(x=>!Number.isInteger(x)||x<0||x>9999)))throw Error('INVALID_CHOICES');
- return {expression,answer,steps,...(choices?{choices}:{})};
+ return {expression,answer,steps,...(choices?{choices}:{}),...(choice_labels?{choice_labels}:{}),...(place_values?{place_values}:{})};
 }
 // The existing backend issues questions/permits and grades the full journal.
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -103,11 +120,28 @@ export function columnFeedback(question,raw){
  const wrong=missing.length?[]:Object.keys(cells).filter(key=>cells[key]!==keys[key]);
  return {cells,missing,wrong};
 }
+// Match the original §31 grade_conversion contract; equality alone is insufficient.
+export function fractionFeedback(question,raw){
+ const {kind,denominator}=question.form;
+ const expected=kind==='number'?{'answer:0':question.answer}:kind==='mixed'?{'fraction:0':Math.floor(question.answer/denominator),'fraction:1':question.answer%denominator}:{'fraction:1':question.answer};
+ const allowed=kind==='number'?['answer:0']:['fraction:0','fraction:1','fraction:2'];
+ if(!raw||typeof raw!=='object'||Array.isArray(raw))throw Error('INVALID_CELLS');
+ const cells={};
+ for(const [key,value] of Object.entries(raw)){
+  if(!allowed.includes(key)||typeof value!=='string'||!/^\d{0,6}$/.test(value))throw Error('INVALID_CELLS');
+  if(value)cells[key]=value;
+ }
+ const missing=Object.keys(expected).filter(key=>!Object.hasOwn(cells,key));
+ const wrong=missing.length?[]:Object.keys(expected).filter(key=>Number(cells[key])!==expected[key]);
+ if(!missing.length&&kind==='improper'&&Object.hasOwn(cells,'fraction:0'))wrong.push('fraction:0');
+ if(!missing.length&&kind!=='number'&&Object.hasOwn(cells,'fraction:2')&&Number(cells['fraction:2'])!==denominator)wrong.push('fraction:2');
+ return {cells,missing,wrong};
+}
 export function applyColumnAction(row,revision,kind,value){
  if(row.status!=='draft'||row.revision!==revision)throw Error('DRAFT_CHANGED');
  const next=structuredClone(row),item=next.draft[next.index],question=next.questions[next.index];
  if((kind==='input'||kind==='check'||kind==='skip')&&!item.solved){
-  const f=columnFeedback(question,value);item.cells=f.cells;
+  const f=isFraction(next.topic)?fractionFeedback(question,value):columnFeedback(question,value);item.cells=f.cells;
   if(kind==='input'){item.feedback='';item.wrong=[];item.missing=[];}
   if(kind==='check'){
    item.missing=f.missing;item.wrong=f.wrong;
@@ -129,10 +163,10 @@ export function applyColumnAction(row,revision,kind,value){
  next.revision++;return next;
 }
 export function applyTableAction(row,revision,kind,value){
- if(isColumn(row.topic))return applyColumnAction(row,revision,kind,value);
+ if(isColumn(row.topic)||isFraction(row.topic))return applyColumnAction(row,revision,kind,value);
  if(row.status!=='draft'||row.revision!==revision)throw Error('DRAFT_CHANGED');
  const next=structuredClone(row),item=next.draft[next.index],question=next.questions[next.index];
- const numeric=String(value??'').replace(/[^0-9]/g,'').slice(0,next.topic==='g4:table'?3:4);
+ const numeric=String(value??'').replace(/[^0-9]/g,'').slice(0,maxDigits(next.topic));
  if(kind==='input'&&!item.solved){item.answer=numeric;item.feedback='';}
  else if(kind==='check'&&!item.solved){
   item.answer=numeric;

@@ -1,5 +1,6 @@
-import {createSchoolBlockQueue,indexedSchoolOutbox,SCHOOL_TOPICS,STAGES,COUNTS,PASS,stageOf,stageAllowed,isColumn,validateQuestion} from './school_block_queue.mjs?v=295';
-import {columnView,readColumnCells,moveColumnCell,normalizeColumnCell} from './column_training.mjs?v=295';
+import {createSchoolBlockQueue,indexedSchoolOutbox,SCHOOL_TOPICS,STAGES,COUNTS,PASS,stageOf,stageAllowed,isColumn,validateQuestion,isFraction,maxDigits,gradeOf} from './school_block_queue.mjs?v=296';
+import {columnView,readColumnCells,moveColumnCell,normalizeColumnCell} from './column_training.mjs?v=296';
+import {fractionView,readFractionCells} from './fraction_training.mjs?v=296';
 // Shared school trainer; no calls to legacy reward or save routines.
 export function createTableTraining({api,store,mode,emit,sessionGet,sessionSet}){
  const db=indexedSchoolOutbox(),queue=createSchoolBlockQueue({api,store,outbox:db});
@@ -18,7 +19,7 @@ export function createTableTraining({api,store,mode,emit,sessionGet,sessionSet})
   const progress=store.read().snapshot?.progress.course_progress||[];
   return Object.entries(SCHOOL_TOPICS).map(([topic,title])=>{
    const best=STAGES.map((_,i)=>Math.max(0,...progress.filter(r=>r.course_key===topic&&r.stage_index===i).map(r=>Number(r.best_score)||0)));
-   return {topic,title,stages:STAGES.map((label,stage)=>({label,stage,enabled:!!ready()&&stageAllowed(best,stage),best:best[stage]}))};
+   return {topic,title,grade:gradeOf(topic),stages:STAGES.map((label,stage)=>({label,stage,enabled:!!ready()&&stageAllowed(best,stage),best:best[stage]}))};
   });
  };
  const read=()=>{
@@ -28,7 +29,7 @@ export function createTableTraining({api,store,mode,emit,sessionGet,sessionSet})
   const done=items.filter(x=>x.solved||x.skipped).length,correct=items.filter(x=>x.solved&&x.checks.length===1).length;
   const finished=r.status!=='draft',confirmed=r.status==='confirmed';
   const summary=confirmed?r.receipt?.summary:{correct,corrected:items.filter(x=>x.solved&&x.checks.length>1).length,skipped:items.filter(x=>x.skipped).length,passed:correct>=PASS[stageOf(r)]||(stageOf(r)===2&&correct===7&&items.some(x=>x.solved&&x.checks.length>1)),pending:true};
-  return {enabled:true,open:true,busy,error,status:r.status,revision:r.revision,index:r.index,model:{title:'4 класс · '+SCHOOL_TOPICS[r.topic],rootId:'mk95-table-practice',questionId:'mk95-table-question',column:isColumn(r.topic),pauseOnly:true,progress:{stage:STAGES[stageOf(r)],icon:'',done,total:r.count,correct},finished,summary,exercise:finished?{}:isColumn(r.topic)?columnView(r.topic,question,item,busy):{a:question.a,b:question.b,prompt:question.expression,maxDigits:r.topic==='g4:table'?3:4,choices:question.choices?.map(value=>({label:String(value),selected:item.answer===String(value),disabled:item.solved,className:'btn soft'+(item.answer===String(value)&&!item.solved&&item.feedback?.startsWith('Проверь')?' school-choice-wrong':'')})),solution:item.solved?question.steps:undefined,answer:item.answer,readOnly:item.solved,disabled:busy,wrong:!item.solved&&item.feedback?.startsWith('Проверь'),feedback:item.feedback||'',primaryLabel:item.solved?'Далее':'Проверить',nextReady:item.solved,hideSkip:item.solved}}};
+  return {enabled:true,open:true,busy,error,status:r.status,revision:r.revision,index:r.index,model:{title:gradeOf(r.topic)+' класс · '+SCHOOL_TOPICS[r.topic],rootId:'mk95-table-practice',questionId:'mk95-table-question',column:isColumn(r.topic),pauseOnly:true,progress:{stage:STAGES[stageOf(r)],icon:'',done,total:r.count,correct},finished,summary,exercise:finished?{}:isColumn(r.topic)?columnView(r.topic,question,item,busy):isFraction(r.topic)?fractionView(question,item,busy):{a:question.a,b:question.b,prompt:question.expression,maxDigits:maxDigits(r.topic),placeValues:question.place_values,choices:question.choices?.map(value=>({label:String(question.choice_labels?.[value]??value),selected:item.answer===String(value),disabled:item.solved,className:'btn soft'+(item.answer===String(value)&&!item.solved&&item.feedback?.startsWith('Проверь')?' school-choice-wrong':'')})),solution:item.solved?question.steps:undefined,answer:item.answer,readOnly:item.solved,disabled:busy,wrong:!item.solved&&item.feedback?.startsWith('Проверь'),feedback:item.feedback||'',primaryLabel:item.solved?'Далее':'Проверить',nextReady:item.solved,hideSkip:item.solved}}};
  };
  function pause(){sessionSet(openKey,null);row=null;error='';generation++;notify();}
  async function load(){
@@ -59,7 +60,7 @@ export function createTableTraining({api,store,mode,emit,sessionGet,sessionSet})
     const entry=catalogue().find(x=>x.topic===topic);
     if(!entry?.stages[stage]?.enabled){error='Сначала пройдите предыдущую ступень.';return;}
     const actor=await api.resumeSession();if(actor.id!==sc.owner||!ready()||!owns({owner:sc.owner,profile:sc.profile}))return;
-    const response=await api.request('POST','/student/profiles/'+encodeURIComponent(sc.profile)+'/offline-school',{body:{device:device(),grade:4,topic,unavailable_permits:rows.filter(r=>r.status!=='confirmed').map(r=>r.start.permit).filter(Boolean).slice(-10)}});
+    const response=await api.request('POST','/student/profiles/'+encodeURIComponent(sc.profile)+'/offline-school',{body:{device:device(),grade:gradeOf(topic),topic,unavailable_permits:rows.filter(r=>r.status!=='confirmed').map(r=>r.start.permit).filter(Boolean).slice(-10)}});
     if(!ready()||!owns({owner:sc.owner,profile:sc.profile}))return;
     const prepared=response.topics?.[topic];
     if(!stageAllowed(prepared?.best,stage)){error='Сначала пройдите предыдущую ступень.';return;}
@@ -79,14 +80,15 @@ export function createTableTraining({api,store,mode,emit,sessionGet,sessionSet})
  }
  function action(kind,event){
   if(!visible()||row.status!=='draft')return;
-  const column=isColumn(row.topic);
-  if(kind==='input'&&(column||event?.type!=='input'||event.target?.id!=='fin'))return;
+  const column=isColumn(row.topic),fraction=isFraction(row.topic);
+  if(kind==='input'&&(column||event?.type!=='input'||(fraction?!event.target?.dataset?.mk95Fraction:event.target?.id!=='fin')))return;
+  if(kind==='input'&&fraction)event.target.value=event.target.value.replace(/[^0-9]/g,'').slice(0,6);
   if((kind==='cell'||kind==='dot')&&(!column||!normalizeColumnCell(event,kind==='dot')))return;
   if(kind==='move'){if(column)moveColumnCell(event.event,event.el);return;}
   const key=row.key,index=row.index;
   const question=row.questions[index];
   if(kind==='pick'&&(!question.choices||!Number.isInteger(event)||!question.choices.hasOwnProperty(event)))return;
-  const value=column?readColumnCells():kind==='pick'?String(question.choices[event]):kind==='input'?event.target.value:document.querySelector('#mk95-table-question #fin')?.value??row.draft[index].answer;
+  const value=column?readColumnCells():fraction?readFractionCells():kind==='pick'?String(question.choices[event]):kind==='input'?event.target.value:document.querySelector('#mk95-table-question #fin')?.value??row.draft[index].answer;
   if(kind==='skip'&&!window.confirm('Пропустить задание?'))return;
   chain=chain.then(async()=>{
    if(!visible()||row.key!==key||row.index!==index||row.status!=='draft')return;

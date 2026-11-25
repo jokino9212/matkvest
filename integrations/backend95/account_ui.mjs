@@ -1,6 +1,6 @@
-import {createAccountStore} from './account_store.mjs?v=295';
-import {MatKvestApiClient} from './stage29_api_client.mjs?v=295';
-import {createTableTraining} from './table_training.mjs?v=295';
+import {createAccountStore} from './account_store.mjs?v=296';
+import {MatKvestApiClient} from './stage29_api_client.mjs?v=296';
+import {createTableTraining} from './table_training.mjs?v=296';
 const modeKey='mk95-mode',selectionKey='mk95-selection',eventKey='mk95-auth-change',logoutKey='mk95-logout-pending';
 function sessionGet(key){try{return sessionStorage.getItem(key)}catch{return null}}
 function sessionSet(key,value){try{if(value===null)sessionStorage.removeItem(key);else sessionStorage.setItem(key,value)}catch{}}

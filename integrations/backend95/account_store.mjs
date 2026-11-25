@@ -1,4 +1,4 @@
-import {MatKvestApiClient} from './stage29_api_client.mjs?v=295';
+import {MatKvestApiClient} from './stage29_api_client.mjs?v=296';
 export function createAccountStore(api=new MatKvestApiClient(), options={}){
  let current={status:'local',user:null,profiles:[],selectedId:null,snapshot:null}, revision=0, authBusy=false;
  // Persist only a non-sensitive logout intent, never a session or account snapshot.

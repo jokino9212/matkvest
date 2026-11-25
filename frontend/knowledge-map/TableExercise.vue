@@ -12,7 +12,7 @@ const placeHeadings = computed(() => ['Тысячи', 'Сотни', 'Десят�
 
 function submitOnEnter(event) {
   if (event.repeat) event.preventDefault();
-  else if (event.target.id === 'fin') {
+  else if (event.target.id === 'fin' || event.target.dataset.mk95Fraction) {
     event.preventDefault();
     props.actions.primary();
   }
@@ -21,7 +21,8 @@ function submitOnEnter(event) {
 
 <template>
   <div class="card" @keydown.enter="submitOnEnter">
-    <div class="flash">{{ model.prompt ?? `${model.a} × ${model.b} = ?` }}</div>
+    <div v-if="model.safePrompt !== undefined" class="flash" v-html="model.safePrompt"></div>
+    <div v-else class="flash">{{ model.prompt ?? `${model.a} × ${model.b} = ?` }}</div>
     <div v-if="model.placeValues" class="mk-g5-comparison-table" style="overflow-x: auto; margin-bottom: 12px">
       <table style="width: 100%; text-align: center">
         <caption>Разряды двух натуральных чисел</caption>
@@ -40,7 +41,20 @@ function submitOnEnter(event) {
       v-if="model.choices" :choices="model.choices" container-class="school-numeric-choices"
       @choose="actions.pick"
     />
-    <input
+    <div v-if="model.fraction" class="actions" style="align-items:center;justify-content:center">
+      <template v-if="model.fraction.kind === 'number'">
+        <input class="fin" :class="{bad:model.fraction.number.wrong}" :aria-label="model.fraction.number.label" inputmode="numeric" maxlength="6" autocomplete="off" data-mk95-fraction="answer:0" :value="model.fraction.number.value" :readonly="model.readOnly" :disabled="model.disabled">
+      </template>
+      <template v-else>
+        <input v-if="model.fraction.whole" class="stage18-frac-cell" :class="{bad:model.fraction.whole.wrong}" aria-label="Целая часть" inputmode="numeric" maxlength="6" autocomplete="off" data-mk95-fraction="fraction:0" :value="model.fraction.whole.value" :readonly="model.readOnly" :disabled="model.disabled">
+        <span class="frac" style="display:inline-grid;text-align:center">
+          <input class="stage18-frac-cell" :class="{bad:model.fraction.numerator.wrong}" aria-label="Числитель" inputmode="numeric" maxlength="6" autocomplete="off" data-mk95-fraction="fraction:1" :value="model.fraction.numerator.value" :readonly="model.readOnly" :disabled="model.disabled">
+          <span class="den" style="border-top:2px solid currentColor;padding:5px" aria-label="Заданный знаменатель">{{ model.fraction.denominator }}</span>
+        </span>
+      </template>
+    </div>
+    <p v-if="model.fraction && model.fraction.kind !== 'number'" class="meta">Знаменатель уже указан и не меняется.</p>
+    <input v-if="!model.fraction"
       id="fin" class="fin" inputmode="numeric" :maxlength="model.maxDigits ?? 3" aria-label="Ответ"
       :type="model.choices ? 'hidden' : 'text'" autocomplete="off"
       :data-row="model.answerCell === false ? null : 'answer'" :data-col="model.answerCell === false ? null : '0'"

@@ -36,9 +36,11 @@ function activateCard(event, action) {
       <button v-if="account.table.status === 'pending'" type="button" class="btn soft" @click="accountAction('tableSync')">Повторить синхронизацию</button>
     </template>
     <section v-else-if="account.table?.enabled" class="training-history">
-      <h2>4 класс · Серверные тренировки</h2>
+      <h2>4–5 классы · Серверные тренировки</h2>
       <p>Новый блок выдаётся при подключении. Сохранённый блок можно продолжить без сети.</p>
-      <article v-for="topic in account.table.catalogue" :key="topic.topic" class="report-card" style="display:block">
+      <template v-for="grade in [4,5]" :key="grade">
+      <h3>{{ grade }} класс</h3>
+      <article v-for="topic in account.table.catalogue.filter(t=>t.grade===grade)" :key="topic.topic" class="report-card" style="display:block">
         <b>{{ topic.title }}</b>
         <div class="actions">
           <button v-for="step in topic.stages" :key="step.stage" type="button" class="btn soft"
@@ -48,9 +50,10 @@ function activateCard(event, action) {
             @click="openSchool(topic.topic,step.stage)">{{ step.label }} · {{ step.best }}</button>
         </div>
       </article>
+      </template>
     </section>
     <p v-if="account.table?.error" role="alert">{{ account.table.error }}</p>
-    <p>В тестовом серверном режиме доступны 11 тренажёров 4 класса. Остальные классы и покупки пока работают локально.</p>
+    <p>В тестовом серверном режиме доступны 18 тренажёров 4–5 классов. Остальные темы и покупки пока работают локально.</p>
     <button type="button" class="btn soft" @click="accountAction('open')">Аккаунт и выбор ученика</button>
     <button type="button" class="btn soft" @click="accountAction('local')">Локальный режим</button>
   </section>
