@@ -4,6 +4,8 @@ import SchoolAttempt from './SchoolAttempt.vue';
 import StoreWallet from './StoreWallet.vue';
 import CollectionSection from './CollectionSection.vue';
 import StoreCatalog from './StoreCatalog.vue';
+import StoreChest from './StoreChest.vue';
+import StoreSaleDialog from './StoreSaleDialog.vue';
 import {ref,computed} from 'vue';
 
 const props = defineProps({
@@ -15,7 +17,41 @@ import {useAccountMode} from './accountMode.js';
 const {account,action:accountAction}=useAccountMode();
 const shopCategory=ref('avatars');
 const shopSection=computed(()=>account.value.economy?.catalogSections.find(s=>s.id===shopCategory.value)||account.value.economy?.catalogSections[0]);
-const economyActions={shop:()=>accountAction('shop'),collection:()=>accountAction('collection'),run:()=>{},choose:()=>{}};
+const saleId=ref(null);
+const currentSale=computed(()=>account.value.economy?.quotes.find(q=>q.item_id===saleId.value));
+const saleModel=computed(()=>{
+ const e=account.value.economy,q=currentSale.value;if(!e||!q)return null;
+ const m=e.mission,own=m?.item_id===q.item_id?m:null,topic=e.usefulTopics.find(t=>t.topic_id===own?.topic_id);
+ return {title:'Продажа предмета',subtitle:'Возврат считается от подтверждённой уплаченной цены.',mission:own?{title:own.completed?'Выгодная продажа готова':'Выгодная продажа',topic:topic?.title||own.topic_id,progress:own.progress,total:own.required,percent:100*own.progress/own.required,completed:own.completed,refund:own.refund}:null,refunds:[{label:'Продать сейчас',coins:q.refund_now,detail:'40% уплаченной цены'},{label:'Выгодная продажа',coins:q.refund_mission,detail:'80% после 10 правильных заданий',good:true}],notice:m&&!own?'Уже есть миссия другого предмета.':!m&&!e.usefulTopics.length?'Сейчас нет подтверждённой полезной темы.':'',topics:!m&&!e.blocked?e.usefulTopics.map(x=>({key:x.topic_id,grade:Number(x.topic_id[1]),title:x.title,reason:x.reason,detail:''})):[],buttons:[[{label:'Продать сейчас',disabled:e.blocked},{label:own?.completed?'Получить 80%':'Продолжить тренировку',primary:true,disabled:e.blocked||!own}],[{label:'Отменить миссию',disabled:e.blocked||!own||own.completed}]]};
+});
+function sendEconomy(body){window.MK95Account?.economyRun(body)}
+function shopRun(action,id){
+ const e=account.value.economy;if(!e?.live||e.blocked)return;
+ const c=e.catalogSections.flatMap(s=>s.cards).find(x=>x.id===id);
+ if(action==='sell'&&e.quotes.some(q=>q.item_id===id)){saleId.value=id;return}
+ if(action==='buy'&&c?.button.action==='buy'){
+  const price=Number(c.priceLabel.split(' ')[0]);if(Number.isSafeInteger(price)&&window.confirm('Купить «'+c.name+'» за '+price+' монет?'))sendEconomy({action:'buy',item_id:id,expected_price:price});
+ }
+ if(action==='equip')chooseItem(id);
+}
+function chooseItem(id){
+ const e=account.value.economy;if(!e?.live||e.blocked)return;
+ const item=e.collectionSections.flatMap(s=>s.items).find(i=>i.id===id),c=e.catalogSections.flatMap(s=>s.cards).find(x=>x.id===id);
+ if(!(item?.button&&!item.disabled||c?.button.action==='equip'))return;
+ sendEconomy({action:'equip',item_id:id,enabled:!(item?.selected||c?.equipped)});
+}
+const economyActions={shop:()=>{saleId.value=null;accountAction('shop')},collection:()=>{saleId.value=null;accountAction('collection')},run:shopRun,choose:chooseItem,sell:id=>shopRun('sell',id)};
+const chestActions={help:()=>window.alert('Сундук открывается на сервере. При исчерпании выбранной редкости начисляется предусмотренная компенсация.'),open:()=>{const chest=account.value.economy?.chest;if(chest&&!chest.disabled&&window.confirm('Открыть сундук за '+chest.price+' монет?'))sendEconomy({action:'chest',expected_price:chest.price})}};
+function continueMission(){
+ const m=account.value.mission;if(!m||m.completed)return;
+ saleId.value=null;accountAction('economyBack');openSchool(m.topic_id,0);
+}
+const saleActions={close:()=>saleId.value=null,choose:index=>{const t=account.value.economy?.usefulTopics[index];if(currentSale.value&&t&&!account.value.economy.blocked)sendEconomy({action:'mission_start',item_id:currentSale.value.item_id,topic_id:t.topic_id})},run:(row,col)=>{
+ const e=account.value.economy,q=currentSale.value,m=e?.mission;if(!e||!q||e.blocked)return;
+ if(row===0&&col===0&&window.confirm('Продать предмет за '+q.refund_now+' монет?')){sendEconomy({action:'sell',item_id:q.item_id,mode:'now',expected_refund:q.refund_now});saleId.value=null;}
+ else if(row===0&&col===1&&m?.item_id===q.item_id){if(m.completed){if(window.confirm('Продать предмет за '+q.refund_mission+' монет?')){sendEconomy({action:'sell',item_id:q.item_id,mode:'mission',expected_refund:q.refund_mission,mission_id:m.id});saleId.value=null;}}else continueMission();}
+ else if(row===1&&col===0&&m?.item_id===q.item_id&&!m.completed&&window.confirm('Отменить миссию?'))sendEconomy({action:'mission_cancel',mission_id:m.id});
+}};
 const tableActions={close:()=>accountAction('tablePause'),back:()=>accountAction('tablePause'),abandon:()=>accountAction('tablePause'),input:event=>window.MK95Account?.tableAction('input',event),primary:()=>window.MK95Account?.tableAction('primary'),skip:()=>window.MK95Account?.tableAction('skip'),pick:index=>window.MK95Account?.tableAction('pick',index),inputCell:el=>window.MK95Account?.tableAction('cell',el),toggleDot:el=>window.MK95Account?.tableAction('dot',el),moveCell:(event,el)=>window.MK95Account?.tableAction('move',{event,el})};
 function openSchool(topic,stage){window.MK95Account?.tableOpen(topic,stage)}
 function runLocal(action){if(account.value.mode==='local')props.actions.run(action)}
@@ -37,17 +73,24 @@ function activateCard(event, action) {
       <button type="button" class="mk19f-home-open" data-mk95-progress @click="accountAction('progress')">Мой прогресс</button>
       <button type="button" class="btn soft" data-mk95-journal @click="accountAction('journal')">Журнал попыток</button>
     </template>
+    <p v-if="account.operation?.error" role="alert">{{ account.operation.error }}</p>
+    <button v-if="account.operation?.pending" type="button" class="btn soft" data-mk95-economy-retry :disabled="account.operation.busy" @click="accountAction('economyRetry')">Повторить ожидающую операцию</button>
+    <p v-if="account.mission">Выгодная продажа: {{ account.mission.progress }}/{{ account.mission.required }} правильных заданий.
+      <button v-if="!account.mission.completed" class="btn soft" type="button" @click="continueMission">Продолжить миссию</button>
+    </p>
     <section v-if="account.economy" data-mk95-economy :data-economy-view="account.economy.view">
-      <button class="btn soft" type="button" @click="accountAction('economyBack')">Назад к тренировкам</button>
+      <button class="btn soft" type="button" @click="saleId=null;accountAction('economyBack')">Назад к тренировкам</button>
+      <StoreSaleDialog v-if="saleModel" :model="saleModel" :actions="saleActions" />
       <template v-if="account.economy.view==='wallet'">
         <h2>Мой кошелёк</h2><StoreWallet :model="account.economy.wallet" :actions="economyActions" />
       </template>
       <template v-else-if="account.economy.view==='collection'">
-        <h2>Моя коллекция</h2><p>Полученные предметы и достижения подтверждены сервером. Выбор предметов пока недоступен.</p>
+        <h2>Моя коллекция</h2><p>Полученные предметы и достижения подтверждены сервером. {{ account.economy.live?'Выбор и продажи подтверждаются сервером.':'Выбор предметов пока недоступен.' }}</p>
         <CollectionSection v-for="section in account.economy.collectionSections" :key="section.id" :model="section" :actions="economyActions" />
       </template>
       <template v-else>
-        <h2>Магазин</h2><p role="status">Предпросмотр встроенного каталога. Сервер пока не предоставляет цены, покупку, продажу и сундуки.</p>
+        <h2>Магазин</h2><p role="status">{{ account.economy.live?'Цены и операции подтверждаются сервером.':'Предпросмотр встроенного каталога. Сервер пока не предоставляет цены, покупку, продажу и сундуки.' }}</p>
+        <StoreChest v-if="account.economy.chest" :model="account.economy.chest" :actions="chestActions" />
         <select v-if="account.economy.catalogSections.length" aria-label="Категория магазина" :value="shopSection?.id" @change="shopCategory=$event.target.value">
           <option v-for="section in account.economy.catalogSections" :key="section.id" :value="section.id">{{ section.title }}</option>
         </select>
@@ -77,7 +120,7 @@ function activateCard(event, action) {
       </template>
     </section>
     <p v-if="account.table?.error" role="alert">{{ account.table.error }}</p>
-    <p>В тестовом серверном режиме доступны 18 тренажёров 4–5 классов. Остальные темы и покупки пока доступны только в отдельном локальном режиме.</p>
+    <p>В тестовом серверном режиме доступны 18 тренажёров 4–5 классов. Остальные темы доступны только в отдельном локальном режиме.</p>
     <button type="button" class="btn soft" @click="accountAction('open')">Аккаунт и выбор ученика</button>
     <button type="button" class="btn soft" @click="accountAction('local')">Локальный режим</button>
   </section>

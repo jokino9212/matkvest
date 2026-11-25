@@ -1,7 +1,8 @@
-import {createAccountStore} from './account_store.mjs?v=297';
-import {MatKvestApiClient} from './stage29_api_client.mjs?v=297';
-import {createTableTraining} from './table_training.mjs?v=297';
-import {buildEconomy} from './economy_read.mjs?v=297';
+import {createAccountStore} from './account_store.mjs?v=298';
+import {MatKvestApiClient} from './stage29_api_client.mjs?v=298';
+import {createTableTraining} from './table_training.mjs?v=298';
+import {buildEconomy} from './economy_read.mjs?v=298';
+import {createEconomyOperations} from './economy_operations.mjs?v=298';
 const modeKey='mk95-mode',selectionKey='mk95-selection',eventKey='mk95-auth-change',logoutKey='mk95-logout-pending';
 function sessionGet(key){try{return sessionStorage.getItem(key)}catch{return null}}
 function sessionSet(key,value){try{if(value===null)sessionStorage.removeItem(key);else sessionStorage.setItem(key,value)}catch{}}
@@ -22,13 +23,14 @@ const title=el('h2','Аккаунт МатКвест');title.id='mk95-account-ti
 const content=el('section'),note=el('p');note.setAttribute('role','status');
 dialog.append(title,note,content,button('Закрыть',()=>dialog.close()));document.body.append(dialog);
 const messages={local:'Локальный режим',connecting:'Проверка сессии…',loading:'Загрузка данных ученика…',offline:'Нет связи. Серверные данные недоступны; локальное обучение можно открыть отдельно.',error:'Не удалось получить данные. Повторите подключение.',ready:'Данные подтверждены сервером.',select:'Выберите ученика.', 'signed-out':'Войдите в аккаунт ученика.', 'unsupported-role':'Пока доступен только аккаунт ученика.', 'logout-unconfirmed':'Выход не подтверждён. Серверные данные скрыты до завершения выхода.', 'session-changed':'Сессия изменилась в другой вкладке. Подключитесь заново.'};
-let economyView=null;
-const read=()=>{const s=store.read();if(s.snapshot)s.snapshot.level=window.mk872GetLevelProgress(s.snapshot.profile.xp_total);const economy=economyView&&s.snapshot&&s.status==='ready'?{view:economyView,...buildEconomy(s.snapshot,typeof SHOP_CATALOG==='undefined'?{}:SHOP_CATALOG,typeof ACHIEVEMENTS==='undefined'?[]:ACHIEVEMENTS)}:null;return {...s,available:true,mode,message:messages[s.status]||'',table:table.read(),economy}};
-function economy(view){if(mode!=='server'||!store.read().snapshot||!['wallet','collection','shop',null].includes(view))return;closeReport();economyView=view;emit();}
+let economyView=null,economyScope=null;
+const read=()=>{const s=store.read();if(s.snapshot)s.snapshot.level=window.mk872GetLevelProgress(s.snapshot.profile.xp_total);const scope=s.user&&s.selectedId?JSON.stringify([s.user.id,s.selectedId]):null;const operation=economyOps.read();const economy=economyView&&economyScope===scope&&s.snapshot&&s.status==='ready'?{view:economyView,...buildEconomy(s.snapshot,typeof SHOP_CATALOG==='undefined'?{}:SHOP_CATALOG,typeof ACHIEVEMENTS==='undefined'?[]:ACHIEVEMENTS,operation)}:null;return {...s,available:true,mode,message:messages[s.status]||'',table:table.read(),economy,operation,mission:s.snapshot?.economy?.state?.mission||null}};
+function economy(view){if(mode!=='server'||!store.read().snapshot||!['wallet','collection','shop',null].includes(view))return;closeReport();const s=store.read();economyScope=JSON.stringify([s.user.id,s.selectedId]);economyView=view;emit();}
 const closeReport=()=>{const overlay=document.getElementById('overlay');if(overlay?.dataset.mk95Report){delete overlay.dataset.mk95Report;overlay.classList.remove('show');document.getElementById('modal').replaceChildren()}};
 const reportOverlay=document.getElementById('overlay');
 new MutationObserver(()=>{if(reportOverlay.dataset.mk95Report&&!reportOverlay.classList.contains('show'))closeReport()}).observe(reportOverlay,{attributes:true,attributeFilter:['class']});
 const emit=()=>window.dispatchEvent(new Event('mk95-account-change'));
+const economyOps=createEconomyOperations({api,store,mode:()=>mode,emit});
 const table=createTableTraining({api,store,mode:()=>mode,emit,sessionGet,sessionSet});
 function local(){economyView=null;table.pause();closeReport();mode='local';sessionSet(modeKey,null);sessionSet(selectionKey,null);delete document.documentElement.dataset.mk95Mode;store.invalidate('local');dialog.close();emit();}
 function open(){
@@ -73,9 +75,9 @@ function render(s){
  }
  content.append(button('Локальный режим',local));
 }
-store.subscribe(s=>{if(s.status!=='ready')economyView=null;closeReport();render(s);table.onAccount();emit()});
+store.subscribe(s=>{if(!s.user||!s.selectedId||economyScope!==JSON.stringify([s.user.id,s.selectedId])){economyView=null;economyScope=null;}closeReport();render(s);table.onAccount();void economyOps.onAccount();emit()});
 entryHost.append(button('Аккаунт',open));
-window.MK95Account={read,open,local,home:()=>{economyView=null;table.pause();closeReport();emit()},wallet:()=>economy('wallet'),collection:()=>economy('collection'),shop:()=>economy('shop'),economyBack:()=>economy(null),progress:()=>report('progress'),journal:()=>report('journal'),tableOpen:table.open,tablePause:table.pause,tableAction:table.action,tableSync:table.sync};
+window.MK95Account={read,open,local,home:()=>{economyView=null;table.pause();closeReport();emit()},wallet:()=>economy('wallet'),collection:()=>economy('collection'),shop:()=>economy('shop'),economyBack:()=>economy(null),economyRun:body=>economyOps.run(body),economyRetry:()=>economyOps.retry(),progress:()=>report('progress'),journal:()=>report('journal'),tableOpen:table.open,tablePause:table.pause,tableAction:table.action,tableSync:table.sync};
 window.addEventListener('storage',e=>{if((e.key===eventKey||e.key===logoutKey)&&mode==='server')store.invalidate('session-changed')});
 window.addEventListener('offline',()=>{if(mode==='server')store.invalidate('offline')});
 window.addEventListener('online',()=>{if(mode==='server'&&store.logoutPending())store.invalidate('logout-unconfirmed');else if(mode==='server'&&store.read().status==='offline')store.resume()});
