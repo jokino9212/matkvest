@@ -3,8 +3,9 @@ const assert=require('node:assert/strict'),{chromium}=require('playwright'),{cre
 const site=resolve(process.argv[2]);
 const owner='ea436d1d-0123-4f25-8ae9-df61e8a85370',foreign='ea436d1d-0123-4f25-8ae9-df61e8a85371';
 const A='a1436d1d-0123-4f25-8ae9-df61e8a85370',B='b1436d1d-0123-4f25-8ae9-df61e8a85370',C='c1436d1d-0123-4f25-8ae9-df61e8a85370';
-const profiles=[{id:A,user_id:owner,display_name:'Сервер А',xp_total:115},{id:B,user_id:owner,display_name:'Сервер Б',xp_total:250},{id:C,user_id:foreign,display_name:'Чужой ученик',xp_total:999}];
-const balance={[A]:41,[B]:82,[C]:999};
+const D='d1436d1d-0123-4f25-8ae9-df61e8a85370';
+const profiles=[{id:A,user_id:owner,display_name:'Сервер А',xp_total:115},{id:B,user_id:owner,display_name:'Сервер Б',xp_total:250},{id:C,user_id:foreign,display_name:'Чужой ученик',xp_total:999},{id:D,user_id:owner,display_name:'Сервер Д',xp_total:0}];
+const balance={[A]:41,[B]:82,[C]:999,[D]:0};
 const mutations=[],apiTrace=[],receipts=new Map();let tablePuts=0,tableRewards=0,tablePackNo=0;
 const questions=[{a:2,b:3},{a:3,b:4},{a:4,b:5},{a:5,b:6},{a:6,b:7}];
 const counts=[5,7,10],pass=[4,5,8],issued=new Map(),spent=new Set();
@@ -17,10 +18,27 @@ const columnFixtures={
  'g4:column:mul':{question:{a:243,b:32},keys:[{"mul1:2":"4","mul1:3":"8","mul1:4":"6","mul2:1":"7","mul2:2":"2","mul2:3":"9","final:1":"7","final:2":"7","final:3":"7","final:4":"6"},{"mulCarry1:2":"","mulCarry1:3":"","mulCarry2:1":"1","mulCarry2:2":"","mulFinalCarry:0":"","mulFinalCarry:1":"","mulFinalCarry:2":"1","mulFinalCarry:3":""}]},
  'g4:column:div':{question:{a:936,b:3},keys:[{"quot:0":"3","prod0:0":"9","next0:1":"3","quot:1":"1","prod1:1":"3","next1:2":"6","quot:2":"2","prod2:2":"6","rem2:2":"0"},{}]}
 };
-const columnTopics=Object.keys(columnFixtures),allTopics=[...topics,...columnTopics];
+const grade5Topics=['g5:natural_compare','g5:natural_add','g5:natural_subtract','g5:natural_multiply','g5:natural_divide','g5:frac_to_mixed','g5:mixed_to_frac'];
+const columnTopics=Object.keys(columnFixtures),allTopics=[...topics,...columnTopics,...grade5Topics];
+const fractionKeys=q=>q.form.kind==='number'?{'answer:0':String(q.answer)}:q.form.kind==='mixed'?{'fraction:0':String(Math.floor(q.answer/q.form.denominator)),'fraction:1':String(q.answer%q.form.denominator)}:{'fraction:1':String(q.answer)};
+function grade5Question(topic,i){
+ if(topic==='g5:natural_compare'){
+  if(i%2===0)return {expression:'Какой знак поставить между числами 1234 □ 1243?',answer:0,choices:[0,1,2],choice_labels:['<','=','>'],place_values:['1234','1243'],steps:['1234 < 1243.']};
+  return {expression:'Какое число больше: 1234 или 1243?',answer:1243,choices:[1234,1243],steps:['1243 больше.']};
+ }
+ if(topic==='g5:frac_to_mixed'||topic==='g5:mixed_to_frac'){
+  if(i%3===1)return {expression:'Раздели 11 на 3 с остатком. Каков остаток?',prompt_markup:'Раздели 11 на 3 с остатком. Каков остаток?',form:{kind:'number',denominator:null,label:'Остаток'},answer:2,steps:['11 = 3 · 3 + 2.']};
+  if(topic==='g5:frac_to_mixed')return {expression:'Представь дробь 26/9 смешанным числом.',prompt_markup:'Представь дробь <span class="frac"><span class="num">26</span><span class="den">9</span></span> смешанным числом.',form:{kind:'mixed',denominator:9,label:''},answer:26,steps:['26 = 2 · 9 + 8.']};
+  return {expression:'Запиши 3 8/10 неправильной дробью.',prompt_markup:'Запиши <span class="mixed"><span class="whole">3</span><span class="frac"><span class="num">8</span><span class="den">10</span></span></span> неправильной дробью.',form:{kind:'improper',denominator:10,label:''},answer:38,steps:['3 · 10 + 8 = 38.']};
+ }
+ const vals={'g5:natural_add':['278 + 321',599],'g5:natural_subtract':['1234 − 345',889],'g5:natural_multiply':['1234 · 123',151782],'g5:natural_divide':['987654 : 3',329218]};
+ const [expression,answer]=vals[topic];
+ return {expression,answer,steps:['Ответ: '+answer],...(['g5:natural_add','g5:natural_subtract'].includes(topic)?{choices:[answer-1,answer,answer+1]}:{})};
+}
 const used=id=>Array.from(receipts.values()).filter(x=>x.profile===id).length;
 const best=(id,topic)=>counts.map((_,stage)=>Math.max(0,...Array.from(receipts.values()).filter(x=>x.profile===id&&x.topic===topic&&x.stage===stage).map(x=>x.receipt.summary.correct)));
 function makeQuestions(topic,stage){
+ if(grade5Topics.includes(topic))return Array.from({length:counts[stage]},(_,i)=>grade5Question(topic,i));
  if(columnFixtures[topic])return Array.from({length:counts[stage]},()=>columnFixtures[topic].question);
  if(topic==='g4:table')return Array.from({length:counts[stage]},(_,i)=>questions[i%questions.length]);
  return Array.from({length:counts[stage]},(_,i)=>{
@@ -55,7 +73,7 @@ const server=createServer(async(req,res)=>{
     let raw='';for await(const chunk of req)raw+=chunk;const body=JSON.parse(raw);
     assert.equal(req.headers['x-csrf-token'],'test-csrf');
     if(req.method==='POST'&&!packId){
-     assert(allTopics.includes(body.topic));assert.equal(body.grade,4);assert(body.unavailable_permits.length<=10);
+     assert(allTopics.includes(body.topic));assert.equal(body.grade,Number(body.topic[1]));assert(body.unavailable_permits.length<=10);
      const now=new Date().toISOString(),expires=new Date(Date.now()+86400000).toISOString();
      const permit='e1436d1d-0123-4f25-8ae9-'+String(++tablePackNo).padStart(12,'0');
      const packs=counts.map((_,stage)=>{
@@ -82,6 +100,19 @@ const server=createServer(async(req,res)=>{
         assert(Object.keys(required).every(k=>cells[k]));
         assert(Object.entries(cells).every(([k,v])=>Object.hasOwn(all,k)&&/^[0-9•]$/.test(v)));
         const matches=Object.entries(cells).every(([k,v])=>all[k]===v);
+        assert.equal(matches,!x.skipped&&j===x.checks.length-1);
+       }
+       if(x.skipped){skipped++;continue;}
+       assert(x.checks.length);
+      }else if(q.form){
+       const required=fractionKeys(q),allowed=q.form.kind==='number'?['answer:0']:['fraction:0','fraction:1','fraction:2'];
+       for(let j=0;j<x.checks.length;j++){
+        const cells=x.checks[j];
+        assert(Object.keys(required).every(k=>cells[k]));
+        assert(Object.entries(cells).every(([k,v])=>allowed.includes(k)&&/^\d{1,6}$/.test(v)));
+        let matches=Object.entries(required).every(([k,v])=>Number(cells[k])===Number(v));
+        if(q.form.kind==='improper'&&cells['fraction:0'])matches=false;
+        if(cells['fraction:2']&&Number(cells['fraction:2'])!==q.form.denominator)matches=false;
         assert.equal(matches,!x.skipped&&j===x.checks.length-1);
        }
        if(x.skipped){skipped++;continue;}
@@ -318,4 +349,84 @@ async function runColumns(browser,url){
  }catch(e){console.log('COLUMN_DIAGNOSTICS',JSON.stringify({errors,apiTrace:apiTrace.slice(-30),table:await p.evaluate(()=>window.MK95Account?.read().table).catch(()=>null)}));throw e}
  finally{await ctx.close()}
 }
-(async()=>{await new Promise(r=>server.listen(0,'127.0.0.1',r));const browser=await chromium.launch({headless:true,args:['--no-sandbox']});try{const url='http://127.0.0.1:'+server.address().port+'/';await run(browser,url,390);await run(browser,url,1280);assert(mutations.every(p=>['/auth/login','/auth/logout'].includes(p)));console.log('PASS_NO_GAMEPLAY_MUTATIONS',mutations);await runTable(browser,url);await runColumns(browser,url)}finally{await browser.close();await new Promise(r=>server.close(r))}})().catch(e=>{console.error(e);process.exitCode=1});
+async function runGrade5(browser,url){
+ const ctx=await browser.newContext({viewport:{width:390,height:850}}),p=await ctx.newPage(),errors=[];
+ p.on('pageerror',e=>errors.push(e.message));p.on('dialog',dialog=>dialog.accept());
+ try{
+  await p.goto(url);await p.locator('#appHeader[data-v-app]').waitFor();await p.waitForFunction(()=>!!window.MK95Account);
+  const before=await p.evaluate(()=>({xp:state.xp,coins:state.coins,history:state.attemptHistory?.length||0}));
+  const otherBalances=[balance[A],balance[B],balance[C]];
+  await p.locator('#appHeader').getByRole('button',{name:'Аккаунт',exact:true}).click();
+  const dialog=p.getByRole('dialog',{name:'Аккаунт МатКвест'});
+  await dialog.getByLabel('Электронная почта').fill('student@example.test');await dialog.getByLabel('Пароль',{exact:true}).fill('test-password');await dialog.getByRole('button',{name:'Войти',exact:true}).click();
+  await dialog.getByRole('combobox',{name:'Серверный ученик'}).selectOption(D);
+  await p.waitForFunction(id=>window.MK95Account.read().snapshot?.profile.id===id,D);
+  await dialog.getByRole('button',{name:'Закрыть',exact:true}).click();
+  await p.evaluate(()=>navigator.serviceWorker.ready);await p.waitForFunction(()=>!!navigator.serviceWorker.controller);
+  const root=p.locator('#mk95-table-question'),primary=()=>root.locator('#tablePrimary');
+  const fracCell=key=>root.locator('input[data-mk95-fraction="'+key+'"]');
+  const cases=[...grade5Topics.map(topic=>[topic,0]),['g5:frac_to_mixed',1],['g5:frac_to_mixed',2],['g4:table',0]];
+  for(const [topic,stage] of cases){
+   if(used(D))await p.locator('#mk95-table-practice').getByRole('button',{name:'К этапам'}).click();
+   const selector='[data-mk95-topic="'+topic+'"][data-mk95-stage="'+stage+'"]';
+   await p.locator(selector).click();await root.waitFor();
+   const qs=makeQuestions(topic,stage),initial=used(D),putsBefore=tablePuts;
+   const offline=topic==='g5:frac_to_mixed'&&stage===0||topic==='g5:natural_multiply';
+   if(offline){
+    if(qs[0].form)await fracCell('fraction:0').fill('2');else await root.locator('#fin').fill(String(qs[0].answer));
+    await p.waitForFunction(f=>{const m=window.MK95Account.read().table.model?.exercise;return f?m?.fraction.whole.value==='2':m?.answer==='151782'},!!qs[0].form);
+    await ctx.setOffline(true);await p.waitForFunction(()=>window.MK95Account.read().status==='offline');await p.reload();await root.waitFor();
+    assert.equal(await (qs[0].form?fracCell('fraction:0'):root.locator('#fin')).inputValue(),qs[0].form?'2':'151782');
+   }
+   for(let i=0;i<qs.length;i++){
+    const q=qs[i];
+    if(q.form){
+     const expected=fractionKeys(q);
+     if(i===0&&q.form.kind==='mixed'){
+      // A partial mixed number must not be a counted error.
+      await fracCell('fraction:0').fill(expected['fraction:0']);await primary().click();
+      await root.getByText('Заполни обязательные клетки.',{exact:true}).waitFor();
+      await fracCell('fraction:1').fill('9');await primary().click();
+      await root.getByText('Исправь отмеченные клетки.',{exact:true}).waitFor();
+      assert(await fracCell('fraction:1').evaluate(el=>el.classList.contains('bad')));
+     }
+     if(q.form.kind!=='number'){
+      assert.equal(await root.getByLabel('Заданный знаменатель').innerText(),String(q.form.denominator));
+      assert.equal(await root.locator('input[data-mk95-fraction="fraction:2"]').count(),0);
+      assert(await root.locator('.flash .frac .num').count()>0);
+     }
+     for(const [key,val] of Object.entries(expected))await fracCell(key).fill(val);
+     await fracCell(Object.keys(expected).at(-1)).press('Enter');
+    }else if(q.choices){
+     if(q.choice_labels){assert(await root.getByRole('button',{name:'<',exact:true}).isVisible());assert(await root.locator('.mk-g5-comparison-table').isVisible());}
+     await root.locator('.school-numeric-choices').getByRole('button',{name:String(q.choice_labels?.[q.answer]??q.answer),exact:true}).click();
+    }else{
+     const value=String(topic==='g4:table'?q.a*q.b:q.answer);
+     await root.locator('#fin').fill(value);assert.equal(await root.locator('#fin').inputValue(),value);await primary().click();
+    }
+    await p.waitForFunction(()=>window.MK95Account.read().table.model?.exercise.nextReady===true);
+    if(topic==='g5:mixed_to_frac'&&i===qs.length-1)dropReceipt=true;
+    await primary().click();
+    if(i<qs.length-1)await p.waitForFunction(i=>window.MK95Account.read().table.index===i+1,i);
+   }
+   if(offline){await p.waitForFunction(()=>window.MK95Account.read().table.status==='pending');assert.equal(used(D),initial);assert.equal(tablePuts,putsBefore);await p.reload();await p.waitForFunction(()=>window.MK95Account?.read().table.status==='pending');await ctx.setOffline(false);}
+   await p.waitForFunction(()=>window.MK95Account.read().table.status==='confirmed',null,{timeout:30000});
+   await p.waitForFunction(expected=>document.querySelector('[data-mk95-coins]')?.textContent===String(expected),(initial+1)*25);
+   assert.equal(used(D),initial+1);assert.deepEqual([balance[A],balance[B],balance[C]],otherBalances);
+   const last=Array.from(receipts.values()).at(-1);
+   assert.equal(last.topic,topic);assert.equal(last.stage,stage);
+   assert.equal(last.receipt.summary.correct,qs.length-(qs[0].form?.kind==='mixed'?1:0));
+   console.log('PASS_GRADE5_UI',topic,stage);
+  }
+  assert.equal(used(D),10);
+  await p.locator('#mk95-table-practice').getByRole('button',{name:'К этапам'}).click();
+  await p.locator('[data-mk95-topic="g5:natural_compare"][data-mk95-stage="0"]').click();
+  await p.getByRole('alert').filter({hasText:'Нет доступных тренировок Free'}).waitFor();
+  assert.equal(used(D),10);assert.equal(balance[D],250);
+  await p.reload();await p.waitForFunction(()=>window.MK95Account.read().snapshot?.wallet.balance===250);
+  assert.equal(used(D),10);assert.deepEqual(await p.evaluate(()=>({xp:state.xp,coins:state.coins,history:state.attemptHistory?.length||0})),before);
+  assert.deepEqual(errors,[]);console.log('PASS_GRADE5_SHARED_QUOTA_OFFLINE_REPLAY');
+ }catch(e){console.log('GRADE5_DIAGNOSTICS',JSON.stringify({errors,apiTrace:apiTrace.slice(-30),table:await p.evaluate(()=>window.MK95Account?.read().table).catch(()=>null)}));throw e}
+ finally{await ctx.close()}
+}
+(async()=>{await new Promise(r=>server.listen(0,'127.0.0.1',r));const browser=await chromium.launch({headless:true,args:['--no-sandbox']});try{const url='http://127.0.0.1:'+server.address().port+'/';await run(browser,url,390);await run(browser,url,1280);assert(mutations.every(p=>['/auth/login','/auth/logout'].includes(p)));console.log('PASS_NO_GAMEPLAY_MUTATIONS',mutations);await runTable(browser,url);await runColumns(browser,url);await runGrade5(browser,url)}finally{await browser.close();await new Promise(r=>server.close(r))}})().catch(e=>{console.error(e);process.exitCode=1});
