@@ -1,4 +1,4 @@
-name: Isolated backend 9.5 Vue account and read-only screens
+name: Isolated Backend 9.5 Vue integration and artifacts
 on:
   push:
     branches: [integration/backend95-v290-account]
@@ -27,18 +27,42 @@ jobs:
       - name: Build isolated Vue and SHA-fenced PWA
         run: |
           npm run build:knowledge-map
-          python3 audits/build_backend95_account.py "${{ runner.temp }}/backend95-site"
+          mkdir ci-acceptance-output
+          python3 audits/build_backend95_account.py ci-acceptance-output/backend95-site
+          test -s ci-acceptance-output/backend95-site/index.html
+          test -s ci-acceptance-output/backend95-site/sw.js
+          test -s ci-acceptance-output/backend95-site/assets/ui/knowledge-map.js
       - name: Export economy policy from exact v290 frontend
-        run: node audits/export_economy_policy_v290.cjs "${{ runner.temp }}/economy_v290.json"
+        run: |
+          node audits/export_economy_policy_v290.cjs ci-acceptance-output/economy_v290.json
+          test -s ci-acceptance-output/economy_v290.json
       - uses: actions/upload-artifact@v4
+        id: economy_artifact
         with:
           name: matkvest-v290-economy-policy
-          path: ${{ runner.temp }}/economy_v290.json
+          path: ci-acceptance-output/economy_v290.json
+          if-no-files-found: error
+          retention-days: 7
       - name: Browser integration against synthetic same-origin API
-        run: node audits/backend95_account_browser.cjs "${{ runner.temp }}/backend95-site"
+        run: node audits/backend95_account_browser.cjs ci-acceptance-output/backend95-site
       - name: Isolated school block queue IndexedDB regression
         run: node audits/backend95_school_queue_browser.cjs
+      - name: Check reproducible acceptance build
+        run: |
+          test "$(sha256sum ci-acceptance-output/backend95-site/index.html | cut -d ' ' -f 1)" = af4019ae4e4e96dcf9fcdf6e08a5ce609a0c1d61074c02b676e351d96b237929
+          test "$(sha256sum ci-acceptance-output/economy_v290.json | cut -d ' ' -f 1)" = e12e0b972331ecf508f40a0e9a5b285d205807844222d2191260d91a88e54c43
       - uses: actions/upload-artifact@v4
+        id: site_artifact
         with:
-          name: matkvest-v290-backend95-readonly-candidate
-          path: ${{ runner.temp }}/backend95-site
+          name: matkvest-backend95-v300-acceptance-site
+          path: ci-acceptance-output/backend95-site/
+          if-no-files-found: error
+          retention-days: 7
+      - name: Verify artifact receipts
+        env:
+          POLICY_ARTIFACT_ID: ${{ steps.economy_artifact.outputs.artifact-id }}
+          SITE_ARTIFACT_ID: ${{ steps.site_artifact.outputs.artifact-id }}
+        run: |
+          test -n "$POLICY_ARTIFACT_ID"
+          test -n "$SITE_ARTIFACT_ID"
+          echo "PASS_ACCEPTANCE_ARTIFACTS policy=$POLICY_ARTIFACT_ID site=$SITE_ARTIFACT_ID"

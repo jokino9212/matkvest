@@ -61,3 +61,7 @@ Synthetic browser acceptance added after full prior regression: tutor/second tut
 
 ## v300 tutor analytics
 Prior CI 45716656734 PASS. Local backend archive 197 SQLite tests and real HTTP analytics scenario PASS. Candidate Vue period controls, totals for the entire selected period, advisory review topics, 18 verified topic results and date regression. No backend archive published in this public repository. Real PostgreSQL and actual Vue/API browser acceptance remain pending.
+
+
+## v300 acceptance artifact recovery
+CI 45718340760 SUCCESS for tests, but its logs explicitly show `No files were found` for both upload steps (/__w/_temp/...). The action's green state did not mean an artifact existed. Fix the build/export/browser/upload paths to the same non-hidden checkout-relative directory. Require uploads to fail on missing files and require nonempty artifact IDs. Fence index and policy SHA-256 against accepted v300. No product JS, backend sources, deployment or main changes. Actual PostgreSQL remains gated on a local Docker/driver environment; do not publish the backend archive into the public frontend repository.
