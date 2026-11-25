@@ -10,7 +10,7 @@ defineProps({
     <h3>{{ model.title }}</h3><small>{{ model.serverReadOnly ? 'Получено: '+model.owned : model.owned+' из '+model.total }}</small>
   </div>
   <div v-if="model.items.length" class="mk872-col-grid">
-    <div v-for="item in model.items" :key="item.id" class="mk872-col-card" :class="{ selected: item.selected }">
+    <div v-for="item in model.items" :key="item.id" :data-collection-item="item.id" class="mk872-col-card" :class="{ selected: item.selected }">
       <div style="display: contents" v-html="item.art"></div>
       <strong>{{ item.title }}</strong>
       <span class="mk872-col-meta" :class="item.rarityClass">{{ item.meta }}</span>

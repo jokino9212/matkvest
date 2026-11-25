@@ -6,7 +6,7 @@ import CollectionSection from './CollectionSection.vue';
 import StoreCatalog from './StoreCatalog.vue';
 import StoreChest from './StoreChest.vue';
 import StoreSaleDialog from './StoreSaleDialog.vue';
-import {ref,computed} from 'vue';
+import {ref,computed,watch} from 'vue';
 
 const props = defineProps({
   model: { type: Object, required: true },
@@ -18,6 +18,7 @@ const {account,action:accountAction}=useAccountMode();
 const shopCategory=ref('avatars');
 const shopSection=computed(()=>account.value.economy?.catalogSections.find(s=>s.id===shopCategory.value)||account.value.economy?.catalogSections[0]);
 const saleId=ref(null);
+watch(()=>account.value.selectedId,()=>{saleId.value=null});
 const currentSale=computed(()=>account.value.economy?.quotes.find(q=>q.item_id===saleId.value));
 const saleModel=computed(()=>{
  const e=account.value.economy,q=currentSale.value;if(!e||!q)return null;

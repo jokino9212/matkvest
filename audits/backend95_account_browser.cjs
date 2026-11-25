@@ -1,12 +1,18 @@
 'use strict';
 const assert=require('node:assert/strict'),{chromium}=require('playwright'),{createServer}=require('node:http'),{readFile}=require('node:fs/promises'),{resolve,extname,sep}=require('node:path');
 const site=resolve(process.argv[2]);
+const {gunzipSync}=require('node:zlib'),{readFileSync}=require('node:fs'),{createHash}=require('node:crypto');
+const rawPolicy=gunzipSync(Buffer.from(readFileSync(resolve(__dirname,'../integrations/backend95-next/economy_v290.json.gz.b64'),'utf8').trim(),'base64'));
+const policyHash=createHash('sha256').update(rawPolicy).digest('hex');
+assert.equal(policyHash,'e12e0b972331ecf508f40a0e9a5b285d205807844222d2191260d91a88e54c43');
+const policy={...JSON.parse(rawPolicy),policy_sha256:policyHash},defs=new Map(policy.items.map(i=>[i.id,i]));
 const owner='ea436d1d-0123-4f25-8ae9-df61e8a85370',foreign='ea436d1d-0123-4f25-8ae9-df61e8a85371';
 const A='a1436d1d-0123-4f25-8ae9-df61e8a85370',B='b1436d1d-0123-4f25-8ae9-df61e8a85370',C='c1436d1d-0123-4f25-8ae9-df61e8a85370';
-const D='d1436d1d-0123-4f25-8ae9-df61e8a85370';
-const profiles=[{id:A,user_id:owner,display_name:'Сервер А',xp_total:115},{id:B,user_id:owner,display_name:'Сервер Б',xp_total:250},{id:C,user_id:foreign,display_name:'Чужой ученик',xp_total:999},{id:D,user_id:owner,display_name:'Сервер Д',xp_total:0}];
-const balance={[A]:41,[B]:82,[C]:999,[D]:0};
-const collections={[A]:{items:[{id:'av_fox',category:'avatars',source:'migration',paid_price:120}],equipped:[{slot:'avatar',position:0,item_id:'av_fox'}],achievements:[{id:'solved10',source:'server',reward_recorded:true,unlocked_at:null}]},[B]:{items:[{id:'pet_cat',category:'pets',source:'migration',paid_price:null}],equipped:[],achievements:[]},[C]:{items:[{id:'av_dino',category:'avatars',source:'migration',paid_price:null}],equipped:[],achievements:[]},[D]:{items:[],equipped:[],achievements:[]}};
+const D='d1436d1d-0123-4f25-8ae9-df61e8a85370',E='ee436d1d-0123-4f25-8ae9-df61e8a85370';
+const profiles=[{id:A,user_id:owner,display_name:'Сервер А',xp_total:115},{id:B,user_id:owner,display_name:'Сервер Б',xp_total:250},{id:C,user_id:foreign,display_name:'Чужой ученик',xp_total:999},{id:D,user_id:owner,display_name:'Сервер Д',xp_total:0},{id:E,user_id:owner,display_name:'Экономика',xp_total:10000}];
+const balance={[A]:41,[B]:82,[C]:999,[D]:0,[E]:2000};
+const collections={[A]:{items:[{id:'av_fox',category:'avatars',source:'migration',paid_price:120}],equipped:[{slot:'avatar',position:0,item_id:'av_fox'}],achievements:[{id:'solved10',source:'server',reward_recorded:true,unlocked_at:null}]},[B]:{items:[{id:'pet_cat',category:'pets',source:'migration',paid_price:null}],equipped:[],achievements:[]},[C]:{items:[{id:'av_dino',category:'avatars',source:'migration',paid_price:null}],equipped:[],achievements:[]},[D]:{items:[],equipped:[],achievements:[]},[E]:{items:[],equipped:[],achievements:[]}};
+const econReceipts=new Map(),econHistory=[],everOwned=new Set();let econMission=null,econDrop=false,econWrites=0,econCommits=0;
 const mutations=[],apiTrace=[],receipts=new Map();let tablePuts=0,tableRewards=0,tablePackNo=0;
 const questions=[{a:2,b:3},{a:3,b:4},{a:4,b:5},{a:5,b:6},{a:6,b:7}];
 const counts=[5,7,10],pass=[4,5,8],issued=new Map(),spent=new Set();
@@ -68,6 +74,32 @@ const server=createServer(async(req,res)=>{
    if(path==='/auth/csrf')return json(res,200,{csrf_token:'test-csrf'});
    if(path==='/auth/me')return json(res,200,{id:uid,role:'student'});
    if(path==='/student/profiles')return json(res,200,profiles.filter(p=>p.user_id===uid));
+   const economy=/^\/student\/profiles\/([^/]+)\/economy\/(catalog|state|operations)$/.exec(path);
+   if(economy){
+    const [,id,kind]=economy;if(!profiles.some(p=>p.id===id&&p.user_id===uid)||id!==E)return json(res,404,{error:{code:'NOT_FOUND'}});
+    const quotes=()=>collections[id].items.filter(i=>i.source==='store').map(i=>({item_id:i.id,refund_now:Math.floor(i.paid_price*.4),refund_mission:Math.floor(i.paid_price*.8)}));
+    if(kind==='catalog')return json(res,200,policy);
+    if(kind==='state')return json(res,200,{profile_id:id,build:policy.build,sale_quotes:quotes(),useful_topics:[{topic_id:'g4:table',title:'Таблица умножения',reason:'Нужно подтянуть'}],mission:econMission,chest:{opened:econHistory.length,miss_epic:econHistory.length,miss_legendary:econHistory.length,available:Object.fromEntries(Object.entries(policy.pools).map(([r,ids])=>[r,ids.filter(k=>!everOwned.has(k)).length])),legacy_review_required:false,history:econHistory}});
+    assert.equal(req.method,'POST');assert.equal(req.headers['x-csrf-token'],'test-csrf');
+    let raw='';for await(const c of req)raw+=c;const body=JSON.parse(raw),key=req.headers['idempotency-key'];
+    assert(/^[0-9a-f-]{36}$/i.test(key));econWrites++;
+    const previous=econReceipts.get(key);if(previous){assert.deepEqual(body,previous.body);return json(res,200,previous.receipt);}
+    const item=defs.get(body.item_id),owned=collections[id].items.find(i=>i.id===body.item_id);
+    const grant=(item,source,price)=>{assert(!collections[id].items.some(x=>x.id===item.id));collections[id].items.push({id:item.id,category:item.category,source,paid_price:price});everOwned.add(item.id)};
+    const setEquip=(item,enabled=true)=>{const slot={avatars:'avatar',frames:'frame',pets:'pet',stickers:'sticker',badges:'badge'}[item.category];if(!['sticker','badge'].includes(slot))collections[id].equipped=collections[id].equipped.filter(x=>x.slot!==slot);else collections[id].equipped=collections[id].equipped.filter(x=>x.item_id!==item.id);if(enabled)collections[id].equipped.push({slot,item_id:item.id,position:0});};
+    if(body.action==='buy'){assert(item.buyable&&!owned&&body.expected_price===item.price&&balance[id]>=item.price);balance[id]-=item.price;grant(item,'store',item.price);if(item.category!=='stickers')setEquip(item);}
+    else if(body.action==='equip'){assert(item.selectable);if(!owned){assert.equal(item.id,'pet_none');grant(item,'default',0)}setEquip(item,body.enabled);}
+    else if(body.action==='mission_start'){assert(!econMission&&owned?.source==='store'&&body.topic_id==='g4:table');econMission={id:key,item_id:item.id,topic_id:body.topic_id,progress:0,required:10,completed:false,refund:Math.floor(owned.paid_price*.8)};}
+    else if(body.action==='mission_cancel'){assert(econMission?.id===body.mission_id&&!econMission.completed);econMission=null;}
+    else if(body.action==='sell'){
+     const q=quotes().find(x=>x.item_id===item.id);assert(q);if(body.mode==='mission'){assert(econMission?.id===body.mission_id&&econMission.completed&&econMission.item_id===item.id);assert.equal(body.expected_refund,q.refund_mission);}else assert.equal(body.expected_refund,q.refund_now);
+     collections[id].items=collections[id].items.filter(x=>x.id!==item.id);collections[id].equipped=collections[id].equipped.filter(x=>x.item_id!==item.id);balance[id]+=body.expected_refund;if(econMission?.item_id===item.id)econMission=null;
+    }else if(body.action==='chest'){assert.equal(body.expected_price,policy.chest_price);assert(balance[id]>=policy.chest_price);balance[id]-=policy.chest_price;const picked=defs.get(policy.pools.rare.find(k=>!everOwned.has(k)));grant(picked,'chest',0);econHistory.unshift({rarity:'rare',item_id:picked.id,compensation:0,date:new Date().toISOString()});}
+    else throw Error('Unsupported operation');
+    econCommits++;const receipt={profile_id:id,operation_id:key,action:body.action,balance:balance[id],wallet_revision:econCommits};econReceipts.set(key,{body,receipt});
+    if(econDrop){econDrop=false;res.destroy();return;}
+    return json(res,200,receipt);
+   }
    const training=/^\/student\/profiles\/([^/]+)\/offline-school(?:\/([^/]+))?$/.exec(path);
    if(training){
     const [,id,packId]=training;if(!profiles.some(p=>p.id===id&&p.user_id===uid))return json(res,404,{error:{code:'PROFILE_NOT_FOUND'}});
@@ -80,7 +112,7 @@ const server=createServer(async(req,res)=>{
      const packs=counts.map((_,stage)=>{
       const idPack='f1436d1d-0123-4f25-8ae9-'+String(++tablePackNo).padStart(12,'0');
       const pack={id:idPack,topic_id:body.topic,stage,questions:makeQuestions(body.topic,stage),full:false,expires_at:expires,...(columnFixtures[body.topic]?{column_keys:Array.from({length:counts[stage]},()=>columnFixtures[body.topic].keys)}:{})};
-      issued.set(idPack,{id,permit,pack});return pack;
+      issued.set(idPack,{id,permit,pack,mission:id===E?econMission?.id:null});return pack;
      });
      return json(res,200,{full:false,server_time:now,permits:used(id)>=10?[]:[{id:permit,expires_at:expires}],topics:{[body.topic]:{packs,best:best(id,body.topic)}}});
     }
@@ -127,6 +159,7 @@ const server=createServer(async(req,res)=>{
      }
      const receipt={id:packId,status:'finished',summary:{correct,corrected,skipped,passed:correct>=pass[stage],xp:80,coins:25}};
      receipts.set(packId,{body,receipt,profile:id,topic,stage});spent.add(p.permit);balance[id]+=25;profiles.find(p=>p.id===id).xp_total+=80;tableRewards++;
+     if(id===E&&econMission?.id===p.mission&&econMission.topic_id===topic){econMission.progress=Math.min(10,econMission.progress+correct+corrected);econMission.completed=econMission.progress===10;}
      if(dropReceipt){dropReceipt=false;res.destroy();return;}
      return json(res,200,receipt);
     }
@@ -439,4 +472,59 @@ async function runGrade5(browser,url){
  }catch(e){console.log('GRADE5_DIAGNOSTICS',JSON.stringify({errors,apiTrace:apiTrace.slice(-30),table:await p.evaluate(()=>window.MK95Account?.read().table).catch(()=>null)}));throw e}
  finally{await ctx.close()}
 }
-(async()=>{await new Promise(r=>server.listen(0,'127.0.0.1',r));const browser=await chromium.launch({headless:true,args:['--no-sandbox']});try{const url='http://127.0.0.1:'+server.address().port+'/';await run(browser,url,390);await run(browser,url,1280);assert(mutations.every(p=>['/auth/login','/auth/logout'].includes(p)));console.log('PASS_NO_GAMEPLAY_MUTATIONS',mutations);await runTable(browser,url);await runColumns(browser,url);await runGrade5(browser,url)}finally{await browser.close();await new Promise(r=>server.close(r))}})().catch(e=>{console.error(e);process.exitCode=1});
+async function runEconomy(browser,url){
+ const ctx=await browser.newContext({viewport:{width:390,height:850}}),p=await ctx.newPage(),errors=[];
+ p.on('pageerror',e=>errors.push(e.message));p.on('dialog',d=>d.accept());
+ try{
+  await p.goto(url);await p.locator('#appHeader[data-v-app]').waitFor();await p.waitForFunction(()=>!!window.MK95Account);
+  const before=await p.evaluate(()=>({xp:state.xp,coins:state.coins,history:state.attemptHistory?.length||0})),others=[balance[A],balance[B],balance[C],balance[D]];
+  const account=()=>p.locator('#appHeader').getByRole('button',{name:'Аккаунт',exact:true}).click(),dialog=p.getByRole('dialog',{name:'Аккаунт МатКвест'});
+  await account();await dialog.getByLabel('Электронная почта').fill('student@example.test');await dialog.getByLabel('Пароль',{exact:true}).fill('test-password');await dialog.getByRole('button',{name:'Войти',exact:true}).click();
+  const choose=async id=>{await dialog.getByRole('combobox',{name:'Серверный ученик'}).selectOption(id);await p.waitForFunction(id=>window.MK95Account.read().snapshot?.profile.id===id,id);await dialog.getByRole('button',{name:'Закрыть',exact:true}).click()};
+  await choose(E);await p.waitForFunction(()=>!!window.MK95Account.read().snapshot?.economy);
+  await p.evaluate(()=>navigator.serviceWorker.ready);await p.waitForFunction(()=>!!navigator.serviceWorker.controller);
+  const openShop=async category=>{await p.locator('#appHeader').getByRole('button',{name:'Магазин',exact:true}).click();await p.locator('[data-economy-view="shop"]').waitFor();await p.getByLabel('Категория магазина').selectOption(category)};
+  const card=id=>p.locator('[data-shop-item="'+id+'"]');
+  const waitBalance=value=>p.waitForFunction(n=>document.querySelector('[data-mk95-coins]')?.textContent===String(n)&&!window.MK95Account.read().operation?.busy,value);
+  await openShop('stickers');await card('st_pi').getByRole('button',{name:'Купить за 25 🪙'}).click();await waitBalance(1975);assert.equal(econCommits,1);
+  await p.locator('#appHeader').getByRole('button',{name:'Коллекция',exact:true}).click();
+  const pi=p.locator('[data-collection-item="st_pi"]');await pi.getByRole('button',{name:'Выбрать',exact:true}).click();await p.waitForFunction(()=>window.MK95Account.read().snapshot?.collection.equipped.some(i=>i.item_id==='st_pi')&&!window.MK95Account.read().operation.busy);
+  await openShop('pets');econDrop=true;
+  await card('pet_bot').getByRole('button',{name:'Купить за 240 🪙'}).click();
+  await p.waitForFunction(()=>window.MK95Account.read().operation?.pending&&!window.MK95Account.read().operation.busy);
+  assert.equal(balance[E],1735);assert.equal(econCommits,3);
+  await p.reload();await p.locator('[data-mk95-economy-retry]').waitFor();
+  // Another profile must not see/retry the first profile's pending purchase.
+  await account();await choose(B);assert.equal(await p.locator('[data-mk95-economy-retry]').count(),0);
+  await account();await choose(E);await p.locator('[data-mk95-economy-retry]').click();await waitBalance(1735);
+  await p.waitForFunction(()=>!window.MK95Account.read().operation.pending);assert.equal(econCommits,3);assert.equal(econWrites,4);
+  await openShop('pets');await card('pet_none').getByRole('button',{name:'Выбрать',exact:true}).click();await p.waitForFunction(()=>window.MK95Account.read().snapshot?.collection.equipped.some(i=>i.item_id==='pet_none')&&!window.MK95Account.read().operation.busy);
+  await card('pet_bot').getByRole('button',{name:'Продать'}).click();
+  await p.getByRole('button',{name:'Продать сейчас',exact:true}).click();await waitBalance(1831);assert.equal(econCommits,5);
+  await p.locator('[data-economy-view="shop"]').getByRole('button',{name:'Открыть за 200 🪙'}).click();await waitBalance(1631);assert.equal(econHistory.length,1);
+  await openShop('stickers');await card('st_pi').getByRole('button',{name:'Продать'}).click();
+  await p.getByRole('button',{name:/4 класс.*Таблица умножения/}).click();
+  await p.waitForFunction(()=>window.MK95Account.read().mission?.progress===0&&!window.MK95Account.read().operation.busy);
+  await p.locator('[data-economy-view="shop"]').getByRole('button',{name:'Назад к тренировкам'}).click();
+  for(let block=0;block<2;block++){
+   if(block)await p.locator('#mk95-table-practice').getByRole('button',{name:'К этапам'}).click();
+   await p.locator('[data-mk95-table-open]').click();await p.locator('#mk95-table-question').waitFor();
+   for(let i=0;i<questions.length;i++){
+    await p.locator('#mk95-table-question #fin').fill(String(questions[i].a*questions[i].b));
+    await p.locator('#mk95-table-question #tablePrimary').click();await p.waitForFunction(()=>window.MK95Account.read().table.model?.exercise.nextReady===true);
+    await p.locator('#mk95-table-question #tablePrimary').click();
+    if(i<4)await p.waitForFunction(i=>window.MK95Account.read().table.index===i+1,i);
+   }
+   await p.waitForFunction(expected=>window.MK95Account.read().mission?.progress===expected,5*(block+1));
+  }
+  await openShop('stickers');await card('st_pi').getByRole('button',{name:'Продать'}).click();
+  await p.getByRole('button',{name:'Получить 80%',exact:true}).click();await waitBalance(1701);
+  assert.equal(econMission,null);assert.equal(econCommits,8);
+  await openShop('pets');await ctx.setOffline(true);await p.waitForFunction(()=>window.MK95Account.read().status==='offline');assert.equal(await p.locator('[data-mk95-economy]').count(),0);
+  await p.reload();await p.waitForFunction(()=>window.MK95Account?.read().status==='offline');assert.equal(await p.locator('[data-mk95-economy]').count(),0);await ctx.setOffline(false);await waitBalance(1701);
+  assert.deepEqual([balance[A],balance[B],balance[C],balance[D]],others);assert.deepEqual(await p.evaluate(()=>({xp:state.xp,coins:state.coins,history:state.attemptHistory?.length||0})),before);
+  assert.deepEqual(errors,[]);console.log('PASS_ECONOMY_UI exact prices, lost response F5, scoped retry, pets, chest, mission 80%, offline isolation');
+ }catch(e){console.log('ECONOMY_DIAGNOSTICS',JSON.stringify({errors,apiTrace:apiTrace.slice(-25),ui:await p.evaluate(()=>({status:window.MK95Account?.read().status,operation:window.MK95Account?.read().operation,view:window.MK95Account?.read().economy?.view,mission:window.MK95Account?.read().mission})).catch(()=>null)}));throw e}
+ finally{await ctx.close()}
+}
+(async()=>{await new Promise(r=>server.listen(0,'127.0.0.1',r));const browser=await chromium.launch({headless:true,args:['--no-sandbox']});try{const url='http://127.0.0.1:'+server.address().port+'/';await run(browser,url,390);await run(browser,url,1280);assert(mutations.every(p=>['/auth/login','/auth/logout'].includes(p)));console.log('PASS_NO_GAMEPLAY_MUTATIONS',mutations);await runTable(browser,url);await runColumns(browser,url);await runGrade5(browser,url);await runEconomy(browser,url)}finally{await browser.close();await new Promise(r=>server.close(r))}})().catch(e=>{console.error(e);process.exitCode=1});

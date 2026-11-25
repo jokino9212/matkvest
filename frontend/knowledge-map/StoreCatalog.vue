@@ -6,7 +6,7 @@ defineProps({
 </script>
 
 <template>
-  <div v-for="card in model.cards" :key="card.id" :class="card.className">
+  <div v-for="card in model.cards" :key="card.id" :data-shop-item="card.id" :class="card.className">
     <span v-if="card.status" class="shop-state-chip" :class="card.equipped ? 'equipped' : 'owned'">{{ card.status }}</span>
     <span v-if="card.level > 1" class="shop-lock">ур. {{ card.level }}</span>
     <div style="display: contents" v-html="card.icon"></div>

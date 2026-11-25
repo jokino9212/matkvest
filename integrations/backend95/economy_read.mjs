@@ -19,6 +19,9 @@ const POLICY='e12e0b972331ecf508f40a0e9a5b285d205807844222d2191260d91a88e54c43';
 export function validateEconomy(catalog,state,id){
  if(catalog?.build!==BUILD||catalog.policy_sha256!==POLICY||state?.build!==BUILD||state.profile_id!==id||!Array.isArray(catalog.items)||catalog.items.length!==261||!Array.isArray(state.sale_quotes)||!Array.isArray(state.useful_topics)||!state.chest)return null;
  if(catalog.items.some(i=>!ident(i.id)||!Object.hasOwn(categories,i.category)||!Number.isSafeInteger(i.price)||i.price<0||!Number.isSafeInteger(i.level)||i.level<1||typeof i.buyable!=='boolean'||typeof i.selectable!=='boolean'||typeof i.reward_only!=='boolean')||new Set(catalog.items.map(i=>i.id)).size!==catalog.items.length||catalog.items.filter(i=>i.buyable).length!==184||catalog.chest_price!==200||catalog.refund_now!==40||catalog.refund_training!==80||catalog.mission_correct!==10)return null;
+ if(!catalog.rates||!catalog.pools||!state.chest.available||!['rare','epic','legendary'].every(r=>Number.isSafeInteger(catalog.rates[r])&&Array.isArray(catalog.pools[r])&&Number.isSafeInteger(state.chest.available[r])&&state.chest.available[r]>=0&&state.chest.available[r]<=catalog.pools[r].length))return null;
+ if(![state.chest.opened,state.chest.miss_epic,state.chest.miss_legendary].every(x=>Number.isSafeInteger(x)&&x>=0))return null;
+ if(state.mission&&(!ident(state.mission.id)||!ident(state.mission.item_id)||!ident(state.mission.topic_id)||state.mission.required!==10||!Number.isInteger(state.mission.progress)||state.mission.progress<0||state.mission.progress>10||state.mission.completed!==(state.mission.progress===10)))return null;
  if(state.sale_quotes.some(q=>!ident(q.item_id)||!Number.isSafeInteger(q.refund_now)||q.refund_now<0||!Number.isSafeInteger(q.refund_mission)||q.refund_mission<0)||state.useful_topics.some(x=>!ident(x.topic_id)||!ident(x.title))||!Array.isArray(state.chest.history))return null;
  return {catalog,state};
 }
