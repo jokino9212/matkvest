@@ -6,7 +6,17 @@ defineProps({ model: { type: Object, required: true }, actions: { type: Object, 
 
 <template>
   <ReportHeader :title="model.title" @close="actions.close" />
-  <div id="mk19fProgress" class="mk19f-modal">
+  <div v-if="model.serverReadOnly" id="mk19fProgress" class="mk19f-modal" data-mk95-server>
+    <p>{{ model.profileName }} · {{ model.totalXP }} XP</p>
+    <p>Подтверждённые серверные записи: {{ model.courses.length }}</p>
+    <div v-if="!model.courses.length" class="report-empty">Пока нет подтверждённых результатов.</div>
+    <article v-for="row in model.courses" :key="row.course_key + ':' + row.stage_index" class="mk19f-grade-row">
+      <b>{{ row.course_key }} · этап {{ row.stage_index + 1 }}</b>
+      <p>Лучший результат: {{ row.best_score }}</p>
+    </article>
+    <p class="mk19f-footnote">Показываются только полученные с сервера записи, без расчёта процента по всему локальному каталогу.</p>
+  </div>
+  <div v-else id="mk19fProgress" class="mk19f-modal">
     <section class="mk19f-xp-summary">
       <div class="mk19f-xp-top"><strong>Игровой уровень {{ model.level }} → {{ model.level + 1 }}</strong><span class="mk19f-xp-percent">{{ model.xp.percent }}%</span></div>
       <span class="mk19f-progress-track" role="progressbar" :aria-label="model.xp.label" aria-valuemin="0" :aria-valuemax="model.xp.total" :aria-valuenow="model.xp.done">

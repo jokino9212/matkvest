@@ -1,1 +1,7 @@
-#mk95-account-entry{display:flex;justify-content:flex-end;margin:8px 0}.mk95-account-dialog{width:min(440px,calc(100% - 24px));max-height:85vh;overflow:auto;border:1px solid #b9d8ca;border-radius:18px;padding:20px;color:var(--text,#17372f);background:var(--card,#fff)}.mk95-account-dialog::backdrop{background:rgba(0,0,0,.45)}.mk95-account-dialog form,.mk95-account-dialog section{display:grid;gap:12px;margin:12px 0}.mk95-account-dialog input,.mk95-account-dialog select{min-width:0;width:100%;padding:10px;border-radius:8px;border:1px solid #aabfb6;background:var(--card,#fff);color:inherit}
+#mk95-account-entry{display:flex;justify-content:flex-end;margin:8px 0}
+html[data-mk95-mode=server] #appHeader> :not([data-mk95-server]),html[data-mk95-mode=server] #mainView> :not(#homeDashboard),html[data-mk95-mode=server] #homeDashboard> :not([data-mk95-server]),html[data-mk95-mode=server] #appFooter,html[data-mk95-mode=server] #rewardNotice,html[data-mk95-mode=server] #overlay:not([data-mk95-report]){display:none!important}
+html[data-mk95-mode=server] [data-mk95-server] .stats{display:flex!important;flex-wrap:wrap;gap:8px}
+.mk95-account-dialog{width:min(440px,calc(100% - 24px));max-height:85vh;overflow:auto;border:1px solid #b9d8ca;border-radius:18px;padding:20px;color:var(--text,#17372f);background:var(--card,#fff)}
+.mk95-account-dialog::backdrop{background:rgba(0,0,0,.45)}
+.mk95-account-dialog form,.mk95-account-dialog section{display:grid;gap:12px;margin:12px 0}
+.mk95-account-dialog input,.mk95-account-dialog select{min-width:0;width:100%;padding:10px;border-radius:8px;border:1px solid #aabfb6;background:var(--card,#fff);color:inherit}

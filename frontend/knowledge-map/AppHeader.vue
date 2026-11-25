@@ -5,6 +5,8 @@ const props = defineProps({
   model: { type: Object, required: true },
   actions: { type: Object, required: true },
 });
+import {useAccountMode} from './accountMode.js';
+const {account,action:accountAction}=useAccountMode();
 const destinations = [
   { action: 'shop', label: 'Магазин', icon: 'shop' },
   { action: 'data', label: 'Данные', icon: 'data' },
@@ -64,7 +66,18 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <header ref="header" class="top">
+  <header v-if="account.mode === 'server'" ref="header" class="top" data-mk95-server>
+    <button type="button" class="brand" @click="accountAction('home')"><span class="logo">M</span><span>МатКвест</span></button>
+    <div class="stats" data-mk-ui19-menu="open">
+      <button type="button" class="pill profile-pill" @click="accountAction('open')" data-mk95-account><span data-mk95-name>{{ account.snapshot?.profile.display_name || 'Выбрать ученика' }}</span></button>
+      <div class="pill" aria-label="Серверный XP"><span data-mk95-xp>{{ account.snapshot ? account.snapshot.profile.xp_total + ' XP' : '— XP' }}</span></div>
+      <button type="button" class="pill" @click="accountAction('progress')" aria-label="Мой учебный прогресс">Уровень {{ account.snapshot?.level.currentLevel ?? '—' }}</button>
+      <span class="pill" aria-label="Серверные монеты"><span class="ui-glyph ui-coin" aria-hidden="true"></span> <span data-mk95-coins>{{ account.snapshot?.wallet.balance ?? '—' }}</span></span>
+      <button type="button" class="pill" @click="accountAction('journal')">Журнал</button>
+      <button type="button" class="pill" @click="accountAction('open')">Аккаунт</button>
+    </div>
+  </header>
+  <header v-else ref="header" class="top">
     <button
       type="button" class="brand mk872-brand-home" data-header-action="home"
       aria-label="МатКвест — на главную" title="На главную" @click="run('home')"
@@ -92,6 +105,7 @@ onUnmounted(() => {
         aria-controls="mk-ui19-navigation" :aria-expanded="menuOpen"
         :aria-label="menuOpen ? 'Закрыть меню разделов' : 'Открыть меню разделов'" @click="menuOpen = !menuOpen"
       ><span class="mk-ui19-hamburger" aria-hidden="true"><i></i><i></i><i></i></span><span>Меню</span></button>
+      <button v-if="account.available" type="button" class="pill" @click="accountAction('open')">Аккаунт</button>
       <nav id="mk-ui19-navigation" class="mk-ui19-nav-wrap" aria-label="Разделы МатКвеста">
         <button
           v-for="destination in destinations" :key="destination.action" type="button" class="pill"

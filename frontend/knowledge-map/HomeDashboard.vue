@@ -6,6 +6,8 @@ const props = defineProps({
   actions: { type: Object, required: true },
 });
 
+import {useAccountMode} from './accountMode.js';
+const {account,action:accountAction}=useAccountMode();
 function activateCard(event, action) {
   if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
   if (event.target.closest('button, a[href]') || event.currentTarget.matches('.soon, .disabled, .locked, [aria-disabled="true"]')) return;
@@ -14,6 +16,21 @@ function activateCard(event, action) {
 </script>
 
 <template>
+  <section v-if="account.mode === 'server'" class="home-start" data-mk95-server>
+    <h1>МатКвест</h1>
+    <p role="status">{{ account.message }}</p>
+    <template v-if="account.snapshot">
+      <h2>{{ account.snapshot.profile.display_name }}</h2>
+      <p>Подтверждено сервером: {{ account.snapshot.profile.xp_total }} XP · {{ account.snapshot.wallet.balance }} монет</p>
+      <p>Записей учебного прогресса: {{ account.snapshot.progress.course_progress.length }}</p>
+      <button type="button" class="mk19f-home-open" data-mk95-progress @click="accountAction('progress')">Мой прогресс</button>
+      <button type="button" class="btn soft" data-mk95-journal @click="accountAction('journal')">Журнал попыток</button>
+    </template>
+    <p>Учебные записи и покупки в этом режиме пока доступны только для просмотра. Локальные тренировки работают отдельно.</p>
+    <button type="button" class="btn soft" @click="accountAction('open')">Аккаунт и выбор ученика</button>
+    <button type="button" class="btn soft" @click="accountAction('local')">Локальный режим</button>
+  </section>
+  <template v-else>
   <section class="home-start">
     <h1>{{ model.title }}</h1>
     <p>{{ model.description }}</p>
@@ -83,4 +100,5 @@ function activateCard(event, action) {
     <div><h2>{{ card.title }}</h2><p>{{ card.description }}</p><div :class="card.countClass">{{ card.count }}</div></div>
     <button type="button" :class="card.buttonClass" :data-home-action="card.action" @click="actions.run(card.action)">{{ card.buttonLabel }}</button>
   </section>
+  </template>
 </template>

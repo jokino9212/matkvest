@@ -13,14 +13,32 @@ shutil.copytree(root/'integrations/backend95',out/'integration')
 page=out/'index.html';sw=out/'sw.js'
 s=page.read_text('utf8')
 assert s.count('</body>')==1
-s=s.replace('</body>','<div id="mk95-account-entry"></div><link rel="stylesheet" href="./integration/account.css?v=290"><script type="module" src="./integration/account_ui.mjs?v=290"></script></body>')
+s=s.replace('?v=290','?v=291')
+bootstrap="""<link rel="stylesheet" href="./integration/account.css?v=291"><script>
+try{if(sessionStorage.getItem('mk95-mode')==='server')document.documentElement.dataset.mk95Mode='server'}catch{}
+(function(){
+ const active=()=>document.documentElement.dataset.mk95Mode==='server';
+ for(const kind of ['click','keydown','submit','change','input','pointerdown']){
+  document.addEventListener(kind,e=>{
+   if(!active())return;
+   const allowed=e.target?.closest?.('[data-mk95-server],#mk95-account-entry,#overlay[data-mk95-report]');
+   if(!allowed){e.preventDefault();e.stopImmediatePropagation()}
+  },true);
+ }
+ window.addEventListener('popstate',e=>{if(active()){e.stopImmediatePropagation();history.replaceState({...history.state,route:{screen:'home'}},'')}},true);
+})();
+</script>"""
+assert s.count('</head>')==1
+s=s.replace('</head>',bootstrap+'</head>')
+s=s.replace('</body>','<div id="mk95-account-entry"></div><script type="module" src="./integration/account_ui.mjs?v=291"></script></body>')
 page.write_text(s,'utf8')
 w=sw.read_text('utf8')
 assert w.count('matkvest-iphone-v')>=1
-w=w.replace('matkvest-iphone-v','matkvest-integration95-v')
+w=w.replace('matkvest-iphone-v','matkvest-integration95-v').replace('matkvest-integration95-v290','matkvest-integration95-v291')
 w,n=re.subn(r'const APP_BUILD_HASH = "[a-f0-9]+";',f'const APP_BUILD_HASH = "{sha(page)}";',w);assert n==1
 m=re.search(r'const SCRIPT_HASHES = (\{[^\n]+\});',w);assert m
 hashes=json.loads(m[1])
+hashes['assets/ui/knowledge-map.js']=sha(out/'assets/ui/knowledge-map.js')
 for p in (out/'integration').iterdir():
  if p.suffix in ('.mjs','.css'):hashes['integration/'+p.name]=sha(p)
 w=w.replace(m[0],'const SCRIPT_HASHES = '+json.dumps(hashes)+';',1)
