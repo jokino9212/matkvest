@@ -17,12 +17,14 @@ const content=el('section'),note=el('p');note.setAttribute('role','status');
 dialog.append(title,note,content,button('Закрыть',()=>dialog.close()));document.body.append(dialog);
 const messages={local:'Локальный режим',connecting:'Проверка сессии…',loading:'Загрузка данных ученика…',offline:'Нет связи. Серверные данные недоступны; локальное обучение можно открыть отдельно.',error:'Не удалось получить данные. Повторите подключение.',ready:'Данные подтверждены сервером.',select:'Выберите ученика.', 'signed-out':'Войдите в аккаунт ученика.', 'unsupported-role':'Пока доступен только аккаунт ученика.', 'logout-unconfirmed':'Выход не подтверждён. Повторите выход после подключения.', 'session-changed':'Сессия изменилась в другой вкладке. Подключитесь заново.'};
 const read=()=>{const s=store.read();if(s.snapshot)s.snapshot.level=window.mk872GetLevelProgress(s.snapshot.profile.xp_total);return {...s,available:true,mode,message:messages[s.status]||''}};
-const closeReport=()=>{const overlay=document.getElementById('overlay');if(overlay?.dataset.mk95Report){window.closeModal();delete overlay.dataset.mk95Report}};
+const closeReport=()=>{const overlay=document.getElementById('overlay');if(overlay?.dataset.mk95Report){delete overlay.dataset.mk95Report;overlay.classList.remove('show');document.getElementById('modal').replaceChildren()}};
+const reportOverlay=document.getElementById('overlay');
+new MutationObserver(()=>{if(reportOverlay.dataset.mk95Report&&!reportOverlay.classList.contains('show'))closeReport()}).observe(reportOverlay,{attributes:true,attributeFilter:['class']});
 const emit=()=>window.dispatchEvent(new Event('mk95-account-change'));
 function local(){closeReport();mode='local';sessionSet(modeKey,null);sessionSet(selectionKey,null);delete document.documentElement.dataset.mk95Mode;store.invalidate('local');dialog.close();emit();}
 function open(){
  if(mode==='local'){
-  if(window.mk854Route?.().screen!=='home'){alert('Сначала вернитесь на главную, сохранив текущую тренировку.');return}
+  if(window.mk854Route?.().screen!=='home'||window.mk872HasActiveLearning?.()){alert('Сначала вернитесь на главную, сохранив текущую тренировку.');return}
   window.closeModal();mode='server';sessionSet(modeKey,'server');document.documentElement.dataset.mk95Mode='server';emit();
  }
  if(!dialog.open)dialog.showModal();

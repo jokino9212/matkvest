@@ -39,7 +39,8 @@ export async function stableStartKey(serverProfileId,localAttemptId,cryptoImpl=g
 export class MatKvestApiClient {
   constructor({baseUrl='/api/v1',fetchImpl=globalThis.fetch,origin=null}={}) {
     if(typeof fetchImpl!=='function')throw new TypeError('Fetch unavailable');
-    this.fetchImpl=fetchImpl;
+    // Native browser fetch is a Window method. Calling it on this adapter throws Illegal invocation.
+    this.fetchImpl=fetchImpl.bind(globalThis);
     this.baseUrl=String(baseUrl).replace(/\/+$/,'');
     if(!this.baseUrl.startsWith('/')||this.baseUrl.startsWith('//')) {
       throw new TypeError('Stage 9.5 requires same-origin /api/v1 proxy for cookie sessions');

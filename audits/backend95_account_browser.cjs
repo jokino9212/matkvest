@@ -5,9 +5,9 @@ const owner='ea436d1d-0123-4f25-8ae9-df61e8a85370',foreign='ea436d1d-0123-4f25-8
 const A='a1436d1d-0123-4f25-8ae9-df61e8a85370',B='b1436d1d-0123-4f25-8ae9-df61e8a85370',C='c1436d1d-0123-4f25-8ae9-df61e8a85370';
 const profiles=[{id:A,user_id:owner,display_name:'Сервер А',xp_total:115},{id:B,user_id:owner,display_name:'Сервер Б',xp_total:250},{id:C,user_id:foreign,display_name:'Чужой ученик',xp_total:999}];
 const balance={[A]:41,[B]:82,[C]:999};
-const mutations=[];
+const mutations=[],apiTrace=[];
 const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript','.mjs':'text/javascript','.css':'text/css','.svg':'image/svg+xml','.webp':'image/webp','.png':'image/png','.webmanifest':'application/manifest+json'};
-const json=(res,status,data,headers={})=>res.writeHead(status,{'Content-Type':'application/json','Cache-Control':'no-store',...headers}).end(JSON.stringify(data));
+const json=(res,status,data,headers={})=>{apiTrace.push({method:res.req.method,path:new URL(res.req.url,'http://localhost').pathname,status});return res.writeHead(status,{'Content-Type':'application/json','Cache-Control':'no-store',...headers}).end(JSON.stringify(data))};
 const server=createServer(async(req,res)=>{
  try{
   const u=new URL(req.url,'http://127.0.0.1');
@@ -53,9 +53,9 @@ async function run(browser,url,width){
   await ready(p);const before=await local(p);
   await account(p);await dialog(p).getByRole('textbox',{name:'Электронная почта'}).fill('student@example.test');await dialog(p).getByLabel('Пароль',{exact:true}).fill('test-password');await dialog(p).getByRole('button',{name:'Войти',exact:true}).click();
   await select(p,B);await expectText(p,'[data-mk95-name]','Сервер Б');await expectText(p,'[data-mk95-coins]','82');
-  await p.locator('[data-mk95-progress]').click();await p.locator('#modal [data-mk95-server]').waitFor();assert.match(await p.locator('#modal').innerText(),/g5:natural/);assert.doesNotMatch(await p.locator('#modal').innerText(),/g4:table/);
-  await p.locator('#modal button.x').click();await p.locator('[data-mk95-journal]').click();await p.locator('#modal [data-mk95-server]').waitFor();assert.match(await p.locator('#modal').innerText(),/Попытка Сервер Б/);assert.doesNotMatch(await p.locator('#modal').innerText(),/Попытка Сервер А/);
-  await p.locator('#modal button.x').click();assert.deepEqual(await local(p),before);
+  await p.locator('[data-mk95-progress]').click();await p.locator('#modal .vue-report[data-v-app] [data-mk95-server]').waitFor();assert.match(await p.locator('#modal').innerText(),/g5:natural/);assert.doesNotMatch(await p.locator('#modal').innerText(),/g4:table/);
+  await p.locator('#modal button.x').click();await p.locator('[data-mk95-journal]').click();await p.locator('#modal .vue-report[data-v-app] [data-mk95-server]').waitFor();assert.match(await p.locator('#modal').innerText(),/Попытка Сервер Б/);assert.doesNotMatch(await p.locator('#modal').innerText(),/Попытка Сервер А/);
+  await p.locator('#modal button.x').click();await p.waitForFunction(()=>!document.getElementById('modal').textContent.includes('Попытка Сервер Б'));assert.deepEqual(await local(p),before);
   assert.equal(await p.evaluate(async id=>(await fetch('/api/v1/student/profiles/'+id+'/history')).status,C),404);
   await p.evaluate(()=>navigator.serviceWorker.ready);await p.waitForFunction(()=>!!navigator.serviceWorker.controller);
   await p.reload();await expectText(p,'[data-mk95-name]','Сервер Б');assert.deepEqual(await local(p),before);
@@ -67,6 +67,6 @@ async function run(browser,url,width){
   await account(p2);await dialog(p2).getByRole('button',{name:'Выйти',exact:true}).click();await p.waitForFunction(()=>window.MK95Account.read().status==='session-changed');await expectText(p,'[data-mk95-coins]','—');
   await p.locator('#mainView').getByRole('button',{name:'Локальный режим',exact:true}).click();await p.locator('#mainView .grade-grid').waitFor();assert.deepEqual(await local(p),before);
   assert.deepEqual(errors,[]);console.log('PASS_BACKEND95_BROWSER',width);
- }finally{await ctx.close()}
+ }catch(e){console.log('BROWSER_DIAGNOSTICS',JSON.stringify({width,apiTrace:apiTrace.slice(-50),errors,ui:await p.evaluate(()=>({account:window.MK95Account?.read().status,mode:window.MK95Account?.read().mode,dialog:document.querySelector('.mk95-account-dialog')?.innerText,route:window.mk854Route?.()})).catch(()=>null)}));throw e}finally{await ctx.close()}
 }
 (async()=>{await new Promise(r=>server.listen(0,'127.0.0.1',r));const browser=await chromium.launch({headless:true,args:['--no-sandbox']});try{const url='http://127.0.0.1:'+server.address().port+'/';await run(browser,url,390);await run(browser,url,1280);assert(mutations.every(p=>['/auth/login','/auth/logout'].includes(p)));console.log('PASS_NO_GAMEPLAY_MUTATIONS',mutations)}finally{await browser.close();await new Promise(r=>server.close(r))}})().catch(e=>{console.error(e);process.exitCode=1});
