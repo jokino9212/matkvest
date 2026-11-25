@@ -64,5 +64,5 @@ window.MK95Account={read,open,local,home:closeReport,progress:()=>report('progre
 window.addEventListener('storage',e=>{if(e.key===eventKey&&mode==='server')store.invalidate('session-changed')});
 window.addEventListener('offline',()=>{if(mode==='server')store.invalidate('offline')});
 window.addEventListener('online',()=>{if(mode==='server'&&store.read().status==='offline')store.resume()});
-window.addEventListener('focus',()=>{if(mode==='server'&&store.read().status==='ready')store.resume()});
+window.addEventListener('focus',()=>{if(mode==='server'&&store.read().status==='ready'&&!dialog.open)store.resume()});
 emit();if(mode==='server')store.resume();

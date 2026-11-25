@@ -31,6 +31,7 @@ function closeMenu(restoreFocus = false) {
   if (restoreFocus) toggle.value?.focus({ preventScroll: true });
 }
 function run(action, fromMenu = false) {
+  if (account.value.mode !== 'local') return;
   closeMenu(fromMenu);
   props.actions[action]();
 }
