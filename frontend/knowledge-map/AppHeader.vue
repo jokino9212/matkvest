@@ -73,7 +73,9 @@ onUnmounted(() => {
       <button type="button" class="pill profile-pill" @click="accountAction('open')" data-mk95-account><span data-mk95-name>{{ account.snapshot?.profile.display_name || 'Выбрать ученика' }}</span></button>
       <div class="pill" aria-label="Серверный XP"><span data-mk95-xp>{{ account.snapshot ? account.snapshot.profile.xp_total + ' XP' : '— XP' }}</span></div>
       <button type="button" class="pill" @click="accountAction('progress')" aria-label="Мой учебный прогресс">Уровень {{ account.snapshot?.level.currentLevel ?? '—' }}</button>
-      <span class="pill" aria-label="Серверные монеты"><span class="ui-glyph ui-coin" aria-hidden="true"></span> <span data-mk95-coins>{{ account.snapshot?.wallet.balance ?? '—' }}</span></span>
+      <button type="button" class="pill" aria-label="Серверные монеты" @click="accountAction('wallet')"><span class="ui-glyph ui-coin" aria-hidden="true"></span> <span data-mk95-coins>{{ account.snapshot?.wallet.balance ?? '—' }}</span></button>
+      <button type="button" class="pill" @click="accountAction('shop')">Магазин</button>
+      <button type="button" class="pill" @click="accountAction('collection')">Коллекция</button>
       <button type="button" class="pill" @click="accountAction('journal')">Журнал</button>
       <button type="button" class="pill" @click="accountAction('open')">Аккаунт</button>
     </div>

@@ -7,7 +7,7 @@ defineProps({
 
 <template>
   <div class="mk872-col-head">
-    <h3>{{ model.title }}</h3><small>{{ model.owned }} из {{ model.total }}</small>
+    <h3>{{ model.title }}</h3><small>{{ model.serverReadOnly ? 'Получено: '+model.owned : model.owned+' из '+model.total }}</small>
   </div>
   <div v-if="model.items.length" class="mk872-col-grid">
     <div v-for="item in model.items" :key="item.id" class="mk872-col-card" :class="{ selected: item.selected }">
@@ -22,6 +22,6 @@ defineProps({
   </div>
   <div v-else class="mk872-col-empty">
     Пока ничего нет в коллекции.
-    <div class="mk872-col-help">Посмотри доступные предметы в магазине.</div>
+    <div v-if="!model.serverReadOnly" class="mk872-col-help">Посмотри доступные предметы в магазине.</div>
   </div>
 </template>

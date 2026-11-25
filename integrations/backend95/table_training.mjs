@@ -1,6 +1,6 @@
-import {createSchoolBlockQueue,indexedSchoolOutbox,SCHOOL_TOPICS,STAGES,COUNTS,PASS,stageOf,stageAllowed,isColumn,validateQuestion,isFraction,maxDigits,gradeOf} from './school_block_queue.mjs?v=296';
-import {columnView,readColumnCells,moveColumnCell,normalizeColumnCell} from './column_training.mjs?v=296';
-import {fractionView,readFractionCells} from './fraction_training.mjs?v=296';
+import {createSchoolBlockQueue,indexedSchoolOutbox,SCHOOL_TOPICS,STAGES,COUNTS,PASS,stageOf,stageAllowed,isColumn,validateQuestion,isFraction,maxDigits,gradeOf} from './school_block_queue.mjs?v=297';
+import {columnView,readColumnCells,moveColumnCell,normalizeColumnCell} from './column_training.mjs?v=297';
+import {fractionView,readFractionCells} from './fraction_training.mjs?v=297';
 // Shared school trainer; no calls to legacy reward or save routines.
 export function createTableTraining({api,store,mode,emit,sessionGet,sessionSet}){
  const db=indexedSchoolOutbox(),queue=createSchoolBlockQueue({api,store,outbox:db});

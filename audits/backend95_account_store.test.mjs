@@ -8,6 +8,7 @@ const api={clearSession(){},resumeSession:async()=>({id:'owner',role:'student'})
  if(network)throw Object.assign(new Error('network'),{status:0});
  if(path.endsWith('/wallet')){const id=path.split('/')[2];if(slow&&id==='a')await new Promise(r=>release=r);return {profile_id:id,balance:id==='a'?2:8};}
  if(path.includes('/history?'))return {attempts:[],next_offset:null};
+ if(path.endsWith('/collection'))return {items:[{id:path.split('/')[3]==='a'?'av_fox':'av_cat',category:'avatars',source:'migration',paid_price:null}],equipped:[],achievements:[]};
  return {course_progress:[]};
 }};
 const store=createAccountStore(api,{loadSelection:()=>selection,saveSelection:v=>selection=v});
@@ -15,6 +16,9 @@ await store.resume();assert.equal(store.read().status,'select');
 await store.select('a');assert.equal(store.read().snapshot.wallet.balance,2);
 slow=true;const old=store.select('a');await store.select('b');release();await old;
 assert.equal(store.read().selectedId,'b');assert.equal(store.read().snapshot.wallet.balance,8);
+assert.equal(store.read().snapshot.collection.items[0].id,'av_cat');
+slow=false;profiles[1].xp_total=89;await store.select('b');assert.equal(store.read().snapshot.profile.xp_total,89);
+console.log('PASS_XP_REFRESH_AND_COLLECTION_SCOPE');
 await assert.rejects(store.select('foreign'));
 store.invalidate('session-changed');assert.equal(store.read().snapshot,null);await store.resume();assert.equal(store.read().selectedId,'b');
 network=true;await store.select('a');assert.equal(store.read().status,'offline');assert.equal(store.read().snapshot,null);

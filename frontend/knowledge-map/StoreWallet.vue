@@ -8,6 +8,8 @@ defineProps({ model: Object, actions: Object });
       <small>Сумма на счёте прямо сейчас</small></div>
     <span class="mk19e-id">{{ model.profile }}</span>
   </div>
+  <template v-if="model.serverReadOnly"><p>Подтверждённый сервером баланс. Сведения о продажах, покупках и возможных возвратах пока не предоставляются сервером.</p></template>
+  <template v-else>
   <section>
     <h3 class="mk19e-section-title">Мои покупки и возвраты</h3>
     <div class="mk19e-wallet-grid">
@@ -40,6 +42,7 @@ defineProps({ model: Object, actions: Object });
     <div v-else class="mk19e-wallet-cell mk19e-info">Пока нет сохранённых записей о продажах.</div>
   </section>
   <details class="mk19e-info"><summary>Как считаются суммы</summary><p>{{ model.explanation }}</p></details>
+  </template>
   <div class="mk19e-shortcuts">
     <button class="btn soft" type="button" @click="actions.shop()">В магазин</button>
     <button class="btn soft" type="button" @click="actions.collection()">Моя коллекция</button>

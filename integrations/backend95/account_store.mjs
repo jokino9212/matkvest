@@ -1,4 +1,5 @@
-import {MatKvestApiClient} from './stage29_api_client.mjs?v=296';
+import {MatKvestApiClient} from './stage29_api_client.mjs?v=297';
+import {validateCollection} from './economy_read.mjs?v=297';
 export function createAccountStore(api=new MatKvestApiClient(), options={}){
  let current={status:'local',user:null,profiles:[],selectedId:null,snapshot:null}, revision=0, authBusy=false;
  // Persist only a non-sensitive logout intent, never a session or account snapshot.
@@ -13,13 +14,14 @@ export function createAccountStore(api=new MatKvestApiClient(), options={}){
  const onError=(error,token)=>{if(token!==revision)return;if(error.status===401||error.code==='CSRF_INVALID'||error.status===403)clear('signed-out');else update({status:error.status===0?'offline':'error',snapshot:null});};
  async function select(id){
   if(!current.user||!current.profiles.some(p=>p.id===id))throw new Error('PROFILE_NOT_OWNED');
-  const token=++revision,p=current.profiles.find(p=>p.id===id),path='/student/profiles/'+encodeURIComponent(id);
+  const token=++revision,owner=current.user.id,path='/student/profiles/'+encodeURIComponent(id);
   update({selectedId:id,snapshot:null,status:'loading'});remember();
   try{
-   const [wallet,progress,entitlements,history]=await Promise.all([api.request('GET','/student-profiles/'+encodeURIComponent(id)+'/wallet'),api.request('GET',path+'/progress'),api.getStudentEntitlements(id),api.request('GET',path+'/history?limit=50')]);
+   const [wallet,progress,entitlements,history,collection,profiles]=await Promise.all([api.request('GET','/student-profiles/'+encodeURIComponent(id)+'/wallet'),api.request('GET',path+'/progress'),api.getStudentEntitlements(id),api.request('GET',path+'/history?limit=50'),api.request('GET',path+'/collection'),api.request('GET','/student/profiles')]);
    if(token!==revision)return;
-   if(wallet.profile_id!==id||!Array.isArray(progress.course_progress)||!Array.isArray(history.attempts))throw new Error('PROFILE_RESPONSE_INVALID');
-   update({snapshot:{profile:p,wallet,progress,entitlements,history},status:'ready'});
+   const p=Array.isArray(profiles)?profiles.find(x=>x.id===id):null;
+   if(!p||profiles.some(x=>x.user_id&&x.user_id!==owner)||wallet.profile_id!==id||!Number.isSafeInteger(wallet.balance)||wallet.balance<0||!Array.isArray(progress.course_progress)||!Array.isArray(history.attempts))throw new Error('PROFILE_RESPONSE_INVALID');
+   update({profiles,snapshot:{profile:p,wallet,progress,entitlements,history,collection:validateCollection(collection)},status:'ready'});
   }catch(e){onError(e,token);}
  }
  async function connect(kind,email,password){

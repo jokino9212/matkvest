@@ -1,6 +1,10 @@
 <script setup>
 import TrainingHistoryRows from './TrainingHistoryRows.vue';
 import SchoolAttempt from './SchoolAttempt.vue';
+import StoreWallet from './StoreWallet.vue';
+import CollectionSection from './CollectionSection.vue';
+import StoreCatalog from './StoreCatalog.vue';
+import {ref,computed} from 'vue';
 
 const props = defineProps({
   model: { type: Object, required: true },
@@ -9,6 +13,9 @@ const props = defineProps({
 
 import {useAccountMode} from './accountMode.js';
 const {account,action:accountAction}=useAccountMode();
+const shopCategory=ref('avatars');
+const shopSection=computed(()=>account.value.economy?.catalogSections.find(s=>s.id===shopCategory.value)||account.value.economy?.catalogSections[0]);
+const economyActions={shop:()=>accountAction('shop'),collection:()=>accountAction('collection'),run:()=>{},choose:()=>{}};
 const tableActions={close:()=>accountAction('tablePause'),back:()=>accountAction('tablePause'),abandon:()=>accountAction('tablePause'),input:event=>window.MK95Account?.tableAction('input',event),primary:()=>window.MK95Account?.tableAction('primary'),skip:()=>window.MK95Account?.tableAction('skip'),pick:index=>window.MK95Account?.tableAction('pick',index),inputCell:el=>window.MK95Account?.tableAction('cell',el),toggleDot:el=>window.MK95Account?.tableAction('dot',el),moveCell:(event,el)=>window.MK95Account?.tableAction('move',{event,el})};
 function openSchool(topic,stage){window.MK95Account?.tableOpen(topic,stage)}
 function runLocal(action){if(account.value.mode==='local')props.actions.run(action)}
@@ -30,7 +37,24 @@ function activateCard(event, action) {
       <button type="button" class="mk19f-home-open" data-mk95-progress @click="accountAction('progress')">Мой прогресс</button>
       <button type="button" class="btn soft" data-mk95-journal @click="accountAction('journal')">Журнал попыток</button>
     </template>
-    <template v-if="account.table?.open">
+    <section v-if="account.economy" data-mk95-economy :data-economy-view="account.economy.view">
+      <button class="btn soft" type="button" @click="accountAction('economyBack')">Назад к тренировкам</button>
+      <template v-if="account.economy.view==='wallet'">
+        <h2>Мой кошелёк</h2><StoreWallet :model="account.economy.wallet" :actions="economyActions" />
+      </template>
+      <template v-else-if="account.economy.view==='collection'">
+        <h2>Моя коллекция</h2><p>Полученные предметы и достижения подтверждены сервером. Выбор предметов пока недоступен.</p>
+        <CollectionSection v-for="section in account.economy.collectionSections" :key="section.id" :model="section" :actions="economyActions" />
+      </template>
+      <template v-else>
+        <h2>Магазин</h2><p role="status">Предпросмотр встроенного каталога. Сервер пока не предоставляет цены, покупку, продажу и сундуки.</p>
+        <select v-if="account.economy.catalogSections.length" aria-label="Категория магазина" :value="shopSection?.id" @change="shopCategory=$event.target.value">
+          <option v-for="section in account.economy.catalogSections" :key="section.id" :value="section.id">{{ section.title }}</option>
+        </select>
+        <div v-if="shopSection" class="shop-grid"><StoreCatalog :model="shopSection" :actions="economyActions" /></div>
+      </template>
+    </section>
+    <template v-else-if="account.table?.open">
       <SchoolAttempt :model="account.table.model" :actions="tableActions" />
       <p v-if="account.table.status === 'blocked'" role="alert">Результат сохранён, но сервер отклонил блок. Повторное начисление отключено.</p>
       <button v-if="account.table.status === 'pending'" type="button" class="btn soft" @click="accountAction('tableSync')">Повторить синхронизацию</button>
@@ -53,7 +77,7 @@ function activateCard(event, action) {
       </template>
     </section>
     <p v-if="account.table?.error" role="alert">{{ account.table.error }}</p>
-    <p>В тестовом серверном режиме доступны 18 тренажёров 4–5 классов. Остальные темы и покупки пока работают локально.</p>
+    <p>В тестовом серверном режиме доступны 18 тренажёров 4–5 классов. Остальные темы и покупки пока доступны только в отдельном локальном режиме.</p>
     <button type="button" class="btn soft" @click="accountAction('open')">Аккаунт и выбор ученика</button>
     <button type="button" class="btn soft" @click="accountAction('local')">Локальный режим</button>
   </section>

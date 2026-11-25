@@ -6,6 +6,7 @@ const A='a1436d1d-0123-4f25-8ae9-df61e8a85370',B='b1436d1d-0123-4f25-8ae9-df61e8
 const D='d1436d1d-0123-4f25-8ae9-df61e8a85370';
 const profiles=[{id:A,user_id:owner,display_name:'Сервер А',xp_total:115},{id:B,user_id:owner,display_name:'Сервер Б',xp_total:250},{id:C,user_id:foreign,display_name:'Чужой ученик',xp_total:999},{id:D,user_id:owner,display_name:'Сервер Д',xp_total:0}];
 const balance={[A]:41,[B]:82,[C]:999,[D]:0};
+const collections={[A]:{items:[{id:'av_fox',category:'avatars',source:'migration',paid_price:120}],equipped:[{slot:'avatar',position:0,item_id:'av_fox'}],achievements:[{id:'solved10',source:'server',reward_recorded:true,unlocked_at:null}]},[B]:{items:[{id:'pet_cat',category:'pets',source:'migration',paid_price:null}],equipped:[],achievements:[]},[C]:{items:[{id:'av_dino',category:'avatars',source:'migration',paid_price:null}],equipped:[],achievements:[]},[D]:{items:[],equipped:[],achievements:[]}};
 const mutations=[],apiTrace=[],receipts=new Map();let tablePuts=0,tableRewards=0,tablePackNo=0;
 const questions=[{a:2,b:3},{a:3,b:4},{a:4,b:5},{a:5,b:6},{a:6,b:7}];
 const counts=[5,7,10],pass=[4,5,8],issued=new Map(),spent=new Set();
@@ -131,8 +132,9 @@ const server=createServer(async(req,res)=>{
     }
     return json(res,405,{});
    }
-   const match=/^\/student(?:-profiles|\/profiles)\/([^/]+)\/(wallet|progress|history|entitlements)$/.exec(path);
+   const match=/^\/student(?:-profiles|\/profiles)\/([^/]+)\/(wallet|progress|history|entitlements|collection)$/.exec(path);
    if(match){const [,id,kind]=match,p=profiles.find(p=>p.id===id&&p.user_id===uid);if(!p)return json(res,404,{error:{code:'PROFILE_NOT_FOUND'}});
+    if(kind==='collection')return json(res,200,collections[id]);
     if(kind==='wallet')return json(res,200,{profile_id:id,balance:balance[id],revision:1});
     if(kind==='progress')return json(res,200,{course_progress:[...(id===A?[]:[{course_key:'g5:natural',stage_index:0,best_score:9}]),...allTopics.flatMap(topic=>best(id,topic).flatMap((score,stage)=>score?[{course_key:topic,stage_index:stage,best_score:score}]:[]))],topic_mastery:[]});
     if(kind==='history')return json(res,200,{attempts:[{id:'server.'+id,title:'Попытка '+p.display_name,source:'server',status:'finished',correct:id===A?5:9,total:10,date:'2026-11-20T12:00:00Z'},...Array.from(receipts.values()).filter(x=>x.profile===id).map(x=>({id:'server.'+x.receipt.id,title:x.topic,source:'server',status:'finished',correct:x.receipt.summary.correct,total:counts[x.stage],date:'2026-11-20T12:00:00Z'}))],next_offset:null});
@@ -158,17 +160,24 @@ async function run(browser,url,width){
   await ready(p);const before=await local(p);
   await account(p);await dialog(p).getByRole('textbox',{name:'Электронная почта'}).fill('student@example.test');await dialog(p).getByLabel('Пароль',{exact:true}).fill('test-password');await dialog(p).getByRole('button',{name:'Войти',exact:true}).click();
   await select(p,B);await expectText(p,'[data-mk95-name]','Сервер Б');await expectText(p,'[data-mk95-coins]','82');
+  await p.locator('#appHeader').getByRole('button',{name:'Серверные монеты'}).click();await p.locator('[data-economy-view="wallet"]').waitFor();assert.equal(await p.locator('[data-economy-view="wallet"] .mk19e-balance').innerText(),'82');
+  await p.locator('#appHeader').getByRole('button',{name:'Коллекция',exact:true}).click();await p.locator('[data-economy-view="collection"]').waitFor();assert.equal(await p.locator('[data-economy-view="collection"] .mk872-col-card').count(),1);
+  await p.locator('#appHeader').getByRole('button',{name:'Магазин',exact:true}).click();await p.locator('[data-economy-view="shop"]').waitFor();assert.equal(await p.locator('[data-economy-view="shop"] .shop-card button:not(:disabled)').count(),0);assert(await p.locator('[data-economy-view="shop"] .shop-card').count()>0);
+  await p.locator('[data-economy-view="shop"]').getByRole('button',{name:'Назад к тренировкам'}).click();
+  assert.equal(await p.evaluate(async id=>(await fetch('/api/v1/student/profiles/'+id+'/collection')).status,C),404);
   await p.locator('[data-mk95-progress]').click();await p.locator('#modal .vue-report[data-v-app] [data-mk95-server]').waitFor();assert.match(await p.locator('#modal').innerText(),/g5:natural/);assert.doesNotMatch(await p.locator('#modal').innerText(),/g4:table/);
   await p.locator('#modal button.x').click();await p.locator('[data-mk95-journal]').click();await p.locator('#modal .vue-report[data-v-app] [data-mk95-server]').waitFor();assert.match(await p.locator('#modal').innerText(),/Попытка Сервер Б/);assert.doesNotMatch(await p.locator('#modal').innerText(),/Попытка Сервер А/);
   await p.locator('#modal button.x').click();await p.waitForFunction(()=>!document.getElementById('modal').textContent.includes('Попытка Сервер Б'));assert.deepEqual(await local(p),before);
   assert.equal(await p.evaluate(async id=>(await fetch('/api/v1/student/profiles/'+id+'/history')).status,C),404);
   await p.evaluate(()=>navigator.serviceWorker.ready);await p.waitForFunction(()=>!!navigator.serviceWorker.controller);
   await p.reload();await expectText(p,'[data-mk95-name]','Сервер Б');assert.deepEqual(await local(p),before);
-  await ctx.setOffline(true);await p.waitForFunction(()=>window.MK95Account.read().status==='offline');await expectText(p,'[data-mk95-coins]','—');
+  await p.locator('#appHeader').getByRole('button',{name:'Коллекция',exact:true}).click();await p.locator('[data-economy-view="collection"]').waitFor();
+  await ctx.setOffline(true);await p.waitForFunction(()=>window.MK95Account.read().status==='offline');await expectText(p,'[data-mk95-coins]','—');assert.equal(await p.locator('[data-mk95-economy]').count(),0);
   await p.reload();await p.waitForFunction(()=>window.MK95Account?.read().status==='offline');await expectText(p,'[data-mk95-coins]','—');assert.equal(await p.locator('#mainView .grade-grid').count(),0);
   const apiKeys=await p.evaluate(async()=>{const result=[];for(const name of await caches.keys()){const c=await caches.open(name);for(const k of await c.keys())if(new URL(k.url).pathname.startsWith('/api/'))result.push(k.url)}return result});assert.deepEqual(apiKeys,[]);
   await ctx.setOffline(false);await expectText(p,'[data-mk95-name]','Сервер Б');
   const p2=await ctx.newPage();p2.on('pageerror',e=>errors.push(e.message));await ready(p2);await account(p2);await select(p2,A);await expectText(p2,'[data-mk95-coins]','41');await expectText(p,'[data-mk95-coins]','82');
+  await p2.locator('#appHeader').getByRole('button',{name:'Коллекция',exact:true}).click();await p2.locator('[data-economy-view="collection"]').waitFor();assert.equal(await p2.locator('[data-economy-view="collection"] .mk872-col-card').count(),2);await p2.locator('[data-economy-view="collection"]').getByRole('button',{name:'Назад к тренировкам'}).click();
   await account(p2);await dialog(p2).getByRole('button',{name:'Выйти',exact:true}).click();await p.waitForFunction(()=>window.MK95Account.read().status==='session-changed');await expectText(p,'[data-mk95-coins]','—');
   await p.locator('#mainView').getByRole('button',{name:'Локальный режим',exact:true}).click();await p.locator('#mainView .grade-grid').waitFor();assert.deepEqual(await local(p),before);
   // Login under the first account, then request logout while disconnected.
@@ -229,6 +238,7 @@ async function runTable(browser,url){
   await ctx.setOffline(false);
   await p.waitForFunction(()=>window.MK95Account.read().table.status==='confirmed');
   await p.waitForFunction(()=>document.querySelector('[data-mk95-coins]')?.textContent==='66');
+  await p.waitForFunction(()=>document.querySelector('[data-mk95-xp]')?.textContent==='195 XP');
   assert.equal(tableRewards,1);assert.equal(tablePuts,1);assert.equal(balance[B],82);
   await p.reload();await p.waitForFunction(()=>window.MK95Account?.read().table.status==='confirmed');
   assert.equal(tableRewards,1);assert.deepEqual(await p.evaluate(()=>({xp:state.xp,coins:state.coins,history:state.attemptHistory?.length||0})),before);
