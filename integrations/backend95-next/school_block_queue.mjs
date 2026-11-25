@@ -1,4 +1,28 @@
-// First integration slice: completed multiplication-table blocks only.
+// Numeric/choice Grade 4 formats; column journals remain disabled until their own gate.
+export const SCHOOL_TOPICS=Object.freeze({
+ 'g4:table':'Таблица умножения',
+ 'g4:moro_order_1000':'Числовые выражения. Порядок действий',
+ 'g4:order':'Порядок действий',
+ 'g4:equations':'Выражения и уравнения',
+ 'g4:moro_missing_sub':'Неизвестное уменьшаемое и вычитаемое',
+ 'g4:moro_missing_add':'Неизвестное слагаемое',
+ 'g4:moro_missing_muldiv':'Неизвестный множитель, делимое и делитель'
+});
+export const STAGES=['Разминка','Тренировка','Мастерство'];
+export const COUNTS=[5,7,10], PASS=[4,5,8];
+export const stageOf=row=>row.stage??0;
+export const expectedAnswer=(topic,question)=>topic==='g4:table'?question.a*question.b:question.answer;
+export function stageAllowed(best,stage){return Number.isInteger(stage)&&stage>=0&&stage<3&&(stage===0||Number(best?.[stage-1]||0)>=PASS[stage-1]);}
+export function validateQuestion(topic,question){
+ if(topic==='g4:table'){
+  const {a,b}=question;if(!Number.isInteger(a)||!Number.isInteger(b)||a<2||b<2||a>9||b>9)throw Error('INVALID_QUESTION');
+  return {a,b};
+ }
+ const {expression,answer,steps,choices}=question;
+ if(typeof expression!=='string'||!expression||expression.length>300||!Number.isInteger(answer)||answer<0||answer>9999||!Array.isArray(steps)||steps.some(x=>typeof x!=='string'))throw Error('INVALID_QUESTION');
+ if(choices!==undefined&&(!Array.isArray(choices)||!choices.includes(answer)||new Set(choices).size!==choices.length||choices.some(x=>!Number.isInteger(x)||x<0||x>9999)))throw Error('INVALID_CHOICES');
+ return {expression,answer,steps,...(choices?{choices}:{})};
+}
 // The existing backend issues questions/permits and grades the full journal.
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const validId = x => typeof x === 'string' && uuid.test(x);
@@ -10,11 +34,11 @@ export function createSchoolBlockQueue({api, store, outbox}) {
   async function begin({pack,startedAt,permit}) {
     const s=identity(store.read());
     if(!s || !same(s.owner,s.profile) || !validId(s.owner) || !validId(s.profile)) throw Error('PROFILE_NOT_READY');
-    if(!validId(pack?.id) || pack.topic_id!=='g4:table' || !Array.isArray(pack.questions) || !pack.questions.length) throw Error('INVALID_BLOCK');
+    if(!validId(pack?.id) || !Object.hasOwn(SCHOOL_TOPICS,pack.topic_id) || !Number.isInteger(pack.stage) || pack.stage<0 || pack.stage>2 || !Array.isArray(pack.questions) || pack.questions.length!==COUNTS[pack.stage]) throw Error('INVALID_BLOCK');
     if(typeof startedAt!=='string' || !Number.isFinite(Date.parse(startedAt)) || !Number.isFinite(Date.parse(pack.expires_at)) || Date.parse(startedAt)>=Date.parse(pack.expires_at) || (!pack.full && !validId(permit))) throw Error('INVALID_START');
     const start={started_at:startedAt,...(!pack.full?{permit}:{})};
-    const questions=pack.questions.map(({a,b})=>{if(!Number.isInteger(a)||!Number.isInteger(b)||a<0||b<0||a>12||b>12)throw Error('INVALID_QUESTION');return {a,b};});
-    const row={key:keyOf(s.owner,s.profile,pack.id),owner:s.owner,profile:s.profile,pack:pack.id,topic:pack.topic_id,count:pack.questions.length,start,status:'draft',questions,index:0,revision:0,draft:questions.map(()=>({answer:'',checks:[],skipped:false,solved:false}))};
+    const questions=pack.questions.map(question=>validateQuestion(pack.topic_id,question));
+    const row={key:keyOf(s.owner,s.profile,pack.id),owner:s.owner,profile:s.profile,pack:pack.id,topic:pack.topic_id,stage:pack.stage,count:pack.questions.length,start,status:'draft',questions,index:0,revision:0,draft:questions.map(()=>({answer:'',checks:[],skipped:false,solved:false}))};
     return outbox.insert(row); // persist immutable identity and start before going offline
   }
   async function complete(key,items){
@@ -55,19 +79,20 @@ export function createSchoolBlockQueue({api, store, outbox}) {
 export function applyTableAction(row,revision,kind,value){
  if(row.status!=='draft'||row.revision!==revision)throw Error('DRAFT_CHANGED');
  const next=structuredClone(row),item=next.draft[next.index],question=next.questions[next.index];
- const numeric=String(value??'').replace(/[^0-9]/g,'').slice(0,3);
+ const numeric=String(value??'').replace(/[^0-9]/g,'').slice(0,next.topic==='g4:table'?3:4);
  if(kind==='input'&&!item.solved){item.answer=numeric;item.feedback='';}
  else if(kind==='check'&&!item.solved){
   item.answer=numeric;
   if(!numeric){item.feedback='Введи ответ.';}
   else{
    if(item.checks.length>=1000)throw Error('CHECK_LIMIT');
+   if(question.choices&&!question.choices.includes(Number(numeric)))throw Error('INVALID_CHOICE');
    item.checks.push({'answer:0':numeric});
-   item.solved=Number(numeric)===question.a*question.b;
-   item.feedback=item.solved?'Верно!':'Проверь произведение и попробуй ещё раз.';
+   item.solved=Number(numeric)===expectedAnswer(next.topic,question);
+   item.feedback=item.solved?'Верно!':'Проверь ответ и попробуй ещё раз.';
   }
  }else if((kind==='advance'&&item.solved)||(kind==='skip'&&!item.solved)){
-  if(kind==='skip'){item.answer=numeric;item.skipped=true;}
+  if(kind==='skip'){item.answer=question.choices&&!question.choices.includes(Number(numeric))?'':numeric;item.skipped=true;}
   if(next.index+1===next.count){
    next.body={...next.start,items:next.draft.map(x=>({checks:x.checks,skipped:x.skipped,...(x.skipped&&x.answer?{cells:{'answer:0':x.answer}}:{})}))};
    next.status='pending';

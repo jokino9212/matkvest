@@ -9,7 +9,8 @@ const props = defineProps({
 
 import {useAccountMode} from './accountMode.js';
 const {account,action:accountAction}=useAccountMode();
-const tableActions={close:()=>accountAction('tablePause'),back:()=>accountAction('tablePause'),abandon:()=>accountAction('tablePause'),input:event=>window.MK95Account?.tableAction('input',event),primary:()=>window.MK95Account?.tableAction('primary'),skip:()=>window.MK95Account?.tableAction('skip')};
+const tableActions={close:()=>accountAction('tablePause'),back:()=>accountAction('tablePause'),abandon:()=>accountAction('tablePause'),input:event=>window.MK95Account?.tableAction('input',event),primary:()=>window.MK95Account?.tableAction('primary'),skip:()=>window.MK95Account?.tableAction('skip'),pick:index=>window.MK95Account?.tableAction('pick',index)};
+function openSchool(topic,stage){window.MK95Account?.tableOpen(topic,stage)}
 function runLocal(action){if(account.value.mode==='local')props.actions.run(action)}
 function activateCard(event, action) {
   if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
@@ -34,9 +35,22 @@ function activateCard(event, action) {
       <p v-if="account.table.status === 'blocked'" role="alert">Результат сохранён, но сервер отклонил блок. Повторное начисление отключено.</p>
       <button v-if="account.table.status === 'pending'" type="button" class="btn soft" @click="accountAction('tableSync')">Повторить синхронизацию</button>
     </template>
-    <button v-else-if="account.table?.enabled" type="button" class="btn primary" :disabled="account.table.busy" data-mk95-table-open @click="accountAction('tableOpen')">Таблица умножения · 4 класс</button>
+    <section v-else-if="account.table?.enabled" class="training-history">
+      <h2>4 класс · Серверные тренировки</h2>
+      <p>Новый блок выдаётся при подключении. Сохранённый блок можно продолжить без сети.</p>
+      <article v-for="topic in account.table.catalogue" :key="topic.topic" class="report-card" style="display:block">
+        <b>{{ topic.title }}</b>
+        <div class="actions">
+          <button v-for="step in topic.stages" :key="step.stage" type="button" class="btn soft"
+            :disabled="account.table.busy || (!step.enabled && account.status!=='offline')"
+            :data-mk95-table-open="topic.topic==='g4:table'&&step.stage===0?'':null"
+            :data-mk95-topic="topic.topic" :data-mk95-stage="step.stage"
+            @click="openSchool(topic.topic,step.stage)">{{ step.label }} · {{ step.best }}</button>
+        </div>
+      </article>
+    </section>
     <p v-if="account.table?.error" role="alert">{{ account.table.error }}</p>
-    <p>В тестовом серверном режиме доступна разминка по таблице умножения. Остальные тренировки и покупки пока работают только локально.</p>
+    <p>В тестовом серверном режиме доступны числовые задания 4 класса. Столбики, остальные классы и покупки пока работают локально.</p>
     <button type="button" class="btn soft" @click="accountAction('open')">Аккаунт и выбор ученика</button>
     <button type="button" class="btn soft" @click="accountAction('local')">Локальный режим</button>
   </section>
