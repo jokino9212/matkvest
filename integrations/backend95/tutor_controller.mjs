@@ -21,7 +21,7 @@ export function createTutorController({api,store,mode,emit}){
  async function onAccount(){
   const sc=auth();
   if(!sc){reset();busy=false;notify();return;}
-  if(!same(scope)){reset();scope=sc;}
+  if(!same(scope)){reset();scope=sc;busy=false;}
   if(sc.role==='tutor')await load(sc);
  }
  const read=()=>{

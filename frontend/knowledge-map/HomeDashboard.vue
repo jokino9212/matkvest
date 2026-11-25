@@ -18,7 +18,7 @@ import {useAccountMode} from './accountMode.js';
 const {account,action:accountAction}=useAccountMode();
 const inviteCode=ref(''),consent=ref(false);
 watch(()=>account.value.selectedId,()=>{inviteCode.value='';consent.value=false});
-function tutorRun(action,arg){window.MK95Account?.tutorRun(action,arg)}
+function tutorRun(action,arg){if(['unlink','student-unlink'].includes(action)&&!window.confirm('Прекратить доступ преподавателя к учебным результатам?'))return;window.MK95Account?.tutorRun(action,arg)}
 const tutorActions={close:()=>accountAction('open'),search:q=>tutorRun('search',q),open:id=>tutorRun('report',{id}),run:tutorRun};
 function acceptTutor(){if(consent.value){const code=inviteCode.value.trim();inviteCode.value='';consent.value=false;tutorRun('accept',{code,consent:true})}}
 const shopCategory=ref('avatars');

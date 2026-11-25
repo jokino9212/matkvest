@@ -7,6 +7,9 @@ const policyHash=createHash('sha256').update(rawPolicy).digest('hex');
 assert.equal(policyHash,'e12e0b972331ecf508f40a0e9a5b285d205807844222d2191260d91a88e54c43');
 const policy={...JSON.parse(rawPolicy),policy_sha256:policyHash},defs=new Map(policy.items.map(i=>[i.id,i]));
 const owner='ea436d1d-0123-4f25-8ae9-df61e8a85370',foreign='ea436d1d-0123-4f25-8ae9-df61e8a85371';
+const tutor1='aa436d1d-0123-4f25-8ae9-df61e8a85370',tutor2='aa436d1d-0123-4f25-8ae9-df61e8a85371';
+const identities={student:{id:owner,role:'student'},other:{id:foreign,role:'student'},tutor:{id:tutor1,role:'tutor'},tutor2:{id:tutor2,role:'tutor'}};
+const invitations=new Map(),links=new Map(),licenses=new Map(),allocated=new Map();let inviteNo=0;
 const A='a1436d1d-0123-4f25-8ae9-df61e8a85370',B='b1436d1d-0123-4f25-8ae9-df61e8a85370',C='c1436d1d-0123-4f25-8ae9-df61e8a85370';
 const D='d1436d1d-0123-4f25-8ae9-df61e8a85370',E='ee436d1d-0123-4f25-8ae9-df61e8a85370';
 const profiles=[{id:A,user_id:owner,display_name:'Сервер А',xp_total:115},{id:B,user_id:owner,display_name:'Сервер Б',xp_total:250},{id:C,user_id:foreign,display_name:'Чужой ученик',xp_total:999},{id:D,user_id:owner,display_name:'Сервер Д',xp_total:0},{id:E,user_id:owner,display_name:'Экономика',xp_total:10000}];
@@ -60,20 +63,56 @@ const server=createServer(async(req,res)=>{
  try{
   const u=new URL(req.url,'http://127.0.0.1');
   if(u.pathname.startsWith('/api/v1/')){
-   const path=u.pathname.slice(7),session=/mq_session=(student|other)/.exec(req.headers.cookie||'')?.[1];
-   const uid=session==='student'?owner:session==='other'?foreign:null;
+   const path=u.pathname.slice(7),session=/mq_session=(student|other|tutor2|tutor)(?:;|$)/.exec(req.headers.cookie||'')?.[1];
+   const actor=identities[session],uid=actor?.id;
    if(req.method!=='GET')mutations.push(path);
    if(path==='/auth/login'&&req.method==='POST'){
     let raw='';for await(const chunk of req)raw+=chunk;const body=JSON.parse(raw);
-    if(body.password!=='test-password'||!['student@example.test','other@example.test'].includes(body.email))return json(res,401,{error:{code:'INVALID_CREDENTIALS'}});
-    const type=body.email.startsWith('student')?'student':'other';
-    return json(res,200,{user:{id:type==='student'?owner:foreign,role:'student'},csrf_token:'test-csrf'},{'Set-Cookie':'mq_session='+type+'; Path=/; HttpOnly; SameSite=Lax'});
+    if(body.password!=='test-password'||!Object.hasOwn(identities,body.email.split('@')[0])||!body.email.endsWith('@example.test'))return json(res,401,{error:{code:'INVALID_CREDENTIALS'}});
+    const type=body.email.split('@')[0];
+    return json(res,200,{user:identities[type],csrf_token:'test-csrf'},{'Set-Cookie':'mq_session='+type+'; Path=/; HttpOnly; SameSite=Lax'});
    }
    if(!uid)return json(res,401,{error:{code:'UNAUTHORIZED'}});
    if(path==='/auth/logout'&&req.method==='POST'){assert.equal(req.headers['x-csrf-token'],'test-csrf');return json(res,200,{ok:true},{'Set-Cookie':'mq_session=; Path=/; Max-Age=0; HttpOnly; SameSite=Lax'})}
    if(path==='/auth/csrf')return json(res,200,{csrf_token:'test-csrf'});
-   if(path==='/auth/me')return json(res,200,{id:uid,role:'student'});
-   if(path==='/student/profiles')return json(res,200,profiles.filter(p=>p.user_id===uid));
+   if(path==='/auth/me')return json(res,200,actor);
+   if(path==='/student/profiles')return actor.role==='student'?json(res,200,profiles.filter(p=>p.user_id===uid)):json(res,403,{error:{code:'ROLE_FORBIDDEN'}});
+   const linkMatch=/^\/student\/profiles\/([^/]+)\/tutor-link$/.exec(path);
+   if(linkMatch){
+    const id=linkMatch[1];if(actor.role!=='student'||!profiles.some(p=>p.id===id&&p.user_id===uid))return json(res,404,{error:{code:'PROFILE_NOT_FOUND'}});
+    if(req.method==='GET')return json(res,200,{profile_id:id,linked:links.has(id)});
+    assert.equal(req.headers['x-csrf-token'],'test-csrf');const tid=links.get(id);links.delete(id);allocated.set(tid,(allocated.get(tid)||[]).filter(x=>x!==id));return json(res,200,{ok:true});
+   }
+   if(path==='/student/tutor-links/accept'){
+    assert.equal(req.headers['x-csrf-token'],'test-csrf');let raw='';for await(const x of req)raw+=x;const body=JSON.parse(raw),inv=Array.from(invitations.values()).find(x=>x.code===body.code);
+    if(actor.role!=='student'||!profiles.some(p=>p.id===body.student_profile_id&&p.user_id===uid))return json(res,404,{error:{code:'PROFILE_NOT_FOUND'}});
+    if(!body.consent)return json(res,422,{error:{code:'CONSENT_REQUIRED'}});
+    if(!inv||inv.used||inv.revoked)return json(res,410,{error:{code:'INVITATION_INVALID'}});
+    if(links.has(body.student_profile_id))return json(res,409,{error:{code:'ALREADY_LINKED'}});
+    inv.used=true;links.set(body.student_profile_id,inv.owner);return json(res,201,{student_profile_id:body.student_profile_id});
+   }
+   if(path.startsWith('/tutor/')||path==='/me/license'){
+    if(actor.role!=='tutor')return json(res,403,{error:{code:'ROLE_FORBIDDEN'}});
+    const own=profiles.filter(p=>links.get(p.id)===uid),lic=licenses.get(uid)||null;
+    const seats=()=>({limit:lic?.seat_limit||0,allocated:(allocated.get(uid)||[]).length,available:(lic?.seat_limit||0)-(allocated.get(uid)||[]).length,linked_student_ids:allocated.get(uid)||[]});
+    if(req.method!=='GET')assert.equal(req.headers['x-csrf-token'],'test-csrf');
+    if(path==='/tutor/students')return json(res,200,{students:own.map(p=>({profile_id:p.id,display_name:p.display_name,learning_sync_status:'not_connected'}))});
+    if(path==='/me/license')return json(res,200,{license:lic});
+    if(path==='/tutor/trial'&&req.method==='POST'){const license={plan_code:'tutor_5',seat_limit:5,ends_at:new Date(Date.now()+86400000).toISOString()};licenses.set(uid,license);return json(res,201,{license});}
+    if(path==='/tutor/seats'){
+     if(req.method==='PUT'){let raw='';for await(const x of req)raw+=x;const ids=JSON.parse(raw).student_profile_ids;assert(lic&&ids.length<=lic.seat_limit&&ids.every(id=>own.some(p=>p.id===id)));allocated.set(uid,ids);}
+     return json(res,200,seats());
+    }
+    if(path==='/tutor/invitations'&&req.method==='POST'){const id='invite-'+(++inviteNo),inv={invitation_id:id,code:'test-only-code-'+String(inviteNo).padStart(32,'0'),expires_at:new Date(Date.now()+900000).toISOString(),owner:uid};invitations.set(id,inv);return json(res,201,inv);}
+    if(path.startsWith('/tutor/invitations/')&&req.method==='DELETE'){const inv=invitations.get(path.split('/').at(-1));if(!inv||inv.owner!==uid||inv.used)return json(res,404,{error:{code:'INVITATION_NOT_FOUND'}});inv.revoked=true;return json(res,200,{ok:true});}
+    const m=/^\/tutor\/students\/([^/]+)(\/report)?$/.exec(path);
+    if(m){const p=own.find(p=>p.id===m[1]);if(!p)return json(res,404,{error:{code:'STUDENT_NOT_FOUND'}});
+     if(req.method==='DELETE'){links.delete(p.id);allocated.set(uid,(allocated.get(uid)||[]).filter(id=>id!==p.id));return json(res,200,{ok:true});}
+     const all=Array.from(receipts.values()).filter(r=>r.profile===p.id);
+     const offset=Number(u.searchParams.get('offset')||0),rows=all.slice(offset,offset+50).map(r=>({id:'server.'+r.receipt.id,title:r.topic,date:'2026-11-20T12:00:00Z',correct:r.receipt.summary.correct,corrected:r.receipt.summary.corrected,skipped:r.receipt.summary.skipped,total:counts[r.stage]}));
+     return json(res,200,{profile_id:p.id,display_name:p.display_name,source:'verified_server',total_attempts:all.length,offset,next_offset:offset+50<all.length?offset+50:null,rows,page_stats:{attempts:rows.length,questions:rows.reduce((n,r)=>n+r.total,0),correct:rows.reduce((n,r)=>n+r.correct,0),corrected:rows.reduce((n,r)=>n+r.corrected,0),skipped:rows.reduce((n,r)=>n+r.skipped,0)},access:{full:(allocated.get(uid)||[]).includes(p.id)}});
+    }
+   }
    const economy=/^\/student\/profiles\/([^/]+)\/economy\/(catalog|state|operations)$/.exec(path);
    if(economy){
     const [,id,kind]=economy;if(!profiles.some(p=>p.id===id&&p.user_id===uid)||id!==E)return json(res,404,{error:{code:'NOT_FOUND'}});
@@ -549,4 +588,50 @@ async function runEconomy(browser,url){
  }catch(e){console.log('ECONOMY_DIAGNOSTICS',JSON.stringify({errors,apiTrace:apiTrace.slice(-25),ui:await p.evaluate(()=>({status:window.MK95Account?.read().status,operation:window.MK95Account?.read().operation,view:window.MK95Account?.read().economy?.view,mission:window.MK95Account?.read().mission})).catch(()=>null)}));throw e}
  finally{await ctx.close()}
 }
-(async()=>{await new Promise(r=>server.listen(0,'127.0.0.1',r));const browser=await chromium.launch({headless:true,args:['--no-sandbox']});try{const url='http://127.0.0.1:'+server.address().port+'/';await run(browser,url,390);await run(browser,url,1280);assert(mutations.every(p=>['/auth/login','/auth/logout'].includes(p)));console.log('PASS_NO_GAMEPLAY_MUTATIONS',mutations);await runTable(browser,url);await runColumns(browser,url);await runGrade5(browser,url);await runEconomy(browser,url)}finally{await browser.close();await new Promise(r=>server.close(r))}})().catch(e=>{console.error(e);process.exitCode=1});
+async function runTutor(browser,url){
+ const t=await browser.newContext({viewport:{width:390,height:850}}),s=await browser.newContext({viewport:{width:1280,height:850}}),f=await browser.newContext(),p=await t.newPage(),q=await s.newPage(),r=await f.newPage(),errors=[];
+ for(const page of [p,q,r]){page.on('pageerror',e=>errors.push(e.message));page.on('dialog',d=>d.accept());}
+ async function login(page,name,profile){
+  await page.goto(url);await page.locator('#appHeader[data-v-app]').waitFor();await page.waitForFunction(()=>!!window.MK95Account);
+  await page.locator('#appHeader').getByRole('button',{name:'Аккаунт',exact:true}).click();
+  const d=page.getByRole('dialog',{name:'Аккаунт МатКвест'});
+  await d.getByLabel('Электронная почта').fill(name+'@example.test');await d.getByLabel('Пароль',{exact:true}).fill('test-password');await d.getByRole('button',{name:'Войти',exact:true}).click();
+  if(profile){await d.getByRole('combobox',{name:'Серверный ученик'}).selectOption(profile);await page.waitForFunction(id=>window.MK95Account.read().snapshot?.profile.id===id,profile);}
+  else await page.waitForFunction(()=>window.MK95Account.read().status==='tutor-ready');
+  await d.getByRole('button',{name:'Закрыть',exact:true}).click();
+ }
+ try{
+  await login(p,'tutor');await p.getByRole('button',{name:'Создать приглашение',exact:true}).click();
+  const code=await p.getByLabel('Код приглашения преподавателя').inputValue();
+  await login(q,'student',A);
+  await q.getByLabel('Код приглашения',{exact:true}).fill(code);
+  assert(await q.getByRole('button',{name:'Принять приглашение'}).isDisabled());
+  await q.getByRole('checkbox',{name:/Согласен предоставить/}).check();
+  await q.getByRole('button',{name:'Принять приглашение'}).click();
+  await q.getByRole('button',{name:'Отозвать доступ преподавателя'}).waitFor();
+  assert.equal(links.get(A),tutor1);
+  await p.getByRole('button',{name:'Обновить данные'}).click();await p.locator('[data-mk95-linked-student="'+A+'"]').waitFor();
+  await p.getByRole('button',{name:'Активировать пробный период'}).click();
+  await p.getByRole('checkbox',{name:'Сервер А',exact:true}).check();
+  await p.getByRole('button',{name:'Сохранить распределение мест'}).click();
+  await p.waitForFunction(id=>window.MK95Account.read().tutor?.data?.seats.linked_student_ids.includes(id),A);
+  await p.locator('[data-mk95-linked-student="'+A+'"]').getByRole('button',{name:'Учебный отчёт'}).click();
+  await p.locator('[data-mk95-tutor-report]').waitFor();
+  assert.equal(await p.evaluate(()=>window.MK95Account.read().tutor.report.total_attempts),used(A));
+  await login(r,'tutor2');assert.equal(await r.evaluate(async id=>(await fetch('/api/v1/tutor/students/'+id+'/report')).status,A),404);
+  await q.getByRole('button',{name:'Отозвать доступ преподавателя'}).click();
+  await q.getByRole('button',{name:'Принять приглашение'}).waitFor();
+  await p.getByRole('button',{name:'Обновить данные'}).click();
+  await p.getByText('Пока нет связанных учеников.',{exact:true}).waitFor();
+  assert.equal(await p.evaluate(async id=>(await fetch('/api/v1/tutor/students/'+id+'/report')).status,A),404);
+  assert.equal(await p.locator('[data-mk95-tutor-report]').count(),0);
+  await p.getByRole('button',{name:'Создать приглашение',exact:true}).click();await p.getByLabel('Код приглашения преподавателя').waitFor();
+  await p.getByRole('button',{name:'Отозвать приглашение',exact:true}).click();await p.getByLabel('Код приглашения преподавателя').waitFor({state:'detached'});
+  await p.evaluate(()=>navigator.serviceWorker.ready);await p.waitForFunction(()=>!!navigator.serviceWorker.controller);
+  await t.setOffline(true);await p.waitForFunction(()=>window.MK95Account.read().status==='offline');await p.reload();
+  await p.waitForFunction(()=>window.MK95Account?.read().status==='offline');assert.equal(await p.locator('[data-mk95-tutor]').count(),0);
+  await t.setOffline(false);await p.waitForFunction(()=>window.MK95Account.read().status==='tutor-ready');
+  assert.deepEqual(errors,[]);console.log('PASS_TUTOR_UI invite, explicit consent, trial, seats, verified report, foreign denial, unlink, revoke, offline F5');
+ }finally{await Promise.all([t.close(),s.close(),f.close()])}
+}
+(async()=>{await new Promise(r=>server.listen(0,'127.0.0.1',r));const browser=await chromium.launch({headless:true,args:['--no-sandbox']});try{const url='http://127.0.0.1:'+server.address().port+'/';await run(browser,url,390);await run(browser,url,1280);assert(mutations.every(p=>['/auth/login','/auth/logout'].includes(p)));console.log('PASS_NO_GAMEPLAY_MUTATIONS',mutations);await runTable(browser,url);await runColumns(browser,url);await runGrade5(browser,url);await runEconomy(browser,url);await runTutor(browser,url)}finally{await browser.close();await new Promise(r=>server.close(r))}})().catch(e=>{console.error(e);process.exitCode=1});
