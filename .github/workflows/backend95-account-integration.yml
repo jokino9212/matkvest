@@ -28,6 +28,8 @@ jobs:
           python3 audits/build_backend95_account.py "${{ runner.temp }}/backend95-site"
       - name: Browser integration against synthetic same-origin API
         run: node audits/backend95_account_browser.cjs "${{ runner.temp }}/backend95-site"
+      - name: Isolated school block queue IndexedDB regression
+        run: node audits/backend95_school_queue_browser.cjs
       - uses: actions/upload-artifact@v4
         with:
           name: matkvest-v290-backend95-readonly-candidate
