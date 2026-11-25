@@ -22,6 +22,8 @@ jobs:
       - run: npm ci && npm install --no-save --no-package-lock playwright@1.56.1
       - name: Test shared account state
         run: node audits/backend95_account_store.test.mjs
+      - name: Economy controller lost receipt regression
+        run: node audits/backend95_economy_operations.test.mjs
       - name: Build isolated Vue and SHA-fenced PWA
         run: |
           npm run build:knowledge-map

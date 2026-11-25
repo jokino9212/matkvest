@@ -12,7 +12,7 @@ const D='d1436d1d-0123-4f25-8ae9-df61e8a85370',E='ee436d1d-0123-4f25-8ae9-df61e8
 const profiles=[{id:A,user_id:owner,display_name:'Сервер А',xp_total:115},{id:B,user_id:owner,display_name:'Сервер Б',xp_total:250},{id:C,user_id:foreign,display_name:'Чужой ученик',xp_total:999},{id:D,user_id:owner,display_name:'Сервер Д',xp_total:0},{id:E,user_id:owner,display_name:'Экономика',xp_total:10000}];
 const balance={[A]:41,[B]:82,[C]:999,[D]:0,[E]:2000};
 const collections={[A]:{items:[{id:'av_fox',category:'avatars',source:'migration',paid_price:120}],equipped:[{slot:'avatar',position:0,item_id:'av_fox'}],achievements:[{id:'solved10',source:'server',reward_recorded:true,unlocked_at:null}]},[B]:{items:[{id:'pet_cat',category:'pets',source:'migration',paid_price:null}],equipped:[],achievements:[]},[C]:{items:[{id:'av_dino',category:'avatars',source:'migration',paid_price:null}],equipped:[],achievements:[]},[D]:{items:[],equipped:[],achievements:[]},[E]:{items:[],equipped:[],achievements:[]}};
-const econReceipts=new Map(),econHistory=[],everOwned=new Set();let econMission=null,econDrop=false,econWrites=0,econCommits=0;
+const econReceipts=new Map(),econHistory=[],everOwned=new Set();let econMission=null,econWrites=0,econCommits=0;
 const mutations=[],apiTrace=[],receipts=new Map();let tablePuts=0,tableRewards=0,tablePackNo=0;
 const questions=[{a:2,b:3},{a:3,b:4},{a:4,b:5},{a:5,b:6},{a:6,b:7}];
 const counts=[5,7,10],pass=[4,5,8],issued=new Map(),spent=new Set();
@@ -97,7 +97,6 @@ const server=createServer(async(req,res)=>{
     }else if(body.action==='chest'){assert.equal(body.expected_price,policy.chest_price);assert(balance[id]>=policy.chest_price);balance[id]-=policy.chest_price;const picked=defs.get(policy.pools.rare.find(k=>!everOwned.has(k)));grant(picked,'chest',0);econHistory.unshift({rarity:'rare',item_id:picked.id,compensation:0,date:new Date().toISOString()});}
     else throw Error('Unsupported operation');
     econCommits++;const receipt={profile_id:id,operation_id:key,action:body.action,balance:balance[id],wallet_revision:econCommits};econReceipts.set(key,{body,receipt});
-    if(econDrop){econDrop=false;res.destroy();return;}
     return json(res,200,receipt);
    }
    const training=/^\/student\/profiles\/([^/]+)\/offline-school(?:\/([^/]+))?$/.exec(path);
@@ -475,6 +474,27 @@ async function runGrade5(browser,url){
 async function runEconomy(browser,url){
  const ctx=await browser.newContext({viewport:{width:390,height:850}}),p=await ctx.newPage(),errors=[];
  p.on('pageerror',e=>errors.push(e.message));p.on('dialog',d=>d.accept());
+ // Deliver the POST to the fixture, then reject its successful response at the
+ // fetch boundary. A destroyed socket can be retried by browser networking;
+ // this explicitly models a committed write whose receipt the client never sees.
+ await p.addInitScript(()=>{
+  const fetchOriginal=window.fetch.bind(window);
+  window.__mk95DropBuyReceipt=false;
+  window.__mk95DroppedBuyReceipt=null;
+  window.fetch=async (input,init)=>{
+   const url=typeof input==='string'?input:input.url;
+   let body=null;try{body=JSON.parse(init?.body||'null')}catch{}
+   const drop=window.__mk95DropBuyReceipt&&init?.method==='POST'&&url.endsWith('/economy/operations')&&body?.action==='buy'&&body?.item_id==='pet_bot';
+   if(drop)window.__mk95DropBuyReceipt=false;
+   const response=await fetchOriginal(input,init);
+   if(drop&&response.ok){
+    const receipt=await response.clone().json();
+    window.__mk95DroppedBuyReceipt=receipt.operation_id;
+    throw new TypeError('Injected loss of committed purchase receipt');
+   }
+   return response;
+  };
+ });
  try{
   await p.goto(url);await p.locator('#appHeader[data-v-app]').waitFor();await p.waitForFunction(()=>!!window.MK95Account);
   const before=await p.evaluate(()=>({xp:state.xp,coins:state.coins,history:state.attemptHistory?.length||0})),others=[balance[A],balance[B],balance[C],balance[D]];
@@ -489,15 +509,17 @@ async function runEconomy(browser,url){
   await openShop('stickers');await card('st_pi').getByRole('button',{name:'Купить за 25 🪙'}).click();await waitBalance(1975);assert.equal(econCommits,1);
   await p.locator('#appHeader').getByRole('button',{name:'Коллекция',exact:true}).click();
   const pi=p.locator('[data-collection-item="st_pi"]');await pi.getByRole('button',{name:'Выбрать',exact:true}).click();await p.waitForFunction(()=>window.MK95Account.read().snapshot?.collection.equipped.some(i=>i.item_id==='st_pi')&&!window.MK95Account.read().operation.busy);
-  await openShop('pets');econDrop=true;
+  await openShop('pets');await p.evaluate(()=>{window.__mk95DropBuyReceipt=true});
   await card('pet_bot').getByRole('button',{name:'Купить за 240 🪙'}).click();
   await p.waitForFunction(()=>window.MK95Account.read().operation?.pending&&!window.MK95Account.read().operation.busy);
-  assert.equal(balance[E],1735);assert.equal(econCommits,3);
+  assert.equal(balance[E],1735);assert.equal(econCommits,3);assert.equal(econWrites,3);
+  const lostKey=await p.evaluate(()=>window.__mk95DroppedBuyReceipt);assert(lostKey);assert.equal(econReceipts.get(lostKey)?.body.item_id,'pet_bot');
+  console.log('PASS_ECONOMY_COMMITTED_RECEIPT_LOSS');
   await p.reload();await p.locator('[data-mk95-economy-retry]').waitFor();
   // Another profile must not see/retry the first profile's pending purchase.
   await account();await choose(B);assert.equal(await p.locator('[data-mk95-economy-retry]').count(),0);
   await account();await choose(E);await p.locator('[data-mk95-economy-retry]').click();await waitBalance(1735);
-  await p.waitForFunction(()=>!window.MK95Account.read().operation.pending);assert.equal(econCommits,3);assert.equal(econWrites,4);
+  await p.waitForFunction(()=>!window.MK95Account.read().operation.pending);assert.equal(econCommits,3);assert.equal(econWrites,4);assert.equal(econReceipts.size,3);assert(econReceipts.has(lostKey));console.log('PASS_ECONOMY_SAME_UUID_RETRY');
   await openShop('pets');await card('pet_none').getByRole('button',{name:'Выбрать',exact:true}).click();await p.waitForFunction(()=>window.MK95Account.read().snapshot?.collection.equipped.some(i=>i.item_id==='pet_none')&&!window.MK95Account.read().operation.busy);
   await card('pet_bot').getByRole('button',{name:'Продать'}).click();
   await p.getByRole('button',{name:'Продать сейчас',exact:true}).click();await waitBalance(1831);assert.equal(econCommits,5);
