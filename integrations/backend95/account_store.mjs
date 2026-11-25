@@ -1,5 +1,5 @@
-import {MatKvestApiClient} from './stage29_api_client.mjs?v=298';
-import {validateCollection,validateEconomy} from './economy_read.mjs?v=298';
+import {MatKvestApiClient} from './stage29_api_client.mjs?v=299';
+import {validateCollection,validateEconomy} from './economy_read.mjs?v=299';
 export function createAccountStore(api=new MatKvestApiClient(), options={}){
  let current={status:'local',user:null,profiles:[],selectedId:null,snapshot:null}, revision=0, authBusy=false;
  // Persist only a non-sensitive logout intent, never a session or account snapshot.
@@ -18,11 +18,11 @@ export function createAccountStore(api=new MatKvestApiClient(), options={}){
   update({selectedId:id,snapshot:null,status:'loading'});remember();
   try{
    const optional=async endpoint=>{try{return await api.request('GET',path+endpoint)}catch(error){if([403,404,503].includes(error.status))return null;throw error}};
-   const [wallet,progress,entitlements,history,collection,profiles,catalog,economyState]=await Promise.all([api.request('GET','/student-profiles/'+encodeURIComponent(id)+'/wallet'),api.request('GET',path+'/progress'),api.getStudentEntitlements(id),api.request('GET',path+'/history?limit=50'),api.request('GET',path+'/collection'),api.request('GET','/student/profiles'),optional('/economy/catalog'),optional('/economy/state')]);
+   const [wallet,progress,entitlements,history,collection,profiles,catalog,economyState,tutorLink]=await Promise.all([api.request('GET','/student-profiles/'+encodeURIComponent(id)+'/wallet'),api.request('GET',path+'/progress'),api.getStudentEntitlements(id),api.request('GET',path+'/history?limit=50'),api.request('GET',path+'/collection'),api.request('GET','/student/profiles'),optional('/economy/catalog'),optional('/economy/state'),optional('/tutor-link')]);
    if(token!==revision)return;
    const p=Array.isArray(profiles)?profiles.find(x=>x.id===id):null;
    if(!p||profiles.some(x=>x.user_id&&x.user_id!==owner)||wallet.profile_id!==id||!Number.isSafeInteger(wallet.balance)||wallet.balance<0||!Array.isArray(progress.course_progress)||!Array.isArray(history.attempts))throw new Error('PROFILE_RESPONSE_INVALID');
-   update({profiles,snapshot:{profile:p,wallet,progress,entitlements,history,collection:validateCollection(collection),economy:validateEconomy(catalog,economyState,id)},status:'ready'});
+   update({profiles,snapshot:{profile:p,wallet,progress,entitlements,history,collection:validateCollection(collection),economy:validateEconomy(catalog,economyState,id),tutorLink:tutorLink?.profile_id===id&&typeof tutorLink.linked==='boolean'?tutorLink:null},status:'ready'});
   }catch(e){onError(e,token);}
  }
  async function connect(kind,email,password){
@@ -36,6 +36,7 @@ export function createAccountStore(api=new MatKvestApiClient(), options={}){
    const user=kind==='login'?await api.login(email,password):await api.resumeSession();
    if(token!==revision)return;
    if(kind==='login')options.authChanged?.();
+   if(user.role==='tutor'){update({user,profiles:[],selectedId:null,snapshot:null,status:'tutor-ready'});return;}
    if(user.role!=='student'){clear('unsupported-role');return;}
    const profiles=await api.request('GET','/student/profiles');
    if(token!==revision)return;

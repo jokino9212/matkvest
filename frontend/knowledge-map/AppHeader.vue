@@ -70,13 +70,15 @@ onUnmounted(() => {
   <header v-if="account.mode === 'server'" ref="header" class="top" data-mk95-server>
     <button type="button" class="brand" @click="accountAction('home')"><span class="logo">M</span><span>МатКвест</span></button>
     <div class="stats" data-mk-ui19-menu="open">
-      <button type="button" class="pill profile-pill" @click="accountAction('open')" data-mk95-account><span data-mk95-name>{{ account.snapshot?.profile.display_name || 'Выбрать ученика' }}</span></button>
+      <button type="button" class="pill profile-pill" @click="accountAction('open')" data-mk95-account><span data-mk95-name>{{ account.user?.role==='tutor'?'Преподаватель':account.snapshot?.profile.display_name || 'Выбрать ученика' }}</span></button>
+      <template v-if="account.user?.role!=='tutor'">
       <div class="pill" aria-label="Серверный XP"><span data-mk95-xp>{{ account.snapshot ? account.snapshot.profile.xp_total + ' XP' : '— XP' }}</span></div>
       <button type="button" class="pill" @click="accountAction('progress')" aria-label="Мой учебный прогресс">Уровень {{ account.snapshot?.level.currentLevel ?? '—' }}</button>
       <button type="button" class="pill" aria-label="Серверные монеты" @click="accountAction('wallet')"><span class="ui-glyph ui-coin" aria-hidden="true"></span> <span data-mk95-coins>{{ account.snapshot?.wallet.balance ?? '—' }}</span></button>
       <button type="button" class="pill" @click="accountAction('shop')">Магазин</button>
       <button type="button" class="pill" @click="accountAction('collection')">Коллекция</button>
       <button type="button" class="pill" @click="accountAction('journal')">Журнал</button>
+      </template>
       <button type="button" class="pill" @click="accountAction('open')">Аккаунт</button>
     </div>
   </header>

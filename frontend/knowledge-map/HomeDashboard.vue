@@ -6,6 +6,7 @@ import CollectionSection from './CollectionSection.vue';
 import StoreCatalog from './StoreCatalog.vue';
 import StoreChest from './StoreChest.vue';
 import StoreSaleDialog from './StoreSaleDialog.vue';
+import TeacherDashboard from './TeacherDashboard.vue';
 import {ref,computed,watch} from 'vue';
 
 const props = defineProps({
@@ -15,6 +16,11 @@ const props = defineProps({
 
 import {useAccountMode} from './accountMode.js';
 const {account,action:accountAction}=useAccountMode();
+const inviteCode=ref(''),consent=ref(false);
+watch(()=>account.value.selectedId,()=>{inviteCode.value='';consent.value=false});
+function tutorRun(action,arg){window.MK95Account?.tutorRun(action,arg)}
+const tutorActions={close:()=>accountAction('open'),search:q=>tutorRun('search',q),open:id=>tutorRun('report',{id}),run:tutorRun};
+function acceptTutor(){if(consent.value){const code=inviteCode.value.trim();inviteCode.value='';consent.value=false;tutorRun('accept',{code,consent:true})}}
 const shopCategory=ref('avatars');
 const shopSection=computed(()=>account.value.economy?.catalogSections.find(s=>s.id===shopCategory.value)||account.value.economy?.catalogSections[0]);
 const saleId=ref(null);
@@ -67,6 +73,8 @@ function activateCard(event, action) {
   <section v-if="account.mode === 'server'" class="home-start" data-mk95-server>
     <h1>МатКвест</h1>
     <p role="status">{{ account.message }}</p>
+    <TeacherDashboard v-if="account.user?.role==='tutor'" :model="{server:true,...account.tutor}" :actions="tutorActions" />
+    <template v-else>
     <template v-if="account.snapshot">
       <h2>{{ account.snapshot.profile.display_name }}</h2>
       <p>Подтверждено сервером: {{ account.snapshot.profile.xp_total }} XP · {{ account.snapshot.wallet.balance }} монет</p>
@@ -74,6 +82,17 @@ function activateCard(event, action) {
       <button type="button" class="mk19f-home-open" data-mk95-progress @click="accountAction('progress')">Мой прогресс</button>
       <button type="button" class="btn soft" data-mk95-journal @click="accountAction('journal')">Журнал попыток</button>
     </template>
+    <section v-if="account.snapshot?.tutorLink" class="teacher-panel" data-mk95-tutor-link>
+      <h2>Связь с преподавателем</h2>
+      <p v-if="account.snapshot.tutorLink.linked">Преподавателю доступны подтверждённые учебные результаты.</p>
+      <button v-if="account.snapshot.tutorLink.linked" type="button" class="btn soft" :disabled="account.tutor?.busy" @click="tutorRun('student-unlink')">Отозвать доступ преподавателя</button>
+      <form v-else @submit.prevent="acceptTutor">
+        <label>Код приглашения <input v-model="inviteCode" aria-label="Код приглашения" maxlength="256" autocomplete="off" required></label>
+        <label><input v-model="consent" type="checkbox"> Согласен предоставить преподавателю доступ к учебным результатам этого ученика</label>
+        <button type="submit" class="btn primary" :disabled="!consent || inviteCode.trim().length<32 || account.tutor?.busy">Принять приглашение</button>
+      </form>
+      <p v-if="account.tutor?.error" role="alert">{{ account.tutor.error }}</p>
+    </section>
     <p v-if="account.operation?.error" role="alert">{{ account.operation.error }}</p>
     <button v-if="account.operation?.pending" type="button" class="btn soft" data-mk95-economy-retry :disabled="account.operation.busy" @click="accountAction('economyRetry')">Повторить ожидающую операцию</button>
     <p v-if="account.mission">Выгодная продажа: {{ account.mission.progress }}/{{ account.mission.required }} правильных заданий.
@@ -122,6 +141,7 @@ function activateCard(event, action) {
     </section>
     <p v-if="account.table?.error" role="alert">{{ account.table.error }}</p>
     <p>В тестовом серверном режиме доступны 18 тренажёров 4–5 классов. Остальные темы доступны только в отдельном локальном режиме.</p>
+    </template>
     <button type="button" class="btn soft" @click="accountAction('open')">Аккаунт и выбор ученика</button>
     <button type="button" class="btn soft" @click="accountAction('local')">Локальный режим</button>
   </section>
