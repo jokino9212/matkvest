@@ -1,5 +1,6 @@
-import {createSchoolBlockQueue,indexedSchoolOutbox,SCHOOL_TOPICS,STAGES,COUNTS,PASS,stageOf,stageAllowed} from './school_block_queue.mjs?v=294';
-// Numeric and choice topics, no calls to legacy state, reward or save routines.
+import {createSchoolBlockQueue,indexedSchoolOutbox,SCHOOL_TOPICS,STAGES,COUNTS,PASS,stageOf,stageAllowed,isColumn,validateQuestion} from './school_block_queue.mjs?v=295';
+import {columnView,readColumnCells,moveColumnCell,normalizeColumnCell} from './column_training.mjs?v=295';
+// Shared school trainer; no calls to legacy reward or save routines.
 export function createTableTraining({api,store,mode,emit,sessionGet,sessionSet}){
  const db=indexedSchoolOutbox(),queue=createSchoolBlockQueue({api,store,outbox:db});
  const bindingKey='mk95-table-binding',openKey='mk95-table-open',eventKey='mk95-auth-change';
@@ -27,7 +28,7 @@ export function createTableTraining({api,store,mode,emit,sessionGet,sessionSet})
   const done=items.filter(x=>x.solved||x.skipped).length,correct=items.filter(x=>x.solved&&x.checks.length===1).length;
   const finished=r.status!=='draft',confirmed=r.status==='confirmed';
   const summary=confirmed?r.receipt?.summary:{correct,corrected:items.filter(x=>x.solved&&x.checks.length>1).length,skipped:items.filter(x=>x.skipped).length,passed:correct>=PASS[stageOf(r)]||(stageOf(r)===2&&correct===7&&items.some(x=>x.solved&&x.checks.length>1)),pending:true};
-  return {enabled:true,open:true,busy,error,status:r.status,revision:r.revision,index:r.index,model:{title:'4 класс · '+SCHOOL_TOPICS[r.topic],rootId:'mk95-table-practice',questionId:'mk95-table-question',column:false,pauseOnly:true,progress:{stage:STAGES[stageOf(r)],icon:'',done,total:r.count,correct},finished,summary,exercise:finished?{}:{a:question.a,b:question.b,prompt:question.expression,maxDigits:r.topic==='g4:table'?3:4,choices:question.choices?.map(value=>({label:String(value),selected:item.answer===String(value),disabled:item.solved,className:'btn soft'+(item.answer===String(value)&&!item.solved&&item.feedback?.startsWith('Проверь')?' school-choice-wrong':'')})),solution:item.solved?question.steps:undefined,answer:item.answer,readOnly:item.solved,disabled:busy,wrong:!item.solved&&item.feedback?.startsWith('Проверь'),feedback:item.feedback||'',primaryLabel:item.solved?'Далее':'Проверить',nextReady:item.solved,hideSkip:item.solved}}};
+  return {enabled:true,open:true,busy,error,status:r.status,revision:r.revision,index:r.index,model:{title:'4 класс · '+SCHOOL_TOPICS[r.topic],rootId:'mk95-table-practice',questionId:'mk95-table-question',column:isColumn(r.topic),pauseOnly:true,progress:{stage:STAGES[stageOf(r)],icon:'',done,total:r.count,correct},finished,summary,exercise:finished?{}:isColumn(r.topic)?columnView(r.topic,question,item,busy):{a:question.a,b:question.b,prompt:question.expression,maxDigits:r.topic==='g4:table'?3:4,choices:question.choices?.map(value=>({label:String(value),selected:item.answer===String(value),disabled:item.solved,className:'btn soft'+(item.answer===String(value)&&!item.solved&&item.feedback?.startsWith('Проверь')?' school-choice-wrong':'')})),solution:item.solved?question.steps:undefined,answer:item.answer,readOnly:item.solved,disabled:busy,wrong:!item.solved&&item.feedback?.startsWith('Проверь'),feedback:item.feedback||'',primaryLabel:item.solved?'Далее':'Проверить',nextReady:item.solved,hideSkip:item.solved}}};
  };
  function pause(){sessionSet(openKey,null);row=null;error='';generation++;notify();}
  async function load(){
@@ -64,6 +65,7 @@ export function createTableTraining({api,store,mode,emit,sessionGet,sessionSet})
     if(!stageAllowed(prepared?.best,stage)){error='Сначала пройдите предыдущую ступень.';return;}
     const pack=prepared?.packs?.find(p=>p.stage===stage&&p.topic_id===topic);
     if(!pack||pack.questions.length!==COUNTS[stage])throw Error('INVALID_PACK');
+    if(isColumn(topic))pack.questions.forEach((question,i)=>columnView(topic,validateQuestion(topic,question,pack.column_keys?.[i])));
     const permit=response.permits?.find(p=>Date.parse(p.expires_at)>Date.parse(response.server_time)&&!rows.some(r=>r.start.permit===p.id));
     if(!pack.full&&!permit){error='Нет доступных тренировок Free. Попробуйте позже.';return;}
     try{found=await queue.begin({pack,startedAt:response.server_time,permit:permit?.id});}
@@ -77,15 +79,18 @@ export function createTableTraining({api,store,mode,emit,sessionGet,sessionSet})
  }
  function action(kind,event){
   if(!visible()||row.status!=='draft')return;
-  if(kind==='input'&&(event?.type!=='input'||event.target?.id!=='fin'))return;
+  const column=isColumn(row.topic);
+  if(kind==='input'&&(column||event?.type!=='input'||event.target?.id!=='fin'))return;
+  if((kind==='cell'||kind==='dot')&&(!column||!normalizeColumnCell(event,kind==='dot')))return;
+  if(kind==='move'){if(column)moveColumnCell(event.event,event.el);return;}
   const key=row.key,index=row.index;
   const question=row.questions[index];
   if(kind==='pick'&&(!question.choices||!Number.isInteger(event)||!question.choices.hasOwnProperty(event)))return;
-  const value=kind==='pick'?String(question.choices[event]):kind==='input'?event.target.value:document.querySelector('#mk95-table-question #fin')?.value??row.draft[index].answer;
+  const value=column?readColumnCells():kind==='pick'?String(question.choices[event]):kind==='input'?event.target.value:document.querySelector('#mk95-table-question #fin')?.value??row.draft[index].answer;
   if(kind==='skip'&&!window.confirm('Пропустить задание?'))return;
   chain=chain.then(async()=>{
    if(!visible()||row.key!==key||row.index!==index||row.status!=='draft')return;
-   let op=kind==='pick'?'check':kind==='primary'?(row.draft[index].solved?'advance':'check'):kind;
+   let op=kind==='cell'||kind==='dot'?'input':kind==='pick'?'check':kind==='primary'?(row.draft[index].solved?'advance':'check'):kind;
    try{const next=await db.act(key,row.revision,op,value);if(owns(next)&&sessionGet(openKey)===key){row=next;error='';notify();}if(next.status==='pending')void sync();}
    catch(e){error='Черновик изменён в другой вкладке или не сохранён. Откройте его повторно.';await load().catch(()=>{});notify();}
   }).catch(()=>{error='Не удалось сохранить ответ.';notify()});

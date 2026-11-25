@@ -9,7 +9,7 @@ const props = defineProps({
 
 import {useAccountMode} from './accountMode.js';
 const {account,action:accountAction}=useAccountMode();
-const tableActions={close:()=>accountAction('tablePause'),back:()=>accountAction('tablePause'),abandon:()=>accountAction('tablePause'),input:event=>window.MK95Account?.tableAction('input',event),primary:()=>window.MK95Account?.tableAction('primary'),skip:()=>window.MK95Account?.tableAction('skip'),pick:index=>window.MK95Account?.tableAction('pick',index)};
+const tableActions={close:()=>accountAction('tablePause'),back:()=>accountAction('tablePause'),abandon:()=>accountAction('tablePause'),input:event=>window.MK95Account?.tableAction('input',event),primary:()=>window.MK95Account?.tableAction('primary'),skip:()=>window.MK95Account?.tableAction('skip'),pick:index=>window.MK95Account?.tableAction('pick',index),inputCell:el=>window.MK95Account?.tableAction('cell',el),toggleDot:el=>window.MK95Account?.tableAction('dot',el),moveCell:(event,el)=>window.MK95Account?.tableAction('move',{event,el})};
 function openSchool(topic,stage){window.MK95Account?.tableOpen(topic,stage)}
 function runLocal(action){if(account.value.mode==='local')props.actions.run(action)}
 function activateCard(event, action) {
@@ -50,7 +50,7 @@ function activateCard(event, action) {
       </article>
     </section>
     <p v-if="account.table?.error" role="alert">{{ account.table.error }}</p>
-    <p>В тестовом серверном режиме доступны числовые задания 4 класса. Столбики, остальные классы и покупки пока работают локально.</p>
+    <p>В тестовом серверном режиме доступны 11 тренажёров 4 класса. Остальные классы и покупки пока работают локально.</p>
     <button type="button" class="btn soft" @click="accountAction('open')">Аккаунт и выбор ученика</button>
     <button type="button" class="btn soft" @click="accountAction('local')">Локальный режим</button>
   </section>

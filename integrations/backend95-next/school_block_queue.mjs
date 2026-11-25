@@ -1,4 +1,4 @@
-// Numeric/choice Grade 4 formats; column journals remain disabled until their own gate.
+// Shared numeric, choice and written-arithmetic Grade 4 offline journals.
 export const SCHOOL_TOPICS=Object.freeze({
  'g4:table':'Таблица умножения',
  'g4:moro_order_1000':'Числовые выражения. Порядок действий',
@@ -6,14 +6,29 @@ export const SCHOOL_TOPICS=Object.freeze({
  'g4:equations':'Выражения и уравнения',
  'g4:moro_missing_sub':'Неизвестное уменьшаемое и вычитаемое',
  'g4:moro_missing_add':'Неизвестное слагаемое',
- 'g4:moro_missing_muldiv':'Неизвестный множитель, делимое и делитель'
+ 'g4:moro_missing_muldiv':'Неизвестный множитель, делимое и делитель',
+ 'g4:column:add':'Сложение столбиком', 'g4:column:sub':'Вычитание столбиком',
+ 'g4:column:mul':'Умножение столбиком', 'g4:column:div':'Деление уголком'
 });
 export const STAGES=['Разминка','Тренировка','Мастерство'];
 export const COUNTS=[5,7,10], PASS=[4,5,8];
 export const stageOf=row=>row.stage??0;
 export const expectedAnswer=(topic,question)=>topic==='g4:table'?question.a*question.b:question.answer;
 export function stageAllowed(best,stage){return Number.isInteger(stage)&&stage>=0&&stage<3&&(stage===0||Number(best?.[stage-1]||0)>=PASS[stage-1]);}
-export function validateQuestion(topic,question){
+export const isColumn=topic=>/^g4:column:(add|sub|mul|div)$/.test(topic);
+export function validateQuestion(topic,question,columnKeys){
+ if(isColumn(topic)){
+  const {a,b}=question,op=topic.split(':').at(-1);
+  if(!Number.isInteger(a)||!Number.isInteger(b)||a<=0||b<=0||a>99999||b>99999||(op==='sub'&&a<=b)||(op==='mul'&&(b<10||b>99||a>9999))||(op==='div'&&(b<2||b>9||a%b!==0)))throw Error('INVALID_COLUMN_QUESTION');
+  if(!Array.isArray(columnKeys)||columnKeys.length!==2)throw Error('INVALID_COLUMN_KEYS');
+  const [required,optional]=columnKeys;
+  for(const map of columnKeys){
+   if(!map||Array.isArray(map)||typeof map!=='object')throw Error('INVALID_COLUMN_KEYS');
+   for(const [key,value] of Object.entries(map))if(!/^(final|addMark|subMark|borrowDot|mul1|mul2|mulCarry1|mulCarry2|mulFinalCarry|quot|prod[0-9]+|next[0-9]+|rem[0-9]+):[0-9]+$/.test(key)||typeof value!=='string'||!/^([0-9•])?$/.test(value))throw Error('INVALID_COLUMN_KEYS');
+  }
+  if(!Object.keys(required).length||Object.values(required).some(v=>!/^\d$/.test(v))||Object.keys(required).some(k=>Object.hasOwn(optional,k)))throw Error('INVALID_COLUMN_KEYS');
+  return {a,b,columnKeys:[required,optional]};
+ }
  if(topic==='g4:table'){
   const {a,b}=question;if(!Number.isInteger(a)||!Number.isInteger(b)||a<2||b<2||a>9||b>9)throw Error('INVALID_QUESTION');
   return {a,b};
@@ -37,8 +52,8 @@ export function createSchoolBlockQueue({api, store, outbox}) {
     if(!validId(pack?.id) || !Object.hasOwn(SCHOOL_TOPICS,pack.topic_id) || !Number.isInteger(pack.stage) || pack.stage<0 || pack.stage>2 || !Array.isArray(pack.questions) || pack.questions.length!==COUNTS[pack.stage]) throw Error('INVALID_BLOCK');
     if(typeof startedAt!=='string' || !Number.isFinite(Date.parse(startedAt)) || !Number.isFinite(Date.parse(pack.expires_at)) || Date.parse(startedAt)>=Date.parse(pack.expires_at) || (!pack.full && !validId(permit))) throw Error('INVALID_START');
     const start={started_at:startedAt,...(!pack.full?{permit}:{})};
-    const questions=pack.questions.map(question=>validateQuestion(pack.topic_id,question));
-    const row={key:keyOf(s.owner,s.profile,pack.id),owner:s.owner,profile:s.profile,pack:pack.id,topic:pack.topic_id,stage:pack.stage,count:pack.questions.length,start,status:'draft',questions,index:0,revision:0,draft:questions.map(()=>({answer:'',checks:[],skipped:false,solved:false}))};
+    const questions=pack.questions.map((question,i)=>validateQuestion(pack.topic_id,question,pack.column_keys?.[i]));
+    const row={key:keyOf(s.owner,s.profile,pack.id),owner:s.owner,profile:s.profile,pack:pack.id,topic:pack.topic_id,stage:pack.stage,count:pack.questions.length,start,status:'draft',questions,index:0,revision:0,draft:questions.map(()=>({answer:'',cells:{},checks:[],skipped:false,solved:false}))};
     return outbox.insert(row); // persist immutable identity and start before going offline
   }
   async function complete(key,items){
@@ -76,7 +91,45 @@ export function createSchoolBlockQueue({api, store, outbox}) {
 }
 // One transaction applies the input/check/advance and creates the immutable final
 // journal. No separate completion write can be lost during F5.
+export function columnFeedback(question,raw){
+ const [required,optional]=question.columnKeys,keys={...required,...optional};
+ if(!raw||typeof raw!=='object'||Array.isArray(raw))throw Error('INVALID_CELLS');
+ const cells={};
+ for(const [key,value] of Object.entries(raw)){
+  if(!Object.hasOwn(keys,key)||typeof value!=='string'||!/^([0-9•])?$/.test(value))throw Error('INVALID_CELLS');
+  if(value)cells[key]=value;
+ }
+ const missing=Object.keys(required).filter(key=>!cells[key]);
+ const wrong=missing.length?[]:Object.keys(cells).filter(key=>cells[key]!==keys[key]);
+ return {cells,missing,wrong};
+}
+export function applyColumnAction(row,revision,kind,value){
+ if(row.status!=='draft'||row.revision!==revision)throw Error('DRAFT_CHANGED');
+ const next=structuredClone(row),item=next.draft[next.index],question=next.questions[next.index];
+ if((kind==='input'||kind==='check'||kind==='skip')&&!item.solved){
+  const f=columnFeedback(question,value);item.cells=f.cells;
+  if(kind==='input'){item.feedback='';item.wrong=[];item.missing=[];}
+  if(kind==='check'){
+   item.missing=f.missing;item.wrong=f.wrong;
+   if(f.missing.length)item.feedback='Заполни обязательные клетки.';
+   else {
+    if(item.checks.length>=1000)throw Error('CHECK_LIMIT');
+    item.checks.push(f.cells);item.solved=f.wrong.length===0;
+    item.feedback=item.solved?'Вся запись верна!':'Исправь отмеченные клетки.';
+   }
+  }
+  if(kind==='skip')item.skipped=true;
+ }else if(kind!=='advance'||!item.solved)throw Error('INVALID_ACTION');
+ if(kind==='advance'||kind==='skip'){
+  if(next.index+1===next.count){
+   next.body={...next.start,items:next.draft.map(x=>({checks:x.checks,skipped:x.skipped,...(x.skipped?{cells:x.cells||{}}:{})}))};
+   next.status='pending';
+  }else next.index++;
+ }
+ next.revision++;return next;
+}
 export function applyTableAction(row,revision,kind,value){
+ if(isColumn(row.topic))return applyColumnAction(row,revision,kind,value);
  if(row.status!=='draft'||row.revision!==revision)throw Error('DRAFT_CHANGED');
  const next=structuredClone(row),item=next.draft[next.index],question=next.questions[next.index];
  const numeric=String(value??'').replace(/[^0-9]/g,'').slice(0,next.topic==='g4:table'?3:4);
