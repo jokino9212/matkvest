@@ -47,8 +47,12 @@ export function createTutorController({api,store,mode,emit}){
    const actor=await api.resumeSession();if(actor.id!==sc.owner||actor.role!==sc.role||!same(sc)||id!==token)return;
    if(action==='report'){
     const offset=Number(arg.offset||0);if(!Number.isInteger(offset)||offset<0||offset>100000)return;
-    const result=await api.request('GET',tutorPath(arg.id)+'/report?offset='+offset+'&limit=50');
-    if(result.profile_id!==arg.id||result.source!=='verified_server'||!Array.isArray(result.rows)||!result.page_stats)throw Error('REPORT_INVALID');
+    const {from=null,to=null}=arg;
+    if((from===null)!==(to===null)||from!==null&&(!/^\d{4}-\d{2}-\d{2}$/.test(from)||!/^\d{4}-\d{2}-\d{2}$/.test(to)||from>to))throw Error('REPORT_PERIOD_INVALID');
+    const params=new URLSearchParams({offset:String(offset),limit:'50'});
+    if(from!==null){params.set('from',from);params.set('to',to);}
+    const result=await api.request('GET',tutorPath(arg.id)+'/report?'+params);
+    if(result.profile_id!==arg.id||result.source!=='verified_server'||!Array.isArray(result.rows)||!result.page_stats||!result.period_stats||!Array.isArray(result.knowledge)||result.knowledge.length!==18||!Array.isArray(result.weak_topics)||!result.review_rule||result.period?.from!==from||result.period?.to!==to||result.period?.timezone!=='UTC')throw Error('REPORT_INVALID');
     if(same(sc)&&id===token)report=result;
     return;
    }

@@ -1,9 +1,9 @@
-import {createAccountStore} from './account_store.mjs?v=299';
-import {MatKvestApiClient} from './stage29_api_client.mjs?v=299';
-import {createTableTraining} from './table_training.mjs?v=299';
-import {buildEconomy} from './economy_read.mjs?v=299';
-import {createEconomyOperations} from './economy_operations.mjs?v=299';
-import {createTutorController} from './tutor_controller.mjs?v=299';
+import {createAccountStore} from './account_store.mjs?v=300';
+import {MatKvestApiClient} from './stage29_api_client.mjs?v=300';
+import {createTableTraining} from './table_training.mjs?v=300';
+import {buildEconomy} from './economy_read.mjs?v=300';
+import {createEconomyOperations} from './economy_operations.mjs?v=300';
+import {createTutorController} from './tutor_controller.mjs?v=300';
 const modeKey='mk95-mode',selectionKey='mk95-selection',eventKey='mk95-auth-change',logoutKey='mk95-logout-pending';
 function sessionGet(key){try{return sessionStorage.getItem(key)}catch{return null}}
 function sessionSet(key,value){try{if(value===null)sessionStorage.removeItem(key);else sessionStorage.setItem(key,value)}catch{}}

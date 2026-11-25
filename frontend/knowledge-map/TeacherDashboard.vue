@@ -1,7 +1,11 @@
 <script setup>
 import {ref,watch} from 'vue';
 const props=defineProps({ model: Object, actions: Object });
-const seats=ref([]);
+const seats=ref([]),from=ref(''),to=ref('');
+watch(()=>props.model.report?.period,period=>{if(period){from.value=period.from||'';to.value=period.to||''}});
+function periodReport(start,end,offset=0){const report=props.model.report;if(report)props.actions.run('report',{id:report.profile_id,from:start||null,to:end||null,offset})}
+function recentDays(days){const now=new Date(),start=new Date(now);start.setUTCDate(start.getUTCDate()-days+1);periodReport(start.toISOString().slice(0,10),now.toISOString().slice(0,10))}
+const statusText={no_data:'Нет данных',limited:'Мало данных',review:'Стоит повторить',observed:'Наблюдаемый результат'};
 watch(()=>props.model.data?.seats, value=>{seats.value=[...(value?.linked_student_ids||[])]},{immediate:true});
 </script>
 
@@ -15,15 +19,44 @@ watch(()=>props.model.data?.seats, value=>{seats.value=[...(value?.linked_studen
       <button class="btn soft" @click="actions.run('back')">← Все ученики</button>
       <section class="teacher-panel" data-mk95-tutor-report>
         <h2>{{ model.report.display_name }} · учебный отчёт</h2>
-        <p>Подтверждённых попыток всего: {{ model.report.total_attempts }}. Ниже статистика текущей страницы; импортированные записи исключены.</p>
+        <p>Подтверждённых попыток за период: {{ model.report.total_attempts }}. Импортированные записи исключены.</p>
+        <div class="actions report-no-print">
+          <button type="button" class="btn soft" @click="periodReport(null,null)">Всё время</button>
+          <button type="button" class="btn soft" @click="recentDays(7)">7 дней</button>
+          <button type="button" class="btn soft" @click="recentDays(30)">30 дней</button>
+        </div>
+        <form class="student-report-custom report-no-print" @submit.prevent="periodReport(from,to)">
+          <label>От <input type="date" v-model="from" aria-label="Начало периода" required></label>
+          <label>До <input type="date" v-model="to" aria-label="Конец периода" required></label>
+          <button type="submit" class="btn primary" :disabled="!from||!to||from>to">Применить период</button>
+        </form>
+        <p data-mk95-report-period>{{ model.report.period.from?model.report.period.from+' — '+model.report.period.to:'Всё время' }} · UTC (даты включительно)</p>
         <p>Доступ: {{ model.report.access.full?'Полный':'Free' }}</p>
         <div class="teacher-kpis">
-          <div v-for="[key,label] in [['attempts','Попытки'],['questions','Задания'],['correct','Верно с первого раза'],['corrected','Исправлено'],['skipped','Пропущено']]" :key="key" class="teacher-kpi"><b>{{ model.report.page_stats[key]??'—' }}</b><small>{{ label }}</small></div>
+          <div v-for="[key,label] in [['attempts','Попытки'],['questions','Задания'],['correct','Верно с первого раза'],['corrected','Исправлено'],['skipped','Пропущено'],['wrong','Не решено']]" :key="key" class="teacher-kpi" :data-mk95-period-stat="key"><b>{{ model.report.period_stats[key]??'—' }}</b><small>{{ label }}</small></div>
         </div>
+        <section class="teacher-analytics-card" data-mk95-weak-topics>
+          <h3>Темы для повторения</h3>
+          <p>Минимум {{ model.report.review_rule.minimum_questions }} заданий и менее {{ model.report.review_rule.first_try_below_percent }}% верных с первой попытки. Это рекомендация, не оценка освоения программы.</p>
+          <p v-if="!model.report.weak_topics.length">По имеющимся данным темы для повторения не выделены.</p>
+          <div v-for="item in model.report.weak_topics" :key="item.topic_id" class="teacher-work-row"><b>{{ item.title }}</b><span>{{ item.first_try_percent }}% · {{ item.correct }}/{{ item.questions }}</span></div>
+        </section>
+        <section class="teacher-panel" data-mk95-knowledge>
+          <h3>Карта результатов по темам</h3><p>18 серверных тем. Остальные темы не оцениваются.</p>
+          <template v-for="grade in [4,5]" :key="grade">
+            <h4>{{ grade }} класс</h4>
+            <div v-for="item in model.report.knowledge.filter(x=>x.grade===grade)" :key="item.topic_id" class="teacher-card-metrics" :data-mk95-knowledge-topic="item.topic_id">
+              <b>{{ item.title }}</b>
+              <span>{{ statusText[item.status] }}{{ item.first_try_percent===null?'':' · '+item.first_try_percent+'% с первой попытки ('+item.correct+'/'+item.questions+')' }}</span>
+              <span v-if="item.questions">Исправлено: {{ item.corrected }} · Пропущено: {{ item.skipped }} · Не решено: {{ item.wrong }}</span>
+            </div>
+          </template>
+        </section>
+        <h3>Журнал подтверждённых попыток</h3>
         <div v-for="row in model.report.rows" :key="row.id" class="teacher-work-row"><div><b>{{ row.title }}</b><small>{{ new Date(row.date).toLocaleString('ru-RU') }}</small></div><span>{{ row.correct }}/{{ row.total }}</span></div>
         <p v-if="!model.report.rows.length">Подтверждённых попыток на этой странице нет.</p>
-        <button v-if="model.report.offset>0" class="btn soft" :disabled="model.busy" @click="actions.run('report',{id:model.report.profile_id,offset:Math.max(0,model.report.offset-50)})">Предыдущая страница</button>
-        <button v-if="model.report.next_offset!==null" class="btn soft" :disabled="model.busy" @click="actions.run('report',{id:model.report.profile_id,offset:model.report.next_offset})">Следующая страница</button>
+        <button v-if="model.report.offset>0" class="btn soft" :disabled="model.busy" @click="periodReport(model.report.period.from,model.report.period.to,Math.max(0,model.report.offset-50))">Предыдущая страница</button>
+        <button v-if="model.report.next_offset!==null" class="btn soft" :disabled="model.busy" @click="periodReport(model.report.period.from,model.report.period.to,model.report.next_offset)">Следующая страница</button>
       </section>
     </template>
     <template v-else-if="model.data">

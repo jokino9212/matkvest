@@ -108,9 +108,13 @@ const server=createServer(async(req,res)=>{
     const m=/^\/tutor\/students\/([^/]+)(\/report)?$/.exec(path);
     if(m){const p=own.find(p=>p.id===m[1]);if(!p)return json(res,404,{error:{code:'STUDENT_NOT_FOUND'}});
      if(req.method==='DELETE'){links.delete(p.id);allocated.set(uid,(allocated.get(uid)||[]).filter(id=>id!==p.id));return json(res,200,{ok:true});}
-     const all=Array.from(receipts.values()).filter(r=>r.profile===p.id);
-     const offset=Number(u.searchParams.get('offset')||0),rows=all.slice(offset,offset+50).map(r=>({id:'server.'+r.receipt.id,title:r.topic,date:'2026-11-20T12:00:00Z',correct:r.receipt.summary.correct,corrected:r.receipt.summary.corrected,skipped:r.receipt.summary.skipped,total:counts[r.stage]}));
-     return json(res,200,{profile_id:p.id,display_name:p.display_name,source:'verified_server',total_attempts:all.length,offset,next_offset:offset+50<all.length?offset+50:null,rows,page_stats:{attempts:rows.length,questions:rows.reduce((n,r)=>n+r.total,0),correct:rows.reduce((n,r)=>n+r.correct,0),corrected:rows.reduce((n,r)=>n+r.corrected,0),skipped:rows.reduce((n,r)=>n+r.skipped,0)},access:{full:(allocated.get(uid)||[]).includes(p.id)}});
+     const from=u.searchParams.get('from'),to=u.searchParams.get('to'),date='2026-11-20';
+     if((from===null)!==(to===null)||from&&from>to)return json(res,422,{error:{code:'REPORT_PERIOD_INVALID'}});
+     const all=Array.from(receipts.values()).filter(r=>r.profile===p.id&&(!from||from<=date&&date<=to)).map(r=>({id:'server.'+r.receipt.id,title:r.topic,topic_id:r.topic,date:date+'T12:00:00Z',correct:r.receipt.summary.correct,corrected:r.receipt.summary.corrected,skipped:r.receipt.summary.skipped,total:counts[r.stage],wrong:0}));
+     const stats=rows=>({attempts:rows.length,questions:rows.reduce((n,r)=>n+r.total,0),correct:rows.reduce((n,r)=>n+r.correct,0),corrected:rows.reduce((n,r)=>n+r.corrected,0),skipped:rows.reduce((n,r)=>n+r.skipped,0),wrong:rows.reduce((n,r)=>n+r.wrong,0)});
+     const knowledge=allTopics.map(topic=>{const v=stats(all.filter(r=>r.topic_id===topic)),rate=v.questions?100*v.correct/v.questions:null;return {topic_id:topic,title:topic,grade:Number(topic[1]),...v,first_try_percent:rate,status:!v.questions?'no_data':v.questions<5?'limited':rate<80?'review':'observed'}});
+     const offset=Number(u.searchParams.get('offset')||0),rows=all.slice(offset,offset+50);
+     return json(res,200,{profile_id:p.id,display_name:p.display_name,source:'verified_server',period:{from,to,timezone:'UTC'},total_attempts:all.length,offset,next_offset:offset+50<all.length?offset+50:null,rows,page_stats:stats(rows),period_stats:stats(all),knowledge,weak_topics:knowledge.filter(x=>x.status==='review'),review_rule:{minimum_questions:5,first_try_below_percent:80},access:{full:(allocated.get(uid)||[]).includes(p.id)}});
     }
    }
    const economy=/^\/student\/profiles\/([^/]+)\/economy\/(catalog|state|operations)$/.exec(path);
@@ -618,6 +622,18 @@ async function runTutor(browser,url){
   await p.locator('[data-mk95-linked-student="'+A+'"]').getByRole('button',{name:'Учебный отчёт'}).click();
   await p.locator('[data-mk95-tutor-report]').waitFor();
   assert.equal(await p.evaluate(()=>window.MK95Account.read().tutor.report.total_attempts),used(A));
+  assert.equal(await p.locator('[data-mk95-knowledge-topic]').count(),18);
+  assert.equal(Number(await p.locator('[data-mk95-period-stat="attempts"] b').innerText()),used(A));
+  for(const date of ['2026-11-19','2026-11-20']){
+   await p.getByLabel('Начало периода').fill(date);await p.getByLabel('Конец периода').fill(date);
+   await p.getByRole('button',{name:'Применить период'}).click();
+   await p.waitForFunction(d=>window.MK95Account.read().tutor?.report?.period?.from===d,date);
+   assert.equal(Number(await p.locator('[data-mk95-period-stat="attempts"] b').innerText()),date==='2026-11-19'?0:used(A));
+   if(date==='2026-11-19')assert.equal(await p.locator('[data-mk95-knowledge-topic]').filter({hasText:'Нет данных'}).count(),18);
+  }
+  await p.getByRole('button',{name:'Всё время',exact:true}).click();
+  await p.waitForFunction(()=>window.MK95Account.read().tutor?.report?.period?.from===null);
+  console.log('PASS_TUTOR_PERIOD_KNOWLEDGE_UI');
   await login(r,'tutor2');assert.equal(await r.evaluate(async id=>(await fetch('/api/v1/tutor/students/'+id+'/report')).status,A),404);
   await q.getByRole('button',{name:'Отозвать доступ преподавателя'}).click();
   await q.getByRole('button',{name:'Принять приглашение'}).waitFor();
