@@ -3,7 +3,7 @@ export function createAccountStore(api=new MatKvestApiClient(), options={}){
  let current={status:'local',user:null,profiles:[],selectedId:null,snapshot:null}, revision=0, authBusy=false;
  // Persist only a non-sensitive logout intent, never a session or account snapshot.
  let logoutPending=false;
- const pending=()=>logoutPending||Boolean(options.loadLogoutPending?.());
+ const pending=()=>{const persisted=options.loadLogoutPending?.();return typeof persisted==='boolean'?persisted:logoutPending;};
  const markPending=value=>{logoutPending=value;options.saveLogoutPending?.(value);};
  const listeners=new Set();
  const read=()=>structuredClone(current);

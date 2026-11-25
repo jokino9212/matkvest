@@ -73,7 +73,9 @@ async function run(browser,url,width){
   await p.waitForFunction(()=>window.MK95Account.read().status==='logout-unconfirmed');
   await p.reload();await p.waitForFunction(()=>window.MK95Account?.read().status==='logout-unconfirmed');
   await expectText(p,'[data-mk95-coins]','—');
-  await ctx.setOffline(false);await p.waitForFunction(()=>window.MK95Account.read().status==='signed-out');
+  await ctx.setOffline(false);await account(p);await dialog(p).getByRole('button',{name:'Завершить выход',exact:true}).click();
+  await p.waitForFunction(()=>window.MK95Account.read().status==='signed-out');
+  await dialog(p).getByRole('button',{name:'Закрыть',exact:true}).click();
   assert.equal(await p.evaluate(async()=> (await fetch('/api/v1/auth/me')).status),401);
   assert.deepEqual(await local(p),before);console.log('PASS_OFFLINE_LOGOUT_RELOAD',width);
   // A different account in another tab must invalidate the previous owner's UI.

@@ -35,3 +35,9 @@ assert.equal(isolated.read().status,'logout-unconfirmed');assert.equal(isolated.
 await isolated.login('test@example.test','dummy');assert.equal(logins,0);
 await isolated.logout();assert.equal(isolated.read().status,'signed-out');assert.equal(persisted,false);assert.equal(session,false);
 console.log('PASS_LOGOUT_INTENT_RELOAD');
+
+// A confirmed logout in another tab clears the shared intent, even for the initiating tab.
+session=true;available=false;await isolated.logout();assert.equal(isolated.logoutPending(),true);
+persisted=false;session=false;available=true;isolated.invalidate('session-changed');
+assert.equal(isolated.logoutPending(),false);assert.equal(isolated.read().status,'session-changed');
+console.log('PASS_SHARED_LOGOUT_INTENT');

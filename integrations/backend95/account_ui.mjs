@@ -6,7 +6,7 @@ let mode=document.documentElement.dataset.mk95Mode==='server'?'server':'local';
 const store=createAccountStore(undefined,{
  loadSelection:()=>{try{return JSON.parse(sessionGet(selectionKey)||'null')}catch{return null}},
  saveSelection:v=>sessionSet(selectionKey,v?JSON.stringify(v):null),
- loadLogoutPending:()=>{try{return localStorage.getItem(logoutKey)==='1'}catch{return false}},
+ loadLogoutPending:()=>{try{return localStorage.getItem(logoutKey)==='1'}catch{return null}},
  saveLogoutPending:v=>{try{if(v)localStorage.setItem(logoutKey,'1');else localStorage.removeItem(logoutKey)}catch{}},
  authChanged:()=>{try{localStorage.setItem(eventKey,crypto.randomUUID())}catch{}}
 });
@@ -70,6 +70,6 @@ entryHost.append(button('Аккаунт',open));
 window.MK95Account={read,open,local,home:closeReport,progress:()=>report('progress'),journal:()=>report('journal')};
 window.addEventListener('storage',e=>{if((e.key===eventKey||e.key===logoutKey)&&mode==='server')store.invalidate('session-changed')});
 window.addEventListener('offline',()=>{if(mode==='server')store.invalidate('offline')});
-window.addEventListener('online',()=>{if(store.logoutPending())store.logout();else if(mode==='server'&&store.read().status==='offline')store.resume()});
+window.addEventListener('online',()=>{if(mode==='server'&&store.logoutPending())store.invalidate('logout-unconfirmed');else if(mode==='server'&&store.read().status==='offline')store.resume()});
 window.addEventListener('focus',()=>{if(mode==='server'&&store.read().status==='ready'&&!dialog.open)store.resume()});
 emit();if(mode==='server')store.resume();

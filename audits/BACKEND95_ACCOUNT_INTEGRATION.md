@@ -3,3 +3,5 @@ Base v290 source SHA pinned. Existing stage29 API client retained; server archiv
 
 ## Follow-up — 25 Nov 2026
 Baseline ad61b3f3 / CI 45567093185 passed the existing synthetic same-origin API browser suite (390/1280). Confirmed additional defect in the original account store: failed logout while offline → new store on F5 → cookie session resumed and balance exposed again. Persist only logout intent, block silent login/resume until confirmed logout, recover CSRF on retry, and invalidate other tabs. Added store and browser probes for offline logout/reload and account switching. The original server archive's 21 targeted auth/CSRF/profile/history/wallet/isolation tests were run locally on isolated SQLite; no changes to backend. Full real-backend browser/PostgreSQL acceptance still pending. No deployment.
+
+Logout completion after reconnect is explicit (button «Завершить выход»), avoiding simultaneous automatic revocation from multiple tabs. Shared persisted intent is authoritative when storage is available; an in-memory fallback is used otherwise. The isolated cache is v292; base frontend stays v290.
