@@ -50,7 +50,7 @@ export function createTableTraining({api,store,mode,emit,sessionGet,sessionSet})
   try{
    let rows=await db.list(sc.owner,sc.profile);
    if(!owns({owner:sc.owner,profile:sc.profile}))return;
-   let found=rows.find(r=>r.status==='draft'||r.status==='pending');
+   let found=rows.find(r=>r.status==='draft'||r.status==='pending'||r.status==='blocked');
    if(found&&(found.topic!==topic||stageOf(found)!==stage)){error='Сначала завершите сохранённый блок: '+SCHOOL_TOPICS[found.topic]+' · '+STAGES[stageOf(found)];}
    if(!found&&!ready())found=rows.find(r=>r.topic===topic&&stageOf(r)===stage&&r.status==='confirmed');
    if(!found){

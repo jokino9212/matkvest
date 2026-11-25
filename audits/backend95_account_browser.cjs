@@ -7,6 +7,18 @@ const profiles=[{id:A,user_id:owner,display_name:'Сервер А',xp_total:115}
 const balance={[A]:41,[B]:82,[C]:999};
 const mutations=[],apiTrace=[],receipts=new Map();let tablePuts=0,tableRewards=0,tablePackNo=0;
 const questions=[{a:2,b:3},{a:3,b:4},{a:4,b:5},{a:5,b:6},{a:6,b:7}];
+const counts=[5,7,10],pass=[4,5,8],issued=new Map(),spent=new Set();
+let dropReceipt=false;
+const topics=['g4:table','g4:moro_order_1000','g4:order','g4:equations','g4:moro_missing_sub','g4:moro_missing_add','g4:moro_missing_muldiv'];
+const best=(id,topic)=>counts.map((_,stage)=>Math.max(0,...Array.from(receipts.values()).filter(x=>x.profile===id&&x.topic===topic&&x.stage===stage).map(x=>x.receipt.summary.correct)));
+function makeQuestions(topic,stage){
+ if(topic==='g4:table')return Array.from({length:counts[stage]},(_,i)=>questions[i%questions.length]);
+ return Array.from({length:counts[stage]},(_,i)=>{
+ const a=i+2,b=3,answer=a+b,expression=topic.includes('order')?a+' + 3': 'x − 3 = '+a;
+ const choices=topic==='g4:order'||topic==='g4:equations'?[answer-1,answer,answer+1,answer+2]:undefined;
+ return {expression,answer,steps:['Ответ: '+answer],...(choices?{choices}:{})};
+ });
+}
 const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript','.mjs':'text/javascript','.css':'text/css','.svg':'image/svg+xml','.webp':'image/webp','.png':'image/png','.webmanifest':'application/manifest+json'};
 const json=(res,status,data,headers={})=>{apiTrace.push({method:res.req.method,path:new URL(res.req.url,'http://localhost').pathname,status});return res.writeHead(status,{'Content-Type':'application/json','Cache-Control':'no-store',...headers}).end(JSON.stringify(data))};
 const server=createServer(async(req,res)=>{
@@ -32,15 +44,44 @@ const server=createServer(async(req,res)=>{
     const [,id,packId]=training;if(!profiles.some(p=>p.id===id&&p.user_id===uid))return json(res,404,{error:{code:'PROFILE_NOT_FOUND'}});
     let raw='';for await(const chunk of req)raw+=chunk;const body=JSON.parse(raw);
     assert.equal(req.headers['x-csrf-token'],'test-csrf');
-    if(req.method==='POST'&&!packId){assert.equal(body.topic,'g4:table');assert.equal(body.grade,4);const pack='f1436d1d-0123-4f25-8ae9-'+String(++tablePackNo).padStart(12,'0');const now=new Date().toISOString(),expires=new Date(Date.now()+86400000).toISOString();return json(res,200,{full:false,server_time:now,permits:[{id:pack.replace(/^f/,'e'),expires_at:expires}],topics:{'g4:table':{packs:[{id:pack,topic_id:'g4:table',stage:0,questions,full:false,expires_at:expires}],best:[0,0,0]}}});}
-    if(req.method==='PUT'&&packId){tablePuts++;const old=receipts.get(packId);if(old){assert.deepEqual(body,old.body);return json(res,200,old.receipt);}assert.equal(body.permit,packId.replace(/^f/,'e'));assert.equal(body.items.length,5);assert(body.items.every((x,i)=>!x.skipped&&Number(x.checks.at(-1)['answer:0'])===questions[i].a*questions[i].b));const receipt={id:packId,status:'finished',summary:{correct:5,corrected:0,skipped:0,passed:true,xp:80,coins:25}};receipts.set(packId,{body,receipt,profile:id});balance[id]+=25;profiles.find(p=>p.id===id).xp_total+=80;tableRewards++;return json(res,200,receipt);}
+    if(req.method==='POST'&&!packId){
+     assert(topics.includes(body.topic));assert.equal(body.grade,4);assert(body.unavailable_permits.length<=10);
+     const now=new Date().toISOString(),expires=new Date(Date.now()+86400000).toISOString();
+     const permit='e1436d1d-0123-4f25-8ae9-'+String(++tablePackNo).padStart(12,'0');
+     const packs=counts.map((_,stage)=>{
+      const idPack='f1436d1d-0123-4f25-8ae9-'+String(++tablePackNo).padStart(12,'0');
+      const pack={id:idPack,topic_id:body.topic,stage,questions:makeQuestions(body.topic,stage),full:false,expires_at:expires};
+      issued.set(idPack,{id,permit,pack});return pack;
+     });
+     return json(res,200,{full:false,server_time:now,permits:tableRewards>=10?[]:[{id:permit,expires_at:expires}],topics:{[body.topic]:{packs,best:best(id,body.topic)}}});
+    }
+    if(req.method==='PUT'&&packId){
+     tablePuts++;
+     const old=receipts.get(packId);if(old){assert.equal(old.profile,id);assert.deepEqual(body,old.body);return json(res,200,old.receipt);}
+     const p=issued.get(packId);assert.equal(p.id,id);assert.equal(body.permit,p.permit);assert(!spent.has(p.permit));assert(tableRewards<10);
+     const {stage,topic_id:topic,questions:qs}=p.pack;
+     if(stage&&best(id,topic)[stage-1]<pass[stage-1])return json(res,403,{error:{code:'EQUATION_STAGE_LOCKED'}});
+     assert.equal(body.items.length,qs.length);
+     let correct=0,corrected=0,skipped=0;
+     for(let i=0;i<qs.length;i++){
+      const x=body.items[i],q=qs[i],expected=topic==='g4:table'?q.a*q.b:q.answer;
+      if(x.skipped){skipped++;continue;}
+      assert.equal(Number(x.checks.at(-1)['answer:0']),expected);
+      assert(x.checks.slice(0,-1).every(c=>Number(c['answer:0'])!==expected));
+      if(x.checks.length===1)correct++;else corrected++;
+     }
+     const receipt={id:packId,status:'finished',summary:{correct,corrected,skipped,passed:correct>=pass[stage],xp:80,coins:25}};
+     receipts.set(packId,{body,receipt,profile:id,topic,stage});spent.add(p.permit);balance[id]+=25;profiles.find(p=>p.id===id).xp_total+=80;tableRewards++;
+     if(dropReceipt){dropReceipt=false;res.destroy();return;}
+     return json(res,200,receipt);
+    }
     return json(res,405,{});
    }
    const match=/^\/student(?:-profiles|\/profiles)\/([^/]+)\/(wallet|progress|history|entitlements)$/.exec(path);
    if(match){const [,id,kind]=match,p=profiles.find(p=>p.id===id&&p.user_id===uid);if(!p)return json(res,404,{error:{code:'PROFILE_NOT_FOUND'}});
     if(kind==='wallet')return json(res,200,{profile_id:id,balance:balance[id],revision:1});
-    if(kind==='progress')return json(res,200,{course_progress:[{course_key:id===A?'g4:table':'g5:natural',stage_index:0,best_score:id===A?5:9}],topic_mastery:[]});
-    if(kind==='history')return json(res,200,{attempts:[{id:'server.'+id,title:'Попытка '+p.display_name,source:'server',status:'finished',correct:id===A?5:9,total:10,date:'2026-11-20T12:00:00Z'}],next_offset:null});
+    if(kind==='progress')return json(res,200,{course_progress:id===A?topics.flatMap(topic=>best(id,topic).flatMap((score,stage)=>score?[{course_key:topic,stage_index:stage,best_score:score}]:[])):[{course_key:'g5:natural',stage_index:0,best_score:9}],topic_mastery:[]});
+    if(kind==='history')return json(res,200,{attempts:[{id:'server.'+id,title:'Попытка '+p.display_name,source:'server',status:'finished',correct:id===A?5:9,total:10,date:'2026-11-20T12:00:00Z'},...Array.from(receipts.values()).filter(x=>x.profile===id).map(x=>({id:'server.'+x.receipt.id,title:x.topic,source:'server',status:'finished',correct:x.receipt.summary.correct,total:counts[x.stage],date:'2026-11-20T12:00:00Z'}))],next_offset:null});
     return json(res,200,{profile_id:id});
    }
    return json(res,404,{error:{code:'NOT_FOUND'}});
@@ -114,6 +155,8 @@ async function runTable(browser,url){
   await p.waitForFunction(id=>window.MK95Account.read().snapshot?.profile.id===id,A);
   await dialog.getByRole('button',{name:'Закрыть',exact:true}).click();
   await p.evaluate(()=>navigator.serviceWorker.ready);await p.waitForFunction(()=>!!navigator.serviceWorker.controller);
+  assert(await p.locator('[data-mk95-topic="g4:table"][data-mk95-stage="1"]').isDisabled());
+  assert(await p.locator('[data-mk95-topic="g4:table"][data-mk95-stage="2"]').isDisabled());
   await p.locator('[data-mk95-table-open]').click();await p.locator('#mk95-table-question #fin').fill('6');
   await p.waitForFunction(()=>window.MK95Account.read().table.model?.exercise.answer==='6');
   await ctx.setOffline(true);await p.waitForFunction(()=>window.MK95Account.read().status==='offline');
@@ -136,6 +179,42 @@ async function runTable(browser,url){
   await p.reload();await p.waitForFunction(()=>window.MK95Account?.read().table.status==='confirmed');
   assert.equal(tableRewards,1);assert.deepEqual(await p.evaluate(()=>({xp:state.xp,coins:state.coins,history:state.attemptHistory?.length||0})),before);
   assert.deepEqual(errors,[]);console.log('PASS_TABLE_PILOT_UI draft input, offline F5, completion, reconnect, one reward');
+  async function nextBlock(topic,stage,{mistake=false,offline=false,lost=false}={}){
+   await p.locator('#mk95-table-practice').getByRole('button',{name:'К этапам'}).click();
+   const selector='[data-mk95-topic="'+topic+'"][data-mk95-stage="'+stage+'"]';
+   await p.locator(selector).click();await p.locator('#mk95-table-question').waitFor();
+   const qs=makeQuestions(topic,stage),initial=tableRewards;
+   if(offline){await ctx.setOffline(true);await p.waitForFunction(()=>window.MK95Account.read().status==='offline');await p.reload();await p.locator('#mk95-table-question').waitFor();}
+   for(let i=0;i<qs.length;i++){
+    const q=qs[i],expected=String(topic==='g4:table'?q.a*q.b:q.answer);
+    const answer=async value=>{
+     if(q.choices)await p.locator('#mk95-table-question .school-numeric-choices').getByRole('button',{name:String(value),exact:true}).click();
+     else{await p.locator('#mk95-table-question #fin').fill(String(value));await p.locator('#mk95-table-question #tablePrimary').click();}
+    };
+    if(mistake&&i===0){await answer(Number(expected)-1);await p.waitForFunction(()=>window.MK95Account.read().table.model?.exercise.wrong===true);}
+    await answer(expected);await p.waitForFunction(()=>window.MK95Account.read().table.model?.exercise.nextReady===true);
+    if(lost&&i===qs.length-1)dropReceipt=true;
+    await p.locator('#mk95-table-question #tablePrimary').click();
+    if(i<qs.length-1)await p.waitForFunction(i=>window.MK95Account.read().table.index===i+1,i);
+   }
+   if(offline){await p.waitForFunction(()=>window.MK95Account.read().table.status==='pending');assert.equal(tableRewards,initial);await p.reload();await p.waitForFunction(()=>window.MK95Account?.read().table.status==='pending');await ctx.setOffline(false);}
+   await p.waitForFunction(()=>window.MK95Account.read().table.status==='confirmed',{},{timeout:30000});
+   await p.waitForFunction(expected=>document.querySelector('[data-mk95-coins]')?.textContent===String(expected),41+(initial+1)*25);
+   assert.equal(tableRewards,initial+1);assert.equal(balance[B],82);
+   const last=Array.from(receipts.values()).at(-1);assert.equal(last.topic,topic);assert.equal(last.stage,stage);
+   assert.equal(last.receipt.summary.correct,qs.length-(mistake?1:0));
+  }
+  await nextBlock('g4:table',1,{mistake:true,offline:true});
+  await nextBlock('g4:table',2,{lost:true});
+  for(const topic of topics.slice(1))await nextBlock(topic,0,{mistake:topic==='g4:order',offline:topic==='g4:equations'});
+  await nextBlock('g4:table',0);
+  assert.equal(tableRewards,10);assert.equal(spent.size,10);assert(tablePuts>=11);
+  await p.locator('#mk95-table-practice').getByRole('button',{name:'К этапам'}).click();
+  await p.locator('[data-mk95-topic="g4:table"][data-mk95-stage="0"]').click();
+  await p.getByRole('alert').filter({hasText:'Нет доступных тренировок Free'}).waitFor();
+  assert.equal(tableRewards,10);assert.equal(balance[B],82);
+  assert.deepEqual(await p.evaluate(()=>({xp:state.xp,coins:state.coins,history:state.attemptHistory?.length||0})),before);
+  assert.deepEqual(errors,[]);console.log('PASS_GRADE4_NUMERIC_CHOICE_UI all table stages, six expression topics, quota, lost response, offline F5, no local mutations');
  }finally{await ctx.close()}
 }
 (async()=>{await new Promise(r=>server.listen(0,'127.0.0.1',r));const browser=await chromium.launch({headless:true,args:['--no-sandbox']});try{const url='http://127.0.0.1:'+server.address().port+'/';await run(browser,url,390);await run(browser,url,1280);assert(mutations.every(p=>['/auth/login','/auth/logout'].includes(p)));console.log('PASS_NO_GAMEPLAY_MUTATIONS',mutations);await runTable(browser,url)}finally{await browser.close();await new Promise(r=>server.close(r))}})().catch(e=>{console.error(e);process.exitCode=1});
