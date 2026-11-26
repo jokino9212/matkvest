@@ -1,0 +1,11 @@
+# Closed Pilot R5 — local functional and dependency acceptance (2026-11-26)
+
+Base checkpoint bd84e83534675ba7deb74060bdd5258050af05ac; R5 candidate journal fde68130b91fc7c0702584d880cc779839e3f32a.
+
+Report ZIP SHA-256 cc2e13e7fb77d9de01554b44d640d5a444b3145cad11022426ee2a567645ecb1: CRC and both manifest hashes independently verified. R5 candidate ZIP SHA-256 547ee3b4cd56f3206469fb974df2196b5ec4ff9a5a9999b2adeb3ac00c6545c3: 418 entries, CRC and all 417 file digests verified; manifest SHA-256 12cc40258043179fb2e8b8c00ad501fba7c0baec222dda49f756fd74e86634af matches report. Report is not independent cryptographic attestation of test execution.
+
+Reported status LOCAL_FUNCTIONAL_PASS_EXTERNAL_BLOCKED, stage complete, all 14 stages PASS, external_deploy_approved=false. Installed targets verified in report: FastAPI 0.163.2, Starlette 1.10.0, pydantic-settings 2.16.3, pytest 9.2.0, pip 26.3. SQLite 263/263; PostgreSQL 7+102/109, all zero failures/errors/skips; all nine original PG markers and ten pilot browser markers true. PostgreSQL 16.16, Chromium 141.0.7390.37, TLSv1.3. Local synthetic backup and restore: 35 tables, 744 rows, equal data and logical schema, Alembic 0011_retired_pets_v302. Reported dump digest not independently recomputed (dump not included). Local leaf-specific Chromium trust exception, not public TLS certification.
+
+OSV querybatch scan complete with zero known matches across 47 PyPI and 85 npm inventory entries; pip check PASS, manual findings empty. This is a point-in-time package scan, not clearance of OS, Python 3.13.3, OpenSSL 3.0.16, Chromium, PostgreSQL image, proxy, infrastructure or application vulnerabilities.
+
+Main observed unchanged at 9f06afc8134e007c3e72eae231c8f9b519678fe5; focus branch bc0d11d8ac92c8e0d017f45828c61bf5ca7931ae. No server purchase, external deployment or private source/report upload. Local acceptance closed; next proposed gate is offline preparation and review of production-like private pilot deployment configuration (pinned supported base images, least privileges, network/firewall, secrets, TLS proxy, off-host encrypted backup, monitoring and rollback), without provisioning external resources. External pilot requires separate authorization and environment-specific acceptance.
