@@ -1,0 +1,17 @@
+import assert from 'node:assert/strict';
+import {readFileSync,writeFileSync} from 'node:fs';
+import {createHash} from 'node:crypto';
+const html=readFileSync('index.html','utf8');
+assert.equal(createHash('sha256').update(html).digest('hex'),'4aebd2adc4a7396ddaf670d9383f9e2477028cc16f57dce52d942be8f411e499');
+const old='#modal .answers button.answer:focus-visible{\n  outline:3px solid rgba(23,107,84,.36);outline-offset:2px\n}';
+const replacement='#modal .answers button.answer:focus-visible,\n#modal button.quick-answer:focus-visible{\n  outline:3px solid #2563eb;outline-offset:2px\n}';
+assert.equal(html.split(old).length,2);
+assert.equal(html.split('?v=303').length-1,26);
+const next=html.replace(old,replacement).replaceAll('?v=303','?v=304');
+assert.equal(next.replaceAll('?v=304','?v=303').replace(replacement,old),html);
+let sw=readFileSync('sw.js','utf8');
+const cache='const CACHE_NAME = "matkvest-iphone-v303";';
+assert.equal(sw.split(cache).length,2);
+sw=sw.replace(cache,cache.replace('v303','v304'));
+writeFileSync('index.html',next);writeFileSync('sw.js',sw);
+console.log('PASS_ANSWER_FOCUS_CSS_ONLY');
