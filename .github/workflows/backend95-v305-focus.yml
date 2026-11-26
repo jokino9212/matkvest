@@ -35,7 +35,9 @@ jobs:
         run: |
           python3 audits/sync_v304_focus_to_v305.py candidate
           echo '81ddda0d0993f34aad16dfdf9d354a50691837049cd2ef25556c0daa7ae75953  policy/economy_v302_candidate.json' | sha256sum -c
-          python3 audits/apply_backend95_policy_v302.py policy/economy_v302_candidate.json
+          mkdir -p ci-acceptance-output
+          cp policy/economy_v302_candidate.json ci-acceptance-output/economy_v302_candidate.json
+          python3 audits/apply_backend95_policy_v302.py ci-acceptance-output/economy_v302_candidate.json
           python3 - <<'PY'
           from pathlib import Path
           p=Path('audits/backend95_account_browser.cjs')
