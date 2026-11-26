@@ -142,6 +142,47 @@ jobs:
           python3 audits/g7_stage12_sync_pwa.py
           python3 audits/g7_stage12_sync_pwa.py --check
           git -c safe.directory="$GITHUB_WORKSPACE" -C "$GITHUB_WORKSPACE" diff --check
+      - name: Export and compare proposed pet policy (not installed on server)
+        run: |
+          python3 - <<'PY'
+          import hashlib
+          from pathlib import Path
+          p=Path('audits/export_economy_policy_v290.cjs')
+          s=p.read_text()
+          old='bec1537186acb23b7483d98f8fabf3b3870def64e255cfcec5208d659851ecce'
+          assert s.count(old)==1
+          p.write_text(s.replace(old,hashlib.sha256(Path('index.html').read_bytes()).hexdigest()))
+          PY
+          node audits/export_economy_policy_v290.cjs ci-acceptance-output/economy_v302_candidate.json
+          python3 - <<'PY'
+          import hashlib,json
+          from pathlib import Path
+          root=Path('ci-acceptance-output')
+          old=json.loads((root/'economy_v290.json').read_bytes())
+          candidate=root/'economy_v302_candidate.json'
+          new=json.loads(candidate.read_bytes())
+          retired={'pet_robotx','pet_wisecat','pet_royal_dragon'}
+          assert new['build']==hashlib.sha256(Path('index.html').read_bytes()).hexdigest()
+          assert new['build']!=old['build']
+          olditems={x['id']:x for x in old['items']}
+          assert retired <= olditems.keys()
+          assert all(olditems[i]['category']=='pets' for i in retired)
+          assert retired <= {i for xs in old['pools'].values() for i in xs}
+          old['build']=new['build']
+          for item in old['items']:
+              if item['id'] in retired:
+                  item['buyable']=False
+                  item['selectable']=False
+          old['pools']={r:[i for i in ids if i not in retired] for r,ids in old['pools'].items()}
+          assert old==new, 'Unexpected economy policy delta'
+          print('PASS_EXACT_PET_POLICY_DELTA',hashlib.sha256(candidate.read_bytes()).hexdigest())
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v302-proposed-policy-not-for-deploy
+          path: ci-acceptance-output/economy_v302_candidate.json
+          if-no-files-found: error
+          retention-days: 7
       - name: Build combined diagnostic with distinct cache namespace
         run: |
           python3 - <<'PY'
