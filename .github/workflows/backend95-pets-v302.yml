@@ -183,6 +183,9 @@ jobs:
           path: ci-acceptance-output/economy_v302_candidate.json
           if-no-files-found: error
           retention-days: 7
+      - name: Apply verified v302 server policy to the candidate only
+        run: |
+          python3 audits/apply_backend95_policy_v302.py ci-acceptance-output/economy_v302_candidate.json
       - name: Build combined diagnostic with distinct cache namespace
         run: |
           python3 - <<'PY'
@@ -220,10 +223,34 @@ jobs:
           print('PASS_V302_MODULE_VERSION_FENCE')
           PY
           grep -q 'matkvest-integration95-v302' ci-acceptance-output/combined/sw.js
-      - name: Synthetic integration diagnostic only (old server policy)
+      - name: Verify strict catalogue and archive behavior in built modules
+        run: |
+          node --input-type=module <<'JS'
+          import assert from 'node:assert/strict';
+          import policy from './ci-acceptance-output/combined/integration/economy_policy_v302.mjs';
+          import {validateEconomy,buildEconomy} from './ci-acceptance-output/combined/integration/economy_read.mjs';
+          import {readFileSync} from 'node:fs';
+          const catalog={...policy,policy_sha256:'81ddda0d0993f34aad16dfdf9d354a50691837049cd2ef25556c0daa7ae75953'};
+          const state={profile_id:'test',build:policy.build,sale_quotes:[{item_id:'pet_robotx',refund_now:172,refund_mission:344}],useful_topics:[],chest:{available:{rare:19,epic:15,legendary:10},opened:0,miss_epic:0,miss_legendary:0,history:[]}};
+          const live=validateEconomy(catalog,state,'test');assert(live);
+          const old=JSON.parse(readFileSync('ci-acceptance-output/economy_v290.json'));assert.equal(validateEconomy({...old,policy_sha256:'e12e0b972331ecf508f40a0e9a5b285d205807844222d2191260d91a88e54c43'},state,'test'),null);
+          for(const mutate of [x=>x.chest_price++,x=>x.items.find(i=>i.id==='pet_robotx').selectable=true,x=>x.rates.rare--,x=>x.items.find(i=>i.id==='pet_bot').price++]){const x=structuredClone(catalog);mutate(x);assert.equal(validateEconomy(x,state,'test'),null);}
+          assert.equal(validateEconomy(catalog,{...state,build:old.build},'test'),null);
+          const snap={profile:{display_name:'test'},wallet:{balance:1000,revision:1},collection:{items:[{id:'pet_robotx',category:'pets',source:'store',paid_price:430}],equipped:[],achievements:[]},economy:live};
+          const model=buildEconomy(snap,{},[]);const archived=model.collectionSections.find(s=>s.id==='archived-pets').items[0];assert(archived.sale&&!archived.button&&!archived.selected);assert(!model.catalogSections.flatMap(s=>s.cards).some(c=>c.id==='pet_robotx'));
+          const preview=buildEconomy({...snap,economy:null},{pets:[{id:'pet_robotx',name:'Archive'}]},[]);assert(!preview.collectionSections.find(s=>s.id==='archived-pets').items[0].sale);assert(!preview.catalogSections.flatMap(s=>s.cards).some(c=>c.id==='pet_robotx'));
+          console.log('PASS_V302_EXACT_POLICY_AND_ARCHIVE_MODEL');
+          JS
+      - name: Synthetic integration regression with new v302 policy
         run: |
           node audits/backend95_account_browser.cjs ci-acceptance-output/combined
           node audits/backend95_school_queue_browser.cjs
       - name: Release guard
         run: |
-          echo "::warning::Diagnostic uses old v290 server policy; no combined release artifact, real server or PostgreSQL acceptance. Migration required."
+          echo "::warning::New policy synthetic API only; no real server or PostgreSQL acceptance. Do not deploy."
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v302-combined-local-test-site-not-for-deploy
+          path: ci-acceptance-output/combined
+          if-no-files-found: error
+          retention-days: 14
