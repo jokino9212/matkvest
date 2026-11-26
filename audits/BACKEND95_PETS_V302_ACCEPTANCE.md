@@ -32,3 +32,10 @@ New policy 81ddda0d0993f34aad16dfdf9d354a50691837049cd2ef25556c0daa7ae75953
 3. Implement and verify actual server migration from 0010 against real models. Coordinate new server policy and client validation; reject stale policy safely; preserve ownership, historic receipts, refunds, missions, chest history and wallets. No automatic refund. Normalize retired equipped slots.
 4. Real PostgreSQL on disposable local/test-only environment: upgrade + fresh install, actual server tests, transaction and replay/concurrency tests and real Vue + API browser integration. No production or external server.
 5. Candidate still applies pet patch in ephemeral CI checkout; repository index.html remains pinned original. No ready-to-deploy combined product source or artifact claimed.
+
+## Final frontend CI and local backend candidate — 26 November 2026
+- CI 45799968202: all three jobs now completed SUCCESS, including pet-regression 139840327131. Synthetic integration acceptance is complete for the tested head, with the old v290 server policy only.
+- User provided original v300 PostgreSQL acceptance archive; CRC OK, 205 files. Recovered new policy from exact old JSON, SHA256 matches accepted 81ddda0d0993f34aad16dfdf9d354a50691837049cd2ef25556c0daa7ae75953.
+- Prepared separate LOCAL backend candidate archive, not published in GitHub. Migration 0011_retired_pets_v302 after 0010, retirement and equipment normalization, preserve purchases, receipt replay, 40/80 percent refunds and legacy ownership. Actual SQLite full regression 199 passed (three PG-only modules excluded), fresh Alembic upgrade, populated 0010 -> 0011 and repeat upgrade, real HTTP analytics smoke PASS.
+- PostgreSQL gate attempted: blocked by missing local Docker CLI. Added PG-only archived sale concurrency tests and populated upgrade gate; not executed on PG. No PostgreSQL PASS claimed.
+- Local candidate SHA256 94823b1d11e2be9543167cdb647a757c8213b1682bb10341486fac7a1f8638b3. Archive delivered in chat, retain it locally. No server sources uploaded. New client policy validation and real Vue+API+PG acceptance still required; release remains blocked. Main and production untouched.
