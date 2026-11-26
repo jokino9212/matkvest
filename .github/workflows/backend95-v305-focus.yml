@@ -1,0 +1,79 @@
+name: v305 integration focus and synthetic API regression
+on:
+  push:
+    branches: [integration/backend95-v305-focus]
+    paths:
+      - audits/sync_v304_focus_to_v305.py
+      - .github/workflows/backend95-v305-focus.yml
+permissions:
+  contents: read
+  actions: read
+jobs:
+  regression:
+    if: github.repository == 'jokino9212/matkvest' && github.ref == 'refs/heads/integration/backend95-v305-focus'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@v4
+        with:
+          name: v302-combined-local-test-site-not-for-deploy
+          run-id: 45806425056
+          github-token: ${{ github.token }}
+          path: candidate
+      - uses: actions/download-artifact@v4
+        with:
+          name: v302-proposed-policy-not-for-deploy
+          run-id: 45806425056
+          github-token: ${{ github.token }}
+          path: policy
+      - name: Apply exact v304 focus change and verify SHA fences
+        run: |
+          python3 audits/sync_v304_focus_to_v305.py candidate
+          echo '81ddda0d0993f34aad16dfdf9d354a50691837049cd2ef25556c0daa7ae75953  policy/economy_v302_candidate.json' | sha256sum -c
+          python3 audits/apply_backend95_policy_v302.py policy/economy_v302_candidate.json
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('audits/backend95_account_browser.cjs')
+          s=p.read_text()
+          anchor="await p.locator('#mainView .grade-grid').waitFor();assert.deepEqual(await local(p),before);"
+          assert s.count(anchor)==1
+          s=s.replace(anchor,anchor+"""
+          await p.evaluate(()=>startG5QuizStage('order',0));
+          await p.locator('#qstage .answer').first().waitFor();
+          const focusBefore=await p.evaluate(()=>({question:q.text,answer:q.ans,answered,done:blockSession.done,coins:state.coins,xp:state.xp,classes:[...document.querySelectorAll('#qstage .answer')].map(x=>x.className)}));
+          const selected=p.locator('#qstage .answer').first();
+          await selected.focus();
+          await p.keyboard.press('Escape');
+          await p.getByRole('button',{name:'Остаться в тренировке'}).waitFor();
+          await p.keyboard.press('Enter');
+          await p.locator('.mk872-training-dialog').waitFor({state:'detached'});
+          const focusAfter=await p.evaluate(()=>({question:q.text,answer:q.ans,answered,done:blockSession.done,coins:state.coins,xp:state.xp,classes:[...document.querySelectorAll('#qstage .answer')].map(x=>x.className)}));
+          assert.deepEqual(focusAfter,focusBefore);
+          assert.equal(await selected.evaluate(b=>getComputedStyle(b).outlineColor),'rgb(37, 99, 235)');
+          assert.equal(await selected.evaluate(b=>getComputedStyle(b).backgroundColor),'rgb(255, 255, 255)');
+          await p.keyboard.press('Escape');
+          await p.getByRole('button',{name:'Выйти из тренировки'}).click();
+          await p.locator('.mk872-training-dialog').waitFor({state:'detached'});
+          console.log('PASS_V305_LOCAL_ORDER_FOCUS',width);
+          """)
+          p.write_text(s)
+          PY
+      - run: npm ci && npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Account and queue tests
+        run: |
+          node audits/backend95_account_store.test.mjs
+          node audits/backend95_economy_operations.test.mjs
+          node audits/backend95_school_queue_browser.cjs
+      - name: Browser integration against synthetic API only
+        run: node audits/backend95_account_browser.cjs candidate
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v305-focus-integration-not-for-deploy
+          path: candidate/
+          if-no-files-found: error
+          retention-days: 14
