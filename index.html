@@ -14258,7 +14258,7 @@ function knowledgeFilteredSections(data){
  const mapSec=sec=>{let topics=sec.topics.filter(t=>knowledgeStatusPass(t,knowledgeMapState.status)&&(!q||`${t.title} ${t.group}`.toLocaleLowerCase("ru-RU").includes(q)));if(knowledgeMapState.sort==="attention")topics=topics.slice().sort((a,b)=>knowledgeTopicPriority(a)-knowledgeTopicPriority(b));return {...sec,topics}};
  return [...data.sections,...data.extraSections].map(mapSec).filter(s=>s.topics.length);
 }
-const knowledgeMapUrl = "./assets/ui/knowledge-map.js?v=303";
+const knowledgeMapUrl = "./assets/ui/knowledge-map.js?v=304";
 const knowledgeTopicDetailHostId="knowledgeTopicDetailVue";
 let knowledgeMapModule;
 let knowledgeMapRevision=0;
@@ -40028,8 +40028,9 @@ body{background:var(--mk19c-canvas);color:var(--mk19c-ink)}
   font-weight:750;line-height:1.22;
   transition:transform .15s ease,border-color .15s ease,box-shadow .15s ease
 }
-#modal .answers button.answer:focus-visible{
-  outline:3px solid rgba(23,107,84,.36);outline-offset:2px
+#modal .answers button.answer:focus-visible,
+#modal button.quick-answer:focus-visible{
+  outline:3px solid #2563eb;outline-offset:2px
 }
 #modal #quizSkip{min-height:43px;border-radius:12px;font-size:14px}
 /* Shop and account: compact visual hierarchy, no buying/equipping changes. */
@@ -42156,31 +42157,31 @@ document.addEventListener("keydown",event=>{
 })();
 </script>
 
-<script src="g5-conversion-ux.js?v=303"></script>
-<script src="g5-textbook-topics.js?v=303"></script>
-<script src="g5-textbook-core.js?v=303"></script>
-<script src="g5-textbook-v111.js?v=303"></script>
-<script src="g5-textbook-v112.js?v=303"></script>
-<script src="g5-pedagogy-v113.js?v=303"></script>
-<script src="g5-fractions-v114.js?v=303"></script>
-<script src="g5-fraction-arithmetic-v115.js?v=303"></script>
-<script src="g5-decimals-v116.js?v=303"></script>
-<script src="g7-textbook.js?v=303"></script>
-<script src="g8-textbook.js?v=303"></script>
-<script src="g1-textbook.js?v=303"></script>
-<script src="g2-textbook.js?v=303"></script>
-<script src="g3-textbook.js?v=303"></script>
-<script src="g4-textbook.js?v=303"></script>
-<script src="g5-textbook-navigation-v121.js?v=303"></script>
-<script src="g5-live-pedagogy-v122.js?v=303"></script>
-<script src="g5-arithmetic-tiers-v123.js?v=303"></script>
-<script src="g5-textbook-tiers-v124.js?v=303"></script>
-<script src="g5-natural-units-v125.js?v=303"></script>
-<script src="g5-remaining-core-v126.js?v=303"></script>
-<script src="g5-decimal-tiers-v127.js?v=303"></script>
-<script src="g5-decimal-percent-v128.js?v=303"></script>
-<script src="g5-fraction-concepts-v129.js?v=303"></script>
-<script src="g5-fraction-applications-v130.js?v=303"></script>
+<script src="g5-conversion-ux.js?v=304"></script>
+<script src="g5-textbook-topics.js?v=304"></script>
+<script src="g5-textbook-core.js?v=304"></script>
+<script src="g5-textbook-v111.js?v=304"></script>
+<script src="g5-textbook-v112.js?v=304"></script>
+<script src="g5-pedagogy-v113.js?v=304"></script>
+<script src="g5-fractions-v114.js?v=304"></script>
+<script src="g5-fraction-arithmetic-v115.js?v=304"></script>
+<script src="g5-decimals-v116.js?v=304"></script>
+<script src="g7-textbook.js?v=304"></script>
+<script src="g8-textbook.js?v=304"></script>
+<script src="g1-textbook.js?v=304"></script>
+<script src="g2-textbook.js?v=304"></script>
+<script src="g3-textbook.js?v=304"></script>
+<script src="g4-textbook.js?v=304"></script>
+<script src="g5-textbook-navigation-v121.js?v=304"></script>
+<script src="g5-live-pedagogy-v122.js?v=304"></script>
+<script src="g5-arithmetic-tiers-v123.js?v=304"></script>
+<script src="g5-textbook-tiers-v124.js?v=304"></script>
+<script src="g5-natural-units-v125.js?v=304"></script>
+<script src="g5-remaining-core-v126.js?v=304"></script>
+<script src="g5-decimal-tiers-v127.js?v=304"></script>
+<script src="g5-decimal-percent-v128.js?v=304"></script>
+<script src="g5-fraction-concepts-v129.js?v=304"></script>
+<script src="g5-fraction-applications-v130.js?v=304"></script>
 <script>
 // The textbook scripts finish extending the catalog before Home shows its totals.
 g5HomeCatalogReady=true;
