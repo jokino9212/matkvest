@@ -1,44 +1,66 @@
-name: Pet cleanup isolated archive candidate
+name: Pet cleanup isolated v301 candidate
 on:
   push:
     branches: [refactor/pet-cleanup-ad61b3f3]
     paths:
       - audits/pet_cleanup_archive_candidate.mjs
+      - audits/pet_cleanup_regression.cjs
       - .github/workflows/pet-cleanup-candidate.yml
 permissions:
   contents: read
+concurrency:
+  group: pet-cleanup-candidate
+  cancel-in-progress: true
 jobs:
   archive-candidate:
     if: github.repository == 'jokino9212/matkvest' && github.ref == 'refs/heads/refactor/pet-cleanup-ad61b3f3'
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     container:
       image: mcr.microsoft.com/playwright:v1.56.1-noble
     steps:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
-      - name: Apply guarded small patch in isolated checkout
+      - name: Apply guarded patch in isolated checkout
         run: |
           node audits/pet_cleanup_archive_candidate.mjs
           node audits/pet_cleanup_archive_candidate.mjs --apply
           python3 audits/g7_stage12_sync_pwa.py
           python3 audits/g7_stage12_sync_pwa.py --check
-          git diff --check
+          git -c safe.directory="$GITHUB_WORKSPACE" -C "$GITHUB_WORKSPACE" diff --check
       - name: Browser dependencies
         run: |
           npm ci
           npm install --no-save --no-package-lock playwright@1.56.1
-      - name: Verify PWA and prior sale behavior
+      - name: Pet history, purchase, selection, compensation, reward art
+        run: node audits/pet_cleanup_regression.cjs
+      - name: Existing Vue, fallback and school regression
+        run: |
+          for f in audits/legacy_navigation_core.test.cjs audits/legacy_*_v*.test.cjs audits/v288_store.test.cjs; do node "$f"; done
+          python3 - <<'PY'
+          from pathlib import Path
+          names=['legacy_vue_actions_v271_browser.cjs','legacy_training_plan_v272_browser.cjs','legacy_school_actions_v273_browser.cjs','legacy_school_column_v274_browser.cjs','legacy_school_frame_journal_v275_browser.cjs','legacy_reports_teacher_v276_browser.cjs','legacy_analytics_view_v277_browser.cjs','legacy_profile_dialog_v278_browser.cjs','legacy_teacher_dashboard_v279_browser.cjs','legacy_teacher_escape_store_v280_browser.cjs','legacy_achievements_v281_browser.cjs','legacy_quest_back_v282_browser.cjs','legacy_leaderboard_v283_browser.cjs','legacy_help_v284_browser.cjs','legacy_artwork_v285_browser.cjs','legacy_sale_v286_browser.cjs','legacy_sale_v287_browser.cjs']
+          for name in names:
+              s=(Path('audits')/name).read_text()
+              import re
+              s=re.sub(r'(?<=[vV])(?:27[1-9]|28[0-9]|290)\b','301',s)
+              (Path('audits')/('pet301_'+name)).write_text(s)
+          PY
+          for f in audits/pet301_*_browser.cjs; do node "$f"; done
+          node audits/v288_browser.cjs
+          node audits/v289_teacher_browser.cjs
+      - name: Verify PWA offline and refresh
         run: |
           node audits/stage28_offline_pwa_browser.cjs
-          sed 's/v287/v290/g;s/V287/V290/g' audits/legacy_sale_v287_browser.cjs > audits/pet_cleanup_sale_regression.cjs
-          node audits/pet_cleanup_sale_regression.cjs
-      - name: Retain candidate for inspection only
+          node audits/pwa_verified_refresh_browser.cjs
+          python3 audits/g7_stage12_sync_pwa.py --check
+      - name: Retain tested files for inspection only
         uses: actions/upload-artifact@v4
-        if: always()
         with:
-          name: archive-candidate-not-for-deploy
+          name: pet-cleanup-v301-not-for-deploy
           path: |
             index.html
             sw.js
+          if-no-files-found: error
+          retention-days: 7
