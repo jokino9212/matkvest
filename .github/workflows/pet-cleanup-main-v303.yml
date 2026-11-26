@@ -1,0 +1,94 @@
+name: Main v266 pet-only release v303 gate
+on:
+  push:
+    branches: [release/pet-cleanup-main-v303]
+    paths:
+      - audits/pet_cleanup_main_v303.mjs
+      - audits/pet_cleanup_main_v303_browser.cjs
+      - .github/workflows/pet-cleanup-main-v303.yml
+permissions:
+  contents: read
+concurrency:
+  group: pet-cleanup-main-v303
+  cancel-in-progress: false
+jobs:
+  regression:
+    if: github.repository == 'jokino9212/matkvest' && github.ref == 'refs/heads/release/pet-cleanup-main-v303'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    strategy:
+      fail-fast: false
+      matrix:
+        suite: [pets, school, pwa]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Exact Main base and deterministic pet-only patch
+        run: |
+          node audits/pet_cleanup_main_v303.mjs
+          node audits/pet_cleanup_main_v303.mjs --apply
+          python3 audits/g7_stage12_sync_pwa.py
+          python3 audits/g7_stage12_sync_pwa.py --check
+          git -c safe.directory="$GITHUB_WORKSPACE" diff --check
+          test "$(git -c safe.directory="$GITHUB_WORKSPACE" diff --name-only | sort | tr '\n' ' ')" = 'index.html sw.js '
+          sha256sum index.html sw.js
+      - run: npm ci && npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Pets, store, collection, rewards, history and profiles
+        if: matrix.suite == 'pets'
+        run: |
+          node audits/pet_cleanup_main_v303_browser.cjs
+          node audits/shop_progress_v874_browser_test.cjs
+          node audits/stage30_collection_media_browser.cjs
+          node audits/stage25_profile_isolation_browser.cjs
+          node audits/stage20_mobile_overlays_browser.cjs
+      - name: Vue, school, keyboard and draft recovery
+        if: matrix.suite == 'school'
+        run: |
+          node audits/vue_knowledge_map_browser.cjs
+          node audits/vue_analytics_scope.cjs
+          node audits/stage21_training_keyboard_audit.cjs
+          node audits/stage22_answer_drafts_browser.cjs
+          node audits/stage23_complex_answers_browser.cjs
+          node audits/stage24_attempt_lifecycle_browser.cjs
+          node audits/stage26_verified_recovery_browser.cjs
+      - name: PWA and verified refresh
+        if: matrix.suite == 'pwa'
+        run: |
+          node audits/stage28_offline_pwa_browser.cjs
+          node audits/pwa_verified_refresh_browser.cjs
+          python3 audits/g7_stage12_sync_pwa.py --check
+  materialize-tested-branch:
+    needs: regression
+    if: github.repository == 'jokino9212/matkvest' && github.ref == 'refs/heads/release/pet-cleanup-main-v303'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Materialize only tested index and worker in test branch
+        run: |
+          node audits/pet_cleanup_main_v303.mjs --apply
+          python3 audits/g7_stage12_sync_pwa.py
+          python3 audits/g7_stage12_sync_pwa.py --check
+          git diff --check
+          test "$(git diff --name-only | sort | tr '\n' ' ')" = 'index.html sw.js '
+          sha256sum index.html sw.js
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html sw.js
+          git commit -m 'Release candidate v303: archive retired pets and refresh reward artwork only'
+          git push origin HEAD:refs/heads/release/pet-cleanup-main-v303
+          git rev-parse HEAD
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v303-tested-main-pet-patch
+          path: |
+            index.html
+            sw.js
+          if-no-files-found: error
+          retention-days: 14
