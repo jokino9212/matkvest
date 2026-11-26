@@ -197,9 +197,28 @@ jobs:
           s=s.replace('?v=290','?v=301').replace('?v=300','?v=302')
           assert s.count('matkvest-integration95-v290')==1
           s=s.replace('matkvest-integration95-v290','matkvest-integration95-v301').replace('matkvest-integration95-v300','matkvest-integration95-v302')
+          # Versioned static imports must match the worker's SCRIPT_HASHES URLs.
+          marker="w=sw.read_text('utf8')"
+          assert s.count(marker)==1
+          s=s.replace(marker,"for module in (out/'integration').glob('*.mjs'):\n text=module.read_text('utf8')\n if '?v=300' in text:module.write_text(text.replace('?v=300','?v=302'),'utf8')\n"+marker)
           p.write_text(s)
           PY
           python3 audits/build_backend95_account.py ci-acceptance-output/combined
+          python3 - <<'PY'
+          from pathlib import Path
+          import json,re,hashlib
+          root=Path('ci-acceptance-output/combined')
+          worker=(root/'sw.js').read_text()
+          hashes=json.loads(re.search(r'const SCRIPT_HASHES = (\{[^\n]+\});',worker)[1])
+          for module in (root/'integration').glob('*.mjs'):
+              source=module.read_text()
+              assert '?v=300' not in source,module
+              for target,version in re.findall(r"""['"]\./([\w.-]+\.mjs)\?v=(\d+)['"]""",source):
+                  assert version=='302',(module,target,version)
+                  path='integration/'+target
+                  assert hashes[path]==hashlib.sha256((root/path).read_bytes()).hexdigest(),path
+          print('PASS_V302_MODULE_VERSION_FENCE')
+          PY
           grep -q 'matkvest-integration95-v302' ci-acceptance-output/combined/sw.js
       - name: Synthetic integration diagnostic only (old server policy)
         run: |
