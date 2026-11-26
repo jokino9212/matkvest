@@ -1,0 +1,49 @@
+name: Materialize exact tested v304 focus candidate
+on:
+  push:
+    branches: [audit/v303-order-exit-focus]
+    paths: [.github/workflows/v304-materialize.yml]
+permissions:
+  actions: read
+  contents: write
+jobs:
+  candidate:
+    if: github.repository == 'jokino9212/matkvest' && github.ref == 'refs/heads/audit/v303-order-exit-focus'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Require successful exact v304 regression
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for i in $(seq 1 120); do
+            gh api repos/jokino9212/matkvest/actions/runs/45822605084 > "$RUNNER_TEMP/focus-run.json"
+            result=$(python3 -c 'import json,sys; j=json.load(open(sys.argv[1])); assert j["head_sha"]=="ff074b67e7d834d9c79c1e9bee55c687ea8f34b3"; print(j["conclusion"] if j["status"]=="completed" else "pending")' "$RUNNER_TEMP/focus-run.json")
+            if [ "$result" = success ]; then break; fi
+            if [ "$result" != pending ]; then echo "Regression ended: $result"; exit 1; fi
+            sleep 10
+          done
+          test "$result" = success
+          gh run download 45822605084 -n v304-focus-tested-not-for-deploy -D "$RUNNER_TEMP/tested-focus"
+      - name: Reproduce and byte-compare tested runtime files
+        run: |
+          node audits/answer_focus_v304.mjs
+          python3 audits/g7_stage12_sync_pwa.py
+          python3 audits/g7_stage12_sync_pwa.py --check
+          cmp index.html "$RUNNER_TEMP/tested-focus/index.html"
+          cmp sw.js "$RUNNER_TEMP/tested-focus/sw.js"
+          git diff --check
+          test "$(git diff --name-only | sort | tr '\n' ' ')" = 'index.html sw.js '
+          sha256sum index.html sw.js
+          echo PASS_EXACT_TESTED_V304
+      - name: Commit only tested runtime files to isolated branch
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html sw.js
+          git commit -m 'v304: blue answer focus, preserve correct and incorrect feedback'
+          git push origin HEAD:refs/heads/audit/v303-order-exit-focus
+          git rev-parse HEAD
