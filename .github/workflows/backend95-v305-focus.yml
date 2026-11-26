@@ -57,7 +57,7 @@ jobs:
           assert.equal(await selected.evaluate(b=>getComputedStyle(b).outlineColor),'rgb(37, 99, 235)');
           assert.equal(await selected.evaluate(b=>getComputedStyle(b).backgroundColor),'rgb(255, 255, 255)');
           await p.keyboard.press('Escape');
-          await p.getByRole('button',{name:'Выйти из тренировки'}).click();
+          await p.getByRole('button',{name:'Выйти и удалить попытку'}).click();
           await p.locator('.mk872-training-dialog').waitFor({state:'detached'});
           console.log('PASS_V305_LOCAL_ORDER_FOCUS',width);
           """)
