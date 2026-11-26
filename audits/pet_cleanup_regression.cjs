@@ -26,6 +26,7 @@ async function scenario(browser,url,width,fallback){
   assert.equal(expected.current,'pet_none');assert.deepEqual(expected.initial,expected.after);
   assert.deepEqual(expected.rows.map(r=>[r.ok,r.now,r.later]),[[true,172,344],[true,128,256],[true,304,608]]);
   assert.deepEqual(expected.art.map(x=>[x.rewardOnly,x.price,x.marker]),rewards.map(id=>[true,0,id]));
+  assert.deepEqual(expected.art.map(x=>x.achievement),['streak10','fractions','remediation50']);
   assert.deepEqual(expected.art.map(x=>x.asset),['assets/source/pets/pet_owl.webp','assets/source/pets/pet_dragon.webp','assets/source/pets/pet_turtle.webp']);
   // Actual purchase guard on an unowned archived SKU, and a real archived sale.
   const sale=await p.evaluate(id=>{
