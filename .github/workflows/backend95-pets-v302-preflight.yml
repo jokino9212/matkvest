@@ -1,0 +1,57 @@
+name: v302 migration input verification only
+on:
+  push:
+    branches: [integration/backend95-pets-v302-preflight]
+    paths: ['.github/workflows/backend95-pets-v302-preflight.yml']
+permissions:
+  contents: read
+jobs:
+  preflight:
+    if: github.repository == 'jokino9212/matkvest' && github.ref == 'refs/heads/integration/backend95-pets-v302-preflight'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Validate exact source and exports, fail closed
+        run: |
+          set -eu
+          python3 -m py_compile audits/prepare_backend95_pet_migration_v302.py
+          python3 audits/prepare_backend95_pet_migration_v302.py
+          python3 -O audits/prepare_backend95_pet_migration_v302.py
+          python3 audits/prepare_backend95_pet_migration_v302.py --output "$RUNNER_TEMP/v302-policy"
+          cd "$RUNNER_TEMP/v302-policy"
+          echo 'e12e0b972331ecf508f40a0e9a5b285d205807844222d2191260d91a88e54c43  economy_v290.json' | sha256sum -c
+          echo '81ddda0d0993f34aad16dfdf9d354a50691837049cd2ef25556c0daa7ae75953  economy_v302_candidate.json' | sha256sum -c
+          cd "$GITHUB_WORKSPACE"
+          if python3 audits/prepare_backend95_pet_migration_v302.py --output "$RUNNER_TEMP/v302-policy"; then exit 1; fi
+          cd "$RUNNER_TEMP/v302-policy"
+          echo '81ddda0d0993f34aad16dfdf9d354a50691837049cd2ef25556c0daa7ae75953  economy_v302_candidate.json' | sha256sum -c
+          cd "$GITHUB_WORKSPACE"
+          python3 - <<'PY'
+          import importlib.util, hashlib, gzip, base64, json
+          from unittest.mock import patch
+          spec=importlib.util.spec_from_file_location('migration','audits/prepare_backend95_pet_migration_v302.py')
+          m=importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(m)
+          old,new=m.preflight()
+          def rejects(fn):
+              try: fn()
+              except ValueError: return
+              raise RuntimeError('unexpected acceptance')
+          rejects(lambda: m.unpack(m.NEW_GZIP_B64, m.OLD_SHA))
+          candidate=json.loads(new)
+          candidate['chest_price'] += 1
+          bad=json.dumps(candidate).encode()
+          with patch.object(m,'NEW_GZIP_B64',base64.b64encode(gzip.compress(bad)).decode()), patch.object(m,'NEW_SHA',hashlib.sha256(bad).hexdigest()):
+              rejects(m.preflight)
+          candidate=json.loads(new)
+          for i in candidate['items']:
+              if i['id']=='pet_robotx': i['selectable']=True
+          bad=json.dumps(candidate).encode()
+          with patch.object(m,'NEW_GZIP_B64',base64.b64encode(gzip.compress(bad)).decode()), patch.object(m,'NEW_SHA',hashlib.sha256(bad).hexdigest()):
+              rejects(m.preflight)
+          print('PASS_V302_PREFLIGHT_NEGATIVE_CASES')
+          PY
+          git diff --exit-code
