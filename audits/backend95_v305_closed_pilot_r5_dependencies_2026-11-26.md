@@ -1,0 +1,11 @@
+# Closed Pilot R5 — dependency upgrade candidate and Windows report fix
+
+Base checkpoint bd84e83534675ba7deb74060bdd5258050af05ac. R4 report ZIP SHA-256 7289ac3b9467a1e616ee35d8c1136d34d6ed8745b761d63ebbdf0025364fcb0d, CRC and both manifest digests verified; package manifest matches pinned R4. Actual PostgreSQL restore repeated: 35 tables, 744 rows, equal data/schema. All ten actual TLS/Vue/PG functional markers true. Overall BLOCKED_OR_FAILED at tls_browser due to Missing TLS/browser version. Original stdout not retained; exact versions unknown. Old byte-decoding plus regex CRLF issue reproduced on representative output. R5 parses logical lines strictly and rejects missing/malformed/duplicate versions.
+
+OSV on user PC completed: findings pip 25.0.1, pydantic-settings 2.14.1, pytest 9.0.2, starlette 0.50.0; manual FastAPI 0.128.2 advisory remains. pip check PASS. R5 candidate pins FastAPI 0.163.2, Starlette 1.10.0, pydantic-settings 2.16.3, pytest 9.2.0, pip 26.3. Verified release existence and declared dependency ranges upstream. Candidate versions NOT installed/tested in assistant runtime (PyPI DNS unavailable). Not a claim of resolved vulnerabilities; repeat OSV and actual regression required.
+
+Assistant SQLite regression on old installed R4 dependency set: 263/263, zero failures/errors/skips; nine added tests, seven PG-only tests excluded. App, site and SQL migrations byte-identical to R4. R5 runs version fences, all 263 SQLite tests, old PG 7+102 tests, real HTTP/Vue, then isolated backup/restore and pilot TLS/Chromium, followed by OSV; no external listener. Strict report and cleanup; no raw private logs or DB uploaded.
+
+Full private ZIP MatKvest_v305_Closed_Pilot_R5.zip, SHA-256 547ee3b4cd56f3206469fb974df2196b5ec4ff9a5a9999b2adeb3ac00c6545c3, 418 entries, CRC and 417 manifest hashes verified, manifest SHA-256 12cc40258043179fb2e8b8c00ad501fba7c0baec222dda49f756fd74e86634af. User extracts fresh folder, runs RUN_PILOT_REHEARSAL.cmd and sends report. No external deployment approval; production, OS/Python/OpenSSL/Chromium/image/security and operations remain separate gates.
+
+Main observed 9f06afc8134e007c3e72eae231c8f9b519678fe5. No server purchase or deployment. Only journal committed in this branch.
