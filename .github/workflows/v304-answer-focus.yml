@@ -1,0 +1,108 @@
+name: v304 blue answer focus regression
+on:
+  push:
+    branches: [audit/v303-order-exit-focus]
+    paths: [.github/workflows/v304-answer-focus.yml, audits/answer_focus_v304.mjs]
+permissions:
+  contents: read
+jobs:
+  probe:
+    if: github.ref == 'refs/heads/audit/v303-order-exit-focus'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - run: |
+          echo '4aebd2adc4a7396ddaf670d9383f9e2477028cc16f57dce52d942be8f411e499  index.html' | sha256sum -c
+          python3 audits/g7_stage12_sync_pwa.py --check
+          node audits/answer_focus_v304.mjs
+          python3 audits/g7_stage12_sync_pwa.py
+          python3 audits/g7_stage12_sync_pwa.py --check
+          git -c safe.directory="$GITHUB_WORKSPACE" diff --check
+          test "$(git -c safe.directory="$GITHUB_WORKSPACE" diff --name-only | sort | tr '\n' ' ')" = 'index.html sw.js '
+          npm ci
+          npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Inspect first question after exit warning, focus and keyboard
+        run: |
+          cat > audits/v303_order_exit_probe.cjs <<'JS'
+          const assert=require('node:assert/strict');
+          const {withMatkvestBrowser}=require('./matkvest_browser_harness.cjs');
+          const snap=p=>p.evaluate(()=>({
+            question:q.text,ans:String(q.ans),answered,done:blockSession.done,xp:state.xp,coins:state.coins,
+            checks:JSON.stringify(blockSession.currentItem?.checks||[]),
+            feedback:document.querySelector('#qfb')?.textContent,
+            focus:document.activeElement?.outerHTML?.slice(0,120),
+            choices:[...document.querySelectorAll('#qstage .answer')].map(b=>({label:b.textContent,cls:b.className,focus:b.matches(':focus-visible'),bg:getComputedStyle(b).backgroundColor,outline:getComputedStyle(b).outlineColor,outlineStyle:getComputedStyle(b).outlineStyle}))
+          }));
+          function unchanged(a,b){
+            for(const key of ['question','ans','answered','done','xp','coins','checks','feedback'])assert.deepEqual(a[key],b[key],key);
+            assert.deepEqual(a.choices.map(x=>x.cls),b.choices.map(x=>x.cls));
+            assert(!b.choices.some(x=>/\b(good|bad)\b/.test(x.cls)));
+          }
+          withMatkvestBrowser(async(browser,url)=>{
+            for(const width of [1280,390])for(const fallback of [false,true])for(const stage of [0,1,2]){
+              const ctx=await browser.newContext({viewport:{width,height:850},serviceWorkers:'block'});
+              if(fallback)await ctx.route('**/assets/ui/knowledge-map.js*',route=>route.abort());
+              const p=await ctx.newPage(),errors=[];
+              p.on('pageerror',e=>errors.push(e.message));
+              try{
+                await p.goto(url);await p.waitForFunction(()=>typeof startG5QuizStage==='function'&&mk854HistoryReady);
+                await p.evaluate(stage=>startG5QuizStage('order',stage),stage);
+                await p.locator('#qstage').waitFor();
+                if(!fallback)await p.locator('#qstage[data-v-app]').waitFor();
+                const initial=await snap(p);
+                assert(!initial.answered);assert.equal(initial.done,0);
+                await p.waitForTimeout(stage===0&&width===1280&&!fallback?30000:300);
+                unchanged(initial,await snap(p));
+                // Actual click on exit and return with mouse.
+                await p.locator('#modal .mtop .x').click();
+                await p.getByRole('button',{name:'Остаться в тренировке'}).click();
+                unchanged(initial,await snap(p));
+                // Focus either answer, then open warning by Escape and resume by Enter.
+                if(initial.choices.length){
+                  for(const want of [true,false]){
+                    await p.evaluate(want=>{const i=q.choices.findIndex(c=>(String(c.key)===String(q.ans))===want);document.querySelectorAll('#qstage .answer')[i].focus()},want);
+                    await p.keyboard.press('Escape');
+                    await p.getByRole('button',{name:'Остаться в тренировке'}).waitFor();
+                    await p.keyboard.press('Enter');
+                    await p.locator('.mk872-training-dialog').waitFor({state:'detached'});
+                    const after=await snap(p);unchanged(initial,after);
+                    const focused=after.choices.filter(x=>x.focus);
+                    assert.equal(focused.length,1);
+                    assert.equal(focused[0].outline,'rgb(37, 99, 235)');
+                    assert.equal(focused[0].outlineStyle,'solid');
+                    assert.equal(focused[0].bg,'rgb(255, 255, 255)');
+                    console.log('FOCUS_DIAGNOSTIC',JSON.stringify({width,fallback,stage,want,choices:after.choices}));
+                  }
+                }
+                const right=await p.evaluate(()=>q.choices.findIndex(c=>String(c.key)===String(q.ans)));
+                await p.locator('#qstage .answer').nth(right).click();
+                await p.waitForFunction(()=>document.querySelector('#qstage .answer.good'));
+                assert.equal(await p.locator('#qstage .answer.good').evaluate(b=>getComputedStyle(b).backgroundColor),'rgb(232, 247, 239)');
+                assert.deepEqual(errors,[]);
+                console.log('PASS_ORDER_EXIT_RETURN',JSON.stringify({width,fallback,stage,question:initial.question,choiceCount:initial.choices.length}));
+              }finally{await ctx.close()}
+            }
+          }).catch(e=>{console.error(e);process.exitCode=1});
+          JS
+          node audits/v303_order_exit_probe.cjs
+      - name: Existing keyboard, attempt lifecycle and PWA regression
+        run: |
+          node audits/stage21_training_keyboard_audit.cjs
+          node audits/stage22_answer_drafts_browser.cjs
+          node audits/stage24_attempt_lifecycle_browser.cjs
+          node audits/stage28_offline_pwa_browser.cjs
+          node audits/pwa_verified_refresh_browser.cjs
+          python3 audits/g7_stage12_sync_pwa.py --check
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v304-focus-tested-not-for-deploy
+          path: |
+            index.html
+            sw.js
+          if-no-files-found: error
+          retention-days: 14
