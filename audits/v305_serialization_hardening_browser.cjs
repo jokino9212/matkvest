@@ -215,6 +215,68 @@ async function pendingProfileEdit(browser,url,fallback){
   console.log('V305_PENDING_PROFILE_EDIT_PASS',fallback);
  }finally{await ctx.close()}
 }
+// A real pre-migration tab, not another instance of the staged runtime.
+// HEAD:index.html is the accepted runtime; the CI scripts materialize the candidate
+// only in the working tree. Both documents share the same origin and localStorage.
+async function actualOldRuntime(browser,url){
+ const {execFileSync}=require('node:child_process');
+ const oldHtml=execFileSync('git',['show','HEAD:index.html'],{maxBuffer:32*1024*1024});
+ const ctx=await browser.newContext({serviceWorkers:'block'});
+ try{
+  const a=await fresh(ctx,url);await seed(a,3000);
+  const first=(await open(a,'rare')).reward;assert(first?.transactionId);
+  const old=await ctx.newPage();
+  await old.route(u=>u.href===url,r=>r.fulfill({status:200,contentType:'text/html; charset=utf-8',body:oldHtml}));
+  await old.goto(url);
+  await old.waitForFunction(()=>typeof mk305IsSold==='function'&&mk854HistoryReady);
+  assert.equal(await old.evaluate(()=>typeof mk305FlushWrites),'undefined','fixture must be actual pre-migration runtime');
+  const before=await snap(a);
+  assert.deepEqual(await old.evaluate(()=>({coins:state.coins,xp:state.xp})),{coins:before.coins,xp:before.xp});
+  const sale=(await sell(a,first)).receipt;assert(sale?.transactionId);
+  const second=(await open(a,'epic')).reward;assert(second?.transactionId);
+  const expected={coins:before.coins+sale.refundCoins-200+17,xp:before.xp+40+9};
+  await old.evaluate(()=>{state.coins+=17;state.xp+=9;save()});
+  const b=await fresh(ctx,url),after=await snap(b);
+  const result={expected,actual:{coins:after.coins,xp:after.xp},
+   ownSale:after.sales.some(x=>x.transactionId===sale.transactionId),
+   ownChest:after.chestHistory.some(x=>x.transactionId===second.transactionId),
+   soldNotRestored:!after.inventory[first.type].includes(first.id)};
+  console.log('V305_ACTUAL_OLD_RUNTIME',JSON.stringify(result));
+  assert.deepEqual(result.actual,expected,'old build lost economy changes');
+  assert(result.ownSale&&result.ownChest&&result.soldNotRestored,'old build lost receipt or resurrected sold item');
+ }finally{await ctx.close()}
+}
+// Browsers without Web Locks must never acknowledge unsafe monetary operations.
+async function withoutWebLocks(browser,url,fallback){
+ const ctx=await browser.newContext({serviceWorkers:'block'});
+ if(fallback)await ctx.route('**/assets/ui/knowledge-map.js*',r=>r.abort());
+ try{
+  const a=await fresh(ctx,url);await seed(a,3000);
+  const first=(await open(a,'rare')).reward;assert(first?.transactionId);
+  await a.close();
+  const p=await ctx.newPage();
+  await p.addInitScript(()=>Object.defineProperty(navigator,'locks',{value:undefined,configurable:true}));
+  await p.goto(url);await ready(p);
+  assert.equal(await p.evaluate(()=>typeof navigator.locks),'undefined');
+  const before=await snap(p);
+  const result=await p.evaluate(async item=>{
+   const candidate=mk872ModernCatalog().find(x=>!isOwned('avatars',x.id)&&!x.rewardOnly&&x.price>0&&x.price<state.coins&&x.level<=levelFor(state.xp));
+   if(!candidate)throw Error('missing shop fixture');
+   const chest=await mk861OpenChestTransaction();
+   const sale=await mk865SellItem(item.type,item.id,.5);
+   const buy=await buyShopItem('avatars',candidate.id);
+   return {chest:chest===null,sale:sale===null,buy:buy===null,owned:isOwned('avatars',candidate.id)};
+  },first);
+  assert.deepEqual(result,{chest:true,sale:true,buy:true,owned:false});
+  assert.deepEqual(await snap(p),before,'unsafe economy mutation without Web Locks');
+  await p.evaluate(()=>{state.coins+=17;state.xp+=9;save()});
+  await p.reload();await ready(p);
+  const after=await snap(p);
+  assert.equal(after.coins,before.coins+17);assert.equal(after.xp,before.xp+9);
+  assert.deepEqual(after.sales,before.sales);assert.deepEqual(after.chestHistory,before.chestHistory);
+  console.log('V305_NO_WEB_LOCKS_PASS',fallback);
+ }finally{await ctx.close()}
+}
 withMatkvestBrowser(async(browser,url)=>{
  const failed=[];const check=async(name,fn)=>{try{await fn();console.log('PASS',name)}catch(e){failed.push(name);console.error('FAIL',name,e.stack||e)}};
  for(const fallback of [false,true])for(const mode of ['open-one','open-two','sell-same','sell-distinct'])await check('race '+fallback+' '+mode,()=>checkRace(browser,url,fallback,mode));
@@ -222,6 +284,8 @@ withMatkvestBrowser(async(browser,url)=>{
  for(const fallback of [false,true])for(const afterCommit of [false,true])await check('durable save '+fallback+' '+afterCommit,()=>queuedSaveCrash(browser,url,fallback,afterCommit));
  for(const fallback of [false,true])await check('archive race '+fallback,()=>archiveRace(browser,url,fallback));
  for(const fallback of [false,true])await check('pending profile edit '+fallback,()=>pendingProfileEdit(browser,url,fallback));
+ for(const fallback of [false,true])await check('no Web Locks '+fallback,()=>withoutWebLocks(browser,url,fallback));
+ await check('actual old runtime',()=>actualOldRuntime(browser,url));
  await check('exhaustion',()=>exhaustion(browser,url));
  for(const width of [390,1280])await check('king offline '+width,()=>avatar(browser,url,width));
  assert.deepEqual(failed,[]);
