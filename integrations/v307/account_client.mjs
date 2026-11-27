@@ -68,4 +68,7 @@ export class V307AccountClient extends MatKvestApiClient {
  prepareHomework(profile,assignment,device,unavailable=[]){return this.request('POST',student(profile)+'/homework/'+id(assignment)+'/prepare',{body:{device:id(device),unavailable_permits:unavailable.map(id)}});}
  prepareLesson(profile,lesson,device,grade,topic,unavailable=[]){return this.request('POST',tutor(profile)+'/lesson/'+id(lesson)+'/offline-school',{body:{device:id(device),grade,topic,unavailable_permits:unavailable.map(id)}});}
  submitBlock(profile,pack,body,lesson=null){const path=lesson?tutor(profile)+'/lesson/'+id(lesson):student(profile);return this.request('PUT',path+'/offline-school/'+id(pack),{body});}
+ subscription(profile){return this.request('GET','/profiles/'+id(profile)+'/subscription');}
+ requestSubscription(profile,key){return this.request('POST','/profiles/'+id(profile)+'/subscription/requests',{idempotencyKey:id(key)});}
+ cancelSubscriptionRequest(profile,request){return this.request('DELETE','/profiles/'+id(profile)+'/subscription/requests/'+id(request));}
 }
