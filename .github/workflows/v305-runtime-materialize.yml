@@ -1,118 +1,31 @@
-name: v305 exact tested runtime materialization (feature only)
-# One-shot gate: this workflow does not replay the eight browser suites.
-# It verifies the existing full read-only run on the exact candidate source.
+name: v305 historical runtime verification (read only)
+# Publication completed in run 45994386321, job 140489985763.
+# Exact tested runtime: 55cbaf122c2f4a934dc1064236403286107c22f2.
+# Historical verification only; never materialize, commit or push.
 on:
   push:
     branches: [feature/v305-learning-chest-rewards]
     paths:
       - .github/workflows/v305-runtime-materialize.yml
+  workflow_dispatch:
 permissions:
   contents: read
-concurrency:
-  group: v305-runtime-materialize-one-shot
-  cancel-in-progress: false
 jobs:
-  publish:
+  verify:
     if: github.repository == 'jokino9212/matkvest' && github.ref == 'refs/heads/feature/v305-learning-chest-rewards'
     runs-on: ubuntu-latest
-    timeout-minutes: 25
-    permissions:
-      contents: write
-      actions: read
-    env:
-      GH_TOKEN: ${{ github.token }}
-      TESTED_SHA: 'edfbc6d4ce6ad9e0785351f4a8de966a29a9dccd'
-      TESTED_RUN: '45994069667'
-      TARGETED_JOB: '140488925859'
-      TARGET_REF: refs/heads/feature/v305-learning-chest-rewards
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 2
-          persist-credentials: true
-      - name: Require exact candidate parent and untouched runtime inputs
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Verify published historical runtime without writes
         shell: bash
         run: |
           set -euo pipefail
-          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
-          test "$(git rev-parse HEAD^)" = "$TESTED_SHA"
-          test "$(git diff --name-only "$TESTED_SHA" HEAD)" = '.github/workflows/v305-runtime-materialize.yml'
-          test "$(git ls-remote origin "$TARGET_REF" | awk '{print $1}')" = "$GITHUB_SHA"
-          python3 audits/g7_stage12_sync_pwa.py --check
-      - name: Wait for existing exact read-only regression to conclude
-        shell: bash
-        run: |
-          set -euo pipefail
-          for i in $(seq 1 100); do
-            gh api "repos/$GITHUB_REPOSITORY/actions/runs/$TESTED_RUN" > /tmp/v305-run.json
-            python3 - <<'PY'
-          import json,os
-          r=json.load(open('/tmp/v305-run.json'))
-          assert r['head_sha']==os.environ['TESTED_SHA'],r['head_sha']
-          assert r['head_branch']=='feature/v305-learning-chest-rewards',r['head_branch']
-          assert r['event']=='push',r['event']
-          assert r['path'].split('@')[0]=='.github/workflows/v305-serialization-hardening.yml',r['path']
-          if r['status']=='completed':
-              assert r['conclusion']=='success',r['conclusion']
-              open('/tmp/v305-regression-passed','w').close()
-          PY
-            if test -f /tmp/v305-regression-passed; then break; fi
-            sleep 10
-          done
-          test -f /tmp/v305-regression-passed
-          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$TESTED_RUN/jobs?per_page=100" > /tmp/v305-jobs.json
-          python3 - <<'PY'
-          import json,os
-          doc=json.load(open('/tmp/v305-jobs.json'))
-          jobs=doc['jobs']
-          expected={'audit ('+x+')' for x in ['targeted','legacy-chest','store','keyboard','drafts','attempts','offline','pwa']}
-          assert doc['total_count']==len(jobs)==8
-          assert {j['name'] for j in jobs}==expected
-          for j in jobs:
-              assert j['status']=='completed' and j['conclusion']=='success',j['name']
-              steps={s['name']:s['conclusion'] for s in j['steps']}
-              assert steps['Materialize isolated candidate']=='success' and steps['Run isolated suite']=='success',j['name']
-          assert str(next(j['id'] for j in jobs if j['name']=='audit (targeted)'))==os.environ['TARGETED_JOB']
-          print('PASS: all eight exact candidate browser suites')
-          PY
-      - name: Reproduce only the browser-tested runtime and verify fingerprint
-        shell: bash
-        run: |
-          set -euo pipefail
-          gh run view "$TESTED_RUN" --repo "$GITHUB_REPOSITORY" --job "$TARGETED_JOB" --log > /tmp/v305-targeted.log
-          python3 - <<'PY'
-          import re
-          from pathlib import Path
-          log=Path('/tmp/v305-targeted.log').read_text(encoding='utf-8')
-          for marker in ('V305_ACTUAL_OLD_RUNTIME','PASS actual old runtime','V305_UNVERSIONED_OLD_QUARANTINE_PASS','V305_LEGACY_ECONOMIC_CONFLICT_PASS','V305_NO_WEB_LOCKS_PASS false','V305_NO_WEB_LOCKS_PASS true','V305_KING_OFFLINE_PASS 390','V305_KING_OFFLINE_PASS 1280'):
-              assert marker in log,marker
-          hashes=re.findall(r'PASS: SW fingerprints match the build, HTML SHA256 ([a-f0-9]{64})',log)
-          assert len(hashes)>=2 and hashes[-1]!=hashes[0],hashes
-          Path('/tmp/v305-expected-html.sha256').write_text(hashes[-1]+'  index.html\n')
-          PY
-          python3 audits/v305_serialization_candidate.py
-          python3 audits/v305_serialization_hardening.py
-          python3 audits/g7_stage12_sync_pwa.py
-          python3 audits/g7_stage12_sync_pwa.py --check
-          sha256sum --check /tmp/v305-expected-html.sha256
-          git diff --check
-          test "$(git diff --name-only | sort | tr '\n' ' ')" = 'index.html sw.js '
-          sha256sum index.html sw.js > /tmp/v305-published-fingerprints.sha256
-      - uses: actions/upload-artifact@v4
-        with:
-          name: v305-exact-tested-runtime-fingerprints
-          path: /tmp/v305-published-fingerprints.sha256
-          if-no-files-found: error
-      - name: Publish only exact tested runtime to existing feature branch
-        shell: bash
-        run: |
-          set -euo pipefail
-          test "$(git ls-remote origin "$TARGET_REF" | awk '{print $1}')" = "$GITHUB_SHA"
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -- index.html sw.js
-          test "$(git diff --cached --name-only | sort | tr '\n' ' ')" = 'index.html sw.js '
-          git commit -m 'v305 materialize exact fully tested protected profile runtime and PWA'
-          git push origin HEAD:"$TARGET_REF"
-          test "$(git ls-remote origin "$TARGET_REF" | awk '{print $1}')" = "$(git rev-parse HEAD)"
-          echo "PUBLISHED_FEATURE_RUNTIME $(git rev-parse HEAD)"
+          published=55cbaf122c2f4a934dc1064236403286107c22f2
+          git merge-base --is-ancestor "$published" HEAD
+          git show "$published:index.html" | sha256sum | grep -Fx '1e225be71d2aeed493be494c150f2ebaedda392c9f90701f331923ad5b7d6227  -'
+          git show "$published:sw.js" | grep -F 'const APP_BUILD_HASH = "1e225be71d2aeed493be494c150f2ebaedda392c9f90701f331923ad5b7d6227";'
+          echo 'PASS: historical v305 publication fingerprint; no writes performed'
