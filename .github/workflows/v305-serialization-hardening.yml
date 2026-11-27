@@ -7,6 +7,7 @@ on:
       - audits/v305_serialization_hardening.py
       - audits/v305_serialization_hardening_browser.cjs
       - audits/v305_serialization_legacy_browser.cjs
+      - audits/pwa_verified_refresh_browser.cjs
 permissions:
   contents: read
 jobs:
@@ -26,6 +27,7 @@ jobs:
           persist-credentials: false
       - name: Materialize isolated candidate
         run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
           python3 audits/g7_stage12_sync_pwa.py --check
           python3 audits/v305_serialization_candidate.py
           python3 audits/v305_serialization_hardening.py
@@ -35,6 +37,7 @@ jobs:
           python3 audits/g7_stage12_sync_pwa.py --check
           node --check audits/v305_serialization_hardening_browser.cjs
           node --check audits/v305_serialization_legacy_browser.cjs
+          node --check audits/pwa_verified_refresh_browser.cjs
       - name: Run isolated suite
         env:
           SUITE: ${{ matrix.suite }}

@@ -1,14 +1,10 @@
-name: v305 chest rewards and king candidate
+name: v305 chest rewards and king candidate (historical read-only)
+# Stage 2 already materialized in 73cbc607. Do not replay a pre-stage-2 patch
+# on later audit-only commits. This workflow is kept for historical inspection.
 on:
-  push:
-    branches: [feature/v305-learning-chest-rewards]
-    paths:
-      - .github/workflows/v305-chest-gate.yml
-      - audits/v305_chest_patch.py
-      - audits/v305_chest_browser.cjs
-      - audits/pwa_verified_refresh_browser.cjs
+  workflow_dispatch:
 permissions:
-  contents: write
+  contents: read
 concurrency:
   group: v305-chest-isolated
   cancel-in-progress: false
@@ -22,7 +18,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          persist-credentials: true
+          persist-credentials: false
           fetch-depth: 0
       - name: Materialize guarded candidate and rebuild Vue
         run: |
@@ -58,12 +54,3 @@ jobs:
             assets/source/avatars/avatar_clash_king.svg
           if-no-files-found: error
           retention-days: 14
-      - name: Commit only successfully tested runtime files to isolated branch
-        run: |
-          test "$(git diff --name-only | sort | tr '\n' ' ')" = 'assets/ui/knowledge-map.js frontend/knowledge-map/CollectionSection.vue frontend/knowledge-map/StoreChestResult.vue index.html sw.js '
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add index.html sw.js assets/ui/knowledge-map.js frontend/knowledge-map/CollectionSection.vue frontend/knowledge-map/StoreChestResult.vue
-          git commit -m 'v305 stage 2: tested chest sale, rarity XP and king avatar'
-          git push origin HEAD:refs/heads/feature/v305-learning-chest-rewards
-          git rev-parse HEAD
