@@ -1,5 +1,7 @@
+import {validateNodes} from '../v307/visual_nodes.mjs';
 // Shared numeric, choice and written-arithmetic Grade 4 offline journals.
 export const V307_CHOICE_TOPICS=Object.freeze({"g5:frac_common_lcm":"Приведение дробей к общему знаменателю","g5:dec_compare":"Сравнение десятичных дробей","g5:dec_add":"Сложение десятичных дробей","g5:dec_sub":"Вычитание десятичных дробей","g5:dec_round":"Округление десятичных дробей","g5:dec_mul10":"× 10, 100, 1000","g5:dec_div10":"÷ 10, 100, 1000","g5:dec_mul_nat":"Десятичная × натуральное","g5:dec_div_nat":"Десятичная ÷ натуральное","g5:dec_mul_dec":"Десятичная × десятичную","g5:dec_div_dec":"Десятичная ÷ десятичную","g5:dec_to_common":"Десятичная ↔ обыкновенная","g5:percent":"Процент от числа","g5:percent_whole":"Число по процентам","g5:average":"Среднее арифметическое"});
+export const V307_VISUAL_TOPICS=Object.freeze({"g5:frac_shapes":"Окружность, круг, шар, цилиндр","g5:frac_parts":"Доли и дроби","g5:frac_read":"Чтение и запись обыкновенных дробей","g5:frac_ray":"Изображение дробей на координатной прямой","g5:frac_compare_den":"Сравнение: один знаменатель","g5:frac_compare_num":"Сравнение: один числитель","g5:frac_types":"Правильные и неправильные дроби","g5:frac_add":"Сложение дробей с одинаковыми знаменателями","g5:frac_sub":"Вычитание дробей с одинаковыми знаменателями","g5:frac_division":"Дробь как деление","g5:mixed_compare":"Сравнение смешанных чисел","g5:mixed_add":"Сложение смешанных чисел","g5:mixed_sub":"Вычитание смешанных чисел","g5:frac_equal":"Основное свойство дроби","g5:frac_reduce":"Сокращение дробей","g5:frac_compare_diff":"Сравнение дробей с разными знаменателями","g5:frac_add_diff":"Сложение дробей с разными знаменателями","g5:frac_sub_diff":"Вычитание дробей с разными знаменателями","g5:frac_mul_common":"Умножение обыкновенных дробей","g5:frac_part_number":"Дробь от числа","g5:frac_div_common":"Деление обыкновенных дробей","g5:frac_restore":"Восстановить целое","g5:frac_word":"Задачи с дробями","g5:dec_place":"Разряды десятичной дроби"});
 export const SCHOOL_TOPICS=Object.freeze({
  'g4:table':'Таблица умножения',
  'g4:moro_order_1000':'Числовые выражения. Порядок действий',
@@ -17,7 +19,8 @@ export const SCHOOL_TOPICS=Object.freeze({
  'g5:natural_divide':'Деление натуральных чисел',
  'g5:frac_to_mixed':'Неправильная дробь → смешанное число',
  'g5:mixed_to_frac':'Смешанное число → неправильная дробь',
- ...V307_CHOICE_TOPICS
+ ...V307_CHOICE_TOPICS,
+ ...V307_VISUAL_TOPICS
 });
 export const STAGES=['Разминка','Тренировка','Мастерство'];
 export const COUNTS=[5,7,10], PASS=[4,5,8];
@@ -51,6 +54,10 @@ export function validateQuestion(topic,question,columnKeys){
   if(!form||!['number','mixed','improper'].includes(form.kind)||typeof prompt_markup!=='string'||prompt_markup.length>100000||choices!==undefined)throw Error('INVALID_FRACTION');
   if(form.kind==='number'?form.denominator!==null:!Number.isInteger(form.denominator)||form.denominator<1||form.denominator>answer||(form.kind==='mixed'&&answer%form.denominator===0))throw Error('INVALID_FRACTION');
   return {expression,answer,steps,form:{kind:form.kind,denominator:form.denominator,label:typeof form.label==='string'?form.label:''},prompt_markup};
+ }
+ if(Object.hasOwn(V307_VISUAL_TOPICS,topic)){
+  if(form!==undefined||prompt_markup!==undefined||place_values!==undefined||!Array.isArray(choice_labels)||choice_labels.length<2||choice_labels.length>4||choice_labels.some(x=>typeof x!=='string'||!x||x.length>160)||new Set(choice_labels).size!==choice_labels.length||JSON.stringify(choices)!==JSON.stringify(choice_labels.map((_,i)=>i))||!choices.includes(answer)||!steps.length||steps.some(x=>!x||x.length>2500)||!Array.isArray(question.choice_nodes)||question.choice_nodes.length!==choices.length)throw Error('INVALID_VISUAL_CHOICE');
+  return {expression,answer,steps,choices,choice_labels,prompt:validateNodes(question.prompt),solution:validateNodes(question.solution),choice_nodes:question.choice_nodes.map(validateNodes)};
  }
  if(Object.hasOwn(V307_CHOICE_TOPICS,topic)){
   if(form!==undefined||prompt_markup!==undefined||place_values!==undefined||!Array.isArray(choice_labels)||choice_labels.length<2||choice_labels.length>4||choice_labels.some(x=>typeof x!=='string'||!x||x.length>160)||new Set(choice_labels).size!==choice_labels.length||JSON.stringify(choices)!==JSON.stringify(choice_labels.map((_,i)=>i))||!choices.includes(answer)||!steps.length||steps.some(x=>!x||x.length>2500))throw Error('INVALID_EXTENDED_CHOICE');

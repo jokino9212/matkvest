@@ -1,0 +1,9 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {validateNodes,renderNodes} from '../integrations/v307/visual_nodes.mjs';
+import {validateQuestion,V307_VISUAL_TOPICS} from '../integrations/backend95-next/school_block_queue.mjs';
+const el=(tag,attrs={},children=[])=>({tag,attrs,children});
+const prompt=[el('div',{style:{'max-width':'600px'}},['Сравни дроби ',el('span',{class:'frac'},[el('span',{class:'num'},['1']),el('span',{class:'den'},['2'])]),el('svg',{viewBox:'0 0 100 20'},[el('defs',{},[el('radialGradient',{id:'a'},[el('stop',{offset:'0', 'stop-color':'#fff'})])]),el('rect',{width:'50',height:'10',fill:'url(#a)'})])])];
+test('original structured SVG and fraction rendering, local scoped gradient references',()=>{assert.equal(Object.keys(V307_VISUAL_TOPICS).length,24);assert.equal(validateNodes(prompt),prompt);const h=(tag,attrs,children)=>({tag,attrs,children}),r=renderNodes(h,prompt,'test-');assert.equal(r[0].children[2].children[1].attrs.fill,'url(#test-a)');assert.equal(r[0].children[2].children[0].children[0].attrs.id,'test-a');});
+test('reject active markup and nonlocal refs, no arbitrary CSS',()=>{for(const bad of [[el('script',{},['alert(1)'])],[el('svg',{},[el('foreignObject')])],[el('div',{onClick:'x'})],[el('div',{style:{background:'url(https://example.com)'}})],[el('svg',{},[el('rect',{fill:'url(#other)'})])],[el('use',{href:'https://example.com'})],[el('img',{src:'x'})]])assert.throws(()=>validateNodes(bad));});
+test('strict visual question choice journal preserves AST, rejects malformed fields',()=>{const q={expression:'Сравни',answer:0,choices:[0,1],choice_labels:['<','>'],steps:['Ответ'],prompt,solution:['Объяснение'],choice_nodes:[['<'],['>']]};assert.deepEqual(validateQuestion('g5:frac_compare_den',q),q);assert.throws(()=>validateQuestion('g5:frac_compare_den',{...q,prompt:[el('script')]}));assert.throws(()=>validateQuestion('g5:frac_compare_den',{...q,choice_nodes:[['<']]}));});

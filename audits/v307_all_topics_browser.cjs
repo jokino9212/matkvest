@@ -29,11 +29,12 @@ function grade5Question(topic,i){
 const numeric=['g4:table','g4:moro_order_1000','g4:order','g4:equations','g4:moro_missing_sub','g4:moro_missing_add','g4:moro_missing_muldiv'];
 const extended=require('../v307-learning-fixtures/v306-text-question-bank.json').banks;
 assert.equal(Object.keys(extended).length,15);
-const all=[...numeric,...columnTopics,...grade5Topics,...Object.keys(extended)];
+const visual=require('../v307-learning-fixtures/v306-visual-question-bank.json').banks;assert.equal(Object.keys(visual).length,24);
+const all=[...numeric,...columnTopics,...grade5Topics,...Object.keys(extended),...Object.keys(visual)];
 function packFor(topic){
  const i=all.indexOf(topic)+1,id=String(i).padStart(8,'0')+'-1234-4f25-8ae9-df61e8a85370';
  const c=columnFixtures[topic];
- const q=c?c.question:extended[topic]?extended[topic].stages[0][0][0]:grade5Topics.includes(topic)?grade5Question(topic,0):topic==='g4:table'?{a:2,b:3}:{expression:'x + 2 = 8',answer:6,steps:['8 − 2 = 6']};
+ const q=c?c.question:visual[topic]?visual[topic].stages[0][0][0]:extended[topic]?extended[topic].stages[0][0][0]:grade5Topics.includes(topic)?grade5Question(topic,0):topic==='g4:table'?{a:2,b:3}:{expression:'x + 2 = 8',answer:6,steps:['8 − 2 = 6']};
  return {id,topic_id:topic,stage:0,full:true,expires_at:'2027-01-02T00:00:00Z',questions:Array.from({length:5},()=>q),...(c?{column_keys:Array.from({length:5},()=>c.keys)}:{})};
 }
 (async()=>{
@@ -68,7 +69,7 @@ function packFor(topic){
     for(const [key,value] of Object.entries(required)){const [row,col]=key.split(':');await page.locator('input[data-row="'+row+'"][data-col="'+col+'"]').fill(value);}
     await button('Проверить всю запись').or(button('Проверить все шаги')).click();
    }else if(q.form){for(const [key,value] of Object.entries(fractionKeys(q)))await page.locator('input[data-mk95-fraction="'+key+'"]').fill(value);await button('Проверить').click();}
-   else if(q.choices){await page.locator('.school-numeric-choices button').nth(q.choices.indexOf(q.answer)).click();}
+   else if(q.choices){if(visual[topic]){assert.equal(await page.locator('.v307-visual-prompt').count(),1);const count=x=>x.reduce((n,y)=>n+(typeof y==='string'?0:(y.tag==='svg'?1:0)+count(y.children)),0);assert.equal(await page.locator('.v307-visual-prompt svg').count(),count(q.prompt));}await page.locator('.school-numeric-choices button').nth(q.choices.indexOf(q.answer)).click();}
    else{await page.getByLabel('Ответ',{exact:true}).fill(String(q.answer??q.a*q.b));await button('Проверить').click();}
    await button('Далее').click();
    // A check/advance transaction must complete before the next question can be skipped.
@@ -76,7 +77,7 @@ function packFor(topic){
    for(let i=0;i<4;i++){await button('⏭ Пропустить задание').click();await page.getByText('Выполнено '+(i+2)+' / 5',{exact:true}).waitFor();}
    await page.getByText(/Начислено 4 XP и 5 монет/).waitFor();assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);await button('К этапам').click();
   }
-  assert.equal(submitted.size,33);assert.deepEqual(errors,[]);console.log('PASS_V307_ALL_33_VUE_TOPICS',width);await context.close();
+  assert.equal(submitted.size,57);assert.deepEqual(errors,[]);console.log('PASS_V307_ALL_57_VUE_TOPICS',width);await context.close();
  }
  }finally{await browser.close();await new Promise(r=>server.close(r))}
 })().catch(e=>{console.error(e);process.exitCode=1});

@@ -1,6 +1,7 @@
 <script setup>
 import { computed } from 'vue';
 import AnswerChoices from './AnswerChoices.vue';
+import QuestionNodes from './QuestionNodes.vue';
 
 const props = defineProps({
   model: { type: Object, required: true },
@@ -21,7 +22,8 @@ function submitOnEnter(event) {
 
 <template>
   <div class="card" @keydown.enter="submitOnEnter">
-    <div v-if="model.safePrompt !== undefined" class="flash" v-html="model.safePrompt"></div>
+    <div v-if="model.promptNodes" class="flash v307-visual-prompt"><QuestionNodes :nodes="model.promptNodes" /></div>
+    <div v-else-if="model.safePrompt !== undefined" class="flash" v-html="model.safePrompt"></div>
     <div v-else class="flash">{{ model.prompt ?? `${model.a} × ${model.b} = ?` }}</div>
     <div v-if="model.placeValues" class="mk-g5-comparison-table" style="overflow-x: auto; margin-bottom: 12px">
       <table style="width: 100%; text-align: center">
@@ -75,7 +77,8 @@ function submitOnEnter(event) {
     <div v-if="model.feedbackHtml !== undefined" id="tfb" class="feedback" role="status" v-html="model.feedbackHtml"></div>
     <div v-else id="tfb" class="feedback" role="status">
       {{ model.feedback }}
-      <ol v-if="model.solution?.length" class="school-solution">
+      <div v-if="model.solutionNodes" class="v307-visual-solution"><QuestionNodes :nodes="model.solutionNodes" /></div>
+      <ol v-else-if="model.solution?.length" class="school-solution">
         <li v-for="(step, index) in model.solution" :key="index">{{ step }}</li>
       </ol>
     </div>
