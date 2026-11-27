@@ -1,104 +1,32 @@
-name: v306 full regression and exact feature runtime
+name: v306 historical runtime verification (read only)
+# Full regression 46007637140: all 16 suites and materialize passed.
+# Runtime published only to feature/v306-chest-item-types at 5d8f626bf88cce4be6721e7fbedae468acf6ba84.
+# Retired one-shot publisher: no materialization, commits or pushes.
 on:
   push:
     branches: [feature/v306-chest-item-types]
     paths:
       - .github/workflows/v306-full-regression.yml
-      - audits/v306_chest_item_types_patch.py
-      - audits/v306_chest_item_types_browser.cjs
-      - audits/stage26_corrupt_storage_browser.cjs
-      - audits/ux105_v107_browser.cjs
-      - audits/v305_serialization_hardening_browser.cjs
-      - audits/pwa_verified_refresh_browser.cjs
+  workflow_dispatch:
 permissions:
   contents: read
-concurrency:
-  group: v306-full-regression
-  cancel-in-progress: false
 jobs:
   verify:
     if: github.repository == 'jokino9212/matkvest' && github.ref == 'refs/heads/feature/v306-chest-item-types'
     runs-on: ubuntu-latest
-    timeout-minutes: 30
-    strategy:
-      fail-fast: false
-      matrix:
-        suite: [types, storage, pets, targeted, legacy-chest, store, keyboard, drafts, attempts, offline, pwa, profiles, mobile, media, collection, inputs]
-    container:
-      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
           persist-credentials: false
-      - name: Reproduce exact isolated candidate
-        run: |
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          python3 audits/g7_stage12_sync_pwa.py --check
-          python3 audits/v306_chest_item_types_patch.py
-          python3 audits/g7_stage12_sync_pwa.py
-          python3 audits/g7_stage12_sync_pwa.py --check
-          echo '7e6e2b8de44e1eb4888b34f012288c32e24643eafe9c350fe79e9881935cb318  index.html' | sha256sum --check
-          git diff --check
-          npm ci
-          npm install --no-save --no-package-lock playwright@1.56.1
-      - name: Run isolated suite
-        env:
-          SUITE: ${{ matrix.suite }}
-        run: |
-          case "$SUITE" in
-            types) node audits/v306_chest_item_types_browser.cjs ;;
-            storage) node audits/stage26_corrupt_storage_browser.cjs ;;
-            pets) node audits/ux105_v107_browser.cjs && node audits/ux107_firstpaint_archive_browser.cjs ;;
-            targeted) node audits/v305_serialization_hardening_browser.cjs ;;
-            legacy-chest) node audits/v305_serialization_legacy_browser.cjs ;;
-            store) node audits/shop_progress_v874_browser_test.cjs ;;
-            keyboard) node audits/stage21_training_keyboard_audit.cjs ;;
-            drafts) node audits/stage22_answer_drafts_browser.cjs ;;
-            attempts) node audits/stage24_attempt_lifecycle_browser.cjs ;;
-            offline) node audits/stage28_offline_pwa_browser.cjs ;;
-            pwa) node audits/pwa_verified_refresh_browser.cjs ;;
-            profiles) node audits/stage25_profile_isolation_browser.cjs ;;
-            mobile) node audits/stage27_compact_mobile_browser.cjs ;;
-            media) node audits/stage30_collection_media_browser.cjs ;;
-            collection) node audits/collection_viewer_v81_browser.cjs ;;
-            inputs) node audits/stage23_complex_answers_browser.cjs ;;
-            *) exit 2 ;;
-          esac
-  materialize:
-    needs: verify
-    if: github.repository == 'jokino9212/matkvest' && github.ref == 'refs/heads/feature/v306-chest-item-types'
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    permissions:
-      contents: write
-      actions: read
-    env:
-      GH_TOKEN: ${{ github.token }}
-      TARGET_REF: refs/heads/feature/v306-chest-item-types
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 2
-          persist-credentials: true
-      - name: Materialize only the fully verified feature candidate
+      - name: Verify published historical runtime without writes
         shell: bash
         run: |
           set -euo pipefail
-          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
-          test "$(git ls-remote origin "$TARGET_REF" | awk '{print $1}')" = "$GITHUB_SHA"
-          gh api "repos/$GITHUB_REPOSITORY/actions/runs/46006668516" --jq '.head_sha + " " + .conclusion' | grep -Fx 'f0382c56dd26322aeaf0ccb2a35f09d051476d17 success'
-          python3 audits/g7_stage12_sync_pwa.py --check
-          python3 audits/v306_chest_item_types_patch.py
-          python3 audits/g7_stage12_sync_pwa.py
-          python3 audits/g7_stage12_sync_pwa.py --check
-          echo '7e6e2b8de44e1eb4888b34f012288c32e24643eafe9c350fe79e9881935cb318  index.html' | sha256sum --check
-          git diff --check
-          test "$(git diff --name-only | sort | tr '\n' ' ')" = 'index.html sw.js '
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -- index.html sw.js
-          git commit -m 'v306 materialize exact tested reward category runtime'
-          git push origin HEAD:"$TARGET_REF"
-          test "$(git ls-remote origin "$TARGET_REF" | awk '{print $1}')" = "$(git rev-parse HEAD)"
-          echo "PUBLISHED_FEATURE_RUNTIME $(git rev-parse HEAD)"
+          published=5d8f626bf88cce4be6721e7fbedae468acf6ba84
+          git merge-base --is-ancestor "$published" HEAD
+          git show "$published:index.html" | sha256sum | grep -Fx '7e6e2b8de44e1eb4888b34f012288c32e24643eafe9c350fe79e9881935cb318  -'
+          git show "$published:sw.js" | grep -Fx 'const CACHE_NAME = "matkvest-iphone-v306";'
+          git show "$published:sw.js" | grep -Fx 'const APP_BUILD_HASH = "7e6e2b8de44e1eb4888b34f012288c32e24643eafe9c350fe79e9881935cb318";'
+          echo 'PASS: historical v306 runtime; no writes performed'
