@@ -1,0 +1,68 @@
+name: v305 chest rewards and king candidate
+on:
+  push:
+    branches: [feature/v305-learning-chest-rewards]
+    paths:
+      - .github/workflows/v305-chest-gate.yml
+      - audits/v305_chest_patch.py
+      - audits/v305_chest_browser.cjs
+permissions:
+  contents: write
+concurrency:
+  group: v305-chest-isolated
+  cancel-in-progress: false
+jobs:
+  chest:
+    if: github.repository == 'jokino9212/matkvest' && github.ref == 'refs/heads/feature/v305-learning-chest-rewards'
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          fetch-depth: 0
+      - name: Materialize guarded candidate and rebuild Vue
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git merge-base --is-ancestor 55d8bdf32c754666923681cd3e06a1b06b83c838 HEAD
+          python3 audits/g7_stage12_sync_pwa.py --check
+          python3 audits/v305_chest_patch.py
+          npm ci
+          npm run build:knowledge-map
+          npm install --no-save --no-package-lock playwright@1.56.1
+          python3 audits/g7_stage12_sync_pwa.py
+          python3 audits/g7_stage12_sync_pwa.py --check
+          git diff --check
+          test "$(git diff --name-only | sort | tr '\n' ' ')" = 'assets/ui/knowledge-map.js frontend/knowledge-map/CollectionSection.vue frontend/knowledge-map/StoreChestResult.vue index.html sw.js '
+      - name: Chest economy and persistence on Vue and HTML fallback
+        run: node audits/v305_chest_browser.cjs
+      - name: Existing store, keyboard, attempt and offline regression
+        run: |
+          node audits/shop_progress_v874_browser_test.cjs
+          node audits/stage21_training_keyboard_audit.cjs
+          node audits/stage22_answer_drafts_browser.cjs
+          node audits/stage24_attempt_lifecycle_browser.cjs
+          node audits/stage28_offline_pwa_browser.cjs
+          node audits/pwa_verified_refresh_browser.cjs
+          python3 audits/g7_stage12_sync_pwa.py --check
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v305-chest-tested-not-for-deploy
+          path: |
+            index.html
+            sw.js
+            assets/ui/knowledge-map.js
+            assets/source/avatars/avatar_clash_king.svg
+          if-no-files-found: error
+          retention-days: 14
+      - name: Commit only successfully tested runtime files to isolated branch
+        run: |
+          test "$(git diff --name-only | sort | tr '\n' ' ')" = 'assets/ui/knowledge-map.js frontend/knowledge-map/CollectionSection.vue frontend/knowledge-map/StoreChestResult.vue index.html sw.js '
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html sw.js assets/ui/knowledge-map.js frontend/knowledge-map/CollectionSection.vue frontend/knowledge-map/StoreChestResult.vue
+          git commit -m 'v305 stage 2: tested chest sale, rarity XP and king avatar'
+          git push origin HEAD:refs/heads/feature/v305-learning-chest-rewards
+          git rev-parse HEAD
