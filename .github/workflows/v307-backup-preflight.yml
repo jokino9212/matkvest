@@ -37,3 +37,10 @@ jobs:
       - run: python3 audits/v307_extract_column_layout.py v306-fixture/index.html integrations/v307/column_layout_generated.mjs
       - run: npm ci && npx vite build --config frontend/v307-review.vite.config.mjs && npm install --no-save --no-package-lock playwright@1.56.1
       - run: node audits/v307_training_vue_browser.cjs
+      - run: node audits/v307_all_topics_browser.cjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v307-isolated-vue-review-not-for-deploy
+          path: dist-v307-review/
+          if-no-files-found: error
+          retention-days: 14
