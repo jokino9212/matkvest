@@ -9887,6 +9887,9 @@ let state={...EMPTY_STATE};
 /* v8.78: Never overwrite an unreadable multi-student profile document. */
 let mkV877CorruptProfiles=false;
 try{
+ const protectedRaw=localStorage.getItem("mq4_v305_authority");
+ if(protectedRaw!==null){const protectedDoc=JSON.parse(protectedRaw);if(!protectedDoc||protectedDoc.schema!==1||!mk305ValidProfiles(protectedDoc.profiles)||!Array.isArray(protectedDoc.history)||!Array.isArray(protectedDoc.consumed))throw Error("Invalid protected profile document")}
+
  const raw=localStorage.getItem("mq4_profiles");
  if(raw!==null){
   const data=JSON.parse(raw);
@@ -9895,10 +9898,336 @@ try{
   }
  }
 }catch(e){mkV877CorruptProfiles=true}
+/* v305 candidate: every protected profile write shares the origin-wide Web Lock.
+ * mq4_profiles is canonical; the legacy single-profile mirror is updated in the same critical section.
+ * This is a staged candidate, not an accepted migration. */
+const MK305_PROFILE_LOCK="matkvest:mq4_profiles:v305";
+let mk305InsideWrite=0,mk305WriteSerial=0,mk305LastWrite=Promise.resolve(true);
+/* v305 protected authority. Old builds only know the compatibility projection. */
+const MK305_AUTHORITY_KEY="mq4_v305_authority";
+const MK305_LEGACY_REV="mk305LegacyRevision";
+const MK305_LEGACY_QUARANTINE="mq4_v305_legacy_quarantine:";
+function mk305ValidProfiles(p){
+ return p&&typeof p==="object"&&!Array.isArray(p)&&Object.values(p).every(x=>x&&typeof x==="object"&&!Array.isArray(x));
+}
+function mk305ReadAuthority(){
+ const raw=localStorage.getItem(MK305_AUTHORITY_KEY);
+ if(raw===null)return null;
+ const doc=JSON.parse(raw);
+ if(!doc||doc.schema!==1||!mk305ValidProfiles(doc.profiles)||!Array.isArray(doc.history)||!Array.isArray(doc.consumed))throw Error("Invalid protected profile document");
+ return doc;
+}
+function mk305ReadLegacy(){
+ const raw=localStorage.getItem("mq4_profiles");
+ if(raw===null)return {};
+ const p=JSON.parse(raw);
+ if(!mk305ValidProfiles(p))throw Error("Invalid legacy profile collection");
+ return p;
+}
+function mk305LegacyProjection(doc){
+ const out=Object.create(null);
+ for(const [name,p] of Object.entries(doc.profiles)){
+  out[name]={...p};
+  if(doc.revision!==null)out[name][MK305_LEGACY_REV]=doc.revision;
+  else delete out[name][MK305_LEGACY_REV];
+ }
+ return JSON.stringify(out);
+}
+function mk305QuarantineLegacy(raw){
+ if(raw===null)return;
+ // Keep the original bytes, not a guessed monetary delta. A quota failure blocks overwrite.
+ const keys=Object.keys(localStorage).filter(k=>k.startsWith(MK305_LEGACY_QUARANTINE));
+ if(keys.some(k=>localStorage.getItem(k)===raw))return;
+ localStorage.setItem(MK305_LEGACY_QUARANTINE+crypto.randomUUID(),raw);
+ try{rewardPop("Данные старой вкладки сохранены отдельно. Обновите старую вкладку.");mk305ShowLegacyRescue()}catch(_){}
+}
+function mk305PublishProfiles(next,{consumed=null,reconciledRaw=null,replacement=false}={}){
+ let old;
+ try{old=mk305ReadAuthority()}catch(e){
+  if(!replacement)throw e;
+  const damaged=localStorage.getItem(MK305_AUTHORITY_KEY);
+  if(damaged!==null)localStorage.setItem("mq4_v305_authority_rescue",damaged);
+  old=null;
+ }
+ const previous=localStorage.getItem("mq4_profiles");
+ if(!old){
+  let base={};
+  if(!replacement)base=mk305ReadLegacy();
+  old={schema:1,revision:null,profiles:base,history:[],consumed:[]};
+  // Install the initial checkpoint BEFORE projecting any new write.
+  // An interruption before the next commit cannot promote an uncommitted mirror.
+  if(!replacement)localStorage.setItem(MK305_AUTHORITY_KEY,JSON.stringify(old));
+ }else if(!replacement&&previous!==reconciledRaw&&previous!==mk305LegacyProjection(old)){
+  // An uncooperative legacy writer can race even while Web Locks is held.
+  // Preserve the observed bytes before replacing its projection.
+  mk305QuarantineLegacy(previous);
+ }
+ const clean=mk305Clone(next);
+ for(const p of Object.values(clean))delete p[MK305_LEGACY_REV];
+ const history=replacement?[]:[...old.history,{revision:old.revision,profiles:old.profiles}].slice(-16);
+ // The bounded compatibility window never compromises the protected current state.
+ // Older or ambiguous legacy snapshots are quarantined instead of guessed.
+ while(history.length&&JSON.stringify(history).length>1024*1024)history.shift();
+ const doc={schema:1,revision:crypto.randomUUID(),profiles:clean,history,
+  consumed:replacement?[]:(consumed||old.consumed).slice(-256)};
+ const projected=mk305LegacyProjection(doc);
+ // Write the compatibility projection first, then commit the authoritative record.
+ // If the latter fails, restore only our own projection; never roll back a third-party write.
+ localStorage.setItem("mq4_profiles",projected);
+ try{localStorage.setItem(MK305_AUTHORITY_KEY,JSON.stringify(doc))}
+ catch(e){
+  if(localStorage.getItem("mq4_profiles")===projected){
+   try{if(previous===null)localStorage.removeItem("mq4_profiles");else localStorage.setItem("mq4_profiles",previous)}catch(_){}
+  }
+  throw e;
+ }
+}
+function mk305ShowLegacyRescue(){
+ if(!document.body||document.getElementById("mk305-legacy-rescue"))return;
+ const keys=Object.keys(localStorage).filter(k=>k.startsWith(MK305_LEGACY_QUARANTINE));
+ if(!keys.length)return;
+ const host=document.createElement("aside");host.id="mk305-legacy-rescue";
+ host.setAttribute("aria-label","Данные старой вкладки");
+ host.style.cssText="max-width:960px;margin:8px auto;padding:10px 14px;border:1px solid #d5aa62;border-radius:10px;background:#fff8e6;color:#604516;font-size:14px;line-height:1.45";
+ const message=document.createElement("div");message.setAttribute("role","status");
+ message.textContent="Данные старой вкладки сохранены отдельно: автоматическое объединение могло бы повторно начислить награды или удалить прогресс. Обновите старую вкладку.";
+ const download=document.createElement("button");download.type="button";download.className="btn";download.textContent="Скачать данные для восстановления";
+ download.onclick=()=>{
+  const snapshots=Object.keys(localStorage).filter(k=>k.startsWith(MK305_LEGACY_QUARANTINE)).map(key=>({key,raw:localStorage.getItem(key)}));
+  downloadJsonObject({format:"matkvest_legacy_conflict_rescue_v1",automaticImport:false,snapshots},"МатКвест - данные старых вкладок.json");
+ };
+ host.append(message,download);document.body.prepend(host);
+}
+function mk305LegacyStable(value){
+ if(Array.isArray(value))return value.map(mk305LegacyStable);
+ if(value&&typeof value==="object"){
+  const out=Object.create(null);
+  for(const key of Object.keys(value).sort())out[key]=mk305LegacyStable(value[key]);
+  return out;
+ }
+ return value;
+}
+function mk305LegacyEqual(a,b,field){
+ // Pre-migration v305 normalized chest history without transactionId.
+ // That known lossy representation alone is not an economic operation.
+ if(field==="chestHistory"){
+  const clean=x=>Array.isArray(x)?x.map(row=>{const y={...row};delete y.transactionId;return y}):x;
+  a=clean(a);b=clean(b);
+ }
+ return JSON.stringify(mk305LegacyStable(a))===JSON.stringify(mk305LegacyStable(b));
+}
+function mk305ReconcileLegacy(){
+ const doc=mk305ReadAuthority();
+ if(!doc)return mk305ReadLegacy();
+ const raw=localStorage.getItem("mq4_profiles");
+ if(raw===null||raw===mk305LegacyProjection(doc))return doc.profiles;
+ const mirror=mk305ReadLegacy(),merged=mk305Clone(doc.profiles),consumed=[...doc.consumed];
+ const ordinary=new Set(["coins","xp","solved","mistakes","streak","bestStreak","courseProgress","questionHistory","attemptHistory","activeAttempt","updatedAt"]);
+ let disputed=false;
+ for(const [name,legacy] of Object.entries(mirror)){
+  const rev=legacy[MK305_LEGACY_REV]??null;
+  // An untagged already-open tab cannot prove it used the initial migration snapshot.
+  if(rev===null){disputed=true;continue}
+  const checkpoint=rev===doc.revision?doc:doc.history.find(x=>x.revision===rev);
+  const base=checkpoint&&Object.hasOwn(checkpoint.profiles,name)?checkpoint.profiles[name]:null;
+  const remote=Object.hasOwn(merged,name)?merged[name]:null;
+  if(!base||!remote||!legacy.profileId||base.profileId!==legacy.profileId||remote.profileId!==legacy.profileId||
+     base.mk305StorageGeneration!==remote.mk305StorageGeneration||legacy.mk305StorageGeneration!==base.mk305StorageGeneration){disputed=true;continue}
+  const keys=new Set([...Object.keys(base),...Object.keys(legacy)]);
+  const changed=[...keys].filter(k=>k!==MK305_LEGACY_REV&&k!=="mk305AppliedSaves"&&!mk305LegacyEqual(base[k],legacy[k],k));
+  const edits=changed.filter(k=>k!=="updatedAt");
+  if(!edits.length)continue;
+  const id=JSON.stringify([rev,legacy.profileId]);
+  // One automatically accepted ordinary delta per identifiable legacy projection.
+  // A second divergent writer with the same base has no unique operation identity.
+  if(consumed.includes(id)||edits.some(k=>!ordinary.has(k))){disputed=true;continue}
+  const next=mk305Clone(remote);let safe=true;
+  for(const k of edits){
+   if(k==="coins"||k==="xp"){
+    const before=Number(base[k]||0),after=Number(legacy[k]),now=Number(remote[k]||0),delta=after-before;
+    if(!Number.isSafeInteger(delta)||delta<0||!Number.isSafeInteger(now+delta)||now+delta<0){safe=false;break}
+    next[k]=now+delta;
+   }else{
+    // Do not replace concurrent learning history with an unrelated old snapshot.
+    if(!mk305LegacyEqual(remote[k],base[k],k)&&!mk305LegacyEqual(remote[k],legacy[k],k)){safe=false;break}
+    if(Object.hasOwn(legacy,k))next[k]=mk305Clone(legacy[k]);else delete next[k];
+   }
+  }
+  if(!safe){disputed=true;continue}
+  next.updatedAt=Math.max(Number(remote.updatedAt||0),Number(legacy.updatedAt||0));
+  Object.defineProperty(merged,name,{value:next,enumerable:true,writable:true,configurable:true});
+  consumed.push(id);
+ }
+ // Old deletes and newly created profiles cannot silently replace protected profiles.
+ if(Object.keys(doc.profiles).some(name=>!Object.hasOwn(mirror,name)))disputed=true;
+ if(disputed)mk305QuarantineLegacy(raw);
+ mk305PublishProfiles(merged,{consumed,reconciledRaw:raw});
+ return merged;
+}
+function mk305ReadProfiles(){
+ const doc=mk305ReadAuthority();
+ let p=doc?doc.profiles:mk305ReadLegacy();
+ // In browsers without Web Locks, ordinary writes remain durable pending events.
+ // Project them locally on reload; only a lock-capable tab commits the authority.
+ if(!navigator.locks?.request){
+  for(const {event} of mk305PendingEvents())p=mk305MergeProfiles(event.base,event.local,p,event.id,false);
+ }
+ return p;
+}
+let mk305LocalProfiles={};
+const mk305Same=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
+const mk305Clone=x=>x===undefined?undefined:JSON.parse(JSON.stringify(x));
+const mk305Object=x=>x!==null&&typeof x==="object"&&!Array.isArray(x);
+function mk305MergeValue(base,local,remote,path){
+ if(mk305Same(local,base))return mk305Clone(remote);
+ if(mk305Same(remote,base))return mk305Clone(local);
+ // Ordinary saves rebase independently earned/spent balances, never chest transaction deltas.
+ if(path.length===2&&["coins","xp"].includes(path[1])||
+    path.length===3&&path[1]==="shopStats"&&["spent","purchases","sales","refundedCoins"].includes(path[2])){
+  const n=Number(remote||0)+Number(local||0)-Number(base||0);
+  if(!Number.isFinite(n)||n<0)throw Error("Conflicting economy save");
+  return n;
+ }
+ if(mk305Same(local,remote))return mk305Clone(remote);
+ if(path.length>=2&&["chestPity","chestStats","chestHistory","chestOwnedIds"].includes(path[1]))return mk305Clone(remote);
+ if(path.length===3&&path[1]==="acquisitionMetadata"&&mk305Object(local)&&mk305Object(remote)){
+  const a=Number(local.purchaseTimestamp||0),b=Number(remote.purchaseTimestamp||0);
+  return mk305Clone(a!==b?(a>b?local:remote):(Number(local.soldTimestamp||0)>Number(remote.soldTimestamp||0)?local:remote));
+ }
+ if(Array.isArray(local)&&Array.isArray(remote)&&(path[1]==="inventory"||path[1]==="everOwned")){
+  const old=Array.isArray(base)?base:[];
+  const removed=new Set(old.filter(x=>!local.includes(x)));
+  return [...new Set([...remote.filter(x=>!removed.has(x)),...local.filter(x=>!old.includes(x))])];
+ }
+ if(path.length===2&&path[1]==="saleHistory"&&Array.isArray(local)&&Array.isArray(remote)){
+  const oldIds=new Set((Array.isArray(base)?base:[]).map(x=>x.transactionId));
+  const map=new Map(remote.map(x=>[x.transactionId,x]));
+  for(const x of local)if(x.transactionId&&!oldIds.has(x.transactionId))map.set(x.transactionId,x);
+  return [...map.values()].sort((a,b)=>Number(a.soldAt||0)-Number(b.soldAt||0)).slice(-MK865_SALE_HISTORY_LIMIT);
+ }
+ if(mk305Object(local)&&mk305Object(remote)){
+  const out={};const old=mk305Object(base)?base:{};
+  for(const k of new Set([...Object.keys(old),...Object.keys(local),...Object.keys(remote)])){
+   const v=mk305MergeValue(old[k],local[k],remote[k],[...path,k]);
+   if(v!==undefined)Object.defineProperty(out,k,{value:v,enumerable:true,writable:true,configurable:true});
+  }
+  return out;
+ }
+ return mk305Clone(local);
+}
+// A normal save must survive immediate F5/close while another tab owns the lock.
+const MK305_PENDING_PREFIX="mq4_v305_pending:";
+const MK305_WRITER=globalThis.crypto?.randomUUID?.()||String(Math.random());
+let mk305EventSeq=0,mk305EventTime=0;
+function mk305EventSnapshot(base,local,name){
+ const b=Object.create(null),l=Object.create(null);
+ for(const key of new Set([...Object.keys(base),...Object.keys(local)])){
+  const old=Object.hasOwn(base,key)?base[key]:undefined;
+  const next=Object.hasOwn(local,key)?local[key]:undefined;
+  if(mk305Same(old,next))continue;
+  if(!old||!next||old.profileId!==next.profileId){
+   if(old)b[key]=mk305Clone(old);if(next)l[key]=mk305Clone(next);continue;
+  }
+  const x={profileId:old.profileId,mk305StorageGeneration:old.mk305StorageGeneration};
+  const y={profileId:next.profileId,mk305StorageGeneration:next.mk305StorageGeneration};
+  let changed=false;
+  for(const field of new Set([...Object.keys(old),...Object.keys(next)])){
+   if(field==="mk305AppliedSaves"||mk305Same(old[field],next[field]))continue;
+   if(Object.hasOwn(old,field))Object.defineProperty(x,field,{value:mk305Clone(old[field]),enumerable:true,writable:true,configurable:true});
+   if(Object.hasOwn(next,field))Object.defineProperty(y,field,{value:mk305Clone(next[field]),enumerable:true,writable:true,configurable:true});
+   changed=true;
+  }
+  if(changed){b[key]=x;l[key]=y}
+ }
+ const seq=++mk305EventSeq,at=mk305EventTime=Math.max(mk305EventTime,Date.now());
+ return {id:crypto.randomUUID(),writer:MK305_WRITER,seq,at,name,base:b,local:l};
+}
+function mk305MergeProfiles(base,local,remote,eventId,normalize=true){
+ const result=mk305Clone(remote);
+ for(const name of new Set([...Object.keys(base),...Object.keys(local)])){
+  const b=Object.hasOwn(base,name)?base[name]:undefined,l=Object.hasOwn(local,name)?local[name]:undefined,r=Object.hasOwn(remote,name)?remote[name]:undefined;
+  if(mk305Same(b,l)||r?.mk305AppliedSaves?.includes(eventId))continue;
+  // A stale event cannot resurrect a removed student or overwrite an explicit restore.
+  if(b?.profileId&&(!r||r.profileId!==b.profileId||r.mk305StorageGeneration!==b.mk305StorageGeneration))continue;
+  if(!b&&r&&r.profileId!==l?.profileId)continue;
+  if(l===undefined){if(r&&(b?.profileId===r.profileId)&&b?.mk305StorageGeneration===r.mk305StorageGeneration)delete result[name];continue}
+  const merged=mk305MergeValue(b,l,r,[name]);
+  if(normalize&&merged&&typeof mk865NormalizeSaleProfile==="function"&&typeof MK305_CHEST_XP!=="undefined"){
+   mk861NormalizeChestProfile(merged);mk861ApplyChestOwnedToInventory(merged);mk865NormalizeSaleProfile(merged);
+  }
+  // The marker and the balance are written in the same canonical JSON value.
+  // If the tab dies before deleting the pending event, replay sees this marker.
+  const markers=(Array.isArray(r?.mk305AppliedSaves)?r.mk305AppliedSaves:[]).filter(id=>localStorage.getItem(MK305_PENDING_PREFIX+id)!==null);
+  merged.mk305AppliedSaves=[...new Set([...markers,eventId])];
+  Object.defineProperty(result,name,{value:merged,enumerable:true,writable:true,configurable:true});
+ }
+ return result;
+}
+function mk305PendingEvents(){
+ return Object.keys(localStorage).filter(k=>k.startsWith(MK305_PENDING_PREFIX)).map(key=>{
+  const event=JSON.parse(localStorage.getItem(key));
+  if(!event||key!==MK305_PENDING_PREFIX+event.id||!mk305Object(event.base)||!mk305Object(event.local)||!Number.isFinite(event.at)||!Number.isSafeInteger(event.seq))throw Error("Invalid pending profile write");
+  return {key,event};
+ }).sort((a,b)=>a.event.at-b.event.at||String(a.event.writer).localeCompare(String(b.event.writer))||a.event.seq-b.event.seq);
+}
+function mk305DrainWrites(){
+ if(mkV877CorruptProfiles)throw Error("Profile recovery required");
+ let remote=mk305ReconcileLegacy();
+ for(const {key,event} of mk305PendingEvents()){
+  const merged=mk305MergeProfiles(event.base,event.local,remote,event.id);
+  // A single canonical write commits both effects and replay markers.
+  mk305PublishProfiles(merged);remote=merged;
+  try{
+   const name=Object.hasOwn(merged,event.name)?event.name:Object.keys(merged)[0];
+   if(name){localStorage.setItem("mq4_current_profile",name);localStorage.setItem("mq4",JSON.stringify(merged[name]))}
+   else{localStorage.removeItem("mq4_current_profile");localStorage.removeItem("mq4")}
+  }catch(e){try{reportStorageError(e,false)}catch(_){}}
+  localStorage.removeItem(key);
+ }
+ return remote;
+}
+function mk305FlushWrites(){return mk305LastWrite}
+function mk305QueueProtectedWrite(value){
+ const local=JSON.parse(value),base=mk305LocalProfiles,name=currentProfile,serial=++mk305WriteSerial;
+ const event=mk305EventSnapshot(base,local,name);
+ // Synchronous durability, even when the lock callback is cancelled by navigation.
+ // On quota failure the old baseline remains intact and the caller sees the failure.
+ localStorage.setItem(MK305_PENDING_PREFIX+event.id,JSON.stringify(event));
+ mk305LocalProfiles=mk305Clone(local);
+ if(!navigator.locks?.request){mk305LastWrite=Promise.resolve(true);return mk305LastWrite}
+ mk305LastWrite=navigator.locks.request(MK305_PROFILE_LOCK,()=>{
+  const merged=mk305DrainWrites();
+  if(serial===mk305WriteSerial&&currentProfile===name&&mk305Same(state,local[name])&&mk305Same(profiles,local)&&merged[name]){
+   profiles=mk305Clone(merged);state={...EMPTY_STATE,...mk305Clone(merged[name])};mk305LocalProfiles=mk305Clone(merged);
+  }
+  return true;
+ }).catch(e=>{try{reportStorageError(e,true)}catch(_){};return false});
+ return mk305LastWrite;
+}
+async function mk305WithProfileTransaction(fn){
+ if(!navigator.locks?.request||mkV877CorruptProfiles){rewardPop("Безопасное сохранение недоступно");return null}
+ const name=currentProfile,id=state.profileId;
+ try{return await navigator.locks.request(MK305_PROFILE_LOCK,()=>{
+  if(mkV877CorruptProfiles||currentProfile!==name||state.profileId!==id)return null;
+  const latest=mk305DrainWrites(),fresh=latest[name];
+  if(!fresh||fresh.profileId!==id)return null;
+  profiles=latest;state={...EMPTY_STATE,...mk305Clone(fresh)};mk305LocalProfiles=mk305Clone(latest);
+  mk305InsideWrite++;
+  try{return fn()}finally{mk305InsideWrite--}
+ })}catch(e){try{reportStorageError(e,true)}catch(_){};return null}
+}
 function mkV877ProtectedSet(key,value){
  if(mkV877CorruptProfiles&&(key==="mq4_profiles"||key==="mq4_current_profile"||key==="mq4"))return;
+ {
+  if(key==="mq4_profiles"){
+   if(!mk305InsideWrite)return mk305QueueProtectedWrite(value);
+   const result=mk305PublishProfiles(JSON.parse(value));mk305LocalProfiles=JSON.parse(value);return result;
+  }
+  if(!mk305InsideWrite&&(key==="mq4"||key==="mq4_current_profile"))return;
+ }
  return localStorage.setItem(key,value);
 }
+try{mk305LocalProfiles=mk305ReadProfiles()}catch(_){}
 let mkV877RecoveryExported=false;
 function mkV877WriteReplacement(imported,name,settings){
  if(mkV877CorruptProfiles){
@@ -9914,6 +10243,7 @@ function mkV877WriteReplacement(imported,name,settings){
    };
   }
  }
+ for(const profile of Object.values(imported)){profile.mk305StorageGeneration=globalThis.crypto?.randomUUID?.()||newProfileId();delete profile.mk305AppliedSaves;}
  const entries=[
   ["mq4_current_profile",name],
   ["mq4",JSON.stringify(imported[name])],
@@ -9926,7 +10256,7 @@ function mkV877WriteReplacement(imported,name,settings){
   for(const [key,value] of entries){
    const previous=localStorage.getItem(key);
    if(previous===value)continue;
-   localStorage.setItem(key,value);
+   if(key==="mq4_profiles")mk305PublishProfiles(JSON.parse(value),{replacement:true});else localStorage.setItem(key,value);
    written.push([key,previous]);
   }
  }catch(error){
@@ -9947,7 +10277,7 @@ function mkV877WriteReplacement(imported,name,settings){
 }
 try{
   if(mkV877CorruptProfiles)throw new Error("Bad profile schema");
-  profiles=JSON.parse(localStorage.getItem("mq4_profiles")||"null")||{};
+  profiles=mk305ReadProfiles();
   currentProfile=localStorage.getItem("mq4_current_profile")||"Ученик";
   if(!Object.keys(profiles).length){
     const old=JSON.parse(localStorage.getItem("mq4")||"null");
@@ -26381,6 +26711,7 @@ function mk861NormalizeChestProfile(profile){
  };
  profile.chestOwnedIds=[...new Set((Array.isArray(profile.chestOwnedIds)?profile.chestOwnedIds:[]).filter(id=>!!mk861CatalogEntryById(id)))];
  profile.chestHistory=Array.isArray(profile.chestHistory)?profile.chestHistory.slice(-MK861_CHEST_HISTORY_LIMIT).map(x=>({
+  transactionId:typeof x?.transactionId==="string"?x.transactionId:null,
   rarity:["rare","epic","legendary"].includes(x?.rarity)?x.rarity:"rare",
   rewardId:typeof x?.rewardId==="string"?x.rewardId:null,
   type:typeof x?.type==="string"?x.type:null,
@@ -26403,13 +26734,14 @@ function mk861PickArray(items,randomFn=mk861RandomUnit){
  return items[Math.floor(r*items.length)]||items[items.length-1];
 }
 function mk861StorageSnapshot(){
- const keys=["mq4_profiles","mq4_current_profile","mq4"],out={};
+ const keys=[MK305_AUTHORITY_KEY,"mq4_profiles","mq4_current_profile","mq4"],out={};
  for(const k of keys)out[k]=localStorage.getItem(k);return out;
 }
 function mk861RestoreStorageSnapshot(snapshot){
  for(const [k,v] of Object.entries(snapshot)){if(v===null)localStorage.removeItem(k);else localStorage.setItem(k,v)}
 }
 function mk861CommitProfileState(next){
+ if(mkV877CorruptProfiles||!mk305InsideWrite)return false;
  const oldState=state,oldProfiles=profiles,snapshot=mk861StorageSnapshot();
  try{
   normalizeProfileShopData(next,{syncRewards:false});mk861NormalizeChestProfile(next);ensureProfileIdentity(next,{touch:true});
@@ -26420,12 +26752,13 @@ function mk861CommitProfileState(next){
   profiles=nextProfiles;state=next;stats();return true;
  }catch(e){
   state=oldState;profiles=oldProfiles;
-  try{mk861RestoreStorageSnapshot(snapshot)}catch(_rollbackError){}
+  try{mk861RestoreStorageSnapshot(snapshot);mk305LocalProfiles=mk305ReadProfiles()}catch(_rollbackError){}
   try{reportStorageError(e,true)}catch(_reportError){}
   return false;
  }
 }
-function mk861OpenChestTransaction(){
+function mk861OpenChestTransaction(){return mk305WithProfileTransaction(mk305OpenChestLocked)}
+function mk305OpenChestLocked(){
  if(MK861_CHEST_TRANSACTION_LOCK)return null;
  mk861NormalizeChestProfile(state);normalizeShop();
  if(MK861_POOL_VALIDATION_ERRORS.length){rewardPop("Сундук временно недоступен: ошибка набора наград");return null}
@@ -26448,10 +26781,10 @@ function mk861OpenChestTransaction(){
  next.chestStats.totalOpened++;
  if(rarity==="rare")next.chestStats.rareCount++;else if(rarity==="epic")next.chestStats.epicCount++;else next.chestStats.legendaryCount++;
  next.chestStats.compensationCoins+=compensationCoins;next.chestStats.lastOpenedAt=Date.now();
- const historyEntry={rarity,rewardId:picked?.item?.id||null,type:picked?.type||null,timestamp:next.chestStats.lastOpenedAt,compensation,compensationCoins,bonusXp};
+ const historyEntry={transactionId:"chest:"+crypto.randomUUID(),rarity,rewardId:picked?.item?.id||null,type:picked?.type||null,timestamp:next.chestStats.lastOpenedAt,compensation,compensationCoins,bonusXp};
  next.chestHistory=[...(next.chestHistory||[]),historyEntry].slice(-MK861_CHEST_HISTORY_LIMIT);
  if(!mk861CommitProfileState(next)){MK861_CHEST_TRANSACTION_LOCK=false;return null}
- const result={rarity,rewardId:historyEntry.rewardId,type:historyEntry.type,item:picked?.item||null,compensation,compensationCoins,bonusXp,coinsAfter:state.coins,pity:deepCopy(state.chestPity),timestamp:historyEntry.timestamp};
+ const result={transactionId:historyEntry.transactionId,rarity,rewardId:historyEntry.rewardId,type:historyEntry.type,item:picked?.item||null,compensation,compensationCoins,bonusXp,coinsAfter:state.coins,pity:deepCopy(state.chestPity),timestamp:historyEntry.timestamp};
  MK861_PENDING_REVEAL=result;
  if(typeof mk861ShowReveal==="function")mk861ShowReveal(result);else MK861_CHEST_TRANSACTION_LOCK=false;
  return result;
@@ -26933,7 +27266,8 @@ function mk865ShowCompletedMissionPrompt(){
    mk865SaleButton("Оставить пока",mk865CloseSaleOverlay)]]});
 }
 function mk865CancelMission(){const m=state.saleMission;if(!m||m.status!=="active")return;state.saleMission=null;save();mk865CloseSaleOverlay();rewardPop("Миссия отменена. Предмет остался у тебя.");if(m.itemType)openShop(m.itemType)}
-function mk865SellItem(type,id,rate){
+function mk865SellItem(type,id,rate){return mk305WithProfileTransaction(()=>mk305SellItemLocked(type,id,rate))}
+function mk305SellItemLocked(type,id,rate){
  const key=mk865ItemKey(type,id);if(MK865_SALE_LOCKS.has(key))return;normalizeShop();const e=mk865SellEligibility(type,id);if(!e.ok){mk865OpenSellDialog(type,id);return}
  if(e.chest){
   if(Number(rate)!==0.5)return mk865OpenSellDialog(type,id);
@@ -26947,9 +27281,11 @@ function mk865SellItem(type,id,rate){
    const rec=next.acquisitionMetadata[key];rec.soldTimestamp=soldAt;rec.lastRefundRate=0.5;rec.lastRefundCoins=refund;
    next.saleHistory=[...(next.saleHistory||[]),{transactionId:"chest-sale:"+key+":"+rec.purchaseTimestamp,type,id,itemName:e.item.name,source:"chest",paidPrice:0,referencePrice:e.referencePrice,purchaseTimestamp:rec.purchaseTimestamp,soldAt,refundRate:0.5,refundCoins:refund}].slice(-MK865_SALE_HISTORY_LIMIT);
    mk865RememberEverOwned(next,type,id);
-   if(!mk861CommitProfileState(next))return;
+   const receipt=deepCopy(next.saleHistory[next.saleHistory.length-1]);
+   if(!mk861CommitProfileState(next))return null;
    mk865CloseSaleOverlay();rewardPop("Продано: +"+refund+" 🪙");
    if(fromReveal)mk861FinishReveal();else if(fromCollection)openCollection();else openShop(type);
+   return receipt;
   }finally{MK865_SALE_LOCKS.delete(key)}
   return;
  }
@@ -28442,9 +28778,17 @@ function mk873ApplyRefundReceipt(profile,receipt){
  return next;
 }
 function mk873ProjectRefunds(records){
+ if(!records.length||mkV877CorruptProfiles)return Promise.resolve();
+ if(!navigator.locks?.request)return Promise.resolve();
+ return navigator.locks.request(MK305_PROFILE_LOCK,()=>{
+  mk305DrainWrites();mk305InsideWrite++;
+  try{return mk305ProjectRefundsLocked(records)}finally{mk305InsideWrite--}
+ });
+}
+function mk305ProjectRefundsLocked(records){
  if(!records.length||mkV877CorruptProfiles)return;
  // Read the current document before writing so another tab's profile updates survive.
- const saved=JSON.parse(localStorage.getItem('mq4_profiles')||'null');
+ const saved=mk305ReadProfiles();
  const updated={...(saved||profiles)};
  let changed=false,activeChanged=false;
  for(const {profileId,receipt} of records){
@@ -28452,7 +28796,7 @@ function mk873ProjectRefunds(records){
   if(!name)continue;
   const active=name===currentProfile&&state.profileId===profileId;
   const previous=updated[name];
-  const base=active&&Number(state.updatedAt||0)>Number(previous.updatedAt||0)?state:previous;
+  const base=navigator.locks?.request?previous:(active&&Number(state.updatedAt||0)>Number(previous.updatedAt||0)?state:previous);
   updated[name]=mk873ApplyRefundReceipt(base,receipt);
   changed=changed||updated[name]!==previous;
   activeChanged=activeChanged||(active&&(!mk873Ledger(state)[receipt.itemId]||updated[name]!==previous));
@@ -28474,11 +28818,12 @@ async function mk873RestoreRefundJournal(){
   const read=store.getAll();
   read.onsuccess=()=>done(read.result);
  });
- mk873ProjectRefunds(records);
+ await mk873ProjectRefunds(records);
 }
 async function mk873CommitArchivedAvatarRefund(id,paidPrice,purchaseTimestamp){
  const profileId=state.profileId,route=mk854Route(),key=mk873ReceiptKey(state,id);
  if(mkV877CorruptProfiles||MK873_REFUND_LOCKS.has(key))return;
+ if(!navigator.locks?.request){rewardPop("Безопасное сохранение недоступно");return}
  MK873_REFUND_LOCKS.add(key);
  let recorded=false;
  const commit=async()=>{
@@ -28489,7 +28834,7 @@ async function mk873CommitArchivedAvatarRefund(id,paidPrice,purchaseTimestamp){
   }
   const {record,created}=await mk873RecordRefund(state,id,fresh);
   recorded=true;
-  mk873ProjectRefunds([record]);
+  await mk873ProjectRefunds([record]);
   if(state.profileId===profileId){
    rewardPop(created?`Возвращено ${paidPrice} 🪙 за архивный аватар`:'Полная компенсация уже выплачена.');
   }
@@ -42307,6 +42652,28 @@ const g5HomeProgress=document.getElementById("g5HomeProgress");
 if(g5HomeProgress)g5HomeProgress.textContent=g5HomeProgressText();
 const g8HomeProgress=document.getElementById("g8HomeProgress");
 if(g8HomeProgress)g8HomeProgress.textContent=g8HomeProgressText();
+// Explicit replacement and store debit must use the same origin-wide lock.
+const MK305_REPLACE_LOCKED=replaceWithPendingImport;
+replaceWithPendingImport=function(){
+ if(!pendingImport)return MK305_REPLACE_LOCKED();
+ if(!navigator.locks?.request){rewardPop("Безопасное восстановление недоступно");return}
+ const requested=pendingImport;
+ return navigator.locks.request(MK305_PROFILE_LOCK,()=>{
+  if(pendingImport!==requested)return;
+  if(!mkV877CorruptProfiles){
+   const latest=mk305DrainWrites(),fresh=latest[currentProfile];
+   profiles=latest;if(fresh)state={...EMPTY_STATE,...mk305Clone(fresh)};
+  }
+  mk305InsideWrite++;
+  try{return MK305_REPLACE_LOCKED()}finally{
+   mk305InsideWrite--;if(!mkV877CorruptProfiles)mk305LocalProfiles=mk305ReadProfiles();
+  }
+ }).catch(e=>{reportStorageError(e,true)});
+};
+const MK305_BUY_LOCKED=buyShopItem;
+buyShopItem=function(type,id){return mk305WithProfileTransaction(()=>MK305_BUY_LOCKED(type,id))};
+mk305ShowLegacyRescue();
+window.addEventListener('storage',e=>{if(e.key?.startsWith(MK305_LEGACY_QUARANTINE))mk305ShowLegacyRescue()});
 mountAppHeader();
 mountRewardNotice();
 mountHomeDashboard();

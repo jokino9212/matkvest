@@ -1,5 +1,5 @@
 const CACHE_NAME = "matkvest-iphone-v305";
-const APP_BUILD_HASH = "490a1599d57f24d35f74ca54af25bdb6a36993de24d43087d7a8374e3c87cfd0";
+const APP_BUILD_HASH = "1e225be71d2aeed493be494c150f2ebaedda392c9f90701f331923ad5b7d6227";
 const AVATAR_FILES = [
   "./assets/source/avatars/avatar_clash_king.svg",
   "./assets/source/avatars/av_mq_ivy_cartographer-v3.webp",
