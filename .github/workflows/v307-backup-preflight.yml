@@ -2,7 +2,7 @@ name: v307 backup preflight (read only)
 on:
   push:
     branches: [feature/v307-accounts-migration-homework]
-    paths: ['integrations/v307/**', 'audits/v307_*', '.github/workflows/v307-backup-preflight.yml']
+    paths: ['integrations/v307/**', 'integrations/backend95-next/school_block_queue.mjs', 'audits/v307_*', '.github/workflows/v307-backup-preflight.yml']
   workflow_dispatch:
 permissions:
   contents: read
