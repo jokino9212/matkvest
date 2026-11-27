@@ -74,4 +74,13 @@ export class V307AccountClient extends MatKvestApiClient {
  economyCatalog(profile){return this.request('GET',student(profile)+'/economy-v307/catalog');}
  economyState(profile){return this.request('GET',student(profile)+'/economy-v307/state');}
  economyOperation(profile,body,key){return this.request('POST',student(profile)+'/economy-v307/operations',{body,idempotencyKey:id(key)});}
+ quickDraft(profile){return this.request('GET',student(profile)+'/draft');}
+ quickStart(profile,count,key){if(![5,10].includes(count))throw new TypeError('Invalid quick length');return this.request('POST',student(profile)+'/training-starts',{body:{grade:4,topic_id:'quick:multiplication',question_count:count},idempotencyKey:id(key)});}
+ quickQuestions(profile,start){return this.request('GET',student(profile)+'/training-starts/'+id(start)+'/questions');}
+ quickSave(profile,body,key){return this.request('PUT',student(profile)+'/draft',{body,idempotencyKey:id(key)});}
+ quickFinish(profile,start,body){return this.request('PUT',student(profile)+'/training-starts/'+id(start)+'/result',{body});}
+ quickLatest(profile){return this.request('GET',student(profile)+'/verified-training/latest');}
+ trainingGoals(profile){return this.request('GET',student(profile)+'/training-goals');}
+ startGoal(profile,type,key){if(!['correct','streak'].includes(type))throw new TypeError('Invalid goal type');return this.request('POST',student(profile)+'/training-goals',{body:{type},idempotencyKey:id(key)});}
+ cancelGoal(profile,goal){return this.request('DELETE',student(profile)+'/training-goals/'+id(goal));}
 }

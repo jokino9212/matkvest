@@ -24,9 +24,9 @@ export function createEconomyQueue({api,scope,store,online=()=>navigator.onLine,
  }
  return {pending,submit};
 }
-export function economyOutbox(indexedDB=globalThis.indexedDB){
+export function economyOutbox(indexedDB=globalThis.indexedDB,databaseName='matkvest-v307-economy-outbox'){
  let promise;
- function open(){if(!indexedDB)throw Error('PERSISTENCE_REQUIRED');return promise??=new Promise((resolve,reject)=>{const r=indexedDB.open('matkvest-v307-economy-outbox',1);r.onupgradeneeded=()=>r.result.createObjectStore('pending',{keyPath:'scope'});r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);r.onblocked=()=>reject(Error('STORAGE_BLOCKED'));});}
+ function open(){if(!indexedDB)throw Error('PERSISTENCE_REQUIRED');return promise??=new Promise((resolve,reject)=>{const r=indexedDB.open(databaseName,1);r.onupgradeneeded=()=>r.result.createObjectStore('pending',{keyPath:'scope'});r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);r.onblocked=()=>reject(Error('STORAGE_BLOCKED'));});}
  async function transact(mode,fn){const db=await open();return new Promise((resolve,reject)=>{const t=db.transaction('pending',mode),s=t.objectStore('pending');let result;t.oncomplete=()=>resolve(result);t.onabort=()=>reject(t.error||Error('STORAGE_ABORT'));t.onerror=()=>reject(t.error);fn(s,v=>{result=v});});}
  return {read:k=>transact('readonly',(s,done)=>{const r=s.get(k);r.onsuccess=()=>done(r.result||null);}),reserve:row=>transact('readwrite',(s,done)=>{const r=s.get(row.scope);r.onsuccess=()=>{if(r.result)done(r.result);else{s.add(row);done(row);}};}),clear:(k,key)=>transact('readwrite',(s,done)=>{const r=s.get(k);r.onsuccess=()=>{if(r.result?.key===key)s.delete(k);done(true);};})};
 }
