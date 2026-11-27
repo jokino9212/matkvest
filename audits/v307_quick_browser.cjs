@@ -19,10 +19,11 @@ const P='a1436d1d-0123-4f25-8ae9-df61e8a85370',U='b1436d1d-0123-4f25-8ae9-df61e8
    else if(path==='/auth/me')data={id:U,role:'student'};
    else if(path==='/student/profiles')data=[{id:P,display_name:'Пробный ученик'}];
    else if(path==='/profiles/'+P+'/subscription')data={profile_id:P,display_name:'Пробный ученик',full:true,sources:['tutor_paid'],test_only:true,payment_enabled:false,free_blocks_limit:10,free_blocks_used:0,can_request:false,pending:false};
+   else if(path===profile+'/quick-access')data={test_only:true,topics:Object.fromEntries(['quick:multiplication','quick:addition','quick:squares','quick:cubes'].map(t=>[t,{allowed:true,full:true,free_topic:t==='quick:multiplication'}]))};
    else if(path===profile+'/draft'&&m==='GET')data=draft;
    else if(path===profile+'/verified-training/latest')data={training:latest};
    else if(path===profile+'/training-goals'&&m==='GET')data={active:goal?.status==='active'?goal:null,completed:goal?.status==='completed'?1:0,options:[{type:'correct',target:12,reward_xp:8,reward_coins:3},{type:'streak',target:6,reward_xp:8,reward_coins:3}]};
-   else if(path===profile+'/training-goals'&&m==='POST'){assert.equal(body.type,'streak');goal={id:GOAL,type:'streak',target:6,progress:0,status:'active',reward_xp:8,reward_coins:3};code=201;data=goal;}
+   else if(path===profile+'/training-goals'&&m==='POST'){assert.equal(body.type,'streak');assert.equal(body.topic_id,'quick:multiplication');goal={id:GOAL,topic_id:body.topic_id,type:'streak',target:6,progress:0,status:'active',reward_xp:8,reward_coins:3};code=201;data=goal;}
    else if(path===profile+'/training-starts/'+START+'/questions')data={training_start_id:START,topic_id:'quick:multiplication',status:latest?'finished':'active',questions,summary:latest?.summary||null};
    else if(path===profile+'/training-starts'&&m==='POST')kind='start';
    else if(path===profile+'/draft'&&m==='PUT')kind='save';
@@ -32,7 +33,7 @@ const P='a1436d1d-0123-4f25-8ae9-df61e8a85370',U='b1436d1d-0123-4f25-8ae9-df61e8
     assert.equal(req.headers()['x-csrf-token'],'csrf');const key=kind==='finish'?START:req.headers()['idempotency-key'];assert(key);writes.push({kind,key,body});
     if(replay.has(key)){const old=replay.get(key);assert.equal(old.kind,kind);assert.deepEqual(old.body,body);code=old.code;data=old.data}
     else{
-     if(kind==='start'){assert.equal(body.question_count,10);assert.equal(body.topic_id,'quick:multiplication');assert(!draft.draft);starts++;draft={revision:1,draft:{training_start_id:START,question_index:0,answers:{}}};code=201;data={id:START}}
+     if(kind==='start'){assert.equal(body.question_count,10);assert.equal(body.topic_id,'quick:multiplication');assert.equal(body.mode,'all');assert.equal(body.smart,'all');assert(!draft.draft);starts++;draft={revision:1,draft:{training_start_id:START,question_index:0,answers:{}}};code=201;data={id:START}}
      if(kind==='save'){assert.equal(body.base_revision,draft.revision);assert.equal(body.draft.training_start_id,START);assert.equal(body.draft.question_index,draft.draft.question_index+1);draft={revision:draft.revision+1,draft:body.draft};data=draft}
      if(kind==='finish'){assert.deepEqual(body.answers,questions.map(q=>q.left*q.right));assert.equal(body.draft_revision,draft.revision);assert.equal(draft.draft.question_index,10);rewards++;goal={...goal,status:'completed',progress:6};draft={revision:draft.revision+1,draft:null};latest={training_start_id:START,topic_id:'quick:multiplication',questions,status:'finished',summary:{correct:10,wrong:0,skipped:0,xp:30,coins:10,training_goal:{goal,reward_xp:8,reward_coins:3},achievement_rewards:[]}};data=latest}
      replay.set(key,{kind,body:structuredClone(body),code,data:structuredClone(data)});
