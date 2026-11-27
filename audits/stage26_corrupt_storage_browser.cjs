@@ -1,17 +1,21 @@
 'use strict';
-const {chromium}=require('playwright');
-const path=require('node:path');
+const {withMatkvestBrowser}=require('./matkvest_browser_harness.cjs');
+const {execFileSync}=require('node:child_process');
 const assert=require('node:assert/strict');
-const url='file://'+path.resolve('index.html');
-async function main(){
- const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
+const V304='9f06afc8134e007c3e72eae231c8f9b519678fe5';
+const oldHtml=execFileSync('git',['show',V304+':index.html'],{maxBuffer:32*1024*1024});
+async function main(browser,url){
  let failures=0;
  try{
  for(const width of [320,390,768]){
-  const context=await browser.newContext({viewport:{width,height:760},isMobile:width<500,hasTouch:width<500});
+  const context=await browser.newContext({viewport:{width,height:760},isMobile:width<500,hasTouch:width<500,serviceWorkers:'block'});
   const page=await context.newPage();
   const errors=[];page.on('pageerror',e=>errors.push(String(e)));
+  // Seed the genuine v304 document before a protected authority exists.
+  const oldRoute=u=>u.href===url;
+  await page.route(oldRoute,r=>r.fulfill({status:200,contentType:'text/html; charset=utf-8',body:oldHtml}));
   await page.goto(url,{waitUntil:'domcontentloaded'});
+  assert.equal(await page.evaluate(()=>localStorage.getItem('mq4_v305_authority')),null,'legacy fixture already migrated');
   const seed=await page.evaluate(()=>{
    const prof=JSON.parse(localStorage.getItem('mq4_profiles')||'{}');
    const a=ensureProfileIdentity({...EMPTY_STATE,xp:271,coins:413,courseProgress:{'g7:rational_numbers_forms':{best:[4,0,0]}}});
@@ -22,8 +26,10 @@ async function main(){
    localStorage.setItem('mk872_learning_draft_v1_'+encodeURIComponent(a.profileId),'THIS_IS_NOT_JSON');
    return {a:a.profileId,b:b.profileId,original:localStorage.getItem('mq4_profiles')};
   });
-  // New browser load should not destroy valid user balances or corrupt draft bytes.
+  await page.unroute(oldRoute);
+  // Migrate on the same origin; never delete a real protected record to prepare a test.
   await page.reload({waitUntil:'domcontentloaded'});
+  await page.evaluate(()=>mk305FlushWrites());
   const valid=await page.evaluate(({a,b})=>({
    current:currentProfile,xp:state.xp,coins:state.coins,
    profiles:Object.keys(profiles).sort(),
@@ -31,6 +37,13 @@ async function main(){
   }),seed);
   if(valid.current!=='Проба A'||valid.xp!==271||valid.coins!==413||valid.profiles.length!==2||valid.backup!=='THIS_IS_NOT_JSON')
    throw Error('Valid profiles and corrupt draft not isolated '+JSON.stringify(valid));
+  const clean=await page.evaluate(async()=>{save();await mk305FlushWrites();return {authority:localStorage.getItem('mq4_v305_authority'),legacy:localStorage.getItem('mq4_profiles'),last:localStorage.getItem('mq4')}});
+  const authority=JSON.parse(clean.authority);
+  assert.equal(authority.profiles['Проба A'].profileId,seed.a);
+  assert.equal(authority.profiles['Проба B'].profileId,seed.b);
+  assert.equal(authority.profiles['Проба A'].xp,271);assert.equal(authority.profiles['Проба A'].coins,413);
+  assert.equal(authority.profiles['Проба B'].xp,892);assert.equal(authority.profiles['Проба B'].coins,124);
+  console.log('PASS_STAGE26_REAL_V304_MIGRATION',width);
   const corrupted='[INVALID_PROFILE_JSON:DO_NOT_REPLACE]';
   await page.evaluate(value=>localStorage.setItem('mq4_profiles',value),corrupted);
   await page.reload({waitUntil:'domcontentloaded'});
@@ -57,10 +70,18 @@ async function main(){
     }else console.log('PASS_STAGE26_INVALID_SCHEMA',JSON.stringify({width,invalidShape,protected:true}));
   }
 
+  // Damage authority itself, preserving the valid compatibility projection.
+  for(const raw of ['[INVALID_AUTHORITY_JSON','[]','{"schema":1,"profiles":[],"history":[],"consumed":[]}']){
+    await page.evaluate(({clean,raw})=>{localStorage.setItem('mq4_profiles',clean.legacy);localStorage.setItem('mq4',clean.last);localStorage.setItem('mq4_v305_authority',raw)}, {clean,raw});
+    await page.reload({waitUntil:'domcontentloaded'});
+    const out=await page.evaluate(async()=>{save();await mk305FlushWrites();return {guard:mkV877CorruptProfiles,authority:localStorage.getItem('mq4_v305_authority'),legacy:localStorage.getItem('mq4_profiles'),last:localStorage.getItem('mq4')}});
+    assert.deepEqual(out,{guard:true,authority:raw,legacy:clean.legacy,last:clean.last},'damaged authority or valid projection overwritten');
+    console.log('PASS_STAGE26_CORRUPT_AUTHORITY',width,raw);
+  }
   await context.close();
  }
- }finally{await browser.close()}
+ }finally{}
  console.log('STAGE26_SUMMARY',JSON.stringify({failures}));
  if(failures)process.exitCode=1;
 }
-main().catch(e=>{console.error(e);process.exitCode=1});
+withMatkvestBrowser(main).catch(e=>{console.error(e);process.exitCode=1});

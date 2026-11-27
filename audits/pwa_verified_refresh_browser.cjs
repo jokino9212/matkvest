@@ -14,12 +14,16 @@ const first=latest-1;
 const marker='g5-decimals-v116.js';
 
 function release(version){
- const script=new Map(Object.keys(hashes).map(name=>[name,readFileSync(name,'utf8')]));
+ // v306 upgrade uses the actual previous production runtime, not a restamped candidate.
+ const actualPrevious=latest===306&&version===305;
+ const oldFile=name=>require('node:child_process').execFileSync('git',['show','01c66c215cb6d6b4dd53350203b22a391f5674e2:'+name],{maxBuffer:32*1024*1024,encoding:'utf8'});
+ const sourceHtml=actualPrevious?oldFile('index.html'):html,sourceWorker=actualPrevious?oldFile('sw.js'):worker;
+ const script=new Map(Object.keys(hashes).map(name=>[name,actualPrevious?oldFile(name):readFileSync(name,'utf8')]));
  script.set(marker,script.get(marker)+'\nwindow.testBuild='+version+';\n');
  const all=Object.fromEntries([...script].map(([name,body])=>[name,digest(body)]));
- const document=html.replace(/\?v=\d+(?="><\/script>)/g,'?v='+version)
+ const document=sourceHtml.replace(/\?v=\d+(?="><\/script>)/g,'?v='+version)
   .replace(/(const knowledgeMapUrl = "\.\/assets\/ui\/knowledge-map\.js\?v=)\d+/,'$1'+version);
- const sw=worker.replace(/const CACHE_NAME = "[^"]+"/,'const CACHE_NAME = "matkvest-iphone-v'+version+'"')
+ const sw=sourceWorker.replace(/const CACHE_NAME = "[^"]+"/,'const CACHE_NAME = "matkvest-iphone-v'+version+'"')
   .replace(/const APP_BUILD_HASH = "[^"]+"/,'const APP_BUILD_HASH = "'+digest(document)+'"')
   .replace(/const SCRIPT_HASHES = \{[^\n]*\};/,'const SCRIPT_HASHES = '+JSON.stringify(all)+';');
  return {document,sw,script};

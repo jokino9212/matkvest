@@ -41,8 +41,9 @@ for(const width of [320,390,768,1280]){
   openShop('pets','all');
   return {entries,categories:[all.length,SHOP_CATALOG.avatars.length,SHOP_CATALOG.badges.length,SHOP_CATALOG.stickers.length]};
  },m.items);
- // The avatar catalog gained nine active entries in v207.
- assert.deepEqual(catalog.categories,[31,64,50,40],'Wrong catalog cardinality');
+ // v305 added exactly one king avatar; all other counts stay strict.
+ assert.deepEqual(catalog.categories,[31,65,50,40],'Wrong catalog cardinality');
+ assert.equal(await page.evaluate(()=>SHOP_CATALOG.avatars.filter(x=>x.id==='avatar_clash_king').length),1,'Missing or duplicate king avatar');
  assert.deepEqual(catalog.entries.slice(0,21),old,'Any legacy pet metadata changed');
  assert.deepEqual(new Set(catalog.entries.map(x=>x.id)).size,31,'Duplicate new item ID');
  assert.deepEqual(catalog.entries.slice(21).map(x=>x.id),m.items.map(x=>x.id),'New pet ordering/IDs wrong');

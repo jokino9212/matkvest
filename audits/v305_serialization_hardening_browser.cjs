@@ -216,11 +216,11 @@ async function pendingProfileEdit(browser,url,fallback){
  }finally{await ctx.close()}
 }
 // A real pre-migration tab, not another instance of the staged runtime.
-// HEAD:index.html is the accepted runtime; the CI scripts materialize the candidate
-// only in the working tree. Both documents share the same origin and localStorage.
+// Pinned pre-authority runtime from accepted v305 hardening CI 45994069667.
+// Both documents share the same origin and localStorage.
 async function actualOldRuntime(browser,url){
  const {execFileSync}=require('node:child_process');
- const oldHtml=execFileSync('git',['show','HEAD:index.html'],{maxBuffer:32*1024*1024});
+ const oldHtml=execFileSync('git',['show','edfbc6d4ce6ad9e0785351f4a8de966a29a9dccd:index.html'],{maxBuffer:32*1024*1024});
  const ctx=await browser.newContext({serviceWorkers:'block'});
  try{
   const a=await fresh(ctx,url);await seed(a,3000);
@@ -252,7 +252,7 @@ async function actualOldRuntime(browser,url){
 // An old document opened before the migration has no trustworthy revision.
 async function unversionedOldRuntime(browser,url){
  const {execFileSync}=require('node:child_process');
- const oldHtml=execFileSync('git',['show','HEAD:index.html'],{maxBuffer:32*1024*1024});
+ const oldHtml=execFileSync('git',['show','edfbc6d4ce6ad9e0785351f4a8de966a29a9dccd:index.html'],{maxBuffer:32*1024*1024});
  const ctx=await browser.newContext({serviceWorkers:'block'});
  try{
   const old=await ctx.newPage();
@@ -281,7 +281,7 @@ async function unversionedOldRuntime(browser,url){
 // never overwrite the new authority or silently import a second economic effect.
 async function legacyEconomicConflict(browser,url){
  const {execFileSync}=require('node:child_process');
- const oldHtml=execFileSync('git',['show','HEAD:index.html'],{maxBuffer:32*1024*1024});
+ const oldHtml=execFileSync('git',['show','edfbc6d4ce6ad9e0785351f4a8de966a29a9dccd:index.html'],{maxBuffer:32*1024*1024});
  const ctx=await browser.newContext({serviceWorkers:'block'});
  try{
   const a=await fresh(ctx,url);await seed(a,3000);
