@@ -1,0 +1,103 @@
+name: v305 grade 6 pedagogy isolated gate
+on:
+  push:
+    branches: [feature/v305-learning-chest-rewards]
+    paths:
+      - .github/workflows/v305-learning-gate.yml
+      - audits/v305_learning_patch.py
+permissions:
+  contents: write
+jobs:
+  learning:
+    if: github.repository == 'jokino9212/matkvest' && github.ref == 'refs/heads/feature/v305-learning-chest-rewards'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Materialize guarded patch and check PWA fingerprints
+        run: |
+          git -c safe.directory="$GITHUB_WORKSPACE" merge-base --is-ancestor 9f06afc8134e007c3e72eae231c8f9b519678fe5 HEAD
+          python3 audits/g7_stage12_sync_pwa.py --check
+          python3 audits/v305_learning_patch.py
+          python3 audits/g7_stage12_sync_pwa.py
+          python3 audits/g7_stage12_sync_pwa.py --check
+          git -c safe.directory="$GITHUB_WORKSPACE" diff --check
+          test "$(git -c safe.directory="$GITHUB_WORKSPACE" diff --name-only | sort | tr '\n' ' ')" = 'audits/g6_book_01_44_browser.cjs index.html sw.js '
+          npm ci
+          npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Independent rendered-question oracle and existing grade 6 regression
+        run: |
+          node audits/g6_divisors_multiples_browser.cjs
+          node audits/g6_book_01_44_browser.cjs --batch=13
+      - name: Theory and both quiz renderers
+        run: |
+          cat > /tmp/v305_learning_check.cjs <<'JS'
+          const assert=require('node:assert/strict');
+          const {withMatkvestBrowser}=require(process.cwd()+'/audits/matkvest_browser_harness.cjs');
+          withMatkvestBrowser(async(browser,url)=>{
+            for(const width of [390,1280])for(const fallback of [false,true]){
+              const ctx=await browser.newContext({viewport:{width,height:850},serviceWorkers:'block'});
+              if(fallback)await ctx.route('**/assets/ui/knowledge-map.js*',r=>r.abort());
+              const p=await ctx.newPage(),errors=[];
+              p.on('pageerror',e=>errors.push(e.message));
+              try{
+                await p.goto(url);
+                await p.waitForFunction(()=>typeof startG6QuizStage==='function'&&typeof g6Lesson==='function'&&mk854HistoryReady);
+                const theory=await p.evaluate(()=>{const e=document.createElement('div');e.innerHTML=g6Lesson('g6:divisors_multiples');return e.textContent;});
+                assert(theory.includes('Парные делители'));
+                assert(theory.includes('24 : 3 = 8'));
+                assert(theory.includes('36 = 6 · 6'));
+                for(const topic of ['divisibility_2_5_10','divisibility_3_9'])for(const level of [0,1,2]){
+                  await p.evaluate(({topic,level})=>startG6QuizStage('g6:'+topic,level),{topic,level});
+                  await p.locator('#qstage .quizq').waitFor();
+                  if(!fallback)await p.locator('#qstage[data-v-app]').waitFor();
+                  const n=await p.evaluate(()=>blockSession.total);
+                  for(let j=0;j<n;j++){
+                    const info=await p.evaluate(()=>({text:document.querySelector('#qstage .quizq').textContent,answer:q.ans,choices:q.choices.length,correct:q.choices.findIndex(c=>String(c.key)===String(q.ans))}));
+                    assert(!/включительно|строго между|в промежутке/.test(info.text),info.text);
+                    assert(info.choices<=3,info.text);
+                    if(info.choices)await p.locator('#qstage .answer').nth(info.correct).click();
+                    else{await p.locator('#quizInput').fill(String(info.answer));await p.evaluate(()=>checkQuizInput());}
+                    await p.waitForFunction(j=>blockSession.correct===j+1,j);
+                    if(j+1<n)await p.evaluate(()=>nextQ());
+                  }
+                  assert.equal(await p.evaluate(()=>blockSession.correct),n);
+                }
+                assert.deepEqual(errors,[]);
+                console.log('V305_RENDERER_PASS',width,fallback);
+              }finally{await ctx.close();}
+            }
+          }).catch(e=>{console.error(e);process.exitCode=1;});
+          JS
+          node /tmp/v305_learning_check.cjs
+      - name: Existing keyboard, draft, result and offline regression
+        run: |
+          node audits/stage21_training_keyboard_audit.cjs
+          node audits/stage22_answer_drafts_browser.cjs
+          node audits/stage24_attempt_lifecycle_browser.cjs
+          node audits/stage28_offline_pwa_browser.cjs
+          node audits/pwa_verified_refresh_browser.cjs
+          python3 audits/g7_stage12_sync_pwa.py --check
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v305-learning-tested-not-for-deploy
+          path: |
+            index.html
+            sw.js
+            audits/g6_book_01_44_browser.cjs
+          if-no-files-found: error
+          retention-days: 14
+      - name: Commit only successfully tested files to isolated branch
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          test "$(git diff --name-only | sort | tr '\n' ' ')" = 'audits/g6_book_01_44_browser.cjs index.html sw.js '
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html sw.js audits/g6_book_01_44_browser.cjs
+          git commit -m 'v305 stage 1: tested paired divisors and concise divisibility tasks'
+          git push origin HEAD:refs/heads/feature/v305-learning-chest-rewards
+          git rev-parse HEAD
