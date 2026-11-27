@@ -414,11 +414,18 @@ function solveReview({topic,text,level,family,data}){
  const numbers=[...text.replace(/\[\d+\/\d+\]/g,'').matchAll(/\d+/g)].map(m=>Number(m[0]));
  const [a,b,c,d,e,f]=numbers;
  if(topic.startsWith('divisibility_')){
-  const multiples=(lo,hi,by)=>Array.from({length:hi-lo+1},(_,i)=>lo+i).filter(n=>n%by===0);
-  const up=(start,by)=>multiples(start,start+by-1,by)[0]-start;
-  if(level===0)return [()=>multiples(a,b,c).length,()=>a%b,()=>up(a,b),()=>a%b,()=>multiples(a,d,e).length][family]();
-  if(level===1)return [()=>multiples(b,c,a).length,()=>multiples(10*a,10*a+9,b).length,()=>multiples(10*a,10*a+9,b)[0]%10,()=>multiples(10*a,10*a+9,b).at(-1)%10,()=>multiples(e+1,c,a).length][family]();
-  return [()=>multiples(b+1,c-1,a).length,()=>up(a+b,c),()=>multiples(a,b,c).at(-1)-multiples(a,b,c)[0],()=>(a-b)%c,()=>multiples(a,b,c).filter(n=>n%d!==0).length][family]();
+  if(family===0)return a%b===0?'ДА':'НЕТ';
+  if(family===1){
+   const valid=[a,b,c].filter(n=>n%d===0);
+   assert.equal(valid.length,1,text);
+   return String(valid[0]);
+  }
+  if(family===2||family===3){
+   const digits=range(0,9).filter(x=>(10*a+x)%b===0);
+   assert(digits.length>0,text);
+   return family===2?digits[0]:digits.at(-1);
+  }
+  return a%b===0&&a%c===0?'ДА':'НЕТ';
  }
  if(topic.startsWith('fraction_')){
   const index=(family+(topic==='fraction_reduction'?2:0))%5;
