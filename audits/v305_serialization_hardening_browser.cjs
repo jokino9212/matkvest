@@ -244,6 +244,9 @@ async function actualOldRuntime(browser,url){
   console.log('V305_ACTUAL_OLD_RUNTIME',JSON.stringify(result));
   assert.deepEqual(result.actual,expected,'old build lost economy changes');
   assert(result.ownSale&&result.ownChest&&result.soldNotRestored,'old build lost receipt or resurrected sold item');
+  const again=await fresh(ctx,url);assert.deepEqual(await snap(again),after,'legacy replay duplicated ordinary progress');
+  const protectedDoc=await again.evaluate(()=>JSON.parse(localStorage.getItem('mq4_v305_authority')));
+  assert(protectedDoc?.profiles&&Object.values(protectedDoc.profiles).some(p=>p.saleHistory?.some(s=>s.transactionId===sale.transactionId)),'authority missing durable sale receipt');
  }finally{await ctx.close()}
 }
 // Browsers without Web Locks must never acknowledge unsafe monetary operations.
@@ -274,6 +277,14 @@ async function withoutWebLocks(browser,url,fallback){
   const after=await snap(p);
   assert.equal(after.coins,before.coins+17);assert.equal(after.xp,before.xp+9);
   assert.deepEqual(after.sales,before.sales);assert.deepEqual(after.chestHistory,before.chestHistory);
+  const locked=await fresh(ctx,url);const fromLock=await snap(locked);
+  assert.equal(fromLock.coins,after.coins);assert.equal(fromLock.xp,after.xp);
+  const opened=(await open(locked,'epic')).reward;assert(opened?.transactionId);
+  await p.evaluate(()=>{state.coins+=23;state.xp+=11;save()});
+  const latest=await fresh(ctx,url),final=await snap(latest);
+  assert.equal(final.coins,after.coins-200+23,'no-lock stale write lost locked debit or training credit');
+  assert.equal(final.xp,after.xp+40+11,'no-lock stale write lost locked XP or training XP');
+  assert(final.chestHistory.some(x=>x.transactionId===opened.transactionId),'no-lock stale write lost chest receipt');
   console.log('V305_NO_WEB_LOCKS_PASS',fallback);
  }finally{await ctx.close()}
 }
