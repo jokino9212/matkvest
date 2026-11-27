@@ -197,12 +197,31 @@ async function archiveRace(browser,url,fallback){
   console.log('V305_ARCHIVE_RACE_PASS',JSON.stringify({fallback,chest:chest.reward.transactionId,archive:archive.transactionId}));
  }finally{await ctx.close()}
 }
+async function pendingProfileEdit(browser,url,fallback){
+ const ctx=await browser.newContext({serviceWorkers:'block'});
+ if(fallback)await ctx.route('**/assets/ui/knowledge-map.js*',r=>r.abort());
+ try{
+  const a=await fresh(ctx,url);await seed(a,2000);const b=await fresh(ctx,url);
+  await a.evaluate(()=>{window.mk305TestHeld=false;navigator.locks.request(MK305_PROFILE_LOCK,()=>new Promise(resolve=>{window.mk305TestRelease=resolve;window.mk305TestHeld=true}))});
+  await a.waitForFunction(()=>window.mk305TestHeld);
+  const id=await b.evaluate(()=>{
+   state.coins+=7;save();
+   const profile=ensureProfileIdentity(deepCopy(EMPTY_STATE));
+   profiles['Несохранённая карточка преподавателя']=profile;return profile.profileId;
+  });
+  await a.evaluate(()=>window.mk305TestRelease());
+  assert(await b.evaluate(()=>mk305FlushWrites()));
+  assert.equal(await b.evaluate(id=>teacherProfileById(id)?.profile?.profileId||teacherProfileById(id)?.profileId||null,id),id,'queued save clobbered an unrelated in-memory profile');
+  console.log('V305_PENDING_PROFILE_EDIT_PASS',fallback);
+ }finally{await ctx.close()}
+}
 withMatkvestBrowser(async(browser,url)=>{
  const failed=[];const check=async(name,fn)=>{try{await fn();console.log('PASS',name)}catch(e){failed.push(name);console.error('FAIL',name,e.stack||e)}};
  for(const fallback of [false,true])for(const mode of ['open-one','open-two','sell-same','sell-distinct'])await check('race '+fallback+' '+mode,()=>checkRace(browser,url,fallback,mode));
  for(const fallback of [false,true])for(const concurrent of [false,true])await check('stale save '+fallback+' '+concurrent,()=>staleSave(browser,url,fallback,concurrent));
  for(const fallback of [false,true])for(const afterCommit of [false,true])await check('durable save '+fallback+' '+afterCommit,()=>queuedSaveCrash(browser,url,fallback,afterCommit));
  for(const fallback of [false,true])await check('archive race '+fallback,()=>archiveRace(browser,url,fallback));
+ for(const fallback of [false,true])await check('pending profile edit '+fallback,()=>pendingProfileEdit(browser,url,fallback));
  await check('exhaustion',()=>exhaustion(browser,url));
  for(const width of [390,1280])await check('king offline '+width,()=>avatar(browser,url,width));
  assert.deepEqual(failed,[]);
