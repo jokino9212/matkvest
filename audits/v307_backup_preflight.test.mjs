@@ -1,0 +1,17 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {analyzeV306Backups as analyze} from '../integrations/v307/backup_preflight.mjs';
+const p=(id,xp=100,coins=50,extra={})=>({profileId:'student_'+id,xp,coins,courseProgress:{'g4:table':{best:[5,0,0]}},...extra});
+const backup=(profiles,label='PC')=>({label,text:JSON.stringify({scope:'all',currentProfile:Object.keys(profiles)[0],profiles})});
+test('five pupils from two devices, identical snapshot counted once',()=>{const r=analyze([backup({A:p('a'),B:p('b'),C:p('c')}),backup({A:p('a'),D:p('d'),E:p('e')},'Laptop')]);assert.equal(r.profiles.length,5);assert.equal(r.profiles[0].variants[0].sources.length,2);assert.equal(r.hasConflicts,false);assert.equal(r.mayCommit,false);});
+test('same id divergent balances never added or maxed',()=>{const r=analyze([backup({A:p('a',100,50)}),backup({A:p('a',120,12)})]);assert.equal(r.profiles[0].status,'CONFLICT_REQUIRES_REVIEW');assert.deepEqual(r.profiles[0].variants.map(x=>[x.xp,x.coins]),[[100,50],[120,12]]);assert.equal(r.hasConflicts,true);});
+test('same balance but different ownership or sales stays conflict',()=>{const r=analyze([backup({A:p('a',100,50,{owned:['pet_cat'],sales:[]})}),backup({A:p('a',100,50,{owned:[],sales:['pet_cat']})})]);assert.equal(r.profiles[0].variants.length,2);});
+test('same name different IDs are not merged',()=>{const r=analyze([backup({Аня:p('a')}),backup({Аня:p('b')})]);assert.equal(r.profiles.length,2);assert.equal(r.sameNameDifferentIds.length,1);});
+test('renamed same ID is review conflict',()=>{assert.equal(analyze([backup({A:p('a')}),backup({B:p('a')})]).profiles[0].variants.length,2)});
+test('missing ID never inferred from name',()=>{const r=analyze([backup({A:{xp:5,coins:1}}),backup({A:p('a')})]);assert.equal(r.unresolved.length,1);assert.equal(r.profiles.length,1);});
+test('invalid file rejected atomically',()=>{const r=analyze([backup({A:p('a'),B:p('b',-1)})]);assert.equal(r.errors.length,1);assert.equal(r.profiles.length,0);});
+test('duplicate ID within file rejected',()=>{const r=analyze([backup({A:p('a'),B:p('a')})]);assert.equal(r.errors[0].reason,'DUPLICATE_ID_IN_FILE');assert.equal(r.profiles.length,0);});
+test('unsafe JSON and invalid format fail closed',()=>{const r=analyze([{text:'{"scope":"all","profiles":{"__proto__":{"xp":1,"coins":1}}}'},{text:'broken'},{text:'{"scope":"one","profiles":{}}'}]);assert.equal(r.errors.length,3);assert.equal(r.profiles.length,0);});
+test('canonical object order not mistaken for changed snapshot',()=>{const a=p('a'),b=Object.fromEntries(Object.entries(a).reverse());assert.equal(analyze([backup({A:a}),backup({A:b})]).profiles[0].variants.length,1);});
+test('array order and any unknown field retained in comparison',()=>{assert.equal(analyze([backup({A:p('a',100,50,{unknown:[1,2]})}),backup({A:p('a',100,50,{unknown:[2,1]})})]).profiles[0].variants.length,2);});
+test('read-only: input bytes unchanged and no commit authorization',()=>{const f=backup({A:p('a')});const before=JSON.stringify(f);assert.equal(analyze([f]).mayCommit,false);assert.equal(JSON.stringify(f),before);});

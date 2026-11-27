@@ -1,0 +1,19 @@
+name: v307 backup preflight (read only)
+on:
+  push:
+    branches: [feature/v307-accounts-migration-homework]
+    paths: ['integrations/v307/**', 'audits/v307_*', '.github/workflows/v307-backup-preflight.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --test audits/v307_backup_preflight.test.mjs
