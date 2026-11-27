@@ -40,7 +40,15 @@ jobs:
       - run: node audits/v307_all_topics_browser.cjs
       - uses: actions/upload-artifact@v4
         with:
-          name: v307-isolated-vue-review-not-for-deploy
+          name: v307-public-catalog-and-synthetic-backups
+          path: v307-public-fixtures/
+          if-no-files-found: error
+          retention-days: 14
+      - run: python3 audits/v307_compose_local_review.py v306-fixture dist-v307-review
+      - run: node audits/v307_combined_browser.cjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v307-combined-review-not-for-deploy
           path: dist-v307-review/
           if-no-files-found: error
           retention-days: 14
