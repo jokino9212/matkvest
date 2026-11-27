@@ -1,0 +1,29 @@
+name: v307 remaining curriculum bank export (diagnostic) (read only)
+on:
+  push:
+    branches: [feature/v307-accounts-migration-homework]
+    paths: ['audits/v307_export_remaining_bank.cjs','.github/workflows/v307-remaining-bank.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    container: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          ref: 6eb9b1d12cc49d6c91fe444f531192855022ff3d
+          path: v306-fixture
+          persist-credentials: false
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - run: node audits/v307_export_remaining_bank.cjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v307-pinned-remaining-question-bank
+          path: v307-learning-fixtures/
+          if-no-files-found: error
+          retention-days: 14
