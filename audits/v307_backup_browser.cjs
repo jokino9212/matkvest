@@ -44,7 +44,7 @@ const root=resolve(__dirname,'..'),types={'.html':'text/html; charset=utf-8','.c
   assert.equal(policy.items.find(x=>x.id==='pet_robotx').buyable,false);
   assert.equal(policy.items.find(x=>x.id==='pet_robotx').selectable,false);
   writeFileSync(resolve(out,'economy-v306.json'),JSON.stringify(policy,null,2)+'\n');
-  const achievements=await source.evaluate(()=>ACHIEVEMENTS.map(a=>({id:a.id,title:a.title,metric:a.metric??null,target:a.target??null,reward:a.reward??{},category:a.category??null,rarity:a.rarity??null})));
+  const achievements=await source.evaluate(()=>ACHIEVEMENTS.map(a=>({id:a.id,title:a.title,metric:a.metric??null,target:a.target??null,reward:a.reward??{},targetMetric:a.targetMetric??null,rewardItems:[...(a.rewardType&&a.rewardId?[{category:a.rewardType,id:a.rewardId}]:[]),...achievementCatalogRewardItems(a.id).filter(x=>x.type!==a.rewardType||x.item.id!==a.rewardId).map(x=>({category:x.type,id:x.item.id}))],category:a.category??null,rarity:a.rarity??null})));
   assert.equal(new Set(achievements.map(a=>a.id)).size,achievements.length);
   writeFileSync(resolve(out,'achievements-v306.json'),JSON.stringify(achievements,null,2)+'\n');
   console.log('PASS_V307_EXACT_ECONOMY_EXPORT',JSON.stringify({items:policy.items.length,buyable:policy.items.filter(x=>x.buyable).length,pools:Object.fromEntries(Object.entries(policy.pools).map(([k,v])=>[k,v.length])),achievements:achievements.length}));

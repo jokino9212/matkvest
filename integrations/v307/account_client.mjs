@@ -71,4 +71,7 @@ export class V307AccountClient extends MatKvestApiClient {
  subscription(profile){return this.request('GET','/profiles/'+id(profile)+'/subscription');}
  requestSubscription(profile,key){return this.request('POST','/profiles/'+id(profile)+'/subscription/requests',{idempotencyKey:id(key)});}
  cancelSubscriptionRequest(profile,request){return this.request('DELETE','/profiles/'+id(profile)+'/subscription/requests/'+id(request));}
+ economyCatalog(profile){return this.request('GET',student(profile)+'/economy-v307/catalog');}
+ economyState(profile){return this.request('GET',student(profile)+'/economy-v307/state');}
+ economyOperation(profile,body,key){return this.request('POST',student(profile)+'/economy-v307/operations',{body,idempotencyKey:id(key)});}
 }

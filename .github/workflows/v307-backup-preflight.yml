@@ -16,7 +16,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: node --test audits/v307_backup_preflight.test.mjs audits/v307_account_client.test.mjs audits/v307_training_queue.test.mjs
+      - run: node --test audits/v307_backup_preflight.test.mjs audits/v307_account_client.test.mjs audits/v307_training_queue.test.mjs audits/v307_economy_queue.test.mjs
   browser:
     runs-on: ubuntu-latest
     container: mcr.microsoft.com/playwright:v1.56.1-noble
