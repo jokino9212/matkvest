@@ -30,7 +30,7 @@ const build='7e6e2b8de44e1eb4888b34f012288c32e24643eafe9c350fe79e9881935cb318';
     for(const x of n.attributes){
      const key=x.name.toLowerCase(),v=x.value;if(!attr.has(key))throw Error('ATTR_'+key);
      if(key==='style'){
-      const st={};for(const p of n.style){const value=n.style.getPropertyValue(p);if(!styles.has(p)||/[{}<>;]|url\s*\(|expression|@import/i.test(value))throw Error('STYLE_'+p);st[p]=value;}a.style=st;
+      const st={};for(const p of n.style){if(p==='-webkit-border-horizontal-spacing'||p==='-webkit-border-vertical-spacing'){if(!/^\d+(?:\.\d+)?px$/.test(n.style.getPropertyValue(p)))throw Error('INVALID_BORDER_SPACING');st['border-spacing']=n.style.getPropertyValue('-webkit-border-horizontal-spacing')+' '+n.style.getPropertyValue('-webkit-border-vertical-spacing');continue;}const value=n.style.getPropertyValue(p);if(!styles.has(p)||/[{}<>;]|url\s*\(|expression|@import/i.test(value))throw Error('STYLE_'+p);st[p]=value;}a.style=st;
      }else{
       if((key==='href'||key==='xlink:href')&&!/^#[\w.-]+$/.test(v))throw Error('HREF');
       if(/url\s*\(/i.test(v)&&!/^url\(#[\w.-]+\)$/.test(v))throw Error('URL');
@@ -88,7 +88,7 @@ const build='7e6e2b8de44e1eb4888b34f012288c32e24643eafe9c350fe79e9881935cb318';
   }finally{blockSession=old;qid=oldQid;}
   return {build,fraction,decimal,mandatory,banks,rejected,diagnostics,rejectedReasons};
  },build);
- console.log('V307_RATIONAL_DIAGNOSTICS',JSON.stringify({accepted:Object.keys(out.banks),rejected:out.rejected,diagnostics:out.diagnostics,rejectedReasons:out.rejectedReasons}));assert.equal(out.build,build);assert.equal(new Set(out.fraction).size,out.fraction.length);assert.equal(new Set(out.decimal).size,out.decimal.length);assert(Object.keys(out.banks).length>=5);
+ console.log('V307_RATIONAL_DIAGNOSTICS',JSON.stringify({accepted:Object.keys(out.banks),rejected:out.rejected,diagnostics:out.diagnostics,rejectedReasons:out.rejectedReasons}));assert.equal(out.build,build);assert.equal(new Set(out.fraction).size,out.fraction.length);assert.equal(new Set(out.decimal).size,out.decimal.length);assert.equal(Object.keys(out.banks).length,24);assert.deepEqual(out.rejected,{});
  const target=resolve(__dirname,'../v307-learning-fixtures');mkdirSync(target,{recursive:true});writeFileSync(resolve(target,'v306-visual-question-bank.json'),JSON.stringify(out,null,2)+'\n');
  console.log('V307_RATIONAL_CURRICULUM',JSON.stringify({fraction:out.fraction,decimal:out.decimal,mandatory:out.mandatory.length,accepted:Object.keys(out.banks),rejected:out.rejected}));
  await context.close();
