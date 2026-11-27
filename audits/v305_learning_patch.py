@@ -12,12 +12,13 @@ def once(old,new):
 once('divisors_multiples:"<b>Делитель</b> делит число без остатка. <b>Кратное</b> можно получить умножением данного числа на натуральное число.",','divisors_multiples:"<b>Делитель</b> делит число без остатка. <b>Парные делители</b> — два натуральных делителя, произведение которых равно данному числу. Чтобы найти второй делитель пары, раздели данное число на известный делитель. <b>Кратное</b> можно получить умножением данного числа на натуральное число.",')
 once('"Чтобы найти все делители, выпиши пары множителей. Если множители в паре равны, запиши этот делитель один раз."','"Чтобы найти все делители, выпиши пары множителей: для 24 это 1 · 24, 2 · 12, 3 · 8, 4 · 6. Если множители в паре равны, запиши этот делитель один раз: 36 = 6 · 6.","Чтобы найти парный делитель, раздели исходное число на известный делитель: 24 : 3 = 8. Проверка: 3 · 8 = 24."')
 once('"Например, 18 : 6 = 3 без остатка, значит 6 — делитель 18. А 18 = 6 · 3, значит 18 — кратное 6."','"Например, один из делителей числа 24 равен 3. Найдём парный: 24 : 3 = 8. Проверка: 3 · 8 = 24. Значит, 3 и 8 — парные делители числа 24. Число 24 кратно и 3, и 8."')
-start='  if(basic||topic==="divisibility_3_9"){' 
-end='  if(topic==="fraction_properties"||topic==="fraction_reduction"){'
+start='\n if(basic||topic==="divisibility_3_9"){' 
+end='\n if(topic==="fraction_properties"||topic==="fraction_reduction"){'
 # Find exact g6BookReview block, not a similarly named legacy generator.
 a=s.index(start,s.index('function g6BookReview(topic,level,slot)'))
 b=s.index(end,a)
-new='''  if(basic||topic==="divisibility_3_9"){
+new='''
+ if(basic||topic==="divisibility_3_9"){
    const prefix=ri([10,100,1000][level],[99,999,9999][level]);
    const divisor=basic?[2,5,10][(family+level)%3]:[3,9][(family+level)%2];
    const ds=n=>String(n).split("").reduce((sum,d)=>sum+Number(d),0);
@@ -57,7 +58,7 @@ new='''  if(basic||topic==="divisibility_3_9"){
    const wantYes=Math.random()<0.5,base=10*prefix+ri(0,9);
    const m=basic?10:9,good=base+(m-base%m)%m,n=wantYes?good:good+1;
    return yesno("Делится ли число "+n+" одновременно на "+d1+" и на "+d2+"?",n%d1===0&&n%d2===0,detail(n,d1)+" "+detail(n,d2));
-  }
+ }
 '''
 s=s[:a]+new+s[b:]
 p.write_text(s,encoding="utf-8")
