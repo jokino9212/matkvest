@@ -1,21 +1,21 @@
 // Use the existing legacy pure layout factory (same as Backend 9.5 pilot).
 // Do not set global mode/task, run legacy checks, or use local rewards.
-export function columnTask({a,b},op){
+export function columnTask({a,b},op,layout=window){
  if(op==='div'){
-  const steps=window.divisionSteps(a,b);
+  const steps=layout.divisionSteps(a,b);
   return {a,b,ans:a/b,op:'÷',steps,quotient:steps.map(step=>step.qd).join('')};
  }
  if(op==='mul'){
   const ans=a*b,cols=Math.max(String(ans).length,String(a).length+2),tens=Math.floor(b/10),units=b%10,p1=a*units,p2=a*tens;
-  return {a,b,ans,op:'×',cols,tens,units,p1,p2,carry1:window.calcMulCarries(a,units,cols),carry2:window.calcMulCarries(a,tens,cols),finalCarry:window.calcCarries(p1,p2*10,cols)};
+  return {a,b,ans,op:'×',cols,tens,units,p1,p2,carry1:layout.calcMulCarries(a,units,cols),carry2:layout.calcMulCarries(a,tens,cols),finalCarry:layout.calcCarries(p1,p2*10,cols)};
  }
  const ans=op==='add'?a+b:a-b,cols=Math.max(String(a).length,String(b).length,String(ans).length);
- if(op==='add')return {a,b,ans,op:'+',marks:window.calcCarries(a,b,cols)};
- const {receive,donor}=window.calcBorrows(a,b,cols);
+ if(op==='add')return {a,b,ans,op:'+',marks:layout.calcCarries(a,b,cols)};
+ const {receive,donor}=layout.calcBorrows(a,b,cols);
  return {a,b,ans,op:'−',marks:receive,dotMarks:donor};
 }
-export function columnView(topic,question,item={},busy=false){
- const op=topic.split(':').at(-1),view=window.columnExerciseModel(columnTask(question,op),op);
+export function columnView(topic,question,item={},busy=false,layout=window){
+ const op=topic.split(':').at(-1),view=layout.columnExerciseModel(columnTask(question,op,layout),op);
  const cells=view.rows.flatMap(row=>row.cells).concat(view.division?.quotient||[]).filter(cell=>cell.field);
  const [required,optional]=question.columnKeys,keys={...required,...optional};
  const actual=new Map(cells.map(cell=>[cell.row+':'+cell.col,cell]));
