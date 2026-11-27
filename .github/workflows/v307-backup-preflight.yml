@@ -16,7 +16,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: node --test audits/v307_backup_preflight.test.mjs audits/v307_account_client.test.mjs audits/v307_training_queue.test.mjs audits/v307_economy_queue.test.mjs
+      - run: node --test audits/v307_backup_preflight.test.mjs audits/v307_account_client.test.mjs audits/v307_training_queue.test.mjs audits/v307_economy_queue.test.mjs audits/v307_extended_choice.test.mjs
   browser:
     runs-on: ubuntu-latest
     container: mcr.microsoft.com/playwright:v1.56.1-noble
@@ -32,6 +32,7 @@ jobs:
       - run: |
           echo '7e6e2b8de44e1eb4888b34f012288c32e24643eafe9c350fe79e9881935cb318  v306-fixture/index.html' | sha256sum -c -
           npm install --no-save --no-package-lock playwright@1.56.1
+      - run: node audits/v307_export_learning_bank.cjs
       - run: node audits/v307_backup_browser.cjs
       - run: node audits/v307_account_review_browser.cjs
       - run: python3 audits/v307_extract_column_layout.py v306-fixture/index.html integrations/v307/column_layout_generated.mjs

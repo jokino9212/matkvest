@@ -1,5 +1,7 @@
 // Shared numeric, choice and written-arithmetic Grade 4 offline journals.
+export const V307_CHOICE_TOPICS=Object.freeze({"g5:frac_common_lcm":"Приведение дробей к общему знаменателю","g5:dec_compare":"Сравнение десятичных дробей","g5:dec_add":"Сложение десятичных дробей","g5:dec_sub":"Вычитание десятичных дробей","g5:dec_round":"Округление десятичных дробей","g5:dec_mul10":"× 10, 100, 1000","g5:dec_div10":"÷ 10, 100, 1000","g5:dec_mul_nat":"Десятичная × натуральное","g5:dec_div_nat":"Десятичная ÷ натуральное","g5:dec_mul_dec":"Десятичная × десятичную","g5:dec_div_dec":"Десятичная ÷ десятичную","g5:dec_to_common":"Десятичная ↔ обыкновенная","g5:percent":"Процент от числа","g5:percent_whole":"Число по процентам","g5:average":"Среднее арифметическое"});
 export const SCHOOL_TOPICS=Object.freeze({
+ ...V307_CHOICE_TOPICS,
  'g4:table':'Таблица умножения',
  'g4:moro_order_1000':'Числовые выражения. Порядок действий',
  'g4:order':'Порядок действий',
@@ -49,6 +51,10 @@ export function validateQuestion(topic,question,columnKeys){
   if(!form||!['number','mixed','improper'].includes(form.kind)||typeof prompt_markup!=='string'||prompt_markup.length>100000||choices!==undefined)throw Error('INVALID_FRACTION');
   if(form.kind==='number'?form.denominator!==null:!Number.isInteger(form.denominator)||form.denominator<1||form.denominator>answer||(form.kind==='mixed'&&answer%form.denominator===0))throw Error('INVALID_FRACTION');
   return {expression,answer,steps,form:{kind:form.kind,denominator:form.denominator,label:typeof form.label==='string'?form.label:''},prompt_markup};
+ }
+ if(Object.hasOwn(V307_CHOICE_TOPICS,topic)){
+  if(form!==undefined||prompt_markup!==undefined||place_values!==undefined||!Array.isArray(choice_labels)||choice_labels.length<2||choice_labels.length>4||choice_labels.some(x=>typeof x!=='string'||!x||x.length>160)||new Set(choice_labels).size!==choice_labels.length||JSON.stringify(choices)!==JSON.stringify(choice_labels.map((_,i)=>i))||!choices.includes(answer)||!steps.length||steps.some(x=>!x||x.length>2500))throw Error('INVALID_EXTENDED_CHOICE');
+  return {expression,answer,steps,choices,choice_labels};
  }
  if(choice_labels!==undefined&&(topic!=='g5:natural_compare'||JSON.stringify(choice_labels)!==JSON.stringify(['<','=','>'])||JSON.stringify(choices)!==JSON.stringify([0,1,2])))throw Error('INVALID_CHOICE_LABELS');
  if(place_values!==undefined&&(topic!=='g5:natural_compare'||!Array.isArray(place_values)||place_values.length!==2||place_values.some(x=>typeof x!=='string'||!/^\d{1,4}$/.test(x))||place_values[0].length!==place_values[1].length))throw Error('INVALID_PLACE_VALUES');

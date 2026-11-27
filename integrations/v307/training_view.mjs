@@ -1,10 +1,12 @@
 import {createApp,h,shallowRef} from 'vue';
 import SchoolAttempt from '../../frontend/knowledge-map/SchoolAttempt.vue';
-import {SCHOOL_TOPICS,STAGES,PASS,isColumn,isFraction,maxDigits} from '../backend95-next/school_block_queue.mjs';
+import {SCHOOL_TOPICS,V307_CHOICE_TOPICS,STAGES,PASS,isColumn,isFraction,maxDigits} from '../backend95-next/school_block_queue.mjs';
 import {fractionView,readFractionCells} from '../backend95/fraction_training.mjs';
 import * as layout from './column_layout_generated.mjs';
 import {columnView,readColumnCells,moveColumnCell,normalizeColumnCell} from '../backend95/column_training.mjs';
 export const reviewTopics=Object.entries(SCHOOL_TOPICS);
+// Only text is accepted from the API. Generate the small fraction markup ourselves.
+export function safeMathText(raw){return String(raw??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])).replace(/(?<![0-9])([0-9]+)\/([0-9]+)(?![0-9])/g,'<span class="frac"><span class="num">$1</span><span class="den">$2</span></span>');}
 export async function mountTraining({host,queue,topic,stage,device,exit}){
  const initial=await queue.prepare(topic,stage,device);
  if(isColumn(topic))for(const question of initial.questions)columnView(topic,question,{},false,layout);
@@ -13,7 +15,7 @@ export async function mountTraining({host,queue,topic,stage,device,exit}){
  const read=()=>{const r=row.value,items=r.draft,item=items[r.index],q=r.questions[r.index],finished=r.status!=='draft',confirmed=r.status==='confirmed';
   const correct=items.filter(x=>x.solved&&x.checks.length===1).length,done=items.filter(x=>x.solved||x.skipped).length;
   const summary=confirmed?r.receipt?.summary:{correct,corrected:items.filter(x=>x.solved&&x.checks.length>1).length,skipped:items.filter(x=>x.skipped).length,passed:correct>=PASS[r.stage],pending:true};
-  return {title:SCHOOL_TOPICS[r.topic],rootId:'mk95-table-practice',questionId:'mk95-table-question',column:isColumn(r.topic),pauseOnly:true,progress:{stage:STAGES[r.stage],done,total:r.count,correct},finished,summary:r.status==='blocked'?null:summary,exercise:finished?{}:isColumn(r.topic)?columnView(r.topic,q,item,busy.value,layout):isFraction(r.topic)?fractionView(q,item,busy.value):{a:q.a,b:q.b,prompt:q.expression,maxDigits:maxDigits(r.topic),placeValues:q.place_values,choices:q.choices?.map(v=>({label:String(q.choice_labels?.[v]??v),selected:item.answer===String(v),disabled:item.solved||busy.value,className:'btn soft'})),solution:item.solved?q.steps:undefined,answer:item.answer,readOnly:item.solved,disabled:busy.value,wrong:!item.solved&&item.feedback?.startsWith('Проверь'),feedback:item.feedback||'',primaryLabel:item.solved?'Далее':'Проверить',nextReady:item.solved,hideSkip:item.solved}};
+  return {title:SCHOOL_TOPICS[r.topic],rootId:'mk95-table-practice',questionId:'mk95-table-question',column:isColumn(r.topic),pauseOnly:true,progress:{stage:STAGES[r.stage],done,total:r.count,correct},finished,summary:r.status==='blocked'?null:summary,exercise:finished?{}:isColumn(r.topic)?columnView(r.topic,q,item,busy.value,layout):isFraction(r.topic)?fractionView(q,item,busy.value):{a:q.a,b:q.b,prompt:q.expression,...(Object.hasOwn(V307_CHOICE_TOPICS,r.topic)?{safePrompt:safeMathText(q.expression)}:{}),maxDigits:maxDigits(r.topic),placeValues:q.place_values,choices:q.choices?.map(v=>({label:String(q.choice_labels?.[v]??v),...(Object.hasOwn(V307_CHOICE_TOPICS,r.topic)?{labelHtml:safeMathText(q.choice_labels[v])}:{}),selected:item.answer===String(v),disabled:item.solved||busy.value,className:'btn soft'})),solution:item.solved?q.steps:undefined,answer:item.answer,readOnly:item.solved,disabled:busy.value,wrong:!item.solved&&item.feedback?.startsWith('Проверь'),feedback:item.feedback||'',primaryLabel:item.solved?'Далее':'Проверить',nextReady:item.solved,hideSkip:item.solved}};
  };
  const value=()=>isColumn(row.value.topic)?readColumnCells():isFraction(row.value.topic)?readFractionCells():host.querySelector('#fin')?.value??row.value.draft[row.value.index].answer;
  async function flush(){
