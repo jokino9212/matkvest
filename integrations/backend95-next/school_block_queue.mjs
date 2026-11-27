@@ -1,7 +1,6 @@
 // Shared numeric, choice and written-arithmetic Grade 4 offline journals.
 export const V307_CHOICE_TOPICS=Object.freeze({"g5:frac_common_lcm":"Приведение дробей к общему знаменателю","g5:dec_compare":"Сравнение десятичных дробей","g5:dec_add":"Сложение десятичных дробей","g5:dec_sub":"Вычитание десятичных дробей","g5:dec_round":"Округление десятичных дробей","g5:dec_mul10":"× 10, 100, 1000","g5:dec_div10":"÷ 10, 100, 1000","g5:dec_mul_nat":"Десятичная × натуральное","g5:dec_div_nat":"Десятичная ÷ натуральное","g5:dec_mul_dec":"Десятичная × десятичную","g5:dec_div_dec":"Десятичная ÷ десятичную","g5:dec_to_common":"Десятичная ↔ обыкновенная","g5:percent":"Процент от числа","g5:percent_whole":"Число по процентам","g5:average":"Среднее арифметическое"});
 export const SCHOOL_TOPICS=Object.freeze({
- ...V307_CHOICE_TOPICS,
  'g4:table':'Таблица умножения',
  'g4:moro_order_1000':'Числовые выражения. Порядок действий',
  'g4:order':'Порядок действий',
@@ -17,7 +16,8 @@ export const SCHOOL_TOPICS=Object.freeze({
  'g5:natural_multiply':'Умножение натуральных чисел и его свойства',
  'g5:natural_divide':'Деление натуральных чисел',
  'g5:frac_to_mixed':'Неправильная дробь → смешанное число',
- 'g5:mixed_to_frac':'Смешанное число → неправильная дробь'
+ 'g5:mixed_to_frac':'Смешанное число → неправильная дробь',
+ ...V307_CHOICE_TOPICS
 });
 export const STAGES=['Разминка','Тренировка','Мастерство'];
 export const COUNTS=[5,7,10], PASS=[4,5,8];
