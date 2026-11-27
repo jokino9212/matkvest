@@ -6,11 +6,11 @@ const same=(a,b)=>a?.ticket===b?.ticket&&a?.owner===b?.owner&&a?.profile===b?.pr
 const isAnswer=x=>x===null||Number.isSafeInteger(x)&&Math.abs(x)<=1000000;
 const canonical=x=>Array.isArray(x)?x.map(canonical):x&&typeof x==='object'?Object.fromEntries(Object.keys(x).sort().map(k=>[k,canonical(x[k])])):x;
 const equal=(a,b)=>JSON.stringify(canonical(a))===JSON.stringify(canonical(b));
-const noWrite=new Set(['DRAFT_REVISION_CONFLICT','ACTIVE_DRAFT_EXISTS','TRAINING_ALREADY_FINISHED','ACTIVE_GOAL_EXISTS','GOAL_ALREADY_COMPLETED','GOALS_TEST_ONLY','LEGACY_GOAL_REVIEW_REQUIRED','TOPIC_FULL_REQUIRED','TRAINING_QUOTA_EXCEEDED']);
+const noWrite=new Set(['DRAFT_REVISION_CONFLICT','ACTIVE_DRAFT_EXISTS','TRAINING_ALREADY_FINISHED','ACTIVE_GOAL_EXISTS','GOAL_FACTS_INSUFFICIENT','GOAL_ALREADY_COMPLETED','GOALS_TEST_ONLY','LEGACY_GOAL_REVIEW_REQUIRED','TOPIC_FULL_REQUIRED','TRAINING_QUOTA_EXCEEDED']);
 function checkBody(b){
  if(!b||typeof b!=='object')throw Error('BAD_QUICK_REQUEST');
  if(b.kind==='start'&&[5,10].includes(b.count))return;
- if(b.kind==='goal_start'&&['correct','streak'].includes(b.type))return;
+ if(b.kind==='goal_start'&&['correct','streak','weak','errors'].includes(b.type))return;
  if(b.kind==='goal_cancel'&&valid(b.goal))return;
  if(b.kind==='draft'){
   const d=b.body?.draft;
