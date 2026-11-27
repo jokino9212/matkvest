@@ -39,7 +39,8 @@ new='''  if(basic||topic==="divisibility_3_9"){
     const n=10*prefix+ri(0,9);
     const good=n+(divisor-n%divisor)%divisor;
     const bad1=good-1,bad2=good+1;
-    return choice("Какое из чисел "+bad1+", "+good+", "+bad2+" делится на "+divisor+"?",good,[bad1,bad2],
+    const values=[bad1,good,bad2];for(let i=values.length-1;i>0;i--){const j=ri(0,i);[values[i],values[j]]=[values[j],values[i]];}
+    return choice("Какое из чисел "+values.join(", ")+" делится на "+divisor+"?",good,[bad1,bad2],
      [bad1,good,bad2].map(x=>detail(x,divisor)).join(" "));
    }
    if(family===2||family===3){
