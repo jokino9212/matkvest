@@ -58,9 +58,14 @@ async function auditRemaining(){
  assert.equal(Object.keys(remaining).filter(k=>k.startsWith('g4:')).length,62);
  assert.equal(Object.keys(remaining).filter(k=>k.startsWith('g5:')).length,28);
  assert.equal(new Set(all).size,147);
- let candidates=0,blocks=0;const modes=new Set();
+ // Exact ID/mode fingerprints from SHA-verified artifact 15225439247 (not just counts).
+ const fingerprint=x=>require('node:crypto').createHash('sha256').update(JSON.stringify(x)).digest('hex');
+ assert.equal(fingerprint([...all].sort()),'8cfd9bf2b18028c51f43b98be801c1d5104b35730a6efe916dad8fe458eeaaa2');
+ assert.equal(fingerprint(Object.keys(remaining).sort()),'30707efa77013ead0f26917b7c43ea99a46d1a65e37f8bcf59f7cc9a8b49795a');
+ let candidates=0,blocks=0;const modes=new Set(),perTopicModes=[];
  for(const [topic,bank] of Object.entries(remaining)){
   assert.deepEqual(bank.stages.map(s=>s.length),[5,7,10],topic);
+  const topicModes=new Set();
   for(const [stage,families] of bank.stages.entries()){
    const owner=new Map(),selected=[];
    function assign(i,seen){
@@ -84,7 +89,7 @@ async function auditRemaining(){
       else if(q.mode==='remainder')wrong['answer:1']=String(q.expected.remainder===0?1:0);
       else wrong['answer:0']=q.expected.n===0?'1':'0';
       assert.equal(curriculumFeedback(q,wrong).wrong.length,1);
-      modes.add(q.mode);candidates++;
+      modes.add(q.mode);topicModes.add(q.mode);candidates++;
      }catch(e){throw Error(topic+' stage '+stage+' family '+i+' '+String(raw.expression).slice(0,120),{cause:e});}
     }
     assert(assign(i,new Set()),topic+' no distinct full block at stage '+stage);
@@ -104,7 +109,10 @@ async function auditRemaining(){
    }
    blocks++;
   }
+  perTopicModes.push([topic,[...topicModes].sort()]);
  }
+ perTopicModes.sort((a,b)=>a[0]<b[0]?-1:a[0]>b[0]?1:0);
+ assert.equal(fingerprint(perTopicModes),'a197448a71cfbe8fe56b288f144b3984a8076f71c47a377f59f119fb6190e67c');
  assert.equal(blocks,270);assert.deepEqual([...modes].sort(),['choice','number','remainder','time']);
  console.log('PASS_V307_ALL_REMAINING_CANDIDATES_AND_270_DISTINCT_BLOCKS',JSON.stringify({candidates,blocks,modes:[...modes]}));
 }
@@ -135,6 +143,11 @@ async function auditRemaining(){
   await page.goto(origin+'/integrations/v307/account_review.html');await page.getByLabel('Логин или электронная почта').fill('pupil307');await page.getByLabel('Пароль',{exact:true}).fill('synthetic-password');await button('Войти').click();await button('Выбрать').click();await button('Тренажёры').click();
   for(const topic of all){
    await page.getByLabel('Тема тренажёра').selectOption(topic);await page.getByLabel('Этап тренажёра').selectOption(String(packFor(topic).stage));await button('Открыть блок').click();await page.getByText('Самостоятельная работа',{exact:true}).waitFor();const q=packFor(topic).questions[0];
+   if(visual[topic]||remaining[topic]){
+    const prompt=page.locator('.v307-visual-prompt');assert.equal(await prompt.count(),1);
+    const countTag=(nodes,tag)=>nodes.reduce((n,y)=>n+(typeof y==='string'?0:(y.tag.toLowerCase()===tag?1:0)+countTag(y.children,tag)),0);
+    for(const tag of ['svg','table'])assert.equal(await prompt.locator(tag).count(),countTag(q.prompt,tag),topic+' '+tag);
+   }
    if(columnFixtures[topic]){
     const [required,optional]=columnFixtures[topic].keys;const actual=await page.locator('#mk95-table-question input[data-row][data-col]').evaluateAll(els=>Object.fromEntries(els.map(e=>[e.dataset.row+':'+e.dataset.col,e.dataset.exp])));assert.deepEqual(actual,{...required,...optional});
     await button('Проверить всю запись').or(button('Проверить все шаги')).click();await page.getByText('Заполни обязательные клетки.',{exact:true}).waitFor();
@@ -142,7 +155,7 @@ async function auditRemaining(){
     await button('Проверить всю запись').or(button('Проверить все шаги')).click();
    }else if(q.form){for(const [key,value] of Object.entries(fractionKeys(q)))await page.locator('input[data-mk95-fraction="'+key+'"]').fill(value);await button('Проверить').click();}
    else if(q.mode&&q.mode!=='choice'){const typed=q.mode==='number'?{'answer:0':numericRaw(q)}:q.mode==='time'?{'answer:0':Math.floor(q.expected.minutes/60)+':'+String(q.expected.minutes%60).padStart(2,'0')}:{'answer:0':String(q.expected.quotient),'answer:1':String(q.expected.remainder)};for(const [k,val] of Object.entries(typed))await page.locator('input[data-mk307-cell="'+k+'"]').fill(val);await button('Проверить').click();}
-   else if(q.choices){if(visual[topic]||remaining[topic]){assert.equal(await page.locator('.v307-visual-prompt').count(),1);const count=x=>x.reduce((n,y)=>n+(typeof y==='string'?0:(y.tag==='svg'?1:0)+count(y.children)),0);assert.equal(await page.locator('.v307-visual-prompt svg').count(),count(q.prompt));}await page.locator('.school-numeric-choices button').nth(q.choices.indexOf(q.answer)).click();}
+   else if(q.choices){await page.locator('.school-numeric-choices button').nth(q.choices.indexOf(q.answer)).click();}
    else{await page.getByLabel('Ответ',{exact:true}).fill(String(q.answer??q.a*q.b));await button('Проверить').click();}
    await button('Далее').click();
    // A check/advance transaction must complete before the next question can be skipped.
