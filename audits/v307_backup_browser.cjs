@@ -15,6 +15,39 @@ const root=resolve(__dirname,'..'),types={'.html':'text/html; charset=utf-8','.c
   const ids=Object.values(inventory).flat().map(x=>x.id);assert.equal(new Set(ids).size,ids.length);
   const out=resolve(root,'v307-public-fixtures');mkdirSync(out,{recursive:true});
   writeFileSync(resolve(out,'catalog-v306.json'),JSON.stringify({build:'v306',runtime:'6eb9b1d12cc49d6c91fe444f531192855022ff3d',html_sha256:'7e6e2b8de44e1eb4888b34f012288c32e24643eafe9c350fe79e9881935cb318',inventory},null,2));
+   const policy=await source.evaluate(build=>{
+    const categories=['avatars','frames','pets','stickers','titles','backgrounds','badges','accessories','nicknameStyles','effects'];
+    const defaults=new Set(['av_default','fr_none','pet_none','title_none','bg_none','acc_none','fx_none']);
+    const rarities=['rare','epic','legendary'];
+    const oldFilter=shopRarityFilter;
+    shopRarityFilter='all';
+    const items=[];
+    try{
+     for(const category of categories){
+      const visible=new Set(filteredShopItems(category).map(x=>x.id));
+      const active=new Set(mk872ActiveCollectionItems(category).map(x=>x.id));
+      for(const item of SHOP_CATALOG[category]||[]){
+       const eligible=category!=='accessories'&&!item.hiddenInStore&&!item.hiddenFromStore&&!item.legacyHero&&!item.deprecated&&!item.archived&&!item.retired&&!item.retiredPet&&item.studentVisible!==false;
+       // Free fallback cosmetics are selectable only when explicitly present in the pinned catalogue.
+       const price=Number(item.price||0),level=Number(item.level||1);
+       items.push({id:item.id,category,name:String(item.name||item.id),price,level,rarity:String(item.rarity||'common'),reward_only:!!item.rewardOnly,buyable:eligible&&visible.has(item.id)&&!item.rewardOnly&&price>0,selectable:(eligible&&active.has(item.id))||(defaults.has(item.id)&&price===0&&!item.rewardOnly&&category!=='accessories')});
+      }
+     }
+    }finally{shopRarityFilter=oldFilter}
+    return {build,items,pools:Object.fromEntries(rarities.map(r=>[r,mk861ChestEntries(r).map(x=>x.item.id)])),rates:Object.fromEntries(rarities.map(r=>[r,Math.round(MK861_CHEST_RATES[r]*10000)])),compensation:{...MK861_CHEST_COMPENSATION},chest_price:MK861_CHEST_PRICE,epic_misses:MK861_EPIC_PLUS_MISSES_BEFORE_GUARANTEE,legendary_misses:MK861_LEGENDARY_MISSES_BEFORE_GUARANTEE,level_linear:MK859_LEVEL_CURVE.linear,level_quadratic:MK859_LEVEL_CURVE.quadratic,refund_now:Math.round(MK865_REFUND_NOW*100),refund_training:Math.round(MK865_REFUND_TRAINING*100),mission_correct:MK865_REQUIRED_CORRECT,collector_stickers:purchasableStickerItems().map(x=>x.id),chest_xp:{...MK305_CHEST_XP},refund_chest:50,history_limit:MK861_CHEST_HISTORY_LIMIT};
+   },'7e6e2b8de44e1eb4888b34f012288c32e24643eafe9c350fe79e9881935cb318');
+
+  assert.equal(policy.items.length,262);
+  assert.deepEqual(policy.chest_xp,{rare:60,epic:40,legendary:20});
+  assert.equal(policy.items.find(x=>x.id==='avatar_clash_king').buyable,true);
+  assert.equal(policy.items.find(x=>x.id==='avatar_clash_king').selectable,true);
+  assert.equal(policy.items.find(x=>x.id==='pet_robotx').buyable,false);
+  assert.equal(policy.items.find(x=>x.id==='pet_robotx').selectable,false);
+  writeFileSync(resolve(out,'economy-v306.json'),JSON.stringify(policy,null,2)+'\n');
+  const achievements=await source.evaluate(()=>ACHIEVEMENTS.map(a=>({id:a.id,title:a.title,metric:a.metric??null,target:a.target??null,reward:a.reward??{},category:a.category??null,rarity:a.rarity??null})));
+  assert.equal(new Set(achievements.map(a=>a.id)).size,achievements.length);
+  writeFileSync(resolve(out,'achievements-v306.json'),JSON.stringify(achievements,null,2)+'\n');
+  console.log('PASS_V307_EXACT_ECONOMY_EXPORT',JSON.stringify({items:policy.items.length,buyable:policy.items.filter(x=>x.buyable).length,pools:Object.fromEntries(Object.entries(policy.pools).map(([k,v])=>[k,v.length])),achievements:achievements.length}));
   const actual=await source.evaluate(async()=>{
     save();await mk305FlushWrites();
     for(let i=1;i<=4;i++){
