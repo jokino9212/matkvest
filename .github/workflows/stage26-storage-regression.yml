@@ -1,7 +1,7 @@
 name: Stage26 storage safety regression
 on:
   push:
-    branches: [main]
+    branches: [main, fix/v306-production-stage26]
   pull_request:
     branches: [main]
   workflow_dispatch:
@@ -14,6 +14,14 @@ jobs:
       image: mcr.microsoft.com/playwright:v1.56.1-noble
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Trust only this runner checkout and verify historical fixture
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git cat-file -e 9f06afc8134e007c3e72eae231c8f9b519678fe5:index.html
+          python3 audits/g7_stage12_sync_pwa.py --check
       - run: npm install --no-save --no-package-lock playwright@1.56.1
       - name: Preserve corrupted source and legacy state
         run: node audits/stage26_corrupt_storage_browser.cjs
