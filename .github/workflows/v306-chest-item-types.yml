@@ -1,0 +1,41 @@
+name: v306 chest category candidate (read only)
+on:
+  push:
+    branches: [feature/v306-chest-item-types]
+    paths:
+      - .github/workflows/v306-chest-item-types.yml
+      - audits/v306_chest_item_types_patch.py
+      - audits/v306_chest_item_types_browser.cjs
+permissions:
+  contents: read
+jobs:
+  verify:
+    if: github.repository == 'jokino9212/matkvest' && github.ref == 'refs/heads/feature/v306-chest-item-types'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Materialize isolated candidate
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          python3 audits/g7_stage12_sync_pwa.py --check
+          python3 audits/v306_chest_item_types_patch.py
+          python3 audits/g7_stage12_sync_pwa.py
+          python3 audits/g7_stage12_sync_pwa.py --check
+          git diff --check
+          npm ci
+          npm install --no-save --no-package-lock playwright@1.56.1
+          node --check audits/v306_chest_item_types_browser.cjs
+      - name: Check reward types and compensation in Vue and fallback
+        run: node audits/v306_chest_item_types_browser.cjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v306-chest-types-candidate-not-for-deploy
+          path: |
+            index.html
+            sw.js
+          if-no-files-found: error
