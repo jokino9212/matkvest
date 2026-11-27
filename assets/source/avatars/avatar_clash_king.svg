@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-labelledby="title">
+<title id="title">Король в синей мантии</title>
+<defs>
+ <radialGradient id="bg" cx="47%" cy="35%" r="75%"><stop stop-color="#70ccff"/><stop offset=".62" stop-color="#2469b6"/><stop offset="1" stop-color="#173d79"/></radialGradient>
+ <linearGradient id="gold" x1="0" x2=".28" y1="0" y2="1"><stop stop-color="#fff5a8"/><stop offset=".42" stop-color="#ffc84b"/><stop offset="1" stop-color="#e5871c"/></linearGradient>
+ <linearGradient id="blue" x1="0" y1="0" x2=".7" y2="1"><stop stop-color="#46b9fa"/><stop offset=".5" stop-color="#2372cb"/><stop offset="1" stop-color="#164b91"/></linearGradient>
+ <radialGradient id="skin" cx="36%" cy="30%" r="84%"><stop stop-color="#ffe2b0"/><stop offset=".65" stop-color="#f8b57c"/><stop offset="1" stop-color="#d88756"/></radialGradient>
+ <linearGradient id="hair" x1="0" y1="0" x2=".4" y2="1"><stop stop-color="#4b352d"/><stop offset=".52" stop-color="#302621"/><stop offset="1" stop-color="#1b1515"/></linearGradient>
+ <clipPath id="crop"><rect width="512" height="512" rx="66"/></clipPath>
+</defs>
+<g clip-path="url(#crop)" stroke-linejoin="round" stroke-linecap="round">
+ <rect width="512" height="512" fill="url(#bg)"/>
+ <g fill="#def8ff" opacity=".23"><path d="M66 107l9 23 24 6-24 8-9 23-8-23-24-8 24-6z"/><path d="M434 193l8 17 20 7-20 7-8 19-6-19-20-7 20-7z"/><circle cx="414" cy="70" r="7"/><circle cx="83" cy="344" r="7"/></g>
+ <ellipse cx="258" cy="501" rx="224" ry="37" fill="#112d63" opacity=".48"/>
+ <!-- silhouette and blue royal tunic -->
+ <path d="M37 512v-42c5-67 58-112 117-127l43-16h118l47 16c64 16 109 65 114 130v39z" fill="#18375c" stroke="#132c4e" stroke-width="12"/>
+ <path d="M52 512v-43c5-55 54-102 120-116l42-14h83l45 14c67 15 112 60 118 116v43z" fill="url(#blue)"/>
+ <path d="M64 430c19-43 55-69 111-84l24 33-55 45-55 88H52zM449 430c-19-43-55-69-111-84l-24 33 55 45 55 88h38z" fill="#50b9fa" opacity=".7"/>
+ <path d="M176 353l38-19 42 46 42-46 39 19-22 63-59 35-58-35z" fill="url(#gold)" stroke="#885021" stroke-width="7"/>
+ <path d="M256 449v63" stroke="#113d79" stroke-width="7"/>
+ <path d="M71 477l53-86M441 477l-53-86" stroke="#f4b437" stroke-width="13"/>
+ <circle cx="256" cy="465" r="18" fill="url(#gold)" stroke="#96601c" stroke-width="5"/><path d="M247 464l6 7 12-15" fill="none" stroke="#ffe98b" stroke-width="4"/>
+ <!-- ears and head -->
+ <path d="M155 205c-40-18-60 8-50 47 7 28 27 44 58 34M357 205c40-18 60 8 50 47-7 28-27 44-58 34" fill="url(#skin)" stroke="#8f4b34" stroke-width="8"/>
+ <path d="M126 235c13-9 22-4 29 11M386 235c-13-9-22-4-29 11" fill="none" stroke="#c87851" stroke-width="7"/>
+ <path d="M146 164c8-54 52-83 110-83s102 29 110 83l-2 111c-3 72-40 111-108 111s-105-39-108-111z" fill="url(#skin)" stroke="#793f31" stroke-width="9"/>
+ <!-- side hair and sculpted beard -->
+ <path d="M145 177l-8 57 17 28 15-35-5-55zM367 177l8 57-17 28-15-35 5-55z" fill="url(#hair)" stroke="#34231f" stroke-width="6"/>
+ <path d="M153 265c3 40 14 82 48 110 19 16 37 25 55 29 18-4 36-13 55-29 34-28 45-70 48-110l-29 15-18 28-56 24-56-24-18-28z" fill="url(#hair)" stroke="#231a1a" stroke-width="9"/>
+ <path d="M175 304c12 33 32 60 59 74M337 304c-12 33-32 60-59 74" fill="none" stroke="#65483a" stroke-width="8" opacity=".7"/>
+ <!-- expressive eyes -->
+ <path d="M173 191q34-30 70-6M339 191q-34-30-70-6" fill="none" stroke="#392820" stroke-width="15"/>
+ <path d="M176 220q18-24 43-9l11 15-5 25-42 2zM336 220q-18-24-43-9l-11 15 5 25 42 2z" fill="#fffdf3" stroke="#9e684c" stroke-width="4"/>
+ <ellipse cx="213" cy="232" rx="12" ry="17" fill="#24629b"/><ellipse cx="299" cy="232" rx="12" ry="17" fill="#24629b"/>
+ <ellipse cx="215" cy="233" rx="7" ry="11" fill="#202c39"/><ellipse cx="297" cy="233" rx="7" ry="11" fill="#202c39"/><circle cx="209" cy="227" r="5" fill="#fff"/><circle cx="293" cy="227" r="5" fill="#fff"/>
+ <!-- giant grin beneath moustache -->
+ <path d="M194 299q62 34 124 0-9 55-62 55t-62-55z" fill="#401e20" stroke="#201719" stroke-width="6"/>
+ <path d="M201 304q55 23 110 0l-7 20q-48 21-96 0z" fill="#fff6de"/>
+ <path d="M217 337q39-13 78 0-16 13-39 13t-39-13z" fill="#d86a65"/>
+ <path d="M256 273c-20-15-45-14-62 5-13 14-30 15-41 0-6 28 13 44 38 41 25-3 42-20 65-19 23-1 40 16 65 19 25 3 44-13 38-41-11 15-28 14-41 0-17-19-42-20-62-5z" fill="url(#hair)" stroke="#251a19" stroke-width="6"/>
+ <path d="M237 254c-3-15 3-36 19-37 16 1 22 22 19 37 13 14 5 26-19 27-24-1-32-13-19-27z" fill="url(#skin)" stroke="#a96343" stroke-width="5"/>
+ <path d="M244 247q12-9 24 0" fill="none" stroke="#ffe2b0" stroke-width="4"/>
+ <!-- three-pointed gold crown, blue jewel -->
+ <path d="M125 86l43 28 28-69 60 43 60-43 28 69 43-28-20 81q-111 30-222 0z" fill="#92551c" stroke="#57351e" stroke-width="10"/>
+ <path d="M130 81l40 28 27-65 59 42 59-42 27 65 40-28-16 78q-110 27-220 0z" fill="url(#gold)" stroke="#a26420" stroke-width="5"/>
+ <path d="M145 149q111 26 222 0l-6 31q-105 27-210 0z" fill="url(#gold)" stroke="#9a591d" stroke-width="6"/>
+ <path d="M156 155q100 22 200 0" fill="none" stroke="#fff0a0" stroke-width="7"/>
+ <circle cx="197" cy="45" r="12" fill="#ffe377" stroke="#ae7025" stroke-width="5"/><circle cx="315" cy="45" r="12" fill="#ffe377" stroke="#ae7025" stroke-width="5"/>
+ <path d="M256 103l21 24-21 25-21-25z" fill="#0b70c3" stroke="#a26420" stroke-width="6"/><path d="M256 109l11 15-11-3-9 7z" fill="#b9f4ff"/>
+</g></svg>
