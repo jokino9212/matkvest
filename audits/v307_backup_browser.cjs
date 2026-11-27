@@ -61,7 +61,7 @@ const root=resolve(__dirname,'..'),types={'.html':'text/html; charset=utf-8','.c
       rows.push({id:item.id,category,index:rows.length,description:String(item.desc||'')});
     }
     document.body.append(grid);
-    for(const img of grid.querySelectorAll('img')){img.loading='eager';if(new URL(img.src).origin!==location.origin)throw Error('Nonlocal artwork');}
+    for(const img of grid.querySelectorAll('img')){img.loading='eager';if(new URL(img.src).origin!==location.origin&&!/^data:image\/(?:png|webp|svg\+xml);(?:base64|utf8),/i.test(img.src))throw Error('Nonlocal artwork');}
     await Promise.all([...grid.querySelectorAll('img')].map(img=>img.decode()));
     await document.fonts.ready;
     if(!grid.querySelector('img[src*="avatar_clash_king.svg"]')?.naturalWidth)throw Error('Missing king artwork');
