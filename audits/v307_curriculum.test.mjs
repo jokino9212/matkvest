@@ -6,3 +6,19 @@ const number={mode:'number',expression:'Число',steps:['Решение'],pro
 test('exact large integers, rational equivalence, time and invalid syntax',()=>{assert.equal(Object.keys(V307_CURRICULUM_TOPICS).length,90);assert.equal(Object.keys(SCHOOL_TOPICS).length,147);assert.deepEqual(parseNumber('97 082 009 008'),[97082009008n,1n]);for(const x of ['0,5','1/2','2/4','0.500000'])assert.deepEqual(parseNumber(x),[1n,2n]);assert.deepEqual(parseNumber('2 1/2'),[5n,2n]);assert.equal(parseTime('9:05'),545);for(const x of ['9:5','24:00','12:60'])assert.throws(()=>parseTime(x));for(const x of ['1/0','1e3','1.1234567','9007199254740992','20%'])assert.throws(()=>parseNumber(x));assert.deepEqual(parseNumber('20%',true),[20n,1n]);});
 test('partial remainder must not count as a wrong or correct completed answer',()=>{const q={...number,mode:'remainder',expected:{quotient:372,remainder:8}};assert.deepEqual(curriculumFeedback(q,{'answer:0':'372'}).missing,['answer:1']);assert.deepEqual(curriculumFeedback(q,{'answer:0':'372','answer:1':'7'}).wrong,['answer:1']);assert.deepEqual(curriculumFeedback(q,{'answer:0':'372','answer:1':'8'}).wrong,[]);assert.throws(()=>curriculumFeedback(q,{'answer:0':'372.1','answer:1':'8'}));});
 test('draft keeps typed format; only validated attempts enter immutable checks',()=>{validateCurriculum(number);let row={topic:'g4:moro_millions',stage:0,index:0,count:1,revision:0,status:'draft',questions:[number],draft:[{cells:{},checks:[],solved:false,skipped:false}],start:{started_at:'2027-01-01'}};row=applyCurriculumAction(row,0,'check',{'answer:0':'1e3'});assert.equal(row.draft[0].checks.length,0);row=applyCurriculumAction(row,1,'check',{'answer:0':'97082009007'});row=applyCurriculumAction(row,2,'check',{'answer:0':'97 082 009 008'});assert(row.draft[0].solved);row=applyCurriculumAction(row,3,'advance',{});assert.equal(row.status,'pending');assert.equal(row.body.items[0].format,'curriculum-v307');assert.deepEqual(row.body.items[0].checks,[{'answer:0':'97082009007'},{'answer:0':'97 082 009 008'}]);});
+
+test('all four review modes reject any unexpected private fields before or after grading',()=>{
+ const base={expression:'Вопрос',prompt:['Вопрос']};
+ const variants=[{...base,mode:'number',unit_suffix:'',allow_percent:false},{...base,mode:'time'},{...base,mode:'remainder'},{...base,mode:'choice',choices:[0,1],choice_labels:['1','2'],choice_nodes:[['1'],['2']]}];
+ for(const q of variants){
+  assert.equal(validateCurriculum(q,{publicOnly:true}),q);
+  for(const [key,value] of Object.entries({answer:0,expected:{n:1},solution:['Решение'],source_template:'private',column_keys:[],extra:'unexpected'}))for(const solved of [false,true])assert.throws(()=>validateCurriculum({...q,[key]:value},{publicOnly:true,solved}));
+  for(const key of ['steps','solution_nodes'])assert.throws(()=>validateCurriculum({...q,[key]:['Решение']},{publicOnly:true}));
+  const solved={...q,steps:['Решение'],solution_nodes:['Решение']};assert.equal(validateCurriculum(solved,{publicOnly:true,solved:true}),solved);
+  for(const patch of [{steps:[]},{steps:['']},{solution_nodes:[{tag:'script',attrs:{},children:[]}]}])assert.throws(()=>validateCurriculum({...solved,...patch},{publicOnly:true,solved:true}));
+ }
+});
+test('private offline question keeps expected rational and local solution',()=>{
+ const q={mode:'number',expression:'Вопрос',prompt:['Вопрос'],unit_suffix:'',allow_percent:false,expected:{n:1,d:2,unitSuffix:'',allowPercent:false},steps:['Решение'],solution:['Решение'],source_template:'base'};
+ assert.equal(validateCurriculum(q),q);
+});
