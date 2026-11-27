@@ -34,3 +34,4 @@ jobs:
           npm install --no-save --no-package-lock playwright@1.56.1
       - run: node audits/v307_backup_browser.cjs
       - run: node audits/v307_account_review_browser.cjs
+      - run: npm ci && npx vite build --config frontend/v307-review.vite.config.mjs
