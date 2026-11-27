@@ -3163,10 +3163,10 @@ async function checkArchivedRefundInterruption(browser,address,viewport,failProf
 async function checkChestStore(page){
  const before=await page.evaluate(()=>{
   state.coins=600;save();openChestStore861();
-  return {coins:state.coins,opened:mk861ChestOpenCount(state)};
+  return {coins:state.coins,opened:mk861ChestOpenCount(state),xp:state.xp,v305:typeof MK305_CHEST_XP!=='undefined'};
  });
  const chest=page.locator('.mk861-chest-page[data-v-app]');
- for(const chance of ['70%','25%','5%'])await chest.getByText(chance,{exact:true}).waitFor();
+ for(const chance of (before.v305?['70% · +60 XP','25% · +40 XP','5% · +20 XP']:['70%','25%','5%']))await chest.getByText(chance,{exact:true}).waitFor();
  const help=chest.getByRole('button',{name:'Справка: chest',exact:true});
  await help.click();
  await page.locator('.mk872-help-dialog[data-v-app]').getByRole('heading',{name:'О сундуке удачи',exact:true}).waitFor();
@@ -3179,15 +3179,24 @@ async function checkChestStore(page){
  await chest.locator('.mk861-history-row').first().waitFor();
  const receipt=await page.evaluate(()=>{
   const row=state.chestHistory.at(-1);
-  return {opened:state.chestStats.totalOpened,coins:state.coins,compensation:row.compensationCoins,rarity:row.rarity};
+  return {opened:state.chestStats.totalOpened,coins:state.coins,compensation:row.compensationCoins,rarity:row.rarity,xp:state.xp,bonusXp:row.bonusXp,isCompensation:row.compensation};
  });
  assert.equal(receipt.opened,before.opened+1);
  assert.equal(receipt.coins,before.coins-200+receipt.compensation);
+ if(before.v305){
+  const expected=receipt.isCompensation?0:({rare:60,epic:40,legendary:20})[receipt.rarity];
+  assert.equal(receipt.bonusXp,expected);
+  assert.equal(receipt.xp,before.xp+expected);
+ }
  await page.reload();
  await chest.locator('.mk861-history-row').first().waitFor();
  assert.equal(await page.evaluate(()=>state.chestStats.totalOpened),receipt.opened);
  assert.equal(await page.evaluate(()=>state.coins),receipt.coins);
  assert.equal(await page.evaluate(()=>state.chestHistory.at(-1).rarity),receipt.rarity);
+ if(before.v305){
+  assert.equal(await page.evaluate(()=>state.xp),receipt.xp);
+  assert.equal(await page.evaluate(()=>state.chestHistory.at(-1).bonusXp),receipt.bonusXp);
+ }
  await page.getByRole('button',{name:'Закрыть окно',exact:true}).click();
 }
 async function checkLearningDialogFallback(browser,address){

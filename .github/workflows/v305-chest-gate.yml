@@ -6,6 +6,7 @@ on:
       - .github/workflows/v305-chest-gate.yml
       - audits/v305_chest_patch.py
       - audits/v305_chest_browser.cjs
+      - audits/pwa_verified_refresh_browser.cjs
 permissions:
   contents: write
 concurrency:
