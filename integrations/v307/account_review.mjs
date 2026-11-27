@@ -1,6 +1,9 @@
 import {V307AccountClient} from './account_client.mjs';
 const client=new V307AccountClient(),app=document.getElementById('app'),status=document.getElementById('status');
-let actor=null,view='login',busy=false,epoch=0,profile=null,requestKeys=new Map(),logoutPending=false;
+let actor=null,view='login',busy=false,epoch=0,profile=null,requestKeys=new Map(),logoutPending=readPending();
+function readPending(){try{return localStorage.getItem('mk307-logout-pending')==='1'}catch{return false}}
+function pending(v){logoutPending=v;try{if(v)localStorage.setItem('mk307-logout-pending','1');else localStorage.removeItem('mk307-logout-pending')}catch{}}
+
 const api=new Proxy(client,{get(target,key){const value=target[key];if(typeof value!=='function')return value;return (...args)=>{const ticket=epoch;const response=value.apply(target,args);if(!response||typeof response.then!=='function')return response;return response.then(result=>{if(ticket!==epoch){target.clearSession();throw Error('STALE_RESPONSE')}return result;});};}});
 function invalidate(){epoch++;actor=null;profile=null;requestKeys.clear();client.clearSession();}
 
@@ -17,7 +20,7 @@ async function run(fn){if(busy)return;busy=true;const e=epoch;message('Загр�
 function login(){view='login';if(logoutPending){show(el('h1','Завершить выход'),el('p','Сервер не подтвердил выход. Повторите после подключения.'),action('Повторить выход',finishLogout));return;}const ident=field('Логин или электронная почта'),pw=field('Пароль','password');show(el('h1','Вход в МатКвест'),form([ident,pw],'Войти',async(i,p)=>{actor=await api.login(i,p);requestKeys.clear();await dashboard()}),buttons(action('Создать аккаунт',async()=>register(),true),action('Восстановить пароль',async()=>recover(),true)));const a=el('a','Сверка старых профилей');a.href='backup_review.html';app.append(a)}
 function register(){view='register';const ident=field('Логин ученика или почта'),pw=field('Пароль','password');pw[1].autocomplete='new-password';const label=el('label','Тип аккаунта'),sel=el('select');for(const [v,t] of [['student','Ученик'],['parent','Родитель'],['tutor','Преподаватель']]){const o=el('option',t);o.value=v;sel.append(o)}label.append(sel);const f=form([ident,pw],'Создать аккаунт',async(i,p)=>{await api.register(i,p,sel.value);login();message('Аккаунт создан. Войдите в него.')});f.prepend(label);show(el('h1','Регистрация'),el('p','Ученику не нужна почта. Для взрослого аккаунта нужна электронная почта.'),f,action('Назад ко входу',async()=>login(),true))}
 function recover(){view='recover';const i=field('Логин ученика'),c=field('Одноразовый код'),p=field('Новый пароль','password');p[1].autocomplete='new-password';show(el('h1','Восстановление доступа'),form([i,c,p],'Изменить пароль',async(i,c,p)=>{await api.redeemRecovery(i,c,p);login();message('Пароль изменён. Войдите заново.')}),action('Назад',async()=>login(),true))}
-async function finishLogout(){invalidate();logoutPending=true;login();try{await api.resumeSession();await api.logout();logoutPending=false;}catch(e){if(e.status===401)logoutPending=false;else{message('Выход не подтверждён сервером.');return}}finally{client.clearSession();login()}message('Вы вышли из аккаунта.')}
+async function finishLogout(){invalidate();pending(true);login();try{await api.resumeSession();await api.logout();pending(false);}catch(e){if(e.status===401)pending(false);else{message('Выход не подтверждён сервером.');return}}finally{client.clearSession();login()}message('Вы вышли из аккаунта.')}
 function signout(){return action('Выйти',finishLogout,true)}
 async function dashboard(){view='dashboard';profile=null;const role=actor?.role;if(!['student','parent','tutor'].includes(role)){actor=null;login();throw Error('ROLE_UNSUPPORTED')}
  if(role==='student'){const profiles=await api.profiles();show(el('h1','Мои профили'),signout());for(const p of profiles)app.append(row(el('h2',p.display_name),action('Выбрать',()=>subscription(p))));const f=field('Имя ученика');let createKey=null,lastName=null;app.append(form([f],'Создать профиль',async(n)=>{if(n!==lastName){createKey=crypto.randomUUID();lastName=n}await api.createProfile(n,createKey);await dashboard()}));}
@@ -31,6 +34,7 @@ async function homework(p,tutor){const data=await api.homework(p.id,tutor);show(
  app.append(action('Назад',tutor?dashboard:()=>subscription(p),true))}
 async function lessonView(p){const data=await api.lesson(p.id);show(el('h1','Занятие — '+p.display_name),el('p','Преподаватель остаётся в своём аккаунте. Учебный результат относится к ученику.'));let key=crypto.randomUUID();if(data.lesson){app.append(el('p','Сессия занятия открыта.'),action('Завершить занятие',async()=>{await api.endLesson(p.id,data.lesson.id);await lessonView(p)}));}else app.append(action('Начать занятие',async()=>{await api.startLesson(p.id,key);await lessonView(p)}));app.append(el('p','Тренажёр и очередь отправки результатов ещё не подключены к этому экрану.'),action('Все ученики',dashboard,true),signout())}
 window.addEventListener('offline',()=>{invalidate();login();message('Нет связи. Серверные данные скрыты.')});
+window.addEventListener('storage',e=>{if(e.key==='mk307-logout-pending'){logoutPending=readPending();invalidate();login();message('Состояние выхода изменилось в другой вкладке.')}});
 window.addEventListener('pageshow',e=>{if(e.persisted){invalidate();login();message('Войдите снова.')}});
 window.addEventListener('pagehide',()=>{invalidate();login();});
 login();

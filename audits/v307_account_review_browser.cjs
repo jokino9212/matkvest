@@ -1,0 +1,45 @@
+'use strict';
+const assert=require('node:assert/strict'),{chromium}=require('playwright'),{createServer}=require('node:http'),{readFile}=require('node:fs/promises'),{resolve,sep,extname}=require('node:path');
+const root=resolve(__dirname,'..'),types={'.html':'text/html; charset=utf-8','.css':'text/css','.mjs':'text/javascript','.js':'text/javascript'};
+const P='a1436d1d-0123-4f25-8ae9-df61e8a85370',Q='b1436d1d-0123-4f25-8ae9-df61e8a85370',R='c1436d1d-0123-4f25-8ae9-df61e8a85370';
+(async()=>{
+ const server=createServer(async(req,res)=>{try{const path=resolve(root,'.'+decodeURIComponent(new URL(req.url,'http://127.0.0.1').pathname));if(!path.startsWith(root+sep))return res.writeHead(404).end();const data=await readFile(path);res.writeHead(200,{'Content-Type':types[extname(path)]||'application/octet-stream','Cache-Control':'no-store'}).end(data)}catch(e){if(!res.headersSent)res.writeHead(404);res.end()}});
+ await new Promise(r=>server.listen(0,'127.0.0.1',r));const origin='http://127.0.0.1:'+server.address().port;const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
+ try{
+ for(const width of [320,390,1280]){
+  const context=await browser.newContext({viewport:{width,height:800},serviceWorkers:'block'}),page=await context.newPage(),errors=[],writes=[];page.on('pageerror',e=>errors.push(String(e)));let pending=false,logoutFail=false,role='parent',authed=false,delay=false;
+  await page.route('**/api/v1/**',async route=>{
+   const req=route.request(),path=new URL(req.url()).pathname.slice(7),m=req.method(),body=req.postDataJSON?.();let code=200,data;
+   if(m!=='GET')writes.push({path,body,headers:req.headers()});
+   if(path==='/auth/login'){authed=true;role=body.email?'parent':'student';data={user:{id:R,role},csrf_token:'csrf'};}
+   else if(path==='/auth/csrf'){if(!authed){code=401;data={error:{code:'UNAUTHORIZED'}}}else data={csrf_token:'csrf'}}
+   else if(path==='/auth/me')data={id:R,role};
+   else if(path==='/auth/logout'){if(logoutFail){await route.abort('failed');return}authed=false;data={ok:true}}
+   else if(path==='/parent/children')data={links:[{id:R,profiles:[{id:P,display_name:'Проба А'},{id:Q,display_name:'Проба Б'}]}]};
+   else if(path==='/student/profiles')data=[{id:Q,display_name:'Проба Б'}];
+   else if(path==='/profiles/'+P+'/subscription'||path==='/profiles/'+Q+'/subscription'){
+    const a=path.includes(P);data={profile_id:a?P:Q,display_name:a?'Проба А':'Проба Б',full:a,sources:a?['tutor_paid']:[],test_only:true,payment_enabled:false,free_blocks_limit:10,free_blocks_used:2,can_request:!a&&!pending,pending:!a&&pending,own_pending_id:!a&&pending?R:null,personal_ends_at:null};
+    if(delay){await new Promise(r=>setTimeout(r,500));}
+   }else if(path==='/profiles/'+Q+'/subscription/requests'&&m==='POST'){assert(req.headers()['idempotency-key']);assert.equal(req.headers()['x-csrf-token'],'csrf');pending=true;code=201;data={id:R,profile_id:Q,status:'pending',test_only:true,payment_enabled:false}}
+   else if(path==='/profiles/'+Q+'/subscription/requests/'+R&&m==='DELETE'){pending=false;data={id:R,status:'cancelled'}}
+   else if(path==='/student/profiles/'+Q+'/homework')data={assignments:[{id:R,title:'Таблица умножения',status:'not_started',late:false}],next_offset:null};
+   else {code=404;data={error:{code:'NOT_FOUND'}}}
+   await route.fulfill({status:code,contentType:'application/json',body:JSON.stringify(data)}).catch(()=>{});
+  });
+  const start=()=>page.goto(origin+'/integrations/v307/account_review.html');
+  const login=async name=>{await page.getByLabel('Логин или электронная почта').fill(name);await page.getByLabel('Пароль',{exact:true}).fill('synthetic-password');await page.getByRole('button',{name:'Войти',exact:true}).click()};
+  await start();await login('parent@example.test');await page.getByRole('heading',{name:'Кабинет родителя'}).waitFor();
+  await page.locator('.row').filter({hasText:'Проба А'}).getByRole('button',{name:'Управлять доступом'}).click();await page.getByText('Оплачено преподавателем',{exact:true}).waitFor();assert.equal(await page.getByRole('button',{name:'Создать тестовую заявку Premium'}).count(),0);
+  await page.getByRole('button',{name:'Все профили'}).click();await page.locator('.row').filter({hasText:'Проба Б'}).getByRole('button',{name:'Управлять доступом'}).click();
+  await page.getByRole('button',{name:'Создать тестовую заявку Premium'}).click();await page.getByText('Ожидает подтверждения тестовым администратором.').waitFor();
+  assert.equal(await page.getByRole('button',{name:'Создать тестовую заявку Premium'}).count(),0);assert.equal(await page.locator('.price').innerText(),'Free');
+  await page.getByRole('button',{name:'Отменить тестовую заявку'}).click();await page.getByRole('button',{name:'Создать тестовую заявку Premium'}).waitFor();
+  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
+  logoutFail=true;await page.getByRole('button',{name:'Выйти'}).click();await page.getByRole('heading',{name:'Завершить выход'}).waitFor();await page.getByText('Выход не подтверждён сервером.').waitFor();
+  await page.reload();await page.getByRole('heading',{name:'Завершить выход'}).waitFor();logoutFail=false;await page.getByRole('button',{name:'Повторить выход'}).click();await page.getByRole('heading',{name:'Вход в МатКвест'}).waitFor();
+  await login('pupil307');await page.getByRole('heading',{name:'Мои профили'}).waitFor();await page.getByRole('button',{name:'Выбрать',exact:true}).click();await page.locator('.price').waitFor();await page.getByRole('button',{name:'Домашние задания'}).click();await page.getByRole('heading',{name:'Таблица умножения'}).waitFor();
+  await page.getByRole('button',{name:'Назад'}).click();await page.locator('.price').waitFor();delay=true;await page.getByRole('button',{name:'Обновить'}).click();await page.evaluate(()=>dispatchEvent(new Event('offline')));await page.waitForTimeout(700);assert.equal(await page.getByRole('heading',{name:'Вход в МатКвест'}).count(),1);assert.equal(await page.locator('.price').count(),0);
+  assert.deepEqual(errors,[]);assert.equal(await page.evaluate(()=>localStorage.length),0);assert(writes.filter(w=>w.path.includes('/subscription/requests')&&w.path.endsWith('/requests')).length===1);console.log('PASS_V307_ACCOUNT_REVIEW_SYNTHETIC',width);await context.close();
+ }
+ }finally{await browser.close();await new Promise(r=>server.close(r))}
+})().catch(e=>{console.error(e);process.exitCode=1});

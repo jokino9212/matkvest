@@ -33,3 +33,4 @@ jobs:
           echo '7e6e2b8de44e1eb4888b34f012288c32e24643eafe9c350fe79e9881935cb318  v306-fixture/index.html' | sha256sum -c -
           npm install --no-save --no-package-lock playwright@1.56.1
       - run: node audits/v307_backup_browser.cjs
+      - run: node audits/v307_account_review_browser.cjs
