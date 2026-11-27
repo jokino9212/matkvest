@@ -16,7 +16,7 @@ function checked(r){
  if(!valid(r.id)||!['errors','control'].includes(r.mode)||!['active','finished','abandoned'].includes(r.status)||!Number.isSafeInteger(r.revision)||r.revision<0||!Number.isInteger(r.index)||!Number.isInteger(r.total)||r.index<0||r.index>=r.total||r.total>20||!Object.hasOwn(SCHOOL_TOPICS,r.topic_id)||![0,1,2].includes(r.stage)||!['open','solved','skipped'].includes(r.outcome))throw Error('REVIEW_INVALID_STATE');
  if(r.status==='active'){
   const q=r.question;if(!q||Object.hasOwn(q,'answer')||Object.hasOwn(q,'column_keys'))throw Error('REVIEW_INVALID_QUESTION');
-  if(isCurriculum(r.topic_id))validateCurriculum(q,{publicOnly:true});if(q.prompt)validateNodes(q.prompt);if(q.solution_nodes){if(r.outcome!=='solved')throw Error('REVIEW_UNEXPECTED_SOLUTION');validateNodes(q.solution_nodes);}if(q.choice_nodes)q.choice_nodes.forEach(validateNodes);
+  if(isCurriculum(r.topic_id))validateCurriculum(q,{publicOnly:true,solved:r.outcome==='solved'});if(q.prompt)validateNodes(q.prompt);if(q.solution_nodes){if(r.outcome!=='solved')throw Error('REVIEW_UNEXPECTED_SOLUTION');validateNodes(q.solution_nodes);}if(q.choice_nodes)q.choice_nodes.forEach(validateNodes);
   if(q.choices&&(!Array.isArray(q.choices)||q.choices.length<2||q.choices.length>4||q.choices.some(x=>!Number.isSafeInteger(x))))throw Error('REVIEW_INVALID_CHOICES');
   if(isColumn(r.topic_id))columnView(r.topic_id,{...q,columnFields:q.column_fields},{},false,layout);
  }
