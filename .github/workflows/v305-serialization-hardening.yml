@@ -1,0 +1,58 @@
+name: v305 serialization hardening and regression (read-only)
+on:
+  push:
+    branches: [feature/v305-learning-chest-rewards]
+    paths:
+      - .github/workflows/v305-serialization-hardening.yml
+      - audits/v305_serialization_hardening.py
+      - audits/v305_serialization_hardening_browser.cjs
+      - audits/v305_serialization_legacy_browser.cjs
+permissions:
+  contents: read
+jobs:
+  audit:
+    if: github.repository == 'jokino9212/matkvest' && github.ref == 'refs/heads/feature/v305-learning-chest-rewards'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        suite: [targeted, legacy-chest, store, keyboard, drafts, attempts, offline, pwa]
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Materialize isolated candidate
+        run: |
+          python3 audits/g7_stage12_sync_pwa.py --check
+          python3 audits/v305_serialization_candidate.py
+          python3 audits/v305_serialization_hardening.py
+          npm ci
+          npm install --no-save --no-package-lock playwright@1.56.1
+          python3 audits/g7_stage12_sync_pwa.py
+          python3 audits/g7_stage12_sync_pwa.py --check
+          node --check audits/v305_serialization_hardening_browser.cjs
+          node --check audits/v305_serialization_legacy_browser.cjs
+      - name: Run isolated suite
+        env:
+          SUITE: ${{ matrix.suite }}
+        run: |
+          case "$SUITE" in
+            targeted) node audits/v305_serialization_hardening_browser.cjs ;;
+            legacy-chest) node audits/v305_serialization_legacy_browser.cjs ;;
+            store) node audits/shop_progress_v874_browser_test.cjs ;;
+            keyboard) node audits/stage21_training_keyboard_audit.cjs ;;
+            drafts) node audits/stage22_answer_drafts_browser.cjs ;;
+            attempts) node audits/stage24_attempt_lifecycle_browser.cjs ;;
+            offline) node audits/stage28_offline_pwa_browser.cjs ;;
+            pwa) node audits/pwa_verified_refresh_browser.cjs ;;
+            *) exit 2 ;;
+          esac
+      - uses: actions/upload-artifact@v4
+        if: always() && matrix.suite == 'targeted'
+        with:
+          name: v305-hardening-evidence
+          path: ci-acceptance-output/v305-king/
+          if-no-files-found: warn
