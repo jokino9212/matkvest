@@ -37,7 +37,7 @@ const P='a1436d1d-0123-4f25-8ae9-df61e8a85370',U='b1436d1d-0123-4f25-8ae9-df61e8
      if(kind==='save'){assert.equal(body.base_revision,draft.revision);assert.equal(body.draft.training_start_id,START);assert.equal(body.draft.question_index,draft.draft.question_index+1);draft={revision:draft.revision+1,draft:body.draft};data=draft}
      if(kind==='finish'){assert.deepEqual(body.answers,expected);assert.equal(body.draft_revision,draft.revision);assert.equal(draft.draft.question_index,count);rewards++;if(goal)goal={...goal,status:'completed',progress:6};draft={revision:draft.revision+1,draft:null};latest={training_start_id:START,topic_id:topic,questions,status:'finished',config:{count,mode,smart:'all'},summary:{correct:count,wrong:0,skipped:0,xp:3*count,coins:count,...(goal?{training_goal:{goal,reward_xp:8,reward_coins:3}}:{}),achievement_rewards:[]}};data=latest}
      replay.set(key,{kind,body:structuredClone(body),code,data:structuredClone(data)});
-     if(lose.delete(kind)){await route.abort('failed');return}
+     if((kind!=='save'||mul||body.draft.question_index===2)&&lose.delete(kind)){await route.abort('failed');return}
     }
    }
    await reply();
@@ -48,7 +48,7 @@ const P='a1436d1d-0123-4f25-8ae9-df61e8a85370',U='b1436d1d-0123-4f25-8ae9-df61e8
   await page.goto(origin+'/integrations/v307/account_review.html');await enter();if(mul){await button('Серия правильных ответов — 6').click();await page.getByText('Серия правильных ответов — 0 / 6',{exact:true}).waitFor();}else{await page.getByLabel('Тренажёр',{exact:true}).selectOption(topic);await page.getByLabel('Диапазон',{exact:true}).selectOption(mode);}await button(count+' заданий').click();await retry();
   for(let i=0;i<count;i++){await page.getByText('Задание '+(i+1)+' из '+count,{exact:true}).waitFor();if(mul){await page.getByLabel('Ответ',{exact:true}).fill(String(expected[i]));await button('Ответить').click();}else{await button(String(expected[i])).click();}if(i===(mul?0:1))await retry();}
   await button('Подтвердить результат').click();await retry();await page.getByText('Начислено '+3*count+' XP и '+count+' монет.',{exact:true}).waitFor();if(mul)await page.getByText('Цель выполнена: +8 XP и 3 монет.',{exact:true}).waitFor();assert.equal(starts,1);assert.equal(rewards,1);
-  for(const kind of ['start','save','finish']){const first=writes.filter(x=>x.kind===kind).slice(0,2);assert.deepEqual(first[0],first[1]);}
+  for(const kind of ['start','save','finish']){const repeated=writes.filter(x=>x.kind===kind);const first=kind==='save'&&!mul?repeated.filter(x=>x.body.draft.question_index===2):repeated.slice(0,2);assert.equal(first.length,2);assert.deepEqual(first[0],first[1]);if(kind==='save'&&!mul)assert.equal(first[0].body.draft.answers['1'],'ДА');}
   assert.equal(writes.filter(x=>x.kind==='save').length,count+1);assert.deepEqual(errors,[]);assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);await context.close();console.log('PASS_V307_QUICK_GOALS_REPLAY',width,topic);
  }
  }finally{await browser.close();await new Promise(r=>server.close(r))}
