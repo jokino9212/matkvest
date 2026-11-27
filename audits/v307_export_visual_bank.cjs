@@ -16,7 +16,7 @@ const build='7e6e2b8de44e1eb4888b34f012288c32e24643eafe9c350fe79e9881935cb318';
   const old=blockSession,oldQid=qid;
   const fraction=G5_FRACTIONS.map(t=>t.id),decimal=G5_DECIMALS.map(t=>t.id),mandatory=g5AllTopics().map(t=>t.id);
   const title=new Map([...G5_FRACTIONS,...G5_DECIMALS].map(t=>[t.id,t.title]));
-  const banks={},rejected={},diagnostics={};
+  const banks={},rejected={},diagnostics={},modes={};
   const tags=new Set('div span b strong i em small br p sup sub table caption thead tbody tr th td ul ol li svg g rect circle ellipse line polyline polygon path text tspan title desc defs marker lineargradient radialgradient stop clippath pattern use'.split(' '));
   const attr=new Set('class style role aria-label aria-hidden aria-labelledby aria-describedby id title scope colspan rowspan width height viewbox xmlns preserveaspectratio x y x1 y1 x2 y2 cx cy r rx ry d points fill fill-opacity stroke stroke-width stroke-linecap stroke-linejoin stroke-dasharray stroke-opacity opacity transform font-size font-weight font-family text-anchor dominant-baseline alignment-baseline dx dy marker-start marker-end marker-mid markerwidth markerheight markerunits refx refy orient offset stop-color stop-opacity gradientunits gradienttransform xlink:href href clip-path clip-rule fill-rule patternunits patterntransform'.split(' '));
   const styles=new Set('width max-width min-width height max-height min-height overflow overflow-x overflow-y margin margin-top margin-bottom margin-left margin-right padding padding-top padding-bottom padding-left padding-right display text-align vertical-align border border-width border-style border-color border-radius border-collapse border-spacing background background-color color font-size font-weight font-family line-height letter-spacing white-space gap row-gap column-gap align-items justify-content grid-template-columns grid-template-rows flex flex-wrap flex-direction flex-shrink box-sizing opacity'.split(' '));
@@ -49,10 +49,10 @@ const build='7e6e2b8de44e1eb4888b34f012288c32e24643eafe9c350fe79e9881935cb318';
     for(let stage=0;stage<3&&!failure;stage++){
      const families=[];
      for(let family=0;family<5;family++){
-      blockSession={key:'g5:'+id,kind:'course',stageIndex:stage,done:family,total:[5,7,10][stage]};qid='g5:'+id;
+      qid='g5:'+id;
       const found=new Map();let skipped=0;
       for(let attempt=0;attempt<120&&found.size<12;attempt++){
-       const q=makeG5Question(id);let prompt,solution,labelsTree;try{prompt=nodes(q.text);solution=nodes(q.ex);labelsTree=q.choices?.map(c=>nodes(c.label));}catch(e){rejectedReasons[id]??={};rejectedReasons[id][e.message]=(rejectedReasons[id][e.message]||0)+1;skipped++;continue;}
+       blockSession={key:qid,kind:'g5quiz',topicId:id,grade:5,stageIndex:stage,done:family,total:[5,7,10][stage],usedSignatures:[],items:[]};const q=freshQuiz(qid);let prompt,solution,labelsTree;try{prompt=nodes(q.text);solution=nodes(q.ex);labelsTree=q.choices?.map(c=>nodes(c.label));}catch(e){rejectedReasons[id]??={};rejectedReasons[id][e.message]=(rejectedReasons[id][e.message]||0)+1;skipped++;continue;}
        const expression=academicHtmlPlain(q.text),explanation=academicHtmlPlain(q.ex);
        if(!expression||expression.length>4000||!explanation||explanation.length>8000){skipped++;continue}
        const common={expression,steps:[explanation],prompt,solution,source_template:String(q.templateId||'base')};
@@ -83,12 +83,12 @@ const build='7e6e2b8de44e1eb4888b34f012288c32e24643eafe9c350fe79e9881935cb318';
      }
      if(!failure)stages.push(families);
     }
-    if(failure)rejected[id]=failure;else banks['g5:'+id]={title:title.get(id),stages};
+    if(failure)rejected[id]=failure;else {banks['g5:'+id]={title:title.get(id),stages};const rows=stages.flat(2);modes[id]={choice:rows.filter(q=>q.choices).length,rational:rows.filter(q=>q.rational).length};}
    }
   }finally{blockSession=old;qid=oldQid;}
-  return {build,fraction,decimal,mandatory,banks,rejected,diagnostics,rejectedReasons};
+  return {build,fraction,decimal,mandatory,banks,rejected,diagnostics,rejectedReasons,modes};
  },build);
- console.log('V307_RATIONAL_DIAGNOSTICS',JSON.stringify({accepted:Object.keys(out.banks),rejected:out.rejected,diagnostics:out.diagnostics,rejectedReasons:out.rejectedReasons}));assert.equal(out.build,build);assert.equal(new Set(out.fraction).size,out.fraction.length);assert.equal(new Set(out.decimal).size,out.decimal.length);assert.equal(Object.keys(out.banks).length,24);assert.deepEqual(out.rejected,{});
+ console.log('V307_RATIONAL_DIAGNOSTICS',JSON.stringify({accepted:Object.keys(out.banks),rejected:out.rejected,diagnostics:out.diagnostics,rejectedReasons:out.rejectedReasons,modes:out.modes}));assert.equal(out.build,build);assert.equal(new Set(out.fraction).size,out.fraction.length);assert.equal(new Set(out.decimal).size,out.decimal.length);assert.equal(Object.keys(out.banks).length,24);assert.deepEqual(out.rejected,{});
  const target=resolve(__dirname,'../v307-learning-fixtures');mkdirSync(target,{recursive:true});writeFileSync(resolve(target,'v306-visual-question-bank.json'),JSON.stringify(out,null,2)+'\n');
  console.log('V307_RATIONAL_CURRICULUM',JSON.stringify({fraction:out.fraction,decimal:out.decimal,mandatory:out.mandatory.length,accepted:Object.keys(out.banks),rejected:out.rejected}));
  await context.close();
