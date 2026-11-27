@@ -18,6 +18,7 @@ defineProps({
         v-if="item.button" type="button" class="mk872-col-action" :class="{ primary: !item.selected }"
         :disabled="item.disabled" @click="actions.choose(item.id)"
       >{{ item.button }}</button>
+      <button v-if="item.sell" type="button" class="mk872-col-action" @click="actions.sell(item.id)">{{ item.sell }}</button>
     </div>
   </div>
   <div v-else class="mk872-col-empty">

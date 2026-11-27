@@ -8060,10 +8060,10 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
 }, Ly = { class: "mk872-col-head" }, jy = {
   key: 0,
   class: "mk872-col-grid"
-}, Hy = ["innerHTML"], Py = ["disabled", "onClick"], Ey = {
+}, Hy = ["innerHTML"], Py = ["disabled", "onClick"], Ey = ["onClick"], Ay = {
   key: 1,
   class: "mk872-col-empty"
-}, Ay = {
+}, Ry = {
   __name: "CollectionSection",
   props: {
     model: { type: Object, required: !0 },
@@ -8094,15 +8094,21 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
             class: x(["mk872-col-action", { primary: !t.selected }]),
             disabled: t.disabled,
             onClick: (i) => e.actions.choose(t.id)
-          }, a(t.button), 11, Py)) : k("", !0)
+          }, a(t.button), 11, Py)) : k("", !0),
+          t.sell ? (o(), r("button", {
+            key: 1,
+            type: "button",
+            class: "mk872-col-action",
+            onClick: (i) => e.actions.sell(t.id)
+          }, a(t.sell), 9, Ey)) : k("", !0)
         ], 2))), 128))
-      ])) : (o(), r("div", Ey, [...n[0] || (n[0] = [
+      ])) : (o(), r("div", Ay, [...n[0] || (n[0] = [
         p(" Пока ничего нет в коллекции. ", -1),
         l("div", { class: "mk872-col-help" }, "Посмотри доступные предметы в магазине.", -1)
       ])]))
     ], 64));
   }
-}, Ry = ["aria-pressed", "data-mk872-collection-tab", "onClick"], Iy = {
+}, Iy = ["aria-pressed", "data-mk872-collection-tab", "onClick"], Ny = {
   __name: "CollectionNavigation",
   props: {
     model: { type: Object, required: !0 },
@@ -8120,9 +8126,9 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
     }, [
       l("b", null, a(t.count), 1),
       l("small", null, a(t.label), 1)
-    ], 10, Ry))), 128));
+    ], 10, Iy))), 128));
   }
-}, Ny = {
+}, Dy = {
   __name: "CollectionWorth",
   props: { model: { type: Object, required: !0 } },
   setup(e) {
@@ -8132,18 +8138,18 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
       n[1] || (n[1] = l("small", null, "Все принадлежащие предметы по ценам каталога", -1))
     ], 64));
   }
-}, Dy = { class: "mk19g-pet-head" }, Fy = ["aria-label", "innerHTML"], Ky = {
+}, Fy = { class: "mk19g-pet-head" }, Ky = ["aria-label", "innerHTML"], Vy = {
   key: 1,
   class: "mk19g-pet-icon",
   "aria-hidden": "true"
-}, Vy = { class: "mk19g-pet-info" }, By = { class: "mk19g-pet-name" }, Uy = { class: "mk19g-pet-rarity" }, Wy = ["aria-label"], zy = {
+}, By = { class: "mk19g-pet-info" }, Uy = { class: "mk19g-pet-name" }, Wy = { class: "mk19g-pet-rarity" }, zy = ["aria-label"], Xy = {
   class: "mk19g-pet-actions",
   role: "group",
   "aria-label": "Выбрать имеющегося питомца"
-}, Xy = ["data-pet-choice", "disabled", "aria-pressed", "onClick"], Gy = {
+}, Gy = ["data-pet-choice", "disabled", "aria-pressed", "onClick"], Qy = {
   key: 0,
   class: "mk19g-pet-empty"
-}, Qy = {
+}, Jy = {
   __name: "PetQuickPanel",
   props: {
     model: { type: Object, required: !0 },
@@ -8151,26 +8157,26 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
   },
   setup(e) {
     return (s, n) => (o(), r(f, null, [
-      l("div", Dy, [
+      l("div", Fy, [
         e.model.artwork ? (o(), r("button", {
           key: 0,
           type: "button",
           class: "mk19g-pet-icon",
           "aria-label": "Увеличить: " + e.model.name,
           innerHTML: e.model.artwork
-        }, null, 8, Fy)) : (o(), r("div", Ky, "—")),
-        l("div", Vy, [
+        }, null, 8, Ky)) : (o(), r("div", Vy, "—")),
+        l("div", By, [
           n[1] || (n[1] = l("div", { class: "mk19g-pet-eyebrow" }, "Питомец в профиле", -1)),
-          l("div", By, a(e.model.name), 1),
-          l("div", Uy, a(e.model.rarity), 1)
+          l("div", Uy, a(e.model.name), 1),
+          l("div", Wy, a(e.model.rarity), 1)
         ]),
         l("span", {
           class: "mk19g-pet-collection-count",
           "aria-label": "Получено питомцев: " + e.model.collected + " из " + e.model.total
-        }, a(e.model.collected) + " / " + a(e.model.total), 9, Wy)
+        }, a(e.model.collected) + " / " + a(e.model.total), 9, zy)
       ]),
       n[2] || (n[2] = l("div", { class: "mk19g-pet-switch-title" }, "Быстрый выбор из своей коллекции", -1)),
-      l("div", zy, [
+      l("div", Xy, [
         (o(!0), r(f, null, g(e.model.choices, (t) => (o(), r("button", {
           key: t.id,
           type: "button",
@@ -8179,9 +8185,9 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
           disabled: t.selected,
           "aria-pressed": t.selected,
           onClick: (i) => e.actions.choose(t.id)
-        }, a(t.name) + a(t.selected ? " ✓" : ""), 9, Xy))), 128))
+        }, a(t.name) + a(t.selected ? " ✓" : ""), 9, Gy))), 128))
       ]),
-      e.model.collected ? k("", !0) : (o(), r("span", Gy, "Покупки и награды за достижения появятся здесь.")),
+      e.model.collected ? k("", !0) : (o(), r("span", Qy, "Покупки и награды за достижения появятся здесь.")),
       e.model.fromCollection ? (o(), r("button", {
         key: 1,
         type: "button",
@@ -8190,24 +8196,24 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
       }, " Посмотреть всех питомцев ")) : k("", !0)
     ], 64));
   }
-}, Jy = { class: "mk872-col-head" }, Yy = {
+}, Yy = { class: "mk872-col-head" }, Zy = {
   key: 0,
   class: "mk873-archive-intro"
-}, Zy = {
+}, _y = {
   key: 2,
   class: "mk872-col-grid"
-}, _y = { class: "mk872-col-art" }, ev = ["innerHTML"], tv = { class: "mk872-col-meta" }, nv = { class: "mk873-archive-price" }, sv = ["disabled", "onClick"], lv = {
+}, ev = { class: "mk872-col-art" }, tv = ["innerHTML"], nv = { class: "mk872-col-meta" }, sv = { class: "mk873-archive-price" }, lv = ["disabled", "onClick"], iv = {
   key: 3,
   class: "mk872-col-empty"
-}, iv = {
+}, ov = {
   key: 4,
   class: "mk873-archive-help"
-}, ov = {
+}, av = {
   __name: "CollectionArchive",
   props: { model: Object, actions: Object },
   setup(e) {
     return (s, n) => (o(), r(f, null, [
-      l("div", Jy, [
+      l("div", Yy, [
         n[1] || (n[1] = l("h3", null, "📦 Архивные предметы", -1)),
         l("small", null, a(e.model.count) + " обнаружено", 1)
       ]),
@@ -8215,38 +8221,38 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
         key: t.type,
         class: x(t.className)
       }, [
-        t.type === "avatars" ? (o(), r("div", Yy, [
+        t.type === "avatars" ? (o(), r("div", Zy, [
           n[2] || (n[2] = l("b", null, "📦 Архивные предметы", -1)),
           l("div", null, a(t.description), 1)
         ])) : (o(), r(f, { key: 1 }, [
           l("h3", null, a(t.title), 1),
           l("p", null, a(t.description), 1)
         ], 64)),
-        t.items.length ? (o(), r("div", Zy, [
+        t.items.length ? (o(), r("div", _y, [
           (o(!0), r(f, null, g(t.items, (i) => (o(), r("div", {
             key: i.id,
             class: "mk872-col-card mk873-archive-card"
           }, [
-            l("div", _y, [
+            l("div", ev, [
               l("span", {
                 class: "shop-icon",
                 style: { height: "100%", width: "100%", margin: "0" },
                 innerHTML: i.icon
-              }, null, 8, ev)
+              }, null, 8, tv)
             ]),
             l("strong", null, a(i.name), 1),
-            l("span", tv, a(t.label), 1),
-            l("div", nv, a(i.detail), 1),
+            l("span", nv, a(t.label), 1),
+            l("div", sv, a(i.detail), 1),
             i.button ? (o(), r("button", {
               key: 0,
               type: "button",
               class: x(["mk872-col-action mk873-archive-action", { primary: i.primary }]),
               disabled: !i.action,
               onClick: (c) => e.actions.run(i.action, i.id)
-            }, a(i.button), 11, sv)) : k("", !0)
+            }, a(i.button), 11, lv)) : k("", !0)
           ]))), 128))
-        ])) : (o(), r("div", lv, a(t.empty), 1)),
-        t.type === "avatars" ? (o(), r("div", iv, [
+        ])) : (o(), r("div", iv, a(t.empty), 1)),
+        t.type === "avatars" ? (o(), r("div", ov, [
           n[3] || (n[3] = l("p", null, "Нет подтверждения старой покупки? Сохраните заявку и передайте её владельцу проекта вместе с резервной копией, если она есть. Этот файл не начисляет монеты.", -1)),
           l("button", {
             type: "button",
@@ -8257,24 +8263,24 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
       ], 2))), 128))
     ], 64));
   }
-}, av = { class: "mk865-sale-head" }, rv = { id: "mk865SaleTitle" }, cv = { key: 0 }, uv = { style: { "margin-top": "4px" } }, dv = ["aria-valuenow", "aria-valuemax"], mv = {
+}, rv = { class: "mk865-sale-head" }, cv = { id: "mk865SaleTitle" }, uv = { key: 0 }, dv = { style: { "margin-top": "4px" } }, mv = ["aria-valuenow", "aria-valuemax"], fv = {
   key: 1,
   class: "mk865-refund-grid"
-}, fv = {
+}, bv = {
   key: 2,
   class: "lesson"
-}, bv = {
+}, hv = {
   key: 3,
   class: "mk865-topic-grid"
-}, hv = ["onClick"], yv = { class: "mk865-reason" }, vv = ["disabled", "onClick"], kv = {
+}, yv = ["onClick"], vv = { class: "mk865-reason" }, kv = ["disabled", "onClick"], gv = {
   __name: "StoreSaleDialog",
   props: { model: Object, actions: Object },
   setup(e) {
     return (s, n) => (o(), r(f, null, [
-      l("div", av, [
+      l("div", rv, [
         l("div", null, [
-          l("h2", rv, a(e.model.title), 1),
-          e.model.subtitle ? (o(), r("p", cv, a(e.model.subtitle), 1)) : k("", !0)
+          l("h2", cv, a(e.model.title), 1),
+          e.model.subtitle ? (o(), r("p", uv, a(e.model.subtitle), 1)) : k("", !0)
         ]),
         l("button", {
           type: "button",
@@ -8288,7 +8294,7 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
         class: x(["mk865-mission-box", { completed: e.model.mission.completed }])
       }, [
         l("b", null, a(e.model.mission.title), 1),
-        l("div", uv, a(e.model.mission.topic), 1),
+        l("div", dv, a(e.model.mission.topic), 1),
         l("div", {
           class: "mk865-mission-progress",
           role: "progressbar",
@@ -8299,10 +8305,10 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
           l("span", {
             style: Z({ width: e.model.mission.percent + "%" })
           }, null, 4)
-        ], 8, dv),
+        ], 8, mv),
         l("small", null, a(e.model.mission.progress) + "/" + a(e.model.mission.total) + " правильных заданий • возврат " + a(e.model.mission.refund) + " 🪙", 1)
       ], 2)) : k("", !0),
-      e.model.refunds ? (o(), r("div", mv, [
+      e.model.refunds ? (o(), r("div", fv, [
         (o(!0), r(f, null, g(e.model.refunds, (t) => (o(), r("div", {
           key: t.label,
           class: x(["mk865-refund-card", { good: t.good }])
@@ -8312,8 +8318,8 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
           l("small", null, a(t.detail), 1)
         ], 2))), 128))
       ])) : k("", !0),
-      e.model.notice ? (o(), r("div", fv, a(e.model.notice), 1)) : k("", !0),
-      e.model.topics?.length ? (o(), r("div", bv, [
+      e.model.notice ? (o(), r("div", bv, a(e.model.notice), 1)) : k("", !0),
+      e.model.topics?.length ? (o(), r("div", hv, [
         (o(!0), r(f, null, g(e.model.topics, (t, i) => (o(), r("button", {
           key: t.key,
           type: "button",
@@ -8322,8 +8328,8 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
         }, [
           l("b", null, a(t.grade) + " класс • " + a(t.title), 1),
           l("small", null, a(t.detail), 1),
-          l("span", yv, a(t.reason), 1)
-        ], 8, hv))), 128))
+          l("span", vv, a(t.reason), 1)
+        ], 8, yv))), 128))
       ])) : k("", !0),
       (o(!0), r(f, null, g(e.model.buttons, (t, i) => (o(), r("div", {
         key: i,
@@ -8335,59 +8341,59 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
           class: x(["btn", c.primary ? "primary" : "soft"]),
           disabled: c.disabled,
           onClick: (d) => e.actions.run(i, u)
-        }, a(c.label), 11, vv))), 128))
+        }, a(c.label), 11, kv))), 128))
       ]))), 128))
     ], 64));
   }
-}, gv = { class: "mk19e-wallet-head" }, $v = { class: "mk19e-balance" }, pv = { class: "mk19e-id" }, Cv = { class: "mk19e-wallet-grid" }, xv = { class: "mk19e-label" }, wv = { class: "mk19e-potential" }, Tv = { class: "mk19e-potential-line" }, Sv = {
+}, $v = { class: "mk19e-wallet-head" }, pv = { class: "mk19e-balance" }, Cv = { class: "mk19e-id" }, xv = { class: "mk19e-wallet-grid" }, wv = { class: "mk19e-label" }, Tv = { class: "mk19e-potential" }, Sv = { class: "mk19e-potential-line" }, Ov = {
   class: "mk19e-potential-line",
   style: { "margin-top": "9px", "border-top": "1px solid #dce9df", "padding-top": "10px" }
-}, Ov = { class: "mk19e-facts" }, qv = {
+}, qv = { class: "mk19e-facts" }, Mv = {
   key: 0,
   class: "mk19e-transactions"
-}, Mv = { class: "mk19e-transaction-name" }, Lv = { class: "mk19e-transaction-value" }, jv = {
+}, Lv = { class: "mk19e-transaction-name" }, jv = { class: "mk19e-transaction-value" }, Hv = {
   key: 1,
   class: "mk19e-wallet-cell mk19e-info"
-}, Hv = { class: "mk19e-info" }, Pv = { class: "mk19e-shortcuts" }, Ev = {
+}, Pv = { class: "mk19e-info" }, Ev = { class: "mk19e-shortcuts" }, Av = {
   __name: "StoreWallet",
   props: { model: Object, actions: Object },
   setup(e) {
     return (s, n) => (o(), r(f, null, [
-      l("div", gv, [
+      l("div", $v, [
         l("div", null, [
           n[2] || (n[2] = l("span", { class: "mk19e-overline" }, "Доступные монеты", -1)),
-          l("div", $v, a(e.model.balance), 1),
+          l("div", pv, a(e.model.balance), 1),
           n[3] || (n[3] = l("small", null, "Сумма на счёте прямо сейчас", -1))
         ]),
-        l("span", pv, a(e.model.profile), 1)
+        l("span", Cv, a(e.model.profile), 1)
       ]),
       l("section", null, [
         n[4] || (n[4] = l("h3", { class: "mk19e-section-title" }, "Мои покупки и возвраты", -1)),
-        l("div", Cv, [
+        l("div", xv, [
           (o(!0), r(f, null, g(e.model.totals, (t) => (o(), r("div", {
             key: t.label,
             class: "mk19e-wallet-cell"
           }, [
-            l("span", xv, a(t.label), 1),
+            l("span", wv, a(t.label), 1),
             l("strong", null, a(t.value), 1),
             l("small", null, a(t.detail), 1)
           ]))), 128))
         ])
       ]),
-      l("section", wv, [
-        l("div", Tv, [
+      l("section", Tv, [
+        l("div", Sv, [
           n[5] || (n[5] = l("span", null, "Если продать доступные предметы сейчас", -1)),
           l("b", null, "+" + a(e.model.realizable), 1)
         ]),
         l("p", null, a(e.model.potentialDetails), 1),
-        l("div", Sv, [
+        l("div", Ov, [
           n[6] || (n[6] = l("span", null, "Баланс + возможные возвраты", -1)),
           l("b", null, a(e.model.potential), 1)
         ])
       ]),
       l("section", null, [
         n[7] || (n[7] = l("h3", { class: "mk19e-section-title" }, "Сундуки", -1)),
-        l("div", Ov, [
+        l("div", qv, [
           (o(!0), r(f, null, g(e.model.chests, (t) => (o(), r("div", {
             key: t.label,
             class: "mk19e-fact"
@@ -8399,24 +8405,24 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
       ]),
       l("section", null, [
         n[8] || (n[8] = l("h3", { class: "mk19e-section-title" }, "Последние продажи", -1)),
-        e.model.sales.length ? (o(), r("div", qv, [
+        e.model.sales.length ? (o(), r("div", Mv, [
           (o(!0), r(f, null, g(e.model.sales, (t, i) => (o(), r("div", {
             key: i,
             class: "mk19e-transaction"
           }, [
             l("div", null, [
-              l("div", Mv, a(t.name), 1),
+              l("div", Lv, a(t.name), 1),
               l("small", null, a(t.detail), 1)
             ]),
-            l("span", Lv, "+" + a(t.refund), 1)
+            l("span", jv, "+" + a(t.refund), 1)
           ]))), 128))
-        ])) : (o(), r("div", jv, "Пока нет сохранённых записей о продажах."))
+        ])) : (o(), r("div", Hv, "Пока нет сохранённых записей о продажах."))
       ]),
-      l("details", Hv, [
+      l("details", Pv, [
         n[9] || (n[9] = l("summary", null, "Как считаются суммы", -1)),
         l("p", null, a(e.model.explanation), 1)
       ]),
-      l("div", Pv, [
+      l("div", Ev, [
         l("button", {
           class: "btn soft",
           type: "button",
@@ -8430,31 +8436,31 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
       ])
     ], 64));
   }
-}, Av = { class: "mk861-chest-card" }, Rv = { class: "mk861-chest-head" }, Iv = { class: "mk872-help-heading" }, Nv = { class: "mk861-price" }, Dv = {
+}, Rv = { class: "mk861-chest-card" }, Iv = { class: "mk861-chest-head" }, Nv = { class: "mk872-help-heading" }, Dv = { class: "mk861-price" }, Fv = {
   class: "mk861-probs",
   "aria-label": "Вероятности до открытия"
-}, Fv = { class: "mk861-guarantees" }, Kv = { class: "mk861-pool-progress" }, Vv = { class: "mk861-chest-actions" }, Bv = ["disabled"], Uv = {
+}, Kv = { class: "mk861-guarantees" }, Vv = { class: "mk861-pool-progress" }, Bv = { class: "mk861-chest-actions" }, Uv = ["disabled"], Wv = {
   key: 0,
   class: "mk861-disabled-note"
-}, Wv = { class: "mk861-history" }, zv = {
+}, zv = { class: "mk861-history" }, Xv = {
   key: 0,
   class: "mk861-history-list"
-}, Xv = {
+}, Gv = {
   key: 1,
   class: "teacher-empty"
-}, Gv = {
+}, Qv = {
   __name: "StoreChest",
   props: { model: Object, actions: Object },
   setup(e) {
     return (s, n) => (o(), r(f, null, [
-      l("section", Av, [
-        l("div", Rv, [
+      l("section", Rv, [
+        l("div", Iv, [
           n[3] || (n[3] = l("div", {
             class: "mk861-chest-icon",
             "aria-hidden": "true"
           }, "🎁", -1)),
           l("div", null, [
-            l("h2", Iv, [
+            l("h2", Nv, [
               n[2] || (n[2] = p("Сундук удачи ", -1)),
               l("button", {
                 type: "button",
@@ -8464,10 +8470,10 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
                 onClick: n[0] || (n[0] = (t) => e.actions.help(t.currentTarget))
               }, "ⓘ")
             ]),
-            l("div", Nv, a(e.model.price) + " 🪙", 1)
+            l("div", Dv, a(e.model.price) + " 🪙", 1)
           ])
         ]),
-        l("div", Dv, [
+        l("div", Fv, [
           (o(!0), r(f, null, g(e.model.tiers, (t) => (o(), r("div", {
             key: t.id,
             class: x(["mk861-prob", t.id])
@@ -8476,30 +8482,30 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
             l("span", null, a(t.chance), 1)
           ], 2))), 128))
         ]),
-        l("div", Fv, [
+        l("div", Kv, [
           (o(!0), r(f, null, g(e.model.guarantees, (t) => (o(), r("div", {
             key: t.text,
             class: x({ hot: t.hot })
           }, a(t.text), 3))), 128))
         ]),
-        l("div", Kv, [
+        l("div", Vv, [
           (o(!0), r(f, null, g(e.model.tiers, (t) => (o(), r("span", {
             key: t.id
           }, a(t.progress), 1))), 128))
         ]),
-        l("div", Vv, [
+        l("div", Bv, [
           l("button", {
             type: "button",
             class: "btn primary",
             disabled: e.model.disabled,
             onClick: n[1] || (n[1] = (t) => e.actions.open())
-          }, "Открыть за " + a(e.model.price) + " 🪙", 9, Bv),
-          e.model.reason ? (o(), r("span", Uv, a(e.model.reason), 1)) : k("", !0)
+          }, "Открыть за " + a(e.model.price) + " 🪙", 9, Uv),
+          e.model.reason ? (o(), r("span", Wv, a(e.model.reason), 1)) : k("", !0)
         ])
       ]),
-      l("section", Wv, [
+      l("section", zv, [
         n[4] || (n[4] = l("h3", null, "Последние открытия", -1)),
-        e.model.history.length ? (o(), r("div", zv, [
+        e.model.history.length ? (o(), r("div", Xv, [
           (o(!0), r(f, null, g(e.model.history, (t, i) => (o(), r("div", {
             key: i,
             class: "mk861-history-row"
@@ -8508,17 +8514,17 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
             l("b", null, a(t.name), 1),
             l("small", null, a(t.date), 1)
           ]))), 128))
-        ])) : (o(), r("div", Xv, "Сундук ещё не открывали."))
+        ])) : (o(), r("div", Gv, "Сундук ещё не открывали."))
       ])
     ], 64));
   }
-}, Qv = { class: "mk861-reveal-stage" }, Jv = { class: "mk861-result" }, Yv = { class: "rarity" }, Zv = ["innerHTML"], _v = { class: "mk861-result-actions" }, ek = {
+}, Jv = { class: "mk861-reveal-stage" }, Yv = { class: "mk861-result" }, Zv = { class: "rarity" }, _v = ["innerHTML"], ek = { class: "mk861-result-actions" }, tk = {
   __name: "StoreChestResult",
   props: { model: Object, actions: Object },
   setup(e) {
-    return (s, n) => (o(), r("div", Qv, [
-      n[3] || (n[3] = l("div", { class: "mk861-reveal-flash" }, null, -1)),
-      n[4] || (n[4] = l("div", {
+    return (s, n) => (o(), r("div", Jv, [
+      n[4] || (n[4] = l("div", { class: "mk861-reveal-flash" }, null, -1)),
+      n[5] || (n[5] = l("div", {
         class: "mk861-reveal-chest",
         "aria-hidden": "true"
       }, "🎁", -1)),
@@ -8527,37 +8533,43 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
         class: "mk861-skip",
         onClick: n[0] || (n[0] = (t) => e.actions.reveal())
       }, "Пропустить"),
-      l("div", Jv, [
-        l("div", Yv, a(e.model.rarity), 1),
+      l("div", Yv, [
+        l("div", Zv, a(e.model.rarity), 1),
         l("div", {
           class: "mk861-result-icon",
           innerHTML: e.model.icon
-        }, null, 8, Zv),
+        }, null, 8, _v),
         l("h2", null, a(e.model.title), 1),
         l("div", null, a(e.model.body), 1),
-        l("div", _v, [
+        l("div", ek, [
           e.model.equip ? (o(), r("button", {
             key: 0,
             type: "button",
             class: "btn primary",
             onClick: n[1] || (n[1] = (t) => e.actions.equip())
           }, "Надеть")) : k("", !0),
+          e.model.sell ? (o(), r("button", {
+            key: 1,
+            type: "button",
+            class: "btn soft",
+            onClick: n[2] || (n[2] = (t) => e.actions.sell())
+          }, a(e.model.sell), 1)) : k("", !0),
           l("button", {
             type: "button",
             class: "btn soft",
-            onClick: n[2] || (n[2] = (t) => e.actions.finish())
+            onClick: n[3] || (n[3] = (t) => e.actions.finish())
           }, "Готово")
         ])
       ])
     ]));
   }
-}, tk = { class: "mk872-help-top" }, nk = { id: "mk872-help-title" }, sk = ["innerHTML"], lk = {
+}, nk = { class: "mk872-help-top" }, sk = { id: "mk872-help-title" }, lk = ["innerHTML"], ik = {
   __name: "StoreHelpDialog",
   props: { model: Object, actions: Object },
   setup(e) {
     return (s, n) => (o(), r(f, null, [
-      l("div", tk, [
-        l("h3", nk, a(e.model.title), 1),
+      l("div", nk, [
+        l("h3", sk, a(e.model.title), 1),
         l("button", {
           type: "button",
           class: "mk872-help-close",
@@ -8568,25 +8580,25 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
       l("div", {
         class: "mk872-help-content",
         innerHTML: e.model.content
-      }, null, 8, sk)
+      }, null, 8, lk)
     ], 64));
   }
-}, ik = {
+}, ok = {
   class: "shop-filter-bar",
   role: "group",
   "aria-label": "Редкость предметов"
-}, ok = ["aria-pressed", "onClick"], ak = {
+}, ak = ["aria-pressed", "onClick"], rk = {
   class: "mk19d-filter-count",
   "aria-hidden": "true"
-}, rk = {
+}, ck = {
   class: "mk19d-shop-summary",
   role: "status"
-}, ck = { class: "v71-sort-control" }, uk = ["value"], dk = ["value"], mk = {
+}, uk = { class: "v71-sort-control" }, dk = ["value"], mk = ["value"], fk = {
   __name: "StoreControls",
   props: { model: Object, actions: Object },
   setup(e) {
     return (s, n) => (o(), r(f, null, [
-      l("div", ik, [
+      l("div", ok, [
         (o(!0), r(f, null, g(e.model.filters, (t) => (o(), r("button", {
           key: t.id,
           type: "button",
@@ -8595,10 +8607,10 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
           onClick: (i) => e.actions.filter(t.id)
         }, [
           p(a(t.label), 1),
-          l("span", ak, a(t.count), 1)
-        ], 10, ok))), 128))
+          l("span", rk, a(t.count), 1)
+        ], 10, ak))), 128))
       ]),
-      l("div", rk, [
+      l("div", ck, [
         l("span", null, [
           n[1] || (n[1] = p("Показано: ", -1)),
           l("b", null, a(e.model.shown), 1),
@@ -8606,7 +8618,7 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
         ]),
         l("span", null, a(e.model.range), 1)
       ]),
-      l("label", ck, [
+      l("label", uk, [
         n[2] || (n[2] = p("Сортировать: ", -1)),
         l("select", {
           "aria-label": "Сортировка предметов",
@@ -8616,12 +8628,12 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
           (o(!0), r(f, null, g(e.model.sortOptions, (t) => (o(), r("option", {
             key: t[0],
             value: t[0]
-          }, a(t[1]), 9, dk))), 128))
-        ], 40, uk)
+          }, a(t[1]), 9, mk))), 128))
+        ], 40, dk)
       ])
     ], 64));
   }
-}, fk = ["value"], bk = ["value"], hk = ["data-store-category", "aria-current", "onClick"], yk = {
+}, bk = ["value"], hk = ["value"], yk = ["data-store-category", "aria-current", "onClick"], vk = {
   __name: "StoreTabs",
   props: { model: Object, actions: Object },
   setup(e) {
@@ -8636,8 +8648,8 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
         (o(!0), r(f, null, g(e.model.tabs, (t) => (o(), r("option", {
           key: t.id,
           value: t.id
-        }, a(t.label), 9, bk))), 128))
-      ], 40, fk)
+        }, a(t.label), 9, hk))), 128))
+      ], 40, bk)
     ], 64)) : (o(!0), r(f, { key: 1 }, g(e.model.tabs, (t) => (o(), r("button", {
       key: t.id,
       type: "button",
@@ -8645,24 +8657,24 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
       "data-store-category": t.id,
       "aria-current": t.id === e.model.active ? "page" : null,
       onClick: (i) => e.actions.open(t.id, !1)
-    }, a(t.label), 11, hk))), 128));
+    }, a(t.label), 11, yk))), 128));
   }
-}, vk = { class: "mtop" }, kk = { class: "mk872-help-heading" }, gk = { style: { overflow: "auto" } }, $k = { class: "leader-table" }, pk = { class: "leader-identity" }, Ck = ["innerHTML"], xk = ["title"], wk = {
+}, kk = { class: "mtop" }, gk = { class: "mk872-help-heading" }, $k = { style: { overflow: "auto" } }, pk = { class: "leader-table" }, Ck = { class: "leader-identity" }, xk = ["innerHTML"], wk = ["title"], Tk = {
   key: 0,
   class: "mk870-leader-test-badge"
-}, Tk = {
+}, Sk = {
   key: 1,
   class: "leader-title"
-}, Sk = ["innerHTML"], Ok = ["innerHTML"], qk = { class: "leader-mobile-level" }, Mk = ["innerHTML"], Lk = {
+}, Ok = ["innerHTML"], qk = ["innerHTML"], Mk = { class: "leader-mobile-level" }, Lk = ["innerHTML"], jk = {
   class: "mk30-worth",
   title: "Стоимость всех принадлежащих предметов"
-}, jk = {
+}, Hk = {
   __name: "Leaderboard",
   props: { model: Object, actions: Object },
   setup(e) {
     return (s, n) => (o(), r(f, null, [
-      l("div", vk, [
-        l("h2", kk, [
+      l("div", kk, [
+        l("h2", gk, [
           n[2] || (n[2] = p("🏆 Таблица лидеров ", -1)),
           l("button", {
             type: "button",
@@ -8679,8 +8691,8 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
           onClick: n[1] || (n[1] = (...t) => e.actions.close && e.actions.close(...t))
         }, "×")
       ]),
-      l("div", gk, [
-        l("table", $k, [
+      l("div", $k, [
+        l("table", pk, [
           n[3] || (n[3] = l("thead", null, [
             l("tr", null, [
               l("th", { scope: "col" }, "#"),
@@ -8703,27 +8715,27 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
             }, [
               l("td", null, a(t.rank), 1),
               l("td", null, [
-                l("div", pk, [
+                l("div", Ck, [
                   l("span", {
                     class: "leader-avatar-html",
                     innerHTML: t.avatar
-                  }, null, 8, Ck),
+                  }, null, 8, xk),
                   l("div", null, [
                     l("b", {
                       class: x(["nickname-style", t.nicknameClass]),
                       title: t.name
-                    }, a(t.name), 11, xk),
-                    t.test ? (o(), r("span", wk, "Тестовый")) : k("", !0),
-                    t.title ? (o(), r("div", Tk, a(t.title), 1)) : k("", !0),
+                    }, a(t.name), 11, wk),
+                    t.test ? (o(), r("span", Tk, "Тестовый")) : k("", !0),
+                    t.title ? (o(), r("div", Sk, a(t.title), 1)) : k("", !0),
                     l("span", {
                       style: { display: "contents" },
                       innerHTML: t.badges
-                    }, null, 8, Sk),
+                    }, null, 8, Ok),
                     l("div", {
                       class: "leader-stickers",
                       innerHTML: t.stickers
-                    }, null, 8, Ok),
-                    l("div", qk, "ур. " + a(t.level), 1)
+                    }, null, 8, qk),
+                    l("div", Mk, "ур. " + a(t.level), 1)
                   ])
                 ])
               ]),
@@ -8732,11 +8744,11 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
                 l("span", {
                   style: { display: "contents" },
                   innerHTML: t.progress
-                }, null, 8, Mk)
+                }, null, 8, Lk)
               ]),
               l("td", null, a(t.xp), 1),
               l("td", null, a(t.coins), 1),
-              l("td", Lk, a(t.worth), 1),
+              l("td", jk, a(t.worth), 1),
               l("td", null, a(t.bestStreak), 1),
               l("td", null, a(t.solved), 1)
             ], 2))), 128))
@@ -8745,25 +8757,25 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
       ])
     ], 64));
   }
-}, Hk = { class: "achievement-summary" }, Pk = {
+}, Pk = { class: "achievement-summary" }, Ek = {
   key: 0,
   class: "achievement-nearest"
-}, Ek = { class: "achievement-nearest-grid" }, Ak = { style: { display: "block", color: "var(--muted)", "margin-top": "3px" } }, Rk = { class: "achievement-progress" }, Ik = { class: "achievement-toolbar" }, Nk = ["aria-pressed", "onClick"], Dk = ["value"], Fk = ["value"], Kk = ["value"], Vk = ["value"], Bk = { class: "lesson" }, Uk = {
+}, Ak = { class: "achievement-nearest-grid" }, Rk = { style: { display: "block", color: "var(--muted)", "margin-top": "3px" } }, Ik = { class: "achievement-progress" }, Nk = { class: "achievement-toolbar" }, Dk = ["aria-pressed", "onClick"], Fk = ["value"], Kk = ["value"], Vk = ["value"], Bk = ["value"], Uk = { class: "lesson" }, Wk = {
   key: 1,
   class: "teacher-empty",
   role: "status"
-}, Wk = {
+}, zk = {
   key: 0,
   class: "achievement-category"
-}, zk = { class: "achievement-grid" }, Xk = ["aria-label"], Gk = ["innerHTML"], Qk = { class: "achievement-info" }, Jk = { class: "achievement-title-row" }, Yk = ["aria-label"], Zk = { class: "achievement-progress-label" }, _k = { class: "achievement-reward" }, eg = { class: "achievement-reward-label" }, tg = ["innerHTML"], ng = {
+}, Xk = { class: "achievement-grid" }, Gk = ["aria-label"], Qk = ["innerHTML"], Jk = { class: "achievement-info" }, Yk = { class: "achievement-title-row" }, Zk = ["aria-label"], _k = { class: "achievement-progress-label" }, eg = { class: "achievement-reward" }, tg = { class: "achievement-reward-label" }, ng = ["innerHTML"], sg = {
   key: 2,
   class: "achievement-date"
-}, sg = {
+}, lg = {
   __name: "AchievementCatalog",
   props: { model: Object, actions: Object },
   setup(e) {
     return (s, n) => (o(), r(f, null, [
-      l("div", Hk, [
+      l("div", Pk, [
         (o(!0), r(f, null, g(e.model.stats, (t) => (o(), r("div", {
           key: t.label
         }, [
@@ -8771,16 +8783,16 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
           l("small", null, a(t.label), 1)
         ]))), 128))
       ]),
-      e.model.nearest.length ? (o(), r("div", Pk, [
+      e.model.nearest.length ? (o(), r("div", Ek, [
         n[2] || (n[2] = l("b", null, "🎯 Ближайшие достижения", -1)),
-        l("div", Ek, [
+        l("div", Ak, [
           (o(!0), r(f, null, g(e.model.nearest, (t) => (o(), r("div", {
             key: t.id,
             class: "achievement-nearest-item"
           }, [
             l("b", null, a(t.title), 1),
-            l("small", Ak, a(t.label), 1),
-            l("div", Rk, [
+            l("small", Rk, a(t.label), 1),
+            l("div", Ik, [
               l("span", {
                 style: Z({ width: t.percent + "%" })
               }, null, 4)
@@ -8788,14 +8800,14 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
           ]))), 128))
         ])
       ])) : k("", !0),
-      l("div", Ik, [
+      l("div", Nk, [
         (o(!0), r(f, null, g(e.model.views, (t) => (o(), r("button", {
           key: t.id,
           type: "button",
           class: x(["achievement-filter", { active: t.id === e.model.view }]),
           "aria-pressed": t.id === e.model.view,
           onClick: (i) => e.actions.view(t.id)
-        }, a(t.label), 11, Nk))), 128)),
+        }, a(t.label), 11, Dk))), 128)),
         l("select", {
           class: "achievement-select",
           "aria-label": "Категория достижений",
@@ -8805,8 +8817,8 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
           (o(!0), r(f, null, g(e.model.categories, (t) => (o(), r("option", {
             key: t.id,
             value: t.id
-          }, a(t.label), 9, Fk))), 128))
-        ], 40, Dk),
+          }, a(t.label), 9, Kk))), 128))
+        ], 40, Fk),
         l("select", {
           class: "achievement-select",
           "aria-label": "Сортировка достижений",
@@ -8816,16 +8828,16 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
           (o(!0), r(f, null, g(e.model.sorts, (t) => (o(), r("option", {
             key: t.id,
             value: t.id
-          }, a(t.label), 9, Vk))), 128))
-        ], 40, Kk)
+          }, a(t.label), 9, Bk))), 128))
+        ], 40, Vk)
       ]),
-      l("div", Bk, a(e.model.note), 1),
-      e.model.groups.length ? k("", !0) : (o(), r("div", Uk, "По выбранному фильтру достижений нет.")),
+      l("div", Uk, a(e.model.note), 1),
+      e.model.groups.length ? k("", !0) : (o(), r("div", Wk, "По выбранному фильтру достижений нет.")),
       (o(!0), r(f, null, g(e.model.groups, (t) => (o(), r(f, {
         key: t.id
       }, [
-        t.heading ? (o(), r("h3", Wk, a(t.heading), 1)) : k("", !0),
-        l("div", zk, [
+        t.heading ? (o(), r("h3", zk, a(t.heading), 1)) : k("", !0),
+        l("div", Xk, [
           (o(!0), r(f, null, g(t.cards, (i) => (o(), r("div", {
             key: i.id,
             class: x(["achievement-card", { done: i.owned }]),
@@ -8834,9 +8846,9 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
             l("div", {
               class: "achievement-icon",
               innerHTML: i.icon
-            }, null, 8, Gk),
-            l("div", Qk, [
-              l("div", Jk, [
+            }, null, 8, Qk),
+            l("div", Jk, [
+              l("div", Yk, [
                 l("b", null, a(i.title), 1),
                 l("span", {
                   class: x(["achievement-status", { done: i.owned }])
@@ -8857,47 +8869,47 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
                   l("span", {
                     style: Z({ width: i.percent + "%" })
                   }, null, 4)
-                ], 8, Yk),
-                l("div", Zk, a(i.progressLabel), 1)
+                ], 8, Zk),
+                l("div", _k, a(i.progressLabel), 1)
               ], 64)),
-              l("div", _k, [
-                l("span", eg, a(i.owned ? "Получено:" : "Награда:"), 1),
+              l("div", eg, [
+                l("span", tg, a(i.owned ? "Получено:" : "Награда:"), 1),
                 l("span", {
                   style: { display: "contents" },
                   innerHTML: i.reward
-                }, null, 8, tg)
+                }, null, 8, ng)
               ]),
-              i.date ? (o(), r("div", ng, "Дата: " + a(i.date), 1)) : k("", !0)
+              i.date ? (o(), r("div", sg, "Дата: " + a(i.date), 1)) : k("", !0)
             ])
-          ], 10, Xk))), 128))
+          ], 10, Gk))), 128))
         ])
       ], 64))), 128))
     ], 64));
   }
-}, lg = { class: "backup-box warn" }, ig = {
+}, ig = { class: "backup-box warn" }, og = {
   role: "status",
   style: { "margin-top": "6px", color: "var(--muted)", "font-size": "12px" }
-}, og = { class: "backup-grid" }, ag = { class: "file-drop" }, rg = { class: "lesson" }, cg = { class: "import-preview" }, ug = { style: { color: "var(--muted)", "font-size": "13px" } }, dg = { class: "backup-meta" }, mg = { class: "import-plan" }, fg = {
+}, ag = { class: "backup-grid" }, rg = { class: "file-drop" }, cg = { class: "lesson" }, ug = { class: "import-preview" }, dg = { style: { color: "var(--muted)", "font-size": "13px" } }, mg = { class: "backup-meta" }, fg = { class: "import-plan" }, bg = {
   key: 0,
   class: "backup-box warn",
   role: "alert"
-}, bg = {
+}, hg = {
   key: 1,
   class: "backup-box"
-}, hg = { class: "actions" }, yg = { class: "backup-box warn" }, vg = { class: "conflict-compare" }, kg = { class: "conflict-stats" }, gg = { style: { color: "var(--muted)", "font-size": "12px", "margin-top": "8px" } }, $g = { class: "backup-box" }, pg = { style: { "font-size": "13px", color: "var(--muted)", "line-height": "1.5", "margin-top": "5px" } }, Cg = { class: "actions" }, xg = {
+}, yg = { class: "actions" }, vg = { class: "backup-box warn" }, kg = { class: "conflict-compare" }, gg = { class: "conflict-stats" }, $g = { style: { color: "var(--muted)", "font-size": "12px", "margin-top": "8px" } }, pg = { class: "backup-box" }, Cg = { style: { "font-size": "13px", color: "var(--muted)", "line-height": "1.5", "margin-top": "5px" } }, xg = { class: "actions" }, wg = {
   key: 0,
   class: "backup-box warn",
   role: "alert"
-}, wg = { class: "actions" }, Tg = {
+}, Tg = { class: "actions" }, Sg = {
   class: "import-result",
   role: "status"
-}, Sg = { class: "backup-meta" }, Og = {
+}, Og = { class: "backup-meta" }, qg = {
   key: 0,
   class: "backup-box"
-}, qg = { class: "actions" }, Mg = {
+}, Mg = { class: "actions" }, Lg = {
   class: "backup-box warn",
   role: "alert"
-}, Lg = { style: { "margin-top": "6px" } }, jg = { class: "actions" }, Hg = {
+}, jg = { style: { "margin-top": "6px" } }, Hg = { class: "actions" }, Pg = {
   __name: "BackupDialog",
   props: { model: Object, actions: Object },
   setup(e) {
@@ -8908,12 +8920,12 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
         onClose: e.actions.close
       }, null, 8, ["title", "onClose"]),
       e.model.screen === "manager" ? (o(), r(f, { key: 0 }, [
-        l("div", lg, [
+        l("div", ig, [
           t[17] || (t[17] = l("b", null, "Важно:", -1)),
           t[18] || (t[18] = p(" данные хранятся в браузере. Очистка данных браузера, переустановка или переход на другой компьютер могут удалить локальный прогресс. ", -1)),
-          l("div", ig, a(e.model.lastBackup), 1)
+          l("div", og, a(e.model.lastBackup), 1)
         ]),
-        l("div", og, [
+        l("div", ag, [
           l("button", {
             type: "button",
             class: "backup-action",
@@ -8931,7 +8943,7 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
             l("small", null, "Удобно передать данные одного ребёнка на другой компьютер.", -1)
           ])])
         ]),
-        l("div", ag, [
+        l("div", rg, [
           t[21] || (t[21] = l("b", null, "📥 Восстановить или перенести данные", -1)),
           t[22] || (t[22] = l("div", { style: { color: "var(--muted)", "font-size": "13px", margin: "5px 0 10px" } }, "Выбери файл .json. МатКвест распознает учеников по ID профиля.", -1)),
           l("button", {
@@ -8952,7 +8964,7 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
           l("b", null, "Как работает «Умно объединить»"),
           l("div", { style: { color: "var(--muted)", "font-size": "13px", "line-height": "1.55", "margin-top": "5px" } }, " Профили с тем же ID объединяются, повторные копии пропускаются. Новый ID и новое имя добавляют ученика. Если совпадает имя, а ID разные, МатКвест спросит, один это ученик или два разных. ")
         ], -1)),
-        l("div", rg, [
+        l("div", cg, [
           t[26] || (t[26] = p(" Копии предыдущих версий поддерживаются. Старый прогресс 4 класса получает префикс ", -1)),
           t[27] || (t[27] = l("b", null, "g4:", -1)),
           t[28] || (t[28] = p(". ", -1)),
@@ -8963,10 +8975,10 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
           ], 64)) : k("", !0)
         ])
       ], 64)) : e.model.screen === "preview" ? (o(), r(f, { key: 1 }, [
-        l("div", cg, [
+        l("div", ug, [
           l("h3", null, a(e.model.filename), 1),
-          l("div", ug, "Создана: " + a(e.model.date) + " • версия формата " + a(e.model.version), 1),
-          l("div", dg, [
+          l("div", dg, "Создана: " + a(e.model.date) + " • версия формата " + a(e.model.version), 1),
+          l("div", mg, [
             (o(!0), r(f, null, g(e.model.stats, (i) => (o(), r("div", {
               key: i.label
             }, [
@@ -8974,7 +8986,7 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
               l("small", null, a(i.label), 1)
             ]))), 128))
           ]),
-          l("div", mg, [
+          l("div", fg, [
             (o(!0), r(f, null, g(e.model.rows, (i) => (o(), r("div", {
               key: i.name,
               class: "import-plan-row"
@@ -8989,11 +9001,11 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
             ]))), 128))
           ])
         ]),
-        e.model.recoveryNotice ? (o(), r("div", fg, a(e.model.recoveryNotice), 1)) : (o(), r("div", bg, [...t[30] || (t[30] = [
+        e.model.recoveryNotice ? (o(), r("div", bg, a(e.model.recoveryNotice), 1)) : (o(), r("div", hg, [...t[30] || (t[30] = [
           l("b", null, "Что произойдёт при «Умно объединить»?", -1),
           l("div", { style: { "font-size": "13px", color: "var(--muted)", "line-height": "1.5", "margin-top": "5px" } }, " Профили с тем же ID объединятся. Повторная копия будет пропущена. Новые ученики добавятся. При совпадении имён приложение попросит уточнить, кому принадлежит профиль из копии. ", -1)
         ])])),
-        l("div", hg, [
+        l("div", yg, [
           e.model.recoveryNotice ? (o(), r("button", {
             key: 0,
             type: "button",
@@ -9017,24 +9029,24 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
           }, "Отмена")
         ])
       ], 64)) : e.model.screen === "conflict" ? (o(), r(f, { key: 2 }, [
-        l("div", yg, a(e.model.reason) + " Уточни, кому принадлежит профиль из копии.", 1),
-        l("div", vg, [
+        l("div", vg, a(e.model.reason) + " Уточни, кому принадлежит профиль из копии.", 1),
+        l("div", kg, [
           (o(!0), r(f, null, g(e.model.sides, (i) => (o(), r("div", {
             key: i.label,
             class: x(["conflict-side", { imported: i.imported }])
           }, [
             l("h3", null, a(i.label) + ": " + a(i.name), 1),
-            l("div", kg, [
+            l("div", gg, [
               (o(!0), r(f, null, g(i.stats, (c) => (o(), r("span", { key: c }, a(c), 1))), 128))
             ]),
-            l("div", gg, "Обновлён: " + a(i.date), 1)
+            l("div", $g, "Обновлён: " + a(i.date), 1)
           ], 2))), 128))
         ]),
-        l("div", $g, [
+        l("div", pg, [
           t[31] || (t[31] = l("b", null, "Это один и тот же ребёнок?", -1)),
-          l("div", pg, " Данные одного ученика объединятся в один профиль. Если это разные дети, второй профиль будет сохранён как «" + a(e.model.newName) + "». Можно пропустить профиль из копии. ", 1)
+          l("div", Cg, " Данные одного ученика объединятся в один профиль. Если это разные дети, второй профиль будет сохранён как «" + a(e.model.newName) + "». Можно пропустить профиль из копии. ", 1)
         ]),
-        l("div", Cg, [
+        l("div", xg, [
           l("button", {
             type: "button",
             class: "btn primary",
@@ -9056,8 +9068,8 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
           l("b", null, "Это удалит текущие локальные профили из браузера"),
           p(" и восстановит данные из выбранной копии. Для обычного переноса чаще подходит «Умно объединить». ")
         ], -1)),
-        e.model.recoveryError ? (o(), r("div", xg, a(e.model.recoveryError.message), 1)) : k("", !0),
-        l("div", wg, [
+        e.model.recoveryError ? (o(), r("div", wg, a(e.model.recoveryError.message), 1)) : k("", !0),
+        l("div", Tg, [
           e.model.recoveryError?.download ? (o(), r("button", {
             key: 0,
             type: "button",
@@ -9076,8 +9088,8 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
           }, "Отмена")
         ])
       ], 64)) : e.model.screen === "result" ? (o(), r(f, { key: 4 }, [
-        l("div", Tg, a(e.model.message), 1),
-        l("div", Sg, [
+        l("div", Sg, a(e.model.message), 1),
+        l("div", Og, [
           (o(!0), r(f, null, g(e.model.stats, (i) => (o(), r("div", {
             key: i.label
           }, [
@@ -9085,11 +9097,11 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
             l("small", null, a(i.label), 1)
           ]))), 128))
         ]),
-        e.model.skipped ? (o(), r("div", Og, [
+        e.model.skipped ? (o(), r("div", qg, [
           t[33] || (t[33] = p("Пропущено профилей: ", -1)),
           l("b", null, a(e.model.skipped), 1)
         ])) : k("", !0),
-        l("div", qg, [
+        l("div", Mg, [
           l("button", {
             type: "button",
             class: "btn primary",
@@ -9102,11 +9114,11 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
           }, "💾 Данные")
         ])
       ], 64)) : e.model.screen === "error" ? (o(), r(f, { key: 5 }, [
-        l("div", Mg, [
+        l("div", Lg, [
           t[34] || (t[34] = l("b", null, "Не удалось импортировать файл.", -1)),
-          l("div", Lg, a(e.model.message), 1)
+          l("div", jg, a(e.model.message), 1)
         ]),
-        l("div", jg, [
+        l("div", Hg, [
           l("button", {
             type: "button",
             class: "btn soft",
@@ -9116,7 +9128,7 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
       ], 64)) : k("", !0)
     ], 64));
   }
-}, Pg = { role: "alert" }, Eg = { id: "mk-v877-storage-recovery-actions" }, Ag = {
+}, Eg = { role: "alert" }, Ag = { id: "mk-v877-storage-recovery-actions" }, Rg = {
   __name: "StorageRecovery",
   props: {
     model: { type: Object, required: !0 },
@@ -9124,8 +9136,8 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
   },
   setup(e) {
     return (s, n) => (o(), r(f, null, [
-      l("div", Pg, a(e.model.warning), 1),
-      l("div", Eg, [
+      l("div", Eg, a(e.model.warning), 1),
+      l("div", Ag, [
         l("button", {
           type: "button",
           onClick: n[0] || (n[0] = (...t) => e.actions.download && e.actions.download(...t))
@@ -9137,18 +9149,18 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
       ])
     ], 64));
   }
-}, Rg = { class: "teacher-pin-wrap" }, Ig = { class: "teacher-pin-card" }, Ng = { class: "actions" }, Dg = {
+}, Ig = { class: "teacher-pin-wrap" }, Ng = { class: "teacher-pin-card" }, Dg = { class: "actions" }, Fg = {
   type: "submit",
   class: "btn primary"
-}, Fg = {
+}, Kg = {
   __name: "TeacherPinDialog",
   props: { model: Object, actions: Object },
   setup(e) {
     const s = e, n = Xt("initialInput"), t = Xt("confirmInput");
     return In(() => {
       s.model.mode !== "reset" && n.value?.focus();
-    }), (i, c) => (o(), r("div", Rg, [
-      l("div", Ig, [
+    }), (i, c) => (o(), r("div", Ig, [
+      l("div", Ng, [
         N(ue, {
           title: e.model.title,
           onClose: e.actions.close
@@ -9225,8 +9237,8 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
             class: "teacher-pin-error",
             role: "alert"
           }, null, -1)),
-          l("div", Ng, [
-            l("button", Dg, a(e.model.submit), 1),
+          l("div", Dg, [
+            l("button", Fg, a(e.model.submit), 1),
             l("button", {
               type: "button",
               class: "btn soft",
@@ -9237,37 +9249,37 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
       ])
     ]));
   }
-}, Kg = { class: "home-back-row" }, Vg = { class: "teacher-hero" }, Bg = { class: "teacher-detail-head" }, Ug = { id: "teacherDashboardBody" }, Wg = { class: "teacher-summary" }, zg = { class: "teacher-toolbar" }, Xg = ["value"], Gg = ["value"], Qg = ["value"], Jg = {
+}, Vg = { class: "home-back-row" }, Bg = { class: "teacher-hero" }, Ug = { class: "teacher-detail-head" }, Wg = { id: "teacherDashboardBody" }, zg = { class: "teacher-summary" }, Xg = { class: "teacher-toolbar" }, Gg = ["value"], Qg = ["value"], Jg = ["value"], Yg = {
   class: "teacher-filter-row",
   role: "group",
   "aria-label": "Фильтры учеников"
-}, Yg = ["aria-pressed", "onClick"], Zg = {
+}, Zg = ["aria-pressed", "onClick"], _g = {
   class: "actions",
   style: { "justify-content": "flex-start" }
-}, _g = {
+}, e$ = {
   key: 0,
   class: "teacher-student-grid"
-}, e$ = { class: "teacher-student-head" }, t$ = { class: "teacher-student-id" }, n$ = ["innerHTML"], s$ = { class: "teacher-progress-lines" }, l$ = ["innerHTML"], i$ = { class: "teacher-progress-track" }, o$ = { class: "teacher-card-metrics" }, a$ = { key: 0 }, r$ = { class: "teacher-card-foot" }, c$ = ["onClick"], u$ = {
+}, t$ = { class: "teacher-student-head" }, n$ = { class: "teacher-student-id" }, s$ = ["innerHTML"], l$ = { class: "teacher-progress-lines" }, i$ = ["innerHTML"], o$ = { class: "teacher-progress-track" }, a$ = { class: "teacher-card-metrics" }, r$ = { key: 0 }, c$ = { class: "teacher-card-foot" }, u$ = ["onClick"], d$ = {
   key: 0,
   class: "teacher-empty",
   role: "status"
-}, d$ = {
+}, m$ = {
   key: 1,
   class: "teacher-empty"
-}, m$ = { class: "actions" }, f$ = {
+}, f$ = { class: "actions" }, b$ = {
   __name: "TeacherDashboard",
   props: { model: Object, actions: Object },
   setup(e) {
     return (s, n) => (o(), r(f, null, [
-      l("div", Kg, [
+      l("div", Vg, [
         l("button", {
           type: "button",
           class: "home-back-btn",
           onClick: n[0] || (n[0] = (...t) => e.actions.close && e.actions.close(...t))
         }, "← Главный экран")
       ]),
-      l("section", Vg, [
-        l("div", Bg, [
+      l("section", Bg, [
+        l("div", Ug, [
           n[7] || (n[7] = l("div", null, [
             l("h1", null, "👨‍🏫 Панель преподавателя"),
             l("p", null, "Показатели рассчитаны по сохранённым профилям учеников.")
@@ -9279,14 +9291,14 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
           }, "🔒 Закрыть режим преподавателя")
         ])
       ]),
-      l("div", Ug, [
-        l("div", Wg, [
+      l("div", Wg, [
+        l("div", zg, [
           (o(!0), r(f, null, g(e.model.stats, ({ label: t, value: i }) => (o(), r("div", { key: t }, [
             l("b", null, a(i), 1),
             l("small", null, a(t), 1)
           ]))), 128))
         ]),
-        l("div", zg, [
+        l("div", Xg, [
           l("input", {
             id: "teacherSearchInput",
             type: "search",
@@ -9295,7 +9307,7 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
             placeholder: "🔎 Найти ученика",
             value: e.model.search,
             onInput: n[2] || (n[2] = (t) => e.actions.search(t.target.value))
-          }, null, 40, Xg),
+          }, null, 40, Gg),
           l("select", {
             class: "teacher-select",
             "aria-label": "Сортировать учеников",
@@ -9305,19 +9317,19 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
             (o(!0), r(f, null, g(e.model.sorts, ({ id: t, label: i }) => (o(), r("option", {
               key: t,
               value: t
-            }, a(i), 9, Qg))), 128))
-          ], 40, Gg)
+            }, a(i), 9, Jg))), 128))
+          ], 40, Qg)
         ]),
-        l("div", Jg, [
+        l("div", Yg, [
           (o(!0), r(f, null, g(e.model.filters, ({ id: t, label: i }) => (o(), r("button", {
             key: t,
             type: "button",
             class: x(["teacher-filter", { active: t === e.model.filter }]),
             "aria-pressed": t === e.model.filter,
             onClick: (c) => e.actions.filter(t)
-          }, a(i), 11, Yg))), 128))
+          }, a(i), 11, Zg))), 128))
         ]),
-        l("div", Zg, [
+        l("div", _g, [
           l("button", {
             type: "button",
             class: "btn soft",
@@ -9329,17 +9341,17 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
             onClick: n[5] || (n[5] = (...t) => e.actions.backup && e.actions.backup(...t))
           }, "💾 Резервная копия")
         ]),
-        e.model.hasStudents ? (o(), r("div", _g, [
+        e.model.hasStudents ? (o(), r("div", e$, [
           (o(!0), r(f, null, g(e.model.rows, (t) => (o(), r("section", {
             key: t.profileId,
             class: "teacher-student-card"
           }, [
-            l("div", e$, [
-              l("div", t$, [
+            l("div", t$, [
+              l("div", n$, [
                 l("span", {
                   style: { display: "contents" },
                   innerHTML: t.avatar
-                }, null, 8, n$),
+                }, null, 8, s$),
                 l("div", null, [
                   l("h3", null, a(t.name), 1),
                   l("small", null, "Уровень " + a(t.level) + " • " + a(t.xp) + " XP", 1)
@@ -9349,7 +9361,7 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
                 class: x(["teacher-attention", { "teacher-calm": !t.attention }])
               }, a(t.attention ? "⚠️ Требует внимания" : "✅ Спокойно"), 3)
             ]),
-            l("div", s$, [
+            l("div", l$, [
               (o(!0), r(f, null, g(t.grades, (i) => (o(), r("div", {
                 key: i.number,
                 class: "teacher-progress-line"
@@ -9358,10 +9370,10 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
                   l("span", {
                     style: { display: "contents" },
                     innerHTML: i.icon
-                  }, null, 8, l$),
+                  }, null, 8, i$),
                   p(" " + a(i.number) + " класс", 1)
                 ]),
-                l("div", i$, [
+                l("div", o$, [
                   l("span", {
                     style: Z({ width: i.percent + "%" })
                   }, null, 4)
@@ -9369,25 +9381,25 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
                 l("b", null, a(i.label), 1)
               ]))), 128))
             ]),
-            l("div", o$, [
+            l("div", a$, [
               l("span", null, "🔴 Слабых: " + a(t.weakCount), 1),
               l("span", null, "🟡 Нестабильных: " + a(t.unstableCount), 1),
               l("span", null, "🧠 Ошибок: " + a(t.activeErrors), 1),
-              t.recentSkipped ? (o(), r("span", a$, "⏭ Пропусков: " + a(t.recentSkipped), 1)) : k("", !0)
+              t.recentSkipped ? (o(), r("span", r$, "⏭ Пропусков: " + a(t.recentSkipped), 1)) : k("", !0)
             ]),
-            l("div", r$, [
+            l("div", c$, [
               l("span", null, a(t.lastActivity), 1),
               l("button", {
                 type: "button",
                 class: "btn soft",
                 onClick: (i) => e.actions.open(t.profileId)
-              }, "Открыть", 8, c$)
+              }, "Открыть", 8, u$)
             ])
           ]))), 128)),
-          e.model.rows.length ? k("", !0) : (o(), r("div", u$, "По выбранному фильтру учеников нет."))
-        ])) : (o(), r("div", d$, [
+          e.model.rows.length ? k("", !0) : (o(), r("div", d$, "По выбранному фильтру учеников нет."))
+        ])) : (o(), r("div", m$, [
           n[8] || (n[8] = l("b", null, "Пока нет учеников.", -1)),
-          l("div", m$, [
+          l("div", f$, [
             l("button", {
               type: "button",
               class: "btn primary",
@@ -9398,40 +9410,40 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
       ])
     ], 64));
   }
-}, b$ = {
+}, h$ = {
   class: "training-plan-card",
   "aria-labelledby": "teacher-training-plan-title"
-}, h$ = { class: "training-plan-head" }, y$ = ["aria-valuenow", "aria-valuemax"], v$ = { class: "training-plan-track" }, k$ = { class: "training-plan-count" }, g$ = {
+}, y$ = { class: "training-plan-head" }, v$ = ["aria-valuenow", "aria-valuemax"], k$ = { class: "training-plan-track" }, g$ = { class: "training-plan-count" }, $$ = {
   key: 1,
   class: "training-plan-empty"
-}, $$ = { class: "training-plan-editor-actions" }, p$ = ["onClick"], C$ = { class: "teacher-analytics-grid" }, x$ = { class: "teacher-analytics-card wide" }, w$ = { class: "teacher-analytics-kpis" }, T$ = ["data-teacher-analytics-stat"], S$ = ["data-teacher-analytics-section"], O$ = {
+}, p$ = { class: "training-plan-editor-actions" }, C$ = ["onClick"], x$ = { class: "teacher-analytics-grid" }, w$ = { class: "teacher-analytics-card wide" }, T$ = { class: "teacher-analytics-kpis" }, S$ = ["data-teacher-analytics-stat"], O$ = ["data-teacher-analytics-section"], q$ = {
   key: 0,
   class: "teacher-analytics-list"
-}, q$ = { key: 0 }, M$ = { key: 0 }, L$ = { key: 0 }, j$ = { class: "teacher-analytics-facts" }, H$ = ["title"], P$ = { key: 1 }, E$ = {
+}, M$ = { key: 0 }, L$ = { key: 0 }, j$ = { key: 0 }, H$ = { class: "teacher-analytics-facts" }, P$ = ["title"], E$ = { key: 1 }, A$ = {
   key: 2,
   class: "teacher-analytics-badge"
-}, A$ = {
+}, R$ = {
   key: 3,
   class: "teacher-analytics-actions"
-}, R$ = ["onClick"], I$ = ["onClick"], N$ = {
+}, I$ = ["onClick"], N$ = ["onClick"], D$ = {
   key: 1,
   class: "teacher-analytics-empty"
-}, D$ = { class: "teacher-analytics-card wide" }, F$ = {
+}, F$ = { class: "teacher-analytics-card wide" }, K$ = {
   key: 0,
   class: "teacher-training-list"
-}, K$ = { class: "teacher-training-score" }, V$ = {
+}, V$ = { class: "teacher-training-score" }, B$ = {
   key: 1,
   class: "teacher-analytics-empty"
-}, B$ = {
+}, U$ = {
   class: "teacher-analytics-card wide",
   "data-teacher-analytics-section": "recommendations"
-}, U$ = {
+}, W$ = {
   key: 0,
   class: "teacher-analytics-list"
-}, W$ = { class: "teacher-recommendation-index" }, z$ = ["onClick"], X$ = {
+}, z$ = { class: "teacher-recommendation-index" }, X$ = ["onClick"], G$ = {
   key: 1,
   class: "teacher-analytics-empty"
-}, G$ = {
+}, Q$ = {
   __name: "TeacherStudentAnalytics",
   props: {
     analytics: { type: Object, required: !0 },
@@ -9440,8 +9452,8 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
   },
   setup(e) {
     return (s, n) => (o(), r(f, null, [
-      l("section", b$, [
-        l("div", h$, [
+      l("section", h$, [
+        l("div", y$, [
           l("div", null, [
             n[0] || (n[0] = l("h2", { id: "teacher-training-plan-title" }, "🧩 План тренировки", -1)),
             l("p", null, a(e.plan.description), 1)
@@ -9460,26 +9472,26 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
           "aria-valuenow": e.plan.progress.done,
           "aria-valuemax": e.plan.progress.total
         }, [
-          l("div", v$, [
+          l("div", k$, [
             l("span", {
               style: Z({ width: e.plan.progress.pct + "%" })
             }, null, 4)
           ]),
-          l("div", k$, a(e.plan.progress.done) + "/" + a(e.plan.progress.total), 1)
-        ], 8, y$)) : e.plan.status ? (o(), r("div", g$, "Пока недостаточно данных для подбора блоков.")) : k("", !0),
-        l("div", $$, [
+          l("div", g$, a(e.plan.progress.done) + "/" + a(e.plan.progress.total), 1)
+        ], 8, v$)) : e.plan.status ? (o(), r("div", $$, "Пока недостаточно данных для подбора блоков.")) : k("", !0),
+        l("div", p$, [
           (o(!0), r(f, null, g(e.plan.actions, (t, i) => (o(), r("button", {
             key: t.type,
             type: "button",
             class: x(["btn", i === 0 ? "primary" : "soft"]),
             onClick: (c) => e.run(t)
-          }, a(t.label), 11, p$))), 128))
+          }, a(t.label), 11, C$))), 128))
         ])
       ]),
-      l("div", C$, [
-        l("section", x$, [
+      l("div", x$, [
+        l("section", w$, [
           n[1] || (n[1] = l("h2", null, "Сейчас", -1)),
-          l("div", w$, [
+          l("div", T$, [
             (o(!0), r(f, null, g(e.analytics.stats, (t) => (o(), r("div", {
               key: t.id,
               class: "teacher-analytics-kpi",
@@ -9487,7 +9499,7 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
             }, [
               l("b", null, a(t.value), 1),
               l("small", null, a(t.label), 1)
-            ], 8, T$))), 128))
+            ], 8, S$))), 128))
           ])
         ]),
         (o(!0), r(f, null, g(e.analytics.sections, (t) => (o(), r("section", {
@@ -9496,47 +9508,47 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
           "data-teacher-analytics-section": t.id
         }, [
           l("h2", null, a(t.title), 1),
-          t.entries.length ? (o(), r("div", O$, [
+          t.entries.length ? (o(), r("div", q$, [
             (o(!0), r(f, null, g(t.entries, (i) => (o(), r("div", {
               key: i.id,
               class: x([i.facts ? "teacher-analytics-group" : "teacher-analytics-row", i.tone])
             }, [
               i.facts ? (o(), r(f, { key: 1 }, [
                 l("b", null, a(i.title), 1),
-                i.description ? (o(), r("small", L$, a(i.description), 1)) : k("", !0),
-                l("div", j$, [
+                i.description ? (o(), r("small", j$, a(i.description), 1)) : k("", !0),
+                l("div", H$, [
                   (o(!0), r(f, null, g(i.facts, (c) => (o(), r("span", {
                     key: c.id,
                     class: "teacher-analytics-fact",
                     title: c.hint
-                  }, a(c.label), 9, H$))), 128))
+                  }, a(c.label), 9, P$))), 128))
                 ]),
-                i.note ? (o(), r("small", P$, a(i.note), 1)) : k("", !0)
-              ], 64)) : (o(), r("div", q$, [
+                i.note ? (o(), r("small", E$, a(i.note), 1)) : k("", !0)
+              ], 64)) : (o(), r("div", M$, [
                 l("b", null, a(i.title), 1),
-                i.description ? (o(), r("small", M$, a(i.description), 1)) : k("", !0)
+                i.description ? (o(), r("small", L$, a(i.description), 1)) : k("", !0)
               ])),
-              i.badge ? (o(), r("span", E$, a(i.badge), 1)) : k("", !0),
-              i.facts && i.actions?.length ? (o(), r("div", A$, [
+              i.badge ? (o(), r("span", A$, a(i.badge), 1)) : k("", !0),
+              i.facts && i.actions?.length ? (o(), r("div", R$, [
                 (o(!0), r(f, null, g(i.actions, (c) => (o(), r("button", {
                   key: c.mode,
                   type: "button",
                   class: "btn soft",
                   onClick: (u) => e.run(c)
-                }, a(c.label), 9, R$))), 128))
+                }, a(c.label), 9, I$))), 128))
               ])) : k("", !0),
               i.action ? (o(), r("button", {
                 key: 4,
                 type: "button",
                 class: "btn soft",
                 onClick: (c) => e.run(i.action)
-              }, a(i.action.label), 9, I$)) : k("", !0)
+              }, a(i.action.label), 9, N$)) : k("", !0)
             ], 2))), 128))
-          ])) : (o(), r("div", N$, a(t.empty), 1))
-        ], 8, S$))), 128)),
-        l("section", D$, [
+          ])) : (o(), r("div", D$, a(t.empty), 1))
+        ], 8, O$))), 128)),
+        l("section", F$, [
           n[2] || (n[2] = l("h2", null, "🕘 Последние тренировки", -1)),
-          e.analytics.training.length ? (o(), r("div", F$, [
+          e.analytics.training.length ? (o(), r("div", K$, [
             (o(!0), r(f, null, g(e.analytics.training, (t, i) => (o(), r("div", {
               key: i,
               class: "teacher-training-row"
@@ -9546,18 +9558,18 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
                 l("b", null, a(t.title), 1),
                 l("small", null, a(t.description), 1)
               ]),
-              l("div", K$, a(t.score), 1)
+              l("div", V$, a(t.score), 1)
             ]))), 128))
-          ])) : (o(), r("div", V$, "Здесь появятся результаты реальных быстрых тренировок."))
+          ])) : (o(), r("div", B$, "Здесь появятся результаты реальных быстрых тренировок."))
         ]),
-        l("section", B$, [
+        l("section", U$, [
           n[3] || (n[3] = l("h2", null, "💡 Что сделать на следующем занятии", -1)),
-          e.analytics.recommendations.length ? (o(), r("div", U$, [
+          e.analytics.recommendations.length ? (o(), r("div", W$, [
             (o(!0), r(f, null, g(e.analytics.recommendations, (t, i) => (o(), r("div", {
               key: i,
               class: "teacher-recommendation"
             }, [
-              l("div", W$, a(i + 1), 1),
+              l("div", z$, a(i + 1), 1),
               l("div", null, [
                 l("b", null, a(t.title), 1),
                 l("small", null, a(t.reason), 1)
@@ -9566,33 +9578,33 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
                 type: "button",
                 class: "btn soft",
                 onClick: (c) => e.run(t.action)
-              }, a(t.action.label), 9, z$)
+              }, a(t.action.label), 9, X$)
             ]))), 128))
-          ])) : (o(), r("div", X$, a(e.analytics.recommendationEmpty), 1))
+          ])) : (o(), r("div", G$, a(e.analytics.recommendationEmpty), 1))
         ])
       ])
     ], 64));
   }
-}, Q$ = ["data-teacher-course-grade"], J$ = ["innerHTML"], Y$ = {
+}, J$ = ["data-teacher-course-grade"], Y$ = ["innerHTML"], Z$ = {
   key: 0,
   class: "teacher-empty"
-}, Z$ = { class: "teacher-section-row" }, _$ = { "data-teacher-course-status": "" }, ep = ["aria-label", "aria-valuenow"], tp = {
+}, _$ = { class: "teacher-section-row" }, ep = { "data-teacher-course-status": "" }, tp = ["aria-label", "aria-valuenow"], np = {
   class: "teacher-card-metrics",
   style: { "margin-top": "9px" }
-}, np = {
+}, sp = {
   key: 0,
   class: "teacher-course-box",
   style: { "margin-top": "10px" }
-}, sp = { class: "teacher-section-row" }, lp = {
+}, lp = { class: "teacher-section-row" }, ip = {
   key: 0,
   style: { color: "var(--muted)" }
-}, ip = {
-  key: 0,
-  class: "teacher-progress-track"
 }, op = {
   key: 0,
-  class: "teacher-lock-note"
+  class: "teacher-progress-track"
 }, ap = {
+  key: 0,
+  class: "teacher-lock-note"
+}, rp = {
   __name: "TeacherCourseProgress",
   props: { course: { type: Object, required: !0 } },
   setup(e) {
@@ -9604,17 +9616,17 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
           "aria-hidden": "true",
           style: { display: "contents" },
           innerHTML: e.course.icon
-        }, null, 8, J$),
+        }, null, 8, Y$),
         p(" " + a(e.course.grade) + " класс", 1)
       ]),
-      e.course.catalog ? (o(), r("div", Y$, [
+      e.course.catalog ? (o(), r("div", Z$, [
         n[0] || (n[0] = l("b", null, "Каталог подготовлен — темы добавляются поэтапно.", -1)),
         n[1] || (n[1] = l("br", null, null, -1)),
         p(" " + a(e.course.catalog), 1)
       ])) : (o(), r(f, { key: 1 }, [
-        l("div", Z$, [
+        l("div", _$, [
           n[2] || (n[2] = l("span", null, "Пройдено курса", -1)),
-          l("b", _$, a(e.course.status), 1)
+          l("b", ep, a(e.course.status), 1)
         ]),
         l("div", {
           class: "teacher-progress-track",
@@ -9627,71 +9639,71 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
           l("span", {
             style: Z({ width: e.course.percent + "%" })
           }, null, 4)
-        ], 8, ep),
-        l("div", tp, [
+        ], 8, tp),
+        l("div", np, [
           (o(!0), r(f, null, g(e.course.stages, (t) => (o(), r("span", {
             key: t.label
           }, a(t.label) + ": " + a(t.value), 1))), 128))
         ]),
-        e.course.sections.length || e.course.note ? (o(), r("div", np, [
+        e.course.sections.length || e.course.note ? (o(), r("div", sp, [
           (o(!0), r(f, null, g(e.course.sections, (t) => (o(), r(f, {
             key: t.title
           }, [
-            l("div", sp, [
+            l("div", lp, [
               l("span", null, [
                 p(a(t.title) + " ", 1),
-                t.availability ? (o(), r("small", lp, a(t.availability), 1)) : k("", !0)
+                t.availability ? (o(), r("small", ip, a(t.availability), 1)) : k("", !0)
               ]),
               l("b", null, a(t.status), 1)
             ]),
-            t.percent !== null ? (o(), r("div", ip, [
+            t.percent !== null ? (o(), r("div", op, [
               l("span", {
                 style: Z({ width: t.percent + "%" })
               }, null, 4)
             ])) : k("", !0)
           ], 64))), 128)),
-          e.course.note ? (o(), r("div", op, a(e.course.note), 1)) : k("", !0)
+          e.course.note ? (o(), r("div", ap, a(e.course.note), 1)) : k("", !0)
         ])) : k("", !0)
       ], 64))
-    ], 8, Q$));
+    ], 8, J$));
   }
-}, rp = {
+}, cp = {
   class: "teacher-panel",
   "data-teacher-milestone": "control"
-}, cp = { class: "teacher-section-row" }, up = { class: "teacher-lock-note" }, dp = {
+}, up = { class: "teacher-section-row" }, dp = { class: "teacher-lock-note" }, mp = {
   key: 1,
   class: "teacher-empty"
-}, mp = {
+}, fp = {
   class: "teacher-panel",
   "data-teacher-milestone": "achievements"
-}, fp = { class: "teacher-kpis" }, bp = {
+}, bp = { class: "teacher-kpis" }, hp = {
   class: "teacher-work-list",
   style: { "margin-top": "9px" }
-}, hp = {
+}, yp = {
   key: 0,
   class: "teacher-empty"
-}, yp = {
+}, vp = {
   class: "teacher-panel",
   "data-teacher-milestone": "quests"
-}, vp = { class: "teacher-kpis" }, kp = {
+}, kp = { class: "teacher-kpis" }, gp = {
   __name: "TeacherStudentMilestones",
   props: { milestones: { type: Object, required: !0 } },
   setup(e) {
     return (s, n) => (o(), r(f, null, [
-      l("section", rp, [
+      l("section", cp, [
         n[1] || (n[1] = l("h2", null, "🔁 Контрольные повторения", -1)),
         e.milestones.control ? (o(), r(f, { key: 0 }, [
-          l("div", cp, [
+          l("div", up, [
             n[0] || (n[0] = l("span", null, "Последнее", -1)),
             l("b", null, a(e.milestones.control.score), 1)
           ]),
-          l("div", up, a(e.milestones.control.detail), 1)
-        ], 64)) : (o(), r("div", dp, "Контрольных повторений пока нет.")),
+          l("div", dp, a(e.milestones.control.detail), 1)
+        ], 64)) : (o(), r("div", mp, "Контрольных повторений пока нет.")),
         n[2] || (n[2] = l("div", { class: "teacher-lock-note" }, "Запуск доступен из профиля ученика.", -1))
       ]),
-      l("section", mp, [
+      l("section", fp, [
         n[3] || (n[3] = l("h2", null, "🏆 Достижения", -1)),
-        l("div", fp, [
+        l("div", bp, [
           (o(!0), r(f, null, g(e.milestones.achievements.stats, (t) => (o(), r("div", {
             key: t.label,
             class: "teacher-kpi"
@@ -9700,7 +9712,7 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
             l("small", null, a(t.label), 1)
           ]))), 128))
         ]),
-        l("div", bp, [
+        l("div", hp, [
           (o(!0), r(f, null, g(e.milestones.achievements.latest, (t) => (o(), r("div", {
             key: t.id,
             class: "teacher-work-row"
@@ -9713,12 +9725,12 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
               class: x(["achievement-rarity", t.rarity])
             }, a(t.rarityLabel), 3)
           ]))), 128)),
-          e.milestones.achievements.latest.length ? k("", !0) : (o(), r("div", hp, "Пока достижений нет."))
+          e.milestones.achievements.latest.length ? k("", !0) : (o(), r("div", yp, "Пока достижений нет."))
         ])
       ]),
-      l("section", yp, [
+      l("section", vp, [
         n[4] || (n[4] = l("h2", null, "🔥 Квесты", -1)),
-        l("div", vp, [
+        l("div", kp, [
           (o(!0), r(f, null, g(e.milestones.quests, (t) => (o(), r("div", {
             key: t.label,
             class: "teacher-kpi"
@@ -9730,49 +9742,49 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
       ])
     ], 64));
   }
-}, gp = { class: "home-back-row" }, $p = { class: "teacher-hero" }, pp = { class: "teacher-detail-head" }, Cp = { class: "teacher-person" }, xp = ["innerHTML"], wp = {
+}, $p = { class: "home-back-row" }, pp = { class: "teacher-hero" }, Cp = { class: "teacher-detail-head" }, xp = { class: "teacher-person" }, wp = ["innerHTML"], Tp = {
   key: 0,
   class: "teacher-profile-title"
-}, Tp = ["innerHTML"], Sp = { class: "meta" }, Op = {
+}, Sp = ["innerHTML"], Op = { class: "meta" }, qp = {
   class: "teacher-period-row",
   role: "group",
   "aria-label": "Период статистики ученика"
-}, qp = ["aria-pressed", "onClick"], Mp = { class: "teacher-detail-grid" }, Lp = ["data-teacher-course-g1", "data-teacher-course-g2"], jp = { class: "teacher-panel" }, Hp = { class: "teacher-kpis" }, Pp = { class: "teacher-kpi" }, Ep = { class: "teacher-kpi" }, Ap = {
+}, Mp = ["aria-pressed", "onClick"], Lp = { class: "teacher-detail-grid" }, jp = ["data-teacher-course-g1", "data-teacher-course-g2"], Hp = { class: "teacher-panel" }, Pp = { class: "teacher-kpis" }, Ep = { class: "teacher-kpi" }, Ap = { class: "teacher-kpi" }, Rp = {
   class: "actions",
   style: { "justify-content": "flex-start" }
-}, Rp = { class: "teacher-panel wide" }, Ip = { class: "teacher-kpis" }, Np = { class: "teacher-lock-note" }, Dp = { class: "teacher-panel" }, Fp = { class: "teacher-work-list" }, Kp = { class: "teacher-work-score" }, Vp = {
+}, Ip = { class: "teacher-panel wide" }, Np = { class: "teacher-kpis" }, Dp = { class: "teacher-lock-note" }, Fp = { class: "teacher-panel" }, Kp = { class: "teacher-work-list" }, Vp = { class: "teacher-work-score" }, Bp = {
   key: 0,
   class: "teacher-empty"
-}, Bp = { class: "teacher-panel" }, Up = { class: "teacher-error-list" }, Wp = {
+}, Up = { class: "teacher-panel" }, Wp = { class: "teacher-error-list" }, zp = {
   key: 0,
   class: "teacher-empty"
-}, zp = { class: "actions" }, Xp = { class: "teacher-danger-zone" }, Gp = {
+}, Xp = { class: "actions" }, Gp = { class: "teacher-danger-zone" }, Qp = {
   __name: "TeacherStudentDetail",
   props: { model: Object, actions: Object },
   setup(e) {
     return (s, n) => (o(), r(f, null, [
-      l("div", gp, [
+      l("div", $p, [
         l("button", {
           type: "button",
           class: "home-back-btn",
           onClick: n[0] || (n[0] = (...t) => e.actions.back && e.actions.back(...t))
         }, "← Все ученики")
       ]),
-      l("section", $p, [
-        l("div", pp, [
-          l("div", Cp, [
+      l("section", pp, [
+        l("div", Cp, [
+          l("div", xp, [
             l("span", {
               style: { display: "contents" },
               innerHTML: e.model.avatar
-            }, null, 8, xp),
+            }, null, 8, wp),
             l("div", null, [
               l("h1", null, a(e.model.name), 1),
-              e.model.title ? (o(), r("div", wp, "🏷️ " + a(e.model.title), 1)) : k("", !0),
+              e.model.title ? (o(), r("div", Tp, "🏷️ " + a(e.model.title), 1)) : k("", !0),
               l("span", {
                 style: { display: "contents" },
                 innerHTML: e.model.badges
-              }, null, 8, Tp),
-              l("div", Sp, [
+              }, null, 8, Sp),
+              l("div", Op, [
                 p(" Уровень " + a(e.model.level) + " • " + a(e.model.xp) + " XP • 🪙 " + a(e.model.coins), 1),
                 n[10] || (n[10] = l("br", null, null, -1)),
                 p(" Решено: " + a(e.model.solved) + " • Лучшая серия: " + a(e.model.bestStreak), 1),
@@ -9789,45 +9801,45 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
           }, "🔒 Закрыть режим")
         ])
       ]),
-      l("div", Op, [
+      l("div", qp, [
         (o(!0), r(f, null, g(e.model.periods, ({ id: t, label: i }) => (o(), r("button", {
           key: t,
           type: "button",
           class: x(["teacher-filter", { active: t === e.model.period }]),
           "aria-pressed": t === e.model.period,
           onClick: (c) => e.actions.period(t)
-        }, a(i), 11, qp))), 128))
+        }, a(i), 11, Mp))), 128))
       ]),
-      N(G$, {
+      N(Q$, {
         analytics: e.model.analytics,
         plan: e.model.plan,
         run: e.actions.analytics
       }, null, 8, ["analytics", "plan", "run"]),
-      l("div", Mp, [
+      l("div", Lp, [
         (o(!0), r(f, null, g(e.model.courses, (t) => (o(), r("section", {
           key: t.id,
           class: "teacher-panel",
           "data-teacher-course-g1": t.id === 1 ? "1" : null,
           "data-teacher-course-g2": t.id === 2 ? "1" : null
         }, [
-          (o(!0), r(f, null, g(t.courses, (i) => (o(), Ce(ap, {
+          (o(!0), r(f, null, g(t.courses, (i) => (o(), Ce(rp, {
             key: i.grade,
             course: i
           }, null, 8, ["course"]))), 128))
-        ], 8, Lp))), 128)),
-        l("section", jp, [
+        ], 8, jp))), 128)),
+        l("section", Hp, [
           n[15] || (n[15] = l("h2", null, "🧠 Работа над ошибками", -1)),
-          l("div", Hp, [
-            l("div", Pp, [
+          l("div", Pp, [
+            l("div", Ep, [
               l("b", null, a(e.model.errors.active), 1),
               n[13] || (n[13] = l("small", null, "активно", -1))
             ]),
-            l("div", Ep, [
+            l("div", Ap, [
               l("b", null, a(e.model.errors.resolved), 1),
               n[14] || (n[14] = l("small", null, "отработано", -1))
             ])
           ]),
-          l("div", Ap, [
+          l("div", Rp, [
             l("button", {
               type: "button",
               class: "btn soft",
@@ -9835,12 +9847,12 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
             }, "Посмотреть ошибки")
           ])
         ]),
-        N(kp, {
+        N(gp, {
           milestones: e.model.milestones
         }, null, 8, ["milestones"]),
-        l("section", Rp, [
+        l("section", Ip, [
           n[16] || (n[16] = l("h2", null, "Статистика ответов по школьным заданиям", -1)),
-          l("div", Ip, [
+          l("div", Np, [
             (o(!0), r(f, null, g(e.model.responseStats, ({ label: t, value: i }) => (o(), r("div", {
               key: t,
               class: "teacher-kpi"
@@ -9849,11 +9861,11 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
               l("small", null, a(t), 1)
             ]))), 128))
           ]),
-          l("div", Np, "В выборке: " + a(e.model.responseCount) + " заданий. Пустой Enter и повторные проверки не считаются отдельными заданиями.", 1)
+          l("div", Dp, "В выборке: " + a(e.model.responseCount) + " заданий. Пустой Enter и повторные проверки не считаются отдельными заданиями.", 1)
         ]),
-        l("section", Dp, [
+        l("section", Fp, [
           n[17] || (n[17] = l("h2", null, "🕘 Последние школьные работы", -1)),
-          l("div", Fp, [
+          l("div", Kp, [
             (o(!0), r(f, null, g(e.model.works, (t, i) => (o(), r("div", {
               key: i,
               class: "teacher-work-row"
@@ -9862,14 +9874,14 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
                 l("b", null, a(t.title), 1),
                 l("small", null, a(t.info), 1)
               ]),
-              l("span", Kp, a(t.score), 1)
+              l("span", Vp, a(t.score), 1)
             ]))), 128)),
-            e.model.works.length ? k("", !0) : (o(), r("div", Vp, "В выбранном периоде завершённых попыток нет."))
+            e.model.works.length ? k("", !0) : (o(), r("div", Bp, "В выбранном периоде завершённых попыток нет."))
           ])
         ]),
-        l("section", Bp, [
+        l("section", Up, [
           n[18] || (n[18] = l("h2", null, "Последние ошибки школьных тем", -1)),
-          l("div", Up, [
+          l("div", Wp, [
             (o(!0), r(f, null, g(e.model.recentErrors, (t, i) => (o(), r("div", {
               key: i,
               class: "teacher-error-row"
@@ -9877,11 +9889,11 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
               l("b", null, a(t.label) + " • " + a(t.title), 1),
               l("small", null, a(t.info), 1)
             ]))), 128)),
-            e.model.recentErrors.length ? k("", !0) : (o(), r("div", Wp, "В выбранном периоде ошибок нет."))
+            e.model.recentErrors.length ? k("", !0) : (o(), r("div", zp, "В выбранном периоде ошибок нет."))
           ])
         ])
       ]),
-      l("div", zp, [
+      l("div", Xp, [
         l("button", {
           type: "button",
           class: "btn soft",
@@ -9913,7 +9925,7 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
           onClick: n[8] || (n[8] = (...t) => e.actions.student && e.actions.student(...t))
         }, "Открыть как ученик")
       ]),
-      l("section", Xp, [
+      l("section", Gp, [
         n[19] || (n[19] = l("h3", null, "Опасная зона", -1)),
         n[20] || (n[20] = l("p", null, "Удаление полностью уберёт только этого локального ученика. Перед удалением рекомендуется сделать резервную копию.", -1)),
         l("button", {
@@ -9924,7 +9936,7 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
       ])
     ], 64));
   }
-}, Qp = ["data-report-g1", "data-report-g2", "data-report-metric"], ht = {
+}, Jp = ["data-report-g1", "data-report-g2", "data-report-metric"], ht = {
   __name: "StudentReportKpis",
   props: { items: { type: Array, required: !0 } },
   setup(e) {
@@ -9937,30 +9949,30 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
     }, [
       l("b", null, a(t.value), 1),
       l("small", null, a(t.label), 1)
-    ], 8, Qp))), 128));
+    ], 8, Jp))), 128));
   }
-}, Jp = {
+}, Yp = {
   key: 0,
   class: "report-list"
-}, Yp = { key: 0 }, Zp = {
+}, Zp = { key: 0 }, _p = {
   key: 1,
   class: "report-control-topics"
-}, _p = {
+}, e0 = {
   key: 1,
   class: "report-empty"
 }, pt = {
   __name: "StudentReportRows",
   props: { rows: { type: Array, required: !0 }, empty: String },
   setup(e) {
-    return (s, n) => e.rows.length ? (o(), r("div", Jp, [
+    return (s, n) => e.rows.length ? (o(), r("div", Yp, [
       (o(!0), r(f, null, g(e.rows, (t, i) => (o(), r("div", {
         key: i,
         class: x(["report-row", t.tone])
       }, [
         l("div", null, [
           l("b", null, a(t.title), 1),
-          t.description ? (o(), r("small", Yp, a(t.description), 1)) : k("", !0),
-          t.details?.length ? (o(), r("div", Zp, [
+          t.description ? (o(), r("small", Zp, a(t.description), 1)) : k("", !0),
+          t.details?.length ? (o(), r("div", _p, [
             (o(!0), r(f, null, g(t.details, (c) => (o(), r("div", {
               key: c.title
             }, [
@@ -9974,88 +9986,88 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
           class: x(t.scoreClass || "report-score")
         }, a(t.score), 3)) : k("", !0)
       ], 2))), 128))
-    ])) : (o(), r("div", _p, a(e.empty), 1));
+    ])) : (o(), r("div", e0, a(e.empty), 1));
   }
-}, e0 = { class: "student-report-document" }, t0 = { class: "report-head" }, n0 = { class: "report-head-meta" }, s0 = { class: "report-student-name" }, l0 = { "data-report-period": "" }, i0 = { class: "report-section" }, o0 = { class: "report-summary-grid" }, a0 = { class: "report-summary-grid" }, r0 = { class: "report-period-note" }, c0 = {
+}, t0 = { class: "student-report-document" }, n0 = { class: "report-head" }, s0 = { class: "report-head-meta" }, l0 = { class: "report-student-name" }, i0 = { "data-report-period": "" }, o0 = { class: "report-section" }, a0 = { class: "report-summary-grid" }, r0 = { class: "report-summary-grid" }, c0 = { class: "report-period-note" }, u0 = {
   key: 0,
   class: "report-section"
-}, u0 = { class: "report-summary-grid" }, d0 = {
+}, d0 = { class: "report-summary-grid" }, m0 = {
   class: "report-analytics-grid",
   style: { "margin-top": "10px" }
-}, m0 = { key: 0 }, f0 = { class: "report-fact-line" }, b0 = {
+}, f0 = { key: 0 }, b0 = { class: "report-fact-line" }, h0 = {
   key: 1,
   class: "report-section"
-}, h0 = {
+}, y0 = {
   class: "report-plan-compact",
   style: { "margin-top": "8px" }
-}, y0 = {
+}, v0 = {
   key: 0,
   class: "report-empty"
-}, v0 = {
+}, k0 = {
   class: "report-section",
   "data-report-section": "courses"
-}, k0 = { class: "report-two-col" }, g0 = ["data-report-course"], $0 = { class: "report-course-head" }, p0 = ["innerHTML"], C0 = { class: "report-progress" }, x0 = { class: "report-stage-line" }, w0 = { style: { "margin-top": "7px" } }, T0 = {
+}, g0 = { class: "report-two-col" }, $0 = ["data-report-course"], p0 = { class: "report-course-head" }, C0 = ["innerHTML"], x0 = { class: "report-progress" }, w0 = { class: "report-stage-line" }, T0 = { style: { "margin-top": "7px" } }, S0 = {
   key: 0,
   class: "report-period-note"
-}, S0 = {
+}, O0 = {
   key: 1,
   class: "report-empty"
-}, O0 = {
+}, q0 = {
   class: "report-section",
   "data-report-section": "knowledge"
-}, q0 = ["data-report-knowledge"], M0 = { class: "report-grade-title" }, L0 = ["innerHTML"], j0 = { class: "report-not-started" }, H0 = { class: "report-knowledge-grid" }, P0 = {
+}, M0 = ["data-report-knowledge"], L0 = { class: "report-grade-title" }, j0 = ["innerHTML"], H0 = { class: "report-not-started" }, P0 = { class: "report-knowledge-grid" }, E0 = {
   key: 1,
   class: "report-empty"
-}, E0 = { class: "report-section" }, A0 = { class: "report-two-col" }, R0 = { class: "report-section" }, I0 = { class: "report-summary-grid" }, N0 = ["data-report-section"], D0 = {
+}, A0 = { class: "report-section" }, R0 = { class: "report-two-col" }, I0 = { class: "report-section" }, N0 = { class: "report-summary-grid" }, D0 = ["data-report-section"], F0 = {
   key: 0,
   class: "report-summary-grid",
   style: { "margin-bottom": "8px" }
-}, F0 = { class: "report-section" }, K0 = { class: "report-note" }, V0 = {
+}, K0 = { class: "report-section" }, V0 = { class: "report-note" }, B0 = {
   class: "report-two-col",
   style: { "margin-top": "10px" }
-}, B0 = {
+}, U0 = {
   __name: "StudentReportDocument",
   props: { model: { type: Object, required: !0 } },
   setup(e) {
-    return (s, n) => (o(), r("article", e0, [
-      l("header", t0, [
+    return (s, n) => (o(), r("article", t0, [
+      l("header", n0, [
         l("div", null, [
           n[1] || (n[1] = l("div", { class: "report-brand" }, "МАТКВЕСТ", -1)),
           n[2] || (n[2] = l("h1", null, "Отчёт об учебном прогрессе", -1)),
-          l("div", n0, [
-            l("span", s0, "Ученик: " + a(e.model.name), 1),
+          l("div", s0, [
+            l("span", l0, "Ученик: " + a(e.model.name), 1),
             l("span", null, [
               n[0] || (n[0] = p("Период активности: ", -1)),
-              l("b", l0, a(e.model.periodLabel), 1)
+              l("b", i0, a(e.model.periodLabel), 1)
             ]),
             l("span", null, "Сформировано: " + a(e.model.generated), 1)
           ])
         ]),
         n[3] || (n[3] = l("div", { class: "report-current-badge" }, "Текущее состояние + активность за период", -1))
       ]),
-      l("section", i0, [
+      l("section", o0, [
         n[4] || (n[4] = l("h2", null, "Общая сводка", -1)),
-        l("div", o0, [
+        l("div", a0, [
           N(ht, {
             items: e.model.summary
           }, null, 8, ["items"])
         ]),
         n[5] || (n[5] = l("h3", null, "Активность за период", -1)),
-        l("div", a0, [
+        l("div", r0, [
           N(ht, {
             items: e.model.activity
           }, null, 8, ["items"])
         ]),
-        l("div", r0, a(e.model.periodNote), 1)
+        l("div", c0, a(e.model.periodNote), 1)
       ]),
-      e.model.analytics ? (o(), r("section", c0, [
+      e.model.analytics ? (o(), r("section", u0, [
         n[6] || (n[6] = l("h2", null, "🧭 Аналитика ученика", -1)),
-        l("div", u0, [
+        l("div", d0, [
           N(ht, {
             items: e.model.analytics.stats
           }, null, 8, ["items"])
         ]),
-        l("div", d0, [
+        l("div", m0, [
           (o(!0), r(f, null, g(e.model.analytics.boxes, (t) => (o(), r("div", {
             key: t.title,
             class: x(["report-analytics-box", { wide: t.wide }])
@@ -10065,8 +10077,8 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
               key: i.title,
               class: "student-report-fact-group"
             }, [
-              i.title ? (o(), r("b", m0, a(i.title), 1)) : k("", !0),
-              l("div", f0, [
+              i.title ? (o(), r("b", f0, a(i.title), 1)) : k("", !0),
+              l("div", b0, [
                 (o(!0), r(f, null, g(i.facts, (c) => (o(), r("span", { key: c }, a(c), 1))), 128))
               ])
             ]))), 128)) : (o(), Ce(pt, {
@@ -10077,12 +10089,12 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
           ], 2))), 128))
         ])
       ])) : k("", !0),
-      e.model.plan ? (o(), r("section", b0, [
+      e.model.plan ? (o(), r("section", h0, [
         n[7] || (n[7] = l("h2", null, "🧩 Текущий план тренировки", -1)),
         N(ht, {
           items: e.model.plan.stats
         }, null, 8, ["items"]),
-        l("div", h0, [
+        l("div", y0, [
           (o(!0), r(f, null, g(e.model.plan.rows, (t) => (o(), r("div", {
             key: t.id,
             class: "report-plan-row"
@@ -10090,38 +10102,38 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
             l("span", null, a(t.label), 1),
             l("b", null, a(t.status), 1)
           ]))), 128)),
-          e.model.plan.rows.length ? k("", !0) : (o(), r("div", y0, "План пока пуст."))
+          e.model.plan.rows.length ? k("", !0) : (o(), r("div", v0, "План пока пуст."))
         ])
       ])) : k("", !0),
-      l("section", v0, [
+      l("section", k0, [
         n[8] || (n[8] = l("h2", null, "📚 Прогресс курса", -1)),
-        l("div", k0, [
+        l("div", g0, [
           (o(!0), r(f, null, g(e.model.courses, (t) => (o(), r("div", {
             key: t.grade,
             class: "report-course-card",
             "data-report-course": t.grade
           }, [
-            l("div", $0, [
+            l("div", p0, [
               l("b", null, [
                 l("span", {
                   "aria-hidden": "true",
                   style: { display: "contents" },
                   innerHTML: t.icon
-                }, null, 8, p0),
+                }, null, 8, C0),
                 p(" " + a(t.grade) + " класс", 1)
               ]),
               l("strong", null, a(t.status), 1)
             ]),
-            t.catalogOnly ? (o(), r("div", S0, a(t.note), 1)) : (o(), r(f, { key: 0 }, [
-              l("div", C0, [
+            t.catalogOnly ? (o(), r("div", O0, a(t.note), 1)) : (o(), r(f, { key: 0 }, [
+              l("div", x0, [
                 l("span", {
                   style: Z({ width: t.percent + "%" })
                 }, null, 4)
               ]),
-              l("div", x0, [
+              l("div", w0, [
                 (o(!0), r(f, null, g(t.stages, (i) => (o(), r("span", { key: i }, a(i), 1))), 128))
               ]),
-              l("div", w0, [
+              l("div", T0, [
                 (o(!0), r(f, null, g(t.sections, (i) => (o(), r("div", {
                   key: i.title,
                   class: "report-section-line"
@@ -10129,13 +10141,13 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
                   l("span", null, a(i.title), 1),
                   l("b", null, a(i.value), 1)
                 ]))), 128)),
-                t.note ? (o(), r("div", T0, a(t.note), 1)) : k("", !0)
+                t.note ? (o(), r("div", S0, a(t.note), 1)) : k("", !0)
               ])
             ], 64))
-          ], 8, g0))), 128))
+          ], 8, $0))), 128))
         ])
       ]),
-      l("section", O0, [
+      l("section", q0, [
         n[9] || (n[9] = l("h2", null, "📊 Карта знаний", -1)),
         (o(!0), r(f, null, g(e.model.knowledge, (t) => (o(), r("div", {
           key: t.grade,
@@ -10143,18 +10155,18 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
           "data-report-knowledge": t.grade
         }, [
           t.started ? (o(), r(f, { key: 0 }, [
-            l("div", M0, [
+            l("div", L0, [
               l("h3", null, [
                 l("span", {
                   "aria-hidden": "true",
                   style: { display: "contents" },
                   innerHTML: t.icon
-                }, null, 8, L0),
+                }, null, 8, j0),
                 p(" " + a(t.grade) + " класс", 1)
               ]),
-              l("span", j0, a(t.caption), 1)
+              l("span", H0, a(t.caption), 1)
             ]),
-            l("div", H0, [
+            l("div", P0, [
               (o(!0), r(f, null, g(t.topics, (i) => (o(), r("div", {
                 key: i.id,
                 class: x(["report-topic-chip", i.tone])
@@ -10163,11 +10175,11 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
                 l("small", null, a(i.description), 1)
               ], 2))), 128))
             ])
-          ], 64)) : (o(), r("div", P0, a(t.empty), 1))
-        ], 8, q0))), 128))
+          ], 64)) : (o(), r("div", E0, a(t.empty), 1))
+        ], 8, M0))), 128))
       ]),
-      l("section", E0, [
-        l("div", A0, [
+      l("section", A0, [
+        l("div", R0, [
           l("div", null, [
             n[10] || (n[10] = l("h2", null, "🎯 Что стоит повторить", -1)),
             N(pt, {
@@ -10184,9 +10196,9 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
           ])
         ])
       ]),
-      l("section", R0, [
+      l("section", I0, [
         n[13] || (n[13] = l("h2", null, "🧠 Работа над ошибками", -1)),
-        l("div", I0, [
+        l("div", N0, [
           N(ht, {
             items: e.model.errors.stats
           }, null, 8, ["items"])
@@ -10209,7 +10221,7 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
         "data-report-section": t.id
       }, [
         l("h2", null, a(t.title), 1),
-        t.stats?.length ? (o(), r("div", D0, [
+        t.stats?.length ? (o(), r("div", F0, [
           N(ht, {
             items: t.stats
           }, null, 8, ["items"])
@@ -10218,11 +10230,11 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
           rows: t.rows,
           empty: t.empty
         }, null, 8, ["rows", "empty"])
-      ], 8, N0))), 128)),
-      l("section", F0, [
+      ], 8, D0))), 128)),
+      l("section", K0, [
         n[15] || (n[15] = l("h2", null, "📝 Итог", -1)),
-        l("div", K0, a(e.model.conclusion), 1),
-        l("div", V0, [
+        l("div", V0, a(e.model.conclusion), 1),
+        l("div", B0, [
           N(ht, {
             items: e.model.totals
           }, null, 8, ["items"])
@@ -10231,30 +10243,30 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
       n[16] || (n[16] = l("footer", { class: "report-print-foot" }, "Отчёт сформирован локально из сохранённых данных профиля.", -1))
     ]));
   }
-}, U0 = {
+}, W0 = {
   key: 0,
   class: "student-report-screen report-no-print"
-}, W0 = { class: "report-empty" }, z0 = { class: "report-actions" }, X0 = {
+}, z0 = { class: "report-empty" }, X0 = { class: "report-actions" }, G0 = {
   key: 1,
   class: "student-report-screen"
-}, G0 = { class: "home-back-row report-no-print" }, Q0 = {
+}, Q0 = { class: "home-back-row report-no-print" }, J0 = {
   class: "student-report-presets",
   role: "group",
   "aria-label": "Период отчёта"
-}, J0 = ["aria-pressed", "onClick"], Y0 = ["value", "aria-invalid"], Z0 = ["value", "aria-invalid"], _0 = ["aria-pressed"], e2 = {
+}, Y0 = ["aria-pressed", "onClick"], Z0 = ["value", "aria-invalid"], _0 = ["value", "aria-invalid"], e2 = ["aria-pressed"], t2 = {
   id: "studentReportError",
   class: "student-report-error",
   role: "alert"
-}, t2 = { class: "report-actions report-no-print" }, n2 = {
+}, n2 = { class: "report-actions report-no-print" }, s2 = {
   __name: "TeacherStudentReport",
   props: { model: { type: Object, required: !0 }, actions: { type: Object, required: !0 } },
   setup(e) {
     const s = Xt("periodControls");
-    return (n, t) => e.model.missing ? (o(), r("section", U0, [
-      l("div", W0, [
+    return (n, t) => e.model.missing ? (o(), r("section", W0, [
+      l("div", z0, [
         l("h1", null, a(e.model.title), 1),
         l("p", null, a(e.model.message), 1),
-        l("div", z0, [
+        l("div", X0, [
           l("button", {
             type: "button",
             class: "btn primary",
@@ -10262,8 +10274,8 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
           }, "К списку учеников")
         ])
       ])
-    ])) : (o(), r("div", X0, [
-      l("div", G0, [
+    ])) : (o(), r("div", G0, [
+      l("div", Q0, [
         l("button", {
           type: "button",
           class: "home-back-btn",
@@ -10276,14 +10288,14 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
         ref: s,
         class: "student-report-toolbar report-no-print"
       }, [
-        l("div", Q0, [
+        l("div", J0, [
           (o(!0), r(f, null, g(e.model.periods, (i) => (o(), r("button", {
             key: i.id,
             type: "button",
             class: x(["teacher-filter", { active: i.id === e.model.period }]),
             "aria-pressed": i.id === e.model.period,
             onClick: (c) => e.actions.period(i.id)
-          }, a(i.label), 11, J0))), 128))
+          }, a(i.label), 11, Y0))), 128))
         ]),
         l("form", {
           class: "student-report-custom",
@@ -10298,7 +10310,7 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
               "aria-describedby": "studentReportError",
               "aria-invalid": e.model.error ? "true" : null,
               onInput: t[2] || (t[2] = (i) => e.actions.date("from", i.target.value))
-            }, null, 40, Y0)
+            }, null, 40, Z0)
           ]),
           l("label", null, [
             t[9] || (t[9] = p("До ", -1)),
@@ -10309,20 +10321,20 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
               "aria-describedby": "studentReportError",
               "aria-invalid": e.model.error ? "true" : null,
               onInput: t[3] || (t[3] = (i) => e.actions.date("to", i.target.value))
-            }, null, 40, Z0)
+            }, null, 40, _0)
           ]),
           l("button", {
             type: "submit",
             class: "btn soft",
             "aria-pressed": e.model.period === "custom"
-          }, "Свой период", 8, _0)
+          }, "Свой период", 8, e2)
         ], 32),
-        l("div", e2, a(e.model.error), 1)
+        l("div", t2, a(e.model.error), 1)
       ], 512),
-      N(B0, {
+      N(U0, {
         model: e.model.document
       }, null, 8, ["model"]),
-      l("div", t2, [
+      l("div", n2, [
         l("button", {
           type: "button",
           class: "btn primary",
@@ -10341,26 +10353,26 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
       ])
     ]));
   }
-}, s2 = { class: "home-back-row" }, l2 = ["data-teacher-review-stat"], i2 = {
+}, l2 = { class: "home-back-row" }, i2 = ["data-teacher-review-stat"], o2 = {
   key: 0,
   class: "weak-grid"
-}, o2 = ["data-teacher-topic"], a2 = { class: "weak-sub" }, r2 = { class: "weak-percent" }, c2 = {
+}, a2 = ["data-teacher-topic"], r2 = { class: "weak-sub" }, c2 = { class: "weak-percent" }, u2 = {
   key: 0,
   class: "weak-preliminary"
-}, u2 = { class: "weak-stats" }, d2 = { class: "weak-actions" }, m2 = ["onClick"], f2 = {
+}, d2 = { class: "weak-stats" }, m2 = { class: "weak-actions" }, f2 = ["onClick"], b2 = {
   key: 0,
   class: "teacher-empty",
   role: "status"
-}, b2 = { class: "error-groups" }, h2 = ["data-teacher-error-topic"], y2 = ["onClick"], v2 = {
+}, h2 = { class: "error-groups" }, y2 = ["data-teacher-error-topic"], v2 = ["onClick"], k2 = {
   key: 0,
   class: "teacher-empty",
   role: "status"
-}, k2 = { class: "actions" }, g2 = {
+}, g2 = { class: "actions" }, $2 = {
   __name: "TeacherReview",
   props: { model: { type: Object, required: !0 }, actions: { type: Object, required: !0 } },
   setup(e) {
     return (s, n) => (o(), r(f, null, [
-      l("div", s2, [
+      l("div", l2, [
         l("button", {
           type: "button",
           class: "home-back-btn",
@@ -10382,19 +10394,19 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
         }, [
           l("b", null, a(t.value), 1),
           l("small", null, a(t.label), 1)
-        ], 8, l2))), 128))
+        ], 8, i2))), 128))
       ], 2),
-      e.model.kind === "topics" ? (o(), r("div", i2, [
+      e.model.kind === "topics" ? (o(), r("div", o2, [
         (o(!0), r(f, null, g(e.model.rows, (t) => (o(), r("section", {
           key: t.key,
           class: "weak-card",
           "data-teacher-topic": t.key
         }, [
           l("h3", null, a(t.status) + " • " + a(t.title), 1),
-          l("div", a2, a(t.grade) + " класс • " + a(t.group), 1),
-          l("div", r2, a(t.mastery), 1),
-          t.preliminary ? (o(), r("div", c2, "Предварительная оценка")) : k("", !0),
-          l("div", u2, [
+          l("div", r2, a(t.grade) + " класс • " + a(t.group), 1),
+          l("div", c2, a(t.mastery), 1),
+          t.preliminary ? (o(), r("div", u2, "Предварительная оценка")) : k("", !0),
+          l("div", d2, [
             (o(!0), r(f, null, g(t.stats, (i) => (o(), r("span", {
               key: i.id
             }, [
@@ -10402,17 +10414,17 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
               l("b", null, a(i.value), 1)
             ]))), 128))
           ]),
-          l("div", d2, [
+          l("div", m2, [
             l("button", {
               type: "button",
               class: "btn soft",
               onClick: (i) => e.actions.detail(t.key)
-            }, "Подробнее", 8, m2)
+            }, "Подробнее", 8, f2)
           ])
-        ], 8, o2))), 128)),
-        e.model.rows.length ? k("", !0) : (o(), r("div", f2, a(e.model.empty), 1))
+        ], 8, a2))), 128)),
+        e.model.rows.length ? k("", !0) : (o(), r("div", b2, a(e.model.empty), 1))
       ])) : (o(), r(f, { key: 1 }, [
-        l("div", b2, [
+        l("div", h2, [
           (o(!0), r(f, null, g(e.model.rows, (t) => (o(), r("section", {
             key: t.id,
             class: "error-group",
@@ -10430,12 +10442,12 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
               type: "button",
               class: "btn soft",
               onClick: (i) => e.actions.detail(t.topicKey)
-            }, "Подробнее", 8, y2)) : k("", !0)
-          ], 8, h2))), 128)),
-          e.model.rows.length ? k("", !0) : (o(), r("div", v2, a(e.model.empty), 1))
+            }, "Подробнее", 8, v2)) : k("", !0)
+          ], 8, y2))), 128)),
+          e.model.rows.length ? k("", !0) : (o(), r("div", k2, a(e.model.empty), 1))
         ]),
         n[2] || (n[2] = l("div", { class: "lesson" }, "Чтобы запустить тренировку ошибок, открой профиль ученика.", -1)),
-        l("div", k2, [
+        l("div", g2, [
           l("button", {
             type: "button",
             class: "btn primary",
@@ -10445,7 +10457,7 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
       ], 64))
     ], 64));
   }
-}, $2 = { class: "lesson" }, p2 = { class: "actions" }, C2 = {
+}, p2 = { class: "lesson" }, C2 = { class: "actions" }, x2 = {
   __name: "TeacherTopicReview",
   props: { model: { type: Object, required: !0 }, actions: { type: Object, required: !0 } },
   setup(e) {
@@ -10454,7 +10466,7 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
         title: e.model.title,
         onClose: e.actions.close
       }, null, 8, ["title", "onClose"]),
-      l("div", $2, [
+      l("div", p2, [
         l("b", null, "Ученик: " + a(e.model.name), 1),
         n[1] || (n[1] = l("br", null, null, -1)),
         p(" " + a(e.model.grade) + " класс • " + a(e.model.group), 1),
@@ -10465,7 +10477,7 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
       N(Kn, {
         stats: e.model.stats
       }, null, 8, ["stats"]),
-      l("div", p2, [
+      l("div", C2, [
         l("button", {
           type: "button",
           class: "btn soft",
@@ -10474,20 +10486,20 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
       ])
     ], 64));
   }
-}, x2 = { class: "teacher-danger" }, w2 = { class: "teacher-delete-name" }, T2 = ["aria-invalid", "onKeydown"], S2 = {
+}, w2 = { class: "teacher-danger" }, T2 = { class: "teacher-delete-name" }, S2 = ["aria-invalid", "onKeydown"], O2 = {
   id: "teacherDeleteError",
   class: "teacher-pin-error",
   role: "alert"
-}, O2 = { class: "actions" }, q2 = ["disabled"], M2 = {
+}, q2 = { class: "actions" }, M2 = ["disabled"], L2 = {
   key: 0,
   class: "teacher-danger"
-}, L2 = { class: "teacher-delete-name" }, j2 = {
+}, j2 = { class: "teacher-delete-name" }, H2 = {
   key: 1,
   class: "lesson"
-}, H2 = {
+}, P2 = {
   key: 2,
   class: "lesson"
-}, P2 = { class: "actions" }, E2 = {
+}, E2 = { class: "actions" }, A2 = {
   __name: "TeacherActionDialog",
   props: { model: { type: Object, required: !0 }, actions: { type: Object, required: !0 } },
   setup(e) {
@@ -10509,11 +10521,11 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
         key: 0,
         onSubmit: Qe(u, ["prevent"])
       }, [
-        l("div", x2, [
+        l("div", w2, [
           m[6] || (m[6] = l("label", { for: "teacherDeleteName" }, [
             l("b", null, "Введите имя ученика, как показано ниже")
           ], -1)),
-          l("div", w2, a(e.model.name), 1),
+          l("div", T2, a(e.model.name), 1),
           nt(l("input", {
             id: "teacherDeleteName",
             ref_key: "nameInput",
@@ -10525,12 +10537,12 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
             "aria-describedby": "teacherDeleteError",
             onInput: m[1] || (m[1] = (v) => i.value = ""),
             onKeydown: Oe(Qe(u, ["prevent"]), ["enter"])
-          }, null, 40, T2), [
+          }, null, 40, S2), [
             [Hs, t.value]
           ]),
-          l("div", S2, a(i.value), 1)
+          l("div", O2, a(i.value), 1)
         ]),
-        l("div", O2, [
+        l("div", q2, [
           l("button", {
             type: "button",
             class: "btn soft",
@@ -10541,18 +10553,18 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
             type: "submit",
             class: "btn teacher-danger-btn",
             disabled: !c.value
-          }, "Удалить окончательно", 8, q2)
+          }, "Удалить окончательно", 8, M2)
         ])
       ], 32)) : (o(), r(f, { key: 1 }, [
-        e.model.kind === "profile" ? (o(), r("div", M2, [
-          l("div", L2, a(e.model.name), 1),
+        e.model.kind === "profile" ? (o(), r("div", L2, [
+          l("div", j2, a(e.model.name), 1),
           m[7] || (m[7] = l("p", null, "Будут окончательно удалены локальные данные этого ученика, включая прогресс, журнал, ошибки, XP, монеты, достижения и настройки профиля.", -1)),
           m[8] || (m[8] = l("p", null, "Локальный PIN, настройки преподавателя и профили других учеников сохранятся.", -1))
-        ])) : e.model.kind === "plan" ? (o(), r("div", j2, [
+        ])) : e.model.kind === "plan" ? (o(), r("div", H2, [
           m[9] || (m[9] = p(" В плане ученика ", -1)),
           l("b", null, a(e.model.name), 1),
           m[10] || (m[10] = p(" есть выполненные пункты. Учебные результаты, награды и история сохранятся после удаления плана. ", -1))
-        ])) : (o(), r("div", H2, [
+        ])) : (o(), r("div", P2, [
           m[11] || (m[11] = p(" МатКвест переключит активный профиль на ", -1)),
           l("b", null, a(e.model.name), 1),
           p(", закроет режим преподавателя и откроет " + a(e.model.destination || (e.model.kind === "quick" ? "тренажёр" : "тему")) + " ", 1),
@@ -10562,7 +10574,7 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
           ], 64)) : k("", !0),
           m[12] || (m[12] = p(". ", -1))
         ])),
-        l("div", P2, [
+        l("div", E2, [
           e.model.kind === "profile" ? (o(), r("button", {
             key: 0,
             type: "button",
@@ -10583,30 +10595,30 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
       ], 64))
     ], 64));
   }
-}, A2 = { class: "quest-screen" }, R2 = { class: "home-back-row" }, I2 = { class: "quest-board-summary" }, N2 = { class: "quest-grid" }, D2 = ["data-quest-id"], F2 = { class: "quest-card-head" }, K2 = {
+}, R2 = { class: "quest-screen" }, I2 = { class: "home-back-row" }, N2 = { class: "quest-board-summary" }, D2 = { class: "quest-grid" }, F2 = ["data-quest-id"], K2 = { class: "quest-card-head" }, V2 = {
   class: "quest-icon",
   "aria-hidden": "true"
-}, V2 = { class: "quest-meta" }, B2 = { class: "quest-pill" }, U2 = { class: "quest-desc" }, W2 = { class: "quest-progress-line" }, z2 = ["aria-label", "aria-valuemax", "aria-valuenow", "aria-valuetext"], X2 = { class: "quest-reward" }, G2 = {
+}, B2 = { class: "quest-meta" }, U2 = { class: "quest-pill" }, W2 = { class: "quest-desc" }, z2 = { class: "quest-progress-line" }, X2 = ["aria-label", "aria-valuemax", "aria-valuenow", "aria-valuetext"], G2 = { class: "quest-reward" }, Q2 = {
   key: 0,
   class: "quest-ready"
-}, Q2 = { class: "quest-actions" }, J2 = ["onClick"], Y2 = ["disabled", "onClick"], Z2 = {
+}, J2 = { class: "quest-actions" }, Y2 = ["onClick"], Z2 = ["disabled", "onClick"], _2 = {
   key: 0,
   class: "quest-empty"
-}, _2 = { class: "quest-note" }, e8 = { class: "quest-history" }, t8 = {
+}, e8 = { class: "quest-note" }, t8 = { class: "quest-history" }, n8 = {
   key: 0,
   class: "quest-history-list"
-}, n8 = {
+}, s8 = {
   key: 1,
   class: "quest-empty"
-}, s8 = {
+}, l8 = {
   __name: "QuestBoard",
   props: {
     model: { type: Object, required: !0 },
     actions: { type: Object, required: !0 }
   },
   setup(e) {
-    return (s, n) => (o(), r("div", A2, [
-      l("div", R2, [
+    return (s, n) => (o(), r("div", R2, [
+      l("div", I2, [
         l("button", {
           type: "button",
           class: "home-back-btn",
@@ -10617,7 +10629,7 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
         l("h1", null, "🔥 Квесты"),
         l("p", null, "Прогресс квеста считается с момента его выдачи.")
       ], -1)),
-      l("div", I2, [
+      l("div", N2, [
         (o(!0), r(f, null, g(e.model.stats, (t) => (o(), r("div", {
           key: t.label
         }, [
@@ -10625,26 +10637,26 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
           l("small", null, a(t.label), 1)
         ]))), 128))
       ]),
-      l("div", N2, [
+      l("div", D2, [
         (o(!0), r(f, null, g(e.model.cards, (t) => (o(), r("section", {
           key: t.id,
           class: x(["quest-card", { completed: t.ready }]),
           "data-quest-id": t.id
         }, [
-          l("div", F2, [
-            l("div", K2, a(t.icon), 1),
+          l("div", K2, [
+            l("div", V2, a(t.icon), 1),
             l("div", null, [
               l("h3", null, a(t.title), 1),
-              l("div", V2, [
-                l("span", B2, a(t.category), 1),
+              l("div", B2, [
+                l("span", U2, a(t.category), 1),
                 l("span", {
                   class: x(["quest-pill", t.difficulty])
                 }, a(t.difficultyLabel), 3)
               ])
             ])
           ]),
-          l("div", U2, a(t.desc), 1),
-          l("div", W2, [
+          l("div", W2, a(t.desc), 1),
+          l("div", z2, [
             l("span", null, a(t.ready ? "Готово" : "Прогресс"), 1),
             l("b", null, a(t.progressLabel), 1)
           ]),
@@ -10660,30 +10672,30 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
             l("span", {
               style: Z({ width: t.percent + "%" })
             }, null, 4)
-          ], 8, z2),
-          l("div", X2, "Награда: " + a(t.reward), 1),
-          t.ready ? (o(), r("div", G2, "🎁 Цель выполнена — забери награду")) : k("", !0),
-          l("div", Q2, [
+          ], 8, X2),
+          l("div", G2, "Награда: " + a(t.reward), 1),
+          t.ready ? (o(), r("div", Q2, "🎁 Цель выполнена — забери награду")) : k("", !0),
+          l("div", J2, [
             t.ready ? (o(), r("button", {
               key: 0,
               type: "button",
               class: "btn primary",
               onClick: (i) => e.actions.claim(t.id)
-            }, "🎁 Получить награду", 8, J2)) : (o(), r("button", {
+            }, "🎁 Получить награду", 8, Y2)) : (o(), r("button", {
               key: 1,
               type: "button",
               class: "btn soft",
               disabled: e.model.rerollUsed,
               onClick: (i) => e.actions.replace(t.id)
-            }, "🔄 Заменить", 8, Y2))
+            }, "🔄 Заменить", 8, Z2))
           ])
-        ], 10, D2))), 128)),
-        e.model.cards.length ? k("", !0) : (o(), r("div", Z2, "Подходящие квесты пока не найдены."))
+        ], 10, F2))), 128)),
+        e.model.cards.length ? k("", !0) : (o(), r("div", _2, "Подходящие квесты пока не найдены."))
       ]),
-      l("div", _2, a(e.model.rerollNote), 1),
-      l("details", e8, [
+      l("div", e8, a(e.model.rerollNote), 1),
+      l("details", t8, [
         n[1] || (n[1] = l("summary", null, "История выполненных квестов", -1)),
-        e.model.history.length ? (o(), r("div", t8, [
+        e.model.history.length ? (o(), r("div", n8, [
           (o(!0), r(f, null, g(e.model.history, (t) => (o(), r("div", {
             key: t.id,
             class: "quest-history-row"
@@ -10694,34 +10706,34 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
             ]),
             l("span", null, a(t.reward), 1)
           ]))), 128))
-        ])) : (o(), r("div", n8, "История появится после получения первой награды."))
+        ])) : (o(), r("div", s8, "История появится после получения первой награды."))
       ])
     ]));
   }
-}, l8 = { class: "quest-replace-dialog" }, i8 = { class: "lesson" }, o8 = {
+}, i8 = { class: "quest-replace-dialog" }, o8 = { class: "lesson" }, a8 = {
   key: 0,
   class: "teacher-danger"
-}, a8 = { class: "actions" }, r8 = {
+}, r8 = { class: "actions" }, c8 = {
   __name: "QuestReplaceDialog",
   props: {
     model: { type: Object, required: !0 },
     actions: { type: Object, required: !0 }
   },
   setup(e) {
-    return (s, n) => (o(), r("div", l8, [
+    return (s, n) => (o(), r("div", i8, [
       N(ue, {
         title: e.model.title,
         onClose: e.actions.close
       }, null, 8, ["title", "onClose"]),
-      l("div", i8, [
+      l("div", o8, [
         l("b", null, a(e.model.questTitle), 1),
         n[2] || (n[2] = l("br", null, null, -1)),
         p(a(e.model.description), 1)
       ]),
-      e.model.progress ? (o(), r("div", o8, [
+      e.model.progress ? (o(), r("div", a8, [
         l("b", null, "Прогресс " + a(e.model.progress) + " будет потерян.", 1)
       ])) : k("", !0),
-      l("div", a8, [
+      l("div", r8, [
         l("button", {
           type: "button",
           class: "btn primary",
@@ -10735,158 +10747,158 @@ const hr = { class: "knowledge-card-title" }, yr = { class: "knowledge-card-sub"
       ])
     ]));
   }
-}, c8 = {
+}, u8 = {
   class: "mk872-training-panel",
   role: "alertdialog",
   "aria-modal": "true",
   "aria-labelledby": "mk872-training-heading",
   "aria-describedby": "mk872-training-description"
-}, u8 = { id: "mk872-training-heading" }, d8 = { id: "mk872-training-description" }, m8 = { class: "mk872-training-actions" }, f8 = ["onClick"], b8 = {
+}, d8 = { id: "mk872-training-heading" }, m8 = { id: "mk872-training-description" }, f8 = { class: "mk872-training-actions" }, b8 = ["onClick"], h8 = {
   __name: "LearningDialog",
   props: {
     model: { type: Object, required: !0 },
     actions: { type: Object, required: !0 }
   },
   setup(e) {
-    return (s, n) => (o(), r("section", c8, [
-      l("h2", u8, a(e.model.title), 1),
-      l("p", d8, a(e.model.message), 1),
-      l("div", m8, [
+    return (s, n) => (o(), r("section", u8, [
+      l("h2", d8, a(e.model.title), 1),
+      l("p", m8, a(e.model.message), 1),
+      l("div", f8, [
         (o(!0), r(f, null, g(e.model.labels, (t, i) => (o(), r("button", {
           key: t,
           type: "button",
           class: x(["btn", i === 0 ? "primary" : "soft"]),
           onClick: (c) => e.actions.choose(i)
-        }, a(t), 11, f8))), 128))
+        }, a(t), 11, b8))), 128))
       ])
     ]));
   }
-}, h8 = {
+}, y8 = {
   class: "mk872-viewer-card",
   role: "document"
-}, y8 = { id: "mk872ViewerVisual" }, v8 = ["innerHTML"], k8 = {
+}, v8 = { id: "mk872ViewerVisual" }, k8 = ["innerHTML"], g8 = {
   id: "mk872ViewerTitle",
   class: "mk872-viewer-title"
-}, g8 = {
+}, $8 = {
   __name: "ArtworkViewer",
   props: {
     model: { type: Object, required: !0 },
     actions: { type: Object, required: !0 }
   },
   setup(e) {
-    return (s, n) => (o(), r("div", h8, [
+    return (s, n) => (o(), r("div", y8, [
       l("button", {
         type: "button",
         class: "mk872-viewer-close",
         "aria-label": "Закрыть просмотр",
         onClick: n[0] || (n[0] = (...t) => e.actions.close && e.actions.close(...t))
       }, "×"),
-      l("div", y8, [
+      l("div", v8, [
         l("div", {
           class: x(["mk30-visual", e.model.kind === "pet" ? "mk30-pet" : "mk30-avatar"]),
           inert: "",
           innerHTML: e.model.artwork
-        }, null, 10, v8)
+        }, null, 10, k8)
       ]),
-      l("div", k8, a(e.model.title), 1),
+      l("div", g8, a(e.model.title), 1),
       n[1] || (n[1] = l("div", { class: "mk872-viewer-hint" }, "Нажмите вне окна или Esc, чтобы закрыть", -1))
     ]));
   }
 }, ss = /* @__PURE__ */ new WeakMap();
-function p8(e, s, n) {
+function C8(e, s, n) {
   I(e, Vr, s, n);
 }
-function C8(e, s, n) {
+function x8(e, s, n) {
   I(e, rc, s, n);
 }
-function x8(e, s, n) {
+function w8(e, s, n) {
   I(e, Sc, s, n);
 }
-function w8(e, s, n) {
+function T8(e, s, n) {
   I(e, Uc, s, n);
 }
-function T8(e, s, n) {
+function S8(e, s, n) {
   I(e, su, s, n);
 }
-function S8(e, s, n) {
+function O8(e, s, n) {
   I(e, uu, s, n);
 }
-function O8(e, s, n) {
+function q8(e, s, n) {
   I(e, yu, s, n);
 }
-function q8(e, s, n) {
+function M8(e, s, n) {
   I(e, Fu, s, n);
 }
-function M8(e, s, n) {
+function L8(e, s, n) {
   I(e, Wu, s, n);
 }
-function L8(e, s, n) {
+function j8(e, s, n) {
   I(e, zd, s, n);
 }
-function j8(e, s, n) {
+function H8(e, s, n) {
   I(e, im, s, n);
 }
-function H8(e, s) {
+function P8(e, s) {
   I(e, Ps, s);
 }
-function P8(e, s, n) {
+function E8(e, s, n) {
   I(e, vm, s, n);
 }
-function E8(e, s, n) {
+function A8(e, s, n) {
   I(e, Ri, s, n);
 }
-function A8(e, s, n) {
+function R8(e, s, n) {
   I(e, ef, s, n);
 }
-function R8(e, s, n) {
+function I8(e, s, n) {
   I(e, Ii, s, n);
 }
-function I8(e, s, n) {
+function N8(e, s, n) {
   I(e, jf, s, n);
 }
-function N8(e, s, n) {
+function D8(e, s, n) {
   I(e, Bf, s, n);
 }
-function D8(e, s, n) {
+function F8(e, s, n) {
   I(e, e1, s, n);
 }
-function F8(e, s, n) {
+function K8(e, s, n) {
   I(e, r1, s, n);
 }
-function K8(e, s, n) {
+function V8(e, s, n) {
   I(e, V1, s, n);
 }
-function V8(e, s, n) {
+function B8(e, s, n) {
   I(e, cb, s, n);
 }
-function B8(e, s, n) {
+function U8(e, s, n) {
   I(e, Sb, s, n);
 }
-function U8(e, s, n) {
+function W8(e, s, n) {
   I(e, ib, s, n);
 }
-function W8(e, s) {
+function z8(e, s) {
   I(e, qb, s);
 }
-function z8(e, s, n) {
+function X8(e, s, n) {
   I(e, sb, s, n);
 }
-function X8(e, s, n) {
+function G8(e, s, n) {
   I(e, jb, s, n);
 }
-function G8(e, s, n) {
+function Q8(e, s, n) {
   I(e, zb, s, n);
 }
-function Q8(e, s, n) {
+function J8(e, s, n) {
   I(e, Yb, s, n);
 }
-function J8(e, s, n) {
+function Y8(e, s, n) {
   I(e, vh, s, n);
 }
-function Y8(e, s, n) {
+function Z8(e, s, n) {
   I(e, Es, s, n);
 }
-function Z8(e, s, n) {
+function _8(e, s, n) {
   s.column && (n = {
     inputCell: globalThis.columnCellInput,
     moveCell: globalThis.workKey,
@@ -10894,107 +10906,107 @@ function Z8(e, s, n) {
     ...n
   }), I(e, wh, s, n);
 }
-function _8(e, s, n) {
+function eC(e, s, n) {
   I(e, Mh, s, n);
 }
-function eC(e, s, n) {
+function tC(e, s, n) {
   I(e, jh, s, n);
 }
-function tC(e, s) {
+function nC(e, s) {
   I(e, Di, s);
 }
-function nC(e, s, n) {
+function sC(e, s, n) {
   I(e, dy, s, n);
 }
-function sC(e, s, n) {
+function lC(e, s, n) {
   I(e, ry, s, n);
 }
-function lC(e, s, n) {
+function iC(e, s, n) {
   I(e, py, s, n);
 }
-function iC(e, s, n) {
+function oC(e, s, n) {
   I(e, My, s, n);
 }
-function oC(e, s, n) {
-  I(e, Ay, s, n);
-}
 function aC(e, s, n) {
-  I(e, Iy, s, n);
+  I(e, Ry, s, n);
 }
-function rC(e, s) {
-  I(e, Ny, s);
+function rC(e, s, n) {
+  I(e, Ny, s, n);
 }
-function cC(e, s, n) {
-  I(e, Qy, s, n);
+function cC(e, s) {
+  I(e, Dy, s);
 }
 function uC(e, s, n) {
-  I(e, ov, s, n);
+  I(e, Jy, s, n);
 }
 function dC(e, s, n) {
-  I(e, kv, s, n);
+  I(e, av, s, n);
 }
 function mC(e, s, n) {
-  I(e, Ev, s, n);
+  I(e, gv, s, n);
 }
 function fC(e, s, n) {
-  I(e, Gv, s, n);
+  I(e, Av, s, n);
 }
 function bC(e, s, n) {
-  I(e, ek, s, n);
+  I(e, Qv, s, n);
 }
 function hC(e, s, n) {
-  I(e, lk, s, n);
+  I(e, tk, s, n);
 }
 function yC(e, s, n) {
-  I(e, mk, s, n);
+  I(e, ik, s, n);
 }
 function vC(e, s, n) {
-  I(e, yk, s, n);
+  I(e, fk, s, n);
 }
 function kC(e, s, n) {
-  I(e, jk, s, n);
+  I(e, vk, s, n);
 }
 function gC(e, s, n) {
-  I(e, sg, s, n);
+  I(e, Hk, s, n);
 }
 function $C(e, s, n) {
-  I(e, Hg, s, n);
+  I(e, lg, s, n);
 }
 function pC(e, s, n) {
-  I(e, Ag, s, n);
+  I(e, Pg, s, n);
 }
 function CC(e, s, n) {
-  I(e, Fg, s, n);
+  I(e, Rg, s, n);
 }
 function xC(e, s, n) {
-  I(e, f$, s, n);
+  I(e, Kg, s, n);
 }
 function wC(e, s, n) {
-  I(e, Gp, s, n);
+  I(e, b$, s, n);
 }
 function TC(e, s, n) {
-  I(e, n2, s, n);
+  I(e, Qp, s, n);
 }
 function SC(e, s, n) {
-  I(e, g2, s, n);
+  I(e, s2, s, n);
 }
 function OC(e, s, n) {
-  I(e, C2, s, n);
+  I(e, $2, s, n);
 }
 function qC(e, s, n) {
-  I(e, E2, s, n);
+  I(e, x2, s, n);
 }
 function MC(e, s, n) {
-  I(e, s8, s, n);
+  I(e, A2, s, n);
 }
 function LC(e, s, n) {
-  I(e, r8, s, n);
+  I(e, l8, s, n);
 }
 function jC(e, s, n) {
-  I(e, b8, s, n);
+  I(e, c8, s, n);
 }
 function HC(e, s, n) {
-  I(e, g8, s, n);
+  I(e, h8, s, n);
+}
+function PC(e, s, n) {
+  I(e, $8, s, n);
 }
 function I(e, s, n, t) {
   const i = ss.get(e);
@@ -11014,70 +11026,70 @@ function I(e, s, n, t) {
   v && d !== v && m.observe(v, { childList: !0 });
 }
 export {
-  gC as mountAchievementCatalog,
-  U8 as mountAppFooter,
-  z8 as mountAppHeader,
-  HC as mountArtworkViewer,
-  O8 as mountAttemptJournal,
-  q8 as mountAttemptReview,
-  $C as mountBackupDialog,
-  uC as mountCollectionArchive,
-  aC as mountCollectionNavigation,
-  oC as mountCollectionSection,
-  rC as mountCollectionWorth,
-  R8 as mountColumnExercise,
-  T8 as mountControlReview,
-  S8 as mountControlReviewResult,
-  j8 as mountCourseTopic,
-  V8 as mountDeveloperAccess,
-  B8 as mountDeveloperPanel,
-  x8 as mountErrorWork,
-  eC as mountFractionMixIntro,
-  L8 as mountGradeCourse,
-  K8 as mountHomeDashboard,
-  p8 as mountKnowledgeMap,
-  kC as mountLeaderboard,
-  jC as mountLearningDialog,
-  cC as mountPetQuickPanel,
-  M8 as mountPracticeResult,
-  tC as mountProfilePreview,
-  MC as mountQuestBoard,
-  LC as mountQuestReplaceDialog,
-  D8 as mountQuickExercise,
-  N8 as mountQuickTrainerFrame,
-  F8 as mountQuickTrainerResult,
-  I8 as mountQuickTrainerSetup,
-  A8 as mountQuizExercise,
-  W8 as mountRewardNotice,
-  Z8 as mountSchoolAttempt,
-  _8 as mountSchoolAttemptFrame,
-  P8 as mountStageResult,
-  pC as mountStorageRecovery,
-  iC as mountStoreCatalog,
-  fC as mountStoreChest,
-  bC as mountStoreChestResult,
-  yC as mountStoreControls,
-  hC as mountStoreHelpDialog,
-  dC as mountStoreSaleDialog,
-  nC as mountStoreSurfaceHeader,
-  vC as mountStoreTabs,
-  mC as mountStoreWallet,
-  lC as mountStudentProfileEditor,
-  sC as mountStudentProfiles,
-  G8 as mountStudentProgress,
-  E8 as mountTableExercise,
-  qC as mountTeacherActionDialog,
-  xC as mountTeacherDashboard,
-  CC as mountTeacherPinDialog,
-  SC as mountTeacherReview,
-  wC as mountTeacherStudentDetail,
-  TC as mountTeacherStudentReport,
-  OC as mountTeacherTopicReview,
-  C8 as mountTopicDetail,
-  Q8 as mountTrainingGoalPicker,
-  X8 as mountTrainingHistoryReport,
-  J8 as mountTrainingPlan,
-  Y8 as mountTrainingPlanReturn,
-  H8 as mountTrainingProgress,
-  w8 as mountWeakTopics
+  $C as mountAchievementCatalog,
+  W8 as mountAppFooter,
+  X8 as mountAppHeader,
+  PC as mountArtworkViewer,
+  q8 as mountAttemptJournal,
+  M8 as mountAttemptReview,
+  pC as mountBackupDialog,
+  dC as mountCollectionArchive,
+  rC as mountCollectionNavigation,
+  aC as mountCollectionSection,
+  cC as mountCollectionWorth,
+  I8 as mountColumnExercise,
+  S8 as mountControlReview,
+  O8 as mountControlReviewResult,
+  H8 as mountCourseTopic,
+  B8 as mountDeveloperAccess,
+  U8 as mountDeveloperPanel,
+  w8 as mountErrorWork,
+  tC as mountFractionMixIntro,
+  j8 as mountGradeCourse,
+  V8 as mountHomeDashboard,
+  C8 as mountKnowledgeMap,
+  gC as mountLeaderboard,
+  HC as mountLearningDialog,
+  uC as mountPetQuickPanel,
+  L8 as mountPracticeResult,
+  nC as mountProfilePreview,
+  LC as mountQuestBoard,
+  jC as mountQuestReplaceDialog,
+  F8 as mountQuickExercise,
+  D8 as mountQuickTrainerFrame,
+  K8 as mountQuickTrainerResult,
+  N8 as mountQuickTrainerSetup,
+  R8 as mountQuizExercise,
+  z8 as mountRewardNotice,
+  _8 as mountSchoolAttempt,
+  eC as mountSchoolAttemptFrame,
+  E8 as mountStageResult,
+  CC as mountStorageRecovery,
+  oC as mountStoreCatalog,
+  bC as mountStoreChest,
+  hC as mountStoreChestResult,
+  vC as mountStoreControls,
+  yC as mountStoreHelpDialog,
+  mC as mountStoreSaleDialog,
+  sC as mountStoreSurfaceHeader,
+  kC as mountStoreTabs,
+  fC as mountStoreWallet,
+  iC as mountStudentProfileEditor,
+  lC as mountStudentProfiles,
+  Q8 as mountStudentProgress,
+  A8 as mountTableExercise,
+  MC as mountTeacherActionDialog,
+  wC as mountTeacherDashboard,
+  xC as mountTeacherPinDialog,
+  OC as mountTeacherReview,
+  TC as mountTeacherStudentDetail,
+  SC as mountTeacherStudentReport,
+  qC as mountTeacherTopicReview,
+  x8 as mountTopicDetail,
+  J8 as mountTrainingGoalPicker,
+  G8 as mountTrainingHistoryReport,
+  Y8 as mountTrainingPlan,
+  Z8 as mountTrainingPlanReturn,
+  P8 as mountTrainingProgress,
+  T8 as mountWeakTopics
 };

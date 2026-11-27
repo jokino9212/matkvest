@@ -11,6 +11,7 @@ defineProps({ model: Object, actions: Object });
       <h2>{{ model.title }}</h2><div>{{ model.body }}</div>
       <div class="mk861-result-actions">
         <button v-if="model.equip" type="button" class="btn primary" @click="actions.equip()">Надеть</button>
+        <button v-if="model.sell" type="button" class="btn soft" @click="actions.sell()">{{ model.sell }}</button>
         <button type="button" class="btn soft" @click="actions.finish()">Готово</button>
       </div>
     </div>

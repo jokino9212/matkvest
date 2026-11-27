@@ -10737,6 +10737,7 @@ function shopCardSale(type,item,owned){
  const eligible=mk865SellEligibility(type,item.id);
  if(!eligible.ok)return {text:eligible.reason};
  const mission=mk865MissionForItem(type,item.id);
+ if(eligible.chest)return {allowed:true,text:"Продажа за 50%: "+eligible.refundNow+" 🪙"};
  if(!mission)return {allowed:true};
  const complete=mission.status==="completed";
  return {allowed:true,className:complete?"completed":"ready",
@@ -10853,7 +10854,7 @@ function openShop(category="avatars",rarity=null){
 }
 function buyShopItem(type,id){
  normalizeShop();const item=catalogItem(type,id);if(!item||(type==="pets"&&item.retiredPet)||isOwned(type,id)||item.rewardOnly)return;if(levelFor(state.xp)<item.level){rewardPop(`Нужен уровень ${item.level}`);return}if((state.coins||0)<item.price){rewardPop("Не хватает монет");return}
- state.coins-=item.price;state.inventory[type].push(id);state.inventory[type]=[...new Set(state.inventory[type])];state.shopStats.spent+=item.price;state.shopStats.purchases++;let collectorUnlocked=false,selected=false;
+ state.coins-=item.price;state.inventory[type].push(id);state.inventory[type]=[...new Set(state.inventory[type])];state.shopStats.spent+=item.price;state.shopStats.purchases++;if(typeof mk305IsSold==="function"&&mk305IsSold(state,type,id))mk865SetAcquisition(state,type,id,"store",item.price,Math.max(Date.now(),Number(mk865Acquisition(state,type,id).soldTimestamp)+1));let collectorUnlocked=false,selected=false;
  if(type==="avatars"){state.equipped.avatar=id;selected=true}else if(type==="frames"){state.equipped.frame=id;selected=true}else if(type==="pets"){state.equipped.pet=id;selected=true}else if(type==="titles"){state.equipped.title=id;selected=true}else if(type==="backgrounds"){state.equipped.background=id;selected=true}else if(type==="badges"&&(state.equipped.badges||[]).length<3){state.equipped.badges=[...(state.equipped.badges||[]),id];selected=true}else if(type==="stickers"){
   const all=purchasableStickerItems().every(x=>state.inventory.stickers.includes(x.id));if(all&&!state.inventory.frames.includes("fr_collector")){state.inventory.frames.push("fr_collector");state.equipped.frame="fr_collector";collectorUnlocked=true}
  }
@@ -11705,6 +11706,8 @@ function replaceWithPendingImport(){
  const imported=Object.create(null);
  Object.entries(data.profiles).forEach(([name,p])=>{
   const prof=normalizeImportedProfile(p);
+  const old=Object.values(profiles).find(x=>x?.profileId===prof.profileId);
+  if(old&&typeof mk305PreserveChestOnReplacement==="function")mk305PreserveChestOnReplacement(deepCopy(old),prof);
   if(Object.values(imported).some(x=>x.profileId===prof.profileId))prof.profileId=newProfileId();
   imported[name]=prof;
  });
@@ -14277,7 +14280,7 @@ function knowledgeFilteredSections(data){
  const mapSec=sec=>{let topics=sec.topics.filter(t=>knowledgeStatusPass(t,knowledgeMapState.status)&&(!q||`${t.title} ${t.group}`.toLocaleLowerCase("ru-RU").includes(q)));if(knowledgeMapState.sort==="attention")topics=topics.slice().sort((a,b)=>knowledgeTopicPriority(a)-knowledgeTopicPriority(b));return {...sec,topics}};
  return [...data.sections,...data.extraSections].map(mapSec).filter(s=>s.topics.length);
 }
-const knowledgeMapUrl = "./assets/ui/knowledge-map.js?v=304";
+const knowledgeMapUrl = "./assets/ui/knowledge-map.js?v=305";
 const knowledgeTopicDetailHostId="knowledgeTopicDetailVue";
 let knowledgeMapModule;
 let knowledgeMapRevision=0;
@@ -26037,7 +26040,7 @@ const MK855_PRE_BUY_SHOP_ITEM=buyShopItem;
 buyShopItem=function(type,id){
  if(!["accessories","effects","nicknameStyles"].includes(type))return MK855_PRE_BUY_SHOP_ITEM(type,id);
  normalizeShop();const item=catalogItem(type,id);if(!item||(type==="pets"&&item.retiredPet)||isOwned(type,id)||item.rewardOnly)return;if(levelFor(state.xp)<item.level){rewardPop(`Нужен уровень ${item.level}`);return}if((state.coins||0)<item.price){rewardPop("Не хватает монет");return}
- state.coins-=item.price;state.inventory[type].push(id);state.inventory[type]=[...new Set(state.inventory[type])];state.shopStats.spent+=item.price;state.shopStats.purchases++;mk855EquipItem(type,id);save();rewardPop(`«${item.name}» куплен и выбран!`);openShop(type);
+ state.coins-=item.price;state.inventory[type].push(id);state.inventory[type]=[...new Set(state.inventory[type])];state.shopStats.spent+=item.price;state.shopStats.purchases++;if(typeof mk305IsSold==="function"&&mk305IsSold(state,type,id))mk865SetAcquisition(state,type,id,"store",item.price,Math.max(Date.now(),Number(mk865Acquisition(state,type,id).soldTimestamp)+1));mk855EquipItem(type,id);save();rewardPop(`«${item.name}» куплен и выбран!`);openShop(type);
 };
 const MK855_PRE_EQUIP_SHOP_ITEM=equipShopItem;
 equipShopItem=function(type,id,options){
@@ -26243,6 +26246,7 @@ freshQuiz=function(id){
    Achievement-only/default/дешёвые sticker/badge items сюда не входят.
    ========================================================= */
 const MK861_CHEST_PRICE=200;
+const MK305_CHEST_XP=Object.freeze({rare:60,epic:40,legendary:20});
 const MK861_CHEST_RATES=Object.freeze({rare:0.70,epic:0.25,legendary:0.05});
 const MK861_CHEST_COMPENSATION=Object.freeze({rare:100,epic:150,legendary:200});
 const MK861_CHEST_HISTORY_LIMIT=20;
@@ -26373,7 +26377,7 @@ function mk861NormalizeChestProfile(profile){
  const nonneg=k=>Math.max(0,Math.floor(Number(raw[k])||0));
  profile.chestStats={
   totalOpened:nonneg("totalOpened"),rareCount:nonneg("rareCount"),epicCount:nonneg("epicCount"),legendaryCount:nonneg("legendaryCount"),
-  compensationCoins:nonneg("compensationCoins"),lastOpenedAt:Math.max(0,Number(raw.lastOpenedAt)||0)
+  compensationCoins:nonneg("compensationCoins"),bonusXp:nonneg("bonusXp"),lastOpenedAt:Math.max(0,Number(raw.lastOpenedAt)||0)
  };
  profile.chestOwnedIds=[...new Set((Array.isArray(profile.chestOwnedIds)?profile.chestOwnedIds:[]).filter(id=>!!mk861CatalogEntryById(id)))];
  profile.chestHistory=Array.isArray(profile.chestHistory)?profile.chestHistory.slice(-MK861_CHEST_HISTORY_LIMIT).map(x=>({
@@ -26382,7 +26386,7 @@ function mk861NormalizeChestProfile(profile){
   type:typeof x?.type==="string"?x.type:null,
   timestamp:Math.max(0,Number(x?.timestamp)||0),
   compensation:!!x?.compensation,
-  compensationCoins:Math.max(0,Math.floor(Number(x?.compensationCoins)||0))
+  compensationCoins:Math.max(0,Math.floor(Number(x?.compensationCoins)||0)),bonusXp:Math.max(0,Math.min(MK305_CHEST_XP[x?.rarity]||0,Math.floor(Number(x?.bonusXp)||0)))
  })):[];
  return profile;
 }
@@ -26431,20 +26435,23 @@ function mk861OpenChestTransaction(){
  const rarity=mk861RollRarity(state.chestPity),available=mk861UnownedEntries(state,rarity),picked=mk861PickArray(available);
  const compensation=!picked,compensationCoins=compensation?MK861_CHEST_COMPENSATION[rarity]:0;
  const next=deepCopy(state);normalizeProfileShopData(next,{syncRewards:false});mk861NormalizeChestProfile(next);
+ const bonusXp=picked?MK305_CHEST_XP[rarity]:0;
+ next.xp=Number(next.xp||0)+bonusXp;next.chestStats.bonusXp+=bonusXp;
  next.coins=Math.max(0,Number(next.coins||0)-MK861_CHEST_PRICE+compensationCoins);
  if(picked){
   next.inventory[picked.type]=Array.isArray(next.inventory[picked.type])?next.inventory[picked.type]:[];
   if(!next.inventory[picked.type].includes(picked.item.id))next.inventory[picked.type].push(picked.item.id);
   if(!next.chestOwnedIds.includes(picked.item.id))next.chestOwnedIds.push(picked.item.id);
+  mk865SetAcquisition(next,picked.type,picked.item.id,"chest",0,Date.now());
  }
  next.chestPity=mk861NextPity(next.chestPity,rarity);
  next.chestStats.totalOpened++;
  if(rarity==="rare")next.chestStats.rareCount++;else if(rarity==="epic")next.chestStats.epicCount++;else next.chestStats.legendaryCount++;
  next.chestStats.compensationCoins+=compensationCoins;next.chestStats.lastOpenedAt=Date.now();
- const historyEntry={rarity,rewardId:picked?.item?.id||null,type:picked?.type||null,timestamp:next.chestStats.lastOpenedAt,compensation,compensationCoins};
+ const historyEntry={rarity,rewardId:picked?.item?.id||null,type:picked?.type||null,timestamp:next.chestStats.lastOpenedAt,compensation,compensationCoins,bonusXp};
  next.chestHistory=[...(next.chestHistory||[]),historyEntry].slice(-MK861_CHEST_HISTORY_LIMIT);
  if(!mk861CommitProfileState(next)){MK861_CHEST_TRANSACTION_LOCK=false;return null}
- const result={rarity,rewardId:historyEntry.rewardId,type:historyEntry.type,item:picked?.item||null,compensation,compensationCoins,coinsAfter:state.coins,pity:deepCopy(state.chestPity),timestamp:historyEntry.timestamp};
+ const result={rarity,rewardId:historyEntry.rewardId,type:historyEntry.type,item:picked?.item||null,compensation,compensationCoins,bonusXp,coinsAfter:state.coins,pity:deepCopy(state.chestPity),timestamp:historyEntry.timestamp};
  MK861_PENDING_REVEAL=result;
  if(typeof mk861ShowReveal==="function")mk861ShowReveal(result);else MK861_CHEST_TRANSACTION_LOCK=false;
  return result;
@@ -26458,7 +26465,7 @@ const MK861_RARITY_LABEL={rare:"Редкий",epic:"Эпический",legendar
 function mk861OwnedPoolCount(profile,rarity){const all=mk861ChestEntries(rarity);return all.length-mk861UnownedEntries(profile,rarity).length}
 function mk861HistoryName(entry){
  if(entry.compensation)return `Компенсация ${entry.compensationCoins} 🪙`;
- return mk861CatalogEntryById(entry.rewardId)?.item?.name||"Косметическая награда";
+ return (mk861CatalogEntryById(entry.rewardId)?.item?.name||"Косметическая награда")+(entry.bonusXp?" · +"+entry.bonusXp+" XP":"");
 }
 function mk861RenderChestStore(){
  normalizeShop();mk861NormalizeChestProfile(state);
@@ -26468,7 +26475,7 @@ function mk861RenderChestStore(){
  const history=(state.chestHistory||[]).slice(-8).reverse().map(x=>({
   icon:x.rarity==="legendary"?"🟡":x.rarity==="epic"?"🟣":"🟢",name:mk861HistoryName(x),
   date:new Date(x.timestamp||Date.now()).toLocaleDateString("ru-RU")}));
- const tiers=["rare","epic","legendary"].map((id,index)=>({id,label:MK861_RARITY_LABEL[id],chance:["70%","25%","5%"][index],
+ const tiers=["rare","epic","legendary"].map((id,index)=>({id,label:MK861_RARITY_LABEL[id],chance:["70%","25%","5%"][index]+" · +"+MK305_CHEST_XP[id]+" XP",
   progress:MK861_RARITY_LABEL[id]+": "+mk861OwnedPoolCount(state,id)+"/"+mk861ChestEntries(id).length}));
  const guarantees=[{text:g.epicPlusText,hot:g.epicNext||g.legendaryNext},{text:g.legendaryText,hot:g.legendaryNext}];
  const model={disabled,reason,price:MK861_CHEST_PRICE,history,tiers,guarantees};
@@ -26519,15 +26526,17 @@ function mk861FinishReveal(){
 function mk861ShowReveal(result){
  const label=MK861_RARITY_LABEL[result.rarity]||"Награда",item=result.item;
  const title=result.compensation?`${label}: коллекция этой редкости уже собрана`:`${label} предмет!`;
- const body=result.compensation?`Возвращено ${result.compensationCoins} 🪙`:`Получено: ${item?.name||"Косметическая награда"}`;
+ const body=(result.compensation?`Возвращено ${result.compensationCoins} 🪙`:`Получено: ${item?.name||"Косметическая награда"}`)+(result.bonusXp?" · +"+result.bonusXp+" XP":"");
  const icon=result.compensation?"🪙":(item?.icon||"✨");
  const equip=!result.compensation&&result.rewardId&&result.type;
- show(`<div class="mk861-reveal ${result.rarity}" role="dialog" aria-label="Результат сундука"><div class="mk861-reveal-stage"><div class="mk861-reveal-flash"></div><div class="mk861-reveal-chest" aria-hidden="true">🎁</div><button class="mk861-skip" onclick="mk861FinalizeReveal()">Пропустить</button><div class="mk861-result"><div class="rarity">${esc(label)}</div><div class="mk861-result-icon">${icon}</div><h2>${esc(title)}</h2><div>${esc(body)}</div><div class="mk861-result-actions">${equip?`<button class="btn primary" onclick="equipShopItem('${result.type}','${result.rewardId}')">Надеть</button>`:""}<button class="btn soft" onclick="mk861FinishReveal()">Готово</button></div></div></div></div>`);
+ const sale=equip?mk865SellEligibility(result.type,result.rewardId):null;
+ const sell=sale?.ok&&sale.chest?"Продать за "+sale.refundNow+" 🪙":"";
+ show(`<div class="mk861-reveal ${result.rarity}" role="dialog" aria-label="Результат сундука"><div class="mk861-reveal-stage"><div class="mk861-reveal-flash"></div><div class="mk861-reveal-chest" aria-hidden="true">🎁</div><button class="mk861-skip" onclick="mk861FinalizeReveal()">Пропустить</button><div class="mk861-result"><div class="rarity">${esc(label)}</div><div class="mk861-result-icon">${icon}</div><h2>${esc(title)}</h2><div>${esc(body)}</div><div class="mk861-result-actions">${equip?`<button class="btn primary" onclick="equipShopItem('${result.type}','${result.rewardId}')">Надеть</button>`:""}${sell?`<button class="btn soft" onclick="mk865OpenSellDialog('${result.type}','${result.rewardId}')">${esc(sell)}</button>`:""}<button class="btn soft" onclick="mk861FinishReveal()">Готово</button></div></div></div></div>`);
  const host=modal.querySelector(".mk861-reveal");
  loadVueModule().then(module=>{
   if(host?.parentNode!==modal||!overlay.classList.contains("show"))return;
-  module.mountStoreChestResult(host,{rarity:label,title,body,icon,equip},{
-   reveal:mk861FinalizeReveal,finish:mk861FinishReveal,equip:()=>equipShopItem(result.type,result.rewardId)
+  module.mountStoreChestResult(host,{rarity:label,title,body,icon,equip,sell},{
+   reveal:mk861FinalizeReveal,finish:mk861FinishReveal,equip:()=>equipShopItem(result.type,result.rewardId),sell:()=>mk865OpenSellDialog(result.type,result.rewardId)
   });
  }).catch(()=>{ /* Keep the chest result usable when Vue cannot load. */ });
  setTimeout(()=>{MK861_CHEST_TRANSACTION_LOCK=false},400);
@@ -26543,12 +26552,12 @@ function mk861ShowReveal(result){
 function mk861ChestOpenCount(profile){mk861NormalizeChestProfile(profile);return Number(profile?.chestStats?.totalOpened||0)}
 function mk861ApplyChestOwnedToInventory(profile){
  normalizeProfileShopData(profile,{syncRewards:false});mk861NormalizeChestProfile(profile);
- for(const id of profile.chestOwnedIds){const hit=mk861CatalogEntryById(id);if(!hit)continue;profile.inventory[hit.type]=Array.isArray(profile.inventory[hit.type])?profile.inventory[hit.type]:[];if(!profile.inventory[hit.type].includes(id))profile.inventory[hit.type].push(id)}
+ for(const id of profile.chestOwnedIds){const hit=mk861CatalogEntryById(id);if(!hit||mk305IsSold(profile,hit.type,id))continue;profile.inventory[hit.type]=Array.isArray(profile.inventory[hit.type])?profile.inventory[hit.type]:[];if(!profile.inventory[hit.type].includes(id))profile.inventory[hit.type].push(id)}
  return profile;
 }
 function mk861CopyChestState(source,target,{protectCoins=false}={}){
  mk861NormalizeChestProfile(source);mk861NormalizeChestProfile(target);
- target.chestPity=deepCopy(source.chestPity);target.chestStats=deepCopy(source.chestStats);target.chestHistory=deepCopy(source.chestHistory);target.chestOwnedIds=deepCopy(source.chestOwnedIds);
+ target.chestPity=deepCopy(source.chestPity);target.chestStats=deepCopy(source.chestStats);target.chestHistory=deepCopy(source.chestHistory);target.chestOwnedIds=[...new Set([...(target.chestOwnedIds||[]),...source.chestOwnedIds])];
  if(protectCoins)target.coins=Math.min(Number(target.coins||0),Number(source.coins||0));
  return mk861ApplyChestOwnedToInventory(target);
 }
@@ -26669,6 +26678,59 @@ function mk865RecoverOldPurchases(profile){
  for(const x of candidates)mk865SetAcquisition(profile,x.type,x.id,"store",x.price,at,{purchaseDateUnknown:true,recoveredFrom:"verifiedShopTotals"});
  return true;
 }
+// v305: acquisition records are durable tombstones; history can be truncated.
+function mk305IsSold(profile,type,id){
+ const rec=profile?.acquisitionMetadata?.[type+":"+id];
+ return Number(rec?.soldTimestamp||0)>0&&Number(rec.soldTimestamp)>=Number(rec.purchaseTimestamp||0);
+}
+function mk305MergeRecord(a,b){
+ if(!a)return deepCopy(b);if(!b)return deepCopy(a);
+ const ap=Number(a.purchaseTimestamp||0),bp=Number(b.purchaseTimestamp||0);
+ if(ap!==bp)return deepCopy(ap>bp?a:b);
+ return deepCopy(Number(a.soldTimestamp||0)>=Number(b.soldTimestamp||0)?a:b);
+}
+function mk305RestoreChestProvenance(profile){
+ for(const id of profile.chestOwnedIds||[]){
+  const hit=mk861CatalogEntryById(id);if(!hit)continue;
+  const {type}=hit;mk865RememberEverOwned(profile,type,id);
+  const rec=mk865Acquisition(profile,type,id);
+  if(!rec&&mk861OwnsInProfile(profile,type,id)){
+   const h=(profile.chestHistory||[]).find(x=>x.rewardId===id);
+   mk865SetAcquisition(profile,type,id,"chest",0,Number(h?.timestamp||profile.chestStats?.lastOpenedAt||1));
+  }
+ }
+ for(const [key,rec] of Object.entries(profile.acquisitionMetadata||{})){
+  const i=key.indexOf(":"),type=key.slice(0,i),id=key.slice(i+1);
+  if((rec.source==="chest"||(profile.chestOwnedIds||[]).includes(id))&&mk305IsSold(profile,type,id)&&Array.isArray(profile.inventory?.[type])){
+   profile.inventory[type]=profile.inventory[type].filter(x=>x!==id);mk865FallbackAfterSale(type,id,profile);
+  }
+ }
+}
+function mk305PreserveChestOnReplacement(old,target){
+ if(!old||!target)return;
+ mk861NormalizeChestProfile(old);mk861NormalizeChestProfile(target);
+ mk865NormalizeSaleProfile(old);mk865NormalizeSaleProfile(target);
+ const oldAhead=mk861ChestOpenCount(old)>mk861ChestOpenCount(target);
+ let localSaleAhead=false;
+ const ids=[...new Set([...(old.chestOwnedIds||[]),...(target.chestOwnedIds||[])])];
+ for(const id of ids){
+  const hit=mk861CatalogEntryById(id);if(!hit)continue;
+  const key=mk865ItemKey(hit.type,id),a=old.acquisitionMetadata[key],b=target.acquisitionMetadata[key];
+  if(a&&(!b||Number(a.purchaseTimestamp||0)>Number(b.purchaseTimestamp||0)||Number(a.purchaseTimestamp||0)===Number(b.purchaseTimestamp||0)&&Number(a.soldTimestamp||0)>Number(b.soldTimestamp||0)))localSaleAhead=true;
+  if(a||b)target.acquisitionMetadata[key]=mk305MergeRecord(a,b);
+ }
+ if(oldAhead)mk861CopyChestState(old,target);
+ target.chestOwnedIds=ids;
+ if(oldAhead||localSaleAhead){
+  target.coins=Number(old.coins||0);target.xp=Math.max(Number(old.xp||0),Number(target.xp||0));
+  target.shopStats.sales=Math.max(Number(old.shopStats?.sales||0),Number(target.shopStats?.sales||0));
+  target.shopStats.refundedCoins=Math.max(Number(old.shopStats?.refundedCoins||0),Number(target.shopStats?.refundedCoins||0));
+ }
+ const sales=new Map();for(const x of [...(target.saleHistory||[]),...(old.saleHistory||[]).filter(x=>ids.includes(x.id))])sales.set(x.transactionId||x.type+":"+x.id+":"+x.soldAt,x);
+ target.saleHistory=[...sales.values()].sort((a,b)=>Number(a.soldAt||0)-Number(b.soldAt||0)).slice(-MK865_SALE_HISTORY_LIMIT);
+ target.everOwned=[...new Set([...(target.everOwned||[]),...(old.everOwned||[])])];
+ mk861ApplyChestOwnedToInventory(target);mk865NormalizeSaleProfile(target);
+}
 function mk865NormalizeSaleProfile(profile){
  if(!profile||typeof profile!=="object")return profile;
  profile.acquisitionMetadata=profile.acquisitionMetadata&&typeof profile.acquisitionMetadata==="object"&&!Array.isArray(profile.acquisitionMetadata)?profile.acquisitionMetadata:{};
@@ -26679,6 +26741,7 @@ function mk865NormalizeSaleProfile(profile){
  profile.everOwned=[...new Set((Array.isArray(profile.everOwned)?profile.everOwned:[]).map(String).filter(mk865KnownItemKey))];
  for(const [type,items] of Object.entries(profile.inventory||{}))if(mk865KnownType(type)&&Array.isArray(items))for(const id of items)if(catalogItem(type,id))mk865RememberEverOwned(profile,type,id);
  profile.saleHistory=Array.isArray(profile.saleHistory)?profile.saleHistory.filter(x=>x&&typeof x==="object"&&catalogItem(x.type,x.id)).slice(-MK865_SALE_HISTORY_LIMIT):[];
+ mk305RestoreChestProvenance(profile);
  mk865RecoverOldPurchases(profile);
  profile.shopStats=profile.shopStats&&typeof profile.shopStats==="object"?profile.shopStats:{spent:0,purchases:0};profile.shopStats.sales=Math.max(0,Math.floor(Number(profile.shopStats.sales)||0));profile.shopStats.refundedCoins=Math.max(0,Math.floor(Number(profile.shopStats.refundedCoins)||0));
  mk865NormalizeMission(profile);return profile;
@@ -26691,7 +26754,10 @@ normalizeImportedProfile=function(p,options={}){return mk865NormalizeSaleProfile
 function mk865SellEligibility(type,id,profile=state){
  const item=catalogItem(type,id),owned=Array.isArray(profile?.inventory?.[type])&&profile.inventory[type].includes(id),acq=mk865Acquisition(profile,type,id);
  if(!item||!owned||item.rewardOnly||Number(item.price||0)<=0)return {ok:false,reason:"Этот предмет не продаётся."};
- if(!acq||acq.source!=="store"||Number(acq.paidPrice||0)<=0||Number(acq.purchaseTimestamp||0)<=0)return {ok:false,reason:"Продажа недоступна: нет подтверждения, что предмет был куплен за монеты."};
+ if(acq?.source==="chest"&&!mk305IsSold(profile,type,id)){
+  const referencePrice=Math.floor(Number(item.price));return {ok:true,item,acq,chest:true,paidPrice:0,referencePrice,refundNow:Math.floor(referencePrice*0.5),refundTraining:0};
+ }
+ if(!acq||acq.source!=="store"||Number(acq.paidPrice||0)<=0||Number(acq.purchaseTimestamp||0)<=0||mk305IsSold(profile,type,id))return {ok:false,reason:"Продажа недоступна: нет подтверждения покупки или получения из сундука."};
  const paidPrice=Math.floor(Number(acq.paidPrice));return {ok:true,item,acq,paidPrice,refundNow:Math.floor(paidPrice*MK865_REFUND_NOW),refundTraining:Math.floor(paidPrice*MK865_REFUND_TRAINING)};
 }
 function mk865FallbackAfterSale(type,id,profile=state){
@@ -26804,6 +26870,10 @@ function mk865OpenSellDialog(type,id){
   mk865ShowSaleOverlay({title:"Продажа недоступна",notice:e.reason,buttons:[[mk865SaleButton("Понятно",mk865CloseSaleOverlay)]]});
   return;
  }
+ if(e.chest){
+  mk865ShowSaleOverlay({title:"🪙 Продать «"+e.item.name+"»",subtitle:"Получено из сундука. Возврат — 50% текущей цены предмета.",refunds:[{label:"Продать сейчас",coins:e.refundNow,detail:"Без тренировки. Повторно из сундука этот предмет не выпадет."}],buttons:[[mk865SaleButton("Продать за "+e.refundNow+" 🪙",()=>mk865SellItem(type,id,0.5),true),mk865SaleButton("Отмена",mk865CloseSaleOverlay)]]});
+  return;
+ }
  const mission=mk865MissionForItem(type,id),otherMission=state.saleMission&&!mission?state.saleMission:null;
  const profitable=mission?.status==="completed"?mk865SaleButton("Продать за "+e.refundTraining+" 🪙",()=>mk865SellItem(type,id,0.8),true)
   :mission?mk865SaleButton("Продолжить тренировку",mk865StartMissionTraining,true)
@@ -26820,7 +26890,7 @@ function mk865OpenSellDialog(type,id){
 }
 function mk865ChooseProfitableSale(type,id){
  const e=mk865SellEligibility(type,id);
- if(!e.ok||state.saleMission)return mk865OpenSellDialog(type,id);
+ if(!e.ok||e.chest||state.saleMission)return mk865OpenSellDialog(type,id);
  const topics=mk865UsefulSaleTopics(state).map(row=>({key:row.key,grade:row.grade,title:row.title,reason:row._mk865Reason,
   detail:(row.group||"")+(row.masteryPercent===null?"":" • освоение "+row.masteryPercent+"%"),
   run:()=>mk865StartMission(type,id,row.key)}));
@@ -26835,7 +26905,7 @@ function mk865ChooseProfitableSale(type,id){
   subtitle:"МатКвест предлагает только темы, для которых есть реальная причина потренироваться. Максимум три варианта.",topics,buttons});
 }
 function mk865StartMission(type,id,targetKey){
- normalizeShop();if(state.saleMission){mk865OpenSellDialog(type,id);return}const e=mk865SellEligibility(type,id),meta=analyticsTopicMeta(targetKey),allowed=mk865UsefulSaleTopics(state).some(x=>x.key===targetKey);if(!e.ok||!meta||meta.implemented===false||!allowed)return mk865ChooseProfitableSale(type,id);
+ normalizeShop();if(state.saleMission){mk865OpenSellDialog(type,id);return}const e=mk865SellEligibility(type,id),meta=analyticsTopicMeta(targetKey),allowed=mk865UsefulSaleTopics(state).some(x=>x.key===targetKey);if(!e.ok||e.chest||!meta||meta.implemented===false||!allowed)return mk865ChooseProfitableSale(type,id);
  state.saleMission={itemType:type,itemId:id,itemKey:mk865ItemKey(type,id),itemName:e.item.name,targetTopicKey:targetKey,targetTopicTitle:meta.title,progress:0,requiredCorrect:MK865_REQUIRED_CORRECT,refundRate:MK865_REFUND_TRAINING,refundCoins:e.refundTraining,status:"active",startedAt:Date.now(),updatedAt:Date.now(),countedQuestionIds:[]};save();mk865CloseSaleOverlay();mk865StartMissionTraining();
 }
 function mk865StartMissionTraining(){
@@ -26865,6 +26935,24 @@ function mk865ShowCompletedMissionPrompt(){
 function mk865CancelMission(){const m=state.saleMission;if(!m||m.status!=="active")return;state.saleMission=null;save();mk865CloseSaleOverlay();rewardPop("Миссия отменена. Предмет остался у тебя.");if(m.itemType)openShop(m.itemType)}
 function mk865SellItem(type,id,rate){
  const key=mk865ItemKey(type,id);if(MK865_SALE_LOCKS.has(key))return;normalizeShop();const e=mk865SellEligibility(type,id);if(!e.ok){mk865OpenSellDialog(type,id);return}
+ if(e.chest){
+  if(Number(rate)!==0.5)return mk865OpenSellDialog(type,id);
+  const fromCollection=!!modal.querySelector("#mk872CollectionUX"),fromReveal=!!modal.querySelector(".mk861-reveal");
+  MK865_SALE_LOCKS.add(key);
+  try{
+   const next=deepCopy(state),refund=e.refundNow,soldAt=Math.max(Date.now(),Number(e.acq.purchaseTimestamp||0));
+   next.inventory[type]=(next.inventory[type]||[]).filter(x=>x!==id);
+   mk865FallbackAfterSale(type,id,next);next.coins=Number(next.coins||0)+refund;
+   next.shopStats.sales=Number(next.shopStats.sales||0)+1;next.shopStats.refundedCoins=Number(next.shopStats.refundedCoins||0)+refund;
+   const rec=next.acquisitionMetadata[key];rec.soldTimestamp=soldAt;rec.lastRefundRate=0.5;rec.lastRefundCoins=refund;
+   next.saleHistory=[...(next.saleHistory||[]),{transactionId:"chest-sale:"+key+":"+rec.purchaseTimestamp,type,id,itemName:e.item.name,source:"chest",paidPrice:0,referencePrice:e.referencePrice,purchaseTimestamp:rec.purchaseTimestamp,soldAt,refundRate:0.5,refundCoins:refund}].slice(-MK865_SALE_HISTORY_LIMIT);
+   mk865RememberEverOwned(next,type,id);
+   if(!mk861CommitProfileState(next))return;
+   mk865CloseSaleOverlay();rewardPop("Продано: +"+refund+" 🪙");
+   if(fromReveal)mk861FinishReveal();else if(fromCollection)openCollection();else openShop(type);
+  }finally{MK865_SALE_LOCKS.delete(key)}
+  return;
+ }
  const r=Number(rate)===MK865_REFUND_TRAINING?MK865_REFUND_TRAINING:MK865_REFUND_NOW,m=mk865MissionForItem(type,id);if(r===MK865_REFUND_TRAINING&&(!m||m.status!=="completed")){mk865OpenSellDialog(type,id);return}
  const fromCollection=overlay.classList.contains("show")&&!!modal.querySelector("#mk872CollectionUX");
  MK865_SALE_LOCKS.add(key);try{
@@ -26877,14 +26965,13 @@ const MK865_PRE_BUY_SHOP_ITEM=buyShopItem;
 buyShopItem=function(type,id){
  normalizeShop();const item=catalogItem(type,id),wasOwned=!!item&&Array.isArray(state.inventory?.[type])&&state.inventory[type].includes(id),wasEver=!!item&&mk865WasEverOwned(state,type,id),purchasesBefore=Number(state.shopStats?.purchases||0),quotedPrice=Math.max(0,Math.floor(Number(item?.price)||0));const ret=MK865_PRE_BUY_SHOP_ITEM(type,id);
  if(item&&!wasOwned&&!item.rewardOnly&&quotedPrice>0&&Array.isArray(state.inventory?.[type])&&state.inventory[type].includes(id)){
-  mk865SetAcquisition(state,type,id,"store",quotedPrice,Date.now(),{soldTimestamp:null,lastRefundRate:null,lastRefundCoins:null});if(wasEver)state.shopStats.purchases=purchasesBefore;save();setTimeout(()=>{try{openShop(type)}catch(_e){}},0)
+  mk865SetAcquisition(state,type,id,"store",quotedPrice,Math.max(Date.now(),Number(mk865Acquisition(state,type,id)?.purchaseTimestamp||0)),{soldTimestamp:null,lastRefundRate:null,lastRefundCoins:null});if(wasEver)state.shopStats.purchases=purchasesBefore;save();setTimeout(()=>{try{openShop(type)}catch(_e){}},0)
  }
  return ret;
 };
 const MK865_PRE_GRANT_ACHIEVEMENT=grantAchievementToProfile;
 grantAchievementToProfile=function(profile,a,options={}){const ret=MK865_PRE_GRANT_ACHIEVEMENT(profile,a,options);if(ret&&profile){const rewards=[];if(a?.rewardType&&a?.rewardId)rewards.push({type:a.rewardType,id:a.rewardId});try{for(const x of achievementCatalogRewardItems(a?.id)||[])rewards.push({type:x.type,id:x.item?.id})}catch(_e){}for(const x of rewards)if(x.id&&catalogItem(x.type,x.id))mk865SetAcquisition(profile,x.type,x.id,"achievement",0,Number(options?.at)||Date.now());mk865NormalizeSaleProfile(profile)}return ret};
-const MK865_PRE_CHEST_OPEN=mk861OpenChestTransaction;
-mk861OpenChestTransaction=function(){const result=MK865_PRE_CHEST_OPEN();if(result?.rewardId&&result?.type&&catalogItem(result.type,result.rewardId)){mk865SetAcquisition(state,result.type,result.rewardId,"chest",0,result.timestamp||Date.now());save()}return result};
+// v305: chest acquisition, XP and coins are committed together; no second save.
 const MK865_PRE_CHEST_UNOWNED=mk861UnownedEntries;
 mk861UnownedEntries=function(profile,rarity){mk865NormalizeSaleProfile(profile);return mk861ChestEntries(rarity).filter(x=>!mk865WasEverOwned(profile,x.type,x.item.id))};
 const MK865_PRE_FINISH_ATTEMPT=finishAttemptItem;
@@ -26893,11 +26980,13 @@ const MK865_PRE_MERGE_SAME_STUDENT=mergeSameStudent;
 mergeSameStudent=function(local,incoming,forcedId=null){
  const l=mk865NormalizeSaleProfile(deepCopy(local||{})),i=mk865NormalizeSaleProfile(deepCopy(incoming||{})),merged=MK865_PRE_MERGE_SAME_STUDENT(local,incoming,forcedId);mk865NormalizeSaleProfile(merged);
  merged.everOwned=[...new Set([...(l.everOwned||[]),...(i.everOwned||[])])].filter(mk865KnownItemKey);
- merged.acquisitionMetadata={};for(const src of [l.acquisitionMetadata||{},i.acquisitionMetadata||{}])for(const [key,rec] of Object.entries(src)){const prev=merged.acquisitionMetadata[key];if(!prev||Number(rec?.purchaseTimestamp||0)>=Number(prev?.purchaseTimestamp||0))merged.acquisitionMetadata[key]=deepCopy(rec)}
+ merged.acquisitionMetadata={};for(const src of [l.acquisitionMetadata||{},i.acquisitionMetadata||{}])for(const [key,rec] of Object.entries(src)){const prev=merged.acquisitionMetadata[key];merged.acquisitionMetadata[key]=mk305MergeRecord(prev,rec)}
  const sales=new Map();for(const x of [...(l.saleHistory||[]),...(i.saleHistory||[])]){const k=x.transactionId||`${x.type}:${x.id}:${x.soldAt||0}`;if(!sales.has(k))sales.set(k,deepCopy(x))}merged.saleHistory=[...sales.values()].sort((a,b)=>Number(a.soldAt||0)-Number(b.soldAt||0)).slice(-MK865_SALE_HISTORY_LIMIT);
  const lt=Number(l.updatedAt||0),it=Number(i.updatedAt||0),newer=it>lt?i:l;merged.saleMission=newer.saleMission?deepCopy(newer.saleMission):null;
  merged.shopStats.sales=Math.max(Number(l.shopStats?.sales||0),Number(i.shopStats?.sales||0));merged.shopStats.refundedCoins=Math.max(Number(l.shopStats?.refundedCoins||0),Number(i.shopStats?.refundedCoins||0));
  for(const [key,rec] of Object.entries(merged.acquisitionMetadata)){const idx=key.indexOf(":"),type=key.slice(0,idx),id=key.slice(idx+1),latestSale=merged.saleHistory.filter(x=>x.type===type&&x.id===id).sort((a,b)=>Number(b.soldAt||0)-Number(a.soldAt||0))[0];if(latestSale&&Number(latestSale.soldAt||0)>Number(rec?.purchaseTimestamp||0)){merged.inventory[type]=(merged.inventory[type]||[]).filter(x=>x!==id);mk865FallbackAfterSale(type,id,merged)}}
+ merged.chestOwnedIds=[...new Set([...(l.chestOwnedIds||[]),...(i.chestOwnedIds||[])])];
+ mk861ApplyChestOwnedToInventory(merged);
  return mk865NormalizeSaleProfile(merged);
 };
 /* Один раз фиксируем текущее владение для anti-duplicate, но НЕ придумываем старым предметам историю покупки. */
@@ -26942,7 +27031,8 @@ const MK868_ADDITIONAL_HEROES=[
  {"id": "av_mq_snow_lamplighter", "name": "Синий спринтер", "price": 180, "level": 2, "rarity": "uncommon", "desc": "Разгоняется на задачах на скорость."},
  {"id": "av_mq_lighthouse_keeper", "name": "Жёлтая молния", "price": 195, "level": 3, "rarity": "rare", "desc": "Его удивление видно издалека."},
  {"id": "av_mq_stellar_engineer", "name": "Морская губка", "price": 270, "level": 4, "rarity": "rare", "desc": "Находит повод улыбнуться даже под водой."},
- {"id": "av_mq_crystal_artisan", "name": "Маг в очках", "price": 495, "level": 8, "rarity": "epic", "desc": "Ищет ответ между страницами старой книги."}
+ {"id": "av_mq_crystal_artisan", "name": "Маг в очках", "price": 495, "level": 8, "rarity": "epic", "desc": "Ищет ответ между страницами старой книги."},
+ {"id":"avatar_clash_king","name":"Король","price":480,"level":8,"rarity":"epic","desc":"Весёлый король в синей мантии и золотой короне."}
 ];
 const MK868_FINAL_HERO_IDS=Object.freeze(["av_mq_bit", "av_mq_turtle", "av_mq_astra", "av_mq_luna", "av_mq_granite", "av_mq_anime", "av_mq_spark", "av_mq_flux", "av_mq_volt", "av_mq_orbi", "av_mq_gear", "av_mq_frost", "av_mq_shadow_knight", "av_mq_storm_titan", "av_mq_moon_raven", "av_mq_astral_lion", "av_mq_time_keeper", "av_mq_deep_king", "avatar_mad_scientist", "avatar_portal_boy", "avatar_gold", ...MK868_ADDITIONAL_HEROES.map(hero=>hero.id)]);
 const MK868_FINAL_HERO_SET=new Set(MK868_FINAL_HERO_IDS);
@@ -26969,7 +27059,7 @@ function mk868UpsertAvatar(id,patch){
 }
 for(const [id,patch] of Object.entries(MK868_PATCHES))mk868UpsertAvatar(id,patch);
 for(const {id,...patch} of MK868_ADDITIONAL_HEROES){
- MK868_HERO_ASSETS[id]='./assets/source/avatars/'+id+'-v3.webp';
+ MK868_HERO_ASSETS[id]=id==='avatar_clash_king'?'./assets/source/avatars/avatar_clash_king.svg':'./assets/source/avatars/'+id+'-v3.webp';
  mk868UpsertAvatar(id,patch);
 }
 for(const id of MK868_LEGACY_HERO_IDS){const item=catalogItem('avatars',id);if(item){item.hiddenInStore=true;item.legacyHero=true;item.finalHero=false;}}
@@ -27620,7 +27710,8 @@ function mk872CollectionItems(type){
  const multi=type==='badges'||type==='stickers';
  return mk872CollectionOwned(type).map(item=>{
   const selected=mk872CollectionPicked(type,item);
-  return {id:item.id,selected,title:item.name||item.title||'Достижение',art:mk872CollectionArt(type,item),
+  const sale=typeof mk865SellEligibility==="function"?mk865SellEligibility(type,item.id):null;
+  return {id:item.id,selected,sell:sale?.ok&&sale.chest?"Продать за "+sale.refundNow+" 🪙":"",title:item.name||item.title||'Достижение',art:mk872CollectionArt(type,item),
    rarityClass:'rarity-'+(item.rarity||'common'),meta:item.rarity?rarityName(item.rarity):(selected?'Выбрано':'В коллекции'),
    button:selected?(multi?'Убрать':'Выбрано ✓'):(multi?'Показать':'Выбрать'),disabled:selected&&!multi};
  });
@@ -27629,7 +27720,7 @@ function mk872CollectionCards(type,items){
  if(!items.length)return '<div class="mk872-col-empty">Пока ничего нет в коллекции.<div class="mk872-col-help">Посмотри доступные предметы в магазине.</div></div>';
  return `<div class="mk872-col-grid">${items.map(item=>{
   const button=item.button?`<button type="button" class="mk872-col-action ${!item.selected?'primary':''}" ${item.disabled?'disabled':''} onclick="mk872CollectionChoose('${type}','${item.id}')">${esc(item.button)}</button>`:'';
-  return `<div class="mk872-col-card ${item.selected?'selected':''}">${item.art}<strong>${esc(item.title)}</strong><span class="mk872-col-meta ${item.rarityClass||''}">${esc(item.meta)}</span>${button}</div>`;
+  return `<div class="mk872-col-card ${item.selected?'selected':''}">${item.art}<strong>${esc(item.title)}</strong><span class="mk872-col-meta ${item.rarityClass||''}">${esc(item.meta)}</span>${button}${item.sell?`<button type="button" class="mk872-col-action" onclick="mk865OpenSellDialog('${type}','${item.id}')">${esc(item.sell)}</button>`:""}</div>`;
  }).join('')}</div>`;
 }
 function mk872CollectionContentSlot(root){
@@ -27680,7 +27771,7 @@ function mk872RenderCollectionSection(root,type,archive=mk873ArchiveModel()){
   module.mountCollectionNavigation(navigation,tabs,{select:mk872CollectionSwitch});
   if(focus)navigation.querySelector(`[data-mk872-collection-tab="${CSS.escape(focus)}"]`)?.focus({preventScroll:true});
   if(type==="archive")module.mountCollectionArchive(slot,content,{run:mk873RunArchiveAction});
-  else module.mountCollectionSection(slot,content,{choose:id=>mk872CollectionChoose(type,id)});
+  else module.mountCollectionSection(slot,content,{choose:id=>mk872CollectionChoose(type,id),sell:id=>mk865OpenSellDialog(type,id)});
  }).catch(()=>{ /* Keep the collection available when the Vue module cannot load. */ });
 }
 function mk872CollectionSwitch(type){
@@ -27727,7 +27818,7 @@ openShop=function(category="avatars",rarity=null){
 const MK872_HELP_TOPICS={
  shop:{title:'О магазине',content:'<p>Монеты тратятся только на оформление и коллекцию. Учебный результат купить нельзя.</p><p>Предметы бывают обычными, необычными, редкими, эпическими и легендарными.</p><p>Награды с 🏆 получают за достижения, а не покупают обычным способом.</p><p>Полный покупаемый альбом стикеров открывает рамку «Коллекционер».</p>'},
  collection:{title:'О моей коллекции',content:'<p>Здесь собраны предметы, которые уже принадлежат ученику.</p><p>Нажмите на карточку-счётчик категории, чтобы посмотреть свои аватары, рамки, питомцев и другие награды.</p>'},
- chest:{title:'О сундуке удачи',content:'<p>Сундук открывается за заработанные монеты. Внутри — случайные косметические награды.</p><p>Пока есть подходящие новые предметы, система старается не выдавать повторы. Если доступных предметов не осталось, предусмотрена компенсация.</p><p>Стоимость, вероятности редкости и доступные гарантии показаны прямо на экране сундука.</p>'},
+ chest:{title:'О сундуке удачи',content:'<p>Сундук открывается за заработанные монеты. Внутри — случайные косметические награды.</p><p>Пока есть подходящие новые предметы, система старается не выдавать повторы. Если доступных предметов не осталось, предусмотрена компенсация монетами без дополнительного опыта. За новый редкий предмет начисляется 60 XP, эпический — 40 XP, легендарный — 20 XP. Предмет из сундука можно продать за 50% его цены; повторно он из сундука не выпадет.</p><p>Стоимость, вероятности редкости и доступные гарантии показаны прямо на экране сундука.</p>'},
  leader:{title:'О таблице лидеров',content:'<p>Место определяется сначала по опыту (XP), затем по лучшей серии и количеству решённых примеров.</p><p>Рейтинг хранится на этом устройстве. Для переноса учеников и прогресса используйте раздел «Данные».</p>'}
 };
 let mk872HelpLastFocus=null;
@@ -42176,31 +42267,31 @@ document.addEventListener("keydown",event=>{
 })();
 </script>
 
-<script src="g5-conversion-ux.js?v=304"></script>
-<script src="g5-textbook-topics.js?v=304"></script>
-<script src="g5-textbook-core.js?v=304"></script>
-<script src="g5-textbook-v111.js?v=304"></script>
-<script src="g5-textbook-v112.js?v=304"></script>
-<script src="g5-pedagogy-v113.js?v=304"></script>
-<script src="g5-fractions-v114.js?v=304"></script>
-<script src="g5-fraction-arithmetic-v115.js?v=304"></script>
-<script src="g5-decimals-v116.js?v=304"></script>
-<script src="g7-textbook.js?v=304"></script>
-<script src="g8-textbook.js?v=304"></script>
-<script src="g1-textbook.js?v=304"></script>
-<script src="g2-textbook.js?v=304"></script>
-<script src="g3-textbook.js?v=304"></script>
-<script src="g4-textbook.js?v=304"></script>
-<script src="g5-textbook-navigation-v121.js?v=304"></script>
-<script src="g5-live-pedagogy-v122.js?v=304"></script>
-<script src="g5-arithmetic-tiers-v123.js?v=304"></script>
-<script src="g5-textbook-tiers-v124.js?v=304"></script>
-<script src="g5-natural-units-v125.js?v=304"></script>
-<script src="g5-remaining-core-v126.js?v=304"></script>
-<script src="g5-decimal-tiers-v127.js?v=304"></script>
-<script src="g5-decimal-percent-v128.js?v=304"></script>
-<script src="g5-fraction-concepts-v129.js?v=304"></script>
-<script src="g5-fraction-applications-v130.js?v=304"></script>
+<script src="g5-conversion-ux.js?v=305"></script>
+<script src="g5-textbook-topics.js?v=305"></script>
+<script src="g5-textbook-core.js?v=305"></script>
+<script src="g5-textbook-v111.js?v=305"></script>
+<script src="g5-textbook-v112.js?v=305"></script>
+<script src="g5-pedagogy-v113.js?v=305"></script>
+<script src="g5-fractions-v114.js?v=305"></script>
+<script src="g5-fraction-arithmetic-v115.js?v=305"></script>
+<script src="g5-decimals-v116.js?v=305"></script>
+<script src="g7-textbook.js?v=305"></script>
+<script src="g8-textbook.js?v=305"></script>
+<script src="g1-textbook.js?v=305"></script>
+<script src="g2-textbook.js?v=305"></script>
+<script src="g3-textbook.js?v=305"></script>
+<script src="g4-textbook.js?v=305"></script>
+<script src="g5-textbook-navigation-v121.js?v=305"></script>
+<script src="g5-live-pedagogy-v122.js?v=305"></script>
+<script src="g5-arithmetic-tiers-v123.js?v=305"></script>
+<script src="g5-textbook-tiers-v124.js?v=305"></script>
+<script src="g5-natural-units-v125.js?v=305"></script>
+<script src="g5-remaining-core-v126.js?v=305"></script>
+<script src="g5-decimal-tiers-v127.js?v=305"></script>
+<script src="g5-decimal-percent-v128.js?v=305"></script>
+<script src="g5-fraction-concepts-v129.js?v=305"></script>
+<script src="g5-fraction-applications-v130.js?v=305"></script>
 <script>
 // The textbook scripts finish extending the catalog before Home shows its totals.
 g5HomeCatalogReady=true;
