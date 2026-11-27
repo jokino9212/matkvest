@@ -17,9 +17,15 @@ export function columnTask({a,b},op,layout=window){
 export function columnView(topic,question,item={},busy=false,layout=window){
  const op=topic.split(':').at(-1),view=layout.columnExerciseModel(columnTask(question,op,layout),op);
  const cells=view.rows.flatMap(row=>row.cells).concat(view.division?.quotient||[]).filter(cell=>cell.field);
- const [required,optional]=question.columnKeys,keys={...required,...optional};
  const actual=new Map(cells.map(cell=>[cell.row+':'+cell.col,cell]));
- if(actual.size!==cells.length||actual.size!==Object.keys(keys).length||Object.entries(keys).some(([key,exp])=>!actual.has(key)||String(actual.get(key).expected??'')!==exp))throw Error('COLUMN_LAYOUT_CONTRACT');
+ if(question.columnFields&&question.columnKeys===undefined){
+  // Online review receives field names only. The server independently checks
+  // every required/optional cell; the existing pure layout computes geometry.
+  if(!Array.isArray(question.columnFields)||actual.size!==cells.length||JSON.stringify([...actual.keys()].sort())!==JSON.stringify([...question.columnFields].sort()))throw Error('COLUMN_LAYOUT_CONTRACT');
+ }else{
+  const [required,optional]=question.columnKeys,keys={...required,...optional};
+  if(actual.size!==cells.length||actual.size!==Object.keys(keys).length||Object.entries(keys).some(([key,exp])=>!actual.has(key)||String(actual.get(key).expected??'')!==exp))throw Error('COLUMN_LAYOUT_CONTRACT');
+ }
  for(const [key,cell] of actual){
   cell.value=item.cells?.[key]||'';cell.readOnly=!!item.solved;cell.disabled=busy;
   if(item.wrong?.includes(key))cell.className+=' bad';

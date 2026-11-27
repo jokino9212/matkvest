@@ -83,4 +83,8 @@ export class V307AccountClient extends MatKvestApiClient {
  trainingGoals(profile){return this.request('GET',student(profile)+'/training-goals');}
  startGoal(profile,type,key){if(!['correct','streak'].includes(type))throw new TypeError('Invalid goal type');return this.request('POST',student(profile)+'/training-goals',{body:{type},idempotencyKey:id(key)});}
  cancelGoal(profile,goal){return this.request('DELETE',student(profile)+'/training-goals/'+id(goal));}
+ reviewOverview(profile,grade='mixed'){if(!['4','5','mixed'].includes(grade))throw new TypeError('Invalid grade');return this.request('GET',student(profile)+'/review?grade='+grade);}
+ reviewStart(profile,body,key){return this.request('POST',student(profile)+'/review',{body,idempotencyKey:id(key)});}
+ reviewRead(profile,review){return this.request('GET',student(profile)+'/review/'+id(review));}
+ reviewStep(profile,review,body,key){return this.request('PUT',student(profile)+'/review/'+id(review),{body,idempotencyKey:id(key)});}
 }
