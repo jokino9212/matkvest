@@ -48,6 +48,32 @@ const root=resolve(__dirname,'..'),types={'.html':'text/html; charset=utf-8','.c
   assert.equal(new Set(achievements.map(a=>a.id)).size,achievements.length);
   writeFileSync(resolve(out,'achievements-v306.json'),JSON.stringify(achievements,null,2)+'\n');
   console.log('PASS_V307_EXACT_ECONOMY_EXPORT',JSON.stringify({items:policy.items.length,buyable:policy.items.filter(x=>x.buyable).length,pools:Object.fromEntries(Object.entries(policy.pools).map(([k,v])=>[k,v.length])),achievements:achievements.length}));
+
+  // Render only trusted public, pinned v306 catalogue artwork. No API content or personal data.
+  await source.setViewportSize({width:1024,height:3600});
+  const artwork=await source.evaluate(async()=>{
+    const grid=document.createElement('div');grid.id='mk307-art-grid';
+    grid.style.cssText='position:fixed;top:0;left:0;z-index:2147483647;width:960px;display:grid;grid-template-columns:repeat(10,96px);grid-auto-rows:96px;gap:0;background:#f3faf6;overflow:hidden';
+    const rows=[];
+    for(const [category,items] of Object.entries(SHOP_CATALOG))for(const item of items){
+      const cell=document.createElement('div');cell.style.cssText='width:96px;height:96px;overflow:hidden;display:flex;align-items:center;justify-content:center;position:relative;';
+      cell.innerHTML=shopItemIcon(category,item);grid.append(cell);
+      rows.push({id:item.id,category,index:rows.length,description:String(item.desc||'')});
+    }
+    document.body.append(grid);
+    for(const img of grid.querySelectorAll('img')){img.loading='eager';if(new URL(img.src).origin!==location.origin)throw Error('Nonlocal artwork');}
+    await Promise.all([...grid.querySelectorAll('img')].map(img=>img.decode()));
+    await document.fonts.ready;
+    if(!grid.querySelector('img[src*="avatar_clash_king.svg"]')?.naturalWidth)throw Error('Missing king artwork');
+    return rows;
+  });
+  assert.equal(artwork.length,262);
+  const target=resolve(root,'integrations/v307');
+  await source.locator('#mk307-art-grid').screenshot({path:resolve(target,'shop_art_generated.png'),animations:'disabled'});
+  writeFileSync(resolve(target,'shop_art_generated.json'),JSON.stringify(artwork));
+  writeFileSync(resolve(target,'shop_art_generated.css'),'.v307-art{display:inline-block;width:96px;height:96px;background-image:url("./shop_art_generated.png");background-repeat:no-repeat;flex-shrink:0;border-radius:12px;vertical-align:middle}'+artwork.map(a=>'.v307-art-'+a.index+'{background-position:-'+(a.index%10*96)+'px -'+(Math.floor(a.index/10)*96)+'px}').join('\n'));
+  await source.evaluate(()=>document.getElementById('mk307-art-grid').remove());
+  console.log('PASS_V307_PINNED_SHOP_ART',artwork.length);
   const actual=await source.evaluate(async()=>{
     save();await mk305FlushWrites();
     for(let i=1;i<=4;i++){
