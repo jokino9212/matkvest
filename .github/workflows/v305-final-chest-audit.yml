@@ -1,0 +1,43 @@
+name: v305 final chest concurrency and offline avatar audit
+on:
+  push:
+    branches: [feature/v305-learning-chest-rewards]
+    paths:
+      - .github/workflows/v305-final-chest-audit.yml
+      - audits/v305_final_chest_audit.cjs
+      - index.html
+      - sw.js
+permissions:
+  contents: read
+jobs:
+  audit:
+    if: github.repository == 'jokino9212/matkvest' && github.ref == 'refs/heads/feature/v305-learning-chest-rewards'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Materialize only if previous gate did not yet publish runtime
+        run: |
+          if ! grep -q 'const MK305_CHEST_XP=' index.html; then
+            python3 audits/v305_chest_patch.py
+            npm ci
+            npm run build:knowledge-map
+            python3 audits/g7_stage12_sync_pwa.py
+          else
+            npm ci
+          fi
+          npm install --no-save --no-package-lock playwright@1.56.1
+          python3 audits/g7_stage12_sync_pwa.py --check
+          node --check audits/v305_final_chest_audit.cjs
+      - name: Real browser concurrency, exhaustion and offline artwork
+        run: node audits/v305_final_chest_audit.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v305-king-offline-screenshots
+          path: ci-acceptance-output/v305-king/
+          if-no-files-found: warn
