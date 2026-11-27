@@ -30,11 +30,13 @@ const numeric=['g4:table','g4:moro_order_1000','g4:order','g4:equations','g4:mor
 const extended=require('../v307-learning-fixtures/v306-text-question-bank.json').banks;
 assert.equal(Object.keys(extended).length,15);
 const visual=require('../v307-learning-fixtures/v306-visual-question-bank.json').banks;assert.equal(Object.keys(visual).length,24);
-const all=[...numeric,...columnTopics,...grade5Topics,...Object.keys(extended),...Object.keys(visual)];
+const remaining=require('../v307-learning-fixtures/v306-remaining-question-bank.json').banks;delete remaining['g5:calculator'];assert.equal(Object.keys(remaining).length,89);
+const all=[...numeric,...columnTopics,...grade5Topics,...Object.keys(extended),...Object.keys(visual),...Object.keys(remaining)];
 function packFor(topic){
  const i=all.indexOf(topic)+1,id=String(i).padStart(8,'0')+'-1234-4f25-8ae9-df61e8a85370';
  const c=columnFixtures[topic];
- const q=c?c.question:visual[topic]?visual[topic].stages[0][0][0]:extended[topic]?extended[topic].stages[0][0][0]:grade5Topics.includes(topic)?grade5Question(topic,0):topic==='g4:table'?{a:2,b:3}:{expression:'x + 2 = 8',answer:6,steps:['8 − 2 = 6']};
+ const q=c?c.question:remaining[topic]?remaining[topic].stages[0][0][0]:visual[topic]?visual[topic].stages[0][0][0]:extended[topic]?extended[topic].stages[0][0][0]:grade5Topics.includes(topic)?grade5Question(topic,0):topic==='g4:table'?{a:2,b:3}:{expression:'x + 2 = 8',answer:6,steps:['8 − 2 = 6']};
+ if(q.mode==='number'){q.unit_suffix=q.expected.unitSuffix;q.allow_percent=q.expected.allowPercent;}
  return {id,topic_id:topic,stage:0,full:true,expires_at:'2027-01-02T00:00:00Z',questions:Array.from({length:5},()=>q),...(c?{column_keys:Array.from({length:5},()=>c.keys)}:{})};
 }
 (async()=>{
@@ -53,7 +55,7 @@ function packFor(topic){
    else if(path==='/profiles/'+P+'/subscription')data={profile_id:P,display_name:'Пробный ученик',full:true,sources:['tutor_paid'],test_only:true,payment_enabled:false,free_blocks_limit:10,free_blocks_used:0,can_request:false,pending:false};
    else if(path==='/student/profiles/'+P+'/offline-school'&&m==='POST'){selected=packFor(body.topic);assert.equal(body.grade,Number(body.topic[1]));data={server_time:'2027-01-01T00:00:00Z',permits:[],topics:{[body.topic]:{packs:[selected]}}}}
    else if(path==='/student/profiles/'+P+'/offline-school/'+selected?.id&&m==='PUT'){
-    const q=selected.questions[0],topic=selected.topic_id,expected=columnFixtures[topic]?.keys[0]??(q.form?fractionKeys(q):{'answer:0':String(q.answer??q.a*q.b)});
+    const q=selected.questions[0],topic=selected.topic_id,typed=q.mode==='number'?{'answer:0':String(q.expected.n)}:q.mode==='time'?{'answer:0':Math.floor(q.expected.minutes/60)+':'+String(q.expected.minutes%60).padStart(2,'0')}:q.mode==='remainder'?{'answer:0':String(q.expected.quotient),'answer:1':String(q.expected.remainder)}:null,expected=typed??columnFixtures[topic]?.keys[0]??(q.form?fractionKeys(q):{'answer:0':String(q.answer??q.a*q.b)});
     assert.equal(body.items.length,5);assert.equal(body.items[0].skipped,false);assert.deepEqual(body.items[0].checks.at(-1),expected);assert(body.items.slice(1).every(x=>x.skipped===true));assert(!submitted.has(topic));submitted.add(topic);
     data={id:selected.id,status:'finished',summary:{correct:1,corrected:0,skipped:4,passed:false,xp:4,coins:5}};
    }else{code=404;data={error:{code:'NOT_FOUND'}}}
@@ -69,7 +71,8 @@ function packFor(topic){
     for(const [key,value] of Object.entries(required)){const [row,col]=key.split(':');await page.locator('input[data-row="'+row+'"][data-col="'+col+'"]').fill(value);}
     await button('Проверить всю запись').or(button('Проверить все шаги')).click();
    }else if(q.form){for(const [key,value] of Object.entries(fractionKeys(q)))await page.locator('input[data-mk95-fraction="'+key+'"]').fill(value);await button('Проверить').click();}
-   else if(q.choices){if(visual[topic]){assert.equal(await page.locator('.v307-visual-prompt').count(),1);const count=x=>x.reduce((n,y)=>n+(typeof y==='string'?0:(y.tag==='svg'?1:0)+count(y.children)),0);assert.equal(await page.locator('.v307-visual-prompt svg').count(),count(q.prompt));}await page.locator('.school-numeric-choices button').nth(q.choices.indexOf(q.answer)).click();}
+   else if(q.mode&&q.mode!=='choice'){const typed=q.mode==='number'?{'answer:0':String(q.expected.n)}:q.mode==='time'?{'answer:0':Math.floor(q.expected.minutes/60)+':'+String(q.expected.minutes%60).padStart(2,'0')}:{'answer:0':String(q.expected.quotient),'answer:1':String(q.expected.remainder)};for(const [k,val] of Object.entries(typed))await page.locator('input[data-mk307-cell="'+k+'"]').fill(val);await button('Проверить').click();}
+   else if(q.choices){if(visual[topic]||remaining[topic]){assert.equal(await page.locator('.v307-visual-prompt').count(),1);const count=x=>x.reduce((n,y)=>n+(typeof y==='string'?0:(y.tag==='svg'?1:0)+count(y.children)),0);assert.equal(await page.locator('.v307-visual-prompt svg').count(),count(q.prompt));}await page.locator('.school-numeric-choices button').nth(q.choices.indexOf(q.answer)).click();}
    else{await page.getByLabel('Ответ',{exact:true}).fill(String(q.answer??q.a*q.b));await button('Проверить').click();}
    await button('Далее').click();
    // A check/advance transaction must complete before the next question can be skipped.
@@ -77,7 +80,7 @@ function packFor(topic){
    for(let i=0;i<4;i++){await button('⏭ Пропустить задание').click();await page.getByText('Выполнено '+(i+2)+' / 5',{exact:true}).waitFor();}
    await page.getByText(/Начислено 4 XP и 5 монет/).waitFor();assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);await button('К этапам').click();
   }
-  assert.equal(submitted.size,57);assert.deepEqual(errors,[]);console.log('PASS_V307_ALL_57_VUE_TOPICS',width);await context.close();
+  assert.equal(submitted.size,146);assert.deepEqual(errors,[]);console.log('PASS_V307_ALL_146_VUE_TOPICS',width);await context.close();
  }
  }finally{await browser.close();await new Promise(r=>server.close(r))}
 })().catch(e=>{console.error(e);process.exitCode=1});

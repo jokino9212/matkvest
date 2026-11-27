@@ -1,3 +1,4 @@
+import {V307_CURRICULUM_TOPICS,isCurriculum,validateCurriculum,applyCurriculumAction} from '../v307/curriculum.mjs';
 import {validateNodes} from '../v307/visual_nodes.mjs';
 // Shared numeric, choice and written-arithmetic Grade 4 offline journals.
 export const V307_CHOICE_TOPICS=Object.freeze({"g5:frac_common_lcm":"Приведение дробей к общему знаменателю","g5:dec_compare":"Сравнение десятичных дробей","g5:dec_add":"Сложение десятичных дробей","g5:dec_sub":"Вычитание десятичных дробей","g5:dec_round":"Округление десятичных дробей","g5:dec_mul10":"× 10, 100, 1000","g5:dec_div10":"÷ 10, 100, 1000","g5:dec_mul_nat":"Десятичная × натуральное","g5:dec_div_nat":"Десятичная ÷ натуральное","g5:dec_mul_dec":"Десятичная × десятичную","g5:dec_div_dec":"Десятичная ÷ десятичную","g5:dec_to_common":"Десятичная ↔ обыкновенная","g5:percent":"Процент от числа","g5:percent_whole":"Число по процентам","g5:average":"Среднее арифметическое"});
@@ -20,7 +21,8 @@ export const SCHOOL_TOPICS=Object.freeze({
  'g5:frac_to_mixed':'Неправильная дробь → смешанное число',
  'g5:mixed_to_frac':'Смешанное число → неправильная дробь',
  ...V307_CHOICE_TOPICS,
- ...V307_VISUAL_TOPICS
+ ...V307_VISUAL_TOPICS,
+ ...V307_CURRICULUM_TOPICS
 });
 export const STAGES=['Разминка','Тренировка','Мастерство'];
 export const COUNTS=[5,7,10], PASS=[4,5,8];
@@ -32,6 +34,7 @@ export const isFraction=topic=>topic==='g5:frac_to_mixed'||topic==='g5:mixed_to_
 export const maxDigits=topic=>isFraction(topic)||['g5:natural_multiply','g5:natural_divide'].includes(topic)?6:topic==='g4:table'?3:4;
 export const gradeOf=topic=>Number(topic[1]);
 export function validateQuestion(topic,question,columnKeys){
+ if(isCurriculum(topic))return validateCurriculum(question);
  if(isColumn(topic)){
   const {a,b}=question,op=topic.split(':').at(-1);
   if(!Number.isInteger(a)||!Number.isInteger(b)||a<=0||b<=0||a>99999||b>99999||(op==='sub'&&a<=b)||(op==='mul'&&(b<10||b>99||a>9999))||(op==='div'&&(b<2||b>9||a%b!==0)))throw Error('INVALID_COLUMN_QUESTION');
@@ -176,6 +179,7 @@ export function applyColumnAction(row,revision,kind,value){
  next.revision++;return next;
 }
 export function applyTableAction(row,revision,kind,value){
+ if(isCurriculum(row.topic))return applyCurriculumAction(row,revision,kind,value);
  if(isColumn(row.topic)||isFraction(row.topic))return applyColumnAction(row,revision,kind,value);
  if(row.status!=='draft'||row.revision!==revision)throw Error('DRAFT_CHANGED');
  const next=structuredClone(row),item=next.draft[next.index],question=next.questions[next.index];

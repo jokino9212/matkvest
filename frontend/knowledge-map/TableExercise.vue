@@ -13,7 +13,7 @@ const placeHeadings = computed(() => ['Тысячи', 'Сотни', 'Десят�
 
 function submitOnEnter(event) {
   if (event.repeat) event.preventDefault();
-  else if (event.target.id === 'fin' || event.target.dataset.mk95Fraction) {
+  else if (event.target.id === 'fin' || event.target.dataset.mk95Fraction || event.target.dataset.mk307Cell) {
     event.preventDefault();
     props.actions.primary();
   }
@@ -56,10 +56,13 @@ function submitOnEnter(event) {
       </template>
     </div>
     <p v-if="model.fraction && model.fraction.kind !== 'number'" class="meta">Знаменатель уже указан и не меняется.</p>
-    <input v-if="!model.fraction"
+    <div v-if="model.curriculumMode && model.curriculumMode !== 'choice'" class="v307-curriculum-fields">
+      <label v-for="field in model.curriculumFields" :key="field.key">{{field.label}}<input :data-mk307-cell="field.key" :aria-label="field.label" :value="field.value" :placeholder="field.placeholder" :readonly="model.readOnly" :disabled="model.disabled" :class="{bad:field.wrong}" autocomplete="off" maxlength="64" inputmode="text"></label><span v-if="model.unitSuffix">{{model.unitSuffix}}</span>
+    </div>
+    <input v-if="!model.fraction && (!model.curriculumMode || model.curriculumMode === 'choice')"
       id="fin" class="fin" inputmode="numeric" :maxlength="model.maxDigits ?? 3" aria-label="Ответ"
       :type="model.choices ? 'hidden' : 'text'" autocomplete="off"
-      :data-row="model.answerCell === false ? null : 'answer'" :data-col="model.answerCell === false ? null : '0'"
+      :data-mk307-cell="model.curriculumMode === 'choice' ? 'answer:0' : null" :data-row="model.answerCell === false ? null : 'answer'" :data-col="model.answerCell === false ? null : '0'"
       :value="model.answer" :disabled="model.disabled" :readonly="model.readOnly"
       :class="{ bad: model.wrong }"
     >

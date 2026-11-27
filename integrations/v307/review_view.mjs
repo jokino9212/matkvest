@@ -1,3 +1,4 @@
+import {isCurriculum,curriculumModel,readCurriculumCells,validateCurriculum} from './curriculum.mjs';
 import {createApp,h,shallowRef} from 'vue';
 import ColumnExercise from '../../frontend/knowledge-map/ColumnExercise.vue';
 import TableExercise from '../../frontend/knowledge-map/TableExercise.vue';
@@ -15,7 +16,7 @@ function checked(r){
  if(!valid(r.id)||!['errors','control'].includes(r.mode)||!['active','finished','abandoned'].includes(r.status)||!Number.isSafeInteger(r.revision)||r.revision<0||!Number.isInteger(r.index)||!Number.isInteger(r.total)||r.index<0||r.index>=r.total||r.total>20||!Object.hasOwn(SCHOOL_TOPICS,r.topic_id)||![0,1,2].includes(r.stage)||!['open','solved','skipped'].includes(r.outcome))throw Error('REVIEW_INVALID_STATE');
  if(r.status==='active'){
   const q=r.question;if(!q||Object.hasOwn(q,'answer')||Object.hasOwn(q,'column_keys'))throw Error('REVIEW_INVALID_QUESTION');
-  if(q.prompt)validateNodes(q.prompt);if(q.solution_nodes){if(r.outcome!=='solved')throw Error('REVIEW_UNEXPECTED_SOLUTION');validateNodes(q.solution_nodes);}if(q.choice_nodes)q.choice_nodes.forEach(validateNodes);
+  if(isCurriculum(r.topic_id))validateCurriculum(q,{publicOnly:true});if(q.prompt)validateNodes(q.prompt);if(q.solution_nodes){if(r.outcome!=='solved')throw Error('REVIEW_UNEXPECTED_SOLUTION');validateNodes(q.solution_nodes);}if(q.choice_nodes)q.choice_nodes.forEach(validateNodes);
   if(q.choices&&(!Array.isArray(q.choices)||q.choices.length<2||q.choices.length>4||q.choices.some(x=>!Number.isSafeInteger(x))))throw Error('REVIEW_INVALID_CHOICES');
   if(isColumn(r.topic_id))columnView(r.topic_id,{...q,columnFields:q.column_fields},{},false,layout);
  }
@@ -34,13 +35,14 @@ export async function mountReview({host,api,scope,exit}){
  }
  const locked=()=>busy.value||!!pending.value;
  const btn=(name,fn,disabled=false)=>h('button',{type:'button',onClick:fn,disabled:busy.value||disabled},name);
- const values=()=>{const r=row.value;if(isColumn(r.topic_id))return readColumnCells();if(isFraction(r.topic_id))return readFractionCells();return {'answer:0':host.querySelector('#fin')?.value??r.cells?.['answer:0']??''};};
+ const values=()=>{const r=row.value;if(isCurriculum(r.topic_id))return readCurriculumCells(host);if(isColumn(r.topic_id))return readColumnCells();if(isFraction(r.topic_id))return readFractionCells();return {'answer:0':host.querySelector('#fin')?.value??r.cells?.['answer:0']??''};};
  const act=(action,cells={})=>{if(locked()||row.value?.status!=='active')return Promise.resolve(false);return run({kind:'step',review:row.value.id,body:{revision:row.value.revision,action,cells}});};
  const leave=async()=>{if(locked())return;if(row.value?.status==='active'&&row.value.outcome==='open'){if(!await act('save',values()))return;}if(alive)exit();};
  const actions={input:()=>{},inputCell:el=>normalizeColumnCell(el),moveCell:(e,el)=>moveColumnCell(e,el),toggleDot:el=>normalizeColumnCell(el,true),primary:()=>act(row.value.outcome==='solved'?'advance':'check',row.value.outcome==='solved'?{}:values()),pick:i=>{const q=row.value.question;if(q.choices&&Object.hasOwn(q.choices,i))void act('check',{'answer:0':String(q.choices[i])});},skip:()=>{if(!locked()&&confirm('Пропустить задание?'))void act('skip',values());}};
  function exercise(){
   const r=row.value,q=r.question,solved=r.outcome==='solved',feedback=r.feedback?.missing?.length?'Заполни обязательные поля.':r.feedback?.wrong?.length?'Проверь ответ.':solved?(r.mode==='errors'&&!r.reward?.resolved?'Верно. Старую ошибку нужно повторить.':r.reward?.resolved?'Ошибка отработана: +5 XP и 1 монета.':'Верно! +5 XP и 1 монета.'):'';
   const item={cells:r.cells,answer:r.cells?.['answer:0']||'',solved,feedback,wrong:r.feedback?.wrong||[]},disabled=locked();
+  if(isCurriculum(r.topic_id))return h(TableExercise,{model:curriculumModel(q,item,disabled,{publicOnly:true}),actions});
   if(isColumn(r.topic_id))return h(ColumnExercise,{model:columnView(r.topic_id,{...q,columnFields:q.column_fields},item,disabled,layout),actions});
   if(isFraction(r.topic_id))return h(TableExercise,{model:fractionView(q,item,disabled),actions});
   const model={a:q.a,b:q.b,prompt:q.expression,promptNodes:q.prompt,solutionNodes:solved?q.solution_nodes:undefined,...(Object.hasOwn(V307_CHOICE_TOPICS,r.topic_id)?{safePrompt:safeMathText(q.expression)}:{}),maxDigits:maxDigits(r.topic_id),placeValues:q.place_values,choices:q.choices?.map((v,i)=>({label:String(q.choice_labels?.[i]??v),...(q.choice_nodes?{nodes:q.choice_nodes[i]}:{}),...(Object.hasOwn(V307_CHOICE_TOPICS,r.topic_id)?{labelHtml:safeMathText(q.choice_labels[i])}:{}),selected:item.answer===String(v),disabled:solved||disabled,className:'btn soft'})),solution:solved?q.steps:undefined,answer:item.answer,readOnly:solved,disabled,wrong:!!r.feedback?.wrong?.length,feedback,primaryLabel:solved?'Далее':'Проверить',nextReady:solved,hideSkip:solved};
