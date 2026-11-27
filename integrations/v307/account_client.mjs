@@ -75,13 +75,14 @@ export class V307AccountClient extends MatKvestApiClient {
  economyState(profile){return this.request('GET',student(profile)+'/economy-v307/state');}
  economyOperation(profile,body,key){return this.request('POST',student(profile)+'/economy-v307/operations',{body,idempotencyKey:id(key)});}
  quickDraft(profile){return this.request('GET',student(profile)+'/draft');}
- quickStart(profile,count,key){if(![5,10].includes(count))throw new TypeError('Invalid quick length');return this.request('POST',student(profile)+'/training-starts',{body:{grade:4,topic_id:'quick:multiplication',question_count:count},idempotencyKey:id(key)});}
+ quickAccess(profile){return this.request('GET',student(profile)+'/quick-access');}
+ quickStart(profile,count,key,config){if(![5,10].includes(count))throw new TypeError('Invalid quick length');const body={grade:4,topic_id:'quick:multiplication',question_count:count};if(config){body.topic_id=config.topic;body.mode=config.mode;body.smart=config.smart;}return this.request('POST',student(profile)+'/training-starts',{body,idempotencyKey:id(key)});}
  quickQuestions(profile,start){return this.request('GET',student(profile)+'/training-starts/'+id(start)+'/questions');}
  quickSave(profile,body,key){return this.request('PUT',student(profile)+'/draft',{body,idempotencyKey:id(key)});}
  quickFinish(profile,start,body){return this.request('PUT',student(profile)+'/training-starts/'+id(start)+'/result',{body});}
  quickLatest(profile){return this.request('GET',student(profile)+'/verified-training/latest');}
- trainingGoals(profile){return this.request('GET',student(profile)+'/training-goals');}
- startGoal(profile,type,key){if(!['correct','streak','weak','errors'].includes(type))throw new TypeError('Invalid goal type');return this.request('POST',student(profile)+'/training-goals',{body:{type},idempotencyKey:id(key)});}
+ trainingGoals(profile,topic){return this.request('GET',student(profile)+'/training-goals'+(topic?'?topic_id='+encodeURIComponent(topic):''));}
+ startGoal(profile,type,key,topic){if(!['correct','streak','weak','errors'].includes(type))throw new TypeError('Invalid goal type');return this.request('POST',student(profile)+'/training-goals',{body:{type,...(topic?{topic_id:topic}:{})},idempotencyKey:id(key)});}
  cancelGoal(profile,goal){return this.request('DELETE',student(profile)+'/training-goals/'+id(goal));}
  reviewOverview(profile,grade='mixed'){if(!['4','5','mixed'].includes(grade))throw new TypeError('Invalid grade');return this.request('GET',student(profile)+'/review?grade='+grade);}
  reviewStart(profile,body,key){return this.request('POST',student(profile)+'/review',{body,idempotencyKey:id(key)});}
