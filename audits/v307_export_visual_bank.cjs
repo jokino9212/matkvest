@@ -48,7 +48,7 @@ const build='7e6e2b8de44e1eb4888b34f012288c32e24643eafe9c350fe79e9881935cb318';
     const stages=[];let failure=null;
     for(let stage=0;stage<3&&!failure;stage++){
      const families=[];
-     for(let family=0;family<5;family++){
+     for(let family=0;family<[5,7,10][stage];family++){
       qid='g5:'+id;
       const found=new Map();let skipped=0;
       for(let attempt=0;attempt<120&&found.size<12;attempt++){
@@ -88,7 +88,7 @@ const build='7e6e2b8de44e1eb4888b34f012288c32e24643eafe9c350fe79e9881935cb318';
   }finally{blockSession=old;qid=oldQid;}
   return {build,fraction,decimal,mandatory,banks,rejected,diagnostics,rejectedReasons,modes};
  },build);
- console.log('V307_RATIONAL_DIAGNOSTICS',JSON.stringify({accepted:Object.keys(out.banks),rejected:out.rejected,diagnostics:out.diagnostics,rejectedReasons:out.rejectedReasons,modes:out.modes}));assert.equal(out.build,build);assert.equal(new Set(out.fraction).size,out.fraction.length);assert.equal(new Set(out.decimal).size,out.decimal.length);assert.equal(Object.keys(out.banks).length,24);assert.deepEqual(out.rejected,{});
+ console.log('V307_RATIONAL_DIAGNOSTICS',JSON.stringify({accepted:Object.keys(out.banks),rejected:out.rejected,diagnostics:out.diagnostics,rejectedReasons:out.rejectedReasons,modes:out.modes}));assert.equal(out.build,build);assert.equal(new Set(out.fraction).size,out.fraction.length);assert.equal(new Set(out.decimal).size,out.decimal.length);assert.equal(Object.keys(out.banks).length,24);assert.deepEqual(out.rejected,{});for(const b of Object.values(out.banks))assert.deepEqual(b.stages.map(s=>s.length),[5,7,10]);
  const target=resolve(__dirname,'../v307-learning-fixtures');mkdirSync(target,{recursive:true});writeFileSync(resolve(target,'v306-visual-question-bank.json'),JSON.stringify(out,null,2)+'\n');
  console.log('V307_RATIONAL_CURRICULUM',JSON.stringify({fraction:out.fraction,decimal:out.decimal,mandatory:out.mandatory.length,accepted:Object.keys(out.banks),rejected:out.rejected}));
  await context.close();
