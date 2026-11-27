@@ -7,16 +7,24 @@ const P='a1436d1d-0123-4f25-8ae9-df61e8a85370',Q='b1436d1d-0123-4f25-8ae9-df61e8
  await new Promise(r=>server.listen(0,'127.0.0.1',r));const origin='http://127.0.0.1:'+server.address().port;const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
  try{
  for(const width of [320,390,1280]){
-  const context=await browser.newContext({viewport:{width,height:800},serviceWorkers:'block'}),page=await context.newPage(),errors=[],writes=[];page.on('pageerror',e=>errors.push(String(e)));let pending=false,logoutFail=false,role='parent',authed=false,delay=false;
+  const context=await browser.newContext({viewport:{width,height:800},serviceWorkers:'block'}),page=await context.newPage(),errors=[],writes=[];page.on('pageerror',e=>errors.push(String(e)));let pending=false,logoutFail=false,role='parent',authed=false,delay=false,lessonOpen=false,assigned=false;
   await page.route('**/api/v1/**',async route=>{
    const req=route.request(),path=new URL(req.url()).pathname.slice(7),m=req.method(),body=req.postDataJSON?.();let code=200,data;
    if(m!=='GET')writes.push({path,body,headers:req.headers()});
-   if(path==='/auth/login'){authed=true;role=body.email?'parent':'student';data={user:{id:R,role},csrf_token:'csrf'};}
+   if(path==='/auth/login'){authed=true;role=body.email?.startsWith('tutor')?'tutor':body.email?'parent':'student';data={user:{id:R,role},csrf_token:'csrf'};}
    else if(path==='/auth/csrf'){if(!authed){code=401;data={error:{code:'UNAUTHORIZED'}}}else data={csrf_token:'csrf'}}
    else if(path==='/auth/me')data={id:R,role};
    else if(path==='/auth/logout'){if(logoutFail){await route.abort('failed');return}authed=false;data={ok:true}}
    else if(path==='/parent/children')data={links:[{id:R,profiles:[{id:P,display_name:'Проба А'},{id:Q,display_name:'Проба Б'}]}]};
    else if(path==='/student/profiles')data=[{id:Q,display_name:'Проба Б'}];
+   else if(path==='/tutor/students')data={students:[{profile_id:Q,display_name:'Проба Б'}]};
+   else if(path==='/tutor/seats')data={allocated:1,limit:5,available:4,linked_student_ids:[Q]};
+   else if(path==='/tutor/students/'+Q+'/homework'&&m==='GET')data={assignments:assigned?[{id:R,title:'Таблица умножения',status:'not_started',late:false}]:[],next_offset:null};
+   else if(path==='/tutor/students/'+Q+'/homework'&&m==='POST'){assert.equal(body.topic_id,'g4:table');assert.equal(body.stage,0);assert(req.headers()['idempotency-key']);assigned=true;code=201;data={id:R};}
+   else if(path==='/tutor/students/'+Q+'/lesson'&&m==='GET')data={lesson:lessonOpen?{id:R}:null,profile:{id:Q,display_name:'Проба Б'}};
+   else if(path==='/tutor/students/'+Q+'/lesson'&&m==='POST'){assert(req.headers()['idempotency-key']);lessonOpen=true;code=201;data={id:R}}
+   else if(path==='/tutor/students/'+Q+'/lesson/'+R&&m==='DELETE'){lessonOpen=false;data={status:'ended'}}
+
    else if(path==='/profiles/'+P+'/subscription'||path==='/profiles/'+Q+'/subscription'){
     const a=path.includes(P);data={profile_id:a?P:Q,display_name:a?'Проба А':'Проба Б',full:a,sources:a?['tutor_paid']:[],test_only:true,payment_enabled:false,free_blocks_limit:10,free_blocks_used:2,can_request:!a&&!pending,pending:!a&&pending,own_pending_id:!a&&pending?R:null,personal_ends_at:null};
     if(delay){await new Promise(r=>setTimeout(r,500));}
@@ -39,6 +47,7 @@ const P='a1436d1d-0123-4f25-8ae9-df61e8a85370',Q='b1436d1d-0123-4f25-8ae9-df61e8
   await page.reload();await page.getByRole('heading',{name:'Завершить выход'}).waitFor();logoutFail=false;await page.getByRole('button',{name:'Повторить выход'}).click();await page.getByRole('heading',{name:'Вход в МатКвест'}).waitFor();
   await login('pupil307');await page.getByRole('heading',{name:'Мои профили'}).waitFor();await page.getByRole('button',{name:'Выбрать',exact:true}).click();await page.locator('.price').waitFor();await page.getByRole('button',{name:'Домашние задания'}).click();await page.getByRole('heading',{name:'Таблица умножения'}).waitFor();
   await page.getByRole('button',{name:'Назад'}).click();await page.locator('.price').waitFor();delay=true;await page.getByRole('button',{name:'Обновить'}).click();await page.evaluate(()=>dispatchEvent(new Event('offline')));await page.waitForTimeout(700);assert.equal(await page.getByRole('heading',{name:'Вход в МатКвест'}).count(),1);assert.equal(await page.locator('.price').count(),0);
+  delay=false;await login('tutor@example.com');await page.getByRole('heading',{name:'Кабинет преподавателя'}).waitFor();await page.getByRole('button',{name:'Домашние задания'}).click();await page.getByRole('button',{name:'Выдать домашнее задание'}).waitFor();assert.equal(await page.getByLabel('Тема',{exact:true}).locator('option').count(),18);await page.getByRole('button',{name:'Выдать домашнее задание'}).click();await page.getByRole('heading',{name:'Таблица умножения'}).waitFor();await page.getByRole('button',{name:'Назад'}).click();await page.getByRole('button',{name:'Занятие',exact:true}).click();await page.getByRole('button',{name:'Начать занятие'}).click();await page.getByRole('button',{name:'Завершить занятие'}).click();await page.getByRole('button',{name:'Начать занятие'}).waitFor();assert.equal(lessonOpen,false);
   assert.deepEqual(errors,[]);assert.equal(await page.evaluate(()=>localStorage.length),0);assert(writes.filter(w=>w.path.includes('/subscription/requests')&&w.path.endsWith('/requests')).length===1);console.log('PASS_V307_ACCOUNT_REVIEW_SYNTHETIC',width);await context.close();
  }
  }finally{await browser.close();await new Promise(r=>server.close(r))}
