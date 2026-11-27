@@ -38,12 +38,16 @@ const id=x=>x+'1436d1d-0123-4f25-8ae9-df61e8a85370',P=id('a'),STUDENT=id('b'),TU
   const button=n=>page.getByRole('button',{name:n,exact:true});
   async function login(name){await page.getByLabel('Логин или электронная почта').fill(name);await page.getByLabel('Пароль',{exact:true}).fill('synthetic-password');await button('Войти').click();}
   async function student(){await login('pupil307');await button('Выбрать').click();await button('Домашние задания').click();}
-  async function answer(){await page.getByLabel('Ответ',{exact:true}).fill('6');await button('Проверить').click();await button('Далее').click();}
-  await page.goto(origin+'/integrations/v307/account_review.html');await student();await button('Открыть тренажёр').click();await page.getByText('Домашнее задание',{exact:true}).waitFor();await answer();await page.getByText('Выполнено 1 / 5').waitFor();
-  await page.reload();await student();await button('Открыть тренажёр').click();await page.getByText('Выполнено 1 / 5').waitFor();
+  async function answer(last=false){await page.getByLabel('Ответ',{exact:true}).fill('6');await button('Проверить').click();await button('Далее').click();if(!last)await page.waitForFunction(()=>{const e=document.getElementById('fin');return e&&!e.readOnly&&!e.disabled&&e.value===''});else await page.locator('.pilot-summary').waitFor();}
+  await page.goto(origin+'/integrations/v307/account_review.html');await student();await button('Открыть тренажёр').click();await page.getByText('Домашнее задание',{exact:true}).waitFor();await page.getByLabel('Ответ',{exact:true}).fill('6');await button('Проверить').click();await button('Далее').waitFor();await page.getByText('Выполнено 1 / 5').waitFor();
+  // F5 between check and advance: the solved answer is read-only, no duplicate check.
+  await page.reload();await student();await button('Открыть тренажёр').click();await button('Далее').waitFor();assert.equal(await page.getByLabel('Ответ',{exact:true}).inputValue(),'6');assert.equal(await page.getByLabel('Ответ',{exact:true}).evaluate(e=>e.readOnly),true);
+  await button('Далее').click();await page.waitForFunction(()=>{const e=document.getElementById('fin');return e&&!e.readOnly&&!e.disabled&&e.value===''});
+  // F5 after committed advance: question two must be editable.
+  await page.reload();await student();await button('Открыть тренажёр').click();await page.getByText('Выполнено 1 / 5').waitFor();assert.equal(await page.getByLabel('Ответ',{exact:true}).evaluate(e=>e.readOnly),false);
   // Offline edits use the same persistent draft; no request is sent until explicitly back online.
   await page.evaluate(()=>{Object.defineProperty(navigator,'onLine',{configurable:true,get:()=>false});dispatchEvent(new Event('offline'));});
-  for(let i=1;i<5;i++)await answer();await button('Повторить синхронизацию').waitFor();assert.equal(puts.length,0);
+  for(let i=1;i<5;i++)await answer(i===4);await button('Повторить синхронизацию').waitFor();assert.equal(puts.length,0);
   await page.evaluate(()=>{Object.defineProperty(navigator,'onLine',{configurable:true,get:()=>true});dispatchEvent(new Event('online'));});
   await page.waitForFunction(()=>!document.querySelector('.v307-training button[disabled]'));
   // The automatic first PUT committed but response was lost. Retry exact body.
@@ -52,7 +56,7 @@ const id=x=>x+'1436d1d-0123-4f25-8ae9-df61e8a85370',P=id('a'),STUDENT=id('b'),TU
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
   await button('К этапам').click();await button('Назад').click();await button('Выйти').click();await login('tutor@example.test');
   await button('Занятие').click();await button('Начать занятие').click();await button('Тренажёры занятия').click();await button('Открыть блок').click();await page.getByText('Занятие с преподавателем',{exact:true}).waitFor();
-  for(let i=0;i<5;i++)await answer();await page.getByText(/Начислено 20 XP и 25 монет/).waitFor();
+  for(let i=0;i<5;i++)await answer(i===4);await page.getByText(/Начислено 20 XP и 25 монет/).waitFor();
   assert.equal(puts.length,3);assert.equal(receipts.size,2);assert(puts[2].path.includes('/lesson/'+L+'/'));assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
   assert.deepEqual(errors,[]);console.log('PASS_V307_VUE_CONTEXT_TRAINING',width);await context.close();
  }
