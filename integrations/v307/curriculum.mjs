@@ -17,7 +17,7 @@ export function parseNumber(raw,allowPercent=false){
 export function parseTime(raw){const m=String(raw).trim().match(/^(\d{1,2}):([0-5]\d)$/);if(!m||Number(m[1])>23)throw Error('ANSWER_INVALID');return Number(m[1])*60+Number(m[2]);}
 const equal=(a,b)=>a[0]===b[0]&&a[1]===b[1];
 const modes=['choice','number','time','remainder'];
-export function validateCurriculum(q,{publicOnly=false}={}){
+export function validateCurriculum(q,{publicOnly=false,solved=false}={}){
  if(!q||!modes.includes(q.mode)||typeof q.expression!=='string'||!q.expression||q.expression.length>500)throw Error('CURRICULUM_QUESTION');
  validateNodes(q.prompt);
  if(!publicOnly){if(!Array.isArray(q.steps)||q.steps.length!==1||typeof q.steps[0]!=='string'||!q.steps[0]||q.steps[0].length>2500)throw Error('CURRICULUM_QUESTION');validateNodes(q.solution);}
@@ -29,7 +29,12 @@ export function validateCurriculum(q,{publicOnly=false}={}){
   if(q.mode==='number'&&(typeof q.unit_suffix!=='string'||q.unit_suffix.length>20||typeof q.allow_percent!=='boolean'))throw Error('CURRICULUM_NUMBER');
   if(!publicOnly){const e=q.expected;if(!e)throw Error('CURRICULUM_EXPECTED');if(q.mode==='number'&&(!Number.isSafeInteger(e.n)||!Number.isSafeInteger(e.d)||e.d<1||e.unitSuffix!==q.unit_suffix||e.allowPercent!==q.allow_percent)||q.mode==='time'&&(!Number.isInteger(e.minutes)||e.minutes<0||e.minutes>=1440)||q.mode==='remainder'&&(!Number.isSafeInteger(e.quotient)||!Number.isSafeInteger(e.remainder)||e.quotient<0||e.remainder<0))throw Error('CURRICULUM_EXPECTED');}
  }
- if(publicOnly&&q.expected!==undefined)throw Error('CURRICULUM_SECRET');
+ if(publicOnly){
+  const allowed=new Set(['mode','expression','prompt','unit_suffix','allow_percent','choices','choice_labels','choice_nodes',...(solved?['steps','solution_nodes']:[])]);
+  if(Object.keys(q).some(k=>!allowed.has(k)))throw Error('CURRICULUM_SECRET');
+  if(Object.hasOwn(q,'steps')&&(!Array.isArray(q.steps)||q.steps.length!==1||typeof q.steps[0]!=='string'||!q.steps[0]||q.steps[0].length>2500))throw Error('CURRICULUM_QUESTION');
+  if(Object.hasOwn(q,'solution_nodes'))validateNodes(q.solution_nodes);
+ }
  return q;
 }
 export function curriculumKeys(q){return q.mode==='remainder'?['answer:0','answer:1']:['answer:0'];}
