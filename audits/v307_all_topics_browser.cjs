@@ -30,12 +30,14 @@ const numeric=['g4:table','g4:moro_order_1000','g4:order','g4:equations','g4:mor
 const extended=require('../v307-learning-fixtures/v306-text-question-bank.json').banks;
 assert.equal(Object.keys(extended).length,15);
 const visual=require('../v307-learning-fixtures/v306-visual-question-bank.json').banks;assert.equal(Object.keys(visual).length,24);
-const remaining=require('../v307-learning-fixtures/v306-remaining-question-bank.json').banks;delete remaining['g5:calculator'];assert.equal(Object.keys(remaining).length,89);
+const remaining=require('../v307-learning-fixtures/v306-remaining-question-bank.json').banks;assert.equal(Object.keys(remaining).length,90);
 const all=[...numeric,...columnTopics,...grade5Topics,...Object.keys(extended),...Object.keys(visual),...Object.keys(remaining)];
 function packFor(topic){
  const i=all.indexOf(topic)+1,id=String(i).padStart(8,'0')+'-1234-4f25-8ae9-df61e8a85370';
  const c=columnFixtures[topic];
- const q=c?c.question:remaining[topic]?remaining[topic].stages[0][0][0]:visual[topic]?visual[topic].stages[0][0][0]:extended[topic]?extended[topic].stages[0][0][0]:grade5Topics.includes(topic)?grade5Question(topic,0):topic==='g4:table'?{a:2,b:3}:{expression:'x + 2 = 8',answer:6,steps:['8 − 2 = 6']};
+ const choose=remaining[topic]?remaining[topic].stages[0].flat():null;
+ const representative=topic==='g4:moro_clock'?'time':topic==='g4:moro_div_powers'||topic==='g4:moro_div_double_rest'?'remainder':null;
+ const q=c?c.question:choose?(representative?choose.find(q=>q.mode===representative):choose[0]):visual[topic]?visual[topic].stages[0][0][0]:extended[topic]?extended[topic].stages[0][0][0]:grade5Topics.includes(topic)?grade5Question(topic,0):topic==='g4:table'?{a:2,b:3}:{expression:'x + 2 = 8',answer:6,steps:['8 − 2 = 6']};
  if(q.mode==='number'){q.unit_suffix=q.expected.unitSuffix;q.allow_percent=q.expected.allowPercent;}
  return {id,topic_id:topic,stage:0,full:true,expires_at:'2027-01-02T00:00:00Z',questions:Array.from({length:5},()=>q),...(c?{column_keys:Array.from({length:5},()=>c.keys)}:{})};
 }
@@ -56,7 +58,7 @@ function packFor(topic){
    else if(path==='/student/profiles/'+P+'/offline-school'&&m==='POST'){selected=packFor(body.topic);assert.equal(body.grade,Number(body.topic[1]));data={server_time:'2027-01-01T00:00:00Z',permits:[],topics:{[body.topic]:{packs:[selected]}}}}
    else if(path==='/student/profiles/'+P+'/offline-school/'+selected?.id&&m==='PUT'){
     const q=selected.questions[0],topic=selected.topic_id,typed=q.mode==='number'?{'answer:0':String(q.expected.n)}:q.mode==='time'?{'answer:0':Math.floor(q.expected.minutes/60)+':'+String(q.expected.minutes%60).padStart(2,'0')}:q.mode==='remainder'?{'answer:0':String(q.expected.quotient),'answer:1':String(q.expected.remainder)}:null,expected=typed??columnFixtures[topic]?.keys[0]??(q.form?fractionKeys(q):{'answer:0':String(q.answer??q.a*q.b)});
-    assert.equal(body.items.length,5);assert.equal(body.items[0].skipped,false);assert.deepEqual(body.items[0].checks.at(-1),expected);assert(body.items.slice(1).every(x=>x.skipped===true));assert(!submitted.has(topic));submitted.add(topic);
+    assert.equal(body.items.length,5);assert(body.items.every(x=>remaining[topic]?x.format==='curriculum-v307':x.format===undefined));assert.equal(body.items[0].skipped,false);assert.deepEqual(body.items[0].checks.at(-1),expected);assert(body.items.slice(1).every(x=>x.skipped===true));assert(!submitted.has(topic));submitted.add(topic);
     data={id:selected.id,status:'finished',summary:{correct:1,corrected:0,skipped:4,passed:false,xp:4,coins:5}};
    }else{code=404;data={error:{code:'NOT_FOUND'}}}
    await route.fulfill({status:code,contentType:'application/json',body:JSON.stringify(data)}).catch(()=>{});
@@ -80,7 +82,7 @@ function packFor(topic){
    for(let i=0;i<4;i++){await button('⏭ Пропустить задание').click();await page.getByText('Выполнено '+(i+2)+' / 5',{exact:true}).waitFor();}
    await page.getByText(/Начислено 4 XP и 5 монет/).waitFor();assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);await button('К этапам').click();
   }
-  assert.equal(submitted.size,146);assert.deepEqual(errors,[]);console.log('PASS_V307_ALL_146_VUE_TOPICS',width);await context.close();
+  assert.equal(submitted.size,147);assert.deepEqual(errors,[]);console.log('PASS_V307_ALL_147_VUE_TOPICS',width);await context.close();
  }
  }finally{await browser.close();await new Promise(r=>server.close(r))}
 })().catch(e=>{console.error(e);process.exitCode=1});

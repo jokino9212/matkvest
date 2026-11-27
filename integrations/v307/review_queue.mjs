@@ -14,7 +14,7 @@ function checkBody(b){
  }
  if(b?.kind==='step'&&valid(b.review)){
   const p=b.body;
-  if(Number.isSafeInteger(p?.revision)&&p.revision>=0&&['save','check','skip','advance','abandon'].includes(p.action)&&p.cells&&typeof p.cells==='object'&&!Array.isArray(p.cells)&&Object.keys(p.cells).length<=100&&Object.entries(p.cells).every(([k,v])=>/^[a-zA-Z0-9]{1,16}:[0-9]{1,2}$/.test(k)&&typeof v==='string'&&v.length<=64))return;
+  if(Number.isSafeInteger(p?.revision)&&p.revision>=0&&['save','check','skip','advance','abandon'].includes(p.action)&&(p.format===undefined||p.format==='curriculum-v307')&&p.cells&&typeof p.cells==='object'&&!Array.isArray(p.cells)&&Object.keys(p.cells).length<=100&&Object.entries(p.cells).every(([k,v])=>/^[a-zA-Z0-9]{1,16}:[0-9]{1,2}$/.test(k)&&typeof v==='string'&&v.length<=(p.format==='curriculum-v307'?64:6)))return;
  }
  throw Error('INVALID_REVIEW_REQUEST');
 }

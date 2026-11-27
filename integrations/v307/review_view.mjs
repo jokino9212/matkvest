@@ -36,7 +36,7 @@ export async function mountReview({host,api,scope,exit}){
  const locked=()=>busy.value||!!pending.value;
  const btn=(name,fn,disabled=false)=>h('button',{type:'button',onClick:fn,disabled:busy.value||disabled},name);
  const values=()=>{const r=row.value;if(isCurriculum(r.topic_id))return readCurriculumCells(host);if(isColumn(r.topic_id))return readColumnCells();if(isFraction(r.topic_id))return readFractionCells();return {'answer:0':host.querySelector('#fin')?.value??r.cells?.['answer:0']??''};};
- const act=(action,cells={})=>{if(locked()||row.value?.status!=='active')return Promise.resolve(false);return run({kind:'step',review:row.value.id,body:{revision:row.value.revision,action,cells}});};
+ const act=(action,cells={})=>{if(locked()||row.value?.status!=='active')return Promise.resolve(false);return run({kind:'step',review:row.value.id,body:{revision:row.value.revision,action,cells,...(isCurriculum(row.value.topic_id)?{format:'curriculum-v307'}:{})}});};
  const leave=async()=>{if(locked())return;if(row.value?.status==='active'&&row.value.outcome==='open'){if(!await act('save',values()))return;}if(alive)exit();};
  const actions={input:()=>{},inputCell:el=>normalizeColumnCell(el),moveCell:(e,el)=>moveColumnCell(e,el),toggleDot:el=>normalizeColumnCell(el,true),primary:()=>act(row.value.outcome==='solved'?'advance':'check',row.value.outcome==='solved'?{}:values()),pick:i=>{const q=row.value.question;if(q.choices&&Object.hasOwn(q.choices,i))void act('check',{'answer:0':String(q.choices[i])});},skip:()=>{if(!locked()&&confirm('Пропустить задание?'))void act('skip',values());}};
  function exercise(){
