@@ -24,7 +24,18 @@ export function createV307Queue({api,scope,outbox,online=()=>navigator.onLine}){
  async function list(){const s=current();if(!s)return [];const result=await rows(s);if(!still(s))return [];return result.filter(r=>same(r.context,s));}
  async function prepare(topic,stage,device){
   const s=current();if(!s||!Object.hasOwn(SCHOOL_TOPICS,topic)||!Number.isInteger(stage)||stage<0||stage>2||!valid(device))throw Error('INVALID_START');
-  const ctx=contextOf(s);let all=await rows(s);if(!still(s))throw Error('SCOPE_CHANGED');
+  const ctx=contextOf(s);
+  // Before any new opening, prove the live actor and profile/lesson entitlement.
+  await authorized(s);
+  if(ctx.kind==='lesson'){
+   const access=await api.lesson(ctx.profile);
+   if(access?.allowed!==true||access.lesson?.id!==ctx.lesson)throw Error('SCOPE_CHANGED');
+  }else{
+   const profiles=await api.profiles();
+   if(!Array.isArray(profiles)||!profiles.some(x=>x?.id===ctx.profile))throw Error('SCOPE_CHANGED');
+  }
+  if(!still(s)||!online())throw Error('SCOPE_CHANGED');
+  let all=await rows(s);if(!still(s)||!online())throw Error('SCOPE_CHANGED');
   const open=all.find(r=>['draft','pending','blocked'].includes(r.status));
   if(open){if(!same(open.context,ctx)||open.topic!==topic||open.stage!==stage)throw Error('OTHER_BLOCK_ACTIVE');return open;}
   // Existing confirmed homework is not started again; ordinary practice can start a fresh pack.

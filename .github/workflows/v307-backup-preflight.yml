@@ -16,7 +16,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: node --test audits/v307_backup_preflight.test.mjs audits/v307_account_client.test.mjs audits/v307_training_queue.test.mjs audits/v307_economy_queue.test.mjs audits/v307_extended_choice.test.mjs audits/v307_quick_queue.test.mjs audits/v307_visual_nodes.test.mjs audits/v307_review_queue.test.mjs audits/v307_curriculum.test.mjs
+      - run: node --test audits/v307_backup_preflight.test.mjs audits/v307_account_client.test.mjs audits/v307_training_queue.test.mjs audits/v307_economy_queue.test.mjs audits/v307_extended_choice.test.mjs audits/v307_quick_queue.test.mjs audits/v307_visual_nodes.test.mjs audits/v307_review_queue.test.mjs audits/v307_curriculum.test.mjs audits/v307_r12_offline.test.mjs
   browser:
     runs-on: ubuntu-latest
     container: mcr.microsoft.com/playwright:v1.56.1-noble
@@ -39,6 +39,7 @@ jobs:
       - run: node audits/v307_account_review_browser.cjs
       - run: python3 audits/v307_extract_column_layout.py v306-fixture/index.html integrations/v307/column_layout_generated.mjs
       - run: npm ci && npx vite build --config frontend/v307-review.vite.config.mjs && npm install --no-save --no-package-lock playwright@1.56.1
+      - run: node audits/v307_r12_offline_browser.cjs
       - run: node audits/v307_training_vue_browser.cjs
       - run: node audits/v307_quick_browser.cjs
       - run: node audits/v307_review_browser.cjs

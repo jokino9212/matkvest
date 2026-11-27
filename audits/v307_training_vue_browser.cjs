@@ -24,7 +24,7 @@ const id=x=>x+'1436d1d-0123-4f25-8ae9-df61e8a85370',P=id('a'),STUDENT=id('b'),TU
    else if(path==='/student/profiles/'+P+'/homework/'+A+'/prepare'&&m==='POST'){assert.equal(role,'student');assigned='prepared';data={...payload,assignment_id:A,pack:pack(H)}}
    else if(path==='/tutor/students')data={students:[{profile_id:P,display_name:'Пробный ученик'}]};
    else if(path==='/tutor/seats')data={allocated:1,limit:5,available:4,linked_student_ids:[P]};
-   else if(path==='/tutor/students/'+P+'/lesson'&&m==='GET')data={lesson:lesson?{id:L}:null,profile:{id:P,display_name:'Пробный ученик'}};
+   else if(path==='/tutor/students/'+P+'/lesson'&&m==='GET')data={allowed:true,lesson:lesson?{id:L}:null,profile:{id:P,display_name:'Пробный ученик'}};
    else if(path==='/tutor/students/'+P+'/lesson'&&m==='POST'){lesson=true;data={id:L};code=201;}
    else if(path==='/tutor/students/'+P+'/lesson/'+L+'/offline-school'&&m==='POST'){assert.equal(role,'tutor');data={...payload,topics:{'g4:table':{packs:[pack(T)]}}}}
    else if(m==='PUT'&&(path==='/student/profiles/'+P+'/offline-school/'+H||path==='/tutor/students/'+P+'/lesson/'+L+'/offline-school/'+T)){

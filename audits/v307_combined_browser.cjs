@@ -13,7 +13,7 @@ const root=resolve(__dirname,'../dist-v307-review'),types={'.html':'text/html; c
   await page.waitForFunction(()=>navigator.serviceWorker.controller!==null,{},{timeout:30000});
   assert((await page.evaluate(()=>navigator.serviceWorker.controller.scriptURL)).endsWith('/local/sw.js'));
   await page.getByRole('link',{name:'Серверный кабинет (тест)'}).click();await page.getByRole('heading',{name:'Вход в МатКвест'}).waitFor();
-  assert.equal(await page.evaluate(()=>navigator.serviceWorker.controller),null);
+  await page.waitForFunction(()=>navigator.serviceWorker.controller?.scriptURL.endsWith('/integrations/v307/account-offline-sw.js'),{},{timeout:30000});
   assert.equal(await page.evaluate(()=>localStorage.getItem('mq4_v305_authority')),before.authority);
   await page.getByRole('link',{name:'Вернуться к локальным профилям'}).click();await page.waitForFunction(()=>typeof mk305FlushWrites==='function');
   const after=await page.evaluate(()=>({name:currentProfile,id:state.profileId,coins:state.coins,xp:state.xp}));

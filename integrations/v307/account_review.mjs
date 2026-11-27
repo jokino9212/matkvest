@@ -1,3 +1,4 @@
+import './register-account-offline.mjs';
 import {SCHOOL_TOPICS} from '../backend95-next/school_block_queue.mjs';
 import {createV307Queue,v307Outbox} from './training_queue.mjs';
 import {V307AccountClient} from './account_client.mjs';
