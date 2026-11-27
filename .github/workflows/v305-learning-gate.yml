@@ -18,6 +18,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: true
+          fetch-depth: 0
       - name: Materialize guarded patch and check PWA fingerprints
         run: |
           git -c safe.directory="$GITHUB_WORKSPACE" merge-base --is-ancestor 9f06afc8134e007c3e72eae231c8f9b519678fe5 HEAD
