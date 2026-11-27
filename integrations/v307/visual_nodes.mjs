@@ -16,7 +16,7 @@ export function validateNodes(nodes){
    const key=k.toLowerCase();if(!ATTR.has(key))throw Error('INVALID_VISUAL_ATTRIBUTE');
    if(key==='style'){
     if(!object(v))throw Error('INVALID_VISUAL_STYLE');
-    for(const [p,value] of Object.entries(v))if(!STYLES.has(p)||typeof value!=='string'||value.length>300||/[{}<>;]|url\s*\(|expression|@import/i.test(value))throw Error('INVALID_VISUAL_STYLE');
+    for(const [p,value] of Object.entries(v))if(!STYLES.has(p)||typeof value!=='string'||value.length>300||/[{}<>;\\@]|url\s*\(|expression/i.test(value))throw Error('INVALID_VISUAL_STYLE');
    }else{
     if(typeof v!=='string'||v.length>30000||(/[<>]/.test(v)&&!key.startsWith('aria-')))throw Error('INVALID_VISUAL_ATTRIBUTE');
     bytes+=v.length;if(bytes>200000)throw Error('VISUAL_LIMIT');
