@@ -47,6 +47,28 @@ async function checkStorageRecovery(browser,address,viewport){
   assert.equal(backup.currentProfile,'Проба А');
   assert.deepEqual(['Проба А','Проба Б'].map(name=>backup.profiles[name].profileId),ids);
   assert.deepEqual(['Проба А','Проба Б'].map(name=>[backup.profiles[name].coins,backup.profiles[name].xp]),[[101,492],[509,783]]);
+  // Settle already-earned achievements before exporting the fixture, as in the
+  // accepted PWA recovery gate. Do not waive any balance assertion on restore.
+  // The legacy migration balances above were verified before settlement.
+  const settled=await page.evaluate(async()=>{
+   const snapshot=()=>Object.fromEntries(Object.entries(profiles).map(([name,p])=>[name,{coins:p.coins,xp:p.xp}]));
+   const before=snapshot();
+   for(const profile of Object.values(profiles))checkAchievementRewards({profile,silent:true});
+   const first=snapshot();
+   for(const profile of Object.values(profiles))checkAchievementRewards({profile,silent:true});
+   const second=snapshot();
+   state=deepCopy(profiles[currentProfile]);persistSilently();await mk305FlushWrites();
+   return {before,first,second,backup:makeBackup('all')};
+  });
+  assert.deepEqual(settled.first,settled.second,'achievement settlement must be idempotent');
+  assert.equal(settled.first['Проба А'].xp,492);
+  assert.equal(settled.first['Проба Б'].xp,783);
+  assert.equal(settled.before['Проба А'].coins,101);
+  assert.equal(settled.before['Проба Б'].coins,509);
+  assert.equal(settled.first['Проба А'].coins,101);
+  assert.equal(settled.first['Проба Б'].coins,517,'expected one previously unclaimed 8-coin achievement');
+  console.log('STAGE26_ACHIEVEMENT_SETTLEMENT',JSON.stringify({width:viewport.width,before:settled.before,after:settled.first}));
+  Object.assign(backup,settled.backup);
   backup.currentProfile='Проба Б';
   const expected=Object.keys(backup.profiles).sort().map(name=>{
    const profile=backup.profiles[name];
