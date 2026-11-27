@@ -16,7 +16,7 @@ const build='7e6e2b8de44e1eb4888b34f012288c32e24643eafe9c350fe79e9881935cb318';
   const old=blockSession,oldQid=qid;
   const fraction=G5_FRACTIONS.map(t=>t.id),decimal=G5_DECIMALS.map(t=>t.id),mandatory=g5AllTopics().map(t=>t.id);
   const title=new Map([...G5_FRACTIONS,...G5_DECIMALS].map(t=>[t.id,t.title]));
-  const banks={},rejected={};
+  const banks={},rejected={},diagnostics={};
   const visual=s=>/<(?:svg|img|canvas|math|table|video|iframe)\b/i.test(String(s));
   try{
    for(const id of selected){
@@ -27,7 +27,7 @@ const build='7e6e2b8de44e1eb4888b34f012288c32e24643eafe9c350fe79e9881935cb318';
       blockSession={key:'g5:'+id,kind:'course',stageIndex:stage,done:family,total:[5,7,10][stage]};qid='g5:'+id;
       const found=new Map();let skipped=0;
       for(let attempt=0;attempt<120&&found.size<12;attempt++){
-       const q=makeG5Question(id);if(visual(q.text)||q.choices?.some(c=>visual(c.label))){skipped++;continue}
+       const q=makeG5Question(id);if(!diagnostics[id])diagnostics[id]={mode:q.answerMode,rat:q.answerRat,form:q.stage18AnswerForm,correct:q.correctText,ans:q.ans,text:String(q.text).slice(0,250),labels:q.choices?.map(choicePlain),visual:visual(q.text)||q.choices?.some(c=>visual(c.label))};if(visual(q.text)||q.choices?.some(c=>visual(c.label))){skipped++;continue}
        const expression=academicHtmlPlain(q.text),explanation=academicHtmlPlain(q.ex);
        if(!expression||expression.length>500||!explanation||explanation.length>2500){skipped++;continue}
        const common={expression,steps:[explanation],source_template:String(q.templateId||'base')};
@@ -42,7 +42,7 @@ const build='7e6e2b8de44e1eb4888b34f012288c32e24643eafe9c350fe79e9881935cb318';
         else if(kind==='mixed'||q.preferMixed&&n>d){whole=String(Math.floor(n/d));numerator=String(n%d);denominator=String(d);}
         else {numerator=String(n);denominator=String(d);}
         const raw={stage18Fraction:true,whole,numerator,denominator},evaluation=quizInputEvaluation(q,raw);
-        if(!evaluation?.valid||!evaluation.ok){skipped++;continue}
+        if(!evaluation?.valid||!evaluation.ok){diagnostics[id].evaluation??={raw,evaluation};skipped++;continue}
         const expected={...raw};delete expected.stage18Fraction;
         row={...common,rational:{n,d,kind,reduced:!!q.requireReduced,...(kind==='exact'?{exact_n:form.n,exact_d:form.d}:{}),expected}};
        }else if(!q.answerMode||q.answerMode==='choice'){
@@ -61,9 +61,9 @@ const build='7e6e2b8de44e1eb4888b34f012288c32e24643eafe9c350fe79e9881935cb318';
     if(failure)rejected[id]=failure;else banks['g5:'+id]={title:title.get(id),stages};
    }
   }finally{blockSession=old;qid=oldQid;}
-  return {build,fraction,decimal,mandatory,banks,rejected};
+  return {build,fraction,decimal,mandatory,banks,rejected,diagnostics};
  },build);
- assert.equal(out.build,build);assert.equal(new Set(out.fraction).size,out.fraction.length);assert.equal(new Set(out.decimal).size,out.decimal.length);assert(Object.keys(out.banks).length>=5);
+ console.log('V307_RATIONAL_DIAGNOSTICS',JSON.stringify({accepted:Object.keys(out.banks),rejected:out.rejected,diagnostics:out.diagnostics}));assert.equal(out.build,build);assert.equal(new Set(out.fraction).size,out.fraction.length);assert.equal(new Set(out.decimal).size,out.decimal.length);assert(Object.keys(out.banks).length>=5);
  const target=resolve(__dirname,'../v307-learning-fixtures');mkdirSync(target,{recursive:true});writeFileSync(resolve(target,'v306-rational-question-bank.json'),JSON.stringify(out,null,2)+'\n');
  console.log('V307_RATIONAL_CURRICULUM',JSON.stringify({fraction:out.fraction,decimal:out.decimal,mandatory:out.mandatory.length,accepted:Object.keys(out.banks),rejected:out.rejected}));
  await context.close();
