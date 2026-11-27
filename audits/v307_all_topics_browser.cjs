@@ -41,7 +41,75 @@ function packFor(topic){
  if(q.mode==='number'){q.unit_suffix=q.expected.unitSuffix;q.allow_percent=q.expected.allowPercent;}
  return {id,topic_id:topic,stage,full:true,expires_at:'2027-01-02T00:00:00Z',questions:Array.from({length:count},()=>q),...(c?{column_keys:Array.from({length:count},()=>c.keys)}:{})};
 }
+// Audit every exported candidate, then solve a distinct complete block at each stage.
+const numericRaw=q=>q.expected.d===1?String(q.expected.n):q.expected.n+'/'+q.expected.d;
+function curriculumRaw(q){
+ if(q.mode==='number')return {'answer:0':numericRaw(q)};
+ if(q.mode==='time')return {'answer:0':Math.floor(q.expected.minutes/60)+':'+String(q.expected.minutes%60).padStart(2,'0')};
+ if(q.mode==='remainder')return {'answer:0':String(q.expected.quotient),'answer:1':String(q.expected.remainder)};
+ return {'answer:0':String(q.answer)};
+}
+function prepareCandidate(q){
+ return q.mode==='number'?{...q,unit_suffix:q.expected.unitSuffix,allow_percent:q.expected.allowPercent}:q;
+}
+async function auditRemaining(){
+ const {V307_CURRICULUM_TOPICS,validateCurriculum,curriculumFeedback,applyCurriculumAction}=await import('../integrations/v307/curriculum.mjs');
+ assert.deepEqual(Object.keys(remaining).sort(),Object.keys(V307_CURRICULUM_TOPICS).sort());
+ assert.equal(Object.keys(remaining).filter(k=>k.startsWith('g4:')).length,62);
+ assert.equal(Object.keys(remaining).filter(k=>k.startsWith('g5:')).length,28);
+ assert.equal(new Set(all).size,147);
+ let candidates=0,blocks=0;const modes=new Set();
+ for(const [topic,bank] of Object.entries(remaining)){
+  assert.deepEqual(bank.stages.map(s=>s.length),[5,7,10],topic);
+  for(const [stage,families] of bank.stages.entries()){
+   const owner=new Map(),selected=[];
+   function assign(i,seen){
+    for(const raw of families[i]){
+     const key=JSON.stringify(raw.prompt);
+     if(seen.has(key))continue;seen.add(key);
+     if(!owner.has(key)||assign(owner.get(key),seen)){owner.set(key,i);selected[i]=raw;return true;}
+    }
+    return false;
+   }
+   for(const [i,family] of families.entries()){
+    assert(family.length>=(topic==='g5:plane_line_ray'?1:3),topic+' stage '+stage+' family '+i);
+    for(const raw of family){
+     try{
+      const q=prepareCandidate(raw);validateCurriculum(q);
+      const feedback=curriculumFeedback(q,curriculumRaw(q));
+      assert.deepEqual(feedback.missing,[]);assert.deepEqual(feedback.wrong,[]);
+      const wrong={...curriculumRaw(q)};
+      if(q.mode==='choice')wrong['answer:0']=String((q.answer+1)%q.choices.length);
+      else if(q.mode==='time'){const m=(q.expected.minutes+1)%1440;wrong['answer:0']=Math.floor(m/60)+':'+String(m%60).padStart(2,'0');}
+      else if(q.mode==='remainder')wrong['answer:1']=String(q.expected.remainder===0?1:0);
+      else wrong['answer:0']=q.expected.n===0?'1':'0';
+      assert.equal(curriculumFeedback(q,wrong).wrong.length,1);
+      modes.add(q.mode);candidates++;
+     }catch(e){throw Error(topic+' stage '+stage+' family '+i+' '+String(raw.expression).slice(0,120),{cause:e});}
+    }
+    assert(assign(i,new Set()),topic+' no distinct full block at stage '+stage);
+   }
+   const questions=selected.map(prepareCandidate),count=questions.length;
+   assert.equal(new Set(questions.map(q=>JSON.stringify(q.prompt))).size,count);
+   let row={topic,stage,index:0,count,revision:0,status:'draft',questions,draft:questions.map(()=>({cells:{},checks:[],solved:false,skipped:false})),start:{started_at:'2027-01-01T00:00:00Z'}};
+   for(const q of questions){
+    row=applyCurriculumAction(row,row.revision,'check',curriculumRaw(q));
+    assert(row.draft[row.index].solved,topic);
+    row=applyCurriculumAction(row,row.revision,'advance',{});
+   }
+   assert.equal(row.status,'pending');assert.equal(row.body.items.length,count);
+   for(const [i,item] of row.body.items.entries()){
+    assert.equal(item.format,'curriculum-v307');assert.equal(item.skipped,false);
+    assert.deepEqual(item.checks,[curriculumRaw(questions[i])]);
+   }
+   blocks++;
+  }
+ }
+ assert.equal(blocks,270);assert.deepEqual([...modes].sort(),['choice','number','remainder','time']);
+ console.log('PASS_V307_ALL_REMAINING_CANDIDATES_AND_270_DISTINCT_BLOCKS',JSON.stringify({candidates,blocks,modes:[...modes]}));
+}
 (async()=>{
+ await auditRemaining();
  const server=createServer(async(req,res)=>{try{const p=resolve(root,'.'+decodeURIComponent(new URL(req.url,'http://127.0.0.1').pathname));if(!p.startsWith(root+sep))return res.writeHead(404).end();res.writeHead(200,{'Content-Type':types[extname(p)]||'application/octet-stream','Cache-Control':'no-store'}).end(await readFile(p))}catch(e){if(!res.headersSent)res.writeHead(404);res.end()}});
  await new Promise(r=>server.listen(0,'127.0.0.1',r));const origin='http://127.0.0.1:'+server.address().port;const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
  try{
@@ -57,7 +125,7 @@ function packFor(topic){
    else if(path==='/profiles/'+P+'/subscription')data={profile_id:P,display_name:'Пробный ученик',full:true,sources:['tutor_paid'],test_only:true,payment_enabled:false,free_blocks_limit:10,free_blocks_used:0,can_request:false,pending:false};
    else if(path==='/student/profiles/'+P+'/offline-school'&&m==='POST'){selected=packFor(body.topic);assert.equal(body.grade,Number(body.topic[1]));data={server_time:'2027-01-01T00:00:00Z',permits:[],topics:{[body.topic]:{packs:[selected]}}}}
    else if(path==='/student/profiles/'+P+'/offline-school/'+selected?.id&&m==='PUT'){
-    const q=selected.questions[0],topic=selected.topic_id,typed=q.mode==='number'?{'answer:0':String(q.expected.n)}:q.mode==='time'?{'answer:0':Math.floor(q.expected.minutes/60)+':'+String(q.expected.minutes%60).padStart(2,'0')}:q.mode==='remainder'?{'answer:0':String(q.expected.quotient),'answer:1':String(q.expected.remainder)}:null,expected=typed??columnFixtures[topic]?.keys[0]??(q.form?fractionKeys(q):{'answer:0':String(q.answer??q.a*q.b)});
+    const q=selected.questions[0],topic=selected.topic_id,typed=q.mode==='number'?{'answer:0':numericRaw(q)}:q.mode==='time'?{'answer:0':Math.floor(q.expected.minutes/60)+':'+String(q.expected.minutes%60).padStart(2,'0')}:q.mode==='remainder'?{'answer:0':String(q.expected.quotient),'answer:1':String(q.expected.remainder)}:null,expected=typed??columnFixtures[topic]?.keys[0]??(q.form?fractionKeys(q):{'answer:0':String(q.answer??q.a*q.b)});
     assert.equal(body.items.length,selected.questions.length);assert(body.items.every(x=>remaining[topic]?x.format==='curriculum-v307':x.format===undefined));assert.equal(body.items[0].skipped,false);assert.deepEqual(body.items[0].checks.at(-1),expected);assert(body.items.slice(1).every(x=>x.skipped===true));assert(!submitted.has(topic));submitted.add(topic);
     data={id:selected.id,status:'finished',summary:{correct:1,corrected:0,skipped:selected.questions.length-1,passed:false,xp:4,coins:5}};
    }else{code=404;data={error:{code:'NOT_FOUND'}}}
@@ -73,7 +141,7 @@ function packFor(topic){
     for(const [key,value] of Object.entries(required)){const [row,col]=key.split(':');await page.locator('input[data-row="'+row+'"][data-col="'+col+'"]').fill(value);}
     await button('Проверить всю запись').or(button('Проверить все шаги')).click();
    }else if(q.form){for(const [key,value] of Object.entries(fractionKeys(q)))await page.locator('input[data-mk95-fraction="'+key+'"]').fill(value);await button('Проверить').click();}
-   else if(q.mode&&q.mode!=='choice'){const typed=q.mode==='number'?{'answer:0':String(q.expected.n)}:q.mode==='time'?{'answer:0':Math.floor(q.expected.minutes/60)+':'+String(q.expected.minutes%60).padStart(2,'0')}:{'answer:0':String(q.expected.quotient),'answer:1':String(q.expected.remainder)};for(const [k,val] of Object.entries(typed))await page.locator('input[data-mk307-cell="'+k+'"]').fill(val);await button('Проверить').click();}
+   else if(q.mode&&q.mode!=='choice'){const typed=q.mode==='number'?{'answer:0':numericRaw(q)}:q.mode==='time'?{'answer:0':Math.floor(q.expected.minutes/60)+':'+String(q.expected.minutes%60).padStart(2,'0')}:{'answer:0':String(q.expected.quotient),'answer:1':String(q.expected.remainder)};for(const [k,val] of Object.entries(typed))await page.locator('input[data-mk307-cell="'+k+'"]').fill(val);await button('Проверить').click();}
    else if(q.choices){if(visual[topic]||remaining[topic]){assert.equal(await page.locator('.v307-visual-prompt').count(),1);const count=x=>x.reduce((n,y)=>n+(typeof y==='string'?0:(y.tag==='svg'?1:0)+count(y.children)),0);assert.equal(await page.locator('.v307-visual-prompt svg').count(),count(q.prompt));}await page.locator('.school-numeric-choices button').nth(q.choices.indexOf(q.answer)).click();}
    else{await page.getByLabel('Ответ',{exact:true}).fill(String(q.answer??q.a*q.b));await button('Проверить').click();}
    await button('Далее').click();
