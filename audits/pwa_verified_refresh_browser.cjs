@@ -2556,6 +2556,13 @@ async function checkStoreCatalog(page){
  await card.getByRole('button',{name:'🪙 Продать',exact:true}).click();
  const refund=Math.floor(fixture.price*0.4);
  await page.getByRole('button',{name:`Продать сейчас +${refund}`,exact:true}).click();
+ // The v305 origin-wide lock makes the click asynchronous. Wait for the actual sale,
+ // including its durable receipt, before asserting the balance and reloading.
+ await page.waitForFunction(({id,balance,refund})=>{
+  const saved=JSON.parse(localStorage.getItem('mq4_profiles')||'{}')[currentProfile];
+  return !isOwned('avatars',id)&&state.coins===balance&&saved?.coins===balance
+   &&saved.saleHistory?.some(s=>s.id===id&&s.refundCoins===refund);
+ },{id:fixture.id,balance:fixture.balance-fixture.price+refund,refund});
  assert.equal(await page.evaluate(id=>isOwned('avatars',id),fixture.id),false);
  assert.equal(await page.evaluate(()=>state.coins),fixture.balance-fixture.price+refund);
  await page.reload();
@@ -3074,6 +3081,10 @@ async function checkArchivedRefunds(page){
  await archive.getByRole('button',{name:'Продать питомца',exact:true}).click();
  const sale=page.locator('#mk865SaleDialog > [data-v-app]');
  await sale.getByRole('button',{name:'Продать сейчас +156',exact:true}).click();
+ await page.waitForFunction(({pet})=>{
+  const saved=JSON.parse(localStorage.getItem('mq4_profiles')||'{}')[currentProfile];
+  return state.coins===1176&&saved?.coins===1176&&saved.saleHistory?.some(s=>s.id===pet&&s.refundCoins===156);
+ },fixture);
  await page.reload();
  assert.deepEqual(await page.evaluate(({avatar,pet})=>({
   coins:state.coins,avatar:mk873Receipt(state,avatar)?.refundCoins,
