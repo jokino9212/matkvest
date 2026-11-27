@@ -249,6 +249,59 @@ async function actualOldRuntime(browser,url){
   assert(protectedDoc?.profiles&&Object.values(protectedDoc.profiles).some(p=>p.saleHistory?.some(s=>s.transactionId===sale.transactionId)),'authority missing durable sale receipt');
  }finally{await ctx.close()}
 }
+// An old document opened before the migration has no trustworthy revision.
+async function unversionedOldRuntime(browser,url){
+ const {execFileSync}=require('node:child_process');
+ const oldHtml=execFileSync('git',['show','HEAD:index.html'],{maxBuffer:32*1024*1024});
+ const ctx=await browser.newContext({serviceWorkers:'block'});
+ try{
+  const old=await ctx.newPage();
+  await old.route(u=>u.href===url,r=>r.fulfill({status:200,contentType:'text/html; charset=utf-8',body:oldHtml}));
+  await old.goto(url);await old.waitForFunction(()=>typeof mk305IsSold==='function'&&mk854HistoryReady);
+  assert.equal(await old.evaluate(()=>typeof mk305FlushWrites),'undefined');
+  await old.evaluate(()=>{state.coins=3000;state.xp=10000;save()});
+  const a=await fresh(ctx,url);
+  const first=(await open(a,'rare')).reward;assert(first?.transactionId);
+  const sale=(await sell(a,first)).receipt;assert(sale?.transactionId);
+  const second=(await open(a,'epic')).reward;assert(second?.transactionId);
+  const before=await snap(a);
+  const raw=await old.evaluate(()=>{state.coins+=17;state.xp+=9;save();return localStorage.getItem('mq4_profiles')});
+  assert(Object.values(JSON.parse(raw)).every(p=>!p.mk305LegacyRevision),'fixture must have no revision');
+  const b=await fresh(ctx,url);
+  assert.deepEqual(await snap(b),before,'unversioned writer replaced protected state');
+  assert(await b.evaluate(raw=>Object.keys(localStorage).some(k=>k.startsWith('mq4_v305_legacy_quarantine:')&&localStorage.getItem(k)===raw),raw),'unversioned raw snapshot not preserved');
+  await b.getByRole('button',{name:'Скачать данные для восстановления',exact:true}).waitFor();
+  const download=await Promise.all([b.waitForEvent('download'),b.getByRole('button',{name:'Скачать данные для восстановления',exact:true}).click()]);
+  const file=JSON.parse(await fs.readFile(await download[0].path(),'utf8'));
+  assert.equal(file.automaticImport,false);assert(file.snapshots.some(s=>s.raw===raw),'export lost original legacy bytes');
+  console.log('V305_UNVERSIONED_OLD_QUARANTINE_PASS');
+ }finally{await ctx.close()}
+}
+// A tagged older runtime can still claim a duplicate sale in its UI. It must
+// never overwrite the new authority or silently import a second economic effect.
+async function legacyEconomicConflict(browser,url){
+ const {execFileSync}=require('node:child_process');
+ const oldHtml=execFileSync('git',['show','HEAD:index.html'],{maxBuffer:32*1024*1024});
+ const ctx=await browser.newContext({serviceWorkers:'block'});
+ try{
+  const a=await fresh(ctx,url);await seed(a,3000);
+  const first=(await open(a,'rare')).reward;assert(first?.transactionId);
+  const old=await ctx.newPage();
+  await old.route(u=>u.href===url,r=>r.fulfill({status:200,contentType:'text/html; charset=utf-8',body:oldHtml}));
+  await old.goto(url);await old.waitForFunction(()=>typeof mk305IsSold==='function'&&mk854HistoryReady);
+  assert.equal(await old.evaluate(()=>typeof mk305FlushWrites),'undefined');
+  assert(await old.evaluate(()=>!!state.mk305LegacyRevision),'fixture must be tagged');
+  const sale=(await sell(a,first)).receipt;assert(sale?.transactionId);
+  const second=(await open(a,'epic')).reward;assert(second?.transactionId);
+  const before=await snap(a);
+  const legacy=await old.evaluate(item=>{const before=state.coins;mk865SellItem(item.type,item.id,.5);return {before,after:state.coins,raw:localStorage.getItem('mq4_profiles')}},first);
+  assert(legacy.after>legacy.before,'old runtime did not execute stale sale');
+  const b=await fresh(ctx,url);
+  assert.deepEqual(await snap(b),before,'old monetary conflict changed protected economy');
+  assert(await b.evaluate(raw=>Object.keys(localStorage).some(k=>k.startsWith('mq4_v305_legacy_quarantine:')&&localStorage.getItem(k)===raw),legacy.raw),'conflicting raw snapshot not preserved');
+  console.log('V305_LEGACY_ECONOMIC_CONFLICT_PASS');
+ }finally{await ctx.close()}
+}
 // Browsers without Web Locks must never acknowledge unsafe monetary operations.
 async function withoutWebLocks(browser,url,fallback){
  const ctx=await browser.newContext({serviceWorkers:'block'});
@@ -297,6 +350,8 @@ withMatkvestBrowser(async(browser,url)=>{
  for(const fallback of [false,true])await check('pending profile edit '+fallback,()=>pendingProfileEdit(browser,url,fallback));
  for(const fallback of [false,true])await check('no Web Locks '+fallback,()=>withoutWebLocks(browser,url,fallback));
  await check('actual old runtime',()=>actualOldRuntime(browser,url));
+ await check('unversioned actual old runtime',()=>unversionedOldRuntime(browser,url));
+ await check('legacy economic conflict',()=>legacyEconomicConflict(browser,url));
  await check('exhaustion',()=>exhaustion(browser,url));
  for(const width of [390,1280])await check('king offline '+width,()=>avatar(browser,url,width));
  assert.deepEqual(failed,[]);
