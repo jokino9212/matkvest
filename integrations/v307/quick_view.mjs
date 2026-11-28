@@ -19,8 +19,8 @@ export function validateQuickPack(pack,draft){
  for(let i=0;i<draft.question_index;i++){const raw=draft.answers[String(i)],q=pack.questions[i];if(typeof raw!=='string'||raw!==''&&raw!=='ДА'&&raw!=='НЕТ'&&String(Number(raw))!==raw)throw Error('QUICK_INVALID_PACK');const a=decodeAnswer(raw);if(!isAnswer(a)||a!==null&&(pack.topic_id==='quick:multiplication'?typeof a!=='number':!q.options.includes(a)))throw Error('QUICK_INVALID_PACK');}
  return cfg;
 }
-export async function mountQuick({host,api,scope,exit}){
- const initial=scope(),queue=createQuickQueue({api,scope});
+export async function mountQuick({host,api,scope,exit,store}){
+ const initial=scope(),queue=createQuickQueue({api,scope,store});
  const draft=shallowRef(null),questions=shallowRef(null),goals=shallowRef(null),pending=shallowRef(null),latest=shallowRef(null),busy=shallowRef(false),error=shallowRef(''),input=shallowRef(''),feedback=shallowRef(''),other=shallowRef(false);
  const access=shallowRef({}),topic=shallowRef('quick:multiplication'),mode=shallowRef('all'),smart=shallowRef('all');
  let alive=true;

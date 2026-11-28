@@ -45,6 +45,15 @@ jobs:
       - run: node audits/v307_review_browser.cjs
       - run: node audits/v307_all_topics_browser.cjs
       - run: node audits/v307_economy_browser.cjs
+      - name: Separate synthetic encrypted journal Vue build (never uploaded)
+        run: npx vite build --config frontend/v307-encrypted-journals-audit.vite.config.mjs
+      - name: Encrypted quick/review/economy Vue replay audits
+        env:
+          MK307_ENCRYPTED_JOURNALS: '1'
+        run: |
+          node audits/v307_quick_browser.cjs
+          node audits/v307_review_browser.cjs
+          node audits/v307_economy_browser.cjs
       - uses: actions/upload-artifact@v4
         with:
           name: v307-public-catalog-and-synthetic-backups

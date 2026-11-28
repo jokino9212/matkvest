@@ -1,6 +1,7 @@
 'use strict';
 const assert=require('node:assert/strict'),{chromium}=require('playwright'),{createServer}=require('node:http'),{readFile}=require('node:fs/promises'),{resolve,sep,extname}=require('node:path');
-const root=resolve(__dirname,'../dist-v307-review'),types={'.html':'text/html; charset=utf-8','.css':'text/css','.mjs':'text/javascript','.js':'text/javascript'};
+const journalAudit=require('./fixtures/v307_encrypted_journal_test.cjs');
+const root=resolve(__dirname,journalAudit.enabled?'../dist-v307-encrypted-journals-audit':'../dist-v307-review'),types={'.html':'text/html; charset=utf-8','.css':'text/css','.mjs':'text/javascript','.js':'text/javascript'};
 const P='a1436d1d-0123-4f25-8ae9-df61e8a85370',U='b1436d1d-0123-4f25-8ae9-df61e8a85370',ERROR='c1436d1d-0123-4f25-8ae9-df61e8a85370',CONTROL='d1436d1d-0123-4f25-8ae9-df61e8a85370';
 (async()=>{
  const server=createServer(async(req,res)=>{try{const p=resolve(root,'.'+decodeURIComponent(new URL(req.url,'http://127.0.0.1').pathname));if(!p.startsWith(root+sep))return res.writeHead(404).end();res.writeHead(200,{'Content-Type':types[extname(p)]||'application/octet-stream','Cache-Control':'no-store'}).end(await readFile(p))}catch(e){if(!res.headersSent)res.writeHead(404);res.end()}});
@@ -53,10 +54,11 @@ const P='a1436d1d-0123-4f25-8ae9-df61e8a85370',U='b1436d1d-0123-4f25-8ae9-df61e8
    }else{code=404;data={error:{code:'NOT_FOUND'}}}
    await route.fulfill({status:code,contentType:'application/json',body:JSON.stringify(data)}).catch(()=>{});
   });
+  await journalAudit.prepare(context);
   const button=n=>page.getByRole('button',{name:n,exact:true});
-  async function enter(){await page.getByLabel('Логин или электронная почта').fill('pupil307');await page.getByLabel('Пароль',{exact:true}).fill('synthetic-password');await button('Войти').click();await button('Выбрать').click();await button('Работа над ошибками и контроль').click();await page.getByText('Тестовый серверный режим. Требуется интернет.',{exact:true}).waitFor();}
-  async function retry(){await button('Повторить запрос').waitFor();await page.reload();await enter();await button('Повторить запрос').click();await button('Повторить запрос').waitFor({state:'detached'});}
-  await page.goto(origin+'/integrations/v307/account_review.html');await enter();await button('Начать').click();await retry();
+  async function enter(){if(journalAudit.enabled)await journalAudit.ready(page);else{await page.getByLabel('Логин или электронная почта').fill('pupil307');await page.getByLabel('Пароль',{exact:true}).fill('synthetic-password');await button('Войти').click();await button('Выбрать').click();await button('Работа над ошибками и контроль').click();}await page.getByText('Тестовый серверный режим. Требуется интернет.',{exact:true}).waitFor();}
+  async function retry(){await button('Повторить запрос').waitFor();const before=await journalAudit.check(page,'review',true);await page.reload();await enter();const after=await journalAudit.check(page,'review',true);assert.deepEqual(before,after);await button('Повторить запрос').click();await button('Повторить запрос').waitFor({state:'detached'});await journalAudit.check(page,'review',false);}
+  await page.goto(origin+journalAudit.path('review'));await enter();await journalAudit.check(page,'review',false);await button('Начать').click();await retry();
   await page.getByLabel('Ответ',{exact:true}).fill('6');await button('Проверить').click();await retry();await page.getByText('Ошибка отработана: +5 XP и 1 монета.',{exact:true}).waitFor();await button('Далее').click();
   await page.getByText(/Задание 2 из 2/).waitFor();await page.getByLabel('Ответ',{exact:true}).fill('7');await button('Проверить').click();await page.getByText('Проверь ответ.',{exact:true}).waitFor();await page.getByLabel('Ответ',{exact:true}).fill('6');await button('Проверить').click();await page.getByText('Верно. Старую ошибку нужно повторить.',{exact:true}).waitFor();await button('Далее').click();await page.getByRole('heading',{name:'Работа над ошибками завершена'}).waitFor();await page.getByText('Отработано ошибок: 1',{exact:true}).waitFor();
   await button('К списку').click();await button('Контрольное повторение').click();await button('Начать').click();
@@ -65,7 +67,7 @@ const P='a1436d1d-0123-4f25-8ae9-df61e8a85370',U='b1436d1d-0123-4f25-8ae9-df61e8
   await page.getByText(/Задание 2 из 10/).waitFor();assert.equal(await page.locator('.v307-visual-prompt svg').count()>0,true);await page.locator('.school-numeric-choices button').nth(bank.answer).click();await button('Далее').click();
   for(let i=3;i<=10;i++){await page.getByText(new RegExp('Задание '+i+' из 10')).waitFor();await button('⏭ Пропустить задание').click();}
   await page.getByRole('heading',{name:'Контрольное повторение завершено'}).waitFor();await page.getByText('Начислено 10 XP и 2 монет.',{exact:true}).waitFor();
-  assert.equal(resolved,1);assert.equal(baseRewards,3);const duplicated=writes.filter((x,i)=>writes.findIndex(y=>y.key===x.key)!==i);assert.equal(duplicated.length,2);for(const x of duplicated)assert.deepEqual(x,writes.find(y=>y.key===x.key));assert.deepEqual(errors,[]);assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);await context.close();console.log('PASS_V307_REVIEW_ERROR_CONTROL_REPLAY',width);
+  assert.equal(resolved,1);assert.equal(baseRewards,3);const duplicated=writes.filter((x,i)=>writes.findIndex(y=>y.key===x.key)!==i);assert.equal(duplicated.length,2);for(const x of duplicated)assert.deepEqual(x,writes.find(y=>y.key===x.key));assert.deepEqual(errors,[]);assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);await journalAudit.check(page,'review',false);await context.close();console.log(journalAudit.enabled?'ENCRYPTED':'STANDARD','PASS_V307_REVIEW_ERROR_CONTROL_REPLAY',width);
  }
  }finally{await browser.close();await new Promise(r=>server.close(r))}
 })().catch(e=>{console.error(e);process.exitCode=1});

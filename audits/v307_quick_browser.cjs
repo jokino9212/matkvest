@@ -1,6 +1,7 @@
 'use strict';
 const assert=require('node:assert/strict'),{chromium}=require('playwright'),{createServer}=require('node:http'),{readFile}=require('node:fs/promises'),{resolve,sep,extname}=require('node:path');
-const root=resolve(__dirname,'../dist-v307-review'),types={'.html':'text/html; charset=utf-8','.css':'text/css','.mjs':'text/javascript','.js':'text/javascript'};
+const journalAudit=require('./fixtures/v307_encrypted_journal_test.cjs');
+const root=resolve(__dirname,journalAudit.enabled?'../dist-v307-encrypted-journals-audit':'../dist-v307-review'),types={'.html':'text/html; charset=utf-8','.css':'text/css','.mjs':'text/javascript','.js':'text/javascript'};
 const P='a1436d1d-0123-4f25-8ae9-df61e8a85370',U='b1436d1d-0123-4f25-8ae9-df61e8a85370',START='c1436d1d-0123-4f25-8ae9-df61e8a85370',GOAL='d1436d1d-0123-4f25-8ae9-df61e8a85370';
 (async()=>{
  const server=createServer(async(req,res)=>{try{const p=resolve(root,'.'+decodeURIComponent(new URL(req.url,'http://127.0.0.1').pathname));if(!p.startsWith(root+sep))return res.writeHead(404).end();res.writeHead(200,{'Content-Type':types[extname(p)]||'application/octet-stream','Cache-Control':'no-store'}).end(await readFile(p))}catch(e){if(!res.headersSent)res.writeHead(404);res.end()}});
@@ -42,14 +43,15 @@ const P='a1436d1d-0123-4f25-8ae9-df61e8a85370',U='b1436d1d-0123-4f25-8ae9-df61e8
    }
    await reply();
   });
+  await journalAudit.prepare(context);
   const button=n=>page.getByRole('button',{name:n,exact:true});
-  async function enter(){await page.getByLabel('Логин или электронная почта').fill('pupil307');await page.getByLabel('Пароль',{exact:true}).fill('synthetic-password');await button('Войти').click();await button('Выбрать').click();await button('Быстрая тренировка и цели').click();await page.getByRole('heading',{name:/^Быстрая тренировка — /}).waitFor();}
-  async function retry(){await button('Повторить запрос').waitFor();await page.reload();await enter();await button('Повторить запрос').click();await button('Повторить запрос').waitFor({state:'detached'});}
-  await page.goto(origin+'/integrations/v307/account_review.html');await enter();if(mul){await button('Серия правильных ответов — 6').click();await page.getByText('Серия правильных ответов — 0 / 6',{exact:true}).waitFor();}else{await page.getByLabel('Тренажёр',{exact:true}).selectOption(topic);await page.getByLabel('Диапазон',{exact:true}).selectOption(mode);}await button(count+' заданий').click();await retry();
+  async function enter(){if(journalAudit.enabled)await journalAudit.ready(page);else{await page.getByLabel('Логин или электронная почта').fill('pupil307');await page.getByLabel('Пароль',{exact:true}).fill('synthetic-password');await button('Войти').click();await button('Выбрать').click();await button('Быстрая тренировка и цели').click();}await page.getByRole('heading',{name:/^Быстрая тренировка — /}).waitFor();}
+  async function retry(){await button('Повторить запрос').waitFor();const before=await journalAudit.check(page,'quick',true);await page.reload();await enter();const after=await journalAudit.check(page,'quick',true);assert.deepEqual(before,after);await button('Повторить запрос').click();await button('Повторить запрос').waitFor({state:'detached'});await journalAudit.check(page,'quick',false);}
+  await page.goto(origin+journalAudit.path('quick'));await enter();await journalAudit.check(page,'quick',false);if(mul){await button('Серия правильных ответов — 6').click();await page.getByText('Серия правильных ответов — 0 / 6',{exact:true}).waitFor();}else{await page.getByLabel('Тренажёр',{exact:true}).selectOption(topic);await page.getByLabel('Диапазон',{exact:true}).selectOption(mode);}await button(count+' заданий').click();await retry();
   for(let i=0;i<count;i++){await page.getByText('Задание '+(i+1)+' из '+count,{exact:true}).waitFor();if(mul){await page.getByLabel('Ответ',{exact:true}).fill(String(expected[i]));await button('Ответить').click();}else{await button(String(expected[i])).click();}if(i===(mul?0:1))await retry();}
   await button('Подтвердить результат').click();await retry();await page.getByText('Начислено '+3*count+' XP и '+count+' монет.',{exact:true}).waitFor();if(mul)await page.getByText('Цель выполнена: +8 XP и 3 монет.',{exact:true}).waitFor();assert.equal(starts,1);assert.equal(rewards,1);
   for(const kind of ['start','save','finish']){const repeated=writes.filter(x=>x.kind===kind);const first=kind==='save'&&!mul?repeated.filter(x=>x.body.draft.question_index===2):repeated.slice(0,2);assert.equal(first.length,2);assert.deepEqual(first[0],first[1]);if(kind==='save'&&!mul)assert.equal(first[0].body.draft.answers['1'],'ДА');}
-  assert.equal(writes.filter(x=>x.kind==='save').length,count+1);assert.deepEqual(errors,[]);assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);await context.close();console.log('PASS_V307_QUICK_GOALS_REPLAY',width,topic);
+  assert.equal(writes.filter(x=>x.kind==='save').length,count+1);assert.deepEqual(errors,[]);assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);await journalAudit.check(page,'quick',false);await context.close();console.log(journalAudit.enabled?'ENCRYPTED':'STANDARD','PASS_V307_QUICK_GOALS_REPLAY',width,topic);
  }
  }finally{await browser.close();await new Promise(r=>server.close(r))}
 })().catch(e=>{console.error(e);process.exitCode=1});

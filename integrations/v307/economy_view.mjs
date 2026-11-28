@@ -11,8 +11,8 @@ const types={avatars:'Аватар',frames:'Рамка',pets:'Питомец',st
 const rarity={rare:'Редкий',epic:'Эпический',legendary:'Легендарный',common:'Обычный',uncommon:'Необычный'};
 const build='7e6e2b8de44e1eb4888b34f012288c32e24643eafe9c350fe79e9881935cb318';
 const amount=n=>Number.isSafeInteger(n)&&n>=0;
-export async function mountEconomy({host,api,scope,exit}){
- const initial=scope(),queue=createEconomyQueue({api,scope,store:economyOutbox()});
+export async function mountEconomy({host,api,scope,exit,store=economyOutbox()}){
+ const initial=scope(),queue=createEconomyQueue({api,scope,store});
  const policy=await api.economyCatalog(initial.profile);if(policy.test_only!==true||policy.build!==build||policy.items.length!==262||policy.refund_chest!==50||JSON.stringify(policy.chest_xp)!==JSON.stringify({rare:60,epic:40,legendary:20}))throw Error('ECONOMY_POLICY_MISMATCH');
  const by=new Map(policy.items.map(x=>[x.id,x]));
  const state=shallowRef(null),pending=shallowRef(null),receipt=shallowRef(null),busy=shallowRef(false),error=shallowRef(''),tab=shallowRef('chest'),category=shallowRef('avatars'),saleChoice=shallowRef(null);

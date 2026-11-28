@@ -22,8 +22,8 @@ function checked(r){
  }
  return r;
 }
-export async function mountReview({host,api,scope,exit}){
- const initial=scope(),queue=createReviewQueue({api,scope}),row=shallowRef(null),overview=shallowRef(null),pending=shallowRef(null),busy=shallowRef(false),error=shallowRef(''),grade=shallowRef('mixed'),mode=shallowRef('errors'),topic=shallowRef(''),count=shallowRef(5);
+export async function mountReview({host,api,scope,exit,store}){
+ const initial=scope(),queue=createReviewQueue({api,scope,store}),row=shallowRef(null),overview=shallowRef(null),pending=shallowRef(null),busy=shallowRef(false),error=shallowRef(''),grade=shallowRef('mixed'),mode=shallowRef('errors'),topic=shallowRef(''),count=shallowRef(5);
  let alive=true;
  async function refresh(id=null){const [data,p]=await Promise.all([api.reviewOverview(initial.profile,grade.value),queue.pending()]);if(!alive)return;if(data?.test_only!==true||!Array.isArray(data.groups)||!Array.isArray(data.studied))throw Error('REVIEW_INVALID_OVERVIEW');overview.value=data;pending.value=p;row.value=checked(id?await api.reviewRead(initial.profile,id):data.active);}
  await refresh();

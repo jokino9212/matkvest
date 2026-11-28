@@ -1,6 +1,7 @@
 'use strict';
 const assert=require('node:assert/strict'),{chromium}=require('playwright'),{createServer}=require('node:http'),{readFile}=require('node:fs/promises'),{resolve,sep,extname}=require('node:path');
-const root=resolve(__dirname,'../dist-v307-review'),types={'.html':'text/html; charset=utf-8','.css':'text/css','.mjs':'text/javascript','.js':'text/javascript'};
+const journalAudit=require('./fixtures/v307_encrypted_journal_test.cjs');
+const root=resolve(__dirname,journalAudit.enabled?'../dist-v307-encrypted-journals-audit':'../dist-v307-review'),types={'.html':'text/html; charset=utf-8','.css':'text/css','.mjs':'text/javascript','.js':'text/javascript'};
 const P='a1436d1d-0123-4f25-8ae9-df61e8a85370',U='b1436d1d-0123-4f25-8ae9-df61e8a85370';
 (async()=>{
  const policy=JSON.parse(await readFile(resolve(__dirname,'../v307-public-fixtures/economy-v306.json'),'utf8'));policy.test_only=true;
@@ -37,18 +38,19 @@ const P='a1436d1d-0123-4f25-8ae9-df61e8a85370',U='b1436d1d-0123-4f25-8ae9-df61e8
    }else{code=404;data={error:{code:'NOT_FOUND'}}}
    await route.fulfill({status:code,contentType:'application/json',body:JSON.stringify(data)}).catch(()=>{});
   });
+  await journalAudit.prepare(context);
   const button=n=>page.getByRole('button',{name:n,exact:true});
-  async function enter(){await page.getByLabel('Логин или электронная почта').fill('pupil307');await page.getByLabel('Пароль',{exact:true}).fill('synthetic-password');await button('Войти').click();await button('Выбрать').click();await button('Магазин и сундуки').click();await page.getByRole('heading',{name:'Сундук удачи',exact:false}).waitFor();}
-  await page.goto(origin+'/integrations/v307/account_review.html');await enter();await button('Открыть за 200 🪙').click();await button('Повторить запрос').waitFor();
+  async function enter(){if(journalAudit.enabled)await journalAudit.ready(page);else{await page.getByLabel('Логин или электронная почта').fill('pupil307');await page.getByLabel('Пароль',{exact:true}).fill('synthetic-password');await button('Войти').click();await button('Выбрать').click();await button('Магазин и сундуки').click();}await page.getByRole('heading',{name:'Сундук удачи',exact:false}).waitFor();}
+  await page.goto(origin+journalAudit.path('economy'));await enter();await journalAudit.check(page,'economy',false);await button('Открыть за 200 🪙').click();await button('Повторить запрос').waitFor();
   assert.equal(opened,1);assert.equal(balance,800);assert.equal(xp,60);assert.equal(await button('Открыть за 200 🪙').isDisabled(),true);
-  await page.reload();await enter();await button('Повторить запрос').click();await page.locator('.v307-reward').getByText(/Тип: .*60 XP/).waitFor();
+  const before=await journalAudit.check(page,'economy',true);await page.reload();await enter();const after=await journalAudit.check(page,'economy',true);assert.deepEqual(before,after);await button('Повторить запрос').click();await page.locator('.v307-reward').getByText(/Тип: .*60 XP/).waitFor();await journalAudit.check(page,'economy',false);
   assert.equal(posts.length,2);assert.deepEqual(posts[0],posts[1]);assert.equal(opened,1);assert.equal(balance,800);assert.equal(xp,60);
   await button('Продать за '+refund+' монет').click();await page.getByRole('heading',{name:'Монеты: '+(800+refund)+' · 60 XP'}).waitFor();assert(!owned);assert.equal(sales.length,1);
   await button('Открыть за 200 🪙').click();await page.locator('.v307-reward').getByRole('heading',{name:'Компенсация'}).waitFor();assert.equal(await page.locator('.v307-reward').getByText(/Тип:/).count(),0);assert.equal(await page.locator('.v307-reward').getByRole('button',{name:/Продать/}).count(),0);assert.equal(xp,60);
   await button('Готово').click();await button('История').click();await page.getByText(by.get(item).name+' · +'+refund+' монет',{exact:true}).waitFor();
   await page.getByRole('heading',{name:'История из резервной копии'}).waitFor();await page.getByText('Проверка источника: Обнаружены расхождения (1)',{exact:true}).waitFor();await page.getByText('Исторические записи, не повторные награды. Требуется сверка.').waitFor();await button('Магазин').click();await page.getByLabel('Категория предметов').selectOption('avatars');await page.locator('[data-shop-item="avatar_clash_king"]').getByText('Король',{exact:true}).waitFor();
   const card=page.locator('[data-shop-item="avatar_clash_king"]');const art=card.locator('.v307-art');assert.equal(await art.count(),1);assert.deepEqual(await art.evaluate(async e=>{const style=getComputedStyle(e);const url=style.backgroundImage.match(/^url\(["']?(.*?)["']?\)$/)?.[1];if(!url||new URL(url,location.href).origin!==location.origin)throw Error('Missing local sprite');const img=new Image();img.src=url;await img.decode();return [img.naturalWidth,img.naturalHeight,e.getBoundingClientRect().width,e.getBoundingClientRect().height];}),[960,2592,96,96]);await card.getByRole('button',{name:'Купить',exact:true}).click();await card.getByRole('button',{name:/Продать/}).click();await button('Миссия: Таблица умножения').click();await page.getByRole('heading',{name:'Миссия продажи: Король'}).waitFor();assert.equal(await button('Завершить продажу за 384 монет').count(),0);missionDone=true;await button('Обновить').click();const finalBalance=balance+384;await button('Завершить продажу за 384 монет').click();await page.getByRole('heading',{name:'Монеты: '+finalBalance+' · 60 XP'}).waitFor();assert.equal(king,false);assert.equal(mission,null);
-  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);assert.equal(receipts.size,6);assert.deepEqual(errors,[]);await context.close();console.log('PASS_V307_ECONOMY_VUE_REPLAY',width);
+  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);assert.equal(receipts.size,6);assert.deepEqual(errors,[]);await journalAudit.check(page,'economy',false);await context.close();console.log(journalAudit.enabled?'ENCRYPTED':'STANDARD','PASS_V307_ECONOMY_VUE_REPLAY',width);
  }
  }finally{await browser.close();await new Promise(r=>server.close(r))}
 })().catch(e=>{console.error(e);process.exitCode=1});
