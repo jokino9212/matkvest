@@ -82,3 +82,12 @@ test('concurrent older floor cannot lower the already observed minimum within on
  assert.equal(g(),false);
  x.setOnline(false);await assert.rejects(s.floorFor(ctx,pack),/OFFLINE_LEASE/);
 });
+
+test('transaction guard checks exact offline grant expiry and latest observed floor',async()=>{
+ const x=await setup(),s=x.session,g=s.guardFor(ctx,{requests:[seal],pack,revision:4});
+ await s.keyFor(ctx,seal);await s.floorFor(ctx,pack);
+ assert.equal(g(),true);x.setOnline(false);x.setTime(199);assert.equal(g(),true);
+ x.setTime(200);assert.equal(g(),false);
+ const y=await setup({fetchFloor:async()=>({minimum:9,offlineForMs:100})}),h=y.session.guardFor(ctx,{pack,revision:4});
+ await y.session.floorFor(ctx,pack);assert.equal(h(),false);
+});

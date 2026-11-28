@@ -67,7 +67,7 @@ function snapshot(db,channel,encrypted){
   tx.onabort=()=>reject(tx.error||Error('JOURNAL_READ_ABORT'));tx.onerror=()=>reject(tx.error);
  });
 }
-function upgrade(idb,name,channel,before,after,guard){
+function upgrade(idb,name,channel,before,after,guard,keyGuards){
  return new Promise((resolve,reject)=>{
   const req=idb.open(name,2);let error,abandoned=false,upgraded=false;
   const abort=e=>{error=e;try{req.transaction.abort()}catch{}};
@@ -81,7 +81,7 @@ function upgrade(idb,name,channel,before,after,guard){
     get.onsuccess=()=>{
      try{
       if(canonicalDraftJSON(get.result)!==before)throw Error('JOURNAL_MIGRATION_CONFLICT');
-      if(guard()!==true)throw Error('SCOPE_CHANGED');
+      if(guard()!==true||!keyGuards.every(g=>g()===true))throw Error('SCOPE_CHANGED');
       store.clear();for(const row of after)store.add(assertEnvelope(row,channel,row.scope));
       meta.add({id:MARKER,format:1,channel,migratedRows:after.length});
      }catch(e){abort(e)}
@@ -91,8 +91,8 @@ function upgrade(idb,name,channel,before,after,guard){
   req.onsuccess=()=>{req.result.close();if(abandoned)return;if(!upgraded){reject(Error('JOURNAL_MIGRATION_CONFLICT'));return}resolve({already:false,count:after.length})};
  });
 }
-export async function migrateRequestJournal({indexedDB:idb=globalThis.indexedDB,databaseName,channel,keyFor,guard}){
- if(!idb||typeof databaseName!=='string'||!databaseName||!domains.has(channel)||typeof keyFor!=='function'||typeof guard!=='function'||guard()!==true)throw Error('JOURNAL_MIGRATION_CONFIG');
+export async function migrateRequestJournal({indexedDB:idb=globalThis.indexedDB,databaseName,channel,keyFor,guard,guardFor=()=>()=>true}){
+ if(!idb||typeof databaseName!=='string'||!databaseName||!domains.has(channel)||typeof keyFor!=='function'||typeof guard!=='function'||typeof guardFor!=='function'||guard()!==true)throw Error('JOURNAL_MIGRATION_CONFIG');
  let db;
  try{db=await connect(idb,databaseName,1,{initialize:true})}catch(e){
   if(e?.name!=='VersionError')throw e;
@@ -101,15 +101,17 @@ export async function migrateRequestJournal({indexedDB:idb=globalThis.indexedDB,
  }
  let rows;
  try{rows=await snapshot(db,channel,false)}finally{db.close()}
- const before=canonicalDraftJSON(rows),after=[];
+ const before=canonicalDraftJSON(rows),after=[],keyGuards=[];
  for(const row of rows){
   if(guard()!==true)throw Error('SCOPE_CHANGED');
-  const s=plain(row,channel,row.scope),c=await keyFor(s,{operation:'seal',keyId:null,requestId:row.key});
+  const s=plain(row,channel,row.scope),request={operation:'seal',keyId:null,requestId:row.key},keyGuard=guardFor(s,{requests:[request]});
+  const c=await keyFor(s,request);
   const envelope=await seal(row,channel,c);
   if(!same(row,await unseal(envelope,channel,row.scope,c)))throw Error('JOURNAL_MIGRATION_ROUNDTRIP');
-  after.push(envelope);
+  if(keyGuard()!==true)throw Error('KEY_SESSION_CHANGED');
+  after.push(envelope);keyGuards.push(keyGuard);
  }
- return upgrade(idb,databaseName,channel,before,after,guard);
+ return upgrade(idb,databaseName,channel,before,after,guard,keyGuards);
 }
 export function encryptedRequestOutbox({indexedDB:idb=globalThis.indexedDB,databaseName,channel,keyFor,guardFor=()=>()=>true}){
  if(!idb||typeof databaseName!=='string'||!databaseName||!domains.has(channel)||typeof keyFor!=='function'||typeof guardFor!=='function')throw Error('JOURNAL_CONFIG');

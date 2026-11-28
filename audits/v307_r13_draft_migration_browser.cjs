@@ -1,6 +1,6 @@
 'use strict';
 const assert=require('node:assert/strict'),{chromium}=require('playwright'),{createServer}=require('node:http'),{readFile}=require('node:fs/promises'),{resolve}=require('node:path');
-const allowed=new Set(['/integrations/v307/encrypted_school_outbox.mjs','/integrations/v307/draft_cipher.mjs','/integrations/v307/draft_migration.mjs','/integrations/v307/training_queue.mjs','/integrations/backend95-next/school_block_queue.mjs','/integrations/v307/curriculum.mjs','/integrations/v307/visual_nodes.mjs']);
+const allowed=new Set(['/integrations/v307/draft_key_session.mjs','/integrations/v307/encrypted_school_outbox.mjs','/integrations/v307/draft_cipher.mjs','/integrations/v307/draft_migration.mjs','/integrations/v307/training_queue.mjs','/integrations/backend95-next/school_block_queue.mjs','/integrations/v307/curriculum.mjs','/integrations/v307/visual_nodes.mjs']);
 (async()=>{
  const server=createServer(async(req,res)=>{try{
   const p=new URL(req.url,'http://127.0.0.1').pathname;
@@ -48,6 +48,7 @@ const allowed=new Set(['/integrations/v307/encrypted_school_outbox.mjs','/integr
    const {migrateDraftStore}=await import('/integrations/v307/draft_migration.mjs');
    const {encryptedSchoolOutbox}=await import('/integrations/v307/encrypted_school_outbox.mjs');
    const {createV307Queue}=await import('/integrations/v307/training_queue.mjs');
+   const {createDraftKeySession}=await import('/integrations/v307/draft_key_session.mjs');
    const id=n=>n+'1436d1d-0123-4f25-8ae9-df61e8a85370',owner=id('a'),profile=id('b'),pack=id('c'),device=id('d'),assignment=id('e');
    const context={owner,profile,role:'student',kind:'homework',assignment},key=JSON.stringify([owner,profile,pack]);
    const databaseName='r13-encrypted-queue',initial={key,owner,profile,context,pack,topic:'g4:table',stage:0,count:5,start:{started_at:'2027-01-01T00:00:00Z'},status:'draft',questions:Array.from({length:5},()=>({a:2,b:3})),index:0,revision:0,draft:Array.from({length:5},()=>({answer:'',cells:{},checks:[],skipped:false,solved:false}))};
@@ -79,6 +80,18 @@ const allowed=new Set(['/integrations/v307/encrypted_school_outbox.mjs','/integr
    const pending=r.status,offlineSent=(await queue.flush()).length,offlineRequests=requests.length;
    current=second;await outbox.rotate(key,()=>true);keys.delete('k1');
    const afterRotate=await raw(),restored=(await queue.list())[0];
+   // Real session adapter, not a bypassing fixture provider. Revoke precisely at
+   // the second seal guard check, inside the actual IndexedDB write transaction.
+   const session=createDraftKeySession({scope:()=>scope,online:()=>true,fetchKey:async(s,req)=>({credential:current,offlineForMs:0}),fetchFloor:async()=>({minimum:0,offlineForMs:0})});
+   const guarded=encryptedSchoolOutbox({databaseName,...session,guardFor:(ctx,requirements)=>{
+    const g=session.guardFor(ctx,requirements);let calls=0;
+    return ()=>{if(requirements.requests[0].operation==='seal'&&++calls===2)session.invalidate();return g()};
+   }});
+   const beforeRevocation=await raw();
+   const revokedSettle=await rejects(guarded.settle(key,'confirmed',{id:pack,status:'finished',summary:{xp:20,coins:25}}));
+   const afterRevocation=await raw();
+   if(revokedSettle!=='SCOPE_CHANGED'||beforeRevocation.revision!==afterRevocation.revision||String(beforeRevocation.ciphertext)!==String(afterRevocation.ciphertext))throw Error('REVOCATION_WRITE_LEAK');
+   console.log('PASS_V307_R13_REVOKED_KEY_SETTLE_CAS');
    minimum=restored.revision+1;const rollback=await rejects(queue.list());minimum=0;
    online=true;const lostSent=(await queue.flush()).length;lost=false;const sent=await queue.flush(),confirmed=(await queue.list())[0],repeat=(await queue.flush()).length;
    const final=await raw(),noPlain=!Object.hasOwn(final,'draft')&&!Object.hasOwn(final,'body')&&!Object.hasOwn(final,'receipt')&&!Object.hasOwn(final,'questions');
@@ -86,5 +99,6 @@ const allowed=new Set(['/integrations/v307/encrypted_school_outbox.mjs','/integr
   });
   assert.deepEqual(queueResult,{scopeError:'SCOPE_CHANGED',unchanged:true,keyError:'KEY_UNAVAILABLE',winners:1,losers:['DRAFT_CHANGED'],pending:'pending',offlineSent:0,offlineRequests:0,rotated:'k2',restoredStatus:'pending',rollback:'DRAFT_REVISION_FLOOR',lostSent:0,sent:1,confirmed:'confirmed',repeat:0,requests:2,sameBody:true,noPlain:true,finalKey:'k2'});
   console.log('PASS_V307_R13_ENCRYPTED_QUEUE_OFFLINE_REPLAY_ROTATION',JSON.stringify(queueResult));
+  console.log('PASS_V307_R13_KEY_SESSION_SCHOOL_CAS');
  }finally{await browser.close();await new Promise(r=>server.close(r))}
 })().catch(e=>{console.error(e);process.exitCode=1});

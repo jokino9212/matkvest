@@ -1,6 +1,6 @@
 'use strict';
 const assert=require('node:assert/strict'),{chromium}=require('playwright'),{createServer}=require('node:http'),{readFile}=require('node:fs/promises'),{resolve}=require('node:path');
-const allowed=new Set(['encrypted_request_outbox.mjs','draft_cipher.mjs','training_queue.mjs','curriculum.mjs','visual_nodes.mjs','quick_queue.mjs','review_queue.mjs','economy_queue.mjs'].map(x=>'/integrations/v307/'+x).concat('/integrations/backend95-next/school_block_queue.mjs'));
+const allowed=new Set(['draft_key_session.mjs','encrypted_request_outbox.mjs','draft_cipher.mjs','training_queue.mjs','curriculum.mjs','visual_nodes.mjs','quick_queue.mjs','review_queue.mjs','economy_queue.mjs'].map(x=>'/integrations/v307/'+x).concat('/integrations/backend95-next/school_block_queue.mjs'));
 (async()=>{
  const server=createServer(async(req,res)=>{try{
   const path=new URL(req.url,'http://127.0.0.1').pathname;
@@ -16,6 +16,7 @@ const allowed=new Set(['encrypted_request_outbox.mjs','draft_cipher.mjs','traini
    const {createQuickQueue}=await import('/integrations/v307/quick_queue.mjs');
    const {createReviewQueue}=await import('/integrations/v307/review_queue.mjs');
    const {createEconomyQueue}=await import('/integrations/v307/economy_queue.mjs');
+   const {createDraftKeySession}=await import('/integrations/v307/draft_key_session.mjs');
    const id=n=>n+'1436d1d-0123-4f25-8ae9-df61e8a85370',owner=id('a'),profile=id('b'),key=id('c'),other=id('d'),scopeKey=owner+':'+profile;
    const open=(name,v)=>new Promise((yes,no)=>{const r=indexedDB.open(name,v);r.onupgradeneeded=()=>r.result.createObjectStore('pending',{keyPath:'scope'});r.onsuccess=()=>yes(r.result);r.onerror=()=>no(r.error)});
    const write=(db,row)=>new Promise((yes,no)=>{const t=db.transaction('pending','readwrite');t.objectStore('pending').put(row);t.oncomplete=yes;t.onabort=()=>no(t.error)});
@@ -52,6 +53,15 @@ const allowed=new Set(['encrypted_request_outbox.mjs','draft_cipher.mjs','traini
     const oneReservation=winners[0].key===winners[1].key;
     const wrongClear=await store.clear(scopeKey,winners[0].key===other?two.key:one.key);
     const retained=!!await store.read(scopeKey);
+    const session=createDraftKeySession({scope:()=>({...scope,channel,scope:scopeKey}),online:()=>true,fetchKey:async()=>({credential:current,offlineForMs:0}),fetchFloor:async()=>{throw Error('NO_FLOOR')}});
+    const guarded=encryptedRequestOutbox({databaseName,channel,...session,guardFor:(ctx,requirements)=>{
+     const g=session.guardFor(ctx,requirements);let checks=0;
+     return ()=>{if(++checks===2)session.invalidate();return g()};
+    }});
+    const beforeRevocation=await raw(databaseName);
+    const revokedClear=await error(guarded.clear(scopeKey,winners[0].key));
+    const afterRevocation=await raw(databaseName);
+    if(revokedClear!=='KEY_SESSION_CHANGED'||!eq(beforeRevocation,afterRevocation))throw Error('REVOCATION_DELETE_LEAK');
     const sealed=await raw(databaseName),tampered=structuredClone(sealed);tampered.ciphertext[0]^=1;
     const db=await open(databaseName,2);await write(db,tampered);db.close();
     const tamper=await error(store.read(scopeKey));
@@ -62,5 +72,6 @@ const allowed=new Set(['encrypted_request_outbox.mjs','draft_cipher.mjs','traini
   });
   for(const x of result)assert.deepEqual(x,{channel:x.channel,denied:'KEY_UNAVAILABLE',preserved:true,migrated:{already:false,count:1},again:{already:true,count:1},noPlain:true,oldVersion:'VersionError',replayRestored:true,rotated:'k2',identical:true,cleared:true,oneReservation:true,wrongClear:false,retained:true,tamper:'JOURNAL_AUTHENTICATION_FAILED',mismatch:'JOURNAL_MIGRATION_UNKNOWN'});
   console.log('PASS_V307_R13_ENCRYPTED_REQUEST_JOURNALS',JSON.stringify(result));
+  console.log('PASS_V307_R13_KEY_SESSION_JOURNAL_CLEAR_CAS',result.length);
  }finally{await browser.close();await new Promise(r=>server.close(r))}
 })().catch(e=>{console.error(e);process.exitCode=1});
