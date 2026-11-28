@@ -1,0 +1,66 @@
+'use strict';
+const assert=require('node:assert/strict'),{chromium}=require('playwright'),{createServer}=require('node:http'),{readFile}=require('node:fs/promises'),{resolve}=require('node:path');
+const allowed=new Set(['encrypted_request_outbox.mjs','draft_cipher.mjs','training_queue.mjs','curriculum.mjs','visual_nodes.mjs','quick_queue.mjs','review_queue.mjs','economy_queue.mjs'].map(x=>'/integrations/v307/'+x).concat('/integrations/backend95-next/school_block_queue.mjs'));
+(async()=>{
+ const server=createServer(async(req,res)=>{try{
+  const path=new URL(req.url,'http://127.0.0.1').pathname;
+  if(path==='/')return res.writeHead(200,{'Content-Type':'text/html; charset=utf-8'}).end('<!doctype html><title>Synthetic journal audit</title>');
+  if(!allowed.has(path))return res.writeHead(404).end();
+  res.writeHead(200,{'Content-Type':'text/javascript','Cache-Control':'no-store'}).end(await readFile(resolve(__dirname,'..','.'+path)));
+ }catch(e){if(!res.headersSent)res.writeHead(500);res.end()}});
+ await new Promise(r=>server.listen(0,'127.0.0.1',r));const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
+ try{
+  const page=await browser.newPage();await page.goto('http://127.0.0.1:'+server.address().port);
+  const result=await page.evaluate(async()=>{
+   const {migrateRequestJournal,encryptedRequestOutbox}=await import('/integrations/v307/encrypted_request_outbox.mjs');
+   const {createQuickQueue}=await import('/integrations/v307/quick_queue.mjs');
+   const {createReviewQueue}=await import('/integrations/v307/review_queue.mjs');
+   const {createEconomyQueue}=await import('/integrations/v307/economy_queue.mjs');
+   const id=n=>n+'1436d1d-0123-4f25-8ae9-df61e8a85370',owner=id('a'),profile=id('b'),key=id('c'),other=id('d'),scopeKey=owner+':'+profile;
+   const open=(name,v)=>new Promise((yes,no)=>{const r=indexedDB.open(name,v);r.onupgradeneeded=()=>r.result.createObjectStore('pending',{keyPath:'scope'});r.onsuccess=()=>yes(r.result);r.onerror=()=>no(r.error)});
+   const write=(db,row)=>new Promise((yes,no)=>{const t=db.transaction('pending','readwrite');t.objectStore('pending').put(row);t.oncomplete=yes;t.onabort=()=>no(t.error)});
+   const seed=async(name,row)=>{const db=await open(name,1);await write(db,row);db.close()};
+   const raw=async(name,v=2)=>{const db=await open(name,v);try{return await new Promise((yes,no)=>{const t=db.transaction('pending','readonly'),r=t.objectStore('pending').get(scopeKey);t.oncomplete=()=>yes(r.result??null);t.onabort=()=>no(t.error)})}finally{db.close()}};
+   const credential=async keyId=>({keyId,key:await crypto.subtle.generateKey({name:'AES-GCM',length:256},false,['encrypt','decrypt'])});
+   const first=await credential('k1'),second=await credential('k2'),keys=new Map([[first.keyId,first],[second.keyId,second]]);
+   const error=async p=>{try{await p;return 'UNEXPECTED_SUCCESS'}catch(e){return e.message}};
+   const eq=(a,b)=>JSON.stringify(a)===JSON.stringify(b),results=[];
+   for(const [channel,body] of [['quick',{kind:'draft',body:{base_revision:1,draft:{training_start_id:other,question_index:1,answers:{0:'6'}}}}],['review',{kind:'step',review:other,body:{revision:1,action:'check',cells:{'answer:0':'6'}}}],['economy',{action:'chest',expected_price:200}]]){
+    const databaseName='r13-journal-'+channel,initial={scope:scopeKey,owner,profile,key,body};
+    let current=first,scope={owner,profile,role:'student',ticket:1},lost=true,calls=[],unavailable=false,guard=true;
+    const keyFor=async(s,req)=>{if(unavailable||s.channel!==channel||s.owner!==owner||s.profile!==profile)throw Error('KEY_UNAVAILABLE');const c=req.operation==='seal'?current:keys.get(req.keyId);if(!c)throw Error('KEY_UNAVAILABLE');return c};
+    await seed(databaseName,initial);
+    const config={databaseName,channel,keyFor},migration={...config,guard:()=>guard};
+    unavailable=true;const denied=await error(migrateRequestJournal(migration));unavailable=false;
+    const preserved=eq(await raw(databaseName,1),initial);
+    const migrated=await migrateRequestJournal(migration),again=await migrateRequestJournal(migration);
+    const original=await raw(databaseName),noPlain=!Object.hasOwn(original,'body')&&original.ciphertext instanceof Uint8Array;
+    const oldVersion=await (async()=>{try{const db=await open(databaseName,1);db.close();return 'UNEXPECTED_SUCCESS'}catch(e){return e.name}})();
+    const store=encryptedRequestOutbox(config);
+    let response;
+    const api={resumeSession:async()=>({id:owner,role:'student'}),quickSave:async(p,b,k)=>{calls.push([p,b,k]);if(lost)throw Error('lost');return {revision:b.base_revision+1,draft:b.draft}},reviewStep:async(p,i,b,k)=>{calls.push([p,i,b,k]);if(lost)throw Error('lost');return {id:i,revision:b.revision+1,status:'active'}},economyOperation:async(p,b,k)=>{calls.push([p,b,k]);if(lost)throw Error('lost');return {profile_id:p,operation_id:k,action:b.action,balance:100}}};
+    const args={api,scope:()=>scope,store,online:()=>true,uuid:()=>other,makeId:()=>other};
+    const queue=channel==='quick'?createQuickQueue(args):channel==='review'?createReviewQueue(args):createEconomyQueue(args);
+    const replayRestored=(await queue.pending()).key===key;
+    await queue.submit(body).catch(()=>{});
+    current=second;await store.rotate(scopeKey,key,()=>true);
+    const rotated=(await raw(databaseName)).keyId;
+    lost=false;response=await queue.submit(body);
+    const identical=calls.length===2&&eq(calls[0],calls[1]),cleared=await queue.pending()===null;
+    const one={...initial,key:other},two={...initial,key:id('e')};
+    const winners=await Promise.all([store.reserve(one,()=>true),encryptedRequestOutbox(config).reserve(two,()=>true)]);
+    const oneReservation=winners[0].key===winners[1].key;
+    const wrongClear=await store.clear(scopeKey,winners[0].key===other?two.key:one.key);
+    const retained=!!await store.read(scopeKey);
+    const sealed=await raw(databaseName),tampered=structuredClone(sealed);tampered.ciphertext[0]^=1;
+    const db=await open(databaseName,2);await write(db,tampered);db.close();
+    const tamper=await error(store.read(scopeKey));
+    const mismatch=await error(encryptedRequestOutbox({...config,channel:channel==='quick'?'review':'quick'}).read(scopeKey));
+    results.push({channel,denied,preserved,migrated,again,noPlain,oldVersion,replayRestored,rotated,identical,cleared,oneReservation,wrongClear,retained,tamper,mismatch});
+   }
+   return results;
+  });
+  for(const x of result)assert.deepEqual(x,{channel:x.channel,denied:'KEY_UNAVAILABLE',preserved:true,migrated:{already:false,count:1},again:{already:true,count:1},noPlain:true,oldVersion:'VersionError',replayRestored:true,rotated:'k2',identical:true,cleared:true,oneReservation:true,wrongClear:false,retained:true,tamper:'JOURNAL_AUTHENTICATION_FAILED',mismatch:'JOURNAL_MIGRATION_UNKNOWN'});
+  console.log('PASS_V307_R13_ENCRYPTED_REQUEST_JOURNALS',JSON.stringify(result));
+ }finally{await browser.close();await new Promise(r=>server.close(r))}
+})().catch(e=>{console.error(e);process.exitCode=1});
