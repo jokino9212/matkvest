@@ -68,8 +68,8 @@ function commitUpgrade(idb,name,snapshot,envelopes,guards){
   };
  });
 }
-export async function migrateDraftStore({indexedDB:idb=globalThis.indexedDB,databaseName,keyFor,guardFor=()=>()=>true,initializeEmpty=false,guard}){
- if(!idb||typeof databaseName!=='string'||!databaseName||typeof keyFor!=='function'||typeof guardFor!=='function'||typeof initializeEmpty!=='boolean'||guard!==undefined&&typeof guard!=='function'||initializeEmpty&&(typeof guard!=='function'||guard()!==true))throw Error('DRAFT_MIGRATION_CONFIG');
+export async function migrateDraftStore({indexedDB:idb=globalThis.indexedDB,databaseName,keyFor,floorFor,guardFor=()=>()=>true,initializeEmpty=false,guard}){
+ if(!idb||typeof databaseName!=='string'||!databaseName||typeof keyFor!=='function'||typeof guardFor!=='function'||floorFor!==undefined&&typeof floorFor!=='function'||typeof initializeEmpty!=='boolean'||guard!==undefined&&typeof guard!=='function'||initializeEmpty&&(typeof guard!=='function'||guard()!==true))throw Error('DRAFT_MIGRATION_CONFIG');
  let db;
  try{db=await openExisting(idb,databaseName,1,{initializeEmpty,guard})}
  catch(e){if(e?.name==='VersionError'){const result=await alreadyMigrated(idb,databaseName);if(guard&&guard()!==true)throw Error('KEY_SESSION_CHANGED');return result}throw e}
@@ -79,7 +79,12 @@ export async function migrateDraftStore({indexedDB:idb=globalThis.indexedDB,data
  // All rows must be encrypted and authenticated before attempting the destructive phase.
  for(const row of rows){
   const id=validatePlainDraft(row);
-  const request={operation:'seal',keyId:null,pack:id.pack},guard=guardFor(id.context,{requests:[request]});
+  const request={operation:'seal',keyId:null,pack:id.pack},guard=guardFor(id.context,{requests:[request],...(floorFor?{pack:id.pack,revision:id.revision}:{})});
+  // Check the trusted floor before replacing the legacy store; never strand stale rows in v2.
+  if(floorFor){
+   const minimum=await floorFor(structuredClone(id.context),id.pack);
+   if(!Number.isSafeInteger(minimum)||minimum<0||id.revision<minimum)throw Error('DRAFT_REVISION_FLOOR');
+  }
   const credential=await keyFor(structuredClone(id.context),request);
   const envelope=await sealDraft(row,credential);
   const reopened=await openDraft(envelope,credential,row.context,row.revision,row.pack);

@@ -48,14 +48,18 @@ function equalEnvelope(a,b){
  if(a===null||b===null)return a===b;
  return same(header(a),header(b))&&bytesEqual(a.iv,b.iv)&&bytesEqual(a.ciphertext,b.ciphertext);
 }
-function connect(idb,name,version,{initialize=false}={}){
+function connect(idb,name,version,{initialize=false,guard}={}){
  return new Promise((resolve,reject)=>{
-  const req=idb.open(name,version);let abandoned=false;
+  const req=idb.open(name,version);let abandoned=false,failure;
   req.onblocked=()=>{abandoned=true;reject(Error('JOURNAL_STORAGE_BLOCKED'))};
-  req.onerror=()=>reject(req.error);
+  req.onerror=()=>reject(failure||req.error);
   req.onupgradeneeded=e=>{
    if(abandoned||!initialize||e.oldVersion!==0||version!==1){req.transaction.abort();reject(Error('JOURNAL_MIGRATION_REQUIRED'));return}
-   req.result.createObjectStore(STORE,{keyPath:'scope'});
+   try{
+    if(typeof guard!=='function'||guard()!==true)throw Error('SCOPE_CHANGED');
+    req.result.createObjectStore(STORE,{keyPath:'scope'});
+   }catch(e){failure=e;req.transaction.abort()}
+
   };
   req.onsuccess=()=>{const db=req.result;if(abandoned){db.close();return}db.onversionchange=()=>db.close();resolve(db)};
  });
@@ -94,7 +98,7 @@ function upgrade(idb,name,channel,before,after,guard,keyGuards){
 export async function migrateRequestJournal({indexedDB:idb=globalThis.indexedDB,databaseName,channel,keyFor,guard,guardFor=()=>()=>true}){
  if(!idb||typeof databaseName!=='string'||!databaseName||!domains.has(channel)||typeof keyFor!=='function'||typeof guard!=='function'||typeof guardFor!=='function'||guard()!==true)throw Error('JOURNAL_MIGRATION_CONFIG');
  let db;
- try{db=await connect(idb,databaseName,1,{initialize:true})}catch(e){
+ try{db=await connect(idb,databaseName,1,{initialize:true,guard})}catch(e){
   if(e?.name!=='VersionError')throw e;
   db=await connect(idb,databaseName,2);
   try{const rows=await snapshot(db,channel,true);if(guard()!==true)throw Error('SCOPE_CHANGED');return {already:true,count:rows.length}}finally{db.close()}

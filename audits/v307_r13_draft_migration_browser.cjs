@@ -46,14 +46,18 @@ const allowed=new Set(['/integrations/v307/draft_key_session.mjs','/integrations
    const fresh=await migrateDraftStore({databaseName:'r13-fresh',...config});
    const freshAgain=await migrateDraftStore({databaseName:'r13-fresh',...config});
    const unauthenticatedFresh=await error(migrateDraftStore({databaseName:'r13-no-guard',keyFor:async()=>credential,initializeEmpty:true}));
+   await seed('r13-stale-floor');
+   const staleSession=createDraftKeySession({scope:()=>({...ctx,ticket:1}),online:()=>true,fetchKey:async()=>({credential,offlineForMs:0}),fetchFloor:async()=>({minimum:3,offlineForMs:0})});
+   const staleFloor=await error(migrateDraftStore({databaseName:'r13-stale-floor',...staleSession,guard:staleSession.guardFor(ctx)}));
+   db=await open('r13-stale-floor',1);const staleRows=await read(db);db.close();
    const foreign={...initial[1],profile:id('e'),context:{...ctx,profile:id('e')},key:JSON.stringify([owner,id('e'),initial[1].pack])};
    const mixed=[initial[0],foreign];
    db=await open('r13-mixed-profile',1);await write(db,mixed);db.close();
    const mixedFailure=await error(migrateDraftStore({databaseName:'r13-mixed-profile',...config}));
    db=await open('r13-mixed-profile',1);const mixedRows=await read(db);db.close();
-   return {fresh,freshAgain,unauthenticatedFresh,mixedFailure,mixedPreserved:eq(mixed,mixedRows),first,again,roundtrip:eq(decoded,initial),noPlain:sealed.every(e=>!Object.hasOwn(e,'draft')&&!JSON.stringify(e).includes('synthetic-secret')),oldVersion,keyFailure,keyUnchanged:eq(keyRows,initial),race,raceUnchanged:eq(raceRows,[updated,initial[1]]),blocked,blockedUnchanged:eq(blockedRows,initial)};
+   return {fresh,freshAgain,unauthenticatedFresh,staleFloor,stalePreserved:eq(staleRows,initial),mixedFailure,mixedPreserved:eq(mixed,mixedRows),first,again,roundtrip:eq(decoded,initial),noPlain:sealed.every(e=>!Object.hasOwn(e,'draft')&&!JSON.stringify(e).includes('synthetic-secret')),oldVersion,keyFailure,keyUnchanged:eq(keyRows,initial),race,raceUnchanged:eq(raceRows,[updated,initial[1]]),blocked,blockedUnchanged:eq(blockedRows,initial)};
   });
-  assert.deepEqual(result,{fresh:{already:false,count:0},freshAgain:{already:true,count:0},unauthenticatedFresh:'DRAFT_MIGRATION_CONFIG',mixedFailure:'KEY_SCOPE',mixedPreserved:true,first:{already:false,count:2},again:{already:true,count:2},roundtrip:true,noPlain:true,oldVersion:'VersionError',keyFailure:'KEY_UNAVAILABLE',keyUnchanged:true,race:'DRAFT_MIGRATION_CONFLICT',raceUnchanged:true,blocked:'DRAFT_MIGRATION_BLOCKED',blockedUnchanged:true});
+  assert.deepEqual(result,{fresh:{already:false,count:0},freshAgain:{already:true,count:0},unauthenticatedFresh:'DRAFT_MIGRATION_CONFIG',staleFloor:'DRAFT_REVISION_FLOOR',stalePreserved:true,mixedFailure:'KEY_SCOPE',mixedPreserved:true,first:{already:false,count:2},again:{already:true,count:2},roundtrip:true,noPlain:true,oldVersion:'VersionError',keyFailure:'KEY_UNAVAILABLE',keyUnchanged:true,race:'DRAFT_MIGRATION_CONFLICT',raceUnchanged:true,blocked:'DRAFT_MIGRATION_BLOCKED',blockedUnchanged:true});
   console.log('PASS_V307_R13_REAL_IDB_ATOMIC_ENCRYPTION_MIGRATION',JSON.stringify(result));
   const queueResult=await page.evaluate(async()=>{
    const {migrateDraftStore}=await import('/integrations/v307/draft_migration.mjs');

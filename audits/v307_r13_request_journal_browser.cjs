@@ -32,6 +32,9 @@ const allowed=new Set(['draft_key_session.mjs','encrypted_request_outbox.mjs','d
     const keyFor=async(s,req)=>{if(unavailable||s.channel!==channel||s.owner!==owner||s.profile!==profile)throw Error('KEY_UNAVAILABLE');const c=req.operation==='seal'?current:keys.get(req.keyId);if(!c)throw Error('KEY_UNAVAILABLE');return c};
     await seed(databaseName,initial);
     const config={databaseName,channel,keyFor},migration={...config,guard:()=>guard};
+    const freshName=databaseName+'-revoked-fresh';let freshChecks=0;
+    const revokedFresh=await error(migrateRequestJournal({...config,databaseName:freshName,guard:()=>++freshChecks===1}));
+    const freshAbsent=!(await indexedDB.databases()).some(x=>x.name===freshName);
     unavailable=true;const denied=await error(migrateRequestJournal(migration));unavailable=false;
     const preserved=eq(await raw(databaseName,1),initial);
     const migrated=await migrateRequestJournal(migration),again=await migrateRequestJournal(migration);
@@ -66,11 +69,11 @@ const allowed=new Set(['draft_key_session.mjs','encrypted_request_outbox.mjs','d
     const db=await open(databaseName,2);await write(db,tampered);db.close();
     const tamper=await error(store.read(scopeKey));
     const mismatch=await error(encryptedRequestOutbox({...config,channel:channel==='quick'?'review':'quick'}).read(scopeKey));
-    results.push({channel,denied,preserved,migrated,again,noPlain,oldVersion,replayRestored,rotated,identical,cleared,oneReservation,wrongClear,retained,tamper,mismatch});
+    results.push({channel,revokedFresh,freshAbsent,denied,preserved,migrated,again,noPlain,oldVersion,replayRestored,rotated,identical,cleared,oneReservation,wrongClear,retained,tamper,mismatch});
    }
    return results;
   });
-  for(const x of result)assert.deepEqual(x,{channel:x.channel,denied:'KEY_UNAVAILABLE',preserved:true,migrated:{already:false,count:1},again:{already:true,count:1},noPlain:true,oldVersion:'VersionError',replayRestored:true,rotated:'k2',identical:true,cleared:true,oneReservation:true,wrongClear:false,retained:true,tamper:'JOURNAL_AUTHENTICATION_FAILED',mismatch:'JOURNAL_MIGRATION_UNKNOWN'});
+  for(const x of result)assert.deepEqual(x,{channel:x.channel,revokedFresh:'SCOPE_CHANGED',freshAbsent:true,denied:'KEY_UNAVAILABLE',preserved:true,migrated:{already:false,count:1},again:{already:true,count:1},noPlain:true,oldVersion:'VersionError',replayRestored:true,rotated:'k2',identical:true,cleared:true,oneReservation:true,wrongClear:false,retained:true,tamper:'JOURNAL_AUTHENTICATION_FAILED',mismatch:'JOURNAL_MIGRATION_UNKNOWN'});
   console.log('PASS_V307_R13_ENCRYPTED_REQUEST_JOURNALS',JSON.stringify(result));
   console.log('PASS_V307_R13_KEY_SESSION_JOURNAL_CLEAR_CAS',result.length);
  }finally{await browser.close();await new Promise(r=>server.close(r))}
