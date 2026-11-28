@@ -1,6 +1,6 @@
 'use strict';
 const assert=require('node:assert/strict'),{chromium}=require('playwright'),{createServer}=require('node:http'),{readFile}=require('node:fs/promises'),{resolve}=require('node:path');
-const allowed=new Set(['/integrations/v307/draft_cipher.mjs','/integrations/v307/draft_migration.mjs','/integrations/v307/training_queue.mjs','/integrations/backend95-next/school_block_queue.mjs','/integrations/v307/curriculum.mjs','/integrations/v307/visual_nodes.mjs']);
+const allowed=new Set(['/integrations/v307/encrypted_school_outbox.mjs','/integrations/v307/draft_cipher.mjs','/integrations/v307/draft_migration.mjs','/integrations/v307/training_queue.mjs','/integrations/backend95-next/school_block_queue.mjs','/integrations/v307/curriculum.mjs','/integrations/v307/visual_nodes.mjs']);
 (async()=>{
  const server=createServer(async(req,res)=>{try{
   const p=new URL(req.url,'http://127.0.0.1').pathname;
@@ -44,5 +44,47 @@ const allowed=new Set(['/integrations/v307/draft_cipher.mjs','/integrations/v307
   });
   assert.deepEqual(result,{first:{already:false,count:2},again:{already:true,count:2},roundtrip:true,noPlain:true,oldVersion:'VersionError',keyFailure:'KEY_UNAVAILABLE',keyUnchanged:true,race:'DRAFT_MIGRATION_CONFLICT',raceUnchanged:true,blocked:'DRAFT_MIGRATION_BLOCKED',blockedUnchanged:true});
   console.log('PASS_V307_R13_REAL_IDB_ATOMIC_ENCRYPTION_MIGRATION',JSON.stringify(result));
+  const queueResult=await page.evaluate(async()=>{
+   const {migrateDraftStore}=await import('/integrations/v307/draft_migration.mjs');
+   const {encryptedSchoolOutbox}=await import('/integrations/v307/encrypted_school_outbox.mjs');
+   const {createV307Queue}=await import('/integrations/v307/training_queue.mjs');
+   const id=n=>n+'1436d1d-0123-4f25-8ae9-df61e8a85370',owner=id('a'),profile=id('b'),pack=id('c'),device=id('d'),assignment=id('e');
+   const context={owner,profile,role:'student',kind:'homework',assignment},key=JSON.stringify([owner,profile,pack]);
+   const databaseName='r13-encrypted-queue',initial={key,owner,profile,context,pack,topic:'g4:table',stage:0,count:5,start:{started_at:'2027-01-01T00:00:00Z'},status:'draft',questions:Array.from({length:5},()=>({a:2,b:3})),index:0,revision:0,draft:Array.from({length:5},()=>({answer:'',cells:{},checks:[],skipped:false,solved:false}))};
+   const open=v=>new Promise((yes,no)=>{const r=indexedDB.open(databaseName,v);r.onupgradeneeded=()=>r.result.createObjectStore('blocks',{keyPath:'key'});r.onsuccess=()=>yes(r.result);r.onerror=()=>no(r.error)});
+   const raw=async()=>{const db=await open(2);try{return await new Promise((yes,no)=>{const t=db.transaction('blocks','readonly'),r=t.objectStore('blocks').get(key);t.oncomplete=()=>yes(r.result);t.onabort=()=>no(t.error)})}finally{db.close()}};
+   const db=await open(1);await new Promise((yes,no)=>{const t=db.transaction('blocks','readwrite');t.objectStore('blocks').put(initial);t.oncomplete=yes;t.onabort=()=>no(t.error)});db.close();
+   const credentials=async keyId=>({keyId,key:await crypto.subtle.generateKey({name:'AES-GCM',length:256},false,['encrypt','decrypt'])});
+   const first=await credentials('k1'),second=await credentials('k2'),keys=new Map([[first.keyId,first],[second.keyId,second]]);
+   let current=first,minimum=0,unavailable=false,online=true,scope={...context,ticket:1},changeScopeOnSeal=false,lost=true;
+   const requests=[];
+   await migrateDraftStore({databaseName,keyFor:async()=>first});
+   const config={databaseName,keyFor:async(s,request)=>{
+    if(unavailable||s.owner!==owner||s.profile!==profile||s.kind!=='homework'||s.assignment!==assignment)throw Error('KEY_UNAVAILABLE');
+    if(request.operation==='seal'&&changeScopeOnSeal){scope={...context,ticket:scope.ticket+1};changeScopeOnSeal=false}
+    const k=request.operation==='seal'?current:keys.get(request.keyId);if(!k)throw Error('KEY_UNAVAILABLE');return k;
+   },floorFor:async()=>minimum};
+   const outbox=encryptedSchoolOutbox(config),other=encryptedSchoolOutbox(config);
+   const api={resumeSession:async()=>({id:owner,role:'student'}),profiles:async()=>[{id:profile}],submitBlock:async(p,b,body,lesson)=>{requests.push({p,b,body:structuredClone(body),lesson});if(lost)throw Object.assign(Error('lost receipt'),{status:0});return {id:pack,status:'finished',summary:{xp:20,coins:25}}}};
+   const queue=createV307Queue({api,scope:()=>scope,outbox,online:()=>online});
+   const rejects=async p=>{try{await p;return 'UNEXPECTED_SUCCESS'}catch(e){return e.message}};
+   let r=await queue.prepare('g4:table',0,device);online=false;
+   const before=await raw();changeScopeOnSeal=true;
+   const scopeError=await rejects(queue.act(r,'input','6'));
+   const unchanged=(await raw()).revision===before.revision;
+   unavailable=true;const keyError=await rejects(queue.list());unavailable=false;
+   const races=await Promise.all([outbox,other].map((o,i)=>o.act(key,0,'input',String(i+6),()=>true).then(v=>({ok:true,rev:v.revision}),e=>({ok:false,error:e.message}))));
+   r=(await queue.list())[0];
+   for(let i=0;i<5;i++){r=await queue.act(r,'check','6');r=await queue.act(r,'advance','6')}
+   const pending=r.status,offlineSent=(await queue.flush()).length,offlineRequests=requests.length;
+   current=second;await outbox.rotate(key,()=>true);keys.delete('k1');
+   const afterRotate=await raw(),restored=(await queue.list())[0];
+   minimum=restored.revision+1;const rollback=await rejects(queue.list());minimum=0;
+   online=true;const lostSent=(await queue.flush()).length;lost=false;const sent=await queue.flush(),confirmed=(await queue.list())[0],repeat=(await queue.flush()).length;
+   const final=await raw(),noPlain=!Object.hasOwn(final,'draft')&&!Object.hasOwn(final,'body')&&!Object.hasOwn(final,'receipt')&&!Object.hasOwn(final,'questions');
+   return {scopeError,unchanged,keyError,winners:races.filter(x=>x.ok).length,losers:races.filter(x=>!x.ok).map(x=>x.error),pending,offlineSent,offlineRequests,rotated:afterRotate.keyId,restoredStatus:restored.status,rollback,lostSent,sent:sent.length,confirmed:confirmed.status,repeat,requests:requests.length,sameBody:JSON.stringify(requests[0])===JSON.stringify(requests[1]),noPlain,finalKey:final.keyId};
+  });
+  assert.deepEqual(queueResult,{scopeError:'SCOPE_CHANGED',unchanged:true,keyError:'KEY_UNAVAILABLE',winners:1,losers:['DRAFT_CHANGED'],pending:'pending',offlineSent:0,offlineRequests:0,rotated:'k2',restoredStatus:'pending',rollback:'DRAFT_REVISION_FLOOR',lostSent:0,sent:1,confirmed:'confirmed',repeat:0,requests:2,sameBody:true,noPlain:true,finalKey:'k2'});
+  console.log('PASS_V307_R13_ENCRYPTED_QUEUE_OFFLINE_REPLAY_ROTATION',JSON.stringify(queueResult));
  }finally{await browser.close();await new Promise(r=>server.close(r))}
 })().catch(e=>{console.error(e);process.exitCode=1});

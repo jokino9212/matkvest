@@ -2,7 +2,7 @@ name: v307 encrypted draft candidate (synthetic only)
 on:
   push:
     branches: [feature/v307-accounts-migration-homework]
-    paths: ['integrations/v307/draft_cipher.mjs', 'integrations/v307/draft_migration.mjs', 'audits/v307_draft_cipher.test.mjs', 'audits/v307_r13_draft_migration_browser.cjs', '.github/workflows/v307-encrypted-draft-candidate.yml']
+    paths: ['integrations/v307/draft_cipher.mjs', 'integrations/v307/draft_migration.mjs', 'integrations/v307/encrypted_school_outbox.mjs', 'audits/v307_draft_cipher.test.mjs', 'audits/v307_r13_draft_migration_browser.cjs', '.github/workflows/v307-encrypted-draft-candidate.yml']
   workflow_dispatch:
 permissions:
   contents: read
