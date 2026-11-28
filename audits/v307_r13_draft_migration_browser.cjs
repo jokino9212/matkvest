@@ -15,6 +15,7 @@ const allowed=new Set(['/integrations/v307/draft_key_session.mjs','/integrations
   const result=await page.evaluate(async()=>{
    const {migrateDraftStore}=await import('/integrations/v307/draft_migration.mjs');
    const {openDraft,canonicalDraftJSON}=await import('/integrations/v307/draft_cipher.mjs');
+   const {createDraftKeySession}=await import('/integrations/v307/draft_key_session.mjs');
    const id=n=>n+'1436d1d-0123-4f25-8ae9-df61e8a85370',owner=id('a'),profile=id('b');
    const make=(pack,revision)=>({key:JSON.stringify([owner,profile,pack]),owner,profile,context:{owner,profile,role:'student',kind:'practice'},pack,revision,draft:[{answer:'synthetic-secret'}]});
    const initial=[make(id('c'),2),make(id('d'),3)];
@@ -40,9 +41,19 @@ const allowed=new Set(['/integrations/v307/draft_key_session.mjs','/integrations
    const blocked=await error(migrate('r13-blocked'));oldTab.close();
    // A previously blocked request must abort even after the old connection closes.
    db=await open('r13-blocked',1);const blockedRows=await read(db);db.close();
-   return {first,again,roundtrip:eq(decoded,initial),noPlain:sealed.every(e=>!Object.hasOwn(e,'draft')&&!JSON.stringify(e).includes('synthetic-secret')),oldVersion,keyFailure,keyUnchanged:eq(keyRows,initial),race,raceUnchanged:eq(raceRows,[updated,initial[1]]),blocked,blockedUnchanged:eq(blockedRows,initial)};
+   const ctx=initial[0].context,session=createDraftKeySession({scope:()=>({...ctx,ticket:1}),online:()=>true,fetchKey:async()=>({credential,offlineForMs:0}),fetchFloor:async()=>({minimum:0,offlineForMs:0})});
+   const config={...session,initializeEmpty:true,guard:session.guardFor(ctx)};
+   const fresh=await migrateDraftStore({databaseName:'r13-fresh',...config});
+   const freshAgain=await migrateDraftStore({databaseName:'r13-fresh',...config});
+   const unauthenticatedFresh=await error(migrateDraftStore({databaseName:'r13-no-guard',keyFor:async()=>credential,initializeEmpty:true}));
+   const foreign={...initial[1],profile:id('e'),context:{...ctx,profile:id('e')},key:JSON.stringify([owner,id('e'),initial[1].pack])};
+   const mixed=[initial[0],foreign];
+   db=await open('r13-mixed-profile',1);await write(db,mixed);db.close();
+   const mixedFailure=await error(migrateDraftStore({databaseName:'r13-mixed-profile',...config}));
+   db=await open('r13-mixed-profile',1);const mixedRows=await read(db);db.close();
+   return {fresh,freshAgain,unauthenticatedFresh,mixedFailure,mixedPreserved:eq(mixed,mixedRows),first,again,roundtrip:eq(decoded,initial),noPlain:sealed.every(e=>!Object.hasOwn(e,'draft')&&!JSON.stringify(e).includes('synthetic-secret')),oldVersion,keyFailure,keyUnchanged:eq(keyRows,initial),race,raceUnchanged:eq(raceRows,[updated,initial[1]]),blocked,blockedUnchanged:eq(blockedRows,initial)};
   });
-  assert.deepEqual(result,{first:{already:false,count:2},again:{already:true,count:2},roundtrip:true,noPlain:true,oldVersion:'VersionError',keyFailure:'KEY_UNAVAILABLE',keyUnchanged:true,race:'DRAFT_MIGRATION_CONFLICT',raceUnchanged:true,blocked:'DRAFT_MIGRATION_BLOCKED',blockedUnchanged:true});
+  assert.deepEqual(result,{fresh:{already:false,count:0},freshAgain:{already:true,count:0},unauthenticatedFresh:'DRAFT_MIGRATION_CONFIG',mixedFailure:'KEY_SCOPE',mixedPreserved:true,first:{already:false,count:2},again:{already:true,count:2},roundtrip:true,noPlain:true,oldVersion:'VersionError',keyFailure:'KEY_UNAVAILABLE',keyUnchanged:true,race:'DRAFT_MIGRATION_CONFLICT',raceUnchanged:true,blocked:'DRAFT_MIGRATION_BLOCKED',blockedUnchanged:true});
   console.log('PASS_V307_R13_REAL_IDB_ATOMIC_ENCRYPTION_MIGRATION',JSON.stringify(result));
   const queueResult=await page.evaluate(async()=>{
    const {migrateDraftStore}=await import('/integrations/v307/draft_migration.mjs');

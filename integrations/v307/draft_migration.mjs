@@ -2,11 +2,17 @@
 // No network or asynchronous cryptography is performed inside an IndexedDB transaction.
 import {assertDraftEnvelope,canonicalDraftJSON,sealDraft,openDraft,validatePlainDraft} from './draft_cipher.mjs';
 const STORE='blocks',META='v307DraftMigration',MARKER='encrypted-v1';
-function openExisting(idb,name,version){
+function openExisting(idb,name,version,{initializeEmpty=false,guard}={}){
  return new Promise((resolve,reject)=>{
   const r=idb.open(name,version);let abandoned=false;
   r.onblocked=()=>{abandoned=true;reject(Error('DRAFT_MIGRATION_BLOCKED'))};
-  r.onupgradeneeded=()=>{r.transaction.abort();reject(Error('DRAFT_DB_VERSION'))};
+  r.onupgradeneeded=e=>{
+   // Explicit authenticated first run only. Existing or unknown schemas must not be reset.
+   if(!abandoned&&initializeEmpty&&version===1&&e.oldVersion===0&&guard?.()===true){
+    r.result.createObjectStore(STORE,{keyPath:'key'});return;
+   }
+   r.transaction.abort();reject(Error('DRAFT_DB_VERSION'));
+  };
   r.onerror=()=>reject(r.error);
   r.onsuccess=()=>{if(abandoned){r.result.close();return}r.result.onversionchange=()=>r.result.close();resolve(r.result)};
  });
@@ -62,14 +68,14 @@ function commitUpgrade(idb,name,snapshot,envelopes,guards){
   };
  });
 }
-export async function migrateDraftStore({indexedDB:idb=globalThis.indexedDB,databaseName,keyFor,guardFor=()=>()=>true}){
- if(!idb||typeof databaseName!=='string'||!databaseName||typeof keyFor!=='function'||typeof guardFor!=='function')throw Error('DRAFT_MIGRATION_CONFIG');
+export async function migrateDraftStore({indexedDB:idb=globalThis.indexedDB,databaseName,keyFor,guardFor=()=>()=>true,initializeEmpty=false,guard}){
+ if(!idb||typeof databaseName!=='string'||!databaseName||typeof keyFor!=='function'||typeof guardFor!=='function'||typeof initializeEmpty!=='boolean'||guard!==undefined&&typeof guard!=='function'||initializeEmpty&&(typeof guard!=='function'||guard()!==true))throw Error('DRAFT_MIGRATION_CONFIG');
  let db;
- try{db=await openExisting(idb,databaseName,1)}
- catch(e){if(e?.name==='VersionError')return alreadyMigrated(idb,databaseName);throw e}
+ try{db=await openExisting(idb,databaseName,1,{initializeEmpty,guard})}
+ catch(e){if(e?.name==='VersionError'){const result=await alreadyMigrated(idb,databaseName);if(guard&&guard()!==true)throw Error('KEY_SESSION_CHANGED');return result}throw e}
  let rows,snapshot;
  try{({rows}=await readSnapshot(db));snapshot=canonicalDraftJSON(rows)}finally{db.close()}
- const envelopes=[],guards=[];
+ const envelopes=[],guards=guard?[guard]:[];
  // All rows must be encrypted and authenticated before attempting the destructive phase.
  for(const row of rows){
   const id=validatePlainDraft(row);

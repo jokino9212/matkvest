@@ -4,17 +4,10 @@ import {createV307Queue} from '../../integrations/v307/training_queue.mjs';
 import {V307AccountClient} from '../../integrations/v307/account_client.mjs';
 import {migrateDraftStore} from '../../integrations/v307/draft_migration.mjs';
 import {encryptedSchoolOutbox} from '../../integrations/v307/encrypted_school_outbox.mjs';
+import {createDraftKeySession} from '../../integrations/v307/draft_key_session.mjs';
 const id=n=>n+'1436d1d-0123-4f25-8ae9-df61e8a85370',owner=id('a'),profile=id('b'),pack=id('c'),device=id('d'),assignment=id('e');
 const context={owner,profile,role:'student',kind:'homework',assignment},databaseName='mk307-synthetic-vue-audit';
 const status=document.getElementById('audit-status');
-async function ensureLegacy(){
- await new Promise((ok,no)=>{
-  const r=indexedDB.open(databaseName,1);
-  r.onupgradeneeded=()=>r.result.createObjectStore('blocks',{keyPath:'key'});
-  r.onerror=()=>r.error?.name==='VersionError'?ok():no(r.error);
-  r.onsuccess=()=>{r.result.close();ok()};
- });
-}
 async function start(){
  // The Playwright runner injects a fresh random synthetic fixture key for each context.
  // This is not a production key endpoint or a mechanism for retaining secrets on F5.
@@ -30,13 +23,26 @@ async function start(){
  function authorize(s){
   if(s?.owner!==owner||s?.profile!==profile||s?.role!=='student'||s?.kind!=='homework'||s?.assignment!==assignment)throw Error('TEST_SCOPE');
  }
- await ensureLegacy();
- await migrateDraftStore({databaseName,keyFor:async s=>{authorize(s);return credential}});
- const outbox=encryptedSchoolOutbox({databaseName,keyFor:async(s,request)=>{
-  authorize(s);
-  if(request.pack!==pack||request.operation==='open'&&request.keyId!==credential.keyId)throw Error('TEST_KEY');
-  return credential;
- },floorFor:async(s,p)=>{authorize(s);if(p!==pack)throw Error('TEST_PACK');return 0}});
+ // Deliberately injected fixture grant source. The actual session adapter enforces
+ // actor/context, lifetime, exact request and revision floor at the IDB boundary.
+ const session=createDraftKeySession({scope:()=>scope,maxOfflineMs:120000,
+  fetchKey:async(s,request)=>{
+   authorize(s);
+   if(request.pack!==pack||request.operation==='open'&&request.keyId!==credential.keyId)throw Error('TEST_KEY');
+   const verified=await api.resumeSession();
+   if(verified?.id!==owner||verified.role!=='student')throw Error('TEST_ACTOR');
+   return {credential,offlineForMs:120000};
+  },
+  fetchFloor:async(s,p)=>{
+   authorize(s);if(p!==pack)throw Error('TEST_PACK');
+   const verified=await api.resumeSession();
+   if(verified?.id!==owner||verified.role!=='student')throw Error('TEST_ACTOR');
+   return {minimum:0,offlineForMs:120000};
+  }
+ });
+ await migrateDraftStore({databaseName,...session,initializeEmpty:true,guard:session.guardFor(context)});
+ const outbox=encryptedSchoolOutbox({databaseName,...session});
+ window.addEventListener('pagehide',()=>session.invalidate());
  const queue=createV307Queue({api,scope:()=>scope,outbox});
  await mountTraining({host:document.getElementById('audit-host'),queue,topic:'g4:table',stage:0,device,exit:()=>{}});
  status.textContent='TEST READY';

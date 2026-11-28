@@ -13,12 +13,12 @@ const id=n=>n+'1436d1d-0123-4f25-8ae9-df61e8a85370',owner=id('a'),profile=id('b'
  try{
  for(const width of [320,390,1280]){
   const context=await browser.newContext({viewport:{width,height:800},serviceWorkers:'block'}),page=await context.newPage(),errors=[],puts=[];
-  let logged=false,lost=true,receipts=0,accepted=null;
+  let logged=false,lost=true,receipts=0,accepted=null,networkCalls=0;
   try{
    await context.addInitScript({content:'Object.defineProperty(window,"__mkR13SyntheticKey",{value:'+JSON.stringify(Array.from(randomBytes(32)))+',configurable:true})'});
    page.on('pageerror',e=>errors.push(String(e)));
    await context.route('**/api/v1/**',async route=>{
-    const req=route.request(),path=new URL(req.url()).pathname.slice(7),m=req.method(),body=req.postDataJSON();let code=200,data;
+    const req=route.request(),path=new URL(req.url()).pathname.slice(7),m=req.method(),body=req.postDataJSON();networkCalls++;let code=200,data;
     if(path==='/auth/login'){logged=true;data={user:{id:owner,role:'student'},csrf_token:'synthetic-csrf'}}
     else if(path==='/auth/csrf'&&logged)data={csrf_token:'synthetic-csrf'};
     else if(path==='/auth/me'&&logged)data={id:owner,role:'student'};
@@ -48,8 +48,9 @@ const id=n=>n+'1436d1d-0123-4f25-8ae9-df61e8a85370',owner=id('a'),profile=id('b'
    await page.reload();await ready();await button('Далее').waitFor();assert.equal(await page.getByLabel('Ответ',{exact:true}).inputValue(),'6');
    assert.equal(await page.getByLabel('Ответ',{exact:true}).evaluate(e=>e.readOnly),true);await button('Далее').click();await next();
    await page.evaluate(()=>{Object.defineProperty(navigator,'onLine',{configurable:true,get:()=>false});dispatchEvent(new Event('offline'))});
+   const beforeOfflineCalls=networkCalls;
    for(let i=1;i<5;i++){await page.getByLabel('Ответ',{exact:true}).fill('6');await button('Проверить').click();await button('Далее').click();if(i<4)await next()}
-   await button('Повторить синхронизацию').waitFor();assert.equal(puts.length,0);
+   await button('Повторить синхронизацию').waitFor();assert.equal(puts.length,0);assert.equal(networkCalls,beforeOfflineCalls,'No network request during offline lease');
    const beforeSend=await persisted();assert.equal(beforeSend.length,1);assert(beforeSend[0].noPlain&&beforeSend[0].revision>afterCheck[0].revision);
    const failure=page.waitForEvent('requestfailed',{predicate:req=>req.method()==='PUT'&&req.url().includes('/offline-school/')});
    await page.evaluate(()=>{Object.defineProperty(navigator,'onLine',{configurable:true,get:()=>true});dispatchEvent(new Event('online'))});
