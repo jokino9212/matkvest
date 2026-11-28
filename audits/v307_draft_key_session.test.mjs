@@ -71,3 +71,14 @@ test('lease lifetime is counted from request start not receipt; stale floor cann
  const old=y.session.floorFor(ctx,pack);y.setScope({...ctx,ticket:2});q.resolve({minimum:7,offlineForMs:100});
  await assert.rejects(old,/KEY_SESSION_CHANGED/);
 });
+
+test('concurrent older floor cannot lower the already observed minimum within one session',async()=>{
+ const slow=deferred();let count=0;
+ const x=await setup({fetchFloor:async()=>++count===1?slow.promise:{minimum:9,offlineForMs:100}}),s=x.session,g=s.guardFor(ctx);
+ const old=s.floorFor(ctx,pack);
+ assert.equal(await s.floorFor(ctx,pack),9);
+ slow.resolve({minimum:4,offlineForMs:100});
+ await assert.rejects(old,/KEY_FLOOR_REGRESSION/);
+ assert.equal(g(),false);
+ x.setOnline(false);await assert.rejects(s.floorFor(ctx,pack),/OFFLINE_LEASE/);
+});

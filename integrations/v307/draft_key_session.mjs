@@ -29,8 +29,8 @@ const same=(a,b)=>canonicalDraftJSON(a)===canonicalDraftJSON(b);
 export function createDraftKeySession({scope,fetchKey,fetchFloor,online=()=>navigator.onLine,now=()=>performance.now(),maxOfflineMs=0}){
  if([scope,fetchKey,fetchFloor,online,now].some(f=>typeof f!=='function')||!Number.isSafeInteger(maxOfflineMs)||maxOfflineMs<0)throw Error('KEY_CONFIG');
  let generation=0,active=null,lastClock=-Infinity;
- const keys=new Map(),floors=new Map();
- function invalidate(){generation++;active=null;keys.clear();floors.clear()}
+ const keys=new Map(),floors=new Map(),highestFloor=new Map();
+ function invalidate(){generation++;active=null;keys.clear();floors.clear();highestFloor.clear()}
  function clock(){
   const n=now();
   if(!Number.isFinite(n)||n<lastClock){invalidate();throw Error('KEY_CLOCK')}
@@ -95,6 +95,9 @@ export function createDraftKeySession({scope,fetchKey,fetchFloor,online=()=>navi
    const value=grant?.minimum;
    if(!Number.isSafeInteger(value)||value<0)throw Error('KEY_FLOOR_INVALID');
    const expires=ttl(grant,started);assertCurrent(token);
+   // A concurrent, older response must never lower a floor already observed in this session.
+   if(value<(highestFloor.get(pack)??0))throw Error('KEY_FLOOR_REGRESSION');
+   highestFloor.set(pack,value);
    if(clock()<expires)floors.set(pack,{value,expires});
    return value;
   }catch(e){if(token.generation===generation)invalidate();throw e}
