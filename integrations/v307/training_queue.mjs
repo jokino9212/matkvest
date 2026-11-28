@@ -62,7 +62,7 @@ export function createV307Queue({api,scope,outbox,online=()=>navigator.onLine}){
  }
  async function act(row,kind,value){
   const s=current();if(!s||!row||!same(row.context,s)||row.owner!==s.owner||row.profile!==s.profile||!valid(row.pack)||row.key!==key(s,row.pack))throw Error('SCOPE_CHANGED');
-  const next=await outbox.act(row.key,row.revision,kind,value);if(!still(s)||!next||!same(next.context,s)||next.owner!==s.owner||next.profile!==s.profile||next.pack!==row.pack||next.key!==row.key)throw Error('SCOPE_CHANGED');return next;
+  const next=await outbox.act(row.key,row.revision,kind,value,stored=>still(s)&&same(stored.context,s)&&stored.owner===s.owner&&stored.profile===s.profile&&stored.pack===row.pack&&stored.key===row.key);if(!still(s)||!next||!same(next.context,s)||next.owner!==s.owner||next.profile!==s.profile||next.pack!==row.pack||next.key!==row.key)throw Error('SCOPE_CHANGED');return next;
  }
  async function flush(){
   const s=current();if(!s||!online())return [];
