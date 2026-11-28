@@ -12,6 +12,31 @@ function identity(raw) {
  return {username:v.toLowerCase()};
 }
 export class V307AccountClient extends MatKvestApiClient {
+ // An invalidated request may finish on the wire, but cannot restore a retired
+ // local session or overwrite the CSRF token of a later login.
+ #generation=0;
+ #assertGeneration(g){if(g!==this.#generation)throw Error('STALE_SESSION')}
+ clearSession(){this.#generation++;super.clearSession()}
+ async request(method,endpoint,options){
+  const g=this.#generation;
+  try{
+   const result=await super.request(method,endpoint,options);
+   this.#assertGeneration(g);return result;
+  }catch(error){this.#assertGeneration(g);throw error}
+ }
+ async resumeSession(){
+  const g=this.#generation;
+  const session=await this.request('GET','/auth/csrf');this.#assertGeneration(g);
+  if(typeof session?.csrf_token!=='string'||!session.csrf_token)throw Error('CSRF_INVALID');
+  const actor=await this.getMe();this.#assertGeneration(g);
+  if(!actor?.id||!['student','tutor','parent'].includes(actor.role))throw Error('SESSION_INVALID');
+  this.csrfToken=session.csrf_token;return actor;
+ }
+ async logout(){
+  const g=this.#generation;
+  try{return await this.request('POST','/auth/logout')}
+  finally{if(g===this.#generation)this.clearSession()}
+ }
  register(identifier,password,role='student'){
   if(!['student','tutor','parent'].includes(role))throw new TypeError('Unsupported public registration role');
   const id=identity(identifier);
@@ -19,9 +44,10 @@ export class V307AccountClient extends MatKvestApiClient {
   return this.request('POST','/auth/register',{body:{...id,password,role},publicRequest:true});
  }
  async login(identifier,password){
-  this.clearSession();
-  const response=await this.request('POST','/auth/login',{body:{...identity(identifier),password},publicRequest:true});
-  if(!response?.csrf_token||!response?.user)throw new Error('LOGIN_INVALID');
+  const login=identity(identifier);this.clearSession();const g=this.#generation;
+  const response=await this.request('POST','/auth/login',{body:{...login,password},publicRequest:true});
+  this.#assertGeneration(g);
+  if(typeof response?.csrf_token!=='string'||!response.csrf_token||!response.user?.id||!['student','tutor','parent'].includes(response.user.role))throw new Error('LOGIN_INVALID');
   this.csrfToken=response.csrf_token;return response.user;
  }
  createProfile(name,idempotencyKey){
@@ -35,8 +61,9 @@ export class V307AccountClient extends MatKvestApiClient {
  async redeemRecovery(username,code,newPassword){
   const id=identity(username);
   if(!id.username||typeof code!=='string'||! /^[A-Za-z0-9_-]{43}$/.test(code))throw new TypeError('Invalid recovery credentials');
+  const g=this.#generation;
   const response=await this.request('POST','/auth/student-recovery/redeem',{body:{username:id.username,code,new_password:newPassword},publicRequest:true});
-  this.clearSession();return response;
+  this.#assertGeneration(g);this.clearSession();return response;
  }
 
  profiles(){return this.request('GET','/student/profiles');}

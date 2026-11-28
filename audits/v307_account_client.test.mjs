@@ -16,3 +16,40 @@ test('teacher lesson and student routes cannot be confused',async()=>{const {api
 test('homework uses stable idempotency and separate server-issued assignment prepare',async()=>{const {api,calls}=setup();await api.login('tutor@example.com',password);await api.assignHomework(profile,'g4:table',0,null,lesson);await api.assignHomework(profile,'g4:table',0,null,lesson);assert.deepEqual(calls.at(-1),calls.at(-2));await api.prepareHomework(profile,lesson,pack,[lesson]);assert.equal(calls.at(-1).url,'/api/v1/student/profiles/'+profile+'/homework/'+lesson+'/prepare');assert.deepEqual(calls.at(-1).body,{device:pack,unavailable_permits:[lesson]});assert.throws(()=>api.assignHomework(profile,'g4:table',3,null,lesson));});
 
 test('subscription is profile-specific and cannot activate premium from client',async()=>{const {api,calls}=setup();await assert.rejects(api.requestSubscription(profile,lesson));await api.login('parent@example.com',password);await api.subscription(profile);await api.requestSubscription(profile,lesson);await api.requestSubscription(profile,lesson);assert.deepEqual(calls.at(-1),calls.at(-2));assert.equal(calls.at(-1).body,null);assert.equal(calls.at(-1).url,'/api/v1/profiles/'+profile+'/subscription/requests');await api.cancelSubscriptionRequest(profile,pack);assert.equal(calls.at(-1).url,'/api/v1/profiles/'+profile+'/subscription/requests/'+pack);assert.throws(()=>api.requestSubscription('../bad',lesson));assert.equal(api.confirmSubscription,undefined);});
+
+const reply=(body,status=200)=>({ok:status===200,status,json:async()=>body});
+function deferred(){let resolve;const promise=new Promise(r=>resolve=r);return {promise,resolve}}
+test('late login cannot restore CSRF after logout or overwrite a newer login',async()=>{
+ const delayed=deferred();let count=0;
+ const api=new V307AccountClient({fetchImpl:async()=>++count===1?delayed.promise:reply({user:{id:'new',role:'student'},csrf_token:'new-token'})});
+ const old=api.login('old-user',password);api.clearSession();
+ await api.login('new-user',password);
+ delayed.resolve(reply({user:{id:'old',role:'student'},csrf_token:'old-token'}));
+ await assert.rejects(old,/STALE_SESSION/);assert.equal(api.csrfToken,'new-token');
+});
+test('resume does not publish CSRF before actor verification and stale response cannot overwrite login',async()=>{
+ const delayed=deferred(),started=deferred();
+ const api=new V307AccountClient({fetchImpl:async url=>{
+  if(url.endsWith('/csrf'))return reply({csrf_token:'old-token'});
+  if(url.endsWith('/me')){started.resolve();return delayed.promise}
+  if(url.endsWith('/login'))return reply({user:{id:'new',role:'student'},csrf_token:'new-token'});
+ }});
+ const old=api.resumeSession();await started.promise;assert.equal(api.csrfToken,null);
+ await api.login('new-user',password);delayed.resolve(reply({id:'old',role:'student'}));
+ await assert.rejects(old,/STALE_SESSION/);assert.equal(api.csrfToken,'new-token');
+});
+test('late logout or failed old request cannot clear a newer session',async()=>{
+ const delayed=deferred(),oldGet=deferred();
+ const api=new V307AccountClient({fetchImpl:async url=>{
+  if(url.endsWith('/logout'))return delayed.promise;
+  if(url.endsWith('/student/profiles'))return oldGet.promise;
+  return reply({user:{id:'new',role:'student'},csrf_token:'new-token'});
+ }});
+ await api.login('old-user',password);const old=api.logout(),get=api.profiles();
+ await api.login('new-user',password);delayed.resolve(reply({ok:true}));oldGet.resolve(reply({error:{code:'UNAUTHORIZED'}},401));
+ await assert.rejects(old,/STALE_SESSION/);await assert.rejects(get,/STALE_SESSION/);assert.equal(api.csrfToken,'new-token');
+});
+test('failed actor verification never publishes newly returned CSRF',async()=>{
+ const api=new V307AccountClient({fetchImpl:async url=>url.endsWith('/csrf')?reply({csrf_token:'unverified'}):reply({error:{code:'UNAUTHORIZED'}},401)});
+ await assert.rejects(api.resumeSession(),e=>e.status===401);assert.equal(api.csrfToken,null);
+});

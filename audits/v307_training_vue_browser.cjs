@@ -48,7 +48,16 @@ const id=x=>x+'1436d1d-0123-4f25-8ae9-df61e8a85370',P=id('a'),STUDENT=id('b'),TU
   // Offline edits use the same persistent draft; no request is sent until explicitly back online.
   await page.evaluate(()=>{Object.defineProperty(navigator,'onLine',{configurable:true,get:()=>false});dispatchEvent(new Event('offline'));});
   for(let i=1;i<5;i++)await answer(i===4);await button('Повторить синхронизацию').waitFor();assert.equal(puts.length,0);
+  // Cookie expires while the offline-completed block is pending. A Vue-internal
+  // 401 must lock the full account, not leave the old training scope visible.
+  logged=false;
   await page.evaluate(()=>{Object.defineProperty(navigator,'onLine',{configurable:true,get:()=>true});dispatchEvent(new Event('online'));});
+  await page.getByRole('heading',{name:'Вход в МатКвест'}).waitFor();
+  assert.equal(await page.locator('.v307-training').count(),0);assert.equal(puts.length,0);
+  await page.getByText('Войдите снова.',{exact:true}).waitFor();
+  const failed=page.waitForEvent('requestfailed',{predicate:req=>req.method()==='PUT'&&req.url().includes('/offline-school/')});
+  await student();await button('Открыть тренажёр').click();await failed;
+  await button('Повторить синхронизацию').waitFor();
   await page.waitForFunction(()=>!document.querySelector('.v307-training button[disabled]'));
   // The automatic first PUT committed but response was lost. Retry exact body.
   await button('Повторить синхронизацию').click();await page.getByText(/Начислено 20 XP и 25 монет/).waitFor();

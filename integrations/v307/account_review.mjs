@@ -7,11 +7,31 @@ let actor=null,view='login',busy=false,epoch=0,profile=null,requestKeys=new Map(
 function readPending(){try{return localStorage.getItem('mk307-logout-pending')==='1'}catch{return false}}
 function pending(v){logoutPending=v;try{if(v)localStorage.setItem('mk307-logout-pending','1');else localStorage.removeItem('mk307-logout-pending')}catch{}}
 
-const api=new Proxy(client,{get(target,key){const value=target[key];if(typeof value!=='function')return value;return (...args)=>{const ticket=epoch;const response=value.apply(target,args);if(!response||typeof response.then!=='function')return response;return response.then(result=>{if(ticket!==epoch){target.clearSession();throw Error('STALE_RESPONSE')}return result;});};}});
+const api=new Proxy(client,{get(target,key){
+ const value=target[key];if(typeof value!=='function')return value;
+ return (...args)=>{
+  const ticket=epoch,expected=actor;
+  const response=value.apply(target,args);
+  if(!response||typeof response.then!=='function')return response;
+  return response.then(result=>{
+   if(ticket!==epoch)throw Error('STALE_RESPONSE');
+   // The cookie may change without a localStorage notification (e.g. expiry).
+   if(key==='resumeSession'&&expected&&(result?.id!==expected.id||result.role!==expected.role)){
+    lockSession();throw Error('SCOPE_CHANGED');
+   }
+   return result;
+  },error=>{
+   if(ticket!==epoch)throw Error('STALE_RESPONSE');
+   if(error?.status===401&&expected)lockSession();
+   throw error;
+  });
+ };
+}});
 let training=null,trainingScope=null,economy=null,economyScope=null,quick=null,quickScope=null,review=null,reviewScope=null;
 const queue=createV307Queue({api,scope:()=>trainingScope,outbox:v307Outbox()});
 function stopTraining(){training?.dispose();training=null;trainingScope=null;economy?.dispose();economy=null;economyScope=null;quick?.dispose();quick=null;quickScope=null;review?.dispose();review=null;reviewScope=null;}
 function invalidate(){stopTraining();epoch++;actor=null;profile=null;requestKeys.clear();client.clearSession();}
+function lockSession(){invalidate();login();message('Войдите снова.');}
 
 const sourceLabels={student_full:'Индивидуальная лицензия (основной профиль)',profile_premium:'Индивидуальная подписка',tutor_paid:'Оплачено преподавателем',tutor_trial:'Пробное место преподавателя',admin_grant:'Предоставлено администратором',administrative_denial:'Доступ ограничен администратором'};
 function el(tag,text){const n=document.createElement(tag);if(text!==undefined)n.textContent=text;return n}
@@ -24,7 +44,7 @@ function field(name,type='text'){const l=el('label',name),i=el('input');i.type=t
 function consent(name){const l=el('label',name),i=el('input');i.type='checkbox';i.setAttribute('aria-label',name);l.className='consent';l.prepend(i);return [l,i];}
 function codeScreen(title,data,back){const c=el('input');c.type='text';c.readOnly=true;c.value=data.code;c.setAttribute('aria-label','Одноразовый код');c.addEventListener('focus',()=>c.select());show(el('h1',title),el('p','Код одноразовый. Передайте его только нужному человеку. Срок: '+new Date(data.expires_at).toLocaleString('ru-RU')),c,action('Закрыть',back,true),signout());if(data.username)app.prepend(el('p','Логин ученика: '+data.username));}
 function form(fields,label,fn){const f=el('form');f.append(...fields.map(x=>x[0]));const b=el('button',label);b.type='submit';f.append(b);f.onsubmit=e=>{e.preventDefault();const values=fields.map(x=>x[1].type==='checkbox'?x[1].checked:x[1].value);for(const [,i] of fields)if(i.type==='password')i.value='';run(()=>fn(...values))};return f}
-async function run(fn){if(busy)return;busy=true;const e=epoch;message('Загрузка…');for(const b of app.querySelectorAll('button'))b.disabled=true;try{await fn();if(e===epoch&&status.textContent==='Загрузка…')message('Готово.')}catch(err){if(e!==epoch)return;if(err.status===401){actor=null;profile=null;api.clearSession();requestKeys.clear();epoch++;login();message('Войдите снова.')}else message(err.status===0?'Нет связи с сервером. Повторите действие.':'Не удалось выполнить действие. Проверьте данные или права доступа.')}finally{busy=false;for(const b of app.querySelectorAll('button:not([data-disabled])'))b.disabled=false}}
+async function run(fn){if(busy)return;busy=true;const e=epoch;message('Загрузка…');for(const b of app.querySelectorAll('button'))b.disabled=true;try{await fn();if(e===epoch&&status.textContent==='Загрузка…')message('Готово.')}catch(err){if(e!==epoch)return;if(err.status===401){lockSession()}else message(err.status===0?'Нет связи с сервером. Повторите действие.':'Не удалось выполнить действие. Проверьте данные или права доступа.')}finally{busy=false;for(const b of app.querySelectorAll('button:not([data-disabled])'))b.disabled=false}}
 function login(){view='login';if(logoutPending){show(el('h1','Завершить выход'),el('p','Сервер не подтвердил выход. Повторите после подключения.'),action('Повторить выход',finishLogout));return;}const ident=field('Логин или электронная почта'),pw=field('Пароль','password');show(el('h1','Вход в МатКвест'),form([ident,pw],'Войти',async(i,p)=>{actor=await api.login(i,p);requestKeys.clear();try{localStorage.setItem('mk307-auth-event',crypto.randomUUID())}catch{}await dashboard()}),buttons(action('Создать аккаунт',async()=>register(),true),action('Восстановить пароль',async()=>recover(),true)));const a=el('a','Сверка старых профилей');a.href='backup_review.html';const local=el('a','Вернуться к локальным профилям');local.href='../../local/index.html';app.append(a,el('p'),local)}
 function register(){view='register';const ident=field('Логин ученика или почта'),pw=field('Пароль','password');pw[1].autocomplete='new-password';const label=el('label','Тип аккаунта'),sel=el('select');sel.setAttribute('aria-label','Тип аккаунта');for(const [v,t] of [['student','Ученик'],['parent','Родитель'],['tutor','Преподаватель']]){const o=el('option',t);o.value=v;sel.append(o)}label.append(sel);const f=form([ident,pw],'Создать аккаунт',async(i,p)=>{await api.register(i,p,sel.value);login();message('Аккаунт создан. Войдите в него.')});f.prepend(label);show(el('h1','Регистрация'),el('p','Ученику не нужна почта. Для взрослого аккаунта нужна электронная почта.'),f,action('Назад ко входу',async()=>login(),true))}
 function recover(){view='recover';const i=field('Логин ученика'),c=field('Одноразовый код'),p=field('Новый пароль','password');p[1].autocomplete='new-password';show(el('h1','Восстановление доступа'),form([i,c,p],'Изменить пароль',async(i,c,p)=>{await api.redeemRecovery(i,c,p);login();message('Пароль изменён. Войдите заново.')}),action('Назад',async()=>login(),true))}
@@ -63,7 +83,7 @@ async function openEconomy(p){
  const {mountEconomy}=await import('./economy_view.mjs');if(ticket!==epoch||actor?.id!==owner)return;
  show(el('h1','Магазин — '+p.display_name));const host=el('div');app.append(host);economyScope={owner,profile:p.id,role:'student',ticket:crypto.randomUUID()};
  try{const instance=await mountEconomy({host,api,scope:()=>economyScope,exit:()=>run(()=>subscription(p))});if(ticket!==epoch||!economyScope){instance.dispose();return;}economy=instance;}
- catch(e){await subscription(p);message('Серверная экономика недоступна. Требуется отдельный тестовый backend.');}
+ catch(e){if(ticket!==epoch)return;await subscription(p);message('Серверная экономика недоступна. Требуется отдельный тестовый backend.');}
 }
 async function openQuick(p){
  const ticket=epoch,owner=actor?.id;if(actor?.role!=='student')throw Error('ROLE_UNSUPPORTED');
@@ -85,10 +105,11 @@ async function openTraining(p,topic,stage,context,back){
  const {mountTraining}=await import('./training_view.mjs');if(epoch!==epochBefore||actor?.id!==owner)return;
  show(el('h1',p.display_name));const host=el('div');app.append(host);trainingScope={owner,role,profile:p.id,...context,ticket:crypto.randomUUID()};
  try{const instance=await mountTraining({host,queue,topic,stage,device:device(),exit:()=>run(back)});if(epoch!==epochBefore||!trainingScope){instance.dispose();return;}training=instance;}
- catch(e){stopTraining();await back();message(e.message==='OTHER_BLOCK_ACTIVE'?'Сначала завершите ранее сохранённый блок.':'Не удалось открыть блок. Проверьте доступ, этап и соединение.');}
+ catch(e){if(epochBefore!==epoch)return;stopTraining();await back();message(e.message==='OTHER_BLOCK_ACTIVE'?'Сначала завершите ранее сохранённый блок.':'Не удалось открыть блок. Проверьте доступ, этап и соединение.');}
 }
 async function chooseTraining(p,lesson=null){
- const {reviewTopics}=await import('./training_view.mjs');
+ const ticket=epoch,owner=actor?.id;if(!owner)throw Error('AUTH_REQUIRED');
+ const {reviewTopics}=await import('./training_view.mjs');if(ticket!==epoch||actor?.id!==owner)return;
  show(el('h1','Тренажёры — '+p.display_name),el('p','147 серверных тем. Запись столбиком использует проверенный макет v306.'));
  const t=el('select');t.setAttribute('aria-label','Тема тренажёра');for(const [id,title] of reviewTopics){const o=el('option',title);o.value=id;t.append(o);}
  const s=el('select');s.setAttribute('aria-label','Этап тренажёра');for(let i=0;i<3;i++){const o=el('option','Этап '+(i+1));o.value=String(i);s.append(o);}
