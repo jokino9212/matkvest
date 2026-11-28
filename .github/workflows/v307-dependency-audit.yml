@@ -1,0 +1,39 @@
+name: v307 dependency audit (read only)
+on:
+  push:
+    branches: [feature/v307-accounts-migration-homework]
+    paths: ['package.json', 'package-lock.json', '.github/workflows/v307-dependency-audit.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  npm-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify lockfile resolves without lifecycle scripts
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Audit production and development dependencies
+        shell: bash
+        run: |
+          set +e
+          npm audit --omit=dev --package-lock-only --audit-level=moderate --json > /tmp/v307-npm-prod-audit.json
+          prod=$?
+          npm audit --package-lock-only --audit-level=high --json > /tmp/v307-npm-all-audit.json
+          all=$?
+          set -e
+          node -e 'const fs=require("node:fs");for(const f of ["/tmp/v307-npm-prod-audit.json","/tmp/v307-npm-all-audit.json"]){const r=JSON.parse(fs.readFileSync(f,"utf8"));if(r.error||!r.metadata?.vulnerabilities){console.error(r.error||"Invalid audit response");process.exitCode=1;continue;}console.log(f,JSON.stringify(r.metadata.vulnerabilities));for(const [name,v] of Object.entries(r.vulnerabilities||{}))console.log(name,v.severity,v.range);}'
+          echo "production_exit=$prod all_exit=$all"
+          test "$prod" -eq 0 && test "$all" -eq 0
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v307-npm-audit
+          path: /tmp/v307-npm-*-audit.json
+          if-no-files-found: warn
+          retention-days: 7
