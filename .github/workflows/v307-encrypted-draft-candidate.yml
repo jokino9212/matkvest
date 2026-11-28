@@ -2,7 +2,7 @@ name: v307 encrypted draft candidate (synthetic only)
 on:
   push:
     branches: [feature/v307-accounts-migration-homework]
-    paths: ['integrations/v307/draft_cipher.mjs', 'integrations/v307/draft_migration.mjs', 'integrations/v307/encrypted_school_outbox.mjs', 'audits/v307_draft_cipher.test.mjs', 'audits/v307_r13_draft_migration_browser.cjs', '.github/workflows/v307-encrypted-draft-candidate.yml']
+    paths: ['integrations/v307/draft_cipher.mjs', 'integrations/v307/draft_migration.mjs', 'integrations/v307/encrypted_school_outbox.mjs', 'integrations/v307/training_queue.mjs', 'integrations/v307/training_view.mjs', 'integrations/backend95-next/school_block_queue.mjs', 'frontend/v307-encrypted-audit.vite.config.mjs', 'audits/fixtures/v307_encrypted_vue*', 'audits/v307_r13_encrypted_vue_browser.cjs', 'audits/v307_draft_cipher.test.mjs', 'audits/v307_r13_draft_migration_browser.cjs', '.github/workflows/v307-encrypted-draft-candidate.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -16,5 +16,14 @@ jobs:
         with:
           persist-credentials: false
       - run: node --test audits/v307_draft_cipher.test.mjs
-      - run: npm install --no-save --no-package-lock --ignore-scripts playwright@1.56.1
+      - run: npm ci && npm install --no-save --no-package-lock --ignore-scripts playwright@1.56.1
       - run: node audits/v307_r13_draft_migration_browser.cjs
+      - uses: actions/checkout@v4
+        with:
+          ref: 6eb9b1d12cc49d6c91fe444f531192855022ff3d
+          path: v306-fixture
+          persist-credentials: false
+      - run: echo '7e6e2b8de44e1eb4888b34f012288c32e24643eafe9c350fe79e9881935cb318  v306-fixture/index.html' | sha256sum -c -
+      - run: python3 audits/v307_extract_column_layout.py v306-fixture/index.html integrations/v307/column_layout_generated.mjs
+      - run: npx vite build --config frontend/v307-encrypted-audit.vite.config.mjs
+      - run: node audits/v307_r13_encrypted_vue_browser.cjs

@@ -8,7 +8,7 @@ function setup(kind='homework'){
  let s={owner,profile,role:kind==='lesson'?'tutor':'student',kind,ticket:1,...(kind==='lesson'?{lesson}:kind==='homework'?{assignment}:{})},actor={id:owner,role:s.role},online=true,fail=false,wrongAssignment=false,rows=[],calls=[];
  const response={server_time:'2027-01-01T00:00:00Z',topics:{'g4:table':{packs:[pack]}},permits:[]};
  let readable=true,permission=true,reads=0;const api={resumeSession:async()=>actor,profiles:async()=>readable?[{id:profile}]:[],lesson:async()=>({allowed:permission,lesson:{id:lesson}}),prepareHomework:async(...a)=>{calls.push(['homework',...a]);return {...response,assignment_id:wrongAssignment?lesson:assignment,pack}},prepareLesson:async(...a)=>{calls.push(['lesson',...a]);return response},request:async(...a)=>{calls.push(['practice',...a]);return response},submitBlock:async(...a)=>{calls.push(['put',...structuredClone(a)]);if(fail)throw Object.assign(Error('lost'),{status:0});return {id:packId,status:'finished',summary:{xp:20,coins:25}}}};
- const db={list:async(o,p)=>{reads++;return structuredClone(rows.filter(r=>r.owner===o&&r.profile===p))},insert:async r=>{rows.push(structuredClone(r));return r},act:async(k,rev,kind,value,guard)=>{const i=rows.findIndex(r=>r.key===k);if(guard&&guard(rows[i])!==true)throw Error('SCOPE_CHANGED');rows[i]=applyTableAction(rows[i],rev,kind,value);return structuredClone(rows[i])},settle:async(k,status,receipt)=>{const i=rows.findIndex(r=>r.key===k);rows[i]={...rows[i],status,receipt};return rows[i]}};
+ const db={list:async(o,p)=>{reads++;return structuredClone(rows.filter(r=>r.owner===o&&r.profile===p))},insert:async(r,guard)=>{if(guard&&guard()!==true)throw Error('SCOPE_CHANGED');rows.push(structuredClone(r));return r},act:async(k,rev,kind,value,guard)=>{const i=rows.findIndex(r=>r.key===k);if(guard&&guard(rows[i])!==true)throw Error('SCOPE_CHANGED');rows[i]=applyTableAction(rows[i],rev,kind,value);return structuredClone(rows[i])},settle:async(k,status,receipt)=>{const i=rows.findIndex(r=>r.key===k);rows[i]={...rows[i],status,receipt};return rows[i]}};
  const queue=createV307Queue({api,scope:()=>s,outbox:db,online:()=>online});
  return {queue,calls,db,reads:()=>reads,readable:v=>readable=v,permission:v=>permission=v,set:v=>s={...s,...v},actor:v=>actor=v,online:v=>online=v,fail:v=>fail=v,wrong:()=>wrongAssignment=true};
 }
@@ -48,4 +48,11 @@ test('stored context is checked inside the write before mutating a same-key home
  assert.deepEqual((await x.db.list(owner,profile))[0],r);
  x.set({kind:'homework',assignment});
  assert.equal((await q.act(r,'input','6')).draft[0].answer,'6');
+});
+
+test('scope changes during draft insertion cannot leave a new unauthorized row',async()=>{
+ const x=setup(),insert=x.db.insert;
+ x.db.insert=async(row,guard)=>{x.set({ticket:2});return insert(row,guard)};
+ await assert.rejects(x.queue.prepare('g4:table',0,device),/SCOPE_CHANGED/);
+ assert.deepEqual(await x.db.list(owner,profile),[]);
 });

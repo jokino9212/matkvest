@@ -58,7 +58,7 @@ export function createV307Queue({api,scope,outbox,online=()=>navigator.onLine}){
   if(!pack.full&&!permit)throw Error('FREE_QUOTA');
   const questions=pack.questions.map((q,i)=>validateQuestion(topic,q,pack.column_keys?.[i]));
   const row={key:key(s,pack.id),owner:s.owner,profile:s.profile,context:ctx,pack:pack.id,topic,stage,count:questions.length,start:{started_at:startedAt,...(!pack.full?{permit:permit.id}:{})},status:'draft',questions,index:0,revision:0,draft:questions.map(()=>({answer:'',cells:{},checks:[],skipped:false,solved:false}))};
-  const inserted=await outbox.insert(row);if(!still(s)||!same(inserted.context,ctx))throw Error('SCOPE_CHANGED');return inserted;
+  const inserted=await outbox.insert(row,()=>still(s));if(!still(s)||!same(inserted.context,ctx))throw Error('SCOPE_CHANGED');return inserted;
  }
  async function act(row,kind,value){
   const s=current();if(!s||!row||!same(row.context,s)||row.owner!==s.owner||row.profile!==s.profile||!valid(row.pack)||row.key!==key(s,row.pack))throw Error('SCOPE_CHANGED');
