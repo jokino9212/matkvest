@@ -1,0 +1,20 @@
+name: v307 encrypted draft candidate (synthetic only)
+on:
+  push:
+    branches: [feature/v307-accounts-migration-homework]
+    paths: ['integrations/v307/draft_cipher.mjs', 'integrations/v307/draft_migration.mjs', 'audits/v307_draft_cipher.test.mjs', 'audits/v307_r13_draft_migration_browser.cjs', '.github/workflows/v307-encrypted-draft-candidate.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  crypto-and-idb:
+    runs-on: ubuntu-latest
+    container: mcr.microsoft.com/playwright:v1.56.1-noble
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - run: node --test audits/v307_draft_cipher.test.mjs
+      - run: npm install --no-save --no-package-lock --ignore-scripts playwright@1.56.1
+      - run: node audits/v307_r13_draft_migration_browser.cjs
