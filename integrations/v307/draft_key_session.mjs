@@ -104,9 +104,18 @@ export function createDraftKeySession({scope,fetchKey,fetchFloor,online=()=>navi
  }
  // The caller must use this synchronous guard inside its storage CAS. Revocation
  // invalidates future use, not copies of CryptoKey already returned to a caller.
- function guardFor(expected){
-  const token=capture(expected);
-  return ()=>{try{assertCurrent(token);clock();return true}catch{return false}};
+ function guardFor(expected,{requests=[],pack=null,revision=null}={}){
+  const token=capture(expected),required=requests.map(r=>canonicalDraftJSON(requestOf(token.context,r)));
+  if(pack!==null&&(!valid(pack)||token.context.channel||!Number.isSafeInteger(revision)||revision<0))throw Error('KEY_REQUEST');
+  return ()=>{try{
+   assertCurrent(token);const t=clock();
+   if(pack!==null&&revision<(highestFloor.get(pack)??0))return false;
+   if(!online()){
+    for(const r of required)cached(keys,r,t);
+    if(pack!==null&&revision<cached(floors,pack,t))return false;
+   }
+   return true;
+  }catch{return false}};
  }
  return {keyFor,floorFor,guardFor,invalidate};
 }

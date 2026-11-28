@@ -111,8 +111,8 @@ export async function migrateRequestJournal({indexedDB:idb=globalThis.indexedDB,
  }
  return upgrade(idb,databaseName,channel,before,after,guard);
 }
-export function encryptedRequestOutbox({indexedDB:idb=globalThis.indexedDB,databaseName,channel,keyFor}){
- if(!idb||typeof databaseName!=='string'||!databaseName||!domains.has(channel)||typeof keyFor!=='function')throw Error('JOURNAL_CONFIG');
+export function encryptedRequestOutbox({indexedDB:idb=globalThis.indexedDB,databaseName,channel,keyFor,guardFor=()=>()=>true}){
+ if(!idb||typeof databaseName!=='string'||!databaseName||!domains.has(channel)||typeof keyFor!=='function'||typeof guardFor!=='function')throw Error('JOURNAL_CONFIG');
  async function transaction(mode,scope,work){
   context(channel,scope);
   const db=await connect(idb,databaseName,2);
@@ -128,35 +128,40 @@ export function encryptedRequestOutbox({indexedDB:idb=globalThis.indexedDB,datab
   })}finally{db.close()}
  }
  const readEnvelope=scope=>transaction('readonly',scope,e=>e);
+ function check(guard){if(guard()!==true)throw Error('KEY_SESSION_CHANGED')}
  async function decrypt(e,scope){
-  if(e===null)return null;
-  const s=context(channel,scope),c=await keyFor(s,{operation:'open',keyId:e.keyId,requestId:e.key});
-  return unseal(e,channel,scope,c);
+  if(e===null)return {row:null,guard:()=>true};
+  const s=context(channel,scope),request={operation:'open',keyId:e.keyId,requestId:e.key},guard=guardFor(s,{requests:[request]});
+  const c=await keyFor(s,request),row=await unseal(e,channel,scope,c);check(guard);
+  return {row,guard};
  }
  async function encrypt(row){
-  const s=plain(row,channel,row.scope),c=await keyFor(s,{operation:'seal',keyId:null,requestId:row.key});
-  return seal(row,channel,c);
+  const s=plain(row,channel,row.scope),request={operation:'seal',keyId:null,requestId:row.key},guard=guardFor(s,{requests:[request]});
+  const c=await keyFor(s,request),envelope=await seal(row,channel,c);check(guard);
+  return {envelope,guard};
  }
- async function read(scope){return decrypt(await readEnvelope(scope),scope)}
+ async function read(scope){const result=await decrypt(await readEnvelope(scope),scope);check(result.guard);return result.row}
  async function reserve(row,guard){
   plain(row,channel,row.scope);
   if(typeof guard!=='function'||guard()!==true)throw Error('SCOPE_CHANGED');
   const existing=await readEnvelope(row.scope);
-  if(existing){const restored=await decrypt(existing,row.scope);if(guard()!==true)throw Error('SCOPE_CHANGED');return restored}
+  if(existing){const restored=await decrypt(existing,row.scope);check(restored.guard);if(guard()!==true)throw Error('SCOPE_CHANGED');return restored.row}
   const sealed=await encrypt(row);
   const committed=await transaction('readwrite',row.scope,(current,store)=>{
    if(guard()!==true)throw Error('SCOPE_CHANGED');
+   check(sealed.guard);
    if(current)return current;
-   store.add(sealed);return sealed;
+   store.add(sealed.envelope);return sealed.envelope;
   });
   const result=await decrypt(committed,row.scope);
-  if(guard()!==true)throw Error('SCOPE_CHANGED');return result;
+  check(result.guard);if(guard()!==true)throw Error('SCOPE_CHANGED');return result.row;
  }
  async function clear(scope,key){
   if(!valid(key))throw Error('JOURNAL_IDENTITY');
   const previous=await readEnvelope(scope);if(!previous||previous.key!==key)return false;
-  await decrypt(previous,scope);
+  const restored=await decrypt(previous,scope);
   return transaction('readwrite',scope,(current,store)=>{
+   check(restored.guard);
    if(!equalEnvelope(previous,current))return false;
    store.delete(scope);return true;
   });
@@ -164,12 +169,13 @@ export function encryptedRequestOutbox({indexedDB:idb=globalThis.indexedDB,datab
  async function rotate(scope,key,guard){
   if(!valid(key)||typeof guard!=='function'||guard()!==true)throw Error('SCOPE_CHANGED');
   const previous=await readEnvelope(scope);if(!previous||previous.key!==key)throw Error('JOURNAL_MISSING');
-  const row=await decrypt(previous,scope),sealed=await encrypt(row);
+  const restored=await decrypt(previous,scope),sealed=await encrypt(restored.row);
   return transaction('readwrite',scope,(current,store)=>{
    if(guard()!==true)throw Error('SCOPE_CHANGED');
    if(!equalEnvelope(previous,current))throw Error('JOURNAL_CHANGED');
-   if(previous.keyId!==sealed.keyId)store.put(sealed);
-   return row;
+   check(restored.guard);check(sealed.guard);
+   if(previous.keyId!==sealed.envelope.keyId)store.put(sealed.envelope);
+   return restored.row;
   });
  }
  return {read,reserve,clear,rotate};

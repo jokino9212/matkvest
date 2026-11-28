@@ -29,7 +29,7 @@ async function alreadyMigrated(idb,name){
   return {already:true,count:rows.length};
  }finally{db.close()}
 }
-function commitUpgrade(idb,name,snapshot,envelopes){
+function commitUpgrade(idb,name,snapshot,envelopes,guards){
  return new Promise((resolve,reject)=>{
   const r=idb.open(name,2);let failure,abandoned=false,upgraded=false;
   const abort=e=>{failure=e;try{r.transaction.abort()}catch{}};
@@ -46,6 +46,7 @@ function commitUpgrade(idb,name,snapshot,envelopes){
      try{
       // Detect any legacy change during crypto/key retrieval, including insertion and deletion.
       if(canonicalDraftJSON(get.result)!==snapshot)throw Error('DRAFT_MIGRATION_CONFLICT');
+      if(!guards.every(g=>g()===true))throw Error('KEY_SESSION_CHANGED');
       store.clear();
       for(const row of envelopes)store.add(assertDraftEnvelope(row));
       meta.add({id:MARKER,format:1,migratedRows:envelopes.length});
@@ -61,22 +62,24 @@ function commitUpgrade(idb,name,snapshot,envelopes){
   };
  });
 }
-export async function migrateDraftStore({indexedDB:idb=globalThis.indexedDB,databaseName,keyFor}){
- if(!idb||typeof databaseName!=='string'||!databaseName||typeof keyFor!=='function')throw Error('DRAFT_MIGRATION_CONFIG');
+export async function migrateDraftStore({indexedDB:idb=globalThis.indexedDB,databaseName,keyFor,guardFor=()=>()=>true}){
+ if(!idb||typeof databaseName!=='string'||!databaseName||typeof keyFor!=='function'||typeof guardFor!=='function')throw Error('DRAFT_MIGRATION_CONFIG');
  let db;
  try{db=await openExisting(idb,databaseName,1)}
  catch(e){if(e?.name==='VersionError')return alreadyMigrated(idb,databaseName);throw e}
  let rows,snapshot;
  try{({rows}=await readSnapshot(db));snapshot=canonicalDraftJSON(rows)}finally{db.close()}
- const envelopes=[];
+ const envelopes=[],guards=[];
  // All rows must be encrypted and authenticated before attempting the destructive phase.
  for(const row of rows){
   const id=validatePlainDraft(row);
-  const credential=await keyFor(structuredClone(id.context));
+  const request={operation:'seal',keyId:null,pack:id.pack},guard=guardFor(id.context,{requests:[request]});
+  const credential=await keyFor(structuredClone(id.context),request);
   const envelope=await sealDraft(row,credential);
   const reopened=await openDraft(envelope,credential,row.context,row.revision,row.pack);
   if(canonicalDraftJSON(reopened)!==canonicalDraftJSON(row))throw Error('DRAFT_MIGRATION_ROUNDTRIP');
-  envelopes.push(envelope);
+  if(guard()!==true)throw Error('KEY_SESSION_CHANGED');
+  envelopes.push(envelope);guards.push(guard);
  }
- return commitUpgrade(idb,databaseName,snapshot,envelopes);
+ return commitUpgrade(idb,databaseName,snapshot,envelopes,guards);
 }
