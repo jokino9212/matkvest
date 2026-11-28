@@ -1,6 +1,6 @@
 // Candidate upgrade of the v1 blocks store; never runs on application startup.
 // No network or asynchronous cryptography is performed inside an IndexedDB transaction.
-import {assertDraftEnvelope,canonicalDraftJSON,sealDraft,openDraft} from './draft_cipher.mjs';
+import {assertDraftEnvelope,canonicalDraftJSON,sealDraft,openDraft,validatePlainDraft} from './draft_cipher.mjs';
 const STORE='blocks',META='v307DraftMigration',MARKER='encrypted-v1';
 function openExisting(idb,name,version){
  return new Promise((resolve,reject)=>{
@@ -71,9 +71,10 @@ export async function migrateDraftStore({indexedDB:idb=globalThis.indexedDB,data
  const envelopes=[];
  // All rows must be encrypted and authenticated before attempting the destructive phase.
  for(const row of rows){
-  const credential=await keyFor(structuredClone(row.context));
+  const id=validatePlainDraft(row);
+  const credential=await keyFor(structuredClone(id.context));
   const envelope=await sealDraft(row,credential);
-  const reopened=await openDraft(envelope,credential,row.context,row.revision);
+  const reopened=await openDraft(envelope,credential,row.context,row.revision,row.pack);
   if(canonicalDraftJSON(reopened)!==canonicalDraftJSON(row))throw Error('DRAFT_MIGRATION_ROUNDTRIP');
   envelopes.push(envelope);
  }

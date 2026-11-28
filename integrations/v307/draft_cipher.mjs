@@ -31,6 +31,11 @@ function identity(row){
     row.key!==JSON.stringify([context.owner,context.profile,row.pack])||!revisionOk(row.revision))throw Error('DRAFT_IDENTITY');
  return {key:row.key,context,pack:row.pack,revision:row.revision};
 }
+export function validatePlainDraft(row){
+ const id=identity(row);
+ if(row.owner!==id.context.owner||row.profile!==id.context.profile)throw Error('DRAFT_IDENTITY');
+ canonicalDraftJSON(row);return id;
+}
 function credentials(credential,usage){
  const k=credential?.key;
  if(!keyIdOk(credential?.keyId)||!k||k.type!=='secret'||k.extractable!==false||
@@ -44,8 +49,7 @@ export function assertDraftEnvelope(e){
  identity(e);return e;
 }
 export async function sealDraft(row,credential){
- const key=credentials(credential,'encrypt'),id=identity(row);
- if(row.owner!==id.context.owner||row.profile!==id.context.profile)throw Error('DRAFT_IDENTITY');
+ const key=credentials(credential,'encrypt'),id=validatePlainDraft(row);
  const plaintext=utf8.encode(canonicalDraftJSON(row)),iv=crypto.getRandomValues(new Uint8Array(12));
  const envelope={version:1,keyId:credential.keyId,...id,iv};
  try{
@@ -55,9 +59,9 @@ export async function sealDraft(row,credential){
 }
 // minRevision must come from the trusted caller, not from the untrusted envelope.
 // This rejects versions below that floor; it cannot detect rollback of the entire local database.
-export async function openDraft(envelope,credential,expectedContext,minRevision){
+export async function openDraft(envelope,credential,expectedContext,minRevision,expectedPack){
  const e=assertDraftEnvelope(envelope),key=credentials(credential,'decrypt'),scope=contextOf(expectedContext);
- if(!scope||canonicalDraftJSON(scope)!==canonicalDraftJSON(e.context)||credential.keyId!==e.keyId)throw Error('DRAFT_SCOPE');
+ if(!scope||canonicalDraftJSON(scope)!==canonicalDraftJSON(e.context)||credential.keyId!==e.keyId||!validId(expectedPack)||e.pack!==expectedPack)throw Error('DRAFT_SCOPE');
  if(!revisionOk(minRevision)||e.revision<minRevision)throw Error('DRAFT_REVISION_FLOOR');
  let bytes;
  try{bytes=new Uint8Array(await crypto.subtle.decrypt({name:'AES-GCM',iv:e.iv,additionalData:aad(e),tagLength:128},key,e.ciphertext))}
@@ -68,8 +72,8 @@ export async function openDraft(envelope,credential,expectedContext,minRevision)
   return row;
  }finally{bytes.fill(0)}
 }
-export async function rotateDraft(envelope,previous,next,context,minRevision){
+export async function rotateDraft(envelope,previous,next,context,minRevision,expectedPack){
  if(previous?.keyId===next?.keyId||previous?.key===next?.key)throw Error('DRAFT_ROTATION_KEY');
- const row=await openDraft(envelope,previous,context,minRevision);
+ const row=await openDraft(envelope,previous,context,minRevision,expectedPack);
  return sealDraft(row,next);
 }

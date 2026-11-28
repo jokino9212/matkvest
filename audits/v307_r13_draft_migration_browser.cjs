@@ -28,7 +28,7 @@ const allowed=new Set(['/integrations/v307/draft_cipher.mjs','/integrations/v307
    const eq=(a,b)=>canonicalDraftJSON(a)===canonicalDraftJSON(b);
    await seed('r13-success');const first=await migrate('r13-success'),again=await migrate('r13-success');
    const v2=await open('r13-success',2),sealed=await read(v2);v2.close();
-   const decoded=await Promise.all(sealed.map(e=>openDraft(e,credential,e.context,e.revision)));
+   const decoded=await Promise.all(sealed.map(e=>openDraft(e,credential,e.context,e.revision,e.pack)));
    const oldVersion=await (async()=>{try{const d=await open('r13-success',1);d.close();return 'UNEXPECTED_SUCCESS'}catch(e){return e.name}})();
    await seed('r13-key-failure');let count=0;
    const keyFailure=await error(migrate('r13-key-failure',async()=>{if(++count===2)throw Error('KEY_UNAVAILABLE');return credential}));
