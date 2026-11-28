@@ -30,9 +30,10 @@ export function createReviewQueue({api,scope,store=reviewOutbox(),online=()=>nav
   if(!same(s,scope())||!equal(row.body,body))throw Error('PENDING_OTHER_OPERATION');
   await auth(s);let receipt;
   try{receipt=body.kind==='start'?await api.reviewStart(s.profile,row.body.body,row.key):await api.reviewStep(s.profile,row.body.review,row.body.body,row.key);}
-  catch(e){if(same(s,scope())&&noWrite.has(e.code)&&[403,409,422,429].includes(e.status))await store.clear(k,row.key);throw e;}
+  catch(e){if(online()&&same(s,scope())&&noWrite.has(e.code)&&[403,409,422,429].includes(e.status))await store.clear(k,row.key,()=>online()&&same(s,scope()));throw e;}
   if(!valid(receipt?.id)||!Number.isSafeInteger(receipt.revision)||!['active','finished','abandoned'].includes(receipt.status)||body.kind==='start'&&(receipt.mode!==body.body.mode||receipt.revision!==0||receipt.status!=='active')||body.kind==='step'&&(receipt.id!==body.review||receipt.revision!==body.body.revision+1))throw Error('INVALID_REVIEW_RECEIPT');
-  await store.clear(k,row.key);if(!same(s,scope()))throw Error('REVIEW_SCOPE');return receipt;
+  if(!online()||!same(s,scope()))throw Error('REVIEW_SCOPE');
+  await store.clear(k,row.key,()=>online()&&same(s,scope()));if(!same(s,scope()))throw Error('REVIEW_SCOPE');return receipt;
  }
  return {pending,submit};
 }

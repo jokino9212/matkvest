@@ -91,3 +91,16 @@ test('transaction guard checks exact offline grant expiry and latest observed fl
  const y=await setup({fetchFloor:async()=>({minimum:9,offlineForMs:100})}),h=y.session.guardFor(ctx,{pack,revision:4});
  await y.session.floorFor(ctx,pack);assert.equal(h(),false);
 });
+
+
+test('grant failure and floor regression cannot reset high-water mark within the same active ticket',async()=>{
+ let minimum=9,denied=false;
+ const x=await setup({fetchFloor:async()=>({minimum,offlineForMs:100}),fetchKey:async()=>{if(denied)throw Error('REVOKED');return x.grant}}),s=x.session;
+ assert.equal(await s.floorFor(ctx,pack),9);
+ minimum=4;await assert.rejects(s.floorFor(ctx,pack),/KEY_FLOOR_REGRESSION/);
+ await assert.rejects(s.floorFor(ctx,pack),/KEY_FLOOR_REGRESSION/);
+ denied=true;await assert.rejects(s.keyFor(ctx,seal),/REVOKED/);
+ await assert.rejects(s.floorFor(ctx,pack),/KEY_FLOOR_REGRESSION/);
+ minimum=10;assert.equal(await s.floorFor(ctx,pack),10);
+ x.setScope({...ctx,ticket:2});minimum=4;assert.equal(await s.floorFor(ctx,pack),4);
+});

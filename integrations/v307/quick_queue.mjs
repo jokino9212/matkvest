@@ -42,9 +42,10 @@ export function createQuickQueue({api,scope,store=quickOutbox(),online=()=>navig
    if(body.kind==='finish')receipt=await api.quickFinish(s.profile,body.start,body.body);
    if(body.kind==='goal_start')receipt=await api.startGoal(s.profile,body.type,row.key,...(body.topic?[body.topic]:[]));
    if(body.kind==='goal_cancel')receipt=await api.cancelGoal(s.profile,body.goal);
-  }catch(e){if(same(s,scope())&&noWrite.has(e.code)&&[403,404,409,422,429].includes(e.status))await store.clear(k,row.key);throw e;}
+  }catch(e){if(online()&&same(s,scope())&&noWrite.has(e.code)&&[403,404,409,422,429].includes(e.status))await store.clear(k,row.key,()=>online()&&same(s,scope()));throw e;}
   if(body.kind==='start'&&!valid(receipt?.id)||body.kind==='draft'&&(receipt?.revision!==body.body.base_revision+1||!equal(receipt.draft,body.body.draft))||body.kind==='finish'&&(receipt?.training_start_id!==body.start||receipt?.status!=='finished'||!receipt.summary)||body.kind==='goal_start'&&(!valid(receipt?.id)||receipt.type!==body.type||body.topic&&receipt.topic_id!==body.topic)||body.kind==='goal_cancel'&&(receipt?.id!==body.goal||receipt.status!=='cancelled'))throw Error('INVALID_QUICK_RECEIPT');
-  await store.clear(k,row.key);if(!same(s,scope()))throw Error('QUICK_SCOPE');return receipt;
+  if(!online()||!same(s,scope()))throw Error('QUICK_SCOPE');
+  await store.clear(k,row.key,()=>online()&&same(s,scope()));if(!same(s,scope()))throw Error('QUICK_SCOPE');return receipt;
  }
  return {pending,submit};
 }

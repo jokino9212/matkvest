@@ -15,7 +15,7 @@ const allowed=new Set(['draft_key_session.mjs','encrypted_request_outbox.mjs','d
    const {migrateRequestJournal,encryptedRequestOutbox}=await import('/integrations/v307/encrypted_request_outbox.mjs');
    const {createQuickQueue}=await import('/integrations/v307/quick_queue.mjs');
    const {createReviewQueue}=await import('/integrations/v307/review_queue.mjs');
-   const {createEconomyQueue}=await import('/integrations/v307/economy_queue.mjs');
+   const {createEconomyQueue,economyOutbox}=await import('/integrations/v307/economy_queue.mjs');
    const {createDraftKeySession}=await import('/integrations/v307/draft_key_session.mjs');
    const id=n=>n+'1436d1d-0123-4f25-8ae9-df61e8a85370',owner=id('a'),profile=id('b'),key=id('c'),other=id('d'),scopeKey=owner+':'+profile;
    const open=(name,v)=>new Promise((yes,no)=>{const r=indexedDB.open(name,v);r.onupgradeneeded=()=>r.result.createObjectStore('pending',{keyPath:'scope'});r.onsuccess=()=>yes(r.result);r.onerror=()=>no(r.error)});
@@ -28,7 +28,7 @@ const allowed=new Set(['draft_key_session.mjs','encrypted_request_outbox.mjs','d
    const eq=(a,b)=>JSON.stringify(a)===JSON.stringify(b),results=[];
    for(const [channel,body] of [['quick',{kind:'draft',body:{base_revision:1,draft:{training_start_id:other,question_index:1,answers:{0:'6'}}}}],['review',{kind:'step',review:other,body:{revision:1,action:'check',cells:{'answer:0':'6'}}}],['economy',{action:'chest',expected_price:200}]]){
     const databaseName='r13-journal-'+channel,initial={scope:scopeKey,owner,profile,key,body};
-    let current=first,scope={owner,profile,role:'student',ticket:1},lost=true,calls=[],unavailable=false,guard=true;
+    let current=first,scope={owner,profile,role:'student',ticket:1},lost=true,calls=[],unavailable=false,guard=true,switchOnReceipt=false;
     const keyFor=async(s,req)=>{if(unavailable||s.channel!==channel||s.owner!==owner||s.profile!==profile)throw Error('KEY_UNAVAILABLE');const c=req.operation==='seal'?current:keys.get(req.keyId);if(!c)throw Error('KEY_UNAVAILABLE');return c};
     await seed(databaseName,initial);
     const config={databaseName,channel,keyFor},migration={...config,guard:()=>guard};
@@ -42,7 +42,7 @@ const allowed=new Set(['draft_key_session.mjs','encrypted_request_outbox.mjs','d
     const oldVersion=await (async()=>{try{const db=await open(databaseName,1);db.close();return 'UNEXPECTED_SUCCESS'}catch(e){return e.name}})();
     const store=encryptedRequestOutbox(config);
     let response;
-    const api={resumeSession:async()=>({id:owner,role:'student'}),quickSave:async(p,b,k)=>{calls.push([p,b,k]);if(lost)throw Error('lost');return {revision:b.base_revision+1,draft:b.draft}},reviewStep:async(p,i,b,k)=>{calls.push([p,i,b,k]);if(lost)throw Error('lost');return {id:i,revision:b.revision+1,status:'active'}},economyOperation:async(p,b,k)=>{calls.push([p,b,k]);if(lost)throw Error('lost');return {profile_id:p,operation_id:k,action:b.action,balance:100}}};
+    const api={resumeSession:async()=>({id:owner,role:'student'}),quickSave:async(p,b,k)=>{calls.push([p,b,k]);if(lost)throw Error('lost');if(switchOnReceipt)scope={...scope,ticket:scope.ticket+1};return {revision:b.base_revision+1,draft:b.draft}},reviewStep:async(p,i,b,k)=>{calls.push([p,i,b,k]);if(lost)throw Error('lost');if(switchOnReceipt)scope={...scope,ticket:scope.ticket+1};return {id:i,revision:b.revision+1,status:'active'}},economyOperation:async(p,b,k)=>{calls.push([p,b,k]);if(lost)throw Error('lost');if(switchOnReceipt)scope={...scope,ticket:scope.ticket+1};return {profile_id:p,operation_id:k,action:b.action,balance:100}}};
     const args={api,scope:()=>scope,store,online:()=>true,uuid:()=>other,makeId:()=>other};
     const queue=channel==='quick'?createQuickQueue(args):channel==='review'?createReviewQueue(args):createEconomyQueue(args);
     const replayRestored=(await queue.pending()).key===key;
@@ -51,11 +51,25 @@ const allowed=new Set(['draft_key_session.mjs','encrypted_request_outbox.mjs','d
     const rotated=(await raw(databaseName)).keyId;
     lost=false;response=await queue.submit(body);
     const identical=calls.length===2&&eq(calls[0],calls[1]),cleared=await queue.pending()===null;
+    const plainStore=economyOutbox(indexedDB,databaseName+'-plain-clear');
+    const sameTicket=()=>true;
+    await plainStore.reserve(initial,sameTicket);
+    const plainGuardFailure=await error(plainStore.clear(scopeKey,key,()=>false));
+    if(plainGuardFailure!=='SCOPE_CHANGED'||(await plainStore.read(scopeKey))?.key!==key)throw Error('PLAIN_CLEAR_SCOPE_LEAK');
+    await plainStore.clear(scopeKey,key,sameTicket);
     const one={...initial,key:other},two={...initial,key:id('e')};
     const winners=await Promise.all([store.reserve(one,()=>true),encryptedRequestOutbox(config).reserve(two,()=>true)]);
     const oneReservation=winners[0].key===winners[1].key;
     const wrongClear=await store.clear(scopeKey,winners[0].key===other?two.key:one.key);
     const retained=!!await store.read(scopeKey);
+    const beforeTicket=await raw(databaseName);
+    switchOnReceipt=true;
+    const switchedReceipt=await error(queue.submit(body));
+    switchOnReceipt=false;
+    if(switchedReceipt!==(channel==='quick'?'QUICK_SCOPE':channel==='review'?'REVIEW_SCOPE':'SCOPE_CHANGED')||!eq(beforeTicket,await raw(databaseName)))throw Error('STALE_RECEIPT_DELETE_LEAK');
+    let clearChecks=0;
+    const staleClear=await error(store.clear(scopeKey,winners[0].key,()=>++clearChecks===1));
+    if(staleClear!=='SCOPE_CHANGED'||!eq(beforeTicket,await raw(databaseName)))throw Error('STALE_CLEAR_CAS_LEAK');
     const session=createDraftKeySession({scope:()=>({...scope,channel,scope:scopeKey}),online:()=>true,fetchKey:async()=>({credential:current,offlineForMs:0}),fetchFloor:async()=>{throw Error('NO_FLOOR')}});
     const guarded=encryptedRequestOutbox({databaseName,channel,...session,guardFor:(ctx,requirements)=>{
      const g=session.guardFor(ctx,requirements);let checks=0;
@@ -76,5 +90,6 @@ const allowed=new Set(['draft_key_session.mjs','encrypted_request_outbox.mjs','d
   for(const x of result)assert.deepEqual(x,{channel:x.channel,revokedFresh:'SCOPE_CHANGED',freshAbsent:true,denied:'KEY_UNAVAILABLE',preserved:true,migrated:{already:false,count:1},again:{already:true,count:1},noPlain:true,oldVersion:'VersionError',replayRestored:true,rotated:'k2',identical:true,cleared:true,oneReservation:true,wrongClear:false,retained:true,tamper:'JOURNAL_AUTHENTICATION_FAILED',mismatch:'JOURNAL_MIGRATION_UNKNOWN'});
   console.log('PASS_V307_R13_ENCRYPTED_REQUEST_JOURNALS',JSON.stringify(result));
   console.log('PASS_V307_R13_KEY_SESSION_JOURNAL_CLEAR_CAS',result.length);
+  console.log('PASS_V307_R13_STALE_RECEIPT_AND_CLEAR_GUARD',result.length);
  }finally{await browser.close();await new Promise(r=>server.close(r))}
 })().catch(e=>{console.error(e);process.exitCode=1});

@@ -162,11 +162,13 @@ export function encryptedRequestOutbox({indexedDB:idb=globalThis.indexedDB,datab
   const result=await decrypt(committed,row.scope);
   check(result.guard);if(guard()!==true)throw Error('SCOPE_CHANGED');return result.row;
  }
- async function clear(scope,key){
+ async function clear(scope,key,guard){
   if(!valid(key))throw Error('JOURNAL_IDENTITY');
+  if(guard!==undefined&&(typeof guard!=='function'||guard()!==true))throw Error('SCOPE_CHANGED');
   const previous=await readEnvelope(scope);if(!previous||previous.key!==key)return false;
   const restored=await decrypt(previous,scope);
   return transaction('readwrite',scope,(current,store)=>{
+   if(guard!==undefined&&guard()!==true)throw Error('SCOPE_CHANGED');
    check(restored.guard);
    if(!equalEnvelope(previous,current))return false;
    store.delete(scope);return true;

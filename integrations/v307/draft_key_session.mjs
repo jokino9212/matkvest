@@ -30,7 +30,8 @@ export function createDraftKeySession({scope,fetchKey,fetchFloor,online=()=>navi
  if([scope,fetchKey,fetchFloor,online,now].some(f=>typeof f!=='function')||!Number.isSafeInteger(maxOfflineMs)||maxOfflineMs<0)throw Error('KEY_CONFIG');
  let generation=0,active=null,lastClock=-Infinity;
  const keys=new Map(),floors=new Map(),highestFloor=new Map();
- function invalidate(){generation++;active=null;keys.clear();floors.clear();highestFloor.clear()}
+ function revokeGrants(){generation++;keys.clear();floors.clear()}
+ function invalidate(){revokeGrants();active=null;highestFloor.clear()}
  function clock(){
   const n=now();
   if(!Number.isFinite(n)||n<lastClock){invalidate();throw Error('KEY_CLOCK')}
@@ -73,13 +74,13 @@ export function createDraftKeySession({scope,fetchKey,fetchFloor,online=()=>navi
   keys.delete(k);
   let grant;
   try{grant=await fetchKey(structuredClone(token.context),r);assertCurrent(token)}
-  catch(e){if(token.generation===generation)invalidate();throw e}
+  catch(e){if(token.generation===generation)revokeGrants();throw e}
   try{
    if(!online())throw Error('KEY_CONNECTION_CHANGED');
    const value=credentialOf(grant?.credential,r),expires=ttl(grant,started);
    assertCurrent(token);if(clock()<expires)keys.set(k,{value,expires});
    return value;
-  }catch(e){if(token.generation===generation)invalidate();throw e}
+  }catch(e){if(token.generation===generation)revokeGrants();throw e}
  }
  async function floorFor(expected,pack){
   const token=capture(expected);
@@ -89,7 +90,7 @@ export function createDraftKeySession({scope,fetchKey,fetchFloor,online=()=>navi
   floors.delete(pack);
   let grant;
   try{grant=await fetchFloor(structuredClone(token.context),pack);assertCurrent(token)}
-  catch(e){if(token.generation===generation)invalidate();throw e}
+  catch(e){if(token.generation===generation)revokeGrants();throw e}
   try{
    if(!online())throw Error('KEY_CONNECTION_CHANGED');
    const value=grant?.minimum;
@@ -100,7 +101,7 @@ export function createDraftKeySession({scope,fetchKey,fetchFloor,online=()=>navi
    highestFloor.set(pack,value);
    if(clock()<expires)floors.set(pack,{value,expires});
    return value;
-  }catch(e){if(token.generation===generation)invalidate();throw e}
+  }catch(e){if(token.generation===generation)revokeGrants();throw e}
  }
  // The caller must use this synchronous guard inside its storage CAS. Revocation
  // invalidates future use, not copies of CryptoKey already returned to a caller.

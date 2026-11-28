@@ -23,9 +23,10 @@ export function createEconomyQueue({api,scope,store,online=()=>navigator.onLine,
   await check(s);
   let receipt;
   try{receipt=await api.economyOperation(s.profile,r.body,r.key);}
-  catch(e){if(same(s,scope())&&knownNoWrite.has(e.code)&&[403,409].includes(e.status))await store.clear(k,r.key);throw e;}
+  catch(e){if(online()&&same(s,scope())&&knownNoWrite.has(e.code)&&[403,409].includes(e.status))await store.clear(k,r.key,()=>online()&&same(s,scope()));throw e;}
   if(receipt?.profile_id!==s.profile||receipt.operation_id!==r.key||receipt.action!==r.body.action||!Number.isSafeInteger(receipt.balance)||receipt.balance<0)throw Error('INVALID_RECEIPT');
-  await store.clear(k,r.key);
+  if(!online()||!same(s,scope()))throw Error('SCOPE_CHANGED');
+  await store.clear(k,r.key,()=>online()&&same(s,scope()));
   if(!same(s,scope()))throw Error('SCOPE_CHANGED');
   return receipt;
  }
@@ -35,5 +36,5 @@ export function economyOutbox(indexedDB=globalThis.indexedDB,databaseName='matkv
  let promise;
  function open(){if(!indexedDB)throw Error('PERSISTENCE_REQUIRED');return promise??=new Promise((resolve,reject)=>{const r=indexedDB.open(databaseName,1);r.onupgradeneeded=()=>r.result.createObjectStore('pending',{keyPath:'scope'});r.onsuccess=()=>{r.result.onversionchange=()=>{r.result.close();promise=undefined};resolve(r.result)};r.onerror=()=>reject(r.error);r.onblocked=()=>reject(Error('STORAGE_BLOCKED'));});}
  async function transact(mode,fn){const db=await open();return new Promise((resolve,reject)=>{const t=db.transaction('pending',mode),s=t.objectStore('pending');let result,error;t.oncomplete=()=>resolve(result);t.onabort=()=>reject(error||t.error||Error('STORAGE_ABORT'));t.onerror=()=>{};fn(s,v=>{result=v},e=>{error=e;t.abort()});});}
- return {read:k=>transact('readonly',(s,done)=>{const r=s.get(k);r.onsuccess=()=>done(r.result||null);}),reserve:(row,guard)=>transact('readwrite',(s,done,fail)=>{const r=s.get(row.scope);r.onsuccess=()=>{try{if(guard!==undefined&&(typeof guard!=='function'||guard()!==true))throw Error('SCOPE_CHANGED');if(r.result)done(r.result);else{s.add(row);done(row);}}catch(e){fail(e)}};}),clear:(k,key)=>transact('readwrite',(s,done)=>{const r=s.get(k);r.onsuccess=()=>{if(r.result?.key===key)s.delete(k);done(true);};})};
+ return {read:k=>transact('readonly',(s,done)=>{const r=s.get(k);r.onsuccess=()=>done(r.result||null);}),reserve:(row,guard)=>transact('readwrite',(s,done,fail)=>{const r=s.get(row.scope);r.onsuccess=()=>{try{if(guard!==undefined&&(typeof guard!=='function'||guard()!==true))throw Error('SCOPE_CHANGED');if(r.result)done(r.result);else{s.add(row);done(row);}}catch(e){fail(e)}};}),clear:(k,key,guard)=>transact('readwrite',(s,done,fail)=>{const r=s.get(k);r.onsuccess=()=>{try{if(guard!==undefined&&(typeof guard!=='function'||guard()!==true))throw Error('SCOPE_CHANGED');if(r.result?.key===key)s.delete(k);done(true);}catch(e){fail(e)}};})};
 }
