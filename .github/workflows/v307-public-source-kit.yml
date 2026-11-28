@@ -1,0 +1,44 @@
+name: v307 public frontend source kit (read only)
+on:
+  push:
+    branches: [feature/v307-accounts-migration-homework]
+    paths: ['.github/workflows/v307-public-source-kit.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source:
+    runs-on: ubuntu-latest
+    container: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 0d538d3ab7e9361bd6adbf0787d5cfa801522a64
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          ref: 6eb9b1d12cc49d6c91fe444f531192855022ff3d
+          path: v306-fixture
+          persist-credentials: false
+      - run: |
+          echo '7e6e2b8de44e1eb4888b34f012288c32e24643eafe9c350fe79e9881935cb318  v306-fixture/index.html' | sha256sum -c -
+          npm install --no-save --no-package-lock playwright@1.56.1
+          node audits/v307_backup_browser.cjs
+          python3 audits/v307_extract_column_layout.py v306-fixture/index.html integrations/v307/column_layout_generated.mjs
+          npm ci
+          npx vite build --config frontend/v307-review.vite.config.mjs
+      - name: Pack only already-public client sources, generated public art and locked npm dependencies
+        run: |
+          mkdir -p source-kit
+          git archive HEAD frontend integrations package.json package-lock.json audits | tar -x -C source-kit
+          cp integrations/v307/column_layout_generated.mjs integrations/v307/shop_art_generated.{json,css,png} source-kit/integrations/v307/
+          cp -a node_modules source-kit/
+          printf '%s\n' '0d538d3ab7e9361bd6adbf0787d5cfa801522a64' > source-kit/PUBLIC_SOURCE_HEAD.txt
+          tar -czf public-client-source-kit.tar.gz -C source-kit .
+          sha256sum public-client-source-kit.tar.gz
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v307-public-client-source-kit
+          path: public-client-source-kit.tar.gz
+          if-no-files-found: error
+          retention-days: 7
