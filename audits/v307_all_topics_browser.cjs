@@ -53,6 +53,19 @@ function prepareCandidate(q){
  return q.mode==='number'?{...q,unit_suffix:q.expected.unitSuffix,allow_percent:q.expected.allowPercent}:q;
 }
 async function auditRemaining(){
+ const {sealDraft,openDraft}=await import('../integrations/v307/draft_cipher.mjs');
+ const {validateQuestion,applyTableAction,SCHOOL_TOPICS}=await import('../integrations/backend95-next/school_block_queue.mjs');
+ const credential={keyId:'synthetic-curriculum-audit',key:await crypto.subtle.generateKey({name:'AES-GCM',length:256},false,['encrypt','decrypt'])};
+ const context={owner:U,profile:P,role:'student',kind:'practice'};
+ let encryptedBlocks=0,encryptedTopics=0;
+ const identity=(row,pack)=>({...row,key:JSON.stringify([U,P,pack]),owner:U,profile:P,context,pack});
+ async function roundtrip(row){
+  const encrypted=await sealDraft(row,credential);
+  for(const field of ['draft','questions','body','receipt','start'])assert.equal(Object.hasOwn(encrypted,field),false);
+  const reopened=await openDraft(encrypted,credential,context,row.revision,row.pack);
+  assert.deepEqual(reopened,row);return reopened;
+ }
+ assert.deepEqual([...all].sort(),Object.keys(SCHOOL_TOPICS).sort());
  const {V307_CURRICULUM_TOPICS,validateCurriculum,curriculumFeedback,applyCurriculumAction}=await import('../integrations/v307/curriculum.mjs');
  assert.deepEqual(Object.keys(remaining).sort(),Object.keys(V307_CURRICULUM_TOPICS).sort());
  assert.equal(Object.keys(remaining).filter(k=>k.startsWith('g4:')).length,62);
@@ -97,6 +110,7 @@ async function auditRemaining(){
    const questions=selected.map(prepareCandidate),count=questions.length;
    assert.equal(new Set(questions.map(q=>JSON.stringify(q.prompt))).size,count);
    let row={topic,stage,index:0,count,revision:0,status:'draft',questions,draft:questions.map(()=>({cells:{},checks:[],solved:false,skipped:false})),start:{started_at:'2027-01-01T00:00:00Z'}};
+   row=identity(row,crypto.randomUUID());row=await roundtrip(row);
    for(const q of questions){
     row=applyCurriculumAction(row,row.revision,'check',curriculumRaw(q));
     assert(row.draft[row.index].solved,topic);
@@ -107,6 +121,7 @@ async function auditRemaining(){
     assert.equal(item.format,'curriculum-v307');assert.equal(item.skipped,false);
     assert.deepEqual(item.checks,[curriculumRaw(questions[i])]);
    }
+   row=await roundtrip(row);encryptedBlocks++;
    blocks++;
   }
   perTopicModes.push([topic,[...topicModes].sort()]);
@@ -115,6 +130,24 @@ async function auditRemaining(){
  assert.equal(fingerprint(perTopicModes),'a197448a71cfbe8fe56b288f144b3984a8076f71c47a377f59f119fb6190e67c');
  assert.equal(blocks,270);assert.deepEqual([...modes].sort(),['choice','number','remainder','time']);
  console.log('PASS_V307_ALL_REMAINING_CANDIDATES_AND_270_DISTINCT_BLOCKS',JSON.stringify({candidates,blocks,modes:[...modes]}));
+ for(const topic of all){
+  const pack=packFor(topic),questions=pack.questions.map((q,i)=>validateQuestion(topic,q,pack.column_keys?.[i]));
+  let row=identity({topic,stage:pack.stage,index:0,count:questions.length,revision:0,status:'draft',questions,draft:questions.map(()=>({answer:'',cells:{},checks:[],solved:false,skipped:false})),start:{started_at:'2027-01-01T00:00:00Z'}},pack.id);
+  row=await roundtrip(row);
+  const q=questions[0],value=q.mode?curriculumRaw(q):columnFixtures[topic]?.keys[0]??(q.form?fractionKeys(q):String(q.answer??q.a*q.b));
+  row=applyTableAction(row,row.revision,'check',value);
+  assert(row.draft[0].solved,topic);
+  row=await roundtrip(row);
+  row=applyTableAction(row,row.revision,'advance',value);
+  while(row.status==='draft'){
+   const next=questions[row.index],empty=next.mode||next.form||columnFixtures[topic]?{}:'';
+   row=applyTableAction(row,row.revision,'skip',empty);
+  }
+  assert.equal(row.status,'pending');assert.equal(row.body.items.length,questions.length);
+  await roundtrip(row);encryptedTopics++;
+ }
+ assert.equal(encryptedTopics,147);assert.equal(encryptedBlocks,270);
+ console.log('PASS_V307_R13_ENCRYPTED_ALL_TOPICS_AND_BLOCKS',JSON.stringify({topics:encryptedTopics,blocks:encryptedBlocks}));
 }
 (async()=>{
  await auditRemaining();
