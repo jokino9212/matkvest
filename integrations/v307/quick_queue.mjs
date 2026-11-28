@@ -1,6 +1,6 @@
 // One immutable request per authenticated student/profile. Server draft is authoritative.
 // No local rewards; the same request survives lost responses and tab reload.
-import {economyOutbox} from './economy_queue.mjs';
+import {economyOutbox,validatePendingRecord} from './economy_queue.mjs';
 const valid=x=>typeof x==='string'&&/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(x);
 const same=(a,b)=>a?.ticket===b?.ticket&&a?.owner===b?.owner&&a?.profile===b?.profile&&a?.role===b?.role;
 export const QUICK_MODES=Object.freeze({'quick:multiplication':Object.freeze(['all']),'quick:addition':Object.freeze(['to10','to20','all']),'quick:squares':Object.freeze(['1-10','11-20','all']),'quick:cubes':Object.freeze(['1-5','6-10','all'])});
@@ -29,11 +29,12 @@ export function createQuickQueue({api,scope,store=quickOutbox(),online=()=>navig
  const get=()=>{const s=scope();if(s?.role!=='student'||!valid(s.owner)||!valid(s.profile))throw Error('QUICK_SCOPE');return s};
  const key=s=>s.owner+':'+s.profile;
  async function auth(s){if(!online()||!same(s,scope()))throw Error('QUICK_SCOPE');const actor=await api.resumeSession();if(!online()||!same(s,scope())||actor?.id!==s.owner||actor.role!=='student')throw Error('QUICK_SCOPE');}
- async function pending(){const s=get();const row=await store.read(key(s));if(!same(s,scope()))throw Error('QUICK_SCOPE');return row;}
+ async function pending(){const s=get();await auth(s);const row=await store.read(key(s));if(!same(s,scope())||!online())throw Error('QUICK_SCOPE');if(row===null)return null;validatePendingRecord(row,s.owner,s.profile);checkBody(row.body);return row;}
  async function submit(body){
-  checkBody(body);const s=get();await auth(s);const k=key(s);
-  const row=await store.reserve({scope:k,owner:s.owner,profile:s.profile,key:uuid(),body:structuredClone(body)});
-  if(row.owner!==s.owner||row.profile!==s.profile||!valid(row.key)||!equal(row.body,body))throw Error('PENDING_OTHER_OPERATION');
+  body=structuredClone(body);checkBody(body);const s=get();await auth(s);const k=key(s);
+  const row=await store.reserve({scope:k,owner:s.owner,profile:s.profile,key:uuid(),body:structuredClone(body)},()=>online()&&same(s,scope()));
+  validatePendingRecord(row,s.owner,s.profile);
+  if(!same(s,scope())||!equal(row.body,body))throw Error('PENDING_OTHER_OPERATION');
   await auth(s);let receipt;
   try{
    if(body.kind==='start')receipt=await api.quickStart(s.profile,body.count,row.key,...(body.config?[body.config]:[]));
