@@ -27,3 +27,15 @@ test('saved draft denied before any storage read for missing network, actor, pro
  x.readable(true);assert.equal((await q.prepare('g4:table',0,device)).pack,packId);
  const t=setup('lesson');await t.queue.prepare('g4:table',0,device);reads=t.reads();t.permission(false);await assert.rejects(t.queue.prepare('g4:table',0,device),/SCOPE_CHANGED/);assert.equal(t.reads(),reads);
 });
+
+test('forged storage key cannot mutate another profile before scope rejection',async()=>{
+ const x=setup(),q=x.queue,r=await q.prepare('g4:table',0,device);
+ const foreignKey=JSON.stringify([owner,lesson,packId]);
+ const foreign={...structuredClone(r),key:foreignKey,profile:lesson,context:{...r.context,profile:lesson}};
+ await x.db.insert(foreign);
+ await assert.rejects(q.act({...r,key:foreignKey},'input','123'),/SCOPE_CHANGED/);
+ assert.deepEqual((await x.db.list(owner,lesson))[0],foreign);
+ await assert.rejects(q.act({...r,pack:lesson},'input','123'),/SCOPE_CHANGED/);
+ assert.deepEqual((await x.db.list(owner,profile))[0],r);
+ assert.equal((await q.act(r,'input','6')).draft[0].answer,'6');
+});
